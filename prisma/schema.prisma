@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Restaurant {
+  id           Int            @id @default(autoincrement())
+  name         String
+  slug         String         @unique
+  description  String         @default("")
+  logo         String         @default("")
+  phone        String         @default("")
+  whatsapp     String         @default("")
+  email        String         @default("")
+  address      String         @default("")
+  workingHours String         @default("")
+  themeColor   String         @default("amber")
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  categories   MenuCategory[]
+  orders       Order[]
+  settings     Setting[]
+}
+
+model MenuCategory {
+  id           Int        @id @default(autoincrement())
+  name         String
+  nameAr       String?
+  icon         String     @default("")
+  sortOrder    Int        @default(0)
+  isActive     Boolean    @default(true)
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items        MenuItem[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([restaurantId])
+}
+
+model MenuItem {
+  id              Int         @id @default(autoincrement())
+  name            String
+  nameAr          String?
+  description     String      @default("")
+  descriptionAr   String      @default("")
+  price           Float
+  discountedPrice Float?
+  image           String      @default("")
+  status          String      @default("available")
+  sortOrder       Int         @default(0)
+  categoryId      Int
+  category        MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderNo       String      @unique
+  customerName  String      @default("")
+  customerPhone String      @default("")
+  notes         String      @default("")
+  pickupType    String      @default("inside")
+  status        String      @default("new")
+  subtotal      Float
+  discount      Float       @default(0)
+  total         Float
+  whatsappSent  Boolean     @default(false)
+  restaurantId  Int
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id])
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([restaurantId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id       Int      @id @default(autoincrement())
+  quantity Int      @default(1)
+  notes    String   @default("")
+  price    Float
+  orderId  Int
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemId   Int
+  item     MenuItem @relation(fields: [itemId], references: [id])
+
+  @@index([orderId])
+  @@index([itemId])
+}
+
+model Setting {
+  id           Int        @id @default(autoincrement())
+  key          String
+  value        String     @default("")
+  restaurantId Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([restaurantId, key])
+  @@index([restaurantId])
+}
+
+model WhatsappTemplate {
+  id           Int      @id @default(autoincrement())
+  name         String
+  template     String   @default("")
+  isActive     Boolean  @default(true)
+  restaurantId Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
