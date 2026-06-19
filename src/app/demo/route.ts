@@ -6,7 +6,7 @@ export async function GET() {
   const user = await prisma.user.findUnique({ where: { username: "waha" } });
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login", "https://smart-menu.onrender.com"));
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000"));
   }
 
   const redirectUrl = new URL("/owner", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000");
