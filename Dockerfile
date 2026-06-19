@@ -33,6 +33,15 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src/generated ./src/generated
 # Copy Prisma engine (needed at runtime)
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/pg* ./node_modules/
+# pg deps
+COPY --from=builder /app/node_modules/packet-reader ./node_modules/packet-reader
+COPY --from=builder /app/node_modules/postgres-array ./node_modules/postgres-array
+COPY --from=builder /app/node_modules/postgres-bytea ./node_modules/postgres-bytea
+COPY --from=builder /app/node_modules/postgres-date ./node_modules/postgres-date
+COPY --from=builder /app/node_modules/postgres-interval ./node_modules/postgres-interval
+COPY --from=builder /app/node_modules/postgres-range ./node_modules/postgres-range
+COPY --from=builder /app/node_modules/xtend ./node_modules/xtend
 
 USER nextjs
 EXPOSE 3000
