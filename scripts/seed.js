@@ -1,4 +1,5 @@
-const { PrismaClient } = require('../src/generated/prisma/client');
+const path = require('path');
+const { PrismaClient } = require(path.join(process.cwd(), 'src/generated/prisma/client'));
 const { PrismaPg } = require('@prisma/adapter-pg');
 
 const prisma = new PrismaClient({
