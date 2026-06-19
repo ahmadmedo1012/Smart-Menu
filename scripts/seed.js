@@ -1,5 +1,20 @@
 const path = require('path');
-const { PrismaClient } = require(path.join(process.cwd(), 'src/generated/prisma/client'));
+
+// Try multiple possible paths for the generated Prisma client
+function loadPrisma() {
+  const candidates = [
+    path.join(process.cwd(), 'src', 'generated', 'prisma', 'client'),
+    path.join(process.cwd(), 'generated', 'prisma', 'client'),
+    path.join(__dirname, '..', 'src', 'generated', 'prisma', 'client'),
+    path.join(__dirname, '..', '..', 'src', 'generated', 'prisma', 'client'),
+  ];
+  for (const c of candidates) {
+    try { return require(c); } catch {}
+  }
+  throw new Error("Cannot find PrismaClient. Tried:\n" + candidates.join('\n'));
+}
+
+const { PrismaClient } = loadPrisma();
 const { PrismaPg } = require('@prisma/adapter-pg');
 
 const prisma = new PrismaClient({
