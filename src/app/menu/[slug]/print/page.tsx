@@ -62,7 +62,7 @@ export default async function PrintMenuPage({
       </head>
       <body>
         <div className="actions">
-          <a href={`/menu/${slug}`}>← العودة للمنوي الرقمي</a>
+          <a href={`/menu/${slug}`}>← العودة للمنيو الرقمي</a>
         </div>
 
         <h1>{restaurant.name}</h1>

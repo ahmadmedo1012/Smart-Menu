@@ -25,18 +25,12 @@ async function main() {
 
   // Subscription Plans
   const freePlan = await prisma.subscriptionPlan.create({
-    data: { name: "Free", nameAr: "مجاني", price: 0, periodDays: 0, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 1, features: JSON.stringify(["منيو رقمي واحد", "10 أصناف كحد أقصى", "طلبات واتساب", "إحصائيات أساسية"]) },
+    data: { name: "Free", nameAr: "مجاني", price: 0, periodDays: 30, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 0, features: JSON.stringify(["منيو رقمي واحد", "10 أصناف كحد أقصى", "طلبات واتساب", "إحصائيات أساسية"]) },
   });
-  const basicPlan = await prisma.subscriptionPlan.create({
-    data: { name: "Basic", nameAr: "أساسي", price: 49, periodDays: 30, maxMenus: 1, maxItems: 50, maxOrders: 500, sortOrder: 2, features: JSON.stringify(["منيو رقمي", "50 صنف كحد أقصى", "طلبات واتساب", "برنامج ولاء", "تقرير شهري", "دعم فني"]) },
+  const premiumPlan = await prisma.subscriptionPlan.create({
+    data: { name: "Premium", nameAr: "بريميوم", price: 19, periodDays: 30, maxMenus: 3, maxItems: 9999, maxOrders: 99999, sortOrder: 1, features: JSON.stringify(["منيو رقمي", "أصناف غير محدودة", "طلبات غير محدودة", "برنامج ولاء", "إحصائيات متقدمة", "QR كود مخصص", "شعار المطعم", "تخصيص الألوان", "دعم فني فوري", "بدون إعلانات"]) },
   });
-  const proPlan = await prisma.subscriptionPlan.create({
-    data: { name: "Pro", nameAr: "احترافي", price: 129, periodDays: 30, maxMenus: 3, maxItems: 200, maxOrders: 2000, sortOrder: 3, features: JSON.stringify(["حتى 3 منيوهات", "200 صنف كحد أقصى", "طلبات واتساب", "برنامج ولاء متقدم", "إحصائيات متقدمة", "QR كود مخصص", "دعم فني فوري", "تخصيص الألوان والشعار"]) },
-  });
-  const enterprisePlan = await prisma.subscriptionPlan.create({
-    data: { name: "Enterprise", nameAr: "شركات", price: 299, periodDays: 30, maxMenus: 10, maxItems: 9999, maxOrders: 99999, sortOrder: 4, features: JSON.stringify(["منيوهات غير محدودة", "أصناف غير محدودة", "طلبات غير محدودة", "برنامج ولاء كامل", "لوحة تحكم متقدمة", "API مخصص", "دعم فني على مدار الساعة", "استضافة مفضلة", "تطبيق ويب مخصص"]) },
-  });
-  console.log("  Subscription plans created: 4");
+  console.log("  Subscription plans created: 2");
 
   // Admin
   await prisma.user.create({

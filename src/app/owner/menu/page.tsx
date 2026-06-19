@@ -113,9 +113,11 @@ export default function OwnerMenuPage() {
   const [usageKey, setUsageKey] = useState(0)
 
   useEffect(() => {
-    const match = document.cookie.match(/smart-menu-restaurant=(\d+)/)
-    if (match) setRestaurantId(Number(match[1]))
-  }, [])
+    fetch("/api/auth/me")
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(d => { if (d.restaurantId) setRestaurantId(d.restaurantId) })
+      .catch(() => router.push("/login"))
+  }, [router])
 
   const fetchCats = useCallback(async () => {
     if (!restaurantId) return

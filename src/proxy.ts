@@ -19,14 +19,31 @@ const publicPrefixes = [
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // No-cache headers for customer-facing pages so changes appear instantly
+  const response = NextResponse.next();
+  if (
+    pathname.startsWith("/menu/") ||
+    pathname === "/menu" ||
+    pathname === "/cart" ||
+    pathname === "/order-confirmed" ||
+    pathname.startsWith("/api/")
+  ) {
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+  }
+
   // Public paths — no auth needed
   if (publicPrefixes.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+    return response;
   }
 
   // Other API routes — allow through
   if (pathname.startsWith("/api")) {
-    return NextResponse.next();
+    return response;
   }
 
   // Root page — allow through
