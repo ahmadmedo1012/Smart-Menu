@@ -1,20 +1,42 @@
 const path = require('path');
+const fs = require('fs');
 
-// Try multiple possible paths for the generated Prisma client
-function loadPrisma() {
-  const candidates = [
-    path.join(process.cwd(), 'src', 'generated', 'prisma', 'client'),
-    path.join(process.cwd(), 'generated', 'prisma', 'client'),
-    path.join(__dirname, '..', 'src', 'generated', 'prisma', 'client'),
-    path.join(__dirname, '..', '..', 'src', 'generated', 'prisma', 'client'),
+// Find PrismaClient by searching the filesystem
+function findPrismaClient() {
+  const searchDirs = [
+    process.cwd(),
+    path.join(process.cwd(), 'src'),
+    path.join(process.cwd(), '.next', 'standalone'),
+    path.join(process.cwd(), '.next', 'standalone', 'src'),
+    __dirname,
+    path.join(__dirname, '..'),
+    path.join(__dirname, '..', '..'),
+    '/opt/render/project/src',
+    '/opt/render/project/src/src',
   ];
-  for (const c of candidates) {
-    try { return require(c); } catch {}
+  
+  for (const base of searchDirs) {
+    // The generated client is at {base}/src/generated/prisma/client or {base}/generated/prisma/client
+    for (const subdir of ['', 'src']) {
+      for (const depth of ['generated/prisma/client', 'generated/prisma/index.js', 'generated/prisma/index.mjs']) {
+        const fp = path.join(base, subdir, depth);
+        if (fs.existsSync(fp)) {
+          try { return require(fp); } catch {}
+        }
+      }
+    }
   }
-  throw new Error("Cannot find PrismaClient. Tried:\n" + candidates.join('\n'));
+  
+  // Last resort: print debug info
+  console.error("Search dirs:", searchDirs);
+  console.error("cwd:", process.cwd());
+  console.error("__dirname:", __dirname);
+  fs.readdirSync(process.cwd()).forEach(f => console.error("  root:", f));
+  try { fs.readdirSync(path.join(process.cwd(), 'src')).forEach(f => console.error("  src:", f)); } catch {}
+  throw new Error("Cannot find PrismaClient module");
 }
 
-const { PrismaClient } = loadPrisma();
+const { PrismaClient } = findPrismaClient();
 const { PrismaPg } = require('@prisma/adapter-pg');
 
 const prisma = new PrismaClient({
@@ -32,10 +54,12 @@ async function main() {
     { name: "Enterprise", nameAr: "شركات", price: 299, maxMenus: 10, maxItems: 9999, maxOrders: 99999, sortOrder: 4, features: JSON.stringify(["منيوهات غير محدودة", "أصناف غير محدودة", "طلبات غير محدودة", "ولاء كامل", "API مخصص", "دعم 24/7"]) },
   ]});
   
-  await prisma.user.create({ data: { username: "admin", password: "admin123", name: "مدير النظام", role: "admin" } });
+  await prisma.user.createMany({ data: [
+    { username: "admin", password: "admin123", name: "مدير النظام", role: "admin" },
+  ]});
   
-  const plan = await prisma.subscriptionPlan.findFirst({ where: { name: "Free" } });
-  const r1 = await prisma.restaurant.create({ data: { name: "مقهى الواحة", slug: "al-waha-cafe", description: "قهوة ومشروبات وحلويات", phone: "+218911111111", whatsapp: "218911111111", workingHours: "8:00 صباحاً - 12:00 منتصف الليل", planId: plan?.id || null } });
+  const freePlan = await prisma.subscriptionPlan.findFirst({ where: { name: "Free" } });
+  const r1 = await prisma.restaurant.create({ data: { name: "مقهى الواحة", slug: "al-waha-cafe", description: "قهوة ومشروبات وحلويات", phone: "+218911111111", whatsapp: "218911111111", workingHours: "8:00 صباحاً - 12:00 منتصف الليل", planId: freePlan?.id || null } });
   await prisma.user.create({ data: { username: "waha", password: "waha123", name: "مالك مقهى الواحة", role: "owner", restaurantId: r1.id } });
   
   const cat = await prisma.menuCategory.create({ data: { name: "مشروبات ساخنة", icon: "☕", sortOrder: 1, restaurantId: r1.id } });
