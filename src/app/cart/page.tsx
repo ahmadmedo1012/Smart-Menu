@@ -32,6 +32,7 @@ const PICKUP_OPTIONS = [
 export default function CartPage() {
   const router = useRouter();
   const {
+    restaurantId,
     items,
     customerName,
     customerPhone,
@@ -68,6 +69,7 @@ export default function CartPage() {
           pickupType,
           subtotal: cartSubtotal,
           total: cartSubtotal,
+          restaurantId: restaurantId || undefined,
         }),
       });
       const order = await res.json();

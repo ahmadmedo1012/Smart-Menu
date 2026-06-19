@@ -141,6 +141,7 @@ export default async function PublicMenuPage({
           items={items}
           restaurantWhatsapp={restaurant.whatsapp}
           restaurantName={restaurant.name}
+          restaurantId={restaurant.id}
         />
       </div>
 

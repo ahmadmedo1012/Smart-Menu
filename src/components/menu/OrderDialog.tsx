@@ -19,7 +19,7 @@ type OrderDialogProps = {
   onOpenChange: (open: boolean) => void;
   restaurantWhatsapp?: string;
   restaurantName?: string;
-  restaurantId?: number;
+  restaurantId: number;
   restaurantLogo?: string;
 };
 
@@ -108,7 +108,7 @@ export default function OrderDialog({
           pickupType: "delivery",
           subtotal: totalPrice,
           total: totalPrice,
-          restaurantId: restaurantId || 1,
+          restaurantId,
         }),
       });
     } catch {}

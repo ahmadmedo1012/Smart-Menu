@@ -18,6 +18,7 @@ interface CartStore {
   customerPhone: string;
   notes: string;
   pickupType: "inside" | "takeaway" | "delivery";
+  restaurantId: number;
   addItem: (item: Omit<CartItem, "id" | "quantity" | "notes">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, qty: number) => void;
@@ -26,6 +27,7 @@ interface CartStore {
   setCustomerPhone: (p: string) => void;
   setOrderNotes: (n: string) => void;
   setPickupType: (t: "inside" | "takeaway" | "delivery") => void;
+  setRestaurantId: (id: number) => void;
   clearCart: () => void;
   totalItems: () => number;
   subtotal: () => number;
@@ -39,6 +41,7 @@ export const useCart = create<CartStore>()(
       customerPhone: "",
       notes: "",
       pickupType: "inside",
+      restaurantId: 0,
 
       addItem: (item) =>
         set((s) => {
@@ -77,6 +80,7 @@ export const useCart = create<CartStore>()(
       setCustomerPhone: (p) => set({ customerPhone: p }),
       setOrderNotes: (n) => set({ notes: n }),
       setPickupType: (t) => set({ pickupType: t }),
+      setRestaurantId: (id) => set({ restaurantId: id }),
 
       clearCart: () =>
         set({
@@ -85,6 +89,7 @@ export const useCart = create<CartStore>()(
           customerPhone: "",
           notes: "",
           pickupType: "inside",
+          restaurantId: 0,
         }),
 
       totalItems: () => get().items.reduce((a, i) => a + i.quantity, 0),

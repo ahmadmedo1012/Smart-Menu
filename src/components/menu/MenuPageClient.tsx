@@ -37,7 +37,7 @@ export default function MenuPageClient({
   items: (MenuItemProp & { category: CategoryProp })[];
   restaurantWhatsapp?: string;
   restaurantName?: string;
-  restaurantId?: number;
+  restaurantId: number;
   restaurantLogo?: string;
 }) {
   const [search, setSearch] = useState("");
@@ -72,6 +72,10 @@ export default function MenuPageClient({
   const handleScroll = useCallback(() => {
     setShowFloatingWa(window.scrollY > 300);
   }, []);
+
+  useEffect(() => {
+    if (restaurantId) cart.setRestaurantId(restaurantId);
+  }, [restaurantId, cart]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });

@@ -1,9 +1,7 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, handleError, paginated } from "@/lib/api-helpers";
-
-const DEFAULT_RESTAURANT_ID = 1;
 
 const orderItemSchema = z.object({
   itemId: z.number().int().positive(),
@@ -20,7 +18,7 @@ const createSchema = z.object({
   subtotal: z.number().positive(),
   discount: z.number().min(0).optional(),
   total: z.number().positive(),
-  restaurantId: z.number().int().optional(),
+  restaurantId: z.number().int().positive(),
   items: z.array(orderItemSchema).min(1),
 });
 
@@ -30,10 +28,10 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
     const status = searchParams.get("status") || undefined;
-    const restaurantId = Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT_ID;
+    const restaurantId = Number(searchParams.get("restaurantId")) || undefined;
 
     const where: Record<string, unknown> = {};
-    if (restaurantId !== DEFAULT_RESTAURANT_ID) where.restaurantId = restaurantId;
+    if (restaurantId) where.restaurantId = restaurantId;
     if (status) where.status = status;
     const dateFrom = searchParams.get("dateFrom");
     const dateTo = searchParams.get("dateTo");
@@ -75,6 +73,17 @@ export async function POST(request: NextRequest) {
     const body = createSchema.parse(await request.json());
     const orderNo = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 
+    // Verify restaurant exists
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: body.restaurantId },
+    });
+    if (!restaurant) {
+      return NextResponse.json(
+        { success: false, error: "المطعم غير موجود" },
+        { status: 404 }
+      );
+    }
+
     const data = await prisma.order.create({
       data: {
         orderNo,
@@ -85,7 +94,7 @@ export async function POST(request: NextRequest) {
         subtotal: body.subtotal,
         discount: body.discount ?? 0,
         total: body.total,
-        restaurantId: body.restaurantId ?? DEFAULT_RESTAURANT_ID,
+        restaurantId: body.restaurantId,
         items: {
           create: body.items.map((i) => ({
             itemId: i.itemId,
