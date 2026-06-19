@@ -79,9 +79,10 @@ export default function CartPage() {
       const order = await res.json();
       if (!res.ok) throw new Error(order.error ?? "فشل إنشاء الطلب");
 
+      toast.success("تم إنشاء الطلب بنجاح! ✓");
       setConfirmed(true);
       setTimeout(() => {
-        router.push(`/order-confirmed?orderNo=${order.orderNo}`);
+        router.push(`/order-confirmed?orderNo=${order.data?.orderNo ?? ""}`);
       }, 800);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "حدث خطأ أثناء إنشاء الطلب");

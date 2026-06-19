@@ -11,7 +11,8 @@ import Confetti from "@/components/shared/Confetti";
 
 function OrderContent() {
   const searchParams = useSearchParams();
-  const orderNo = searchParams.get("orderNo");
+  const orderNo = searchParams.get("orderNo") ?? "";
+  const displayOrderNo = orderNo && orderNo !== "undefined" && orderNo !== "null" ? orderNo : null;
   const clearCart = useCart((s) => s.clearCart);
   const [cleared, setCleared] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -36,7 +37,7 @@ function OrderContent() {
 
   const handleWhatsApp = () => {
     const text = encodeURIComponent(
-      `طلب رقم: ${orderNo ?? "---"}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`
+      `طلب رقم: ${displayOrderNo ?? "---"}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
@@ -54,7 +55,7 @@ function OrderContent() {
           <h1 className="text-2xl font-bold mb-2">تم تأكيد الطلب!</h1>
           <p className="text-muted-foreground mb-1">رقم الطلب</p>
           <p className="text-3xl font-bold text-primary tabular-nums">
-            {orderNo ?? "---"}
+            {displayOrderNo ?? "---"}
           </p>
         </div>
 
@@ -77,7 +78,7 @@ function OrderContent() {
       </div>
 
       <ShareAfterOrder
-        orderNo={orderNo ?? "---"}
+        orderNo={displayOrderNo ?? "---"}
         open={showShare}
         onOpenChange={setShowShare}
       />

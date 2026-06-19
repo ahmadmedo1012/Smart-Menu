@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { toArabicNumber } from "@/lib/format";
 import {
   Phone,
   ChevronDown,
@@ -300,7 +301,7 @@ export default function LoyaltyWidget({
                     {tier.labelAr}
                   </span>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {loyaltyData.card.points} نقطة ولاء
+                    {toArabicNumber(loyaltyData.card.points)} نقطة ولاء
                   </p>
                 </div>
 
@@ -309,7 +310,7 @@ export default function LoyaltyWidget({
                   <div className="flex items-center justify-between mb-2 text-xs">
                     <span className="text-muted-foreground flex items-center gap-1">
                       <Target className="size-3 text-amber-500" />
-                      {loyaltyData.card.points} نقطة
+                      {toArabicNumber(loyaltyData.card.points)} نقطة
                     </span>
                     {tier.nextTier ? (
                       <span className="text-muted-foreground">
@@ -317,7 +318,7 @@ export default function LoyaltyWidget({
                         <span className={`font-medium ${TIER_CONFIG[tier.nextTier]?.color}`}>
                           {TIER_CONFIG[tier.nextTier]?.labelAr}
                         </span>{" "}
-                        ({tier.nextPoints} نقطة)
+                        ({toArabicNumber(tier.nextPoints)} نقطة)
                       </span>
                     ) : (
                       <span className="text-amber-500 font-medium flex items-center gap-1">
@@ -329,7 +330,7 @@ export default function LoyaltyWidget({
                   <div className="h-3 rounded-full bg-muted overflow-hidden">
                     <div
                       className={`h-full rounded-full bg-gradient-to-r ${tier.gradient} transition-all duration-700 ease-out`}
-                      style={{ width: `${progressPercent}%` }}
+                      style={{ width: `${toArabicNumber(progressPercent)}%` }}
                     />
                   </div>
                 </div>
@@ -340,7 +341,7 @@ export default function LoyaltyWidget({
                     <div className="flex items-center justify-center gap-1.5 mb-1">
                       <ShoppingBag className="size-4 text-amber-500" />
                     </div>
-                    <p className="text-xl font-bold">{loyaltyData.card.totalOrders}</p>
+                    <p className="text-xl font-bold">{toArabicNumber(loyaltyData.card.totalOrders)}</p>
                     <p className="text-xs text-muted-foreground">عدد الطلبات</p>
                   </div>
                   <div className="rounded-xl bg-muted/50 p-4 text-center">
@@ -348,7 +349,7 @@ export default function LoyaltyWidget({
                       <TrendingUp className="size-4 text-amber-500" />
                     </div>
                     <p className="text-xl font-bold">
-                      {loyaltyData.card.totalSpent.toFixed(1)}
+                      {toArabicNumber(loyaltyData.card.totalSpent.toFixed(1))}
                     </p>
                     <p className="text-xs text-muted-foreground">إجمالي الإنفاق</p>
                   </div>

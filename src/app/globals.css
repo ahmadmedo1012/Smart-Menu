@@ -802,6 +802,26 @@
   background: radial-gradient(ellipse, oklch(0.80 0.10 70 / 0.12), transparent);
 }
 
+
+/* Mobile: reduce mesh gradient intensity for performance */
+@media (max-width: 768px) {
+  .hero-mesh .blob {
+    filter: blur(40px);
+    opacity: 0.25;
+  }
+  .hero-mesh .blob:nth-child(1) {
+    width: 300px;
+    height: 300px;
+  }
+  .hero-mesh .blob:nth-child(2) {
+    width: 250px;
+    height: 250px;
+  }
+  .hero-mesh .blob:nth-child(3) {
+    width: 200px;
+    height: 200px;
+  }
+}
 /* === Subtle Backdrop Pattern === */
 .bg-subtle-pattern {
   background-image: 
