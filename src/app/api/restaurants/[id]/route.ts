@@ -30,6 +30,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { id } = await params;
     const body = await request.json();
     const data = await prisma.restaurant.update({
@@ -61,6 +63,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { id } = await params;
     await prisma.restaurant.delete({ where: { id: Number(id) } });
     return success({ deleted: true });

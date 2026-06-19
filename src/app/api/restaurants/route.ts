@@ -37,6 +37,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const body = createSchema.parse(await request.json());
 
     const data = await prisma.restaurant.create({
@@ -55,10 +57,11 @@ export async function POST(request: NextRequest) {
 
     // Create owner user if username/password provided
     if (body.username && body.password) {
+      const { hashPassword } = await import("@/lib/hash");
       await prisma.user.create({
         data: {
           username: body.username,
-          password: body.password,
+          password: hashPassword(body.password),
           name: body.name,
           role: "owner",
           restaurantId: data.id,

@@ -210,7 +210,7 @@ function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
               <Star className="size-4 text-amber-500" />
               الخطط والأسعار
             </Link>
-            <Link href={`/${PARTNERS[0].slug}`} onClick={onClose} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium">
+            <Link href={`/menu/${PARTNERS[0].slug}`} onClick={onClose} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium">
               <Store className="size-4 text-amber-500" />
               منيو تجريبي
             </Link>
@@ -248,7 +248,7 @@ export default function Home() {
               <Link href="/pricing" className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
                 الخطط والأسعار
               </Link>
-              <Link href={`/${PARTNERS[0].slug}`} className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
+              <Link href={`/menu/${PARTNERS[0].slug}`} className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
                 منيو تجريبي
               </Link>
             </div>
@@ -310,7 +310,7 @@ export default function Home() {
                     <ArrowLeft className="ms-2 size-5" />
                   </Button>
                 </Link>
-                <Link href={`/${PARTNERS[0].slug}`}>
+                <Link href={`/menu/${PARTNERS[0].slug}`}>
                   <Button variant="outline" size="lg" className="text-lg px-8 h-13 border-2">
                     عرض منيو تجريبي
                   </Button>
@@ -367,7 +367,7 @@ export default function Home() {
               {PARTNERS.map((p, i) => (
                 <Link
                   key={i}
-                  href={`/${p.slug}`}
+                  href={`/menu/${p.slug}`}
                   className="group relative overflow-hidden rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-amber-200/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-right"
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -592,7 +592,7 @@ export default function Home() {
             {PARTNERS.map((p, i) => (
               <Reveal key={i} delay={i * 0.15}>
                 <Link
-                  href={`/${p.slug}`}
+                  href={`/menu/${p.slug}`}
                   className="block glass-card rounded-2xl p-8 text-center group relative overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 shine-sweep"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -665,7 +665,7 @@ export default function Home() {
               <h4 className="font-bold text-sm mb-3">روابط سريعة</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <Link href="/pricing" className="block hover:text-foreground transition-colors">الخطط</Link>
-                <Link href={`/${PARTNERS[0].slug}`} className="block hover:text-foreground transition-colors">منيو تجريبي</Link>
+                <Link href={`/menu/${PARTNERS[0].slug}`} className="block hover:text-foreground transition-colors">منيو تجريبي</Link>
                 <Link href="/login" className="block hover:text-foreground transition-colors">تسجيل الدخول</Link>
               </div>
             </div>

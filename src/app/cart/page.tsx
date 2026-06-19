@@ -96,7 +96,7 @@ export default function CartPage() {
         </div>
         <h2 className="text-2xl font-bold">السلة فارغة</h2>
         <p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
-        <Link href="/menu">
+        <Link href="/">
           <Button size="lg" className="rounded-xl px-8">
             <ArrowLeft className="ml-2 size-4" />
             العودة إلى القائمة

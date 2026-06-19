@@ -3,24 +3,23 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
 
-const DEFAULT_RESTAURANT = 0;
-
 const createSchema = z.object({
   name: z.string().min(1),
   nameAr: z.string().nullable().optional(),
   icon: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
-  restaurantId: z.number().int().optional(),
+  restaurantId: z.number().int().positive(),
 });
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const restaurantId = Number(searchParams.get("restaurantId"));
+    if (!restaurantId) return error("معرف المطعم مطلوب", 400);
+
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
-    const restaurantId = Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT;
-
     const where = { restaurantId };
     const [data, total] = await Promise.all([
       prisma.menuCategory.findMany({
@@ -32,7 +31,6 @@ export async function GET(request: NextRequest) {
       }),
       prisma.menuCategory.count({ where }),
     ]);
-
     return paginated(data, total, page, pageSize);
   } catch (e) {
     return handleError(e);
@@ -41,10 +39,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = createSchema.parse(await request.json());
-    const rid = body.restaurantId  ?? 0;
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) {
+      return error("غير مصرح", 401);
+    }
 
-    // Check plan limits for categories
+    const body = createSchema.parse(await request.json());
+    const rid = body.restaurantId;
+
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: rid },
       include: { plan: { select: { id: true, name: true, nameAr: true, maxMenus: true } } },
@@ -53,12 +55,8 @@ export async function POST(request: NextRequest) {
 
     const maxMenus = restaurant.plan?.maxMenus ?? 1;
     const existingCount = await prisma.menuCategory.count({ where: { restaurantId: rid } });
-
     if (existingCount >= maxMenus) {
-      return error(
-        `لقد وصلت للحد الأقصى للأقسام (${maxMenus}). قم بترقية خطتك لإضافة المزيد.`,
-        403
-      );
+      return error(`لقد وصلت للحد الأقصى للأقسام (${maxMenus}). قم بترقية خطتك لإضافة المزيد.`, 403);
     }
 
     const data = await prisma.menuCategory.create({

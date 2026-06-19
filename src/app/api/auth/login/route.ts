@@ -12,60 +12,38 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check credentials against DB
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    if (!user || user.password !== password) {
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) {
       return Response.json(
         { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
         { status: 401 }
       );
     }
 
-    // Set auth cookies
+    const { verifyHash } = await import("@/lib/hash");
+    const valid = await verifyHash(password, user.password);
+    if (!valid) {
+      return Response.json(
+        { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
+        { status: 401 }
+      );
+    }
+
     const cookieStore = await cookies();
-    cookieStore.set("smart-menu-auth", "true", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24, // 24 hours
-    });
-    cookieStore.set("smart-menu-role", user.role, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+    const secure = process.env.NODE_ENV === "production";
+    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
+    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
     if (user.restaurantId) {
-      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 24,
-      });
+      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
     }
 
     return Response.json({
       success: true,
       message: "تم تسجيل الدخول بنجاح",
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        role: user.role,
-        restaurantId: user.restaurantId,
-      },
+      user: { id: user.id, username: user.username, name: user.name, role: user.role, restaurantId: user.restaurantId },
     });
   } catch (error) {
     console.error("Login error:", error);
-    return Response.json(
-      { success: false, message: "حدث خطأ في الخادم" },
-      { status: 500 }
-    );
+    return Response.json({ success: false, message: "حدث خطأ في الخادم" }, { status: 500 });
   }
 }

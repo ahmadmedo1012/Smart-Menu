@@ -3,8 +3,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, handleError, error, paginated } from "@/lib/api-helpers";
 
-const DEFAULT_RESTAURANT = 0;
-
 const createSchema = z.object({
   name: z.string().min(1),
   nameAr: z.string().nullable().optional(),
@@ -51,6 +49,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    const auth = await requireAuth();
+    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+
     const body = createSchema.parse(await request.json());
 
     // Check plan limits: get category -> restaurant -> plan

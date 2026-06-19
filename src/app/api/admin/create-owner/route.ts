@@ -17,10 +17,11 @@ export async function POST(request: NextRequest) {
     if (existing) {
       return Response.json({ success: false, error: "Username already exists" }, { status: 409 });
     }
+    const { hashPassword } = await import("@/lib/hash");
     const user = await prisma.user.create({
       data: {
         username: body.username,
-        password: body.password,
+        password: hashPassword(body.password),
         name: body.name,
         role: "owner",
         restaurantId: body.restaurantId,

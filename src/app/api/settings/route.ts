@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { searchParams } = new URL(request.url);
     const cookieRestaurantId = request.cookies.get("smart-menu-restaurant")?.value;
     const restaurantId =
