@@ -190,7 +190,9 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1, "nalt" 0, "ss01" 0, "ss02" 0;
+  -webkit-font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1, "nalt" 0, "ss01" 0, "ss02" 0;
+    font-variant-numeric: lining-nums tabular-nums;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;

@@ -204,31 +204,6 @@ export default function CartPage() {
           </div>
         ))}
       </div>
-
-      {/* Customer info */}
-      <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-4">
-        <h2 className="font-bold mb-4 flex items-center gap-2">
-          <span className="size-2 rounded-full bg-primary" />
-          معلومات العميل
-        </h2>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <Input
-            placeholder="الاسم"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="h-11 rounded-xl"
-          />
-          <Input
-            placeholder="رقم الجوال"
-            type="tel"
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            className="h-11 rounded-xl text-left"
-            dir="ltr"
-          />
-        </div>
-      </div>
-
       {/* Notes */}
       <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-6">
         <h2 className="font-bold mb-3 flex items-center gap-2">
@@ -287,11 +262,6 @@ export default function CartPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">العميل:</span>
-              <span className="font-medium">{customerName}</span>
-              <span dir="ltr" className="text-muted-foreground">— {customerPhone}</span>
-            </div>
             <div>
               <span className="text-muted-foreground">نوع الطلب: </span>
               <span className="font-medium">{PICKUP_LABELS[pickupType]}</span>

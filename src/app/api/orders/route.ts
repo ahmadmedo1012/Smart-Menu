@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = createSchema.parse(await request.json());
-    const orderNo = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const orderNo = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 
     const data = await prisma.order.create({
       data: {
