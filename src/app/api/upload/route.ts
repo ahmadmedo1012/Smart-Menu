@@ -5,7 +5,7 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { success, error, handleError } from "@/lib/api-helpers";
 
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB raw
+const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED_MIMES = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
 
 const fileSchema = z
@@ -16,6 +16,9 @@ const fileSchema = z
 
 export async function POST(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
+
     const formData = await request.formData();
     const file = formData.get("file");
     const parsed = fileSchema.safeParse(file);
@@ -28,8 +31,6 @@ export async function POST(request: NextRequest) {
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await f.arrayBuffer());
-
-    // Compress with sharp: resize to max 800px, convert to webp @ quality 70
     const compressed = await sharp(buffer)
       .resize(800, 800, { fit: "inside", withoutEnlargement: true })
       .webp({ quality: 70, effort: 6 })

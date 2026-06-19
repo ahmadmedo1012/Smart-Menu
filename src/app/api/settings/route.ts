@@ -12,11 +12,12 @@ const batchSchema = z.array(singleSchema);
 
 export async function GET(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    const auth = await requireAuth();
+    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
-    // Try query param first, then cookie
-    const cookieRestaurantId = request.cookies.get("smart-menu-restaurant")?.value;
-    const restaurantId =
-      Number(searchParams.get("restaurantId")) || (cookieRestaurantId ? Number(cookieRestaurantId) : 0);
+    let restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
     if (!restaurantId) {
       return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
     }
@@ -38,13 +39,18 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { requireAuth } = await import("@/lib/auth");
-    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    const auth = await requireAuth();
+    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
-    const cookieRestaurantId = request.cookies.get("smart-menu-restaurant")?.value;
-    const restaurantId =
-      Number(searchParams.get("restaurantId")) || (cookieRestaurantId ? Number(cookieRestaurantId) : 0);
+    let restaurantId =
+      Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
     if (!restaurantId) {
       return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
+    }
+    // Owners can only update their own restaurant
+    if (auth.role === "owner" && auth.restaurantId !== restaurantId) {
+      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     }
     const body = await request.json();
 

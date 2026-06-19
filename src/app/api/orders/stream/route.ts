@@ -2,8 +2,14 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
+  const { requireAuth } = await import("@/lib/auth");
+  const auth = await requireAuth();
+  if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+
   const { searchParams } = new URL(request.url);
-  const restaurantId = Number(searchParams.get("restaurantId")) || 1;
+  let restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
+  if (!restaurantId) return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
+  if (auth.role === "owner" && auth.restaurantId !== restaurantId) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
 
   let lastCount = await prisma.order.count({ where: { restaurantId } });
 

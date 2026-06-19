@@ -16,18 +16,15 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
+
     const { id } = await params;
     const body = updateSchema.parse(await request.json());
-
-    const existing = await prisma.menuCategory.findUnique({
-      where: { id: Number(id) },
-    });
+    const existing = await prisma.menuCategory.findUnique({ where: { id: Number(id) } });
     if (!existing) return notFound("Category");
 
-    const data = await prisma.menuCategory.update({
-      where: { id: Number(id) },
-      data: body,
-    });
+    const data = await prisma.menuCategory.update({ where: { id: Number(id) }, data: body });
     return success(data);
   } catch (e) {
     return handleError(e);
@@ -39,10 +36,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
+
     const { id } = await params;
-    const existing = await prisma.menuCategory.findUnique({
-      where: { id: Number(id) },
-    });
+    const existing = await prisma.menuCategory.findUnique({ where: { id: Number(id) } });
     if (!existing) return notFound("Category");
 
     await prisma.menuCategory.delete({ where: { id: Number(id) } });

@@ -10,54 +10,53 @@ const generateSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    const auth = await requireAuth();
+    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+
     const body = generateSchema.parse(await request.json());
 
     const order = await prisma.order.findUnique({
       where: { id: body.orderId },
       include: {
         restaurant: { select: { name: true, whatsapp: true } },
-        items: {
-          include: { item: { select: { id: true, name: true, nameAr: true } } },
-        },
+        items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
       },
     });
     if (!order) return notFound("Order");
+
+    // Owners can only generate for their own restaurant
+    if (auth.role === "owner" && auth.restaurantId !== order.restaurantId) {
+      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    }
 
     const lines: string[] = [];
     lines.push(`🧾 *${order.restaurant.name}*`);
     lines.push(`📋 طلب رقم: ${order.orderNo}`);
     lines.push(`👤 العميل: ${order.customerName || "غير محدد"}`);
     lines.push(`📞 الهاتف: ${order.customerPhone || "غير محدد"}`);
-    lines.push(`📍 نوع الطلب: ${order.pickupType === "delivery" ? "توصيل" : "داخل المحل"}`);
+    lines.push(`📍 نوع الطلب: ${order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المحل"}`);
     lines.push("");
     lines.push("*الطلبات:*");
     for (const oi of order.items) {
       const itemName = oi.item.nameAr || oi.item.name;
-      lines.push(`  ${oi.quantity}x ${itemName} - ${oi.price} ر.س`);
+      lines.push(`  ${oi.quantity}x ${itemName} - ${oi.price} د.ل`);
       if (oi.notes) lines.push(`    ملاحظات: ${oi.notes}`);
     }
     lines.push("");
-    lines.push(`💰 المجموع: ${order.total} ر.س`);
-    if (order.discount > 0) lines.push(`🔖 الخصم: ${order.discount} ر.س`);
+    lines.push(`💰 المجموع: ${order.total} د.ل`);
+    if (order.discount > 0) lines.push(`🔖 الخصم: ${order.discount} د.ل`);
     lines.push(`📅 ${formatDate(order.createdAt)}`);
 
     const message = lines.join("\n");
 
-    // Mark whatsapp sent
-    await prisma.order.update({
-      where: { id: body.orderId },
-      data: { whatsappSent: true },
-    });
+    await prisma.order.update({ where: { id: body.orderId }, data: { whatsappSent: true } });
 
     const whatsappUrl = order.restaurant.whatsapp
       ? `https://wa.me/${order.restaurant.whatsapp}?text=${encodeURIComponent(message)}`
       : null;
 
-    return success({
-      message,
-      whatsappUrl,
-      orderId: order.id,
-    });
+    return success({ message, whatsappUrl, orderId: order.id });
   } catch (e) {
     return handleError(e);
   }

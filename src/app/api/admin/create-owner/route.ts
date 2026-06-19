@@ -12,6 +12,12 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    const auth = await requireAuth();
+    if (!auth.authorized || auth.role !== "admin") {
+      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    }
+
     const body = schema.parse(await request.json());
     const existing = await prisma.user.findUnique({ where: { username: body.username } });
     if (existing) {

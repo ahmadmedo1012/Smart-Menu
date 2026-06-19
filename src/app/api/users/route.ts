@@ -5,7 +5,8 @@ import { success, handleError } from "@/lib/api-helpers";
 export async function GET(request: NextRequest) {
   try {
     const { requireAuth } = await import("@/lib/auth");
-    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    const auth = await requireAuth();
+    if (!auth.authorized || auth.role !== "admin") return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { searchParams } = new URL(request.url);
     const restaurantId = searchParams.get("restaurantId")
       ? Number(searchParams.get("restaurantId"))

@@ -8,7 +8,8 @@ export async function DELETE(
 ) {
   try {
     const { requireAuth } = await import("@/lib/auth");
-    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    const auth = await requireAuth();
+    if (!auth.authorized || auth.role !== "admin") return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { id } = await params;
     await prisma.user.delete({ where: { id: Number(id) } });
     return success({ deleted: true });
