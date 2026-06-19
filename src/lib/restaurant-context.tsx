@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { getCurrencyConfig } from "./currency";
+import { toArabicNumber } from "./format";
 
 export interface RestaurantData {
   id: number;
@@ -94,6 +95,6 @@ export function useFormatPrice() {
   const { restaurant } = useRestaurant();
   return (amount: number) => {
     const cfg = getCurrencyConfig(restaurant?.currency);
-    return `${amount.toFixed(2)} ${cfg.symbol}`;
+    return `${toArabicNumber(amount.toFixed(2))} ${cfg.symbol}`;
   };
 }

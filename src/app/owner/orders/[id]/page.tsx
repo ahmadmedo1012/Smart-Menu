@@ -11,7 +11,7 @@ import {
   Clock, ChefHat, PackageCheck, CheckCircle, XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from "@/lib/format"
+import { toArabicNumber, formatDate } from "@/lib/format"
 
 interface OrderDetail {
   id: number; orderNo: string; customerName: string; customerPhone: string
@@ -106,7 +106,7 @@ ${items}
           </button>
           <div>
             <h2 className="text-xl font-bold">طلب #{order.orderNo}</h2>
-            <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleString("ar-SA")}</p>
+            <p className="text-xs text-muted-foreground">{formatDate(new Date(order.createdAt))}</p>
           </div>
         </div>
         <Badge className={cn("text-sm px-4 py-1.5 rounded-full", config.bg, config.color)}>

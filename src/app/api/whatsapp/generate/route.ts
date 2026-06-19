@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, notFound, handleError } from "@/lib/api-helpers";
+import { formatDate } from "@/lib/format";
 
 const generateSchema = z.object({
   orderId: z.number().int().positive(),
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     lines.push("");
     lines.push(`💰 المجموع: ${order.total} ر.س`);
     if (order.discount > 0) lines.push(`🔖 الخصم: ${order.discount} ر.س`);
-    lines.push(`📅 ${order.createdAt.toLocaleDateString("ar-SA")}`);
+    lines.push(`📅 ${formatDate(order.createdAt)}`);
 
     const message = lines.join("\n");
 

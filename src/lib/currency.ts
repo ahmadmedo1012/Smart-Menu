@@ -1,9 +1,11 @@
-const CURRENCY_MAP: Record<string, { symbol: string; code: string; locale: string }> = {
-  LYD: { symbol: "د.ل", code: "LYD", locale: "ar-LY" },
-  SAR: { symbol: "ر.س", code: "SAR", locale: "ar-SA" },
-  AED: { symbol: "د.إ", code: "AED", locale: "ar-AE" },
-  EGP: { symbol: "ج.م", code: "EGP", locale: "ar-EG" },
-  USD: { symbol: "$", code: "USD", locale: "en-US" },
+import { toArabicNumber } from "./format";
+
+const CURRENCY_MAP: Record<string, { symbol: string; code: string }> = {
+  LYD: { symbol: "د.ل", code: "LYD" },
+  SAR: { symbol: "ر.س", code: "SAR" },
+  AED: { symbol: "د.إ", code: "AED" },
+  EGP: { symbol: "ج.م", code: "EGP" },
+  USD: { symbol: "$", code: "USD" },
 };
 
 const DEFAULT_CURRENCY = "LYD";
@@ -14,10 +16,10 @@ export function getCurrencyConfig(currency?: string | null) {
 
 export function formatPrice(amount: number, currency?: string | null): string {
   const cfg = getCurrencyConfig(currency);
-  return `${amount.toFixed(2)} ${cfg.symbol}`;
+  return `${toArabicNumber(amount.toFixed(2))} ${cfg.symbol}`;
 }
 
 export function formatPriceShort(amount: number, currency?: string | null): string {
   const cfg = getCurrencyConfig(currency);
-  return `${Math.round(amount)} ${cfg.symbol}`;
+  return `${toArabicNumber(Math.round(amount))} ${cfg.symbol}`;
 }

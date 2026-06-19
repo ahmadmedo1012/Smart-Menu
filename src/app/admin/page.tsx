@@ -88,7 +88,7 @@ export default function AdminDashboard() {
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
                   <p className="text-3xl font-bold tracking-tight">
-                    {typeof card.value === 'number' && card.value % 1 === 0 ? card.value.toLocaleString('en-US') : toArabicNumber(card.value)}{(card as any).suffix || ""}
+                    {toArabicNumber(card.value)}{(card as any).suffix || ""}
                   </p>
                 </div>
                 <div className={cn("rounded-2xl p-3.5 ring-1 ring-white/20", card.bg + "/50")}>

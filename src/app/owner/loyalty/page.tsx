@@ -1,4 +1,5 @@
 "use client"
+import { toArabicNumber } from "@/lib/format";
 
 import { useEffect, useState, useCallback } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -60,7 +61,7 @@ function StatCard({
       <div className="relative z-10 flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <p className="text-3xl font-bold tracking-tight">{value.toLocaleString()}{suffix}</p>
+          <p className="text-3xl font-bold tracking-tight">{toArabicNumber(value)}{suffix}</p>
         </div>
         <div className={cn("rounded-2xl p-3.5 ring-1 ring-white/20 dark:ring-white/10", bg)}>
           <Icon className={cn("size-6", color)} />

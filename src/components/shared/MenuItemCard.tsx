@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { ShoppingCart, Check } from "lucide-react"
 import { useState } from "react"
+import { toArabicNumber } from "@/lib/format"
 
 interface MenuItemCardProps {
   id: string
@@ -74,7 +75,7 @@ export function MenuItemCard({
         <div className="flex items-start justify-between gap-2">
           <h3 className="line-clamp-1 text-sm font-medium">{name}</h3>
           <span className="shrink-0 text-sm font-semibold text-primary">
-            {price.toFixed(2)} {currency}
+            {toArabicNumber(price.toFixed(2))} {currency}
           </span>
         </div>
 

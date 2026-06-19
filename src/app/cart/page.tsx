@@ -52,11 +52,8 @@ export default function CartPage() {
   const [confirmed, setConfirmed] = useState(false);
 
   const cartSubtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
-  const isValid = customerName.trim().length >= 2 && customerPhone.trim().length >= 7;
 
   const handleCheckout = async () => {
-    if (!isValid) return;
-    setIsSubmitting(true);
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -274,7 +271,6 @@ export default function CartPage() {
       <Button
         className="w-full h-13 text-base font-semibold rounded-2xl gap-2"
         onClick={() => setShowPreview(true)}
-        disabled={!isValid}
         size="lg"
       >
         <MessageCircle className="size-5" />

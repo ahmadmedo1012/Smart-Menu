@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { ClipboardList, ArrowRight, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from "@/lib/format"
+import { toArabicNumber, formatDate } from "@/lib/format"
 
 interface Order {
   id: number; orderNo: string; customerName: string; customerPhone?: string; status: string;
@@ -123,7 +123,7 @@ export default function OwnerOrdersPage() {
             const rows = orders.map(o => {
               const statusLabel = o.status === "new" ? "جديد" : o.status === "preparing" ? "تحضير" : o.status === "ready" ? "جاهز" : o.status === "completed" ? "مكتمل" : "ملغي"
               const typeLabel = o.pickupType === "delivery" ? "توصيل" : o.pickupType === "takeaway" ? "سفري" : "داخل المكان"
-              return `${o.orderNo},${o.customerName},${o.customerPhone || ""},${statusLabel},${typeLabel},${o.total},${new Date(o.createdAt).toLocaleDateString("ar-SA")}`
+              return `${o.orderNo},${o.customerName},${o.customerPhone || ""},${statusLabel},${typeLabel},${o.total},${formatDate(new Date(o.createdAt))}`
             }).join("\n")
             const csv = `${headers}\n${rows}`
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })

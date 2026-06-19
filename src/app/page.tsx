@@ -1,4 +1,5 @@
 "use client";
+import { toArabicNumber } from "@/lib/format";
 
 import { useRef, useState, useEffect, ReactNode } from "react";
 import Link from "next/link";
@@ -183,7 +184,7 @@ function CountUp({ value, suffix = "", decimals = 0 }: { value: number; suffix?:
     return () => clearInterval(timer);
   }, [inView, value]);
 
-  const display = decimals > 0 ? count.toFixed(decimals) : Math.floor(count).toLocaleString("ar-SA");
+  const display = decimals > 0 ? count.toFixed(decimals) : toArabicNumber(Math.floor(count));
   return <span ref={ref}>{display}{suffix}</span>;
 }
 

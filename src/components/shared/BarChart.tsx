@@ -1,4 +1,5 @@
 "use client";
+import { toArabicNumber } from "@/lib/format";
 
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,7 @@ export default function BarChart({
           const pct = (item.value / maxValue) * 100;
           return (
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <span className="text-xs font-bold tabular-nums">{item.value}</span>
+              <span className="text-xs font-bold tabular-nums">{toArabicNumber(item.value)}</span>
               <div
                 className="w-full rounded-t-md transition-all duration-700 hover:opacity-80"
                 style={{
