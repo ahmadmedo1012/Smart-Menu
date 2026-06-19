@@ -1,3 +1,4 @@
+import { hashPassword } from "../src/lib/hash";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -8,7 +9,7 @@ const prisma = new PrismaClient({
 async function main() {
   console.log("Seeding database...");
 
-  // Clean
+  // Clean in dependency order
   await prisma.rewardTransaction.deleteMany();
   await prisma.referral.deleteMany();
   await prisma.loyaltyCard.deleteMany();
@@ -23,119 +24,115 @@ async function main() {
   await prisma.subscriptionPlan.deleteMany();
   console.log("  Cleaned existing data");
 
-  // Subscription Plans
-  const freePlan = await prisma.subscriptionPlan.create({
-    data: { name: "Free", nameAr: "مجاني", price: 0, periodDays: 30, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 0, features: JSON.stringify(["منيو رقمي واحد", "10 أصناف كحد أقصى", "طلبات واتساب", "إحصائيات أساسية"]) },
-  });
-  const premiumPlan = await prisma.subscriptionPlan.create({
-    data: { name: "Premium", nameAr: "بريميوم", price: 19, periodDays: 30, maxMenus: 3, maxItems: 9999, maxOrders: 99999, sortOrder: 1, features: JSON.stringify(["منيو رقمي", "أصناف غير محدودة", "طلبات غير محدودة", "برنامج ولاء", "إحصائيات متقدمة", "QR كود مخصص", "شعار المطعم", "تخصيص الألوان", "دعم فني فوري", "بدون إعلانات"]) },
-  });
-  console.log("  Subscription plans created: 2");
+  // ─── 4 Subscription Plans ─────────────────────────────
+  const plans = [
+    { name: "Free",    nameAr: "مجاني",     price: 0,   maxMenus: 1,  maxItems: 10,   maxOrders: 100,  sortOrder: 1, features: JSON.stringify(["منيو رقمي واحد", "10 أصناف كحد أقصى", "طلبات واتساب", "إحصائيات أساسية"]) },
+    { name: "Basic",   nameAr: "أساسي",     price: 49,  maxMenus: 1,  maxItems: 50,   maxOrders: 500,  sortOrder: 2, features: JSON.stringify(["منيو رقمي", "50 صنف", "طلقات غير محدودة", "برنامج ولاء", "تقرير شهري", "دعم فني"]) },
+    { name: "Pro",     nameAr: "احترافي",   price: 129, maxMenus: 3,  maxItems: 200,  maxOrders: 2000, sortOrder: 3, features: JSON.stringify(["حتى 3 منيوهات", "200 صنف", "طلبات غير محدودة", "ولاء متقدم", "إحصائيات متقدمة", "QR كود مخصص", "دعم فوري", "تخصيص كامل"]) },
+    { name: "Enterprise", nameAr: "شركات",   price: 299, maxMenus: 10, maxItems: 9999, maxOrders: 99999, sortOrder: 4, features: JSON.stringify(["منيوهات غير محدودة", "أصناف غير محدودة", "طلبات غير محدودة", "ولاء كامل", "API مخصص", "دعم 24/7"]) },
+  ];
+  const createdPlans = [];
+  for (const p of plans) {
+    createdPlans.push(await prisma.subscriptionPlan.create({ data: p }));
+  }
+  console.log(`  Subscription plans created: ${createdPlans.length}`);
 
-  // Admin
+  // ─── Admin ─────────────────────────────────────────
   await prisma.user.create({
-    data: { username: "admin", password: "admin123", name: "مدير النظام", role: "admin" },
+    data: { username: "admin", password: hashPassword("admin123"), name: "مدير النظام", role: "admin" },
   });
   console.log("  Admin user created");
 
-  // ---- Restaurant 1: مقهى الواحة ----
+  // ─── Restaurant 1: مقهى الواحة ─────────────────────
+  const freePlan = createdPlans.find(p => p.name === "Free")!;
   const r1 = await prisma.restaurant.create({
     data: {
-      name: "مقهى الواحة",
-      slug: "al-waha-cafe",
+      name: "مقهى الواحة", slug: "al-waha-cafe",
       description: "مقهى ومطعم يقدم أشهى المشروبات والحلويات والوجبات الخفيفة",
-      phone: "+218911111111",
-      whatsapp: "218911111111",
+      phone: "+218911111111", whatsapp: "218911111111",
       workingHours: "8:00 صباحاً - 12:00 منتصف الليل",
+      planId: freePlan.id,
     },
   });
 
   const [r1Cat1, r1Cat2, r1Cat3, r1Cat4] = await prisma.$transaction([
-    prisma.menuCategory.create({ data: { name: "مشروبات ساخنة", icon: "coffee", sortOrder: 1, restaurantId: r1.id } }),
-    prisma.menuCategory.create({ data: { name: "مشروبات باردة", icon: "wine", sortOrder: 2, restaurantId: r1.id } }),
-    prisma.menuCategory.create({ data: { name: "حلويات", icon: "cake", sortOrder: 3, restaurantId: r1.id } }),
-    prisma.menuCategory.create({ data: { name: "وجبات خفيفة", icon: "utensils", sortOrder: 4, restaurantId: r1.id } }),
+    prisma.menuCategory.create({ data: { name: "مشروبات ساخنة", icon: "☕", sortOrder: 1, restaurantId: r1.id } }),
+    prisma.menuCategory.create({ data: { name: "مشروبات باردة", icon: "🧃", sortOrder: 2, restaurantId: r1.id } }),
+    prisma.menuCategory.create({ data: { name: "حلويات",       icon: "🍰", sortOrder: 3, restaurantId: r1.id } }),
+    prisma.menuCategory.create({ data: { name: "وجبات خفيفة",  icon: "🍔", sortOrder: 4, restaurantId: r1.id } }),
   ]);
 
   await prisma.menuItem.createMany({ data: [
-    { name: "قهوة تركي", price: 3, categoryId: r1Cat1.id, sortOrder: 1 },
-    { name: "إسبريسو", price: 4, categoryId: r1Cat1.id, sortOrder: 2 },
-    { name: "كابتشينو", price: 5, categoryId: r1Cat1.id, sortOrder: 3 },
-    { name: "شاي", price: 2, categoryId: r1Cat1.id, sortOrder: 4 },
-    { name: "ليموناضة", price: 4, categoryId: r1Cat2.id, sortOrder: 1 },
-    { name: "سموثي", price: 6, categoryId: r1Cat2.id, sortOrder: 2 },
-    { name: "موهيتو", price: 5, categoryId: r1Cat2.id, sortOrder: 3 },
-    { name: "آيس كوفي", price: 5, categoryId: r1Cat2.id, sortOrder: 4 },
-    { name: "تشيز كيك", price: 7, categoryId: r1Cat3.id, sortOrder: 1 },
-    { name: "كنافة", price: 6, categoryId: r1Cat3.id, sortOrder: 2 },
-    { name: "كريب", price: 5, categoryId: r1Cat3.id, sortOrder: 3 },
-    { name: "بسبوسة", price: 4, categoryId: r1Cat3.id, sortOrder: 4 },
-    { name: "ساندويتش", price: 5, categoryId: r1Cat4.id, sortOrder: 1 },
-    { name: "بطاطس مقلية", price: 3, categoryId: r1Cat4.id, sortOrder: 2 },
-    { name: "سلطة", price: 4, categoryId: r1Cat4.id, sortOrder: 3 },
-    { name: "برجر", price: 7, categoryId: r1Cat4.id, sortOrder: 4 },
+    { name: "قهوة تركي",     price: 3,  categoryId: r1Cat1.id, sortOrder: 1 },
+    { name: "إسبريسو",       price: 4,  categoryId: r1Cat1.id, sortOrder: 2 },
+    { name: "كابتشينو",      price: 5,  categoryId: r1Cat1.id, sortOrder: 3 },
+    { name: "شاي",           price: 2,  categoryId: r1Cat1.id, sortOrder: 4 },
+    { name: "ليموناضة",      price: 4,  categoryId: r1Cat2.id, sortOrder: 1 },
+    { name: "سموثي",         price: 6,  categoryId: r1Cat2.id, sortOrder: 2 },
+    { name: "موهيتو",        price: 5,  categoryId: r1Cat2.id, sortOrder: 3 },
+    { name: "آيس كوفي",      price: 5,  categoryId: r1Cat2.id, sortOrder: 4 },
+    { name: "تشيز كيك",      price: 7,  categoryId: r1Cat3.id, sortOrder: 1 },
+    { name: "كنافة",         price: 6,  categoryId: r1Cat3.id, sortOrder: 2 },
+    { name: "كريب",          price: 5,  categoryId: r1Cat3.id, sortOrder: 3 },
+    { name: "بسبوسة",        price: 4,  categoryId: r1Cat3.id, sortOrder: 4 },
+    { name: "ساندويتش",      price: 5,  categoryId: r1Cat4.id, sortOrder: 1 },
+    { name: "بطاطس مقلية",   price: 3,  categoryId: r1Cat4.id, sortOrder: 2 },
+    { name: "سلطة",          price: 4,  categoryId: r1Cat4.id, sortOrder: 3 },
+    { name: "برجر",          price: 7,  categoryId: r1Cat4.id, sortOrder: 4 },
   ]});
   console.log("  مقهى الواحة created");
 
-  // ---- Restaurant 2: مطعم الأصيل ----
+  // ─── Restaurant 2: مطعم الأصيل ─────────────────────
   const r2 = await prisma.restaurant.create({
     data: {
-      name: "مطعم الأصيل",
-      slug: "al-aseel",
+      name: "مطعم الأصيل", slug: "al-aseel",
       description: "مأكولات ليبية تقليدية أصيلة",
-      phone: "+218922222222",
-      whatsapp: "218922222222",
+      phone: "+218922222222", whatsapp: "218922222222",
       workingHours: "12:00 ظهراً - 11:00 مساءً",
     },
   });
-
   const [r2Cat1, r2Cat2] = await prisma.$transaction([
-    prisma.menuCategory.create({ data: { name: "أطباق رئيسية", icon: "utensils", sortOrder: 1, restaurantId: r2.id } }),
-    prisma.menuCategory.create({ data: { name: "مقبلات", icon: "wine", sortOrder: 2, restaurantId: r2.id } }),
+    prisma.menuCategory.create({ data: { name: "أطباق رئيسية", icon: "🍲", sortOrder: 1, restaurantId: r2.id } }),
+    prisma.menuCategory.create({ data: { name: "مقبلات",      icon: "🥟", sortOrder: 2, restaurantId: r2.id } }),
   ]);
-
   await prisma.menuItem.createMany({ data: [
-    { name: "بازين", price: 12, categoryId: r2Cat1.id, sortOrder: 1 },
-    { name: "مبكبكة", price: 8, categoryId: r2Cat1.id, sortOrder: 2 },
-    { name: "كُسكُسي", price: 10, categoryId: r2Cat1.id, sortOrder: 3 },
-    { name: "شربة", price: 3, categoryId: r2Cat2.id, sortOrder: 1 },
-    { name: "بريك", price: 4, categoryId: r2Cat2.id, sortOrder: 2 },
+    { name: "بازين",   price: 12, categoryId: r2Cat1.id, sortOrder: 1 },
+    { name: "مبكبكة",  price: 8,  categoryId: r2Cat1.id, sortOrder: 2 },
+    { name: "كُسكُسي",  price: 10, categoryId: r2Cat1.id, sortOrder: 3 },
+    { name: "شربة",    price: 3,  categoryId: r2Cat2.id, sortOrder: 1 },
+    { name: "بريك",    price: 4,  categoryId: r2Cat2.id, sortOrder: 2 },
   ]});
   console.log("  مطعم الأصيل created");
 
-  // ---- Restaurant 3: بيتزا روما ----
+  // ─── Restaurant 3: بيتزا روما ─────────────────────
   const r3 = await prisma.restaurant.create({
     data: {
-      name: "بيتزا روما",
-      slug: "pizza-roma",
+      name: "بيتزا روما", slug: "pizza-roma",
       description: "بيتزا إيطالية طازجة بالمكونات الليبية",
-      phone: "+218933333333",
-      whatsapp: "218933333333",
+      phone: "+218933333333", whatsapp: "218933333333",
       workingHours: "5:00 مساءً - 12:00 منتصف الليل",
     },
   });
-
   const [r3Cat1, r3Cat2] = await prisma.$transaction([
-    prisma.menuCategory.create({ data: { name: "بيتزا", icon: "utensils", sortOrder: 1, restaurantId: r3.id } }),
-    prisma.menuCategory.create({ data: { name: "مشروبات", icon: "wine", sortOrder: 2, restaurantId: r3.id } }),
+    prisma.menuCategory.create({ data: { name: "بيتزا",   icon: "🍕", sortOrder: 1, restaurantId: r3.id } }),
+    prisma.menuCategory.create({ data: { name: "مشروبات", icon: "🥤", sortOrder: 2, restaurantId: r3.id } }),
   ]);
-
   await prisma.menuItem.createMany({ data: [
-    { name: "بيتزا مارغريتا", price: 8, categoryId: r3Cat1.id, sortOrder: 1 },
-    { name: "بيتزا بيبروني", price: 10, categoryId: r3Cat1.id, sortOrder: 2 },
-    { name: "بيتزا خضار", price: 9, categoryId: r3Cat1.id, sortOrder: 3 },
-    { name: "كوكاكولا", price: 2, categoryId: r3Cat2.id, sortOrder: 1 },
-    { name: "عصير طازج", price: 4, categoryId: r3Cat2.id, sortOrder: 2 },
+    { name: "بيتزا مارغريتا", price: 8,  categoryId: r3Cat1.id, sortOrder: 1 },
+    { name: "بيتزا بيبروني",  price: 10, categoryId: r3Cat1.id, sortOrder: 2 },
+    { name: "بيتزا خضار",     price: 9,  categoryId: r3Cat1.id, sortOrder: 3 },
+    { name: "كوكاكولا",       price: 2,  categoryId: r3Cat2.id, sortOrder: 1 },
+    { name: "عصير طازج",      price: 4,  categoryId: r3Cat2.id, sortOrder: 2 },
   ]});
   console.log("  بيتزا روما created");
 
-  // Restaurant owners
-  await prisma.user.create({ data: { username: "waha", password: "waha123", name: "مالك مقهى الواحة", role: "owner", restaurantId: r1.id } });
-  await prisma.user.create({ data: { username: "aseel", password: "aseel123", name: "مالك مطعم الأصيل", role: "owner", restaurantId: r2.id } });
-  await prisma.user.create({ data: { username: "roma", password: "roma123", name: "مالك بيتزا روما", role: "owner", restaurantId: r3.id } });
+  // ─── Restaurant owners ──────────────────────────────
+  await prisma.user.create({ data: { username: "waha", password: hashPassword("waha123"), name: "مالك مقهى الواحة", role: "owner", restaurantId: r1.id } });
+  await prisma.user.create({ data: { username: "aseel", password: hashPassword("aseel123"), name: "مالك مطعم الأصيل", role: "owner", restaurantId: r2.id } });
+  await prisma.user.create({ data: { username: "roma", password: hashPassword("roma123"), name: "مالك بيتزا روما", role: "owner", restaurantId: r3.id } });
   console.log("  Restaurant owners created");
 
-  // Sample orders
+  // ─── Sample orders ─────────────────────────────────
   const r1Items = await prisma.menuItem.findMany({ where: { category: { restaurantId: r1.id } } });
   if (r1Items.length > 0) {
     await prisma.order.create({
@@ -162,10 +159,9 @@ async function main() {
       },
     });
   }
-
   console.log("  Sample orders created");
 
-  // Loyalty cards
+  // ─── Loyalty cards + Referrals ─────────────────────
   const card1 = await prisma.loyaltyCard.create({
     data: {
       customerPhone: "218911111111", customerName: "أحمد محمد",
@@ -181,10 +177,8 @@ async function main() {
     },
   });
 
-  // Referrals
   await prisma.referral.createMany({ data: [
     { referralCode: "ALWAHA001", referrerId: card1.id, referredPhone: "218922222222", referredName: "سارة خالد", status: "converted", discountPercent: 10, referrerRewardPct: 10 },
-    { referralCode: "ALWAHA001", referrerId: card1.id, referredPhone: "218922222222", referredName: "سارة خالد", status: "pending", discountPercent: 10, referrerRewardPct: 10 },
   ]});
 
   await prisma.rewardTransaction.createMany({ data: [

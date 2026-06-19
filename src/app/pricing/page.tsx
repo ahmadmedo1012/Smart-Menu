@@ -244,7 +244,7 @@ export default function PricingPage() {
               لا توجد خطط متاحة حالياً
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-2 max-w-2xl gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {plans.map((plan, i) => (
                 <PlanCard key={plan.id} plan={plan} index={i} yearly={yearly} />
               ))}
