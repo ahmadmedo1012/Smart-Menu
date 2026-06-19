@@ -1,21 +1,23 @@
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const adapter = new PrismaLibSql({ url: process.env["DATABASE_URL"] ?? "file:./prisma/dev.db" });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
   console.log("Seeding database...");
 
   // Clean
+  await prisma.rewardTransaction.deleteMany();
+  await prisma.referral.deleteMany();
+  await prisma.loyaltyCard.deleteMany();
+  await prisma.whatsappTemplate.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.setting.deleteMany();
-  await prisma.whatsappTemplate.deleteMany();
   await prisma.menuItem.deleteMany();
   await prisma.menuCategory.deleteMany();
   await prisma.restaurant.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.subscriptionPlan.deleteMany();
   console.log("  Cleaned existing data");
 
   // Subscription Plans
@@ -131,114 +133,67 @@ async function main() {
   console.log("  بيتزا روما created");
 
   // Restaurant owners
-  await prisma.user.create({
-    data: { username: "waha", password: "waha123", name: "مالك مقهى الواحة", role: "owner", restaurantId: r1.id },
-  });
-  await prisma.user.create({
-    data: { username: "aseel", password: "aseel123", name: "مالك مطعم الأصيل", role: "owner", restaurantId: r2.id },
-  });
-  await prisma.user.create({
-    data: { username: "roma", password: "roma123", name: "مالك بيتزا روما", role: "owner", restaurantId: r3.id },
-  });
+  await prisma.user.create({ data: { username: "waha", password: "waha123", name: "مالك مقهى الواحة", role: "owner", restaurantId: r1.id } });
+  await prisma.user.create({ data: { username: "aseel", password: "aseel123", name: "مالك مطعم الأصيل", role: "owner", restaurantId: r2.id } });
+  await prisma.user.create({ data: { username: "roma", password: "roma123", name: "مالك بيتزا روما", role: "owner", restaurantId: r3.id } });
   console.log("  Restaurant owners created");
 
-  // Sample orders for r1
+  // Sample orders
   const r1Items = await prisma.menuItem.findMany({ where: { category: { restaurantId: r1.id } } });
-  await prisma.order.create({
-    data: {
-      orderNo: "ORD-001", customerName: "أحمد محمد", customerPhone: "218911111111",
-      notes: "بدون سكر", pickupType: "inside", status: "completed",
-      subtotal: 8, total: 8, restaurantId: r1.id,
-      items: { create: [
-        { quantity: 2, price: 3, itemId: r1Items[0].id },
-        { quantity: 1, price: 2, itemId: r1Items[3].id },
-      ]},
-    },
-  });
-  await prisma.order.create({
-    data: {
-      orderNo: "ORD-002", customerName: "سارة خالد", customerPhone: "218922222222",
-      pickupType: "takeaway", status: "preparing",
-      subtotal: 18, total: 18, restaurantId: r1.id,
-      items: { create: [
-        { quantity: 1, price: 5, itemId: r1Items[2].id },
-        { quantity: 1, price: 7, itemId: r1Items[8].id },
-        { quantity: 1, price: 6, itemId: r1Items[9].id },
-      ]},
-    },
-  });
+  if (r1Items.length > 0) {
+    await prisma.order.create({
+      data: {
+        orderNo: "ORD-001", customerName: "أحمد محمد", customerPhone: "218911111111",
+        notes: "بدون سكر", pickupType: "inside", status: "completed",
+        subtotal: 8, total: 8, restaurantId: r1.id,
+        items: { create: [
+          { quantity: 2, price: 3, itemId: r1Items[0].id },
+          { quantity: 1, price: 2, itemId: r1Items[3].id },
+        ]},
+      },
+    });
+    await prisma.order.create({
+      data: {
+        orderNo: "ORD-002", customerName: "سارة خالد", customerPhone: "218922222222",
+        pickupType: "takeaway", status: "preparing",
+        subtotal: 18, total: 18, restaurantId: r1.id,
+        items: { create: [
+          { quantity: 1, price: 5, itemId: r1Items[2].id },
+          { quantity: 1, price: 7, itemId: r1Items[8].id },
+          { quantity: 1, price: 6, itemId: r1Items[9].id },
+        ]},
+      },
+    });
+  }
 
-  console.log("  Sample orders created: 2");
+  console.log("  Sample orders created");
 
-  // ---- Loyalty Cards for مقهى الواحة ----
+  // Loyalty cards
   const card1 = await prisma.loyaltyCard.create({
     data: {
-      customerPhone: "218911111111",
-      customerName: "أحمد محمد",
-      totalOrders: 3,
-      totalSpent: 22,
-      points: 22,
-      tier: "bronze",
-      referralCode: "ALWAHA001",
-      restaurantId: r1.id,
+      customerPhone: "218911111111", customerName: "أحمد محمد",
+      totalOrders: 3, totalSpent: 22, points: 22, tier: "bronze",
+      referralCode: "ALWAHA001", restaurantId: r1.id,
     },
   });
-
-  const card2 = await prisma.loyaltyCard.create({
+  await prisma.loyaltyCard.create({
     data: {
-      customerPhone: "218922222222",
-      customerName: "سارة خالد",
-      totalOrders: 1,
-      totalSpent: 18,
-      points: 18,
-      tier: "bronze",
-      referralCode: "ALWAHA002",
-      restaurantId: r1.id,
+      customerPhone: "218922222222", customerName: "سارة خالد",
+      totalOrders: 1, totalSpent: 18, points: 18, tier: "bronze",
+      referralCode: "ALWAHA002", restaurantId: r1.id,
     },
   });
-  console.log("  Loyalty cards created: 2");
 
-  // ---- Referrals from أحمد to سارة ----
+  // Referrals
   await prisma.referral.createMany({ data: [
-    {
-      referralCode: "ALWAHA001",
-      referrerId: card1.id,
-      referredPhone: "218922222222",
-      referredName: "سارة خالد",
-      status: "converted",
-      discountPercent: 10,
-      referrerRewardPct: 10,
-    },
-    {
-      referralCode: "ALWAHA001",
-      referrerId: card1.id,
-      referredPhone: "218922222222",
-      referredName: "سارة خالد",
-      status: "pending",
-      discountPercent: 10,
-      referrerRewardPct: 10,
-    },
+    { referralCode: "ALWAHA001", referrerId: card1.id, referredPhone: "218922222222", referredName: "سارة خالد", status: "converted", discountPercent: 10, referrerRewardPct: 10 },
+    { referralCode: "ALWAHA001", referrerId: card1.id, referredPhone: "218922222222", referredName: "سارة خالد", status: "pending", discountPercent: 10, referrerRewardPct: 10 },
   ]});
-  console.log("  Referrals created: 2");
 
-  // ---- Reward Transactions for أحمد ----
   await prisma.rewardTransaction.createMany({ data: [
-    {
-      cardId: card1.id,
-      type: "earn",
-      points: 10,
-      description: "مكافأة ترحيبية",
-      restaurantId: r1.id,
-    },
-    {
-      cardId: card1.id,
-      type: "earn",
-      points: 5,
-      description: "مكافأة طلب رقم 1",
-      restaurantId: r1.id,
-    },
+    { cardId: card1.id, type: "earn", points: 10, description: "مكافأة ترحيبية", restaurantId: r1.id },
+    { cardId: card1.id, type: "earn", points: 5, description: "مكافأة طلب رقم 1", restaurantId: r1.id },
   ]});
-  console.log("  Reward transactions created: 2");
 
   console.log("\nSeeding complete!");
 }
