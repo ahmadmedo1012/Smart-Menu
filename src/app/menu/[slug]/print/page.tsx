@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { toArabicNumber } from "@/lib/format";
 import type { Metadata } from "next";

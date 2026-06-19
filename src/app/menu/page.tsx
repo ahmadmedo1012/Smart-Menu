@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 
 export default async function MenuPage() {
