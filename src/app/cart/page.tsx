@@ -8,7 +8,6 @@ import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check } fr
 import { useCart } from "@/store/cart";
 import { toArabicNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -40,8 +39,6 @@ export default function CartPage() {
     pickupType,
     updateQuantity,
     removeItem,
-    setCustomerName,
-    setCustomerPhone,
     setOrderNotes,
     updateNotes,
     setPickupType,
