@@ -118,18 +118,22 @@ export default function AdminRestaurantsPage() {
       if (form.planId) body.planId = Number(form.planId);
 
       if (editing) {
-        await fetch(`/api/restaurants/${editing.id}`, {
+        const res = await fetch(`/api/restaurants/${editing.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? "فشل تحديث المطعم");
         toast.success("تم تحديث المطعم");
       } else {
-        await fetch("/api/restaurants", {
+        const res = await fetch("/api/restaurants", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...body, username: form.slug, password: form.slug + "123" }),
         });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? "فشل إنشاء المطعم");
         toast.success("تمت إضافة المطعم");
       }
       setDialogOpen(false);
