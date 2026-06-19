@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const restaurantId = auth.restaurantId || Number(request.cookies.get("smart-menu-restaurant")?.value) || 1;

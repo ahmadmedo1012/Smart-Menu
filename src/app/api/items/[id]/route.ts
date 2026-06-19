@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, notFound, handleError } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -21,7 +22,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { id } = await params;
     const body = updateSchema.parse(await request.json());
@@ -47,7 +47,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { id } = await params;
     const existing = await prisma.menuItem.findUnique({

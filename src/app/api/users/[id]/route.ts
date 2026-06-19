@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
 import { success, handleError } from "@/lib/api-helpers";
 
 export async function DELETE(
@@ -7,7 +8,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized || auth.role !== "admin") return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     const { id } = await params;

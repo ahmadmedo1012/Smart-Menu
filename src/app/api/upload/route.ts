@@ -4,6 +4,7 @@ import sharp from "sharp";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { success, error, handleError } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED_MIMES = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
@@ -16,7 +17,6 @@ const fileSchema = z
 
 export async function POST(request: NextRequest) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
 
     const formData = await request.formData();

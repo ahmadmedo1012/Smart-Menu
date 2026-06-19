@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, notFound, handleError } from "@/lib/api-helpers";
 
+import { requireAuth } from "@/lib/auth";
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
   nameAr: z.string().nullable().optional(),
@@ -16,7 +17,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
 
     const { id } = await params;
@@ -36,7 +36,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
 
     const { id } = await params;

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
+import { requireAuth } from "@/lib/auth";
 
 const schema = z.object({
   username: z.string().min(3),
@@ -12,7 +13,6 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized || auth.role !== "admin") {
       return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });

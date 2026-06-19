@@ -6,6 +6,7 @@ const publicPrefixes = [
   "/favicon.ico",
   "/sitemap.xml",
   "/robots.txt",
+  "/uploads",        // images
   "/api/auth",
   "/login",
   "/menu",
@@ -48,7 +49,7 @@ export function proxy(request: NextRequest) {
 
   // Root page — allow through
   if (pathname === "/") {
-    return NextResponse.next();
+    return response;
   }
 
   const authCookie = request.cookies.get("smart-menu-auth");

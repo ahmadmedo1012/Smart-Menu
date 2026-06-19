@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 const orderItemSchema = z.object({
   itemId: z.number().int().positive(),
@@ -24,7 +25,6 @@ const createSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized) return NextResponse.json({ success: false, error: "غير مصرح" }, { status: 401 });
 
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       recalcSubtotal += dbPrice * item.quantity;
     }
 
-    const orderNo = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    const orderNo = `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 
     const restaurant = await prisma.restaurant.findUnique({ where: { id: body.restaurantId } });
     if (!restaurant) {

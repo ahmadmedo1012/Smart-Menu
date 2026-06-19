@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
@@ -39,7 +40,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     if (!(await requireAuth()).authorized) {
       return error("غير مصرح", 401);
     }

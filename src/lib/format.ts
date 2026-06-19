@@ -13,14 +13,6 @@ function toArabicNumber(n: number | string): string {
 }
 
 /**
- * Format price with the currency symbol.
- * Uses Western digits only.
- */
-function formatPrice(amount: number): string {
-  return `${toArabicNumber(amount.toFixed(1))} د.ل`;
-}
-
-/**
  * Format a date with Arabic month names and Western digits only.
  */
 const ARABIC_MONTHS = [
@@ -37,4 +29,4 @@ function formatDate(date: Date): string {
   return `${toArabicNumber(d)} ${m} ${toArabicNumber(y)} ${h}:${min}`;
 }
 
-export { toArabicNumber, formatPrice, formatDate };
+export { toArabicNumber, formatDate };

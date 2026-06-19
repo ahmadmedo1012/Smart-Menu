@@ -10,10 +10,8 @@ export function error(message: string, status = 400) {
 }
 
 export function validationError(err: ZodError) {
-  const issues: { path: (string | number)[]; message: string }[] =
-    (err as { issues?: unknown[] }).issues as never ?? [];
-  const messages = issues.map(
-    (e) => `${String(e.path.join("."))}: ${e.message}`
+  const messages = err.issues.map(
+    (e) => `${e.path.join(".")}: ${e.message}`
   );
   return NextResponse.json(
     { success: false, error: "Validation failed", details: messages },

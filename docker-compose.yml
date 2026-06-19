@@ -7,9 +7,8 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:./prisma/dev.db
+      - DATABASE_URL=postgresql://neondb_owner:npg_EIyOfSqdl0w1@ep-shiny-silence-atooifxr-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require
       - NEXT_PUBLIC_DOMAIN=http://localhost:3000
     volumes:
-      - ./prisma/dev.db:/app/prisma/dev.db
       - ./public/uploads:/app/public/uploads
     restart: unless-stopped

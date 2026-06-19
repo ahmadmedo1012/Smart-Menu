@@ -1,9 +1,21 @@
 import { prisma } from "@/lib/db";
 import { cookies } from "next/headers";
 
+const LOGIN_LOCK = new Map<string, number>();
+
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const lockKey = `${ip}:${username}`;
+    const lastAttempt = LOGIN_LOCK.get(lockKey);
+    if (lastAttempt && Date.now() - lastAttempt < 1000) {
+      await new Promise((r) => setTimeout(r, 1000));
+      return Response.json(
+        { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
+        { status: 401 }
+      );
+    }
 
     if (!username || !password) {
       return Response.json(
@@ -14,6 +26,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
+      LOGIN_LOCK.set(lockKey, Date.now());
       return Response.json(
         { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
         { status: 401 }
@@ -21,8 +34,9 @@ export async function POST(request: Request) {
     }
 
     const { verifyHash } = await import("@/lib/hash");
-    const valid = await verifyHash(password, user.password);
+    const valid = verifyHash(password, user.password);
     if (!valid) {
+      LOGIN_LOCK.set(lockKey, Date.now());
       return Response.json(
         { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
         { status: 401 }

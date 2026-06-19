@@ -1,4 +1,4 @@
-import { randomBytes, pbkdf2Sync } from "crypto";
+import { randomBytes, pbkdf2Sync, timingSafeEqual } from "crypto";
 
 const ITERATIONS = 100_000;
 const KEY_LENGTH = 64;
@@ -12,7 +12,9 @@ export function hashPassword(password: string): string {
 
 export function verifyHash(password: string, stored: string): boolean {
   const [salt, hash] = stored.split(":");
-  if (!salt || !hash) return password === stored; // fallback for unhashed
+  if (!salt || !hash) return false;  // no plaintext fallback
   const derived = pbkdf2Sync(password, salt, ITERATIONS, KEY_LENGTH, DIGEST).toString("hex");
-  return derived === hash;
+  const a = Buffer.from(derived);
+  const b = Buffer.from(hash);
+  return a.length === b.length && timingSafeEqual(a, b);
 }

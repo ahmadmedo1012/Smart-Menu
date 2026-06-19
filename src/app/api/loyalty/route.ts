@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
+import { randomBytes } from "crypto";
 
 const TIER_ORDER = ["bronze", "silver", "gold", "platinum"] as const;
 
@@ -26,7 +27,7 @@ function getNextTierInfo(currentTier: string) {
 }
 
 function generateReferralCode(): string {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  return randomBytes(4).toString("hex").toUpperCase();
 }
 
 export async function POST(request: NextRequest) {

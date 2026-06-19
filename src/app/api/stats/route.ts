@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
 

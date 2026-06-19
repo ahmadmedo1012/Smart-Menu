@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -55,7 +56,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
 
@@ -95,7 +95,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { requireAuth } = await import("@/lib/auth");
     const auth = await requireAuth();
     if (!auth.authorized || auth.role !== "admin") {
       return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
