@@ -32,8 +32,21 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status") || undefined;
     const restaurantId = Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT_ID;
 
-    const where: Record<string, unknown> = { restaurantId };
+    const where: Record<string, unknown> = {};
+    if (restaurantId !== DEFAULT_RESTAURANT_ID) where.restaurantId = restaurantId;
     if (status) where.status = status;
+    const dateFrom = searchParams.get("dateFrom");
+    const dateTo = searchParams.get("dateTo");
+    if (dateFrom || dateTo) {
+      const createdAt: Record<string, Date> = {};
+      if (dateFrom) createdAt.gte = new Date(dateFrom);
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        createdAt.lte = end;
+      }
+      where.createdAt = createdAt;
+    }
 
     const [data, total] = await Promise.all([
       prisma.order.findMany({
@@ -43,6 +56,7 @@ export async function GET(request: NextRequest) {
           items: {
             include: { item: { select: { id: true, name: true, nameAr: true } } },
           },
+          restaurant: { select: { id: true, name: true, slug: true } },
         },
         skip: (page - 1) * pageSize,
         take: pageSize,

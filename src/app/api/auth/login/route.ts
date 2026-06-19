@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Set auth cookie
+    // Set auth cookies
     const cookieStore = await cookies();
     cookieStore.set("smart-menu-auth", "true", {
       httpOnly: true,
@@ -33,6 +33,22 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: 60 * 60 * 24, // 24 hours
     });
+    cookieStore.set("smart-menu-role", user.role, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
+    if (user.restaurantId) {
+      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
+    }
 
     return Response.json({
       success: true,
@@ -42,6 +58,7 @@ export async function POST(request: Request) {
         username: user.username,
         name: user.name,
         role: user.role,
+        restaurantId: user.restaurantId,
       },
     });
   } catch (error) {

@@ -2,11 +2,90 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import {
+  LogIn,
+  Moon,
+  Sun,
+  UtensilsCrossed,
+  Pizza,
+  Coffee,
+  ChefHat,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+
+const foodIcons = [
+  { Icon: UtensilsCrossed, x: "10%", y: "15%", size: 28, delay: "0s", duration: "6s" },
+  { Icon: Pizza, x: "85%", y: "20%", size: 36, delay: "1s", duration: "7s" },
+  { Icon: Coffee, x: "15%", y: "75%", size: 24, delay: "2s", duration: "5s" },
+  { Icon: ChefHat, x: "80%", y: "80%", size: 32, delay: "0.5s", duration: "8s" },
+  { Icon: UtensilsCrossed, x: "50%", y: "10%", size: 20, delay: "3s", duration: "6.5s" },
+  { Icon: Pizza, x: "20%", y: "50%", size: 22, delay: "1.5s", duration: "7.5s" },
+  { Icon: Coffee, x: "75%", y: "45%", size: 18, delay: "2.5s", duration: "5.5s" },
+  { Icon: ChefHat, x: "45%", y: "85%", size: 26, delay: "0.8s", duration: "6.8s" },
+];
+
+function FloatingIcons() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {foodIcons.map(({ Icon, x, y, size, delay, duration }, i) => (
+        <div
+          key={i}
+          className="absolute animate-float text-amber-200/30 dark:text-amber-400/15"
+          style={{
+            left: x,
+            top: y,
+            fontSize: size,
+            animationDelay: delay,
+            animationDuration: duration,
+          }}
+        >
+          <Icon size={size} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FloatingShapes() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      <div
+        className="absolute -top-20 -right-20 h-72 w-72 animate-spin-slow rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 blur-3xl dark:from-amber-400/10 dark:to-amber-600/5"
+        style={{ animationDuration: "20s" }}
+      />
+      <div
+        className="absolute -bottom-32 -left-32 h-96 w-96 animate-spin-slow rounded-full bg-gradient-to-tr from-amber-400/15 to-orange-300/10 blur-3xl dark:from-amber-500/8 dark:to-orange-400/5"
+        style={{ animationDuration: "25s" }}
+      />
+      <div
+        className="absolute left-1/3 top-1/4 h-48 w-48 animate-float-delayed rounded-full bg-gradient-to-b from-amber-200/20 to-transparent blur-2xl dark:from-amber-400/8"
+        style={{ animationDelay: "1s", animationDuration: "8s" }}
+      />
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="magnetic-btn fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full glass-strong text-muted-foreground hover:text-foreground"
+      aria-label="تبديل الثيم"
+    >
+      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+    </button>
+  );
+}
 
 function LoginForm() {
   const router = useRouter();
@@ -16,6 +95,7 @@ function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,51 +116,117 @@ function LoginForm() {
       }
 
       toast.success("تم تسجيل الدخول بنجاح");
-      router.push(redirect);
+
+      if (data.user?.role === "owner") {
+        router.push("/owner");
+      } else {
+        router.push(redirect);
+      }
       router.refresh();
     } catch {
-      toast.error("حدث خطأ في الاتصال بالخادم");
+      toast.error("خطأ في الاتصال بالخادم");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
-      <Card className="w-full max-w-md animate-fade-in">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">الربط الذكي</CardTitle>
-          <CardDescription>Smart Menu - لوحة التحكم</CardDescription>
+    <div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6">
+      {/* Background gradient */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-amber-50 via-orange-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30" />
+
+      <FloatingShapes />
+      <FloatingIcons />
+      <ThemeToggle />
+
+      {/* Decorative top bar */}
+      <div className="fixed top-0 right-0 left-0 z-10 h-1 bg-gradient-to-l from-amber-400 via-amber-500 to-amber-300 dark:from-amber-500 dark:via-amber-400 dark:to-amber-600" />
+
+      <Card className="animate-scale-in relative z-10 w-full max-w-sm border-none bg-white/70 shadow-xl backdrop-blur-xl sm:max-w-md sm:rounded-2xl dark:bg-zinc-900/70 dark:shadow-2xl">
+        {/* Logo area */}
+        <CardHeader className="pb-2 pt-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-500 dark:to-amber-700">
+            <UtensilsCrossed className="h-8 w-8 text-white" />
+          </div>
+          <CardTitle className="font-arabic text-2xl font-bold tracking-tight">
+            الربط الذكي
+          </CardTitle>
+          <CardDescription className="font-arabic text-base text-muted-foreground/80">
+            لوحة تحكم المطاعم
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+        <CardContent className="px-6 pb-8 pt-4 sm:px-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="username">اسم المستخدم</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="admin"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                autoFocus
-              />
+              <Label htmlFor="username" className="font-arabic text-sm font-medium">
+                اسم المستخدم
+              </Label>
+              <div className="glow-within rounded-lg border border-input bg-background/50 transition-colors focus-within:border-amber-400 dark:focus-within:border-amber-500">
+                <Input
+                  id="username"
+                  type="text"
+                  dir="auto"
+                  placeholder="اسم المستخدم"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  autoFocus
+                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <Label htmlFor="password" className="font-arabic text-sm font-medium">
+                كلمة المرور
+              </Label>
+              <div className="glow-within relative rounded-lg border border-input bg-background/50 transition-colors focus-within:border-amber-400 dark:focus-within:border-amber-500">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  dir="auto"
+                  placeholder="كلمة المرور"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-0 bg-transparent pr-9 focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+
+            <Button
+              type="submit"
+              className="magnetic-btn mt-2 h-10 w-full rounded-xl bg-gradient-to-l from-amber-500 to-amber-600 font-arabic text-base font-semibold text-white shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-amber-700 hover:shadow-amber-500/40 disabled:opacity-60 dark:from-amber-400 dark:to-amber-500 dark:text-zinc-900 dark:shadow-amber-400/25 dark:hover:from-amber-500 dark:hover:to-amber-600"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <LogIn className="h-4 w-4 animate-pulse" />
+                  جاري تسجيل الدخول...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <LogIn className="h-4 w-4" />
+                  تسجيل الدخول
+                </span>
+              )}
             </Button>
           </form>
+
+          {/* Footer */}
+          <p className="mt-6 text-center text-xs text-muted-foreground/60 font-arabic">
+            نظام إدارة المطاعم — الربط الذكي
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -89,11 +235,18 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">جاري التحميل...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-10 w-10 animate-pulse rounded-full bg-amber-400/40" />
+            <span className="animate-breath font-arabic text-sm text-muted-foreground">
+              جاري التحميل...
+            </span>
+          </div>
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

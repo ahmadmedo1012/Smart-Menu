@@ -1,0 +1,14 @@
+{
+  "id": "session-1781740999927",
+  "startedAt": "2026-06-18T00:03:19.927Z",
+  "cwd": "/home/ahmed/UTILITIES/smart-menu",
+  "context": {},
+  "metrics": {
+    "edits": 0,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "endedAt": "2026-06-18T00:03:49.166Z",
+  "duration": 29239
+}

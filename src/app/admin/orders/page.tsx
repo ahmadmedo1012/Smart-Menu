@@ -2,32 +2,33 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
-  ClipboardList,
-  Search,
-  AlertCircle,
-  Eye,
+  ClipboardList, Search, Store, Clock, ChefHat,
+  CheckCircle, XCircle, TrendingUp,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from "@/lib/format"
 
 interface Order {
-  id: number
-  orderNo: string
-  customerName: string
-  customerPhone: string
-  status: string
-  total: number
-  subtotal: number
-  items: { quantity: number }[]
+  id: number; orderNo: string; customerName: string; status: string
+  total: number; items: { quantity: number }[]
+  restaurant: { id: number; name: string; slug: string } | null
   createdAt: string
 }
 
-const statusTabs = [
+const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
+  new: { label: "جديد", icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30" },
+  ready: { label: "جاهز", icon: CheckCircle, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30" },
+  completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-50 dark:bg-gray-800/30" },
+  cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30" },
+}
+
+const TABS = [
   { value: "", label: "الكل" },
   { value: "new", label: "جديد" },
   { value: "preparing", label: "قيد التحضير" },
@@ -36,51 +37,31 @@ const statusTabs = [
   { value: "cancelled", label: "ملغي" },
 ]
 
-const statusBadge: Record<string, string> = {
-  new: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  preparing:
-    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  ready:
-    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  completed: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
-  cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-}
-
-const statusLabel: Record<string, string> = {
-  new: "جديد",
-  preparing: "قيد التحضير",
-  ready: "جاهز",
-  completed: "مكتمل",
-  cancelled: "ملغي",
-}
-
-export default function OrdersPage() {
+export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = useState("")
+  const [filter, setFilter] = useState("")
   const [search, setSearch] = useState("")
+  const [dateFrom, setDateFrom] = useState("")
+  const [dateTo, setDateTo] = useState("")
   const router = useRouter()
 
   const fetchOrders = useCallback(async (status: string) => {
     try {
       setLoading(true)
-      setError(null)
-      const url = status ? `/api/orders?status=${status}` : "/api/orders"
+      const params = new URLSearchParams()
+      if (status) params.set("status", status)
+      if (dateFrom) params.set("dateFrom", dateFrom)
+      if (dateTo) params.set("dateTo", dateTo)
+      const url = `/api/orders?${params.toString()}`
       const res = await fetch(url)
-      if (!res.ok) throw new Error("فشل تحميل الطلبات")
       const data = await res.json()
-      setOrders(Array.isArray(data) ? data : [])
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
+      setOrders(data.data ?? data ?? [])
+    } catch { toast.error("فشل تحميل الطلبات") }
+    finally { setLoading(false) }
   }, [])
 
-  useEffect(() => {
-    fetchOrders(statusFilter)
-  }, [statusFilter, fetchOrders])
+  useEffect(() => { fetchOrders(filter) }, [filter, fetchOrders])
 
   const updateStatus = async (id: number, status: string) => {
     try {
@@ -89,129 +70,193 @@ export default function OrdersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       })
-      if (!res.ok) throw new Error("فشل تحديث الحالة")
-      toast.success(`تم تغيير الحالة إلى ${statusLabel[status] || status}`)
-      fetchOrders(statusFilter)
-    } catch (e: any) {
-      toast.error(e.message)
-    }
+      if (res.ok) {
+        toast.success(`تم تغيير الحالة`)
+        fetchOrders(filter)
+      }
+    } catch { toast.error("فشل التحديث") }
   }
 
-  const filteredOrders = orders.filter((o) => {
+  const nextStatus: Record<string, string> = {
+    new: "preparing", preparing: "ready", ready: "completed",
+  }
+
+  const filtered = orders.filter(o => {
     if (!search) return true
     const q = search.toLowerCase()
-    return (
-      o.orderNo.toLowerCase().includes(q) ||
-      o.customerName.toLowerCase().includes(q)
-    )
+    return o.orderNo.toLowerCase().includes(q) ||
+      o.customerName.toLowerCase().includes(q) ||
+      (o.restaurant?.name || "").includes(q)
   })
 
-  if (loading && orders.length === 0) {
-    return (
-      <div className="space-y-4 animate-fade-in">
-        <div className="h-10 w-48 bg-muted rounded animate-pulse" />
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-8 w-20 bg-muted rounded animate-pulse" />
-          ))}
-        </div>
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="h-16 animate-pulse" />
-        ))}
-      </div>
-    )
-  }
+  // Stats
+  const totalNew = orders.filter(o => o.status === "new").length
+  const totalPreparing = orders.filter(o => o.status === "preparing").length
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-        <AlertCircle className="h-10 w-10 text-destructive" />
-        <p className="text-lg font-medium">عذراً، حدث خطأ</p>
-        <p className="text-sm">{error}</p>
-        <Button variant="outline" onClick={() => fetchOrders(statusFilter)}>
-          إعادة المحاولة
-        </Button>
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="space-y-4 animate-fade-in">
+      {[1,2,3].map(i => <div key={i} className="h-20 rounded-2xl bg-muted/50 animate-breath" />)}
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">الطلبات</h2>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="بحث برقم الطلب أو اسم العميل..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pr-9"
-          />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">الطلبات</h2>
+          <p className="text-sm text-muted-foreground">{toArabicNumber(orders.length)} طلب</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {statusTabs.map((tab) => (
-          <Button
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-4">
+          <p className="text-xs text-muted-foreground">إجمالي</p>
+          <p className="text-2xl font-bold mt-1">{toArabicNumber(orders.length)}</p>
+        </div>
+        <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/30 p-4">
+          <p className="text-xs text-blue-600 dark:text-blue-400">جديد</p>
+          <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">{toArabicNumber(totalNew)}</p>
+        </div>
+        <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 p-4">
+          <p className="text-xs text-amber-600 dark:text-amber-400">قيد التحضير</p>
+          <p className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">{toArabicNumber(totalPreparing)}</p>
+        </div>
+        <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">جاهز + مكتمل</p>
+          <p className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">
+            {toArabicNumber(orders.filter(o => o.status === "ready" || o.status === "completed").length)}
+          </p>
+        </div>
+      </div>
+
+      {/* Search + filter */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="ابحث برقم الطلب أو العميل أو المطعم..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20"
+          />
+        </div>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={e => { setDateFrom(e.target.value); fetchOrders(filter) }}
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
+          title="من تاريخ"
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={e => { setDateTo(e.target.value); fetchOrders(filter) }}
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
+          title="إلى تاريخ"
+        />
+        {(dateFrom || dateTo) && (
+          <button
+            type="button"
+            onClick={() => { setDateFrom(""); setDateTo(""); fetchOrders(filter) }}
+            className="h-11 px-4 rounded-2xl border border-border/30 text-sm hover:bg-accent transition-all shrink-0"
+          >
+            إلغاء
+          </button>
+        )}
+      </div>
+
+      {/* Status tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {TABS.map(tab => (
+          <button
             key={tab.value}
-            variant={statusFilter === tab.value ? "default" : "outline"}
-            size="sm"
-            onClick={() => setStatusFilter(tab.value)}
+            type="button"
+            onClick={() => setFilter(tab.value)}
+            className={cn(
+              "snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
+              filter === tab.value
+                ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25"
+                : "bg-card/50 border border-border/30 hover:border-amber-200/30"
+            )}
           >
             {tab.label}
-          </Button>
+          </button>
         ))}
       </div>
 
-      {filteredOrders.length === 0 ? (
+      {/* Orders */}
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <ClipboardList className="h-12 w-12" />
-          <p className="text-lg font-medium">
-            {search ? "لا توجد نتائج للبحث" : "لا توجد طلبات"}
-          </p>
+          <ClipboardList className="size-12 text-muted-foreground/50" />
+          <p className="text-lg font-medium">{search ? "لا توجد نتائج" : "لا توجد طلبات"}</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredOrders.map((order) => (
-            <Card
-              key={order.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => router.push(`/admin/orders/${order.id}`)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+          {filtered.map(order => {
+            const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
+            const next = nextStatus[order.status]
+
+            return (
+              <div
+                key={order.id}
+                className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-amber-200/30 hover:shadow-md transition-all cursor-pointer"
+                onClick={() => router.push(`/admin/orders/${order.id}`)}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("size-11 rounded-xl flex items-center justify-center shrink-0", config.bg)}>
+                      <config.icon className={cn("size-5", config.color)} />
+                    </div>
                     <div>
-                      <p className="font-medium">{order.orderNo}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {order.customerName}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">{order.orderNo}</p>
+                        <Badge className={cn("text-xs", config.bg, config.color)}>
+                          {config.label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{order.customerName}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {order.restaurant && (
+                          <span className="text-xs text-muted-foreground/60 flex items-center gap-1">
+                            <Store className="size-3" />
+                            {order.restaurant.name}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground/60">
+                          {order.items?.length ?? 0} أصناف
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">
-                        {order.items?.length ?? 0} أصناف
-                      </p>
-                      <p className="font-semibold">{order.total} ر.س</p>
-                    </div>
-                    <Badge
-                      className={cn(
-                        "text-xs",
-                        statusBadge[order.status] ??
-                          "bg-gray-100 text-gray-700"
-                      )}
-                    >
-                      {statusLabel[order.status] || order.status}
-                    </Badge>
+
+                  <div className="text-left shrink-0">
+                    <p className="font-bold text-lg tabular-nums">{toArabicNumber(order.total.toFixed(1))}</p>
+                    <p className="text-xs text-muted-foreground">د.ل</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                {/* Quick status action */}
+                {next && (
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-border/20">
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
+                      className={cn(
+                        "flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
+                        next === "preparing" && "border-amber-200/30 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20",
+                        next === "ready" && "border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20",
+                        next === "completed" && "border-blue-200/30 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/20",
+                      )}
+                    >
+                      ← {STATUS_CONFIG[next]?.label}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

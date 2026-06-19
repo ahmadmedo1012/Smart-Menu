@@ -1,0 +1,308 @@
+"use client"
+
+import { useEffect, useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
+import { ClipboardList, ArrowRight, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { toArabicNumber } from "@/lib/format"
+
+interface Order {
+  id: number; orderNo: string; customerName: string; customerPhone?: string; status: string;
+  total: number; pickupType: string; createdAt: string;
+  items: { quantity: number }[]
+}
+
+const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const;
+const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string; next: string | null }> = {
+  new: { label: "جديد", icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30", next: "preparing" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30", next: "ready" },
+  ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30", next: "completed" },
+  completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-500 dark:text-gray-400", bg: "bg-gray-50 dark:bg-gray-800/30", next: null },
+  cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30", next: null },
+};
+
+const TABS = [
+  { value: "", label: "الكل", count: 0 },
+  { value: "new", label: "جديد", count: 0 },
+  { value: "preparing", label: "قيد التحضير", count: 0 },
+  { value: "ready", label: "جاهز", count: 0 },
+  { value: "completed", label: "مكتمل", count: 0 },
+];
+
+export default function OwnerOrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [filter, setFilter] = useState("")
+  const [search, setSearch] = useState("")
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [dateFrom, setDateFrom] = useState("")
+  const [dateTo, setDateTo] = useState("")
+  const router = useRouter()
+
+  const fetchOrders = useCallback(async (status: string, pageNum = 1, append = false) => {
+    try {
+      if (pageNum === 1) setLoading(true)
+      else setLoadingMore(true)
+      const params = new URLSearchParams()
+      if (status) params.set("status", status)
+      params.set("page", String(pageNum))
+      params.set("pageSize", "20")
+      if (dateFrom) params.set("dateFrom", dateFrom)
+      if (dateTo) params.set("dateTo", dateTo)
+      const url = `/api/orders?${params.toString()}`
+      const res = await fetch(url)
+      const json = await res.json()
+      const newOrders = json.data ?? json ?? []
+      if (append) {
+        setOrders(prev => [...prev, ...newOrders])
+      } else {
+        setOrders(newOrders)
+      }
+      setHasMore(newOrders.length === 20)
+      setPage(pageNum)
+    } catch { toast.error("فشل تحميل الطلبات") }
+    finally { if (pageNum === 1) setLoading(false); else setLoadingMore(false) }
+  }, [])
+
+  const loadMore = () => fetchOrders(filter, page + 1, true)
+
+  useEffect(() => { fetchOrders(filter, 1, false) }, [filter, fetchOrders])
+
+  const updateStatus = async (orderId: number, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (res.ok) {
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
+        toast.success(`تم تغيير الحالة إلى ${STATUS_CONFIG[newStatus]?.label}`)
+      }
+    } catch { toast.error("فشل تحديث الحالة") }
+  }
+
+  const filtered = orders.filter(o =>
+    !search || o.orderNo.includes(search) || o.customerName.includes(search)
+  )
+
+  const tabsWithCounts = TABS.map(tab => ({
+    ...tab,
+    count: tab.value === "" ? orders.length : orders.filter(o => o.status === tab.value).length,
+  }))
+
+  if (loading) return (
+    <div className="space-y-4 animate-fade-in">
+      {[1, 2, 3].map(i => (
+        <div key={i} className="h-20 rounded-2xl bg-muted/50 animate-breath" />
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2 text-muted-foreground">
+        <ArrowRight className="ml-1 h-4 w-4" />
+        العودة
+      </Button>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">الطلبات</h2>
+          <p className="text-sm text-muted-foreground">{toArabicNumber(orders.length)} طلب</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const headers = "رقم الطلب,العميل,الهاتف,الحالة,النوع,المجموع,التاريخ"
+            const rows = orders.map(o => {
+              const statusLabel = o.status === "new" ? "جديد" : o.status === "preparing" ? "تحضير" : o.status === "ready" ? "جاهز" : o.status === "completed" ? "مكتمل" : "ملغي"
+              const typeLabel = o.pickupType === "delivery" ? "توصيل" : o.pickupType === "takeaway" ? "سفري" : "داخل المكان"
+              return `${o.orderNo},${o.customerName},${o.customerPhone || ""},${statusLabel},${typeLabel},${o.total},${new Date(o.createdAt).toLocaleDateString("ar-SA")}`
+            }).join("\n")
+            const csv = `${headers}\n${rows}`
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+            const link = document.createElement("a")
+            link.href = URL.createObjectURL(blob)
+            link.download = `orders-${new Date().toISOString().slice(0,10)}.csv`
+            link.click()
+          }}
+          disabled={orders.length === 0}
+          className="h-11 px-5 rounded-2xl border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-40 flex items-center gap-2"
+        >
+          <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+          </svg>
+          تصدير CSV
+        </button>
+      </div>
+
+      {/* Search + Date filter */}
+      <div className="flex gap-2 items-start">
+        <div className="relative flex-1">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="ابحث برقم الطلب أو اسم العميل..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20"
+          />
+        </div>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={e => { setDateFrom(e.target.value); fetchOrders(filter, 1, false) }}
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
+          title="من تاريخ"
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={e => { setDateTo(e.target.value); fetchOrders(filter, 1, false) }}
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
+          title="إلى تاريخ"
+        />
+        {(dateFrom || dateTo) && (
+          <button
+            type="button"
+            onClick={() => { setDateFrom(""); setDateTo(""); fetchOrders(filter, 1, false) }}
+            className="h-11 px-4 rounded-2xl border border-border/30 text-sm hover:bg-accent transition-all"
+          >
+            إلغاء
+          </button>
+        )}
+      </div>
+
+      {/* Status tabs with counts */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {tabsWithCounts.map(tab => (
+          <button
+            key={tab.value}
+            type="button"
+            onClick={() => setFilter(tab.value)}
+            className={cn(
+              "snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2",
+              filter === tab.value
+                ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25"
+                : "bg-card/50 border border-border/30 hover:border-amber-200/30"
+            )}
+          >
+            {tab.label}
+            <span className={cn(
+              "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
+              filter === tab.value ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"
+            )}>
+              {toArabicNumber(tab.count)}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Orders */}
+      {loadingMore && (
+        <div className="flex items-center justify-center py-4">
+          <div className="size-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+        </div>
+      )}
+
+      {hasMore && orders.length >= 20 && filtered.length >= 20 && (
+        <div className="flex justify-center pt-2">
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="px-8 py-3 rounded-2xl border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-50"
+          >
+            {loadingMore ? "جاري التحميل..." : "تحميل المزيد ↓"}
+          </button>
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
+          <div className="size-20 rounded-2xl bg-muted/50 flex items-center justify-center">
+            <ClipboardList className="size-10 text-muted-foreground/50" />
+          </div>
+          <p className="text-lg font-medium">{search ? "لا توجد نتائج" : "لا توجد طلبات"}</p>
+          <p className="text-sm text-muted-foreground/60">
+            {search ? "جرب كلمات بحث أخرى" : "عندما يطلب الزبائن، ستظهر الطلبات هنا"}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map(order => {
+            const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new;
+            const StatusIcon = config.icon;
+            const nextStatus = config.next;
+
+            return (
+              <div
+                key={order.id}
+                className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-amber-200/30 hover:shadow-md transition-all cursor-pointer"
+                onClick={() => router.push(`/owner/orders/${order.id}`)}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("size-11 rounded-xl flex items-center justify-center shrink-0", config.bg)}>
+                      <StatusIcon className={cn("size-5", config.color)} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold">{order.orderNo}</p>
+                        <Badge className={cn("text-xs", config.bg, config.color)}>
+                          {config.label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{order.customerName}</p>
+                      <p className="text-xs text-muted-foreground/60 mt-0.5">
+                        {order.items?.length ?? 0} أصناف • {order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المكان"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-left shrink-0">
+                    <p className="font-bold text-lg tabular-nums">{toArabicNumber(order.total.toFixed(1))}</p>
+                    <p className="text-xs text-muted-foreground">د.ل</p>
+                  </div>
+                </div>
+
+                {/* Status actions */}
+                {nextStatus && (
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-border/20">
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); updateStatus(order.id, nextStatus) }}
+                      className={cn(
+                        "flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
+                        nextStatus === "preparing" && "border-amber-200/30 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20",
+                        nextStatus === "ready" && "border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20",
+                        nextStatus === "completed" && "border-blue-200/30 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/20",
+                      )}
+                    >
+                      ← {STATUS_CONFIG[nextStatus]?.label}
+                    </button>
+                    {order.status === "new" && (
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); updateStatus(order.id, "cancelled") }}
+                        className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+                      >
+                        إلغاء
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  )
+}

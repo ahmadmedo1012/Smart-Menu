@@ -1,0 +1,36 @@
+{
+  "name": "الربط الذكي | Smart Menu",
+  "short_name": "Smart Menu",
+  "description": "منيو رقمي وطلبات عبر واتساب للمطاعم والمقاهي",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#d97706",
+  "dir": "rtl",
+  "lang": "ar",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["food", "business", "utilities"],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/"
+}

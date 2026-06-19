@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { Search, MessageCircle, Sparkles, X, ShoppingCart } from "lucide-react";
+import { useCart } from "@/store/cart";
+import { toast } from "sonner";
 import MenuItemCard, { type MenuItemProp } from "./MenuItemCard";
-import CartFloatingButton from "./CartFloatingButton";
+import OrderDialog from "./OrderDialog";
+import { toArabicNumber } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 type CategoryProp = {
   id: number;
@@ -12,18 +16,71 @@ type CategoryProp = {
   icon: string;
 };
 
+const SORT_OPTIONS = [
+  { value: "default", label: "ترتيب افتراضي" },
+  { value: "price-asc", label: "السعر: من الأقل للأعلى" },
+  { value: "price-desc", label: "السعر: من الأعلى للأقل" },
+  { value: "name", label: "الاسم" },
+] as const;
+
+type SortKey = (typeof SORT_OPTIONS)[number]["value"];
+
 export default function MenuPageClient({
   categories,
   items,
+  restaurantWhatsapp,
+  restaurantName,
+  restaurantId,
+  restaurantLogo,
 }: {
   categories: CategoryProp[];
   items: (MenuItemProp & { category: CategoryProp })[];
+  restaurantWhatsapp?: string;
+  restaurantName?: string;
+  restaurantId?: number;
+  restaurantLogo?: string;
 }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
+  const [showFloatingWa, setShowFloatingWa] = useState(false);
+  const [sort, setSort] = useState<SortKey>("default");
+  const [showSort, setShowSort] = useState(false);
+  const cart = useCart();
 
+  const handleQuickAdd = (item: MenuItemProp) => {
+    cart.addItem({
+      itemId: item.id,
+      name: item.nameAr || item.name,
+      price: item.discountedPrice ?? item.price,
+      image: item.image || undefined,
+    });
+    toast.success(
+      <div className="flex items-center gap-3">
+        <div className="size-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0">
+          <ShoppingCart className="size-4 text-white" />
+        </div>
+        <div>
+          <p className="font-semibold text-sm">تمت الإضافة!</p>
+          <p className="text-xs text-muted-foreground">{item.nameAr || item.name}</p>
+        </div>
+      </div>,
+      { duration: 2000 }
+    );
+  };
+
+  const handleScroll = useCallback(() => {
+    setShowFloatingWa(window.scrollY > 300);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  // Sort & filter
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
+    let result = items.filter((item) => {
       const matchesSearch =
         search === "" ||
         (item.nameAr || item.name).includes(search) ||
@@ -32,76 +89,222 @@ export default function MenuPageClient({
         activeCategory === null || item.categoryId === activeCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [items, search, activeCategory]);
+
+    switch (sort) {
+      case "price-asc":
+        result.sort((a, b) => (a.discountedPrice ?? a.price) - (b.discountedPrice ?? b.price));
+        break;
+      case "price-desc":
+        result.sort((a, b) => (b.discountedPrice ?? b.price) - (a.discountedPrice ?? a.price));
+        break;
+      case "name":
+        result.sort((a, b) => (a.nameAr || a.name).localeCompare(b.nameAr || b.name));
+        break;
+    }
+    return result;
+  }, [items, search, activeCategory, sort]);
+
+  const itemCounts = useMemo(() => {
+    const counts = new Map<number | null, number>();
+    counts.set(null, items.length);
+    for (const cat of categories) {
+      counts.set(cat.id, items.filter((i) => i.categoryId === cat.id).length);
+    }
+    return counts;
+  }, [items, categories]);
+
+  const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
+  const hasActiveFilter = search !== "" || activeCategory !== null;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 pb-24">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">القائمة</h1>
-        <p className="text-muted-foreground">تصفح أصنافنا واختر ما تريد</p>
+    <>
+      {/* Search + Sort bar — sticky */}
+      <div className="relative mb-4 flex gap-2 items-start">
+        <div className="flex-1 relative">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="ابحث في القائمة..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full h-12 pr-11 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20 shadow-sm"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
+            >
+              <X className="size-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Sort dropdown */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowSort(!showSort)}
+            className="h-12 px-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
+          >
+            <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
+            </svg>
+          </button>
+          {showSort && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
+              <div className="absolute left-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/30 bg-card shadow-xl animate-scale-in origin-top-left">
+                {SORT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => { setSort(opt.value); setShowSort(false); }}
+                    className={cn(
+                      "w-full text-right px-4 py-3 text-sm transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent",
+                      sort === opt.value && "bg-accent font-medium text-primary",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-        <input
-          type="text"
-          placeholder="ابحث في القائمة..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full h-10 pr-10 rounded-lg border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        />
-      </div>
+      {/* Active filters indicator */}
+      {hasActiveFilter && (
+        <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
+          <Sparkles className="size-3.5 text-primary" />
+          <span>
+            {filteredItems.length === 0
+              ? "لا توجد نتائج"
+              : `تم العثور على ${toArabicNumber(filteredItems.length)} صنف`}
+          </span>
+          {activeCategory !== null && (
+            <button
+              type="button"
+              onClick={() => setActiveCategory(null)}
+              className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              إعادة تعيين
+            </button>
+          )}
+        </div>
+      )}
 
-      {/* Category Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
+      {/* Category tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory">
         <button
           type="button"
           onClick={() => setActiveCategory(null)}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={cn(
+            "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
             activeCategory === null
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-          }`}
+              ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105"
+              : "glass-card hover:bg-amber-500/10",
+          )}
         >
-          الكل
+          <span className="flex items-center gap-2">
+            الكل
+            <span
+              className={cn(
+                "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
+                activeCategory === null
+                  ? "bg-white/20 text-white"
+                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+              )}
+            >
+              {toArabicNumber(itemCounts.get(null) ?? 0)}
+            </span>
+          </span>
         </button>
         {categories.map((cat) => (
           <button
             key={cat.id}
             type="button"
             onClick={() => setActiveCategory(cat.id)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={cn(
+              "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
               activeCategory === cat.id
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            }`}
+                ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105"
+                : "glass-card hover:bg-amber-500/10",
+            )}
           >
-            {cat.nameAr || cat.name}
+            <span className="flex items-center gap-2">
+              {cat.nameAr || cat.name}
+              <span
+                className={cn(
+                  "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
+                  activeCategory === cat.id
+                    ? "bg-white/20 text-white"
+                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                )}
+              >
+                {toArabicNumber(itemCounts.get(cat.id) ?? 0)}
+              </span>
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Items Grid */}
+      {/* Items grid */}
       {filteredItems.length === 0 ? (
-        <div className="text-center py-16 animate-fade-in">
-          <p className="text-muted-foreground">
-            {search
-              ? "لا توجد نتائج للبحث"
-              : "لا توجد أصناف في هذه الفئة"}
+        <div className="text-center py-20 animate-fade-in">
+          <div className="size-20 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto mb-4">
+            <Search className="size-8 text-muted-foreground/50" />
+          </div>
+          <p className="text-muted-foreground text-lg font-medium mb-1">
+            {search ? "لا توجد نتائج للبحث" : "لا توجد أصناف في هذه الفئة"}
+          </p>
+          <p className="text-sm text-muted-foreground/60">
+            {search ? "جرب كلمات بحث أخرى" : "اختر فئة أخرى"}
           </p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {filteredItems.map((item) => (
-            <MenuItemCard key={item.id} item={item} />
+          {filteredItems.map((item, index) => (
+            <div
+              key={item.id}
+              className="animate-reveal"
+              style={{ animationDelay: `${(index % 6) * 80}ms` }}
+            >
+              <MenuItemCard item={item} onOrder={setOrderItem} onAddToCart={handleQuickAdd} />
+            </div>
           ))}
         </div>
       )}
 
-      {/* Floating Cart Button */}
-      <CartFloatingButton />
-    </div>
+      {/* Order Dialog */}
+      <OrderDialog
+        item={orderItem}
+        open={orderItem !== null}
+        onOpenChange={(open) => { if (!open) setOrderItem(null); }}
+        restaurantWhatsapp={restaurantWhatsapp}
+        restaurantName={restaurantName}
+        restaurantId={restaurantId}
+        restaurantLogo={restaurantLogo}
+      />
+
+      {/* Floating WhatsApp */}
+      {waNumber && (
+        <a
+          href={`https://wa.me/${waNumber}?text=${encodeURIComponent("مرحباً، أود الاستفسار عن القائمة")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            "fixed bottom-6 left-6 z-50 size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
+            showFloatingWa
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-8 pointer-events-none",
+          )}
+          aria-label="واتساب"
+        >
+          <MessageCircle className="size-7" />
+        </a>
+      )}
+    </>
   );
 }

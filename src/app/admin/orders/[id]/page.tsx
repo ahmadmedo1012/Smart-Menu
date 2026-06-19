@@ -2,383 +2,293 @@
 
 import { useEffect, useState, use } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import {
-  ArrowRight,
-  Phone,
-  Copy,
-  Check,
-  Clock,
-  AlertCircle,
+  ArrowRight, Copy, Check, AlertCircle, Phone, MessageCircle,
+  ShoppingCart, User, MapPin, FileText, Store,
+  Clock, ChefHat, PackageCheck, CheckCircle, XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from "@/lib/format"
+import Link from "next/link"
 
 interface OrderDetail {
-  id: number
-  orderNo: string
-  customerName: string
-  customerPhone: string
-  notes: string
-  pickupType: string
-  status: string
-  subtotal: number
-  discount: number
-  total: number
-  whatsappSent: boolean
-  createdAt: string
-  items: {
-    id: number
-    quantity: number
-    price: number
-    notes: string
-    item: { name: string; nameAr: string | null }
-  }[]
+  id: number; orderNo: string; customerName: string; customerPhone: string
+  notes: string; pickupType: string; status: string
+  subtotal: number; total: number; createdAt: string
+  restaurant: { id: number; name: string; slug: string } | null
+  items: { id: number; quantity: number; price: number; item: { name: string; nameAr: string | null } }[]
 }
 
-const statusFlow = [
-  "new",
-  "preparing",
-  "ready",
-  "completed",
-  "cancelled",
-] as const
-
-const statusConfig: Record<
-  string,
-  { label: string; color: string; icon: any }
-> = {
-  new: {
-    label: "جديد",
-    color:
-      "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    icon: AlertCircle,
-  },
-  preparing: {
-    label: "قيد التحضير",
-    color:
-      "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-    icon: Clock,
-  },
-  ready: {
-    label: "جاهز",
-    color:
-      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    icon: Check,
-  },
-  completed: {
-    label: "مكتمل",
-    color: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
-    icon: Check,
-  },
-  cancelled: {
-    label: "ملغي",
-    color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-    icon: AlertCircle,
-  },
+const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const
+const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
+  new: { label: "جديد", icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
+  ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
+  completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
+  cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
 }
 
-export default function OrderDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default function AdminOrderDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [updating, setUpdating] = useState(false)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetch(`/api/orders/${id}`)
-      .then((r) => {
-        if (!r.ok) throw new Error("فشل تحميل تفاصيل الطلب")
-        return r.json()
-      })
-      .then(setOrder)
-      .catch((e) => setError(e.message))
+      .then(r => r.json())
+      .then(d => setOrder(d.data ?? d))
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [id])
 
   const updateStatus = async (status: string) => {
-    setUpdating(true)
     try {
       const res = await fetch(`/api/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       })
-      if (!res.ok) throw new Error("فشل تحديث الحالة")
-      const updated = await res.json()
-      setOrder(updated)
-      toast.success(
-        `تم تغيير الحالة إلى ${statusConfig[status]?.label || status}`
-      )
-    } catch (e: any) {
-      toast.error(e.message)
-    } finally {
-      setUpdating(false)
-    }
+      if (!res.ok) throw Error()
+      const d = await res.json()
+      setOrder(d.data ?? d)
+      toast.success(`تم تغيير الحالة إلى ${STATUS_CONFIG[status]?.label}`)
+    } catch { toast.error("فشل تحديث الحالة") }
   }
 
-  const copyWhatsappMessage = () => {
+  const copyAsWhatsApp = () => {
     if (!order) return
-    const items = order.items
-      .map(
-        (oi) =>
-          `- ${oi.item.nameAr || oi.item.name} ×${oi.quantity} = ${oi.price} ر.س`
-      )
-      .join("\n")
-
-    const msg = `📋 طلب رقم: ${order.orderNo}
-👤 العميل: ${order.customerName}
-📞 الهاتف: ${order.customerPhone}
-🕐 الوقت: ${new Date(order.createdAt).toLocaleString("ar-SA")}
-
-🛒 الأصناف:
+    const items = order.items.map(oi =>
+      `• ${oi.item.nameAr || oi.item.name} ×${oi.quantity} = ${toArabicNumber((oi.price * oi.quantity).toFixed(1))} د.ل`
+    ).join("\n")
+    const text = `📋 طلب ${order.orderNo}
+🏪 ${order.restaurant?.name || "المطعم"}
+━━━━━━━━━━━━━
+👤 ${order.customerName} | ${order.customerPhone}
+📍 ${order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المكان"}
+━━━━━━━━━━━━━
 ${items}
-
-💰 الإجمالي: ${order.total} ر.س
-📝 ملاحظات: ${order.notes || "لا يوجد"}
-`
-
-    navigator.clipboard.writeText(msg).then(() => {
-      setCopied(true)
-      toast.success("تم نسخ الرسالة")
-      setTimeout(() => setCopied(false), 2000)
+━━━━━━━━━━━━━
+💰 الإجمالي: ${toArabicNumber(order.total.toFixed(1))} د.ل`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true); toast.success("تم نسخ نص الطلب"); setTimeout(() => setCopied(false), 2000)
     })
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-4 animate-fade-in">
-        <div className="h-8 w-48 bg-muted rounded animate-pulse" />
-        <Card className="h-64 animate-pulse" />
-        <Card className="h-48 animate-pulse" />
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="space-y-4 animate-fade-in max-w-3xl mx-auto">
+      <div className="h-8 w-32 rounded-xl bg-muted/50 animate-breath" />
+      <div className="h-24 rounded-2xl bg-muted/50 animate-breath" />
+      <div className="h-48 rounded-2xl bg-muted/50 animate-breath" />
+    </div>
+  )
 
-  if (error || !order) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-        <AlertCircle className="h-10 w-10 text-destructive" />
-        <p className="text-lg font-medium">عذراً، حدث خطأ</p>
-        <p className="text-sm">{error || "الطلب غير موجود"}</p>
-        <Button variant="outline" onClick={() => router.push("/admin/orders")}>
-          العودة للطلبات
-        </Button>
-      </div>
-    )
-  }
+  if (!order) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
+      <AlertCircle className="size-12 text-destructive/60" />
+      <p className="text-lg font-semibold">الطلب غير موجود</p>
+      <Button variant="outline" onClick={() => router.push("/admin/orders")}>العودة للطلبات</Button>
+    </div>
+  )
 
-  const currentIdx = statusFlow.indexOf(order.status as any)
+  const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
+  const StatusIcon = config.icon
+  const currentIdx = STATUS_FLOW.indexOf(order.status as typeof STATUS_FLOW[number])
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push("/admin/orders")}
-        >
-          <ArrowRight className="ml-1 h-4 w-4" />
-          العودة
-        </Button>
-      </div>
-
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+      {/* Back + title */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            طلب #{order.orderNo}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {new Date(order.createdAt).toLocaleString("ar-SA")}
-          </p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.push("/admin/orders")} className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors">
+            <ArrowRight className="size-4" />
+          </button>
+          <div>
+            <h2 className="text-xl font-bold">طلب #{order.orderNo}</h2>
+            <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleString("ar-SA")}</p>
+          </div>
         </div>
-        <Badge
-          className={cn(
-            "text-sm px-3 py-1",
-            statusConfig[order.status]?.color ??
-              "bg-gray-100 text-gray-700"
-          )}
-        >
-          {statusConfig[order.status]?.label || order.status}
+        <Badge className={cn("text-sm px-4 py-1.5 rounded-full", config.bg, config.color)}>
+          {config.label}
         </Badge>
       </div>
 
-      {/* Status Flow */}
-      <Card>
-        <CardHeader>
-          <h3 className="font-semibold">حالة الطلب</h3>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {statusFlow.slice(0, 4).map((s, idx) => {
-              const isPast = idx <= currentIdx
-              const isCurrent = idx === currentIdx
-              return (
-                <Button
-                  key={s}
-                  size="sm"
-                  variant={isCurrent ? "default" : isPast ? "outline" : "ghost"}
-                  disabled={updating || idx < currentIdx || order.status === "cancelled"}
+      {/* Restaurant info */}
+      {order.restaurant && (
+        <div className="rounded-2xl bg-gradient-to-l from-amber-50/50 to-transparent dark:from-amber-950/10 border border-amber-200/20 dark:border-amber-500/20 p-4 flex items-center gap-3">
+          <Store className="size-5 text-primary" />
+          <span className="font-medium">{order.restaurant.name}</span>
+          <Link href={`/menu/${order.restaurant.slug}`} target="_blank" className="text-xs text-primary hover:text-amber-600 transition-colors mr-auto">
+            عرض المنيو ←
+          </Link>
+        </div>
+      )}
+
+      {/* Status Timeline */}
+      <div className="rounded-2xl bg-card/50 border border-border/30 p-6">
+        <h3 className="text-sm font-semibold text-muted-foreground mb-4">حالة الطلب</h3>
+        <div className="flex items-center">
+          {STATUS_FLOW.map((s, idx) => { const StatusIcon = STATUS_CONFIG[s].icon
+            const isActive = idx <= currentIdx
+            const isCurrent = idx === currentIdx
+            return (
+              <div key={s} className="flex-1 flex flex-col items-center">
+                <button
+                  type="button"
+                  onClick={() => isActive && updateStatus(s)}
+                  disabled={!isActive || order.status === "cancelled"}
                   className={cn(
-                    isPast && !isCurrent && "opacity-60"
+                    "size-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2",
+                    isCurrent ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white border-amber-500 shadow-lg shadow-amber-500/25 scale-110" :
+                    isActive ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 border-emerald-300 dark:border-emerald-700" :
+                    "bg-muted/30 text-muted-foreground/30 border-border/20"
                   )}
-                  onClick={() => updateStatus(s)}
                 >
-                  {statusConfig[s]?.label}
+                  <StatusIcon className="size-5" />
+                </button>
+                <span className={cn(
+                  "text-xs mt-2 font-medium",
+                  isCurrent ? "text-foreground" : isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/40"
+                )}>
+                  {STATUS_CONFIG[s].label}
+                </span>
+                {idx < STATUS_FLOW.length - 1 && (
+                  <div className={cn(
+                    "h-0.5 w-full -mt-6 mr-10",
+                    isActive && idx < currentIdx ? "bg-emerald-300 dark:bg-emerald-700" :
+                    isActive ? "bg-amber-300 dark:bg-amber-700" : "bg-border/20"
+                  )} />
+                )}
+              </div>
+            )
+          })}
+        </div>
+        <div className="flex gap-2 mt-4">
+          {order.status !== "cancelled" && order.status !== "completed" && (
+            <>
+              {currentIdx < STATUS_FLOW.length - 1 && (
+                <Button
+                  onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
+                  className="flex-1 rounded-xl h-11 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                >
+                  ← {STATUS_CONFIG[STATUS_FLOW[currentIdx + 1]]?.label}
                 </Button>
-              )
-            })}
-            {order.status !== "cancelled" && (
+              )}
               <Button
-                size="sm"
-                variant="destructive"
-                disabled={updating}
+                variant="outline"
                 onClick={() => updateStatus("cancelled")}
+                className="rounded-xl h-11 border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
               >
                 إلغاء الطلب
               </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </>
+          )}
+        </div>
+      </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Customer Info */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-semibold">معلومات العميل</h3>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">الاسم</span>
-              <span className="font-medium">{order.customerName}</span>
+      {/* Order info grid */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-5">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
+            <User className="size-4" /> معلومات العميل
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs text-muted-foreground">الاسم</p>
+              <p className="font-medium">{order.customerName}</p>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">الهاتف</span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium" dir="ltr">
-                  {order.customerPhone}
-                </span>
-                <a
-                  href={`https://wa.me/${order.customerPhone.replace(/^0/, "966")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-md p-1 hover:bg-muted"
-                >
-                  <Phone className="h-3.5 w-3.5 text-green-600" />
-                </a>
-              </div>
+            <div>
+              <p className="text-xs text-muted-foreground">رقم الهاتف</p>
+              <a href={`tel:${order.customerPhone}`} className="font-medium text-primary hover:text-amber-600 transition-colors flex items-center gap-1" dir="ltr">
+                <Phone className="size-3" />
+                {order.customerPhone}
+              </a>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">نوع الاستلام</span>
-              <span className="font-medium">
-                {order.pickupType === "delivery" ? "توصيل" : "استلام"}
-              </span>
+            <div>
+              <p className="text-xs text-muted-foreground">نوع الاستلام</p>
+              <p className="font-medium flex items-center gap-1">
+                <MapPin className="size-3.5 text-muted-foreground" />
+                {order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المكان"}
+              </p>
             </div>
             {order.notes && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">ملاحظات</span>
-                <span className="font-medium">{order.notes}</span>
+              <div>
+                <p className="text-xs text-muted-foreground">ملاحظات</p>
+                <p className="text-sm bg-muted/30 rounded-xl p-3 mt-1">{order.notes}</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Order Summary */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-semibold">ملخص الطلب</h3>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-5">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
+            <ShoppingCart className="size-4" /> ملخص الطلب
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">المجموع الفرعي</span>
-              <span>{order.subtotal} ر.س</span>
+              <span className="tabular-nums">{toArabicNumber(order.subtotal.toFixed(1))} د.ل</span>
             </div>
-            {order.discount > 0 && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">الخصم</span>
-                <span className="text-green-600">-{order.discount} ر.س</span>
-              </div>
-            )}
-            <Separator />
-            <div className="flex justify-between font-bold">
+            <hr className="border-border/30" />
+            <div className="flex justify-between font-bold text-lg">
               <span>الإجمالي</span>
-              <span>{order.total} ر.س</span>
+              <span className="tabular-nums text-primary">{toArabicNumber(order.total.toFixed(1))} د.ل</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Items */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <h3 className="font-semibold">الأصناف ({order.items.length})</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={copyWhatsappMessage}
-          >
-            {copied ? (
-              <Check className="ml-1 h-4 w-4 text-green-600" />
-            ) : (
-              <Copy className="ml-1 h-4 w-4" />
-            )}
-            نسخ رسالة واتساب
+      <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
+          <h3 className="font-semibold flex items-center gap-2">
+            <FileText className="size-4 text-muted-foreground" />
+            الأصناف ({toArabicNumber(order.items.length)})
+          </h3>
+          <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="rounded-xl gap-1">
+            {copied ? <Check className="size-3.5 text-green-500" /> : <Copy className="size-3.5" />}
+            نسخ للواتساب
           </Button>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y">
-            <div className="grid grid-cols-12 gap-2 px-5 py-2 text-xs font-medium text-muted-foreground bg-muted/30">
-              <div className="col-span-4">الصنف</div>
-              <div className="col-span-2 text-center">الكمية</div>
-              <div className="col-span-3 text-center">السعر</div>
-              <div className="col-span-3 text-center">المجموع</div>
-            </div>
-            {order.items.map((oi) => (
-              <div
-                key={oi.id}
-                className="grid grid-cols-12 gap-2 px-5 py-3 items-center text-sm"
-              >
-                <div className="col-span-4 font-medium">
-                  {oi.item.nameAr || oi.item.name}
-                </div>
-                <div className="col-span-2 text-center">{oi.quantity}</div>
-                <div className="col-span-3 text-center">{oi.price} ر.س</div>
-                <div className="col-span-3 text-center font-semibold">
-                  {oi.quantity * oi.price} ر.س
-                </div>
+        </div>
+        <div className="divide-y divide-border/10">
+          {order.items.map(oi => (
+            <div key={oi.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors">
+              <div className="flex items-center gap-3">
+                <span className="size-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-bold flex items-center justify-center">
+                  {toArabicNumber(oi.quantity)}
+                </span>
+                <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <span className="font-semibold tabular-nums">
+                {toArabicNumber((oi.price * oi.quantity).toFixed(1))} د.ل
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* Copy preview */}
-      <Card className="bg-muted/30">
-        <CardContent className="p-4">
-          <pre className="text-xs whitespace-pre-wrap font-sans text-muted-foreground leading-relaxed">
-            {`📋 طلب رقم: ${order.orderNo}
-👤 العميل: ${order.customerName}
-📞 الهاتف: ${order.customerPhone}
-🕐 الوقت: ${new Date(order.createdAt).toLocaleString("ar-SA")}
-
-🛒 الأصناف:
-${order.items.map((oi) => `- ${oi.item.nameAr || oi.item.name} ×${oi.quantity} = ${oi.price} ر.س`).join("\n")}
-
-💰 الإجمالي: ${order.total} ر.س
-📝 ملاحظات: ${order.notes || "لا يوجد"}`}
-          </pre>
-        </CardContent>
-      </Card>
+      {/* Quick actions */}
+      <div className="grid grid-cols-2 gap-3">
+        <a
+          href={`tel:${order.customerPhone}`}
+          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-border/30 hover:bg-accent transition-all font-medium text-sm"
+        >
+          <Phone className="size-4" />
+          اتصال بالعميل
+        </a>
+        <button
+          type="button"
+          onClick={copyAsWhatsApp}
+          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20 transition-all font-medium text-sm"
+        >
+          <MessageCircle className="size-4" />
+          نسخ للواتساب
+        </button>
+      </div>
     </div>
   )
 }

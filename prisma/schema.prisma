@@ -8,13 +8,35 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  name      String
-  role      String   @default("admin")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int         @id @default(autoincrement())
+  username     String      @unique
+  password     String
+  name         String
+  role         String      @default("admin") // "admin" or "owner"
+  restaurantId Int?
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
+  planId       Int?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([restaurantId])
+}
+
+model SubscriptionPlan {
+  id          Int           @id @default(autoincrement())
+  name        String
+  nameAr      String
+  price       Float         @default(0)
+  periodDays  Int           @default(30)
+  features    String        @default("[]")
+  maxMenus    Int           @default(1)
+  maxItems    Int           @default(50)
+  maxOrders   Int           @default(500)
+  sortOrder   Int           @default(0)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  restaurants Restaurant[]
 }
 
 model Restaurant {
@@ -29,12 +51,21 @@ model Restaurant {
   address      String         @default("")
   workingHours String         @default("")
   themeColor   String         @default("amber")
+  currency     String         @default("LYD")
   isActive     Boolean        @default(true)
+  planId       Int?
+  plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
+  planStart    DateTime?
+  planEnd      DateTime?
+  maxItemsLimit Int           @default(50)
+  maxOrdersLimit Int          @default(500)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  users        User[]
   categories   MenuCategory[]
   orders       Order[]
   settings     Setting[]
+  loyaltyCards  LoyaltyCard[]
 }
 
 model MenuCategory {
@@ -132,4 +163,52 @@ model WhatsappTemplate {
   restaurantId Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model LoyaltyCard {
+  id            Int        @id @default(autoincrement())
+  customerPhone String
+  customerName  String     @default("")
+  totalOrders   Int        @default(1)
+  totalSpent    Float      @default(0)
+  points        Int        @default(0)
+  tier          String     @default("bronze") // bronze, silver, gold, platinum
+  referralCode  String     @unique
+  restaurantId  Int
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@unique([customerPhone, restaurantId])
+  @@index([restaurantId])
+  @@index([referralCode])
+}
+
+model Referral {
+  id                Int         @id @default(autoincrement())
+  referralCode      String
+  referrerId        Int
+  referredPhone     String      @default("")
+  referredName      String      @default("")
+  status            String      @default("pending")
+  discountPercent   Int         @default(10)
+  referrerRewardPct Int         @default(10)
+  orderId           Int?
+  createdAt         DateTime    @default(now())
+  convertedAt       DateTime?
+
+  @@index([referralCode])
+}
+
+model RewardTransaction {
+  id            Int         @id @default(autoincrement())
+  cardId        Int
+  type          String      @default("earn")
+  points        Int
+  description   String      @default("")
+  orderId       Int?
+  restaurantId  Int
+  createdAt     DateTime    @default(now())
+
+  @@index([cardId])
 }

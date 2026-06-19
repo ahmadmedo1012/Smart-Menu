@@ -1,681 +1,250 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Dialog,
-  DialogTrigger,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  ChevronDown,
-  ChevronLeft,
-  Package,
-  AlertCircle,
-  Search,
-} from "lucide-react"
+import { Plus, Pencil, Trash2, Package, Search, Store, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from "@/lib/format"
+
+interface Restaurant {
+  id: number; name: string; slug: string
+}
 
 interface Category {
-  id: number
-  name: string
-  nameAr: string | null
-  icon: string
-  sortOrder: number
-  isActive: boolean
-  items: MenuItem[]
-  _count?: { items: number }
+  id: number; name: string; nameAr: string | null; icon: string; sortOrder: number
+  restaurant: { id: number; name: string; slug: string }
 }
 
-interface MenuItem {
-  id: number
-  name: string
-  nameAr: string | null
-  description: string
-  descriptionAr: string
-  price: number
-  discountedPrice: number | null
-  image: string
-  status: string
-  sortOrder: number
-  categoryId: number
+interface Item {
+  id: number; name: string; nameAr: string | null; description: string; descriptionAr: string
+  price: number; discountedPrice: number | null; image: string; status: string; sortOrder: number
+  categoryId: number; category?: { name: string; restaurant: { name: string } }
+  // UI state
+  _expanded?: boolean
 }
 
-const defaultCategoryForm = { name: "", nameAr: "", icon: "📦" }
-const defaultItemForm = {
-  name: "",
-  nameAr: "",
-  description: "",
-  descriptionAr: "",
-  price: 0,
-  discountedPrice: "",
-  status: "available",
-  categoryId: 0,
-}
-
-export default function MenuManagement() {
+export default function AdminMenuPage() {
   const [categories, setCategories] = useState<Category[]>([])
+  const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [expandedCat, setExpandedCat] = useState<number | null>(null)
-
-  // Category dialogs
-  const [catDialogOpen, setCatDialogOpen] = useState(false)
-  const [catEditing, setCatEditing] = useState<Category | null>(null)
-  const [catForm, setCatForm] = useState(defaultCategoryForm)
-  const [catSaving, setCatSaving] = useState(false)
-
-  // Item dialogs
+  const [search, setSearch] = useState("")
+  const [restaurantFilter, setRestaurantFilter] = useState<number | null>(null)
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [itemDialogOpen, setItemDialogOpen] = useState(false)
-  const [itemEditing, setItemEditing] = useState<MenuItem | null>(null)
-  const [itemForm, setItemForm] = useState(defaultItemForm)
+  const [itemEditing, setItemEditing] = useState<Item | null>(null)
+  const [itemForm, setItemForm] = useState({ name: "", nameAr: "", description: "", descriptionAr: "", price: 0, discountedPrice: "", status: "available", categoryId: 0, image: "" })
+  const [deleteTarget, setDeleteTarget] = useState<{ type: "category" | "item"; id: number; name: string; parentRestaurant?: string } | null>(null)
 
-  // Delete confirm
-  const [deleteTarget, setDeleteTarget] = useState<{
-    type: "category" | "item"
-    id: number
-    name: string
-  } | null>(null)
-
-  const fetchCategories = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      const res = await fetch("/api/categories")
-      if (!res.ok) throw new Error("فشل تحميل التصنيفات")
-      const data = await res.json()
-      setCategories(Array.isArray(data) ? data : [])
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
+      const [catRes, itemRes, restRes] = await Promise.all([
+        fetch("/api/categories"),
+        fetch("/api/items"),
+        fetch("/api/restaurants"),
+      ])
+      const catJson = await catRes.json()
+      const itemJson = await itemRes.json()
+      const restJson = await restRes.json()
+      setCategories(catJson.data ?? catJson ?? [])
+      setItems(itemJson.data ?? itemJson ?? [])
+      setRestaurants(restJson.data?.restaurants ?? restJson.data ?? [])
+    } catch { toast.error("فشل تحميل البيانات") }
+    finally { setLoading(false) }
   }, [])
 
-  const fetchItems = useCallback(async (categoryId: number) => {
+  useEffect(() => { fetchData() }, [fetchData])
+
+  // Filter
+  const filteredItems = items.filter(item => {
+    if (search) {
+      const q = search.toLowerCase()
+      const nameMatch = (item.nameAr || item.name).includes(q)
+      const catMatch = item.category?.name.includes(q)
+      if (!nameMatch && !catMatch) return false
+    }
+    // Restaurant filter not available via items API directly
+    // Filter by known restaurant items if needed
+    return true
+  })
+
+  // Group items by category name
+  const groupedByCategory: Record<string, typeof filteredItems> = {}
+  filteredItems.forEach(item => {
+    const key = item.category?.name || "أخرى"
+    if (!groupedByCategory[key]) groupedByCategory[key] = []
+    groupedByCategory[key].push(item)
+  })
+
+  const toggleStatus = async (item: Item) => {
+    const ns = item.status === "available" ? "unavailable" : "available"
     try {
-      const res = await fetch(`/api/items?categoryId=${categoryId}`)
-      if (!res.ok) throw new Error("فشل تحميل الأصناف")
-      const data = await res.json()
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === categoryId
-            ? { ...c, items: Array.isArray(data) ? data : [] }
-            : c
-        )
-      )
-    } catch {
-      // Silently fail — items remain empty
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchCategories()
-  }, [fetchCategories])
-
-  const toggleCategory = (id: number) => {
-    if (expandedCat === id) {
-      setExpandedCat(null)
-    } else {
-      setExpandedCat(id)
-      const cat = categories.find((c) => c.id === id)
-      if (!cat?.items) fetchItems(id)
-    }
-  }
-
-  // ---- Category CRUD ----
-  const openCatAdd = () => {
-    setCatEditing(null)
-    setCatForm(defaultCategoryForm)
-    setCatDialogOpen(true)
-  }
-
-  const openCatEdit = (cat: Category) => {
-    setCatEditing(cat)
-    setCatForm({
-      name: cat.name,
-      nameAr: cat.nameAr ?? "",
-      icon: cat.icon,
-    })
-    setCatDialogOpen(true)
-  }
-
-  const saveCategory = async () => {
-    if (!catForm.name.trim()) {
-      toast.error("يرجى إدخال اسم التصنيف")
-      return
-    }
-    setCatSaving(true)
-    try {
-      const body = {
-        name: catForm.name.trim(),
-        nameAr: catForm.nameAr.trim() || undefined,
-        icon: catForm.icon.trim() || undefined,
-      }
-      if (catEditing) {
-        const res = await fetch(`/api/categories/${catEditing.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        })
-        if (!res.ok) throw new Error("فشل التحديث")
-        toast.success("تم تحديث التصنيف بنجاح")
-      } else {
-        const res = await fetch("/api/categories", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        })
-        if (!res.ok) throw new Error("فشل الإضافة")
-        toast.success("تم إضافة التصنيف بنجاح")
-      }
-      setCatDialogOpen(false)
-      fetchCategories()
-    } catch (e: any) {
-      toast.error(e.message)
-    } finally {
-      setCatSaving(false)
-    }
-  }
-
-  const deleteCategory = async () => {
-    if (!deleteTarget || deleteTarget.type !== "category") return
-    try {
-      const res = await fetch(`/api/categories/${deleteTarget.id}`, {
-        method: "DELETE",
+      await fetch(`/api/items/${item.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: ns }),
       })
-      if (!res.ok) throw new Error("فشل الحذف")
-      toast.success("تم حذف التصنيف بنجاح")
-      setDeleteTarget(null)
-      fetchCategories()
-    } catch (e: any) {
-      toast.error(e.message)
-    }
-  }
-
-  // ---- Item CRUD ----
-  const openItemAdd = (categoryId: number) => {
-    setItemEditing(null)
-    setItemForm({ ...defaultItemForm, categoryId })
-    setItemDialogOpen(true)
-  }
-
-  const openItemEdit = (item: MenuItem) => {
-    setItemEditing(item)
-    setItemForm({
-      name: item.name,
-      nameAr: item.nameAr ?? "",
-      description: item.description,
-      descriptionAr: item.descriptionAr,
-      price: item.price,
-      discountedPrice: item.discountedPrice ? String(item.discountedPrice) : "",
-      status: item.status,
-      categoryId: item.categoryId,
-    })
-    setItemDialogOpen(true)
-  }
-
-  const saveItem = async () => {
-    if (!itemForm.name.trim() || !itemForm.price) {
-      toast.error("يرجى إدخال اسم الصنف والسعر")
-      return
-    }
-    try {
-      const body = {
-        name: itemForm.name.trim(),
-        nameAr: itemForm.nameAr.trim() || undefined,
-        description: itemForm.description.trim() || undefined,
-        descriptionAr: itemForm.descriptionAr.trim() || undefined,
-        price: Number(itemForm.price),
-        discountedPrice: itemForm.discountedPrice
-          ? Number(itemForm.discountedPrice)
-          : undefined,
-        status: itemForm.status,
-        categoryId: itemForm.categoryId,
-      }
-      if (itemEditing) {
-        const res = await fetch(`/api/items/${itemEditing.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        })
-        if (!res.ok) throw new Error("فشل التحديث")
-        toast.success("تم تحديث الصنف بنجاح")
-      } else {
-        const res = await fetch("/api/items", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        })
-        if (!res.ok) throw new Error("فشل الإضافة")
-        toast.success("تم إضافة الصنف بنجاح")
-      }
-      setItemDialogOpen(false)
-      if (expandedCat) fetchItems(expandedCat)
-    } catch (e: any) {
-      toast.error(e.message)
-    }
+      setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: ns } : i))
+      toast.success(ns === "available" ? "متوفر" : "غير متوفر")
+    } catch { toast.error("فشل التحديث") }
   }
 
   const deleteItem = async () => {
     if (!deleteTarget || deleteTarget.type !== "item") return
     try {
-      const res = await fetch(`/api/items/${deleteTarget.id}`, {
-        method: "DELETE",
-      })
-      if (!res.ok) throw new Error("فشل الحذف")
-      toast.success("تم حذف الصنف بنجاح")
+      await fetch(`/api/items/${deleteTarget.id}`, { method: "DELETE" })
+      toast.success("تم حذف الصنف")
       setDeleteTarget(null)
-      if (expandedCat) fetchItems(expandedCat)
-    } catch (e: any) {
-      toast.error(e.message)
-    }
+      fetchData()
+    } catch { toast.error("فشل الحذف") }
   }
 
-  const toggleItemStatus = async (item: MenuItem) => {
-    const newStatus =
-      item.status === "available" ? "unavailable" : "available"
-    try {
-      const res = await fetch(`/api/items/${item.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      })
-      if (!res.ok) throw new Error("فشل تغيير الحالة")
-      toast.success(
-        newStatus === "available" ? "متوفر الآن" : "تم إلغاء التوفير"
-      )
-      if (expandedCat) fetchItems(expandedCat)
-    } catch (e: any) {
-      toast.error(e.message)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-4 animate-fade-in">
-        <div className="h-10 w-48 bg-muted rounded animate-pulse" />
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="h-20 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  if (error && categories.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-        <AlertCircle className="h-10 w-10 text-destructive" />
-        <p className="text-lg font-medium">عذراً، حدث خطأ</p>
-        <p className="text-sm">{error}</p>
-        <Button variant="outline" onClick={fetchCategories}>
-          إعادة المحاولة
-        </Button>
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="space-y-4 animate-fade-in">
+      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />)}
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
-        <Button onClick={openCatAdd}>
-          <Plus className="ml-2 h-4 w-4" />
-          تصنيف جديد
-        </Button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
+          <p className="text-sm text-muted-foreground">{toArabicNumber(items.length)} صنف في {toArabicNumber(categories.length)} قسم</p>
+        </div>
       </div>
 
-      {categories.length === 0 ? (
+      {/* Search + filter */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="ابحث عن صنف..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20"
+          />
+        </div>
+        <select
+          value={restaurantFilter ?? ""}
+          onChange={e => setRestaurantFilter(e.target.value ? Number(e.target.value) : null)}
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-amber-300"
+        >
+          <option value="">كل المطاعم</option>
+          {restaurants.map(r => (
+            <option key={r.id} value={r.id}>{r.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+          <p className="text-2xl font-bold">{toArabicNumber(items.length)}</p>
+          <p className="text-xs text-muted-foreground">إجمالي الأصناف</p>
+        </div>
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+          <p className="text-2xl font-bold text-emerald-600">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
+          <p className="text-xs text-muted-foreground">متوفر</p>
+        </div>
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+          <p className="text-2xl font-bold text-red-500">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
+          <p className="text-xs text-muted-foreground">غير متوفر</p>
+        </div>
+        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+          <p className="text-2xl font-bold">{toArabicNumber(restaurants.length)}</p>
+          <p className="text-xs text-muted-foreground">مطاعم</p>
+        </div>
+      </div>
+
+      {/* Items by restaurant */}
+      {Object.keys(groupedByCategory).length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <Package className="h-12 w-12" />
-          <p className="text-lg font-medium">لا توجد تصنيفات</p>
-          <p className="text-sm">أضف تصنيفاً جديداً للبدء</p>
-          <Button onClick={openCatAdd}>
-            <Plus className="ml-2 h-4 w-4" />
-            إضافة تصنيف
-          </Button>
+          <Package className="size-12 text-muted-foreground/50" />
+          <p className="text-lg font-medium">{search ? "لا توجد نتائج" : "لا توجد أصناف"}</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {categories.map((cat) => (
-            <Card key={cat.id} className="overflow-hidden">
-              <div
-                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                onClick={() => toggleCategory(cat.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{cat.icon || "📦"}</span>
-                  <div>
-                    <span className="font-medium">{cat.nameAr || cat.name}</span>
-                    <span className="text-xs text-muted-foreground mr-2">
-                      ({cat._count?.items ?? cat.items?.length ?? 0})
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openItemAdd(cat.id)
-                    }}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openCatEdit(cat)
-                    }}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setDeleteTarget({
-                        type: "category",
-                        id: cat.id,
-                        name: cat.nameAr || cat.name,
-                      })
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <ChevronDown
-                    className={cn(
-                      "h-5 w-5 text-muted-foreground transition-transform",
-                      expandedCat === cat.id && "rotate-180"
-                    )}
-                  />
-                </div>
+        <div className="space-y-6">
+          {Object.entries(groupedByCategory).map(([catName, catItems]) => (
+            <div key={catName} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Package className="size-4 text-primary" />
+                <h3 className="font-bold text-lg">{catName}</h3>
+                <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                  {toArabicNumber(catItems.length)} صنف
+                </span>
               </div>
+              <div className="rounded-2xl border border-border/30 overflow-hidden divide-y divide-border/10">
+                {catItems.map(item => (
+                  <div key={item.id} className="flex items-center gap-4 px-5 py-3 hover:bg-muted/10 transition-colors group">
+                    {/* Status indicator */}
+                    <div className={cn(
+                      "size-2 rounded-full shrink-0",
+                      item.status === "available" ? "bg-emerald-500" : "bg-red-400"
+                    )} />
 
-              {expandedCat === cat.id && (
-                <div className="border-t">
-                  {cat.items && cat.items.length > 0 ? (
-                    <div className="divide-y">
-                      <div className="grid grid-cols-12 gap-2 px-5 py-2 text-xs font-medium text-muted-foreground bg-muted/30">
-                        <div className="col-span-3">الاسم</div>
-                        <div className="col-span-2">الاسم (عربي)</div>
-                        <div className="col-span-2">السعر</div>
-                        <div className="col-span-2">الحالة</div>
-                        <div className="col-span-3">إجراءات</div>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "font-medium text-sm",
+                          item.status !== "available" && "text-muted-foreground/50 line-through"
+                        )}>
+                          {item.nameAr || item.name}
+                        </span>
+                        {item.category && (
+                          <span className="text-xs text-muted-foreground/50 hidden sm:inline">
+                            {item.category.name}
+                          </span>
+                        )}
                       </div>
-                      {cat.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="grid grid-cols-12 gap-2 px-5 py-3 items-center text-sm"
-                        >
-                          <div className="col-span-3 font-medium truncate">
-                            {item.name}
-                          </div>
-                          <div className="col-span-2 text-muted-foreground truncate">
-                            {item.nameAr || "-"}
-                          </div>
-                          <div className="col-span-2">
-                            <span className="font-semibold">{item.price}</span>
-                            {item.discountedPrice && (
-                              <span className="text-xs text-muted-foreground line-through mr-1">
-                                {item.discountedPrice}
-                              </span>
-                            )}
-                          </div>
-                          <div className="col-span-2">
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                size="sm"
-                                checked={item.status === "available"}
-                                onCheckedChange={() => toggleItemStatus(item)}
-                              />
-                              <span
-                                className={cn(
-                                  "text-xs",
-                                  item.status === "available"
-                                    ? "text-green-600"
-                                    : "text-red-500"
-                                )}
-                              >
-                                {item.status === "available"
-                                  ? "متوفر"
-                                  : "غير متوفر"}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="col-span-3 flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              onClick={() => openItemEdit(item)}
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              className="text-destructive"
-                              onClick={() =>
-                                setDeleteTarget({
-                                  type: "item",
-                                  id: item.id,
-                                  name: item.name,
-                                })
-                              }
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
                     </div>
-                  ) : (
-                    <div className="py-8 text-center text-sm text-muted-foreground">
-                      لا توجد أصناف في هذا التصنيف
+
+                    {/* Price */}
+                    <div className="text-left shrink-0">
+                      <span className={cn(
+                        "font-bold text-sm tabular-nums",
+                        item.discountedPrice ? "text-destructive" : ""
+                      )}>
+                        {toArabicNumber((item.discountedPrice ?? item.price).toFixed(1))}
+                      </span>
+                      <span className="text-xs text-muted-foreground mr-0.5">د.ل</span>
                     </div>
-                  )}
-                </div>
-              )}
-            </Card>
+
+                    {/* Toggle */}
+                    <Switch
+                      size="sm"
+                      checked={item.status === "available"}
+                      onCheckedChange={() => toggleStatus(item)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {/* Category Dialog */}
-      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {catEditing ? "تعديل تصنيف" : "إضافة تصنيف جديد"}
-            </DialogTitle>
-            <DialogDescription>
-              {catEditing
-                ? "قم بتعديل معلومات التصنيف"
-                : "أدخل معلومات التصنيف الجديد"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>الاسم (إنجليزي)</Label>
-              <Input
-                value={catForm.name}
-                onChange={(e) =>
-                  setCatForm({ ...catForm, name: e.target.value })
-                }
-                placeholder="e.g. Hot Drinks"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>الاسم (عربي)</Label>
-              <Input
-                value={catForm.nameAr}
-                onChange={(e) =>
-                  setCatForm({ ...catForm, nameAr: e.target.value })
-                }
-                placeholder="مثال: مشروبات ساخنة"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>الأيقونة</Label>
-              <Input
-                value={catForm.icon}
-                onChange={(e) =>
-                  setCatForm({ ...catForm, icon: e.target.value })
-                }
-                placeholder="☕"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <DialogClose
-              render={<Button variant="outline" />}
-            >
-              إلغاء
-            </DialogClose>
-            <Button onClick={saveCategory} disabled={catSaving}>
-              {catSaving ? "جارٍ الحفظ..." : catEditing ? "تحديث" : "إضافة"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Item Dialog */}
-      <Dialog open={itemDialogOpen} onOpenChange={setItemDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
-              {itemEditing ? "تعديل صنف" : "إضافة صنف جديد"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 py-2 max-h-96 overflow-y-auto">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>الاسم (إنجليزي)</Label>
-                <Input
-                  value={itemForm.name}
-                  onChange={(e) =>
-                    setItemForm({ ...itemForm, name: e.target.value })
-                  }
-                  placeholder="Item name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>الاسم (عربي)</Label>
-                <Input
-                  value={itemForm.nameAr}
-                  onChange={(e) =>
-                    setItemForm({ ...itemForm, nameAr: e.target.value })
-                  }
-                  placeholder="اسم الصنف"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>الوصف (إنجليزي)</Label>
-              <Textarea
-                value={itemForm.description}
-                onChange={(e) =>
-                  setItemForm({ ...itemForm, description: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>الوصف (عربي)</Label>
-              <Textarea
-                value={itemForm.descriptionAr}
-                onChange={(e) =>
-                  setItemForm({ ...itemForm, descriptionAr: e.target.value })
-                }
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>السعر</Label>
-                <Input
-                  type="number"
-                  value={itemForm.price}
-                  onChange={(e) =>
-                    setItemForm({ ...itemForm, price: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>السعر بعد الخصم</Label>
-                <Input
-                  type="number"
-                  value={itemForm.discountedPrice}
-                  onChange={(e) =>
-                    setItemForm({
-                      ...itemForm,
-                      discountedPrice: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <DialogClose
-              render={<Button variant="outline" />}
-            >
-              إلغاء
-            </DialogClose>
-            <Button onClick={saveItem}>
-              {itemEditing ? "تحديث" : "إضافة"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation */}
-      <Dialog
-        open={deleteTarget !== null}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-      >
-        <DialogContent>
+      {/* Delete confirmation */}
+      <Dialog open={deleteTarget !== null} onOpenChange={o => !o && setDeleteTarget(null)}>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>
-              هل أنت متأكد من حذف &quot;{deleteTarget?.name}&quot;؟ لا يمكن
-              التراجع عن هذا الإجراء.
+              هل أنت متأكد من حذف &ldquo;{deleteTarget?.name}&rdquo;؟
+              {deleteTarget?.parentRestaurant && ` من مطعم ${deleteTarget.parentRestaurant}`}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              إلغاء
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={
-                deleteTarget?.type === "category" ? deleteCategory : deleteItem
-              }
-            >
-              حذف
-            </Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-xl">إلغاء</Button>
+            <Button variant="destructive" onClick={deleteItem} className="rounded-xl">حذف</Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { success, handleError, paginated } from "@/lib/api-helpers";
+import { success, handleError, error, paginated } from "@/lib/api-helpers";
 
 const DEFAULT_RESTAURANT_ID = 1;
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       prisma.menuItem.findMany({
         where,
         orderBy: { sortOrder: "asc" },
-        include: { category: { select: { id: true, name: true, nameAr: true } } },
+        include: { category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } } },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
@@ -52,6 +52,27 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = createSchema.parse(await request.json());
+
+    // Check plan limits: get category -> restaurant -> plan
+    const category = await prisma.menuCategory.findUnique({
+      where: { id: body.categoryId },
+      include: { restaurant: { select: { id: true, name: true, maxItemsLimit: true, planId: true, plan: { select: { name: true, nameAr: true, maxItems: true } } } } },
+    });
+    if (!category) return error("التصنيف غير موجود", 404);
+
+    // Count existing items for this restaurant
+    const existingCount = await prisma.menuItem.count({
+      where: { category: { restaurantId: category.restaurant.id } },
+    });
+
+    const maxItems = category.restaurant.maxItemsLimit;
+    if (existingCount >= maxItems) {
+      return error(
+        `لقد وصلت إلى الحد الأقصى للأصناف (${maxItems}). قم بترقية خطتك لإضافة المزيد.`,
+        403
+      );
+    }
+
     const data = await prisma.menuItem.create({
       data: {
         name: body.name,
@@ -65,7 +86,7 @@ export async function POST(request: NextRequest) {
         sortOrder: body.sortOrder ?? 0,
         categoryId: body.categoryId,
       },
-      include: { category: { select: { id: true, name: true, nameAr: true } } },
+      include: { category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } } },
     });
     return success(data, 201);
   } catch (e) {

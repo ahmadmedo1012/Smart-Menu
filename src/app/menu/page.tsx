@@ -1,30 +1,21 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import MenuPageClient from "@/components/menu/MenuPageClient";
 
 export default async function MenuPage() {
-  try {
-    const [categories, items] = await Promise.all([
-      prisma.menuCategory.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: "asc" },
-      }),
-      prisma.menuItem.findMany({
-        where: { status: "available" },
-        include: { category: true },
-        orderBy: { sortOrder: "asc" },
-      }),
-    ]);
+  const first = await prisma.restaurant.findFirst({
+    where: { isActive: true },
+    orderBy: { id: "asc" },
+    select: { slug: true },
+  });
 
-    return <MenuPageClient categories={categories} items={items} />;
-  } catch {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center animate-fade-in">
-        <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center">
-          <span className="text-2xl font-bold text-destructive">!</span>
-        </div>
-        <h2 className="text-xl font-semibold">تعذر تحميل القائمة</h2>
-        <p className="text-muted-foreground">يرجى المحاولة مرة أخرى لاحقاً</p>
-      </div>
-    );
+  if (first) {
+    redirect(`/menu/${first.slug}`);
   }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center animate-fade-in">
+      <h2 className="text-xl font-semibold">No restaurants available</h2>
+      <p className="text-muted-foreground">Please check back later.</p>
+    </div>
+  );
 }

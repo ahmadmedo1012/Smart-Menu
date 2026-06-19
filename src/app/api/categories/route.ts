@@ -42,6 +42,25 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = createSchema.parse(await request.json());
+    const rid = body.restaurantId ?? DEFAULT_RESTAURANT_ID;
+
+    // Check plan limits for categories
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: rid },
+      include: { plan: { select: { id: true, name: true, nameAr: true, maxMenus: true } } },
+    });
+    if (!restaurant) return error("المطعم غير موجود", 404);
+
+    const maxMenus = restaurant.plan?.maxMenus ?? 1;
+    const existingCount = await prisma.menuCategory.count({ where: { restaurantId: rid } });
+
+    if (existingCount >= maxMenus) {
+      return error(
+        `لقد وصلت للحد الأقصى للأقسام (${maxMenus}). قم بترقية خطتك لإضافة المزيد.`,
+        403
+      );
+    }
+
     const data = await prisma.menuCategory.create({
       data: {
         name: body.name,
@@ -49,7 +68,7 @@ export async function POST(request: NextRequest) {
         icon: body.icon ?? "",
         sortOrder: body.sortOrder ?? 0,
         isActive: body.isActive ?? true,
-        restaurantId: body.restaurantId ?? DEFAULT_RESTAURANT_ID,
+        restaurantId: rid,
       },
     });
     return success(data, 201);

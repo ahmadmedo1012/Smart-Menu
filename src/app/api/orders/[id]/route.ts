@@ -27,6 +27,7 @@ export async function GET(
         items: {
           include: { item: { select: { id: true, name: true, nameAr: true } } },
         },
+        restaurant: { select: { id: true, name: true, slug: true } },
       },
     });
     if (!data) return notFound("Order");
@@ -56,6 +57,7 @@ export async function PUT(
         items: {
           include: { item: { select: { id: true, name: true, nameAr: true } } },
         },
+        restaurant: { select: { id: true, name: true, slug: true } },
       },
     });
     return success(data);

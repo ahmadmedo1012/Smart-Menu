@@ -1,182 +1,122 @@
-# الربط الذكي | Smart Menu
+# 🍽️ الربط الذكي | Smart Menu
 
-نظام منيو ذكي مع إدارة الطلبات عبر واتساب للمطاعم والمقاهي.
-Smart menu and order management system with WhatsApp integration for restaurants and cafes.
+**منصة رقمية متكاملة لإدارة منيو المطاعم واستقبال الطلبات عبر واتساب**
+
+منصة SaaS تسمح لأصحاب المطاعم بإنشاء منيو رقمي احترافي، وإدارته بسهولة، واستقبال الطلبات مباشرة عبر واتساب. مع نظام اشتراكات مرن، لوحة تحكم شاملة، وتجربة مستخدم عربية كاملة.
 
 ---
 
-## التقنيات المستخدمة | Tech Stack
+## ✨ المميزات
+
+### 🌐 للزبائن
+- **منيو رقمي تفاعلي** — قائمة طعام رقمية مع أقسام وصور وأسعار
+- **بحث ذكي** — ابحث في القائمة بسرعة
+- **طلب عبر واتساب** — طلب مباشر مع تفاصيل كاملة
+- **سلة طلب** — أضف أصناف متعددة واختر نوع الاستلام
+- **برنامج ولاء** — اكسب نقاط مع كل طلب واحصل على مكافآت
+
+### 👨‍🍳 لأصحاب المطاعم
+- **لوحة تحكم** — إحصائيات حقيقية، أشهر الأصناف، آخر الطلبات
+- **إدارة المنيو** — أضف وعدل الأصناف والأقسام بسهولة مع رفع الصور
+- **إدارة الطلبات** — timeline تفاعلي، pagination، تصفية بالتاريخ، تصدير CSV
+- **QR كود** — إنشاء رمز QR مخصص لمطعمك ب ٤ أحجام
+- **برنامج ولاء** — نظام نقاط ومكافآت للزبائن
+- **إشعارات فورية** — تنبيهات عند وصول طلبات جديدة
+
+### 👑 للمدير الشامل
+- **لوحة تحكم شاملة** — إحصائيات المطاعم، الإيراد الشهري، توزيع الخطط
+- **إدارة المطاعم** — إضافة/تعديل/حذف مع تعيين الخطة
+- **إدارة المستخدمين** — إنشاء وإدارة حسابات أصحاب المطاعم
+- **جميع الطلبات** — مراقبة طلبات كل المطاعم
+- **إدارة المنيو** — عرض وإدارة أصناف كل المطاعم
+
+### 💳 نظام الاشتراكات
+| الخطة | السعر | الأصناف | الأقسام | الطلبات |
+|-------|-------|---------|---------|---------|
+| مجاني | 0 د.ل | 10 | 1 | 100 |
+| أساسي | 49 د.ل/شهر | 50 | 1 | 500 |
+| احترافي | 129 د.ل/شهر | 200 | 3 | 2,000 |
+| شركات | 299 د.ل/شهر | غير محدود | 10 | غير محدود |
+
+- تطبيق تلقائي للحدود — الـ API يرفض تجاوز الخطة
+- شريط استخدام مع تنبيهات وزر ترقية
+
+---
+
+## 🚀 نشر سريع
+
+```bash
+# Docker (مستحسن)
+docker compose up -d
+# → http://localhost:3000
+
+# أو يدوي
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+npm run dev
+# → http://localhost:3000
+```
+
+## 👤 بيانات الدخول
+
+| المستخدم | كلمة المرور | الدور |
+|----------|-------------|-------|
+| `admin` | `admin123` | مدير شامل |
+| `waha` | `waha123` | صاحب مقهى الواحة |
+| `aseel` | `aseel123` | صاحب مطعم الأصيل |
+| `roma` | `roma123` | صاحب بيتزا روما |
+
+**أو** جرب فوراً من /demo
+
+---
+
+## 🛠 التقنيات
 
 - **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **Database**: SQLite (via Prisma ORM + libSQL)
-- **Styling**: Tailwind CSS 4
-- **UI Components**: shadcn/ui + Base UI
-- **State Management**: Zustand
-- **Forms**: React Hook Form + Zod
+- **Database**: SQLite (Prisma ORM + libSQL)
+- **Styling**: Tailwind CSS 4 + shadcn/ui
+- **State**: Zustand
+- **Auth**: Cookie-based proxy middleware
+- **Icons**: Lucide React
 - **Notifications**: Sonner
 
-## المميزات | Features
-
-- قائمة طعام رقمية تفاعلية | Interactive digital menu
-- إدارة الفئات والمنتجات | Category and product management
-- نظام الطلبات مع حالات مختلفة | Order system with status tracking
-- إرسال الطلبات عبر واتساب | WhatsApp order integration
-- لوحة تحكم للمشرفين | Admin dashboard
-- دعم كامل للغة العربية | Full Arabic language support
-- تصميم متجاوب | Responsive design
-
-## المتطلبات | Prerequisites
-
-- **Node.js** 18+
-- **npm** 9+
-
-## التثبيت | Installation
-
-```bash
-# 1. Clone the repository
-git clone <repo-url>
-cd smart-menu
-
-# 2. Install dependencies
-npm install
-
-# 3. Set up environment variables
-cp .env.example .env
-
-# 4. Generate Prisma client
-npx prisma generate
-
-# 5. Run database migrations
-npx prisma migrate dev --name init
-
-# 6. Seed the database
-npx prisma db seed
-
-# 7. Start development server
-npm run dev
-```
-
-## الإعدادات | Environment Setup
-
-Create a `.env` file in the project root:
-
-```env
-DATABASE_URL="file:./prisma/dev.db"
-```
-
-## قاعدة البيانات | Database
-
-This project uses Prisma ORM with SQLite via libSQL adapter.
-
-### إنشاء البيانات الافتراضية | Seed Data
-
-The seed command creates:
-
-- **Admin** account (username: `admin`, password: `admin123`)
-- **Restaurant**: مقهى الواحة / Al Waha Cafe
-- **4 categories** with 16 menu items
-- **Settings** for the restaurant
-- **3 sample orders** with different statuses
-- **WhatsApp template**
-
-To run the seed:
-
-```bash
-npx prisma db seed
-```
-
-Or directly:
-
-```bash
-npx tsx prisma/seed.ts
-```
-
-## تشغيل المشروع | Running
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## دليل الاستخدام | Usage Guide
-
-### تسجيل الدخول | Login
-1. Navigate to `/login`
-2. Use default credentials: `admin` / `admin123`
-3. You will be redirected to the dashboard
-
-### إدارة القائمة | Menu Management
-- Add/edit/remove categories and items
-- Set prices, descriptions, and images
-- Control item availability status
-
-### إدارة الطلبات | Order Management
-- View incoming orders in real-time
-- Update order status (new → preparing → ready → completed)
-- Send order details via WhatsApp
-
-### الإعدادات | Settings
-- Configure restaurant info
-- Set working hours
-- Customize WhatsApp message template
-- Manage tax and currency settings
-
-## هيكل المشروع | Project Structure
+## 📁 هيكل المشروع
 
 ```
-smart-menu/
-├── prisma/
-│   ├── schema.prisma          # Database schema
-│   └── seed.ts                # Seed data
-├── public/                    # Static assets
-├── src/
-│   ├── app/
-│   │   ├── api/auth/login/    # Auth API route
-│   │   ├── login/             # Login page
-│   │   ├── globals.css        # Global styles
-│   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Home page
-│   ├── components/ui/         # shadcn/ui components
-│   ├── generated/prisma/      # Prisma client (auto-generated)
-│   ├── lib/
-│   │   ├── db.ts              # Prisma client singleton
-│   │   └── utils.ts           # Utility functions
-│   ├── store/
-│   │   └── cart.ts            # Zustand cart store
-│   └── proxy.ts               # Auth proxy (middleware)
-├── .env                       # Environment variables
-├── package.json
-├── next.config.ts
-├── tsconfig.json
-└── README.md
+src/
+├── app/
+│   ├── admin/       # لوحة المدير الشامل (7 صفحات)
+│   ├── owner/       # لوحة المالك (8 صفحات)
+│   ├── menu/[slug]  # المنيو العام (SEO)
+│   ├── cart/        # سلة الطلب
+│   ├── pricing/     # خطط الأسعار
+│   ├── subscribe/   # تسجيل جديد
+│   ├── demo/        # دخول فوري تجريبي
+│   └── api/         # 22 API route
+├── components/
+│   ├── menu/        # مكونات المنيو
+│   ├── ui/          # shadcn/ui components
+│   ├── layout/      # القوالب الجانبية
+│   └── landing/     # مكونات الصفحة الرئيسية
+├── lib/             # أدوات (Prisma, utils)
+└── store/           # Zustand stores
+prisma/
+├── schema.prisma    # 13 models
+├── seed.ts          # بيانات افتراضية
+└── dev.db           # قاعدة البيانات
 ```
-
-## نقاط النهاية API | API Endpoints
-
-| Method | Endpoint              | Description              |
-|--------|-----------------------|--------------------------|
-| POST   | `/api/auth/login`     | Admin login              |
-| GET    | `/api/menu`           | Get menu items           |
-| GET    | `/api/categories`     | Get categories           |
-| POST   | `/api/orders`         | Create order             |
-| GET    | `/api/orders`         | List orders              |
-| GET    | `/api/orders/[id]`    | Get order details        |
-
-## بيانات الدخول الافتراضية | Default Admin Credentials
-
-- **Username**: `admin`
-- **Password**: `admin123`
-
-> **تغيير كلمة المرور مهم | Important**: Change the default password in production.
-
-## لقطات الشاشة | Screenshots
-
-*(Screenshots to be added)*
 
 ---
 
-## الترخيص | License
+## 📊 Build
 
-MIT
+```
+✓ 44 pages (static + dynamic)
+✓ 22 API routes
+✓ 0 errors
+✓ Docker-ready
+```
+
+السيرفر شغال على `http://localhost:3000`
