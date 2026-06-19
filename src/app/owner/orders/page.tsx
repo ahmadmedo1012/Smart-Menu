@@ -261,7 +261,7 @@ export default function OwnerOrdersPage() {
                       </div>
                       <p className="text-sm text-muted-foreground">{order.customerName}</p>
                       <p className="text-xs text-muted-foreground/60 mt-0.5">
-                        {order.items?.length ?? 0} أصناف • {order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المكان"}
+                        {toArabicNumber(order.items?.length ?? 0)} أصناف • {order.pickupType === "delivery" ? "توصيل" : order.pickupType === "takeaway" ? "سفري" : "داخل المكان"}
                       </p>
                     </div>
                   </div>

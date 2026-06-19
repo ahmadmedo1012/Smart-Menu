@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { toArabicNumber } from "@/lib/format";
 import { Suspense } from "react";
 
 type Plan = {
@@ -197,7 +198,7 @@ function SubscribeContent() {
                     </div>
                     <h3 className="font-bold text-lg mb-1">{plan.nameAr}</h3>
                     <div className="flex items-baseline gap-1 mb-3">
-                      <span className="text-2xl font-bold">{plan.price === 0 ? "مجاني" : plan.price}</span>
+                      <span className="text-2xl font-bold">{plan.price === 0 ? "مجاني" : toArabicNumber(plan.price)}</span>
                       {plan.price > 0 && <span className="text-xs text-muted-foreground">د.ل/شهر</span>}
                     </div>
                     <div className="space-y-1.5 mb-4 flex-1">
@@ -251,7 +252,7 @@ function SubscribeContent() {
                       <p className="text-xs text-muted-foreground">
                         {currentPlan.price === 0 ? "مجاني" : `${currentPlan.price} د.ل/شهر`}
                         {" • "}
-                        {currentPlan.maxItems === 9999 ? "أصناف غير محدودة" : `حتى ${currentPlan.maxItems} صنف`}
+                        {currentPlan.maxItems === 9999 ? "أصناف غير محدودة" : `حتى ${toArabicNumber(currentPlan.maxItems)} صنف`}
                       </p>
                     </div>
                   </div>
@@ -375,11 +376,11 @@ function SubscribeContent() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">الحد الأقصى للأصناف</span>
-                      <span className="font-medium">{currentPlan.maxItems === 9999 ? "غير محدود" : currentPlan.maxItems}</span>
+                      <span className="font-medium">{currentPlan.maxItems === 9999 ? "غير محدود" : toArabicNumber(currentPlan.maxItems)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">الطلبات</span>
-                      <span className="font-medium">{currentPlan.maxOrders === 99999 ? "غير محدودة" : `حتى ${currentPlan.maxOrders}`}</span>
+                      <span className="font-medium">{currentPlan.maxOrders === 99999 ? "غير محدودة" : `حتى ${toArabicNumber(currentPlan.maxOrders)}`}</span>
                     </div>
                   </div>
                 </div>

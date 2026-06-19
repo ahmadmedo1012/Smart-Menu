@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, X, ArrowLeft, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toArabicNumber } from "@/lib/format";
 
 type Plan = {
   id: number;
@@ -106,7 +107,7 @@ function PlanCard({
             <div className="text-4xl font-bold">مجاني</div>
           ) : (
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold">{displayPrice}</span>
+              <span className="text-4xl font-bold">{toArabicNumber(displayPrice)}</span>
               <span className="text-lg text-muted-foreground">د.ل</span>
               <span className="text-sm text-muted-foreground">{periodLabel}</span>
             </div>
@@ -121,11 +122,11 @@ function PlanCard({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">الأصناف</span>
-            <span className="font-medium">{plan.maxItems === 9999 ? "غير محدود" : `حتى ${plan.maxItems}`}</span>
+            <span className="font-medium">{plan.maxItems === 9999 ? "غير محدود" : `حتى ${toArabicNumber(plan.maxItems)}`}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">الطلبات</span>
-            <span className="font-medium">{plan.maxOrders === 99999 ? "غير محدود" : `حتى ${plan.maxOrders}`}</span>
+            <span className="font-medium">{plan.maxOrders === 99999 ? "غير محدود" : `حتى ${toArabicNumber(plan.maxOrders)}`}</span>
           </div>
         </div>
 
