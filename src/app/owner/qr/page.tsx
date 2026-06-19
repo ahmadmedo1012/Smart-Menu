@@ -84,7 +84,7 @@ export default function OwnerQRPage() {
           </div>
           {url && (
             <a href={url} target="_blank" rel="noopener noreferrer" className="mr-auto">
-              <Button variant="ghost" size="icon" className="size-9 rounded-xl">
+              <Button variant="ghost" size="icon" aria-label="فتح الرابط" className="size-9 rounded-xl">
                 <ExternalLink className="size-4" />
               </Button>
             </a>
@@ -142,7 +142,7 @@ export default function OwnerQRPage() {
             <Label className="text-xs text-muted-foreground">رابط المنيو</Label>
             <div className="flex gap-2 mt-1.5">
               <Input value={url} readOnly dir="ltr" className="text-sm h-11 rounded-xl" />
-              <Button variant="outline" size="icon" onClick={copy} className="size-11 rounded-xl shrink-0">
+              <Button variant="outline" size="icon" aria-label="نسخ الرابط" onClick={copy} className="size-11 rounded-xl shrink-0">
                 {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4" />}
               </Button>
             </div>

@@ -86,7 +86,7 @@ export default function MenuPageClient({
 
   // Sort & filter
   const filteredItems = useMemo(() => {
-    let result = items.filter((item) => {
+    const result = items.filter((item) => {
       const matchesSearch =
         search === "" ||
         (item.nameAr || item.name).includes(search) ||

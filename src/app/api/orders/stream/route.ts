@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
-  let restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
+  const restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
   if (!restaurantId) return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
   if (auth.role === "owner" && auth.restaurantId !== restaurantId) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
 

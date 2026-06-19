@@ -243,9 +243,9 @@ function SubscribeContent() {
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       "size-10 rounded-xl bg-gradient-to-br flex items-center justify-center",
-                      PLAN_GRADIENTS[plans.indexOf(currentPlan)]
+                      PLAN_GRADIENTS[plans.findIndex(p => p.id === currentPlan.id)]
                     )}>
-                      {(() => { const Icon = PLAN_ICONS[plans.indexOf(currentPlan)] || Sparkles; return <Icon className="size-5 text-white" />; })()}
+                      {(() => { const Icon = PLAN_ICONS[plans.findIndex(p => p.id === currentPlan.id)] || Sparkles; return <Icon className="size-5 text-white" />; })()}
                     </div>
                     <div>
                       <p className="font-bold">{currentPlan.nameAr}</p>

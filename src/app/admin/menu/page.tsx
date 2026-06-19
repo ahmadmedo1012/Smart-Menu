@@ -44,17 +44,23 @@ export default function AdminMenuPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      const [catRes, itemRes, restRes] = await Promise.all([
-        fetch("/api/categories"),
-        fetch("/api/items"),
+      const [itemRes, restRes] = await Promise.all([
+        fetch("/api/items?pageSize=100"),
         fetch("/api/restaurants"),
       ])
-      const catJson = await catRes.json()
       const itemJson = await itemRes.json()
       const restJson = await restRes.json()
-      setCategories(catJson.data ?? catJson ?? [])
       setItems(itemJson.data ?? itemJson ?? [])
-      setRestaurants(restJson.data?.restaurants ?? restJson.data ?? [])
+      const restaurantList = restJson.data?.restaurants ?? restJson.data ?? []
+      setRestaurants(restaurantList)
+
+      // Load categories per restaurant
+      const catPromises = restaurantList.map((r: Restaurant) =>
+        fetch(`/api/categories?restaurantId=${r.id}`).then(r => r.json())
+      )
+      const catResults = await Promise.all(catPromises)
+      const allCats = catResults.flatMap(j => j.data ?? j ?? [])
+      setCategories(allCats)
     } catch { toast.error("فشل تحميل البيانات") }
     finally { setLoading(false) }
   }, [])
@@ -132,8 +138,7 @@ export default function AdminMenuPage() {
             className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20"
           />
         </div>
-        {false && (
-          <select
+        {<select
             value={restaurantFilter ?? ""}
             onChange={e => setRestaurantFilter(e.target.value ? Number(e.target.value) : null)}
             className="h-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-amber-300"
@@ -142,8 +147,7 @@ export default function AdminMenuPage() {
             {restaurants.map(r => (
               <option key={r.id} value={r.id}>{r.name}</option>
             ))}
-          </select>
-        )}
+          </select>}
       </div>
 
       {/* Stats */}

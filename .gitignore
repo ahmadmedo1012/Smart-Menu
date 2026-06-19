@@ -44,3 +44,4 @@ next-env.d.ts
 
 # PostgreSQL migrations
 prisma/migrations
+test-results/
