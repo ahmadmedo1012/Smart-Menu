@@ -148,9 +148,9 @@ export default function OwnerDashboard() {
       const meRes = await fetch("/api/auth/me")
       if (!meRes.ok) { router.push("/login"); return }
       const userData = await meRes.json()
-      if (!userData.restaurantId) { setError("لا يوجد مطعم مرتبط"); setLoading(false); return }
+      if (!userData.data?.restaurantId) { setError("لا يوجد مطعم مرتبط"); setLoading(false); return }
 
-      const rid = userData.restaurantId
+      const rid = userData.data?.restaurantId
 
       const [restRes, statsRes, loyaltyRes] = await Promise.all([
         fetch(`/api/restaurants/${rid}`),

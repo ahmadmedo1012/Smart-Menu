@@ -115,7 +115,7 @@ export default function OwnerMenuPage() {
   useEffect(() => {
     fetch("/api/auth/me")
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
-      .then(d => { if (d.restaurantId) setRestaurantId(d.restaurantId) })
+      .then(d => { if (d.data?.restaurantId) setRestaurantId(d.data.restaurantId) })
       .catch(() => router.push("/login"))
   }, [router])
 
