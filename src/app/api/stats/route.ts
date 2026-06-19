@@ -2,12 +2,12 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
 
-const DEFAULT_RESTAURANT_ID = 1;
+
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const restaurantId = Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT_ID;
+    const restaurantId = Number(searchParams.get("restaurantId")) || 0;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

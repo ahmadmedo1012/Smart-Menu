@@ -3,8 +3,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
 
-const DEFAULT_RESTAURANT_ID = 1;
-
 const singleSchema = z.object({
   key: z.string().min(1),
   value: z.string(),
@@ -15,8 +13,13 @@ const batchSchema = z.array(singleSchema);
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    // Try query param first, then cookie
+    const cookieRestaurantId = request.cookies.get("smart-menu-restaurant")?.value;
     const restaurantId =
-      Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT_ID;
+      Number(searchParams.get("restaurantId")) || (cookieRestaurantId ? Number(cookieRestaurantId) : 0);
+    if (!restaurantId) {
+      return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
+    }
 
     const [settings, restaurant] = await Promise.all([
       prisma.setting.findMany({ where: { restaurantId } }),
@@ -35,8 +38,12 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const cookieRestaurantId = request.cookies.get("smart-menu-restaurant")?.value;
     const restaurantId =
-      Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT_ID;
+      Number(searchParams.get("restaurantId")) || (cookieRestaurantId ? Number(cookieRestaurantId) : 0);
+    if (!restaurantId) {
+      return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
+    }
     const body = await request.json();
 
     // Accept both single object and batch array

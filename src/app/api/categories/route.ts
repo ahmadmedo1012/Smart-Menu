@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
 
-const DEFAULT_RESTAURANT_ID = 1;
+const DEFAULT_RESTAURANT = 0;
 
 const createSchema = z.object({
   name: z.string().min(1),
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
-    const restaurantId = Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT_ID;
+    const restaurantId = Number(searchParams.get("restaurantId")) || DEFAULT_RESTAURANT;
 
     const where = { restaurantId };
     const [data, total] = await Promise.all([
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = createSchema.parse(await request.json());
-    const rid = body.restaurantId ?? DEFAULT_RESTAURANT_ID;
+    const rid = body.restaurantId  ?? 0;
 
     // Check plan limits for categories
     const restaurant = await prisma.restaurant.findUnique({

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, handleError, error, paginated } from "@/lib/api-helpers";
 
-const DEFAULT_RESTAURANT_ID = 1;
+const DEFAULT_RESTAURANT = 0;
 
 const createSchema = z.object({
   name: z.string().min(1),
