@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
 import { randomBytes } from "crypto";
@@ -34,7 +35,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { customerPhone, customerName } = body;
-    const cookieId = request.cookies.get("smart-menu-restaurant")?.value;
+    const cookieStore = await cookies();
+    const cookieId = cookieStore.get("smart-menu-restaurant")?.value;
     const restaurantId = body.restaurantId ?? (Number(cookieId) || 1);
 
     if (!customerPhone) return error("customerPhone is required");
@@ -82,7 +84,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const phone = searchParams.get("phone");
-    const restaurantId = Number(request.cookies.get("smart-menu-restaurant")?.value) || 1;
+    const cookieStore2 = await cookies();
+    const restaurantId = Number(cookieStore2.get("smart-menu-restaurant")?.value) || 1;
 
     if (!phone) return error("phone query parameter is required");
 

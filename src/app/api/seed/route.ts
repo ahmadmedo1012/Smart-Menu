@@ -1,8 +1,11 @@
 import { hashPassword } from "@/lib/hash";
 import { prisma } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
   try {
+    const auth = await requireAdmin();
+    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     // This endpoint only works if no plans exist (first-time setup)
     const existing = await prisma.subscriptionPlan.count();
     if (existing > 0) {

@@ -299,7 +299,7 @@ export default function Home() {
             </Reveal>
             <Reveal delay={0.2}>
               <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                استقبل طلبات الزبائن عبر واتساب без عناء. منيو رقمي احترافي لمطعمك يفتح على جميع الأجهزة.
+                استقبل طلبات الزبائن عبر واتساب بدون عناء. منيو رقمي احترافي لمطعمك يفتح على جميع الأجهزة.
               </p>
             </Reveal>
             <Reveal delay={0.3}>

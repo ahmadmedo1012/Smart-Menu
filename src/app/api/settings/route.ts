@@ -68,15 +68,15 @@ export async function PUT(request: NextRequest) {
         )
       );
       // Also update restaurant fields that match
+      const RESTAURANT_FIELDS = ["name", "slug", "description", "logo", "phone", "whatsapp", "email", "address", "workingHours", "themeColor"];
       const restaurantFields = items.filter((i) =>
-        ["name", "slug", "description", "logo", "phone", "whatsapp", "email", "address", "workingHours", "themeColor"].includes(i.key.replace("restaurant_", ""))
+        RESTAURANT_FIELDS.includes(i.key.replace("restaurant_", ""))
       );
       if (restaurantFields.length > 0) {
         const updateData: Record<string, string> = {};
         for (const f of restaurantFields) {
           const fieldName = f.key.replace("restaurant_", "");
-          // Only update well-known fields
-          if (["name", "slug", "description", "logo", "phone", "whatsapp", "email", "address", "workingHours", "themeColor"].includes(fieldName)) {
+          if (RESTAURANT_FIELDS.includes(fieldName)) {
             (updateData as any)[fieldName] = f.value;
           }
         }

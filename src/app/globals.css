@@ -364,28 +364,11 @@
 }
 
 /* === Noise texture utility === */
-.noise {
-  position: relative;
-}
-.noise::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 128px 128px;
-  mix-blend-mode: overlay;
-}
-.dark .noise::before {
-  opacity: 0.06;
-}
-
+.noise,
 .noise-bg {
   position: relative;
 }
+.noise::before,
 .noise-bg::before {
   content: "";
   position: absolute;
@@ -398,6 +381,7 @@
   background-size: 128px 128px;
   mix-blend-mode: overlay;
 }
+.dark .noise::before,
 .dark .noise-bg::before {
   opacity: 0.06;
 }
@@ -598,18 +582,6 @@
 .glow-within:focus-within {
   box-shadow: var(--shadow-glow);
   border-color: var(--ring);
-}
-
-/* Confetti fall animation */
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-10px) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(300px) rotate(720deg);
-    opacity: 0;
-  }
 }
 
 /* === Premium Ambient Glow Effects === */

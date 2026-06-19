@@ -31,7 +31,6 @@ const QUICK_NOTES = [
 /** Format order as a clean receipt-style text for WhatsApp */
 function buildReceiptMessage(opts: {
   restaurantName: string;
-  restaurantLogo?: string;
   itemName: string;
   quantity: number;
   unitPrice: number;
@@ -122,7 +121,6 @@ export default function OrderDialog({
     const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
     const receipt = buildReceiptMessage({
       restaurantName: restaurantName || "المطعم",
-      restaurantLogo,
       itemName: displayName,
       quantity,
       unitPrice: currentPrice,

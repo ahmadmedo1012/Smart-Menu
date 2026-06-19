@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { success, handleError, paginated } from "@/lib/api-helpers";
+import { success, error, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
 
@@ -39,7 +39,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized || auth.role !== "admin") return error("غير مصرح", 401);
     const body = createSchema.parse(await request.json());
 
     const data = await prisma.restaurant.create({
