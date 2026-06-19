@@ -34,7 +34,7 @@ function formatDate(date: Date): string {
   const y = date.getFullYear();
   const h = date.getHours().toString().padStart(2, '0');
   const min = date.getMinutes().toString().padStart(2, '0');
-  return `${toArabicNumber(d)} ${m} ${toArabicNumber(y)} ${toArabicNumber(Number(h))}:${toArabicNumber(Number(min))}`;
+  return `${toArabicNumber(d)} ${m} ${toArabicNumber(y)} ${h}:${min}`;
 }
 
 export { toArabicNumber, formatPrice, formatDate };
