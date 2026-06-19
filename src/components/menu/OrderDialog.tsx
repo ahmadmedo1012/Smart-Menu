@@ -21,6 +21,7 @@ type OrderDialogProps = {
   restaurantName?: string;
   restaurantId: number;
   restaurantLogo?: string;
+  restaurantSlug?: string;
 };
 
 const QUICK_NOTES = [
@@ -36,6 +37,7 @@ function buildReceiptMessage(opts: {
   unitPrice: number;
   totalPrice: number;
   notes: string;
+  menuUrl?: string;
 }): string {
   const sep = "─".repeat(28);
   const lines: string[] = [];
@@ -60,6 +62,7 @@ function buildReceiptMessage(opts: {
   lines.push("");
 
   // Footer
+  if (opts.menuUrl) lines.push(`🌐 ${opts.menuUrl}`);
   lines.push(`_تم الطلب عبر ${opts.restaurantName}_`);
   lines.push(`_شكراً لطلبكم!_ 🍽️`);
 
@@ -74,6 +77,7 @@ export default function OrderDialog({
   restaurantName,
   restaurantId,
   restaurantLogo,
+  restaurantSlug,
 }: OrderDialogProps) {
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -114,6 +118,8 @@ export default function OrderDialog({
     } catch {}
 
     // Build receipt-style message
+    const origin = window.location.origin;
+    const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
     const receipt = buildReceiptMessage({
       restaurantName: restaurantName || "المطعم",
       restaurantLogo,
@@ -122,6 +128,7 @@ export default function OrderDialog({
       unitPrice: currentPrice,
       totalPrice,
       notes: notes.trim(),
+      menuUrl,
     });
 
     const encoded = encodeURIComponent(receipt);

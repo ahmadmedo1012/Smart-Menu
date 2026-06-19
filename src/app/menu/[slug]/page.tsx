@@ -1,12 +1,39 @@
 import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
+import type { Metadata } from "next";
 import MenuPageClient from "@/components/menu/MenuPageClient";
 import Link from "next/link";
 import { Store, Phone, MessageCircle, Mail, MapPin, Clock, Star } from "lucide-react";
 import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+  const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
+  if (!restaurant) return { title: "المطعم غير موجود" };
+  return {
+    title: `${restaurant.name} | المنيو الذكي`,
+    description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+    openGraph: {
+      title: `${restaurant.name} | المنيو الذكي`,
+      description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+      url: `${origin}/menu/${slug}`,
+      siteName: "الربط الذكي",
+      images: restaurant.logo ? [{ url: restaurant.logo, width: 512, height: 512 }] : [],
+      locale: "ar_LY",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${restaurant.name} | المنيو الذكي`,
+      description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+      images: restaurant.logo ? [restaurant.logo] : [],
+    },
+  };
+}
 
 export default async function PublicMenuPage({
   params,
@@ -142,6 +169,7 @@ export default async function PublicMenuPage({
           restaurantWhatsapp={restaurant.whatsapp}
           restaurantName={restaurant.name}
           restaurantId={restaurant.id}
+          restaurantSlug={slug}
         />
       </div>
 

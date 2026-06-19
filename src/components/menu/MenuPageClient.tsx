@@ -30,6 +30,7 @@ export default function MenuPageClient({
   items,
   restaurantWhatsapp,
   restaurantName,
+  restaurantSlug,
   restaurantId,
   restaurantLogo,
 }: {
@@ -38,7 +39,8 @@ export default function MenuPageClient({
   restaurantWhatsapp?: string;
   restaurantName?: string;
   restaurantId: number;
-  restaurantLogo?: string;
+  restaurantLogo?: string
+  restaurantSlug?: string;
 }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -290,6 +292,7 @@ export default function MenuPageClient({
         restaurantName={restaurantName}
         restaurantId={restaurantId}
         restaurantLogo={restaurantLogo}
+        restaurantSlug={restaurantSlug}
       />
 
       {/* Floating WhatsApp */}
