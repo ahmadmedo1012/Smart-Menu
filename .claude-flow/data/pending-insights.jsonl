@@ -287,3 +287,6 @@
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/users/[id]/route.ts","timestamp":1781875532852,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/reset-password/route.ts","timestamp":1781875544757,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/users/route.ts","timestamp":1781875551056,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/orders/route.ts","timestamp":1781876155497,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/stats/route.ts","timestamp":1781876212269,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/loyalty/stats/route.ts","timestamp":1781876240300,"sessionId":null}

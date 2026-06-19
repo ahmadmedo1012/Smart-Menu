@@ -4,7 +4,10 @@ import { success, handleError } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
   try {
-    const restaurantId = Number(request.cookies.get("smart-menu-restaurant")?.value) || 1;
+    const { requireAuth } = await import("@/lib/auth");
+    const auth = await requireAuth();
+    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    const restaurantId = auth.restaurantId || Number(request.cookies.get("smart-menu-restaurant")?.value) || 1;
 
     const [totalLoyaltyCards, tierDistribution, cards] = await Promise.all([
       prisma.loyaltyCard.count({ where: { restaurantId } }),
