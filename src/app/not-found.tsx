@@ -42,7 +42,7 @@ export default function NotFound() {
 
         {/* Description */}
         <p className="text-lg text-muted-foreground max-w-md mb-10 leading-relaxed">
-          الرابط الذي تبحث عنه غير صحيح أو تم نقل
+          الرابط الذي تبحث عنه غير صحيح
         </p>
 
         {/* Actions */}
