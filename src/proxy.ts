@@ -42,19 +42,18 @@ export function proxy(request: NextRequest) {
     return new NextResponse("Too Many Requests", { status: 429 });
   }
 
-  // No-cache headers for customer-facing pages so changes appear instantly
+  // Cache strategy: revalidate for public menu data, no-cache for dynamic pages
   const response = NextResponse.next();
-  if (
-    pathname.startsWith("/menu/") ||
-    pathname === "/menu" ||
-    pathname === "/cart" ||
-    pathname === "/order-confirmed" ||
+  const isPublicMenuApi = pathname.startsWith("/api/categories") || pathname.startsWith("/api/items") || pathname.startsWith("/api/restaurants");
+  if (isPublicMenuApi) {
+    // Cache public menu data 60s with stale-while-revalidate for performance
+    response.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
+  } else if (
+    pathname.startsWith("/menu/") || pathname === "/menu" ||
+    pathname === "/cart" || pathname === "/order-confirmed" ||
     pathname.startsWith("/api/")
   ) {
-    response.headers.set(
-      "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
-    );
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     response.headers.set("Pragma", "no-cache");
     response.headers.set("Expires", "0");
   }
