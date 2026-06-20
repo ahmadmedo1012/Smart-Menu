@@ -386,3 +386,8 @@
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/.gitignore","timestamp":1781972737367,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/layout.tsx","timestamp":1781972829613,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/render.yaml","timestamp":1781974797330,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/.dockerignore","timestamp":1781982529001,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/Dockerfile","timestamp":1781982538913,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/components/landing/landing-data.ts","timestamp":1781982942669,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/components/landing/HomePage.tsx","timestamp":1781982979887,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/page.tsx","timestamp":1781982991327,"sessionId":null}
