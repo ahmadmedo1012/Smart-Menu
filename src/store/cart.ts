@@ -1,6 +1,19 @@
 "use client";
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+
+const safeStorage = {
+  getItem: (name: string) => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(name);
+  },
+  setItem: (name: string, value: string) => {
+    if (typeof window !== "undefined") localStorage.setItem(name, value);
+  },
+  removeItem: (name: string) => {
+    if (typeof window !== "undefined") localStorage.removeItem(name);
+  },
+};
 
 export type CartItem = {
   id: string;
@@ -96,6 +109,6 @@ export const useCart = create<CartStore>()(
       subtotal: () =>
         get().items.reduce((a, i) => a + i.price * i.quantity, 0),
     }),
-    { name: "cart-storage", storage: createJSONStorage(() => localStorage), skipHydration: true }
+    { name: "cart-storage", storage: safeStorage }
   )
 );
