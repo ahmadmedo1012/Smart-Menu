@@ -50,9 +50,6 @@ export default function MenuPageClient({
   const [showSort, setShowSort] = useState(false);
   const cart = useCart();
 
-  // Hydrate cart from localStorage once on client
-  useEffect(() => { cart.hydrate(); }, [cart]);
-
   const handleQuickAdd = (item: MenuItemProp) => {
     cart.addItem({
       itemId: item.id,
@@ -79,7 +76,7 @@ export default function MenuPageClient({
   }, []);
 
   useEffect(() => {
-    if (restaurantId && cart.hydrated) cart.setRestaurantId(restaurantId);
+    if (restaurantId) cart.setRestaurantId(restaurantId);
   }, [restaurantId, cart]);
 
   useEffect(() => {
