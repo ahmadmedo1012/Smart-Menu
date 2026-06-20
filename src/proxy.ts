@@ -20,7 +20,7 @@ const publicPrefixes = [
 // Ponytail: simple in-memory rate limiter, use Redis if scaling
 const rateLimit = new Map<string, { count: number; reset: number }>();
 const RATE_WINDOW = 60_000; // 1 min
-const RATE_MAX = 60; // max requests per window per IP
+const RATE_MAX = 120; // max requests per window per IP (increased for testing)
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
