@@ -17,8 +17,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "الربط الذكي | Smart Menu",
-  description: "نظام المنيو الذكي والطلبات عبر واتساب للمطاعم والمقاهي",
+  title: {
+    default: "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي",
+    template: "%s | المنيو الذكي",
+  },
+  description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب، برنامج ولاء، وإحصائيات متقدمة",
+  keywords: ["منيو رقمي", "Smart Menu", "مطعم", "مقهى", "طلب اونلاين", "واتساب", "قائمة طعام", "الربط الذكي"],
+  authors: [{ name: "الربط الذكي" }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_DOMAIN || "https://smart-menu-uz6w.onrender.com"),
+  openGraph: {
+    title: "الربط الذكي | Smart Menu",
+    description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب",
+    url: "/",
+    siteName: "الربط الذكي",
+    locale: "ar_LY",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "الربط الذكي | Smart Menu",
+    description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

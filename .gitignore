@@ -48,6 +48,8 @@ test-results/
 
 # Runtime databases
 ruvector.db
-.swarm/memory.db-shm
-.swarm/memory.db-wal
-.swarm/memory.db
+.swarm/
+.claude/memory.db
+
+# Testing
+tests/prod-verify.mjs
