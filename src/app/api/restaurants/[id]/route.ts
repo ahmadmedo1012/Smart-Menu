@@ -13,6 +13,8 @@ const updateSchema = z.object({
   email: z.string().optional(),
   address: z.string().optional(),
   workingHours: z.string().optional(),
+  logo: z.string().optional(),
+  gallery: z.array(z.string()).optional(),
 });
 
 const adminUpdateSchema = z.object({
@@ -24,6 +26,8 @@ const adminUpdateSchema = z.object({
   email: z.string().optional(),
   address: z.string().optional(),
   workingHours: z.string().optional(),
+  logo: z.string().optional(),
+  gallery: z.array(z.string()).optional(),
   planId: z.number().int().optional(),
   planStart: z.string().datetime().optional(),
   planEnd: z.string().datetime().optional(),
