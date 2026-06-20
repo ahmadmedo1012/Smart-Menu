@@ -48,10 +48,10 @@ export default function MenuPageClient({
   const [showFloatingWa, setShowFloatingWa] = useState(false);
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
   const cart = useCart();
 
-  useEffect(() => { setHydrated(true); }, []);
+  // Hydrate cart from localStorage once on client
+  useEffect(() => { cart.hydrate(); }, [cart]);
 
   const handleQuickAdd = (item: MenuItemProp) => {
     cart.addItem({
@@ -79,8 +79,8 @@ export default function MenuPageClient({
   }, []);
 
   useEffect(() => {
-    if (restaurantId && hydrated) cart.setRestaurantId(restaurantId);
-  }, [restaurantId, cart, hydrated]);
+    if (restaurantId && cart.hydrated) cart.setRestaurantId(restaurantId);
+  }, [restaurantId, cart]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
