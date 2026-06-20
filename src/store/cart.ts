@@ -1,6 +1,6 @@
 "use client";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type CartItem = {
   id: string;
@@ -96,6 +96,6 @@ export const useCart = create<CartStore>()(
       subtotal: () =>
         get().items.reduce((a, i) => a + i.price * i.quantity, 0),
     }),
-    { name: "cart-storage" }
+    { name: "cart-storage", storage: createJSONStorage(() => localStorage), skipHydration: true }
   )
 );
