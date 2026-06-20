@@ -49,6 +49,7 @@ export default function MenuPageClient({
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
   const cart = useCart();
+  const setRestaurantId = cart.setRestaurantId;
 
   const handleQuickAdd = (item: MenuItemProp) => {
     cart.addItem({
@@ -76,8 +77,8 @@ export default function MenuPageClient({
   }, []);
 
   useEffect(() => {
-    if (restaurantId) cart.setRestaurantId(restaurantId);
-  }, [restaurantId, cart]);
+    if (restaurantId) setRestaurantId(restaurantId);
+  }, [restaurantId, setRestaurantId]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
