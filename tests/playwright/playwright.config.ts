@@ -9,9 +9,10 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'cd /home/ahmed/UTILITIES/smart-menu && npm run dev',
+    command: 'npm run dev',
     port: 3000,
     timeout: 30000,
     reuseExistingServer: true,
+    cwd: '../..',
   },
 });

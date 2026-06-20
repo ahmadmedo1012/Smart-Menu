@@ -75,7 +75,7 @@ npm run dev
 ## 🛠 التقنيات
 
 - **Framework**: Next.js 16 (App Router)
-- **Database**: SQLite (Prisma ORM + libSQL)
+- **Database**: PostgreSQL (Prisma ORM + Neon)
 - **Styling**: Tailwind CSS 4 + shadcn/ui
 - **State**: Zustand
 - **Auth**: Cookie-based proxy middleware
@@ -105,7 +105,6 @@ src/
 prisma/
 ├── schema.prisma    # 13 models
 ├── seed.ts          # بيانات افتراضية
-└── dev.db           # قاعدة البيانات
 ```
 
 ---
