@@ -36,9 +36,8 @@ export const STEPS: Step[] = [
 ];
 
 export const PRICING_PLANS: PricingPlan[] = [
-  { name: "مجاني", price: "0", period: "دائماً", features: ["منيو رقمي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"], cta: "ابدأ مجاناً", popular: false, gradient: "from-gray-400 to-gray-500" },
-  { name: "أساسي", price: "49", period: "شهرياً", features: ["منيو رقمي", "50 صنف", "برنامج ولاء", "QR كود", "دعم فني"], cta: "اشترك الآن", popular: true, gradient: "from-amber-500 to-amber-600" },
-  { name: "احترافي", price: "129", period: "شهرياً", features: ["حتى 3 منيوهات", "200 صنف", "ولاء متقدم", "إحصائيات متقدمة", "تخصيص كامل", "دعم فوري"], cta: "اشترك الآن", popular: false, gradient: "from-amber-500 via-yellow-500 to-amber-600" },
+  { name: "مجاني", price: "0", period: "دائماً", features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"], cta: "ابدأ مجاناً", popular: false, gradient: "from-gray-400 to-gray-500" },
+  { name: "المدفوعة", price: "10", period: "شهرياً", features: ["جميع ميزات المجانية", "أصناف غير محدودة", "برنامج ولاء متكامل", "QR كود مخصص", "إحصائيات متقدمة", "دعم فني فوري", "تخصيص كامل"], cta: "اشترك الآن", popular: true, gradient: "from-amber-500 to-amber-600" },
 ];
 
 export const SHOWCASES: Showcase[] = [

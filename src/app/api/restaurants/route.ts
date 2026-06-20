@@ -38,9 +38,16 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") return error("غير مصرح", 401);
     const body = createSchema.parse(await request.json());
+    // Allow public registration when username/password provided (new account)
+    if (!body.username || !body.password) {
+      const auth = await requireAuth();
+      if (!auth.authorized || auth.role !== "admin") return error("غير مصرح", 401);
+    }
+
+    // Check slug uniqueness
+    const existingSlug = await prisma.restaurant.findUnique({ where: { slug: body.slug } });
+    if (existingSlug) return error("الرابط المختصر مستخدم بالفعل", 409);
 
     const data = await prisma.restaurant.create({
       data: {

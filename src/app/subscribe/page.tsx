@@ -168,8 +168,8 @@ function SubscribeContent() {
         {step === "plan" && (
           <div className="animate-fade-in">
             <h2 className="text-2xl font-bold text-center mb-8">اختر خطة تناسب مطعمك</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {plans.map((plan, i) => {
+            <div className="grid md:grid-cols-2 gap-4 mb-8 max-w-lg mx-auto">
+              {plans.slice(0, 2).map((plan, i) => {
                 const Icon = PLAN_ICONS[i] || Sparkles;
                 const isSelected = selectedPlan === plan.id;
 
