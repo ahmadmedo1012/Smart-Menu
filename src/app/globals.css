@@ -260,13 +260,51 @@
 }
 
 /* === Custom scrollbar — premium === */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(0.82 0.04 80); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(0.72 0.06 70); }
+.dark ::-webkit-scrollbar-thumb { background: oklch(0.35 0.02 80); }
+.dark ::-webkit-scrollbar-thumb:hover { background: oklch(0.45 0.03 80); }
+
+/* === Skeleton shimmer === */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, oklch(0.92 0.01 80) 25%, oklch(0.88 0.02 80) 37%, oklch(0.92 0.01 80) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+.dark .skeleton {
+  background: linear-gradient(90deg, oklch(0.2 0.01 80) 25%, oklch(0.25 0.02 80) 37%, oklch(0.2 0.01 80) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
+
+/* === Glass morphism enhancement === */
+.glass-card { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+
+/* === Micro-interactions === */
+@keyframes breath { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px oklch(0.72 0.16 65/0.1); } 50% { box-shadow: 0 0 40px oklch(0.72 0.16 65/0.2); } }
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+@keyframes float-delayed { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slide-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+.animate-breath { animation: breath 2s ease-in-out infinite; }
+.animate-wiggle { animation: wiggle 0.4s ease-in-out; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-float-delayed { animation: float-delayed 4s ease-in-out infinite; }
+.animate-slide-up { animation: slide-up 0.5s ease-out both; }
+.animate-slide-down { animation: slide-down 0.3s ease-out both; }
+.animate-fade-in { animation: fade-in 0.5s ease-out both; }
+.animate-scale-in { animation: scale-in 0.2s ease-out both; }
+.animate-reveal { animation: fade-in 0.6s ease-out both, slide-up 0.6s ease-out both; }
 ::-webkit-scrollbar-thumb {
   background: var(--muted-foreground);
   background-clip: content-box;
