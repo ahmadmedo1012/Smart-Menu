@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Minus, Plus, MessageCircle, X, Check } from "lucide-react";
+import { Minus, Plus, MessageCircle, X, Check, Store } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { MenuItemProp } from "./MenuItemCard";
@@ -28,42 +26,42 @@ const QUICK_NOTES = [
   "بدون سكر", "سكر زيادة", "بدون ثلج", "حار", "بارد", "بدون بصل",
 ];
 
-/** Format order as a clean receipt-style text for WhatsApp */
 function buildReceiptMessage(opts: {
   restaurantName: string;
-  itemName: string;
-  quantity: number;
-  unitPrice: number;
+  restaurantLogo?: string;
+  items: { name: string; qty: number; price: number }[];
   totalPrice: number;
   notes: string;
   menuUrl?: string;
 }): string {
-  const sep = "─".repeat(28);
   const lines: string[] = [];
+  const sep = "━━━━━━━━━━━━━━━━━━━━";
 
-  // Header: restaurant name
-  lines.push(`🛒 *${opts.restaurantName}*`);
+  // Header
+  lines.push(`🏪 *${opts.restaurantName}*`);
   lines.push(sep);
   lines.push("");
 
-  // Item line
-  lines.push(`*${opts.itemName}*`);
-  lines.push(`  ${opts.quantity} × ${toArabicNumber(opts.unitPrice.toFixed(1))} د.ل`);
+  // Items
+  opts.items.forEach((item, i) => {
+    lines.push(`*${i + 1}. ${item.name}*`);
+    lines.push(`   ${item.qty} × ${toArabicNumber(item.price.toFixed(1))} د.ل`);
+  });
+
   if (opts.notes) {
-    lines.push(`  📝 ${opts.notes}`);
+    lines.push("");
+    lines.push(`📝 *ملاحظات:* ${opts.notes}`);
   }
+
+  lines.push("");
+  lines.push(sep);
+  lines.push(`💵 *الإجمالي:* ${toArabicNumber(opts.totalPrice.toFixed(1))} د.ل`);
+  lines.push(sep);
   lines.push("");
 
-  // Total
-  lines.push(sep);
-  lines.push(`*المجموع:*   ${toArabicNumber(opts.totalPrice.toFixed(1))} د.ل`);
-  lines.push(sep);
-  lines.push("");
-
-  // Footer
+  lines.push(`🕐 _طلب جديد عبر المنيو الإلكتروني_`);
   if (opts.menuUrl) lines.push(`🌐 ${opts.menuUrl}`);
-  lines.push(`_تم الطلب عبر ${opts.restaurantName}_`);
-  lines.push(`_شكراً لطلبكم!_ 🍽️`);
+  lines.push(`🌟 _شكراً لاختياركم ${opts.restaurantName}_`);
 
   return lines.join("\n");
 }
@@ -81,10 +79,13 @@ export default function OrderDialog({
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [orderType, setOrderType] = useState<"delivery" | "takeaway">("delivery");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
-    if (open) { setNotes(""); setQuantity(1); setSubmitting(false); setConfirmed(false); }
+    if (open) { setNotes(""); setQuantity(1); setSubmitting(false); setConfirmed(false); setOrderType("delivery"); setCustomerName(""); setCustomerPhone(""); }
   }, [open, item?.id]);
 
   if (!item) return null;
@@ -98,17 +99,17 @@ export default function OrderDialog({
     if (!restaurantWhatsapp) return;
     setSubmitting(true);
 
-    // Save order to DB (best-effort)
+    // Save order to DB
     try {
       await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: [{ itemId: item.id, quantity, notes, price: currentPrice }],
-          customerName: "",
-          customerPhone: "",
+          items: [{ itemId: item.id, quantity, notes: notes.trim(), price: currentPrice }],
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
           notes,
-          pickupType: "delivery",
+          pickupType: orderType,
           subtotal: totalPrice,
           total: totalPrice,
           restaurantId,
@@ -116,14 +117,13 @@ export default function OrderDialog({
       });
     } catch {}
 
-    // Build receipt-style message
     const origin = window.location.origin;
     const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
+
     const receipt = buildReceiptMessage({
       restaurantName: restaurantName || "المطعم",
-      itemName: displayName,
-      quantity,
-      unitPrice: currentPrice,
+      restaurantLogo,
+      items: [{ name: displayName, qty: quantity, price: currentPrice }],
       totalPrice,
       notes: notes.trim(),
       menuUrl,
@@ -137,10 +137,7 @@ export default function OrderDialog({
     setConfirmed(true);
     setTimeout(() => {
       onOpenChange(false);
-      setConfirmed(false);
-      setNotes("");
-      setQuantity(1);
-    }, 1200);
+    }, 1500);
   };
 
   const toggleQuickNote = (note: string) => {
@@ -159,7 +156,7 @@ export default function OrderDialog({
             <img src={item.image} alt={displayName} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
             <button type="button" onClick={() => onOpenChange(false)}
-              className="absolute top-3 left-3 size-8 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors backdrop-blur-sm flex items-center justify-center">
+              className="absolute top-3 left-3 size-8 rounded-full bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center">
               <X className="size-4" />
             </button>
             <div className="absolute bottom-4 right-4 left-16">
@@ -173,55 +170,86 @@ export default function OrderDialog({
             <div className="size-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
               <Check className="size-10 text-emerald-500" />
             </div>
-            <h3 className="text-xl font-bold mb-1">تم إرسال الطلب!</h3>
-            <p className="text-sm text-muted-foreground">سيتم توجيهك إلى واتساب</p>
+            <h3 className="text-xl font-bold mb-1">تم إرسال الطلب! 🎉</h3>
+            <p className="text-sm text-muted-foreground">جاري فتح واتساب لتأكيد الإرسال</p>
           </div>
         ) : (
-          <div className={cn("p-6 space-y-5", !item.image && "pt-8")}>
+          <div className={cn("p-6 space-y-4", !item.image && "pt-8")}>
             {!item.image && (
-              <DialogHeader>
-                <DialogTitle className="text-xl">{displayName}</DialogTitle>
-              </DialogHeader>
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-1">{displayName}</h3>
+              </div>
             )}
 
-            {/* Restaurant logo + name */}
-            <div className="flex items-center gap-3 pb-2">
-              {restaurantLogo && (
-                <img src={restaurantLogo} alt="" className="size-10 rounded-xl object-cover ring-1 ring-border" />
-              )}
-              <div>
-                <p className="text-sm font-bold">{restaurantName || "المطعم"}</p>
-                <p className="text-xs text-muted-foreground">فاتورة طلب</p>
+            {/* Restaurant info bar */}
+            <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-3">
+              <div className="size-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-md">
+                {restaurantLogo ? (
+                  <img src={restaurantLogo} alt="" className="size-full object-cover rounded-xl" />
+                ) : (
+                  <Store className="size-6 text-white" />
+                )}
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm">{restaurantName || "المطعم"}</p>
+                <p className="text-xs text-muted-foreground">طلب جديد</p>
+              </div>
+              {hasDiscount && (
+                <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">
+                  -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
+                </span>
+              )}
             </div>
 
-            {/* Price & Quantity */}
+            {/* Customer info */}
+            <div className="grid grid-cols-2 gap-2">
+              <input value={customerName} onChange={e => setCustomerName(e.target.value)}
+                placeholder="الاسم (اختياري)" maxLength={30}
+                className="h-11 rounded-xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-amber-300" />
+              <input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
+                placeholder="رقم الهاتف (اختياري)" maxLength={15} dir="ltr"
+                className="h-11 rounded-xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-amber-300 text-left" />
+            </div>
+
+            {/* Quantity selector */}
             <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-amber-500/5 to-amber-600/5 border border-amber-200/20 p-4">
               <div>
                 <span className="text-xs text-muted-foreground">السعر</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
                   <span className="font-bold text-xl text-primary tabular-nums">{toArabicNumber(currentPrice.toFixed(1))}</span>
                   <span className="text-xs text-muted-foreground">د.ل</span>
-                  {hasDiscount && <span className="text-xs text-muted-foreground/50 line-through mr-1">{toArabicNumber(item.price.toFixed(1))}</span>}
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}
-                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-amber-500/10 hover:border-amber-300/30 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-amber-500/10 hover:border-amber-300/30 disabled:opacity-30">
                   <Minus className="size-4" />
                 </button>
                 <span className="font-bold text-xl min-w-[2.5ch] text-center tabular-nums">{toArabicNumber(quantity)}</span>
                 <button type="button" onClick={() => setQuantity(Math.min(99, quantity + 1))} disabled={quantity >= 99}
-                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-amber-500/10 hover:border-amber-300/30 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-amber-500/10 hover:border-amber-300/30 disabled:opacity-30">
                   <Plus className="size-4" />
                 </button>
               </div>
             </div>
 
+            {/* Order type */}
+            <div className="flex gap-2">
+              {(["delivery", "takeaway"] as const).map(type => (
+                <button key={type} type="button" onClick={() => setOrderType(type)}
+                  className={cn("flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all",
+                    orderType === type
+                      ? "bg-amber-500/10 border-amber-300/30 text-amber-700 dark:text-amber-300"
+                      : "border-border/30 text-muted-foreground hover:border-amber-200/30")}>
+                  {type === "delivery" ? "توصيل" : "استلام"}
+                </button>
+              ))}
+            </div>
+
             {/* Quick notes */}
             <div>
               <label className="text-sm font-medium mb-2 block">إضافات</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {QUICK_NOTES.map((note) => (
                   <button key={note} type="button" onClick={() => toggleQuickNote(note)}
                     className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border",
@@ -234,20 +262,19 @@ export default function OrderDialog({
               </div>
             </div>
 
-            {/* Notes textarea */}
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
-              placeholder="ملاحظات إضافية..."
+              placeholder="ملاحظات إضافية للطلب..."
               rows={2} className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20 resize-none" />
 
-            {/* Total + Submit */}
-            <div className="space-y-3">
+            {/* Total + WhatsApp */}
+            <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between border-t border-dashed border-border/40 pt-3">
-                <span className="font-bold">المجموع</span>
+                <span className="font-bold text-sm">المجموع</span>
                 <span className="font-bold text-xl text-primary tabular-nums">
                   {toArabicNumber(totalPrice.toFixed(1))} <span className="text-sm font-normal text-muted-foreground">د.ل</span>
                 </span>
               </div>
-              <Button className="w-full h-12 rounded-xl gap-2 text-base font-semibold"
+              <Button className="w-full h-12 rounded-xl gap-2 text-base font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20"
                 onClick={handleConfirm} disabled={submitting}>
                 {submitting ? (
                   <span className="flex items-center gap-2">
@@ -255,11 +282,11 @@ export default function OrderDialog({
                     جاري...
                   </span>
                 ) : (
-                  <><MessageCircle className="size-5" /> أرسل الطلب عبر واتساب</>
+                  <><MessageCircle className="size-5 text-white" /> أرسل الطلب عبر واتساب</>
                 )}
               </Button>
               <p className="text-[11px] text-center text-muted-foreground/60">
-                سيتم إرسال فاتورة الطلب إلى واتساب المطعم
+                سيتم فتح واتساب مع رسالة الطلب لإرسالها مباشرة
               </p>
             </div>
           </div>
