@@ -78,7 +78,8 @@ export default function MenuPageClient({
 
   useEffect(() => {
     if (restaurantId) setRestaurantId(restaurantId);
-  }, [restaurantId, setRestaurantId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantId]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });

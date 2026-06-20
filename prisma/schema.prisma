@@ -44,6 +44,7 @@ model Restaurant {
   name         String
   slug         String         @unique
   description  String         @default("")
+  gallery      String[]       @default([])
   logo         String         @default("")
   phone        String         @default("")
   whatsapp     String         @default("")

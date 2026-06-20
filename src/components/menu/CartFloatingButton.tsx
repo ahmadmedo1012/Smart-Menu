@@ -3,15 +3,13 @@
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/store/cart";
-import { shallow } from "zustand/shallow";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useRef, useState, useEffect } from "react";
 
 export default function CartFloatingButton() {
-  const items = useCart((s) => s.items, shallow);
-  const subtotal = useCart((s) => s.subtotal(), shallow);
-  const totalItems = items.reduce((a, i) => a + i.quantity, 0);
+  const totalItems = useCart((s) => s.totalItems());
+  const subtotal = useCart((s) => s.subtotal());
   const prevRef = useRef(totalItems);
   const [bounce, setBounce] = useState(false);
 

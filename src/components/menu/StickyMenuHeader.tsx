@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Store, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function StickyMenuHeader({ name }: { name: string }) {
+export default function StickyMenuHeader({
+  name,
+  logo,
+}: {
+  name: string;
+  logo?: string;
+}) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -22,19 +28,34 @@ export default function StickyMenuHeader({ name }: { name: string }) {
           : "bg-transparent",
       )}
     >
-      <div className={cn(
-        "size-8 rounded-xl flex items-center justify-center shadow-sm shrink-0 transition-all duration-400",
-        scrolled
-          ? "bg-gradient-to-br from-amber-400 to-amber-600"
-          : "bg-gradient-to-br from-amber-400/80 to-amber-600/80",
-      )}>
-        <Store className="size-4 text-white" />
+      <div
+        className={cn(
+          "size-8 rounded-xl flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-400",
+          scrolled
+            ? logo
+              ? "ring-1 ring-border/30"
+              : "bg-gradient-to-br from-amber-400 to-amber-600"
+            : logo
+              ? "ring-1 ring-white/20"
+              : "bg-gradient-to-br from-amber-400/80 to-amber-600/80",
+        )}
+      >
+        {logo ? (
+          <img src={logo} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <svg className="size-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        )}
       </div>
       <div className="flex-1 min-w-0">
-        <span className={cn(
-          "font-bold text-sm truncate block transition-all duration-400",
-          scrolled ? "opacity-100" : "opacity-0",
-        )}>
+        <span
+          className={cn(
+            "font-bold text-sm truncate block transition-all duration-400",
+            scrolled ? "opacity-100" : "opacity-0",
+          )}
+        >
           {name}
         </span>
       </div>

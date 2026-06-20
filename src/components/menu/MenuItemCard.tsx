@@ -2,7 +2,7 @@
 
 import { useState, memo } from "react";
 import { toArabicNumber } from "@/lib/format";
-import { Plus, Star } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export type MenuItemProp = {
   id: number;
@@ -86,9 +86,7 @@ function Placeholder({ name }: { name: string }) {
   const idx = name.charCodeAt(0) % COLORS.length;
   const emoji = getFoodEmoji(name);
   return (
-    <div
-      className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]} text-3xl md:text-4xl`}
-    >
+    <div className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]} text-3xl md:text-4xl`}>
       {emoji}
     </div>
   );
@@ -113,19 +111,15 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-4 w-full rounded-2xl bg-card p-4 text-right cursor-pointer transition-all duration-400 hover:-translate-y-2 hover:shadow-xl hover:shadow-amber-500/12 active:scale-[0.98] border border-border/30 hover:border-amber-300/40 shine-sweep"
+      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-right cursor-pointer transition-all duration-400 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-amber-500/10 active:scale-[0.98] border border-border/30 hover:border-amber-300/40 overflow-hidden"
       onClick={() => onOrder(item)}
     >
-      {/* Subtle gradient overlay on hover */}
       <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 
-      {/* Image / Placeholder */}
-      <div className="relative shrink-0 size-28 md:size-32 rounded-xl overflow-hidden shadow-md ring-1 ring-foreground/5 group-hover:ring-amber-300/40 group-hover:shadow-lg group-hover:shadow-amber-500/10 transition-all duration-400">
+      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-amber-300/30 group-hover:shadow-lg group-hover:shadow-amber-500/10 transition-all duration-400">
         {item.image && !imageError ? (
           <>
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-muted animate-breath" />
-            )}
+            {!imageLoaded && <div className="absolute inset-0 skeleton" />}
             <img
               src={item.image}
               alt={displayName}
@@ -141,60 +135,54 @@ const MenuItemCard = memo(function MenuItemCard({
           <Placeholder name={displayName} />
         )}
 
-        {/* Discount badge */}
         {hasDiscount && (
-          <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+          <div className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg">
             -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-between">
+      <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-between gap-1">
         <div>
-          {/* Name and price row */}
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-bold text-base md:text-lg leading-snug line-clamp-2">
+          <div className="flex items-start justify-between gap-2 mb-0.5">
+            <h3 className="font-bold text-sm md:text-base leading-snug line-clamp-1">
               {displayName}
             </h3>
           </div>
 
-          {/* Description */}
           {displayDesc ? (
-            <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed mb-2">
+            <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed mb-1.5">
               {displayDesc}
             </p>
           ) : null}
 
-          {/* Tags row */}
-          <div className="flex items-center gap-2 flex-wrap mb-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {hasDiscount && (
-              <span className="text-xs text-muted-foreground/60 line-through">
+              <span className="text-xs text-muted-foreground/40 line-through">
                 {toArabicNumber(item.price.toFixed(1))} د.ل
               </span>
             )}
           </div>
         </div>
 
-        {/* Bottom row: price + order button */}
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-baseline gap-1">
-            <span className="text-lg font-bold text-primary tabular-nums">
+        <div className="flex items-center justify-between mt-auto pt-1">
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-base md:text-lg font-bold text-primary tabular-nums">
               {toArabicNumber(currentPrice.toFixed(1))}
             </span>
-            <span className="text-xs text-muted-foreground">د.ل</span>
+            <span className="text-[11px] text-muted-foreground">د.ل</span>
           </div>
 
-          <span
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 hover:scale-105 min-h-[44px]"
+          <button
             onClick={(e) => {
               e.stopPropagation();
               onAddToCart(item);
             }}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 hover:scale-105 active:scale-95"
           >
-            <Plus className="size-4" />
+            <Plus className="size-3.5" />
             أضف
-          </span>
+          </button>
         </div>
       </div>
     </div>
