@@ -55,9 +55,9 @@ const BENEFITS = [
 ];
 
 const PARTNERS = [
-  { name: "مقهى الواحة", slug: "menu/al-waha-cafe", desc: "مشروبات وحلويات" },
-  { name: "مطعم الأصيل", slug: "menu/al-aseel", desc: "مأكولات ليبية تقليدية" },
-  { name: "بيتزا روما", slug: "menu/pizza-roma", desc: "بيتزا إيطالية طازجة" },
+  { name: "مقهى الواحة", slug: "al-waha-cafe", desc: "مشروبات وحلويات" },
+  { name: "مطعم الأصيل", slug: "al-aseel", desc: "مأكولات ليبية تقليدية" },
+  { name: "بيتزا روما", slug: "pizza-roma", desc: "بيتزا إيطالية طازجة" },
 ];
 
 const STATS = [
@@ -390,7 +390,7 @@ export default function Home() {
           <Reveal delay={0.2}>
             <div className="mt-8 flex items-center justify-center">
               <Link
-                href="/menu/al-waha-cafe"
+                href={`/menu/${PARTNERS[0].slug}`}
                 className="inline-flex items-center gap-2 h-13 px-8 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-amber-700 transition-all text-base"
               >
                 <Store className="size-5" />
