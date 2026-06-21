@@ -7,6 +7,9 @@ const publicPrefixes = [
   "/sitemap.xml",
   "/robots.txt",
   "/uploads",
+  "/manifest.json",
+  "/icon-192.svg",
+  "/icon-512.svg",
   "/api/auth",
   "/login",
   "/menu",
@@ -99,6 +102,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.json|icon-192\.svg|icon-512\.svg).*)",
   ],
 };
