@@ -1,0 +1,12 @@
+name: Keep Website Alive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Server
+        run: curl -I https://smart-menu-uz6w.onrender.com
