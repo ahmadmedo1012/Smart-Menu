@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>غير متصل بالإنترنت | Smart Menu</title>
+  <meta name="theme-color" content="#d97706" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #faf7f2;
+      color: #1f2937;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+      padding: 3rem 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: .75rem;
+      color: #111827;
+    }
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .75rem 2rem;
+      background: #d97706;
+      color: #fff;
+      border: none;
+      border-radius: .75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn:hover { background: #b45309; }
+    .btn:active { background: #92400e; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="icon">&#x1F4E1;</span>
+    <h1>لا يوجد اتصال بالإنترنت</h1>
+    <p>يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى. التطبيق سيتم تحميله تلقائياً عند توفر الاتصال.</p>
+    <button class="btn" onclick="window.location.reload()">
+      &#x21BB; إعادة المحاولة
+    </button>
+  </div>
+</body>
+</html>

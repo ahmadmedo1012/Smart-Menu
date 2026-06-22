@@ -4,6 +4,7 @@ import NavigationProgress from "@/components/shared/NavigationProgress";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -67,18 +68,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Smart Menu" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        <link rel="stylesheet" href="/fonts/fonts.css" />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
         <ThemeProvider
@@ -89,6 +79,7 @@ export default function RootLayout({
         >
           <NavigationProgress />
           <ScrollToTop />
+          <ServiceWorkerInit />
           {children}
           <Toaster position="top-center" richColors />
         </ThemeProvider>

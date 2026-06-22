@@ -103,7 +103,7 @@ export default function OrderDialog({
     try {
       await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": document.cookie.split("; ").find(r => r.startsWith("csrf-token="))?.split("=")[1] ?? "" },
         body: JSON.stringify({
           items: [{ itemId: item.id, quantity, notes: notes.trim(), price: currentPrice }],
           customerName: customerName.trim(),

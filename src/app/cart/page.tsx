@@ -61,7 +61,7 @@ export default function CartPage() {
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": document.cookie.split("; ").find(r => r.startsWith("csrf-token="))?.split("=")[1] ?? "" },
         body: JSON.stringify({
           items: items.map((i) => ({
             itemId: i.itemId,
