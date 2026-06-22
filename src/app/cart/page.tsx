@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2 } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { toArabicNumber } from "@/lib/format";
+import { buildReceiptMessage } from "@/lib/receipt";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -38,6 +39,8 @@ export default function CartPage() {
     customerPhone,
     notes,
     pickupType,
+    restaurantWhatsapp,
+    restaurantName,
     updateQuantity,
     removeItem,
     setOrderNotes,
@@ -60,19 +63,31 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     setIsSubmitting(true);
+
+    // 1. Send WhatsApp receipt to restaurant FIRST
+    const receipt = buildReceiptMessage({
+      restaurantName: restaurantName || "المطعم",
+      items: items.map(i => ({ name: i.name, qty: i.quantity, price: i.price, notes: i.notes || undefined })),
+      totalPrice: cartSubtotal,
+      notes: notes || undefined,
+      customerName: customerName.trim() || undefined,
+      customerPhone: customerPhone.trim() || undefined,
+      pickupType,
+    });
+    const waNumber = restaurantWhatsapp.replace(/^\+/, "");
+    if (waNumber) {
+      window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, "_blank");
+    }
+
+    // 2. Save order to DB (best-effort)
     try {
-      const res = await fetch("/api/orders", {
+      await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRF-Token": document.cookie.split("; ").find(r => r.startsWith("csrf-token="))?.split("=")[1] ?? "" },
         body: JSON.stringify({
-          items: items.map((i) => ({
-            itemId: i.itemId,
-            quantity: i.quantity,
-            notes: i.notes,
-            price: i.price,
-          })),
-          customerName,
-          customerPhone,
+          items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, price: i.price })),
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
           notes,
           pickupType,
           subtotal: cartSubtotal,
@@ -80,19 +95,13 @@ export default function CartPage() {
           restaurantId: restaurantId || undefined,
         }),
       });
-      const order = await res.json();
-      if (!res.ok) throw new Error(order.error ?? "فشل إنشاء الطلب");
+    } catch {}
 
-      toast.success("تم إنشاء الطلب بنجاح! ✓");
-      setConfirmed(true);
-      setTimeout(() => {
-        router.push(`/order-confirmed?orderNo=${order.data?.orderNo ?? ""}`);
-      }, 800);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "حدث خطأ أثناء إنشاء الطلب");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setConfirmed(true);
+    setIsSubmitting(false);
+    setTimeout(() => {
+      router.push(`/order-confirmed?wa=${encodeURIComponent(waNumber)}`);
+    }, 1500);
   };
 
   if (items.length === 0 && !confirmed) {

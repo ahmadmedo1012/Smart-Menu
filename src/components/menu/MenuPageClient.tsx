@@ -49,7 +49,7 @@ export default function MenuPageClient({
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
   const cart = useCart();
-  const setRestaurantId = cart.setRestaurantId;
+  const setRestaurantDetails = cart.setRestaurantDetails;
 
   const handleQuickAdd = (item: MenuItemProp) => {
     cart.addItem({
@@ -77,7 +77,7 @@ export default function MenuPageClient({
   }, []);
 
   useEffect(() => {
-    if (restaurantId) setRestaurantId(restaurantId);
+    if (restaurantId) setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantId]);
 

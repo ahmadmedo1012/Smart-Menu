@@ -18,6 +18,9 @@ interface CartStore {
   notes: string;
   pickupType: "inside" | "takeaway" | "delivery";
   restaurantId: number;
+  restaurantWhatsapp: string;
+  restaurantName: string;
+  setRestaurantDetails: (id: number, whatsapp: string, name: string) => void;
   addItem: (item: Omit<CartItem, "id" | "quantity" | "notes">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, qty: number) => void;
@@ -45,6 +48,11 @@ export const useCart = create<CartStore>()((set, get) => ({
   notes: "",
   pickupType: "inside",
   restaurantId: 0,
+  restaurantWhatsapp: "",
+  restaurantName: "",
+
+  setRestaurantDetails: (id, whatsapp, name) =>
+    set({ restaurantId: id, restaurantWhatsapp: whatsapp, restaurantName: name }),
 
   addItem: (item) =>
     set((s) => {
@@ -75,7 +83,7 @@ export const useCart = create<CartStore>()((set, get) => ({
   setPickupType: (t) => set({ pickupType: t }),
   setRestaurantId: (id) => set({ restaurantId: id }),
 
-  clearCart: () => set({ items: [], customerName: "", customerPhone: "", notes: "", pickupType: "inside", restaurantId: 0 }),
+  clearCart: () => set({ items: [], customerName: "", customerPhone: "", notes: "", pickupType: "inside", restaurantId: 0, restaurantWhatsapp: "", restaurantName: "" }),
   totalItems: () => get().items.reduce((a, i) => a + i.quantity, 0),
   subtotal: () => get().items.reduce((a, i) => a + i.price * i.quantity, 0),
 }));

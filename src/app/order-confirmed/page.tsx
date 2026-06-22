@@ -14,6 +14,7 @@ const Confetti = dynamic(() => import("@/components/shared/Confetti"), { ssr: fa
 function OrderContent() {
   const searchParams = useSearchParams();
   const orderNo = searchParams.get("orderNo") ?? "";
+  const waNumber = searchParams.get("wa") ?? "";
   const displayOrderNo = orderNo && orderNo !== "undefined" && orderNo !== "null" ? orderNo : null;
   const clearCart = useCart((s) => s.clearCart);
   const [cleared, setCleared] = useState(false);
@@ -41,7 +42,8 @@ function OrderContent() {
     const text = encodeURIComponent(
       `طلب رقم: ${displayOrderNo ?? "---"}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`
     );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    const phone = waNumber ? `https://wa.me/${waNumber}?text=${text}` : `https://wa.me/?text=${text}`;
+    window.open(phone, "_blank");
   };
 
   return (

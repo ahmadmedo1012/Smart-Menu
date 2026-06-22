@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import type { MenuItemProp } from "./MenuItemCard";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { buildReceiptMessage } from "@/lib/receipt";
 
 type OrderDialogProps = {
   item: MenuItemProp | null;
@@ -25,46 +26,6 @@ type OrderDialogProps = {
 const QUICK_NOTES = [
   "بدون سكر", "سكر زيادة", "بدون ثلج", "حار", "بارد", "بدون بصل",
 ];
-
-function buildReceiptMessage(opts: {
-  restaurantName: string;
-  restaurantLogo?: string;
-  items: { name: string; qty: number; price: number }[];
-  totalPrice: number;
-  notes: string;
-  menuUrl?: string;
-}): string {
-  const lines: string[] = [];
-  const sep = "━━━━━━━━━━━━━━━━━━━━";
-
-  // Header
-  lines.push(`🏪 *${opts.restaurantName}*`);
-  lines.push(sep);
-  lines.push("");
-
-  // Items
-  opts.items.forEach((item, i) => {
-    lines.push(`*${i + 1}. ${item.name}*`);
-    lines.push(`   ${item.qty} × ${toArabicNumber(item.price.toFixed(1))} د.ل`);
-  });
-
-  if (opts.notes) {
-    lines.push("");
-    lines.push(`📝 *ملاحظات:* ${opts.notes}`);
-  }
-
-  lines.push("");
-  lines.push(sep);
-  lines.push(`💵 *الإجمالي:* ${toArabicNumber(opts.totalPrice.toFixed(1))} د.ل`);
-  lines.push(sep);
-  lines.push("");
-
-  lines.push(`🕐 _طلب جديد عبر المنيو الإلكتروني_`);
-  if (opts.menuUrl) lines.push(`🌐 ${opts.menuUrl}`);
-  lines.push(`🌟 _شكراً لاختياركم ${opts.restaurantName}_`);
-
-  return lines.join("\n");
-}
 
 export default function OrderDialog({
   item,
@@ -123,11 +84,13 @@ export default function OrderDialog({
 
     const receipt = buildReceiptMessage({
       restaurantName: restaurantName || "المطعم",
-      restaurantLogo,
-      items: [{ name: displayName, qty: quantity, price: currentPrice }],
+      items: [{ name: displayName, qty: quantity, price: currentPrice, notes: notes.trim() || undefined }],
       totalPrice,
-      notes: notes.trim(),
-      menuUrl,
+      notes: notes.trim() || undefined,
+      customerName: customerName.trim() || undefined,
+      customerPhone: customerPhone.trim() || undefined,
+      pickupType: orderType,
+      menuUrl: menuUrl,
     });
 
     const encoded = encodeURIComponent(receipt);
