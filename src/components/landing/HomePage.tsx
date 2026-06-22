@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { BENEFITS, PARTNERS, STATS, STEPS, PRICING_PLANS, SHOWCASES, TESTIMONIALS } from "./landing-data";
 import Reveal from "./Reveal";
 import CountUp from "./CountUp";
-import HeroAnimation from "./HeroAnimation";
+import HeroVideo from "./HeroVideo";
 
 export default function HomePage() {
   return (
@@ -63,7 +63,7 @@ export default function HomePage() {
               </div>
             </Reveal>
           </div>
-          <Reveal delay={0.15} className="order-first lg:order-last"><HeroAnimation /></Reveal>
+          <Reveal delay={0.15} className="order-first lg:order-last"><HeroVideo /></Reveal>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-xs text-muted-foreground animate-float">
           <span>اسحب لأسفل</span>

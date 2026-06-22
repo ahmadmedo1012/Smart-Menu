@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/db";
 
-// Alias for backward compatibility
-export const sendTelegramMessage = sendTelegramNotification;
-
 export async function sendTelegramNotification(
   message: string,
   opts?: { parseMode?: "Markdown" | "HTML" }
@@ -49,3 +46,6 @@ export async function notifyEvent(
     parseMode: "Markdown",
   });
 }
+
+/** Alias for backward compatibility */
+export const sendTelegramMessage = sendTelegramNotification;

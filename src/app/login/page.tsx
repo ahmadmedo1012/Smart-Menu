@@ -2,23 +2,23 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { csrfFetch } from "@/lib/csrf-client";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import Link from "next/link";
 import {
   LogIn,
-  Moon,
-  Sun,
   UtensilsCrossed,
   Pizza,
   Coffee,
   ChefHat,
   Eye,
   EyeOff,
+  ArrowRight,
 } from "lucide-react";
 
 const foodIcons = [
@@ -73,21 +73,6 @@ function FloatingShapes() {
   );
 }
 
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  return (
-    <button
-      type="button"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="magnetic-btn fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full glass-strong text-muted-foreground hover:text-foreground"
-      aria-label="تبديل الثيم"
-    >
-      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-    </button>
-  );
-}
-
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -138,7 +123,17 @@ function LoginForm() {
 
       <FloatingShapes />
       <FloatingIcons />
-      <ThemeToggle />
+
+      {/* Back to home + ThemeToggle */}
+      <div className="fixed right-4 top-4 z-50 flex items-center gap-2">
+        <Link href="/">
+          <Button variant="ghost" size="sm" className="gap-1">
+            <ArrowRight className="size-4" />
+            العودة للرئيسية
+          </Button>
+        </Link>
+        <ThemeToggle />
+      </div>
 
       {/* Decorative top bar */}
       <div className="fixed top-0 right-0 left-0 z-10 h-1 bg-gradient-to-l from-amber-400 via-amber-500 to-amber-300 dark:from-amber-500 dark:via-amber-400 dark:to-amber-600" />
