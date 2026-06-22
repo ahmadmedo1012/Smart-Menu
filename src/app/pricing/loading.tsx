@@ -1,16 +1,9 @@
+import { Header } from "@/components/layout/Header";
+
 export default function PricingLoading() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-amber-50/20 to-background dark:via-amber-950/10">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 h-16 bg-background/80 backdrop-blur-lg border-b">
-        <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="size-4 skeleton rounded" />
-            <div className="h-5 w-24 skeleton rounded-lg" />
-          </div>
-          <div className="h-9 w-28 skeleton rounded-xl" />
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero */}
       <section className="relative py-20 text-center overflow-hidden">
