@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: smart-menu
+    runtime: docker
+    repo: https://github.com/ahmadmedo1012/Smart-Menu
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_DOMAIN
+        fromService:
+          type: web
+          name: smart-menu
+          property: url
+    healthCheckPath: /
+    numInstances: 1
