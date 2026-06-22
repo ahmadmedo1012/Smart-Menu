@@ -17,6 +17,9 @@ interface LoyaltySettingsData {
   loyalty_points_per_lyd: string
   loyalty_referral_discount_pct: string
   loyalty_referrer_reward_pct: string
+  loyalty_referral_reward_points: string
+  loyalty_referral_max_per_customer: string
+  loyalty_referral_expiry_days: string
   loyalty_tier_silver: string
   loyalty_tier_gold: string
   loyalty_tier_platinum: string
@@ -27,6 +30,9 @@ const DEFAULTS: LoyaltySettingsData = {
   loyalty_points_per_lyd: "1",
   loyalty_referral_discount_pct: "10",
   loyalty_referrer_reward_pct: "10",
+  loyalty_referral_reward_points: "25",
+  loyalty_referral_max_per_customer: "10",
+  loyalty_referral_expiry_days: "30",
   loyalty_tier_silver: "50",
   loyalty_tier_gold: "150",
   loyalty_tier_platinum: "400",
@@ -54,6 +60,9 @@ export default function LoyaltySettings({ onSaved }: Props) {
         loyalty_points_per_lyd: s.loyalty_points_per_lyd ?? DEFAULTS.loyalty_points_per_lyd,
         loyalty_referral_discount_pct: s.loyalty_referral_discount_pct ?? DEFAULTS.loyalty_referral_discount_pct,
         loyalty_referrer_reward_pct: s.loyalty_referrer_reward_pct ?? DEFAULTS.loyalty_referrer_reward_pct,
+        loyalty_referral_reward_points: s.loyalty_referral_reward_points ?? DEFAULTS.loyalty_referral_reward_points,
+        loyalty_referral_max_per_customer: s.loyalty_referral_max_per_customer ?? DEFAULTS.loyalty_referral_max_per_customer,
+        loyalty_referral_expiry_days: s.loyalty_referral_expiry_days ?? DEFAULTS.loyalty_referral_expiry_days,
         loyalty_tier_silver: s.loyalty_tier_silver ?? DEFAULTS.loyalty_tier_silver,
         loyalty_tier_gold: s.loyalty_tier_gold ?? DEFAULTS.loyalty_tier_gold,
         loyalty_tier_platinum: s.loyalty_tier_platinum ?? DEFAULTS.loyalty_tier_platinum,
@@ -173,6 +182,51 @@ export default function LoyaltySettings({ onSaved }: Props) {
                 className="mt-1"
               />
               <p className="text-xs text-muted-foreground mt-1">Reward points for the referrer on conversion</p>
+            </div>
+          </div>
+        </div>
+
+        <Separator className="bg-white/10" />
+
+        {/* Referral-Specific Settings */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold flex items-center gap-2">
+            <Gift className="size-4 text-muted-foreground" />
+            Referral Settings
+          </h4>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <Label>Reward Points per Referral</Label>
+              <Input
+                type="number"
+                min="0"
+                value={form.loyalty_referral_reward_points}
+                onChange={(e) => set("loyalty_referral_reward_points", e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Points awarded to referrer on conversion</p>
+            </div>
+            <div>
+              <Label>Max Referrals per Customer</Label>
+              <Input
+                type="number"
+                min="0"
+                value={form.loyalty_referral_max_per_customer}
+                onChange={(e) => set("loyalty_referral_max_per_customer", e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">0 = unlimited</p>
+            </div>
+            <div>
+              <Label>Auto-Expiry Days</Label>
+              <Input
+                type="number"
+                min="0"
+                value={form.loyalty_referral_expiry_days}
+                onChange={(e) => set("loyalty_referral_expiry_days", e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Days before pending referral expires (0 = never)</p>
             </div>
           </div>
         </div>

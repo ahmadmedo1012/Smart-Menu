@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
       popularItems,
       recentOrders,
       statusCounts,
+      todayOrdersFull,
     ] = await Promise.all([
       prisma.order.count({ where: { restaurantId } }),
       prisma.order.count({ where: { restaurantId, createdAt: { gte: today } } }),
@@ -49,6 +50,10 @@ export async function GET(request: NextRequest) {
         where: { restaurantId },
         _count: true,
       }),
+      prisma.order.findMany({
+        where: { restaurantId, createdAt: { gte: today } },
+        select: { total: true },
+      }),
     ]);
 
     const itemIds = popularItems.map((p) => p.itemId);
@@ -66,7 +71,9 @@ export async function GET(request: NextRequest) {
     const statusBreakdown: Record<string, number> = {};
     for (const s of statusCounts) statusBreakdown[s.status] = s._count;
 
-    return success({ totalOrders, todayOrders, totalItems, popularItems: popular, recentOrders, statusBreakdown });
+    const todayRevenue = todayOrdersFull.reduce((sum, o) => sum + Number(o.total), 0);
+
+    return success({ totalOrders, todayOrders, todayRevenue, totalItems, popularItems: popular, recentOrders, statusBreakdown });
   } catch (e) {
     return handleError(e);
   }

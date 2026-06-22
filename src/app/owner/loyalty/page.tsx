@@ -1,20 +1,23 @@
 "use client"
 import { toArabicNumber } from "@/lib/format";
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
   Users, Gift, TrendingUp, Award, Star, Medal, Sparkles,
   AlertCircle, RefreshCw, ChevronUp, ArrowUpRight, Search,
-  Clock, ArrowRight,
+  Clock, ArrowRight, Copy, Check, MessageCircle, Share2,
+  Camera, FilterX, Download,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
 import { toast } from "sonner"
+import QRCode from "qrcode"
 
 const LoyaltySettings = dynamic(
   () => import("@/components/loyalty/LoyaltySettings"),
@@ -28,10 +31,23 @@ interface StatsData {
   totalReferrals: number
   convertedReferrals: number
   conversionRate: number
+  totalRewardPoints: number
+  referralsByStatus: { pending: number; converted: number; expired: number }
   topReferrers: { customerName: string; referralCount: number; rewardsGiven: number }[]
   tierDistribution: Record<string, number>
   recentTransactions: {
     id: number; type: string; points: number; description: string; createdAt: string
+  }[]
+  recentReferrals: {
+    id: number
+    referredName: string
+    referredPhone: string
+    status: string
+    discountPercent: number
+    referrerRewardPct: number
+    createdAt: string
+    convertedAt: string | null
+    referrer: { customerName: string }
   }[]
 }
 
@@ -39,7 +55,47 @@ interface TopReferrer {
   customerName: string; referralCount: number; rewardsGiven: number
 }
 
-/* ---------- Tier config (mirrors client-side) ---------- */
+interface ReferralRow {
+  id: number
+  referredName: string
+  referredPhone: string
+  status: string
+  discountPercent: number
+  createdAt: string
+  convertedAt: string | null
+  referrer: { customerName: string }
+}
+
+/* ---------- Animated Count Up ---------- */
+
+function AnimatedCount({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const [display, setDisplay] = useState(0)
+  const prev = useRef(0)
+
+  useEffect(() => {
+    const start = prev.current
+    const end = value
+    const duration = 800
+    const startTime = performance.now()
+
+    if (start === end) { setDisplay(end); return }
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      // ease-out
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplay(Math.round(start + (end - start) * eased))
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+    prev.current = end
+  }, [value])
+
+  return <span className="tabular-nums">{toArabicNumber(display)}{suffix}</span>
+}
+
+/* ---------- Tier config ---------- */
 
 const TIERS = [
   { key: "platinum", label: "Platinum", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
@@ -61,14 +117,37 @@ function StatCard({
       <div className="relative z-10 flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <p className="text-3xl font-bold tracking-tight">{toArabicNumber(value)}{suffix}</p>
+          <p className="text-3xl font-bold tracking-tight"><AnimatedCount value={value} suffix={suffix} /></p>
         </div>
         <div className={cn("rounded-2xl p-3.5 ring-1 ring-white/20 dark:ring-white/10", bg)}>
           <Icon className={cn("size-6", color)} />
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-amber-500/5 to-transparent dark:from-amber-400/5" />
+    </div>
+  )
+}
+
+/* ---------- Conversion Rate Bar ---------- */
+
+function ConversionRate({ rate, total, converted }: { rate: number; total: number; converted: number }) {
+  return (
+    <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="size-4 text-amber-600 dark:text-amber-400" />
+          <span className="text-sm font-semibold">Conversion Rate</span>
+        </div>
+        <span className="text-sm font-bold tabular-nums text-amber-700 dark:text-amber-300">{rate}%</span>
+      </div>
+      <div className="h-3 rounded-full bg-muted overflow-hidden mb-2">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-500 transition-all duration-1000 ease-out"
+          style={{ width: `${rate}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>{toArabicNumber(converted)} converted</span>
+        <span>{toArabicNumber(total)} total</span>
       </div>
     </div>
   )
@@ -108,10 +187,46 @@ function TierChart({ distribution }: { distribution: Record<string, number> }) {
   )
 }
 
-/* ---------- Top Referrers ---------- */
+/* ---------- Referral Status Badge ---------- */
 
-function ReferrersList({ referrers }: { referrers: TopReferrer[] }) {
-  if (referrers.length === 0) {
+function ReferralStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; classes: string }> = {
+    pending: { label: "Pending", classes: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
+    converted: { label: "Converted", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
+    expired: { label: "Expired", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
+  }
+  const m = map[status] ?? { label: status, classes: "bg-muted text-muted-foreground" }
+
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", m.classes)}>
+      <span className={cn(
+        "size-1.5 rounded-full",
+        status === "pending" && "bg-amber-500",
+        status === "converted" && "bg-emerald-500",
+        status === "expired" && "bg-slate-400",
+      )} />
+      {m.label}
+    </span>
+  )
+}
+
+/* ---------- Referrals Table ---------- */
+
+function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+
+  const filtered = referrals.filter((r) => {
+    if (statusFilter !== "all" && r.status !== statusFilter) return false
+    if (!search.trim()) return true
+    const q = search.toLowerCase()
+    return (
+      r.referredName.toLowerCase().includes(q) ||
+      r.referredPhone.includes(q)
+    )
+  })
+
+  if (referrals.length === 0) {
     return (
       <div className="flex flex-col items-center py-10 text-center">
         <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-amber-500/10">
@@ -124,48 +239,94 @@ function ReferrersList({ referrers }: { referrers: TopReferrer[] }) {
   }
 
   return (
-    <div className="divide-y divide-white/10">
-      {referrers.map((r, i) => (
-        <div key={i} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/20">
-          <div className="flex items-center gap-3">
-            <span className={cn(
-              "flex size-7 items-center justify-center rounded-lg text-xs font-bold",
-              i === 0 && "bg-gradient-to-br from-amber-400 to-amber-600 text-white",
-              i === 1 && "bg-gradient-to-br from-slate-300 to-slate-400 text-white",
-              i === 2 && "bg-gradient-to-br from-amber-600 to-amber-700 text-white",
-              i >= 3 && "bg-muted text-muted-foreground",
-            )}>
-              {i + 1}
-            </span>
-            <span className="text-sm font-medium">{r.customerName || "Anonymous"}</span>
-          </div>
-          <div className="flex items-center gap-4 text-sm tabular-nums">
-            <span className="text-muted-foreground">{r.referralCount} refs</span>
-            <span className="text-emerald-600 dark:text-emerald-400">{r.rewardsGiven} rewards</span>
-          </div>
+    <div>
+      {/* Filters */}
+      <div className="flex items-center gap-2 px-5 pb-3 border-b border-white/10">
+        <div className="relative flex-1">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Input
+            placeholder="Search by name or phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 pr-9 text-sm rounded-xl"
+          />
         </div>
-      ))}
+        <div className="flex gap-1">
+          {["all", "pending", "converted", "expired"].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={cn(
+                "h-9 rounded-lg px-3 text-xs font-medium transition-all",
+                statusFilter === s
+                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-300/30"
+                  : "text-muted-foreground hover:bg-muted/50 border border-transparent",
+              )}
+            >
+              {s === "all" ? "All" : s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="divide-y divide-white/10 max-h-[500px] overflow-y-auto">
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center py-10 text-center">
+            <FilterX className="size-6 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">No matching referrals</p>
+          </div>
+        ) : (
+          filtered.map((r) => (
+            <div key={r.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/20">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{r.referredName || "Anonymous"}</p>
+                  <p className="text-xs text-muted-foreground" dir="ltr">{r.referredPhone}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <ReferralStatusBadge status={r.status} />
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </span>
+                {r.status === "converted" && (
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                    +{r.discountPercent}%
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {filtered.length > 0 && filtered.length < referrals.length && (
+        <div className="px-5 py-2 text-center text-xs text-muted-foreground border-t border-white/10">
+          Showing {filtered.length} of {referrals.length}
+        </div>
+      )}
     </div>
   )
 }
 
-/* ---------- Recent Transactions Table ---------- */
+/* ---------- Recent Transactions ---------- */
 
 function TransactionsTable({ transactions }: { transactions: StatsData["recentTransactions"] }) {
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-col items-center py-10 text-center">
-        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-muted/50">
-          <Clock className="size-6 text-muted-foreground" />
+      <div className="flex flex-col items-center py-8 text-center">
+        <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-muted/50">
+          <Clock className="size-5 text-muted-foreground" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">No transactions yet</p>
-        <p className="text-xs text-muted-foreground/60 mt-1">Reward transactions will appear here</p>
       </div>
     )
   }
 
   return (
-    <div className="divide-y divide-white/10">
+    <div className="divide-y divide-white/10 max-h-[300px] overflow-y-auto">
       {transactions.map((tx) => {
         const isEarn = tx.type === "earn"
         return (
@@ -195,6 +356,36 @@ function TransactionsTable({ transactions }: { transactions: StatsData["recentTr
   )
 }
 
+/* ---------- QR Code Section ---------- */
+
+function ReferralQR({ url }: { url: string }) {
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    QRCode.toDataURL(url, {
+      width: 180,
+      margin: 2,
+      color: { dark: "#000", light: "#fff" },
+    }).then(setQrDataUrl).catch(() => {})
+  }, [url])
+
+  if (!qrDataUrl) return <div className="size-[180px] animate-pulse rounded-xl bg-muted" />
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={qrDataUrl}
+        alt="Referral QR"
+        className="rounded-xl border border-white/20"
+        width={180}
+        height={180}
+      />
+      <p className="text-[10px] text-muted-foreground">Scan to share</p>
+    </div>
+  )
+}
+
 /* ================================================================
    PAGE
    ================================================================ */
@@ -205,6 +396,10 @@ export default function OwnerLoyaltyPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const origin = typeof window !== "undefined" ? window.location.origin : ""
+  const ownerRefUrl = `${origin}/owner/loyalty?ref=share`
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -224,16 +419,28 @@ export default function OwnerLoyaltyPage() {
 
   useEffect(() => { load() }, [load])
 
+  const handleCopyReferralLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(ownerRefUrl)
+      setCopied(true)
+      toast.success("تم نسخ رابط الإحالة")
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error("فشل نسخ الرابط")
+    }
+  }, [ownerRefUrl])
+
   /* ---------- Loading ---------- */
   if (loading) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+        <div className="grid gap-4 sm:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-28 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
+        <div className="h-48 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
         <div className="h-48 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
       </div>
     )
@@ -268,11 +475,18 @@ export default function OwnerLoyaltyPage() {
       bg: "bg-emerald-50 dark:bg-emerald-950/30",
     },
     {
-      label: "Conversion Rate", value: stats?.conversionRate ?? 0,
-      suffix: "%", icon: TrendingUp, color: "text-amber-600 dark:text-amber-400",
+      label: "Converted", value: stats?.convertedReferrals ?? 0,
+      icon: TrendingUp, color: "text-amber-600 dark:text-amber-400",
       bg: "bg-amber-50 dark:bg-amber-950/30",
     },
+    {
+      label: "Points Earned", value: stats?.totalRewardPoints ?? 0,
+      icon: Award, color: "text-purple-600 dark:text-purple-400",
+      bg: "bg-purple-50 dark:bg-purple-950/30",
+    },
   ]
+
+  const rbs = stats?.referralsByStatus ?? { pending: 0, converted: 0, expired: 0 }
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
@@ -285,7 +499,7 @@ export default function OwnerLoyaltyPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Loyalty Program</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage your loyalty program, tiers, and referral rewards
+            Manage your loyalty program, referrals, and rewards
           </p>
         </div>
         <div className="flex gap-2">
@@ -317,52 +531,121 @@ export default function OwnerLoyaltyPage() {
         </div>
       )}
 
-      {/* ---- Stats Grid ---- */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      {/* ---- Stats Grid (4 cards) ---- */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
           <StatCard key={card.label} {...card} />
         ))}
       </div>
 
-      {/* ---- Tier Distribution + Top Referrers ---- */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Tier Distribution */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-            <div className="flex items-center gap-2">
-              <Award className="size-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">Tier Distribution</h3>
-            </div>
-            <Badge variant="outline" className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5">
-              {stats?.totalLoyaltyCards ?? 0} total
-            </Badge>
-          </div>
-          <div className="p-5">
-            <TierChart distribution={stats?.tierDistribution ?? {}} />
+      {/* ---- Referral Dashboard Section ---- */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Conversion Rate */}
+        <ConversionRate
+          rate={stats?.conversionRate ?? 0}
+          total={stats?.totalReferrals ?? 0}
+          converted={stats?.convertedReferrals ?? 0}
+        />
+
+        {/* Status Breakdown */}
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+          <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+            <Award className="size-4 text-muted-foreground" />
+            Referrals by Status
+          </h3>
+          <div className="space-y-3">
+            {[
+              { label: "Pending", count: rbs.pending, color: "bg-amber-500" },
+              { label: "Converted", count: rbs.converted, color: "bg-emerald-500" },
+              { label: "Expired", count: rbs.expired, color: "bg-slate-400" },
+            ].map((s) => (
+              <div key={s.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={cn("size-2.5 rounded-full", s.color)} />
+                  <span className="text-sm">{s.label}</span>
+                </div>
+                <span className="text-sm font-semibold tabular-nums">{toArabicNumber(s.count)}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Top Referrers */}
+        {/* Share Section */}
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <Share2 className="size-4 text-muted-foreground" />
+            Share Referral Link
+          </h3>
+          <div className="flex flex-col items-center gap-3">
+            <ReferralQR url={ownerRefUrl} />
+            <div className="w-full flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-1 text-xs"
+                onClick={() => {
+                  window.open(`https://wa.me/?text=${encodeURIComponent(`ادعوك لتجربة المنيو الذكي\n${ownerRefUrl}`)}`, "_blank")
+                }}
+              >
+                <MessageCircle className="size-3.5" />
+                WhatsApp
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-1 text-xs"
+                onClick={handleCopyReferralLink}
+              >
+                {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                {copied ? "Copied!" : "Copy Link"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ---- Referrals + Transactions ---- */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Referrals Table */}
         <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div className="flex items-center gap-2">
               <Gift className="size-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">Top Referrers</h3>
+              <h3 className="text-sm font-semibold">Referrals</h3>
+            </div>
+            <Badge variant="outline" className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5">
+              {stats?.totalReferrals ?? 0} total
+            </Badge>
+          </div>
+          <ReferralsTable referrals={stats?.recentReferrals ?? []} />
+        </div>
+
+        {/* Recent Transactions */}
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+            <div className="flex items-center gap-2">
+              <Clock className="size-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">Recent Reward Transactions</h3>
             </div>
           </div>
-          <ReferrersList referrers={stats?.topReferrers ?? []} />
+          <TransactionsTable transactions={stats?.recentTransactions ?? []} />
         </div>
       </div>
 
-      {/* ---- Recent Reward Transactions ---- */}
+      {/* ---- Tier Distribution ---- */}
       <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-2">
-            <Clock className="size-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold">Recent Reward Transactions</h3>
+            <Award className="size-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold">Tier Distribution</h3>
           </div>
+          <Badge variant="outline" className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5">
+            {stats?.totalLoyaltyCards ?? 0} total
+          </Badge>
         </div>
-        <TransactionsTable transactions={stats?.recentTransactions ?? []} />
+        <div className="p-5">
+          <TierChart distribution={stats?.tierDistribution ?? {}} />
+        </div>
       </div>
     </div>
   )

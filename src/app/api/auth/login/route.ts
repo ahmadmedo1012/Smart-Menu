@@ -4,6 +4,8 @@ import { error } from "@/lib/api-helpers";
 import { z } from "zod";
 import { CSRF_COOKIE, generateToken } from "@/lib/csrf";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { logAudit } from "@/lib/audit";
+import { notifyEvent } from "@/lib/telegram";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
@@ -34,6 +36,14 @@ export async function POST(request: Request) {
     if (!valid) {
       return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);
     }
+
+    // Record last login, audit, telegram notification
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+    await logAudit({ action: "login", actorId: user.id, targetType: "user", targetId: user.id, ip });
+    await notifyEvent("user_signup", { username: user.username, name: user.name, role: user.role });
 
     const cookieStore = await cookies();
     const secure = process.env.NODE_ENV === "production";

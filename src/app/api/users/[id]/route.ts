@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
-import { success, handleError } from "@/lib/api-helpers";
+import { success, error as apiError, handleError } from "@/lib/api-helpers";
 
 export async function DELETE(
   _request: NextRequest,
@@ -9,7 +9,7 @@ export async function DELETE(
 ) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized || auth.role !== "admin") return apiError("غير مصرح", 401);
     const { id } = await params;
     await prisma.user.delete({ where: { id: Number(id) } });
     return success({ deleted: true });

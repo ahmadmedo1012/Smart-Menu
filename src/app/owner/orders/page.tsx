@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { ClipboardList, ArrowRight, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck } from "lucide-react"
+import { ClipboardList, ArrowRight, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
 
@@ -42,20 +42,25 @@ export default function OwnerOrdersPage() {
   const [hasMore, setHasMore] = useState(true)
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [lastOrderCount, setLastOrderCount] = useState(0)
   const router = useRouter()
+  const eventSourceRef = useRef<EventSource | null>(null)
 
-  const fetchOrders = useCallback(async (status: string, pageNum = 1, append = false) => {
+  const fetchOrders = useCallback(async (status: string, pageNum = 1, append = false, dateF = dateFrom, dateT = dateTo) => {
     try {
       if (pageNum === 1) setLoading(true)
       else setLoadingMore(true)
+      setError(null)
       const params = new URLSearchParams()
       if (status) params.set("status", status)
       params.set("page", String(pageNum))
       params.set("pageSize", "20")
-      if (dateFrom) params.set("dateFrom", dateFrom)
-      if (dateTo) params.set("dateTo", dateTo)
+      if (dateF) params.set("dateFrom", dateF)
+      if (dateT) params.set("dateTo", dateT)
       const url = `/api/orders?${params.toString()}`
       const res = await fetch(url)
+      if (!res.ok) throw new Error()
       const json = await res.json()
       const newOrders = json.data ?? json ?? []
       if (append) {
@@ -65,13 +70,30 @@ export default function OwnerOrdersPage() {
       }
       setHasMore(newOrders.length === 20)
       setPage(pageNum)
-    } catch { toast.error("فشل تحميل الطلبات") }
+      setLastOrderCount(newOrders.length > 0 ? newOrders[0].id : 0)
+    } catch { setError("فشل تحميل الطلبات"); toast.error("فشل تحميل الطلبات") }
     finally { if (pageNum === 1) setLoading(false); else setLoadingMore(false) }
   }, [])
 
   const loadMore = () => fetchOrders(filter, page + 1, true)
 
   useEffect(() => { fetchOrders(filter, 1, false) }, [filter, fetchOrders])
+
+  // Auto-refresh via SSE for new orders
+  useEffect(() => {
+    const es = new EventSource("/api/orders/stream")
+    eventSourceRef.current = es
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (data.newOrders && data.newOrders > 0) {
+          fetchOrders(filter, 1, false)
+          toast.success(`📦 ${data.newOrders} طلب جديد!`, { duration: 5000 })
+        }
+      } catch {}
+    }
+    return () => { es.close() }
+  }, [filter, fetchOrders])
 
   const updateStatus = async (orderId: number, newStatus: string) => {
     try {
@@ -98,9 +120,37 @@ export default function OwnerOrdersPage() {
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in">
+      {/* Back button skeleton */}
+      <div className="h-8 w-24 rounded-2xl bg-muted/40 animate-pulse" />
+      {/* Title skeleton */}
+      <div className="h-8 w-32 rounded-lg bg-muted/50 animate-pulse" />
+      {/* Search skeleton */}
+      <div className="h-11 rounded-2xl bg-muted/40 animate-pulse" />
+      {/* Tabs skeleton */}
+      <div className="flex gap-2">
+        {[1,2,3,4,5].map(i => <div key={i} className="h-9 w-20 rounded-full bg-muted/40 animate-pulse" />)}
+      </div>
+      {/* Orders skeleton */}
       {[1, 2, 3].map(i => (
-        <div key={i} className="h-20 rounded-2xl bg-muted/50 animate-breath" />
+        <div key={i} className="h-32 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+          <div className="h-4 w-40 rounded bg-muted/60" />
+          <div className="h-3 w-24 rounded bg-muted/40" />
+          <div className="h-3 w-full rounded bg-muted/30" />
+        </div>
       ))}
+    </div>
+  )
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
+      <div className="size-20 rounded-2xl bg-destructive/10 flex items-center justify-center">
+        <AlertCircle className="size-10 text-destructive/60" />
+      </div>
+      <p className="text-lg font-medium">حدث خطأ</p>
+      <p className="text-sm text-muted-foreground">{error}</p>
+      <Button variant="outline" size="sm" onClick={() => fetchOrders(filter, 1, false)} className="rounded-xl gap-1.5">
+        إعادة المحاولة
+      </Button>
     </div>
   )
 
@@ -157,21 +207,21 @@ export default function OwnerOrdersPage() {
         <input
           type="date"
           value={dateFrom}
-          onChange={e => { setDateFrom(e.target.value); fetchOrders(filter, 1, false) }}
+          onChange={e => { const v = e.target.value; setDateFrom(v); fetchOrders(filter, 1, false, v, dateTo) }}
           className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
           title="من تاريخ"
         />
         <input
           type="date"
           value={dateTo}
-          onChange={e => { setDateTo(e.target.value); fetchOrders(filter, 1, false) }}
+          onChange={e => { const v = e.target.value; setDateTo(v); fetchOrders(filter, 1, false, dateFrom, v) }}
           className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
           title="إلى تاريخ"
         />
         {(dateFrom || dateTo) && (
           <button
             type="button"
-            onClick={() => { setDateFrom(""); setDateTo(""); fetchOrders(filter, 1, false) }}
+            onClick={() => { setDateFrom(""); setDateTo(""); fetchOrders(filter, 1, false, "", "") }}
             className="h-11 px-4 rounded-2xl border border-border/30 text-sm hover:bg-accent transition-all"
           >
             إلغاء

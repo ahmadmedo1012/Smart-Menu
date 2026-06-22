@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { success, notFound, handleError } from "@/lib/api-helpers";
+import { success, notFound, handleError, error as apiError } from "@/lib/api-helpers";
 import { formatDate } from "@/lib/format";
 import { requireAuth } from "@/lib/auth";
 
@@ -12,7 +12,7 @@ const generateSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const body = generateSchema.parse(await request.json());
 

@@ -3,6 +3,10 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000"));
+  }
+
   const user = await prisma.user.findUnique({ where: { username: "waha" } });
 
   if (!user) {
@@ -14,7 +18,7 @@ export async function GET() {
 
   const cookieOpts = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV !== "development",
     sameSite: "lax" as const,
     path: "/",
     maxAge: 60 * 60 * 2,

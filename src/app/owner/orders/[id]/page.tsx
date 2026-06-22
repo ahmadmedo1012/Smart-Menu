@@ -35,12 +35,15 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     fetch(`/api/orders/${id}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error("الطلب غير موجود"); return r.json() })
       .then(d => setOrder(d.data ?? d))
-      .catch(() => {})
+      .catch(() => setError("فشل تحميل الطلب"))
       .finally(() => setLoading(false))
   }, [id])
 
@@ -78,9 +81,44 @@ ${items}
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in max-w-3xl mx-auto">
-      <div className="h-8 w-32 rounded-xl bg-muted/50 animate-breath" />
-      <div className="h-24 rounded-2xl bg-muted/50 animate-breath" />
-      <div className="h-48 rounded-2xl bg-muted/50 animate-breath" />
+      <div className="h-8 w-32 rounded-xl bg-muted/40 animate-pulse" />
+      <div className="flex items-center gap-3">
+        <div className="size-9 rounded-xl bg-muted/50 animate-pulse" />
+        <div className="space-y-2">
+          <div className="h-5 w-40 rounded bg-muted/50 animate-pulse" />
+          <div className="h-3 w-24 rounded bg-muted/30 animate-pulse" />
+        </div>
+      </div>
+      <div className="h-40 rounded-2xl bg-card/50 border border-border/20 p-6 space-y-3 animate-pulse">
+        <div className="h-3 w-24 rounded bg-muted/50" />
+        <div className="flex justify-between">
+          {[1,2,3,4].map(i => <div key={i} className="size-10 rounded-xl bg-muted/40 animate-pulse" />)}
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="h-44 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+          <div className="h-3 w-24 rounded bg-muted/50" />
+          <div className="h-3 w-32 rounded bg-muted/40" />
+          <div className="h-3 w-28 rounded bg-muted/40" />
+        </div>
+        <div className="h-44 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+          <div className="h-3 w-24 rounded bg-muted/50" />
+          <div className="h-3 w-32 rounded bg-muted/40" />
+          <div className="h-3 w-28 rounded bg-muted/40" />
+        </div>
+      </div>
+    </div>
+  )
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
+      <AlertCircle className="size-12 text-destructive/60" />
+      <p className="text-lg font-semibold">خطأ في التحميل</p>
+      <p className="text-sm text-muted-foreground">{error}</p>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={() => router.push("/owner/orders")} className="rounded-xl">العودة للطلبات</Button>
+        <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">إعادة المحاولة</Button>
+      </div>
     </div>
   )
 
@@ -88,7 +126,7 @@ ${items}
     <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
       <AlertCircle className="size-12 text-destructive/60" />
       <p className="text-lg font-semibold">الطلب غير موجود</p>
-      <Button variant="outline" onClick={() => router.push("/owner/orders")}>العودة للطلبات</Button>
+      <Button variant="outline" onClick={() => router.push("/owner/orders")} className="rounded-xl">العودة للطلبات</Button>
     </div>
   )
 

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { success, error, handleError } from "@/lib/api-helpers";
+import { success, error as apiError, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 
 const updateSchema = z.object({
@@ -48,7 +48,7 @@ export async function GET(
         categories: { include: { _count: { select: { items: true } } }, orderBy: { sortOrder: "asc" } },
       },
     });
-    if (!data) return Response.json({ success: false, error: "Restaurant not found" }, { status: 404 });
+    if (!data) return apiError("Restaurant not found", 404);
     return success(data);
   } catch (e) {
     return handleError(e);
@@ -61,7 +61,7 @@ export async function PUT(
 ) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const { id } = await params;
     const body = await request.json();
@@ -77,7 +77,7 @@ export async function PUT(
     } else if (auth.role === "owner") {
       // Owner can only update their own restaurant's basic info
       if (auth.restaurantId !== Number(id)) {
-        return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+        return apiError("غير مصرح", 401);
       }
       const parsed = updateSchema.parse(body);
       data = await prisma.restaurant.update({
@@ -85,7 +85,7 @@ export async function PUT(
         data: Object.fromEntries(Object.entries(parsed).filter(([_, v]) => v !== undefined)),
       });
     } else {
-      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+      return apiError("غير مصرح", 401);
     }
 
     return success(data);
@@ -101,7 +101,7 @@ export async function DELETE(
   try {
     const auth = await requireAuth();
     if (!auth.authorized || auth.role !== "admin") {
-      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+      return apiError("غير مصرح", 401);
     }
     const { id } = await params;
     await prisma.restaurant.delete({ where: { id: Number(id) } });

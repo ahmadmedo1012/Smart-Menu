@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
-import { success, error, handleError, paginated } from "@/lib/api-helpers";
+import { success, error as apiError, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { createRateLimiter } from "@/lib/rate-limit";
 
@@ -31,14 +31,14 @@ const createSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized) return NextResponse.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const { searchParams } = new URL(request.url);
     let restaurantId = Number(searchParams.get("restaurantId")) || undefined;
 
     // Owners can only see their own restaurant's orders
     if (auth.role === "owner") {
-      if (!auth.restaurantId) return error("لا يوجد مطعم مرتبط", 400);
+      if (!auth.restaurantId) return apiError("لا يوجد مطعم مرتبط", 400);
       restaurantId = auth.restaurantId;
     }
 
@@ -56,12 +56,12 @@ export async function GET(request: NextRequest) {
       const createdAt: Record<string, Date> = {};
       if (dateFrom) {
         const d = new Date(dateFrom);
-        if (isNaN(d.getTime())) return error("تاريخ غير صحيح", 400);
+        if (isNaN(d.getTime())) return apiError("تاريخ غير صحيح", 400);
         createdAt.gte = d;
       }
       if (dateTo) {
         const end = new Date(dateTo);
-        if (isNaN(end.getTime())) return error("تاريخ غير صحيح", 400);
+        if (isNaN(end.getTime())) return apiError("تاريخ غير صحيح", 400);
         end.setHours(23, 59, 59, 999);
         createdAt.lte = end;
       }
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     // Rate limit order creation (public endpoint)
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const { success: allowed } = orderRateLimiter.check(`order:${ip}`);
-    if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
+    if (!allowed) return apiError("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 
     const body = createSchema.parse(await request.json());
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     for (const item of body.items) {
       const dbPrice = priceMap.get(item.itemId);
       if (!dbPrice) {
-        return NextResponse.json({ success: false, error: `الصنف ${item.itemId} غير موجود` }, { status: 400 });
+        return apiError(`الصنف ${item.itemId} غير موجود`, 400);
       }
       recalcSubtotal += Number(dbPrice) * item.quantity;
     }
@@ -117,14 +117,17 @@ export async function POST(request: NextRequest) {
 
     const restaurant = await prisma.restaurant.findUnique({ where: { id: body.restaurantId } });
     if (!restaurant) {
-      return NextResponse.json({ success: false, error: "المطعم غير موجود" }, { status: 404 });
+      return apiError("المطعم غير موجود", 404);
     }
 
     // Check plan order limit
     const orderCount = await prisma.order.count({ where: { restaurantId: body.restaurantId } });
     if (orderCount >= restaurant.maxOrders) {
-      return NextResponse.json({ success: false, error: "تم الوصول للحد الأقصى للطلبات في خطتك" }, { status: 403 });
+      return apiError("تم الوصول للحد الأقصى للطلبات في خطتك", 403);
     }
+
+    // Cap discount to prevent price manipulation (e.g., setting discount >= subtotal)
+    const discount = Math.min(body.discount ?? 0, recalcSubtotal);
 
     const data = await prisma.order.create({
       data: {
@@ -134,8 +137,8 @@ export async function POST(request: NextRequest) {
         notes: body.notes ?? "",
         pickupType: body.pickupType ?? "inside",
         subtotal: recalcSubtotal, // Prisma auto-converts number to Decimal for Decimal fields
-        discount: body.discount ?? 0,
-        total: recalcSubtotal - (body.discount ?? 0),
+        discount,
+        total: recalcSubtotal - discount,
         restaurantId: body.restaurantId,
         items: {
           create: body.items.map((i) => ({

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   userId: z.number().int().positive(),
@@ -21,6 +22,11 @@ export async function POST(request: NextRequest) {
       where: { id: body.userId },
       data: { password: hashPassword(body.newPassword) },
     });
+
+    // audit logging (actorId omitted; requireAuth doesn't expose user id)
+    const ip = request.headers.get("x-forwarded-for") || "";
+    await logAudit({ action: "update", targetType: "user", targetId: body.userId, ip });
+
     return success({ updated: true });
   } catch (e) {
     return handleError(e);

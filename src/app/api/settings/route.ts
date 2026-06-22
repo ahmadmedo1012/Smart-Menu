@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { success, handleError } from "@/lib/api-helpers";
+import { success, error as apiError, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 
 const singleSchema = z.object({
@@ -14,12 +14,12 @@ const batchSchema = z.array(singleSchema);
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const { searchParams } = new URL(request.url);
     const restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
     if (!restaurantId) {
-      return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
+      return apiError("معرف المطعم مطلوب", 400);
     }
 
     const [settings, restaurant] = await Promise.all([
@@ -39,17 +39,17 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const { searchParams } = new URL(request.url);
     const restaurantId =
       Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
     if (!restaurantId) {
-      return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
+      return apiError("معرف المطعم مطلوب", 400);
     }
     // Owners can only update their own restaurant
     if (auth.role === "owner" && auth.restaurantId !== restaurantId) {
-      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+      return apiError("غير مصرح", 401);
     }
     const body = await request.json();
 

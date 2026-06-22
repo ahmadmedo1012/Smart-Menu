@@ -1,11 +1,12 @@
 import { hashPassword } from "@/lib/hash";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+import { error as apiError } from "@/lib/api-helpers";
 
 export async function GET() {
   try {
     const auth = await requireAdmin();
-    if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     // Delete existing plans and recreate with 2-plan model
     await prisma.subscriptionPlan.deleteMany();
@@ -25,7 +26,7 @@ export async function GET() {
     }
 
     return Response.json({ message: "seeded with 2 plans (Free + Premium @10 LYD)" });
-  } catch (e: any) {
-    return Response.json({ error: e.message }, { status: 500 });
+  } catch (e: unknown) {
+    return apiError(e instanceof Error ? e.message : "Seed failed", 500);
   }
 }

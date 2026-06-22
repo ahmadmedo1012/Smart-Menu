@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
+import { notifyEvent } from "@/lib/telegram";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -64,6 +66,11 @@ export async function POST(request: NextRequest) {
         },
       });
 
+        // Audit log
+      await import("@/lib/audit").then(({ logAudit }) =>
+        logAudit({ action: "create", targetType: "restaurant", targetId: restaurant.id })
+      );
+
       // Create owner user if username/password provided
       if (body.username && body.password) {
         const { hashPassword } = await import("@/lib/hash");
@@ -81,6 +88,10 @@ export async function POST(request: NextRequest) {
 
       return restaurant;
     });
+
+    // Audit log + Telegram
+    await logAudit({ action: "create", targetType: "restaurant", targetId: result.id });
+    await notifyEvent("restaurant_created", { name: result.name, slug: result.slug, plan: result.planId ? "paid" : "free" });
 
     return success(result, 201);
   } catch (e) {

@@ -14,15 +14,15 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
     <>
       <div className="flex items-center gap-3 border-b border-white/10 px-4 pb-4 pt-5">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-400 dark:to-amber-500">
-          <Store className="size-5 text-white" />
+        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-400 dark:to-amber-500" aria-hidden="true">
+          <Store className="size-5 text-white" aria-hidden="true" />
         </div>
         <div>
           <span className="block text-base font-bold tracking-tight">الربط الذكي</span>
           <span className="block text-[11px] text-muted-foreground">لوحة الأدمن</span>
         </div>
       </div>
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav aria-label="القائمة المتنقلة" className="flex-1 space-y-1 px-3 py-4">
         {navItems.map((item) => {
           const Icon = item.icon
           return (
@@ -60,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="fixed right-3 top-3 z-50 flex lg:hidden"
               aria-label="فتح القائمة"
             >
-              <Menu className="size-5" />
+              <Menu className="size-5" aria-hidden="true" />
             </Button>
           }
         />
@@ -82,7 +82,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClick={() => setSheetOpen(true)}
                 aria-label="فتح القائمة"
               >
-                <Menu className="size-5" />
+                <Menu className="size-5" aria-hidden="true" />
               </button>
               <h1 className="text-sm font-semibold text-muted-foreground">
                 لوحة التحكم
@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <ThemeToggle />
           </div>
         </header>
-        <main className="flex-1 bg-gradient-to-b from-background to-muted/30 p-4 md:p-6 lg:p-8 bg-subtle-pattern content-area">
+        <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-gradient-to-b from-background to-muted/30 p-4 md:p-6 lg:p-8 bg-subtle-pattern content-area">
           {children}
         </main>
       </div>

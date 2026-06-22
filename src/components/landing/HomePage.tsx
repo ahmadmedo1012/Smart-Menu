@@ -14,14 +14,14 @@ export default function HomePage() {
   const [mobileNav, setMobileNav] = useState(false);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-dot-pattern/30">
       <MobileNav open={mobileNav} onClose={() => setMobileNav(false)} />
 
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-30 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/30 shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-30 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/30 shadow-sm supports-backdrop-filter:bg-background/40">
         <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <button onClick={() => setMobileNav(true)} className="lg:hidden size-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors">
+            <button onClick={() => setMobileNav(true)} className="lg:hidden size-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors" aria-label="فتح القائمة">
               <Menu className="size-4" />
             </button>
             <span className="text-lg font-bold"><span className="text-gradient-amber">الربط الذكي</span></span>
@@ -31,7 +31,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/subscribe"><Button variant="default" size="sm" className="rounded-xl">ابدأ الآن مجاناً</Button></Link>
+            <Link href="/subscribe"><Button variant="gradient" size="sm" className="rounded-xl">ابدأ الآن مجاناً</Button></Link>
           </div>
         </div>
       </nav>
@@ -41,7 +41,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-amber-50/40 to-background dark:via-amber-950/10" />
         <div className="hero-mesh"><div className="blob" /><div className="blob" /><div className="blob" /></div>
         <Reveal delay={0} className="absolute top-24 right-4 md:right-12 z-20">
-          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg">
+          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg gradient-border">
             <Sparkles className="size-3.5 text-amber-500" /><span>المنصة الأسرع نمواً في 2026</span>
           </div>
         </Reveal>
@@ -65,12 +65,12 @@ export default function HomePage() {
             <Reveal delay={0.3}>
               <div className="flex gap-3 justify-center lg:justify-start flex-wrap">
                 <Link href="/login">
-                  <Button size="lg" className="text-lg px-8 h-13 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-xl shadow-amber-500/25 hover:shadow-2xl hover:shadow-amber-500/30 border-0 transition-all duration-300">
+                  <Button variant="gradient" size="lg" className="text-lg px-8 h-13">
                     ابدأ مجاناً <ArrowLeft className="ms-2 size-5" />
                   </Button>
                 </Link>
                 <Link href={`/menu/${PARTNERS[0].slug}`}>
-                  <Button variant="outline" size="lg" className="text-lg px-8 h-13 border-2">عرض منيو تجريبي</Button>
+                  <Button variant="gradient-outline" size="lg" className="text-lg px-8 h-13">عرض منيو تجريبي</Button>
                 </Link>
               </div>
             </Reveal>
@@ -78,7 +78,7 @@ export default function HomePage() {
               <div className="flex items-center gap-4 mt-8 justify-center lg:justify-start">
                 <div className="flex -space-x-2">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm">{String.fromCharCode(65 + i)}</div>
+                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm animate-scale-in" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>{String.fromCharCode(65 + i)}</div>
                   ))}
                 </div>
                 <div className="text-sm"><span className="font-bold">+50</span> <span className="text-muted-foreground">مطعماً يثقون بنا</span></div>
@@ -300,7 +300,7 @@ export default function HomePage() {
           </Reveal>
           <Reveal delay={0.2}>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/login"><Button size="lg" className="text-lg px-10 h-13 animate-pulse-glow bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-xl shadow-amber-500/25 border-0">ابدأ مجاناً الآن <ArrowLeft className="ms-2 size-5" /></Button></Link>
+              <Link href="/login"><Button variant="gradient" size="lg" className="text-lg px-10 h-13 animate-pulse-glow">ابدأ مجاناً الآن <ArrowLeft className="ms-2 size-5" /></Button></Link>
               <Link href="/pricing"><Button variant="outline" size="lg" className="text-lg px-10 h-13 border-2">عرض الخطط</Button></Link>
             </div>
           </Reveal>

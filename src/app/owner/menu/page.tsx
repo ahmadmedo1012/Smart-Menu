@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, ChevronDown, Package, ArrowRight, Search, GripVertical } from "lucide-react"
+import { Plus, Pencil, Trash2, ChevronDown, Package, ArrowRight, Search, GripVertical, AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -31,6 +31,7 @@ export default function OwnerMenuPage() {
   const [itemDialogOpen, setItemDialogOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ type: "category" | "item"; id: number; name: string } | null>(null)
   const [usageKey, setUsageKey] = useState(0)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/auth/me").then(r => { if (!r.ok) throw Error(); return r.json() })
@@ -40,8 +41,8 @@ export default function OwnerMenuPage() {
 
   const fetchCats = useCallback(async () => {
     if (!restaurantId) return
-    try { setLoading(true); const r = await fetch(`/api/categories?restaurantId=${restaurantId}`); const j = await r.json(); setCategories(Array.isArray(j.data ?? j) ? j.data ?? j : []) }
-    catch { toast.error("فشل تحميل التصنيفات") } finally { setLoading(false) }
+    try { setLoading(true); setError(null); const r = await fetch(`/api/categories?restaurantId=${restaurantId}`); const j = await r.json(); setCategories(Array.isArray(j.data ?? j) ? j.data ?? j : []) }
+    catch { setError("فشل تحميل التصنيفات"); toast.error("فشل تحميل التصنيفات") } finally { setLoading(false) }
   }, [restaurantId])
 
   useEffect(() => { if (restaurantId) fetchCats() }, [restaurantId, fetchCats])
@@ -84,6 +85,16 @@ export default function OwnerMenuPage() {
   })
 
   if (loading) return <div className="space-y-4 animate-fade-in">{[1,2,3].map(i => <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />)}</div>
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
+      <div className="size-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
+        <AlertCircle className="size-8 text-destructive/60" />
+      </div>
+      <p className="text-lg font-medium">{error}</p>
+      <Button variant="outline" size="sm" onClick={() => fetchCats()} className="rounded-xl gap-1.5">إعادة المحاولة</Button>
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">

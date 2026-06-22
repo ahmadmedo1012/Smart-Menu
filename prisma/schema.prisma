@@ -49,18 +49,29 @@ enum RewardType {
   redeem
 }
 
+enum AuditAction {
+  login
+  create
+  update
+  delete
+  export
+  other
+}
+
 model User {
-  id           Int               @id @default(autoincrement())
-  username     String            @unique
-  password     String
-  name         String
-  role         Role              @default(owner)
-  restaurantId Int?
-  restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id])
-  planId       Int?
-  plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id                Int                @id @default(autoincrement())
+  username          String             @unique
+  password          String
+  name              String
+  role              Role               @default(owner)
+  restaurantId      Int?
+  restaurant        Restaurant?        @relation(fields: [restaurantId], references: [id])
+  planId            Int?
+  plan              SubscriptionPlan?  @relation(fields: [planId], references: [id])
+  lastLoginAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  auditLogs         AuditLog[]
 
   @@index([restaurantId])
   @@index([planId])
@@ -208,6 +219,16 @@ model Setting {
   @@index([restaurantId])
 }
 
+model TelegramConfig {
+  id        Int      @id @default(autoincrement())
+  botToken  String   @default("")
+  chatId    String   @default("")
+  events    Json     @default("[]")
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model WhatsappTemplate {
   id           Int        @id @default(autoincrement())
   name         String
@@ -283,4 +304,36 @@ model RewardTransaction {
   @@index([cardId])
   @@index([restaurantId])
   @@index([cardId, createdAt])
+}
+
+model AuditLog {
+  id         Int          @id @default(autoincrement())
+  action     AuditAction  @default(other)
+  actorId    Int?
+  actor      User?        @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  targetType String       @default("")
+  targetId   Int?
+  metadata   Json         @default("{}")
+  ip         String       @default("")
+  createdAt  DateTime     @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+model SystemEvent {
+  id         Int      @id @default(autoincrement())
+  eventType  String
+  title      String
+  message    String   @default("")
+  severity   String   @default("info")
+  metadata   Json     @default("{}")
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([read])
 }

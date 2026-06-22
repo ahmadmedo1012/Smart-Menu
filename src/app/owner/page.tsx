@@ -8,11 +8,12 @@ import {
   Store, ClipboardList, ShoppingCart, TrendingUp, Clock,
   AlertCircle, ExternalLink, Package, Award, Gift, Users,
   ChefHat, CheckCircle, XCircle, ArrowLeft, Sparkles,
-  BarChart3, QrCode,
+  BarChart3, QrCode, Copy,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import Link from "next/link"
+import { toast } from "sonner"
 import { useOrderNotifier } from "@/components/layout/OrderNotifier"
 
 /* ---------- Types ---------- */
@@ -23,14 +24,14 @@ interface RestaurantData {
 }
 
 interface StatsData {
-  totalOrders: number; todayOrders: number; totalItems: number
+  totalOrders: number; todayOrders: number; todayRevenue?: number; totalItems: number
   popularItems: { itemId: number; name: string; totalSold: number }[]
   recentOrders: { id: number; orderNo: string; customerName: string; status: string; total: number; createdAt: string }[]
   statusBreakdown: Record<string, number>
 }
 
 interface LoyaltyStats {
-  totalLoyaltyCards?: number; totalReferrals?: number
+  totalLoyaltyCards?: number; totalReferrals?: number; convertedReferrals?: number; conversionRate?: number
 }
 
 /* ---------- Status Config ---------- */
@@ -163,10 +164,26 @@ export default function OwnerDashboard() {
   if (loading) return (
     <div className="space-y-5 animate-fade-in">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 skeleton rounded-2xl" />)}
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="h-32 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+            <div className="h-3 w-20 rounded-full bg-muted/70" />
+            <div className="h-8 w-28 rounded-lg bg-muted/60" />
+          </div>
+        ))}
       </div>
-      <div className="h-60 skeleton rounded-2xl" />
-      <div className="h-40 skeleton rounded-2xl" />
+      <div className="grid gap-6 lg:grid-cols-3">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="h-52 rounded-2xl bg-card/50 border border-border/20 p-4 space-y-3 animate-pulse">
+            <div className="h-3 w-24 rounded-full bg-muted/70" />
+            <div className="h-3 w-full rounded-full bg-muted/50 mt-4" />
+            <div className="h-3 w-3/4 rounded-full bg-muted/50" />
+            <div className="h-3 w-1/2 rounded-full bg-muted/50" />
+          </div>
+        ))}
+      </div>
+      <div className="h-28 rounded-2xl bg-card/50 border border-border/20 p-4 animate-pulse">
+        <div className="h-3 w-20 rounded-full bg-muted/70" />
+      </div>
     </div>
   )
 
@@ -239,6 +256,7 @@ export default function OwnerDashboard() {
           color="text-blue-600 dark:text-blue-400" bg="bg-blue-50 dark:bg-blue-950/20"
           onClick={() => router.push("/owner/orders")} />
         <StatCard label="طلبات اليوم" value={stats?.todayOrders ?? 0} icon={TrendingUp}
+          subtitle={stats?.todayRevenue ? `${toArabicNumber(stats.todayRevenue.toFixed(1))} د.ل` : undefined}
           color="text-emerald-600 dark:text-emerald-400" bg="bg-emerald-50 dark:bg-emerald-950/20" />
         <StatCard label="قيد الانتظار" value={pendingOrders} icon={Clock}
           subtitle={stats ? `${toArabicNumber(stats.statusBreakdown["new"] ?? 0)} جديد • ${toArabicNumber(stats.statusBreakdown["preparing"] ?? 0)} تحضير` : ""}
@@ -257,12 +275,12 @@ export default function OwnerDashboard() {
             <h3 className="text-xs font-semibold text-muted-foreground mb-3">حالة الطلبات</h3>
             {stats && Object.keys(stats.statusBreakdown).length > 0 ? (
               <>
-                <div className="h-2 rounded-full bg-muted/50 overflow-hidden flex">
+                <div className="h-2.5 rounded-full bg-muted/50 overflow-hidden flex ring-1 ring-inset ring-black/5">
                   {Object.entries(STATUS_CONFIG).map(([status, config]) => {
                     const count = stats.statusBreakdown[status] ?? 0
                     if (count === 0) return null
                     const pct = statusTotal > 0 ? (count / statusTotal) * 100 : 0
-                    return <div key={status} className={cn("h-full first:rounded-r-full last:rounded-l-full", config.bg)}
+                    return <div key={status} className={cn("h-full first:rounded-r-full last:rounded-l-full transition-all duration-500", config.bg)}
                       style={{ width: `${pct}%` }} title={`${config.label}: ${count}`} />
                   })}
                 </div>
@@ -272,7 +290,7 @@ export default function OwnerDashboard() {
                     if (count === 0 && status !== "new") return null
                     return (
                       <div key={status} className="flex items-center gap-1.5 text-xs">
-                        <div className={cn("size-2 rounded-full", config.indicator)} />
+                        <div className={cn("size-2.5 rounded-full ring-1 ring-inset ring-black/5", config.indicator)} />
                         <span className="text-muted-foreground">{config.label}</span>
                         <span className="font-bold">{toArabicNumber(count)}</span>
                       </div>
@@ -342,31 +360,81 @@ export default function OwnerDashboard() {
         <h3 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <Link href="/owner/menu">
-            <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/20 bg-card/40 p-3.5 hover:bg-amber-50/40 dark:hover:bg-amber-950/15 transition-all cursor-pointer group">
-              <ClipboardList className="size-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium">إدارة المنيو</span>
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-0.5 hover:border-amber-300/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex flex-col items-center gap-1.5">
+                <ClipboardList className="size-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <span className="text-xs font-medium">إدارة المنيو</span>
+              </div>
             </div>
           </Link>
           <Link href="/owner/orders">
-            <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/20 bg-card/40 p-3.5 hover:bg-blue-50/40 dark:hover:bg-blue-950/15 transition-all cursor-pointer group">
-              <ShoppingCart className="size-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium">الطلبات</span>
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 hover:border-blue-300/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex flex-col items-center gap-1.5">
+                <ShoppingCart className="size-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <span className="text-xs font-medium">الطلبات</span>
+              </div>
             </div>
           </Link>
           <Link href="/owner/qr">
-            <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/20 bg-card/40 p-3.5 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/15 transition-all cursor-pointer group">
-              <QrCode className="size-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium">رمز QR</span>
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 hover:border-emerald-300/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex flex-col items-center gap-1.5">
+                <QrCode className="size-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <span className="text-xs font-medium">رمز QR</span>
+              </div>
             </div>
           </Link>
           <Link href={`/menu/${restaurant?.slug}`} target="_blank">
-            <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border/20 bg-card/40 p-3.5 hover:bg-purple-50/40 dark:hover:bg-purple-950/15 transition-all cursor-pointer group">
-              <ExternalLink className="size-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium">المنيو العام</span>
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 hover:border-purple-300/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex flex-col items-center gap-1.5">
+                <ExternalLink className="size-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <span className="text-xs font-medium">المنيو العام</span>
+              </div>
             </div>
           </Link>
         </div>
       </div>
+
+      {/* Share your menu card */}
+      {restaurant && (
+        <div className="rounded-2xl bg-gradient-to-br from-purple-50/60 to-indigo-50/60 dark:from-purple-950/10 dark:to-indigo-950/10 border border-purple-200/20 dark:border-purple-500/10 p-5 animate-fade-in">
+          <div className="flex items-start justify-between flex-wrap gap-4">
+            <div className="flex items-start gap-3">
+              <div className="size-11 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+                <QrCode className="size-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold mb-1">شارك منيو مطعمك</h3>
+                <p className="text-xs text-muted-foreground max-w-md leading-relaxed">
+                  امسح رمز QR أو شارك الرابط مع زبائنك ليصبح بإمكانهم الطلب مباشرة
+                </p>
+                <div className="flex items-center gap-2 mt-3 flex-wrap">
+                  <span className="text-xs text-muted-foreground bg-card/50 rounded-full px-3 py-1.5 font-mono border border-border/20"
+                    dir="ltr" style={{ direction: "ltr" }}>
+                    {typeof window !== "undefined" ? `${window.location.origin}/menu/${restaurant.slug}` : `.../menu/${restaurant.slug}`}
+                  </span>
+                  <Button size="sm" variant="outline" className="rounded-xl h-8 text-xs gap-1.5" onClick={() => {
+                    const url = `${window.location.origin}/menu/${restaurant.slug}`
+                    navigator.clipboard.writeText(url).then(() => toast.success("تم نسخ الرابط"))
+                  }}>
+                    <Copy className="size-3" />
+                    نسخ
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <Link href="/owner/qr">
+              <Button size="sm" className="rounded-xl h-8 text-xs gap-1.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+                <QrCode className="size-3.5" />
+                عرض QR
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Loyalty quick stats */}
       {(loyaltyStats.totalLoyaltyCards ?? 0) > 0 && (
@@ -374,7 +442,7 @@ export default function OwnerDashboard() {
           <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
             <div className="flex items-center gap-2">
               <Award className="size-4 text-amber-600 dark:text-amber-400" />
-              <h3 className="text-xs font-semibold">برنامج الولاء</h3>
+              <h3 className="text-xs font-semibold">برنامج الولاء والإحالات</h3>
             </div>
             <Link href="/owner/loyalty">
               <Button size="sm" className="gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-xs shadow-sm h-8">
@@ -382,7 +450,7 @@ export default function OwnerDashboard() {
               </Button>
             </Link>
           </div>
-          <div className="grid gap-2.5 sm:grid-cols-3">
+          <div className="grid gap-2.5 sm:grid-cols-4">
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
               <div className="size-9 rounded-xl bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center"><Users className="size-4 text-blue-600 dark:text-blue-400" /></div>
               <div><p className="text-[11px] text-muted-foreground">الأعضاء</p><p className="text-base font-bold">{toArabicNumber(loyaltyStats.totalLoyaltyCards ?? 0)}</p></div>
@@ -393,7 +461,11 @@ export default function OwnerDashboard() {
             </div>
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
               <div className="size-9 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center"><Award className="size-4 text-amber-600 dark:text-amber-400" /></div>
-              <div><p className="text-[11px] text-muted-foreground">نقاط</p><p className="text-base font-bold">-</p></div>
+              <div><p className="text-[11px] text-muted-foreground">تحويل</p><p className="text-base font-bold">{loyaltyStats.conversionRate ? `${toArabicNumber(loyaltyStats.conversionRate)}%` : "-"}</p></div>
+            </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
+              <div className="size-9 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center"><CheckCircle className="size-4 text-green-600 dark:text-green-400" /></div>
+              <div><p className="text-[11px] text-muted-foreground">محولة</p><p className="text-base font-bold">{toArabicNumber(loyaltyStats.convertedReferrals ?? 0)}</p></div>
             </div>
           </div>
         </div>

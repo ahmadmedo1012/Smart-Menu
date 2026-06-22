@@ -1,7 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Check, Share2, MessageCircle, Gift } from "lucide-react";
+import { useState, useCallback } from "react";
+import {
+  Copy,
+  Check,
+  Share2,
+  MessageCircle,
+  Gift,
+  Smartphone,
+  Users,
+  TrendingUp,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 
 type ReferralCardProps = {
@@ -10,6 +20,8 @@ type ReferralCardProps = {
   referralCode: string;
   discountText?: string;
   whatsapp?: string;
+  timesShared?: number;
+  timesUsed?: number;
 };
 
 export default function ReferralCard({
@@ -18,13 +30,16 @@ export default function ReferralCard({
   referralCode,
   discountText = "خصم 10% على أول طلب",
   whatsapp,
+  timesShared = 0,
+  timesUsed = 0,
 }: ReferralCardProps) {
   const [copied, setCopied] = useState(false);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "";
   const referralUrl = `${origin}/menu/${restaurantSlug}?ref=${referralCode}`;
 
-  const handleCopyLink = async () => {
+  const handleCopyLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(referralUrl);
       setCopied(true);
@@ -33,9 +48,9 @@ export default function ReferralCard({
     } catch {
       toast.error("فشل نسخ الرابط");
     }
-  };
+  }, [referralUrl]);
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = useCallback(() => {
     const text = `مرحباً! 🎉\n\nادعوك لتجربة ${restaurantName} 🍽️\n${discountText} عند استخدام رابط الإحالة الخاص بي:\n${referralUrl}\n\nاستمتع بوجبتك! 😊`;
 
     if (whatsapp) {
@@ -49,71 +64,154 @@ export default function ReferralCard({
         "_blank",
       );
     }
-  };
+  }, [restaurantName, discountText, referralUrl, whatsapp]);
+
+  const handleShareSMS = useCallback(() => {
+    if (!whatsapp) {
+      handleCopyLink();
+      return;
+    }
+    const text = `جرب ${restaurantName} واحصل على ${discountText}! ${referralUrl}`;
+    window.open(`sms:${whatsapp}?body=${encodeURIComponent(text)}`, "_blank");
+  }, [restaurantName, discountText, referralUrl, whatsapp, handleCopyLink]);
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-0.5 shadow-xl shadow-amber-500/30">
-      <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/80 dark:to-orange-950/80 p-6 relative">
-        {/* Decorative orbs */}
-        <div className="absolute -top-10 -right-10 size-28 rounded-full bg-amber-500/10 blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 size-28 rounded-full bg-amber-400/10 blur-3xl" />
+      {/* Decorative glowing orbs */}
+      <div className="absolute -top-20 -right-20 size-40 rounded-full bg-amber-300/20 blur-3xl" />
+      <div className="absolute -bottom-20 -left-20 size-40 rounded-full bg-amber-400/15 blur-3xl" />
 
-        {/* Card header */}
-        <div className="relative z-10 text-center mb-5">
-          <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
-            <Gift className="size-7 text-white" />
+      <div className="relative rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/80 dark:to-orange-950/80 p-6 overflow-hidden">
+        {/* Inner decorative dots */}
+        <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-10" />
+
+        <div className="relative z-10 space-y-5">
+          {/* ===== Header ===== */}
+          <div className="text-center">
+            <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 animate-float">
+              <Gift className="size-7 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100">
+              {restaurantName}
+            </h3>
+            <p className="text-sm text-amber-700/80 dark:text-amber-300/80 mt-1">
+              {discountText}
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-1">
-            {restaurantName}
-          </h3>
-          <p className="text-sm text-amber-700/80 dark:text-amber-300/80">
-            {discountText}
-          </p>
-        </div>
 
-        {/* Referral link display */}
-        <div className="relative z-10 mb-4">
-          <label className="block text-xs font-medium text-amber-800/70 dark:text-amber-200/70 mb-1.5 text-center">
-            رابط الإحالة الخاص بك
-          </label>
+          {/* ===== Referral Code Display ===== */}
+          <div>
+            <label className="block text-xs font-medium text-amber-800/70 dark:text-amber-200/70 mb-2 text-center">
+              كود الإحالة الخاص بك
+            </label>
+            <div
+              className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-amber-950/60 border-2 border-amber-300/50 dark:border-amber-600/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+              onClick={handleCopyLink}
+            >
+              <span className="text-2xl font-bold tracking-[0.25em] text-amber-900 dark:text-amber-100 font-mono" dir="ltr">
+                {referralCode}
+              </span>
+            </div>
+            <p className="text-[10px] text-amber-600/60 dark:text-amber-400/60 text-center mt-1.5">
+              {copied ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                  <Check className="size-3" /> تم النسخ!
+                </span>
+              ) : (
+                "انقر للنسخ"
+              )}
+            </p>
+          </div>
+
+          {/* ===== Stats Bar ===== */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-white/60 dark:bg-amber-950/40 border border-amber-300/30 dark:border-amber-700/30 p-3 text-center">
+              <Users className="size-4 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
+              <p className="text-lg font-bold text-amber-900 dark:text-amber-100 tabular-nums">
+                {timesShared}
+              </p>
+              <p className="text-[10px] text-amber-700/60 dark:text-amber-300/60">
+                تم المشاركة
+              </p>
+            </div>
+            <div className="rounded-xl bg-white/60 dark:bg-amber-950/40 border border-amber-300/30 dark:border-amber-700/30 p-3 text-center">
+              <TrendingUp className="size-4 mx-auto mb-1 text-emerald-600 dark:text-emerald-400" />
+              <p className="text-lg font-bold text-amber-900 dark:text-amber-100 tabular-nums">
+                {timesUsed}
+              </p>
+              <p className="text-[10px] text-amber-700/60 dark:text-amber-300/60">
+                تم الاستخدام
+              </p>
+            </div>
+          </div>
+
+          {/* ===== Share Buttons ===== */}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-amber-800/60 dark:text-amber-200/60 text-center">
+              شارك عبر
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleShareWhatsApp}
+                className="flex-1 h-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <MessageCircle className="size-4" />
+                واتساب
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="flex-1 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 active:scale-[0.98] transition-all cursor-pointer"
+              >
+                {copied ? (
+                  <Check className="size-4" />
+                ) : (
+                  <Copy className="size-4" />
+                )}
+                نسخ الرابط
+              </button>
+              {whatsapp && (
+                <button
+                  type="button"
+                  onClick={handleShareSMS}
+                  className="flex-1 h-11 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <Smartphone className="size-4" />
+                  SMS
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* ===== Full referral link (copy fallback) ===== */}
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-11 rounded-xl bg-white/80 dark:bg-amber-950/60 border border-amber-300/50 dark:border-amber-700/50 flex items-center px-3 text-xs text-amber-900 dark:text-amber-200 truncate font-mono" dir="ltr">
+            <div
+              className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-amber-950/50 border border-amber-300/30 dark:border-amber-700/30 flex items-center px-3 text-[11px] text-amber-800 dark:text-amber-200 truncate font-mono"
+              dir="ltr"
+            >
               {referralUrl}
             </div>
             <button
               type="button"
               onClick={handleCopyLink}
-              className="size-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all shrink-0"
+              className="size-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
             >
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+              {copied ? (
+                <Check className="size-3.5" />
+              ) : (
+                <Share2 className="size-3.5" />
+              )}
             </button>
           </div>
-        </div>
 
-        {/* Action buttons */}
-        <div className="relative z-10 flex gap-3">
-          <button
-            type="button"
-            onClick={handleShareWhatsApp}
-            className="flex-1 h-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all"
-          >
-            <MessageCircle className="size-4" />
-            شارك عبر واتساب
-          </button>
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="flex-1 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 active:scale-[0.98] transition-all"
-          >
-            <Share2 className="size-4" />
-            نسخ الرابط
-          </button>
+          {/* ===== Footer ===== */}
+          <p className="text-center text-[10px] text-amber-600/50 dark:text-amber-400/50 flex items-center justify-center gap-1">
+            <Sparkles className="size-3" />
+            شارك الرابط مع أصدقائك واحصل على نقاط مكافأة
+            <Sparkles className="size-3" />
+          </p>
         </div>
-
-        {/* Footer */}
-        <p className="relative z-10 text-center text-[10px] text-amber-600/60 dark:text-amber-400/60 mt-4">
-          شارك الرابط مع أصدقائك واحصل على نقاط مكافأة
-        </p>
       </div>
     </div>
   );

@@ -88,8 +88,8 @@ export default async function PublicMenuPage({
               <img src={restaurant.logo} alt={restaurant.name} className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className="relative mx-auto mb-5 size-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 animate-magnetic-float">
-              <Store className="size-10 text-white" />
+            <div className="relative mx-auto mb-5 size-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 animate-magnetic-float" aria-hidden="true">
+              <Store className="size-10 text-white" aria-hidden="true" />
             </div>
           )}
 
@@ -104,7 +104,7 @@ export default async function PublicMenuPage({
           <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
             {restaurant.workingHours && (
               <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-border/30">
-                <Clock className="size-3.5" />
+                <Clock className="size-3.5" aria-hidden="true" />
                 {restaurant.workingHours}
               </span>
             )}
@@ -113,7 +113,7 @@ export default async function PublicMenuPage({
 
             <a href={`/menu/${slug}/print`} target="_blank"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-amber-500/10 transition-all duration-300">
-              <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 9V3h12v6M6 18h12v3H6v-3z"/>
               </svg>
               طباعة
@@ -125,21 +125,21 @@ export default async function PublicMenuPage({
               {restaurant.phone && (
                 <a href={`tel:${restaurant.phone}`} dir="ltr"
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-amber-500/10 transition-all duration-300">
-                  <Phone className="size-3.5 text-primary" />
+                  <Phone className="size-3.5 text-primary" aria-hidden="true" />
                   {restaurant.phone}
                 </a>
               )}
               {restaurant.whatsapp && (
                 <a href={`https://wa.me/${restaurant.whatsapp.replace(/^\+/, "")}`} target="_blank" rel="noopener noreferrer" dir="ltr"
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-green-500/10 transition-all duration-300">
-                  <MessageCircle className="size-3.5 text-green-500" />
+                  <MessageCircle className="size-3.5 text-green-500" aria-hidden="true" />
                   {restaurant.whatsapp}
                 </a>
               )}
               {restaurant.email && (
                 <a href={`mailto:${restaurant.email}`} dir="ltr"
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-amber-500/10 transition-all duration-300">
-                  <Mail className="size-3.5 text-primary" />
+                  <Mail className="size-3.5 text-primary" aria-hidden="true" />
                   {restaurant.email}
                 </a>
               )}
@@ -183,7 +183,7 @@ export default async function PublicMenuPage({
           <div className="rounded-2xl bg-card/40 border border-border/20 overflow-hidden shadow-sm">
             <div className="p-5 space-y-4">
               <h2 className="text-base font-bold flex items-center gap-2">
-                <MessageCircle className="size-4 text-primary" />
+                <MessageCircle className="size-4 text-primary" aria-hidden="true" />
                 تواصل معنا
               </h2>
 
@@ -192,7 +192,7 @@ export default async function PublicMenuPage({
                   <a href={`tel:${restaurant.phone}`} dir="ltr"
                     className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-amber-500/5 hover:border-amber-300/20 transition-all duration-300 group">
                     <div className="size-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <Phone className="size-4 text-primary" />
+                      <Phone className="size-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{restaurant.phone}</p>
@@ -204,7 +204,7 @@ export default async function PublicMenuPage({
                   <a href={`https://wa.me/${restaurant.whatsapp.replace(/^\+/, "")}`} target="_blank" rel="noopener noreferrer" dir="ltr"
                     className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-green-500/5 hover:border-green-300/20 transition-all duration-300 group">
                     <div className="size-10 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <MessageCircle className="size-4 text-green-500" />
+                      <MessageCircle className="size-4 text-green-500" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{restaurant.whatsapp}</p>
@@ -216,7 +216,7 @@ export default async function PublicMenuPage({
                   <a href={`mailto:${restaurant.email}`} dir="ltr"
                     className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-amber-500/5 hover:border-amber-300/20 transition-all duration-300 group">
                     <div className="size-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <Mail className="size-4 text-primary" />
+                      <Mail className="size-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{restaurant.email}</p>
@@ -227,7 +227,7 @@ export default async function PublicMenuPage({
                 {restaurant.address && (
                   <div className="flex items-center gap-3 p-3 rounded-xl border border-border/30">
                     <div className="size-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0">
-                      <MapPin className="size-4 text-primary" />
+                      <MapPin className="size-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{restaurant.address}</p>
