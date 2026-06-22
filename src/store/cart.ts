@@ -48,6 +48,14 @@ export const useCart = create<CartStore>()((set, get) => ({
 
   addItem: (item) =>
     set((s) => {
+      // Prevent mixing items from different restaurants — clear cart and start fresh
+      if (s.items.length > 0 && s.restaurantId && s.restaurantId !== (item as any).restaurantId && (item as any).restaurantId) {
+        return {
+          restaurantId: (item as any).restaurantId,
+          items: [{ ...(item as any), id: genId(), quantity: 1, notes: "" } as CartItem].filter(i => i.itemId),
+          customerName: "", customerPhone: "", notes: "",
+        };
+      }
       const existing = s.items.find((i) => i.itemId === item.itemId);
       return existing
         ? { items: s.items.map((i) => (i.itemId === item.itemId ? { ...i, quantity: i.quantity + 1 } : i)) }

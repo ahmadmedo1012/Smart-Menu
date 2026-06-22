@@ -143,7 +143,7 @@ export default function CartPage() {
       </div>
 
       {/* Pickup type selector */}
-      <div className="flex gap-2 mb-8 animate-fade-in-up delay-100">
+      <div className="flex gap-2 mb-8 animate-slide-up delay-100">
         {PICKUP_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -208,7 +208,7 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-6 animate-fade-in-up delay-300">
+      <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
         <h2 className="font-bold mb-3 flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
           ملاحظات إضافية
@@ -218,7 +218,7 @@ export default function CartPage() {
           className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20 resize-none" />
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-r from-amber-500/5 to-amber-600/5 border border-amber-200/20 p-5 mb-8 animate-fade-in-up delay-400">
+      <div className="rounded-2xl bg-gradient-to-r from-amber-500/5 to-amber-600/5 border border-amber-200/20 p-5 mb-8 animate-slide-up delay-400">
         <h3 className="text-sm font-bold mb-4 text-muted-foreground">ملخص الطلب</h3>
         <div className="space-y-2 mb-4">
           {items.map((item) => (

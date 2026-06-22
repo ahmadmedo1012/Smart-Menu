@@ -89,12 +89,12 @@ export default function GalleryCarousel({
         {images.length > 1 && (
           <>
             <button type="button" onClick={(e) => { e.stopPropagation(); prev(); }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/80 hover:scale-110 shadow-lg">
-              <ChevronRight className="size-4" />
+              className="absolute start-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/80 hover:scale-110 shadow-lg">
+              <ChevronLeft className="size-4" />
             </button>
             <button type="button" onClick={(e) => { e.stopPropagation(); next(); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/80 hover:scale-110 shadow-lg">
-              <ChevronLeft className="size-4" />
+              className="absolute end-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/80 hover:scale-110 shadow-lg">
+              <ChevronRight className="size-4" />
             </button>
 
             <button type="button" onClick={(e) => { e.stopPropagation(); setPaused((p) => !p); }}
@@ -138,13 +138,13 @@ export default function GalleryCarousel({
               <>
                 <button type="button"
                   onClick={() => setLightboxIdx((prev) => (prev - 1 + images.length) % images.length)}
-                  className="absolute -left-4 md:left-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
-                  <ChevronRight className="size-5" />
+                  className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
+                  <ChevronLeft className="size-5" />
                 </button>
                 <button type="button"
                   onClick={() => setLightboxIdx((prev) => (prev + 1) % images.length)}
-                  className="absolute -right-4 md:right-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
-                  <ChevronLeft className="size-5" />
+                  className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
+                  <ChevronRight className="size-5" />
                 </button>
 
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">

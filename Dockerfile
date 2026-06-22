@@ -14,6 +14,7 @@ COPY prisma.config.ts ./
 COPY src/generated ./src/generated
 RUN npx prisma generate
 COPY . .
+ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

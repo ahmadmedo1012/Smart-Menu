@@ -56,7 +56,7 @@ function StatCard({
   label: string; value: number; suffix?: string; icon: typeof Users; color: string; bg: string
 }) {
   return (
-    <div className="group magnetic-card relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-white/10 shadow-lg shadow-black/5 dark:shadow-black/20">
+    <div className="group card-premium relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-white/10 shadow-lg shadow-black/5 dark:shadow-black/20">
       <div className="pointer-events-none absolute -inset-full z-0 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-700 group-hover:inset-0 group-hover:skew-x-0 dark:via-white/5" />
       <div className="relative z-10 flex items-start justify-between">
         <div className="space-y-1">
@@ -242,7 +242,7 @@ export default function OwnerLoyaltyPage() {
   /* ---------- Error ---------- */
   if (error) {
     return (
-      <div className="magnetic-card flex flex-col items-center justify-center rounded-2xl bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-white/10">
+      <div className="card-premium flex flex-col items-center justify-center rounded-2xl bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-white/10">
         <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-destructive/10">
           <AlertCircle className="size-7 text-destructive" />
         </div>
@@ -327,7 +327,7 @@ export default function OwnerLoyaltyPage() {
       {/* ---- Tier Distribution + Top Referrers ---- */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Tier Distribution */}
-        <div className="magnetic-card relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div className="flex items-center gap-2">
               <Award className="size-4 text-muted-foreground" />
@@ -343,7 +343,7 @@ export default function OwnerLoyaltyPage() {
         </div>
 
         {/* Top Referrers */}
-        <div className="magnetic-card relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div className="flex items-center gap-2">
               <Gift className="size-4 text-muted-foreground" />
@@ -355,7 +355,7 @@ export default function OwnerLoyaltyPage() {
       </div>
 
       {/* ---- Recent Reward Transactions ---- */}
-      <div className="magnetic-card relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+      <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-2">
             <Clock className="size-4 text-muted-foreground" />

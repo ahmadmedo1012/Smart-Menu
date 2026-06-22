@@ -22,7 +22,6 @@ const publicPrefixes = [
   "/pricing",
   "/subscribe",
   "/demo",
-  "/api/orders",
 ];
 
 // Ponytail: simple in-memory rate limiter, use Redis if scaling

@@ -86,7 +86,7 @@ export default function AdminDashboard() {
         ].map((card, i) => {
           const Icon = card.icon
           return (
-            <div key={i} className="relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-premium group">
+            <div key={i} className="relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm group">
               <div className="relative z-10 flex items-start justify-between">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Plan distribution chart */}
-      <div className="rounded-2xl bg-white/50 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 p-6 shadow-premium">
+      <div className="rounded-2xl bg-white/50 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-sm font-semibold text-muted-foreground">توزيع الخطط</h3>
           <Link href="/admin/restaurants">
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
       {/* Restaurants + Recent activity */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Restaurants */}
-        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-premium">
+        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm">
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div className="flex items-center gap-2">
               <Store className="size-4 text-muted-foreground" />
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick actions */}
-        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 p-5 shadow-premium">
+        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 p-5 shadow-sm">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h3>
           <div className="grid grid-cols-2 gap-3">
             {[

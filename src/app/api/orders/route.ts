@@ -4,6 +4,10 @@ import { prisma } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
+import { createRateLimiter } from "@/lib/rate-limit";
+
+// ponytail: per-IP rate limiter for public order creation, use Redis if scaling
+const orderRateLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
 
 const orderItemSchema = z.object({
   itemId: z.number().int().positive(),
@@ -86,6 +90,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit order creation (public endpoint)
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { success: allowed } = orderRateLimiter.check(`order:${ip}`);
+    if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
+
     const body = createSchema.parse(await request.json());
 
     // Recalc totals server-side to prevent price tampering

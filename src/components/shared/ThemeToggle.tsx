@@ -40,12 +40,12 @@ export function ThemeToggle({ className }: { className?: string }) {
           "border border-white/20 dark:border-white/10",
           "shadow-[0_0_0_1px_rgba(255,255,255,0.1)]",
           "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05)]",
-          "shadow-lg:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3),0_0_0_1px_rgba(255,255,255,0.1)]",
-          "dark:lg:shadow-[0_0_30px_-5px_rgba(59,130,246,0.4),0_0_0_1px_rgba(255,255,255,0.05)]",
+          "shadow-lg:shadow-[0_0_30px_-5px_rgba(217,119,6,0.3),0_0_0_1px_rgba(255,255,255,0.1)]",
+          "dark:lg:shadow-[0_0_30px_-5px_rgba(217,119,6,0.4),0_0_0_1px_rgba(255,255,255,0.05)]",
           "transition-all duration-300",
           "hover:bg-white/20 dark:hover:bg-black/20",
           "hover:border-white/30 dark:hover:border-white/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50",
           "active:scale-95",
           "cursor-pointer",
           "flex items-center justify-center",
@@ -56,9 +56,9 @@ export function ThemeToggle({ className }: { className?: string }) {
         <div
           className={cn(
             "absolute inset-0 rounded-xl",
-            "bg-gradient-to-br from-blue-500/20 via-transparent to-purple-500/20",
+            "bg-gradient-to-br from-amber-500/20 via-transparent to-amber-600/20",
             "opacity-0 hover:opacity-100 transition-opacity duration-300",
-            "dark:from-blue-500/30 dark:via-transparent dark:to-purple-500/30"
+            "dark:from-amber-500/30 dark:via-transparent dark:to-amber-600/30"
           )}
         />
 
@@ -81,7 +81,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-0 scale-100 opacity-100"
           )}
         >
-          <Moon className="size-full text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+          <Moon className="size-full text-amber-300 drop-shadow-[0_0_8px_rgba(217,119,6,0.6)]" />
         </span>
 
         <div

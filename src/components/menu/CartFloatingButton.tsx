@@ -43,7 +43,7 @@ export default function CartFloatingButton() {
         <ShoppingCart className="size-5" />
         <span
           className={cn(
-            "absolute -top-2 -right-2 size-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center transition-all duration-300",
+            "absolute -top-2 -end-2 size-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center transition-all duration-300",
             bounce && "scale-125",
           )}
         >

@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Noto Sans Arabic", system-ui, sans-serif;
+  --font-mono: "Noto Naskh Arabic", "Courier New", monospace;
   --font-display: var(--font-display, "DM Serif Display", "Playfair Display", Georgia, serif);
   --font-arabic: "Noto Naskh Arabic", "Traditional Arabic", serif;
   --font-body: var(--font-body, "Noto Sans Arabic", system-ui, sans-serif);
@@ -36,6 +36,18 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Register custom amber palette for Tailwind utilities */
+  --color-amber-50: var(--amber-50);
+  --color-amber-100: var(--amber-100);
+  --color-amber-200: var(--amber-200);
+  --color-amber-300: var(--amber-300);
+  --color-amber-400: var(--amber-400);
+  --color-amber-500: var(--amber-500);
+  --color-amber-600: var(--amber-600);
+  --color-amber-700: var(--amber-700);
+  --color-amber-800: var(--amber-800);
+  --color-amber-900: var(--amber-900);
 }
 
 :root {
@@ -387,7 +399,6 @@
 .animate-spin-slow   { animation: spin-slow 8s linear infinite; }
 .animate-breath      { animation: breath 2.5s ease-in-out infinite; }
 .animate-wiggle      { animation: wiggle 0.5s ease-in-out; }
-.animate-fade-in-up  { animation: slide-up 0.5s ease-out both; }
 .animate-magnetic-float { animation: magneticFloat 3s ease-in-out infinite; }
 .animate-confetti    { animation: confetti-fall linear forwards; }
 .animate-page-enter  { animation: page-enter 0.4s ease-out both; }
@@ -405,8 +416,6 @@
 /* === Magnetic hover === */
 .magnetic { transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1); }
 .magnetic:hover { transform: scale(1.04) translateY(-2px); }
-.magnetic-card { transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.4s cubic-bezier(0.33, 1, 0.68, 1); }
-.magnetic-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: var(--shadow-lg), var(--shadow-glow); }
 .magnetic-btn { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
 .magnetic-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md), var(--shadow-glow); }
 .magnetic-btn:active { transform: scale(0.96); }
@@ -415,31 +424,22 @@
 .glow-within { transition: box-shadow 0.3s ease; }
 .glow-within:focus-within { box-shadow: var(--shadow-glow); border-color: var(--ring); }
 
-/* === Shadow premium === */
-.shadow-premium {
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.04), 0 12px 36px rgba(0,0,0,0.05);
-  transition: box-shadow 0.4s cubic-bezier(0.33, 1, 0.68, 1);
-}
-.shadow-premium:hover {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06), 0 24px 60px rgba(0,0,0,0.08);
-}
-
 /* === Card premium === */
 .card-premium {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  box-shadow: var(--shadow-sm);
   transition: all 0.4s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .card-premium:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
   border-color: var(--amber-300);
 }
 .dark .card-premium:hover {
   border-color: var(--amber-600);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-xl);
 }
 
 /* === Backdrop pattern & content area === */
@@ -508,6 +508,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .magnetic, .magnetic-card, .magnetic-btn { transition: none !important; }
-  .magnetic:hover, .magnetic-card:hover, .magnetic-btn:hover { transform: none !important; }
+  .magnetic, .magnetic-btn, .card-premium { transition: none !important; }
+  .magnetic:hover, .magnetic-btn:hover, .card-premium:hover { transform: none !important; }
+  .magnetic-btn:active { transform: none !important; }
 }

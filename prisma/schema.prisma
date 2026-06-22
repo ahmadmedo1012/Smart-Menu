@@ -63,6 +63,7 @@ model User {
   updatedAt    DateTime          @updatedAt
 
   @@index([restaurantId])
+  @@index([planId])
 }
 
 model SubscriptionPlan {
@@ -109,6 +110,8 @@ model Restaurant {
   users              User[]
   categories         MenuCategory[]
   orders             Order[]
+
+  @@index([planId])
   settings           Setting[]
   loyaltyCards       LoyaltyCard[]
   referrals          Referral[]
@@ -173,8 +176,8 @@ model Order {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
-  @@index([restaurantId])
-  @@index([status])
+  @@index([restaurantId, status])
+  @@index([customerPhone])
   @@index([createdAt])
 }
 
@@ -246,16 +249,16 @@ model Referral {
   id                Int            @id @default(autoincrement())
   referralCode      String
   referrerId        Int
-  referrer          LoyaltyCard    @relation(fields: [referrerId], references: [id])
+  referrer          LoyaltyCard    @relation(fields: [referrerId], references: [id], onDelete: Cascade)
   referredPhone     String         @default("")
   referredName      String         @default("")
   status            ReferralStatus @default(pending)
   discountPercent   Int            @default(10)
   referrerRewardPct Int            @default(10)
   orderId           Int?
-  order             Order?         @relation(fields: [orderId], references: [id])
+  order             Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
   restaurantId      Int
-  restaurant        Restaurant     @relation(fields: [restaurantId], references: [id])
+  restaurant        Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   createdAt         DateTime       @default(now())
   convertedAt       DateTime?
 
@@ -267,14 +270,14 @@ model Referral {
 model RewardTransaction {
   id           Int         @id @default(autoincrement())
   cardId       Int
-  card         LoyaltyCard @relation(fields: [cardId], references: [id])
+  card         LoyaltyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
   type         RewardType  @default(earn)
   points       Int
   description  String      @default("")
   orderId      Int?
-  order        Order?      @relation(fields: [orderId], references: [id])
+  order        Order?      @relation(fields: [orderId], references: [id], onDelete: SetNull)
   restaurantId Int
-  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   createdAt    DateTime    @default(now())
 
   @@index([cardId])

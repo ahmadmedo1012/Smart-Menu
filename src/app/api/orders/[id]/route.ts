@@ -10,9 +10,6 @@ const updateSchema = z.object({
   notes: z.string().optional(),
   pickupType: z.enum(["inside", "takeaway", "delivery"]).optional(),
   status: z.enum(["new", "preparing", "ready", "completed", "cancelled"]).optional(),
-  subtotal: z.number().positive().optional(),
-  discount: z.number().min(0).optional(),
-  total: z.number().positive().optional(),
   whatsappSent: z.boolean().optional(),
 });
 
