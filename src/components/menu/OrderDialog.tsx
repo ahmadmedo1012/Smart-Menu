@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Minus, Plus, MessageCircle, X, Check, Store } from "lucide-react";
+import { csrfFetch } from "@/lib/csrf-client";
 import {
   Dialog,
   DialogContent,
@@ -62,9 +63,9 @@ export default function OrderDialog({
 
     // Save order to DB (best-effort — WhatsApp receipt is primary)
     try {
-      const orderRes = await fetch("/api/orders", {
+      const orderRes = await csrfFetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-Token": document.cookie.split("; ").find(r => r.startsWith("csrf-token="))?.split("=")[1] ?? "" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: [{ itemId: item.id, quantity, notes: notes.trim(), price: currentPrice }],
           customerName: customerName.trim(),

@@ -1,5 +1,7 @@
 "use client"
 
+import { csrfFetch } from "@/lib/csrf-client";
+
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -94,7 +96,7 @@ export default function AdminSettingsPage() {
     }
     setSaving(true)
     try {
-      const res = await fetch(`/api/restaurants/${selectedId}`, {
+      const res = await csrfFetch(`/api/restaurants/${selectedId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -114,7 +116,7 @@ export default function AdminSettingsPage() {
     }
     setTgSaving(true)
     try {
-      const res = await fetch("/api/telegram/config", {
+      const res = await csrfFetch("/api/telegram/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(tgConfig),
@@ -128,7 +130,7 @@ export default function AdminSettingsPage() {
   const testTelegram = async () => {
     setTgTesting(true)
     try {
-      const res = await fetch("/api/telegram/test", { method: "POST" })
+      const res = await csrfFetch("/api/telegram/test", { method: "POST" })
       const json = await res.json()
       if (!json.success) throw new Error(json.error || "فشل الإرسال")
       toast.success("تم إرسال رسالة الاختبار بنجاح!")

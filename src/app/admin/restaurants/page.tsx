@@ -1,5 +1,7 @@
 "use client";
 
+import { csrfFetch } from "@/lib/csrf-client";
+
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -145,7 +147,7 @@ export default function AdminRestaurantsPage() {
       if (form.planId) body.planId = Number(form.planId);
 
       if (editing) {
-        const res = await fetch(`/api/restaurants/${editing.id}`, {
+        const res = await csrfFetch(`/api/restaurants/${editing.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -154,7 +156,7 @@ export default function AdminRestaurantsPage() {
         if (!res.ok) throw new Error(json.error ?? "فشل تحديث المطعم");
         toast.success("تم تحديث المطعم");
       } else {
-        const res = await fetch("/api/restaurants", {
+        const res = await csrfFetch("/api/restaurants", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...body, username: form.slug, password: `${form.slug}123` }),
@@ -175,7 +177,7 @@ export default function AdminRestaurantsPage() {
   const deleteRestaurant = async () => {
     if (!deleteTarget) return;
     try {
-      await fetch(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
+      await csrfFetch(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
       toast.success("تم حذف المطعم");
       setDeleteTarget(null);
       fetchData();
@@ -205,7 +207,7 @@ export default function AdminRestaurantsPage() {
     if (count === 0) return;
     if (!confirm(`حذف ${toArabicNumber(count)} مطعم${count > 1 ? "اً" : ""}؟`)) return;
     try {
-      await Promise.all([...selectedIds].map(id => fetch(`/api/restaurants/${id}`, { method: "DELETE" })));
+      await Promise.all([...selectedIds].map(id => csrfFetch(`/api/restaurants/${id}`, { method: "DELETE" })));
       toast.success(`تم حذف ${toArabicNumber(count)} مطعم`);
       setSelectedIds(new Set());
       fetchData();

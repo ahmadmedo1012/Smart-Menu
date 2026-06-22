@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { csrfFetch } from "@/lib/csrf-client";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -81,9 +82,9 @@ export default function CartPage() {
 
     // 2. Save order to DB (best-effort)
     try {
-      await fetch("/api/orders", {
+      await csrfFetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-Token": document.cookie.split("; ").find(r => r.startsWith("csrf-token="))?.split("=")[1] ?? "" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, price: i.price })),
           customerName: customerName.trim(),

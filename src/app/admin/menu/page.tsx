@@ -1,5 +1,7 @@
 "use client"
 
+import { csrfFetch } from "@/lib/csrf-client";
+
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -91,7 +93,7 @@ export default function AdminMenuPage() {
   const toggleStatus = async (item: Item) => {
     const ns = item.status === "available" ? "unavailable" : "available"
     try {
-      await fetch(`/api/items/${item.id}`, {
+      await csrfFetch(`/api/items/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: ns }),
@@ -104,7 +106,7 @@ export default function AdminMenuPage() {
   const deleteItem = async () => {
     if (!deleteTarget || deleteTarget.type !== "item") return
     try {
-      await fetch(`/api/items/${deleteTarget.id}`, { method: "DELETE" })
+      await csrfFetch(`/api/items/${deleteTarget.id}`, { method: "DELETE" })
       toast.success("تم حذف الصنف")
       setDeleteTarget(null)
       fetchData()

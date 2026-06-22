@@ -831,3 +831,16 @@
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/tsconfig.json","timestamp":1782130005652,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/restaurants/route.ts","timestamp":1782130087865,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/fix-role/route.ts","timestamp":1782131468705,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/restaurants/page.tsx","timestamp":1782134328315,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/restaurants/page.tsx","timestamp":1782134347470,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/users/page.tsx","timestamp":1782134360694,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/settings/page.tsx","timestamp":1782134386008,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/settings/page.tsx","timestamp":1782134393169,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/orders/page.tsx","timestamp":1782134404290,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/orders/[id]/page.tsx","timestamp":1782134421544,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/menu/page.tsx","timestamp":1782134433598,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/admin/menu/page.tsx","timestamp":1782134434326,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/cart/page.tsx","timestamp":1782134456830,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/cart/page.tsx","timestamp":1782134464032,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/components/menu/OrderDialog.tsx","timestamp":1782134478558,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/components/menu/OrderDialog.tsx","timestamp":1782134504172,"sessionId":null}

@@ -1,5 +1,7 @@
 "use client"
 
+import { csrfFetch } from "@/lib/csrf-client";
+
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

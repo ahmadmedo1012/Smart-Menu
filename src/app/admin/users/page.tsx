@@ -1,5 +1,7 @@
 "use client"
 
+import { csrfFetch } from "@/lib/csrf-client";
+
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -74,7 +76,7 @@ export default function AdminUsersPage() {
   const deleteUser = async () => {
     if (!deleteTarget) return
     try {
-      await fetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
+      await csrfFetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
       toast.success("تم حذف المستخدم")
       setDeleteTarget(null); fetchUsers()
     } catch { toast.error("فشل الحذف") }
@@ -85,7 +87,7 @@ export default function AdminUsersPage() {
       toast.error("كلمة المرور يجب أن تكون 4 أحرف على الأقل"); return
     }
     try {
-      const res = await fetch("/api/admin/reset-password", {
+      const res = await csrfFetch("/api/admin/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: resetTarget.id, newPassword }),

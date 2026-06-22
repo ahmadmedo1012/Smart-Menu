@@ -1,5 +1,7 @@
 "use client"
 
+import { csrfFetch } from "@/lib/csrf-client";
+
 import { useEffect, useState, use } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -48,7 +50,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 
   const updateStatus = async (status: string) => {
     try {
-      const res = await fetch(`/api/orders/${id}`, {
+      const res = await csrfFetch(`/api/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
