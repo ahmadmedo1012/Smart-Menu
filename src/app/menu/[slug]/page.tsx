@@ -62,7 +62,7 @@ export default async function PublicMenuPage({
     }),
   ]);
   const serializedItems = items.map(({ price, discountedPrice, ...rest }) => ({
-    ...rest, price: Number(price), discountedPrice: discountedPrice ? Number(discountedPrice) : null,
+    ...rest, price: Number(price), discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
   }));
 
   const hasContact = restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address;

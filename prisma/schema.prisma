@@ -72,7 +72,7 @@ model SubscriptionPlan {
   nameAr      String
   price       Decimal      @default(0) @db.Decimal(10, 2)
   periodDays  Int          @default(30)
-  features    String       @default("[]")
+  features    Json         @default("[]")
   maxMenus    Int          @default(1)
   maxItems    Int          @default(50)
   maxOrders   Int          @default(500)

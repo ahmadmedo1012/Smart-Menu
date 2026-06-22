@@ -99,9 +99,9 @@ export default function OrderDialog({
     if (!restaurantWhatsapp) return;
     setSubmitting(true);
 
-    // Save order to DB
+    // Save order to DB (best-effort — WhatsApp receipt is primary)
     try {
-      await fetch("/api/orders", {
+      const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRF-Token": document.cookie.split("; ").find(r => r.startsWith("csrf-token="))?.split("=")[1] ?? "" },
         body: JSON.stringify({
@@ -115,7 +115,8 @@ export default function OrderDialog({
           restaurantId,
         }),
       });
-    } catch {}
+      if (!orderRes.ok) console.warn("Order DB save failed:", await orderRes.text());
+    } catch (e) { console.warn("Order DB save error:", e); }
 
     const origin = window.location.origin;
     const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
@@ -275,7 +276,7 @@ export default function OrderDialog({
                 </span>
               </div>
               <Button className="w-full h-12 rounded-xl gap-2 text-base font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20"
-                onClick={handleConfirm} disabled={submitting}>
+                onClick={handleConfirm} disabled={submitting || !restaurantWhatsapp}>
                 {submitting ? (
                   <span className="flex items-center gap-2">
                     <span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />

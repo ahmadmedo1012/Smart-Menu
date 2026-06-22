@@ -43,6 +43,8 @@ export default function CartPage() {
     setOrderNotes,
     updateNotes,
     setPickupType,
+    setCustomerName,
+    setCustomerPhone,
   } = useCart();
 
   const [showPreview, setShowPreview] = useState(false);
@@ -216,6 +218,28 @@ export default function CartPage() {
         <textarea placeholder="أي ملاحظات للطلب..." value={notes}
           onChange={(e) => setOrderNotes(e.target.value)} rows={2}
           className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20 resize-none" />
+      </div>
+
+      {/* Customer info */}
+      <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-250">
+        <h2 className="font-bold mb-3 flex items-center gap-2">
+          <Sparkles className="size-4 text-primary" />
+          معلومات الاتصال
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="cart-name" className="block text-xs text-muted-foreground mb-1.5">الاسم</label>
+            <input id="cart-name" type="text" dir="auto" placeholder="الاسم (اختياري)" maxLength={30}
+              value={customerName} onChange={(e) => setCustomerName(e.target.value)}
+              className="w-full h-11 rounded-xl border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20" />
+          </div>
+          <div>
+            <label htmlFor="cart-phone" className="block text-xs text-muted-foreground mb-1.5">رقم الهاتف</label>
+            <input id="cart-phone" type="tel" dir="auto" placeholder="رقم الهاتف (اختياري)" maxLength={15}
+              value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)}
+              className="w-full h-11 rounded-xl border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20" />
+          </div>
+        </div>
       </div>
 
       <div className="rounded-2xl bg-gradient-to-r from-amber-500/5 to-amber-600/5 border border-amber-200/20 p-5 mb-8 animate-slide-up delay-400">
