@@ -18,8 +18,8 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
           <Store className="size-5 text-white" />
         </div>
         <div>
-          <span className="block text-base font-bold tracking-tight">Smart Menu</span>
-          <span className="block text-[11px] text-muted-foreground">Admin Panel</span>
+          <span className="block text-base font-bold tracking-tight">الربط الذكي</span>
+          <span className="block text-[11px] text-muted-foreground">لوحة الأدمن</span>
         </div>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
@@ -58,6 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               variant="ghost"
               size="icon"
               className="fixed right-3 top-3 z-50 flex lg:hidden"
+              aria-label="فتح القائمة"
             >
               <Menu className="size-5" />
             </Button>
@@ -79,11 +80,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <button
                 className="flex rounded-lg p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
                 onClick={() => setSheetOpen(true)}
+                aria-label="فتح القائمة"
               >
                 <Menu className="size-5" />
               </button>
               <h1 className="text-sm font-semibold text-muted-foreground">
-                Admin Dashboard
+                لوحة التحكم
               </h1>
             </div>
             <ThemeToggle />

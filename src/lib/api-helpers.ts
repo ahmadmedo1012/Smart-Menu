@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { error as logError } from "@/lib/logger";
 
 export function success<T>(data: T, status = 200) {
   return NextResponse.json({ success: true, data }, { status });
@@ -38,7 +39,7 @@ export function paginated<T>(
 
 export function handleError(e: unknown) {
   if (e instanceof ZodError) return validationError(e);
-  console.error(e);
+  logError("handleError", { error: e instanceof Error ? e.message : String(e) });
   return error(
     e instanceof Error ? e.message : "Internal server error",
     500

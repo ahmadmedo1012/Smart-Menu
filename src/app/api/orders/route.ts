@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@/generated/prisma/client";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
       if (!dbPrice) {
         return NextResponse.json({ success: false, error: `الصنف ${item.itemId} غير موجود` }, { status: 400 });
       }
-      recalcSubtotal += dbPrice * item.quantity;
+      recalcSubtotal += Number(dbPrice) * item.quantity;
     }
 
     const orderNo = `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     // Check plan order limit
     const orderCount = await prisma.order.count({ where: { restaurantId: body.restaurantId } });
-    if (orderCount >= restaurant.maxOrdersLimit) {
+    if (orderCount >= restaurant.maxOrders) {
       return NextResponse.json({ success: false, error: "تم الوصول للحد الأقصى للطلبات في خطتك" }, { status: 403 });
     }
 
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
         customerPhone: body.customerPhone ?? "",
         notes: body.notes ?? "",
         pickupType: body.pickupType ?? "inside",
-        subtotal: recalcSubtotal,
+        subtotal: recalcSubtotal, // Prisma auto-converts number to Decimal for Decimal fields
         discount: body.discount ?? 0,
         total: recalcSubtotal - (body.discount ?? 0),
         restaurantId: body.restaurantId,

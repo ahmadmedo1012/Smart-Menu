@@ -21,7 +21,8 @@ export async function POST(request: NextRequest) {
         referrerId: referrerCard.id,
         referredPhone: referredPhone ?? "",
         referredName: referredName ?? "",
-        status: "pending",
+        status: "pending" as const,
+        restaurantId: referrerCard.restaurantId,
       },
     });
 

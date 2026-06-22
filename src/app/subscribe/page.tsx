@@ -179,14 +179,14 @@ function SubscribeContent() {
                     type="button"
                     onClick={() => setSelectedPlan(plan.id)}
                     className={cn(
-                      "relative flex flex-col rounded-2xl border-2 p-5 text-right transition-all duration-300 hover:scale-[1.02]",
+                      "relative flex flex-col rounded-2xl border-2 p-5 text-start transition-all duration-300 hover:scale-[1.02]",
                       isSelected
                         ? "border-amber-400 bg-amber-50/50 dark:bg-amber-950/20 shadow-lg shadow-amber-500/10"
                         : "border-border/30 hover:border-amber-200/30 bg-card/50"
                     )}
                   >
                     {isSelected && (
-                      <div className="absolute -top-2 -left-2 size-6 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
+                      <div className="absolute -top-2 -right-2 size-6 rounded-full bg-amber-500 flex items-center justify-center shadow-lg">
                         <Check className="size-3.5 text-white" />
                       </div>
                     )}
@@ -278,14 +278,14 @@ function SubscribeContent() {
                 <div>
                   <Label>الرابط المختصر *</Label>
                   <div className="flex items-center mt-1.5">
-                    <span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-r-xl border border-l-0 border-input flex items-center shrink-0">
+                    <span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-e-xl border border-s-0 border-input flex items-center shrink-0">
                       /menu/
                     </span>
                     <Input
                       value={form.slug}
                       onChange={(e) => setForm({ ...form, slug: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase() })}
                       placeholder="al-waha-cafe"
-                      className="h-11 rounded-r-none rounded-l-xl text-left"
+                      className="h-11 rounded-s-none rounded-e-xl text-left"
                       dir="ltr"
                     />
                   </div>

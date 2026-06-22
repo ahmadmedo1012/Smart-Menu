@@ -1,46 +1,38 @@
 import { prisma } from "@/lib/db";
 import { cookies } from "next/headers";
+import { error } from "@/lib/api-helpers";
+import { z } from "zod";
+import { CSRF_COOKIE, generateToken } from "@/lib/csrf";
+import { createRateLimiter } from "@/lib/rate-limit";
 
-const LOGIN_LOCK = new Map<string, number>();
+const loginSchema = z.object({
+  username: z.string().min(1, "اسم المستخدم مطلوب"),
+  password: z.string().min(1, "كلمة المرور مطلوبة"),
+});
+
+const loginLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    const parsed = loginSchema.safeParse(await request.json());
+    if (!parsed.success) return error("يرجى إدخال اسم المستخدم وكلمة المرور", 400);
+    const { username, password } = parsed.data;
     const ip = request.headers.get("x-forwarded-for") || "unknown";
     const lockKey = `${ip}:${username}`;
-    const lastAttempt = LOGIN_LOCK.get(lockKey);
-    if (lastAttempt && Date.now() - lastAttempt < 1000) {
-      await new Promise((r) => setTimeout(r, 1000));
-      return Response.json(
-        { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
-        { status: 401 }
-      );
-    }
-
-    if (!username || !password) {
-      return Response.json(
-        { success: false, message: "يرجى إدخال اسم المستخدم وكلمة المرور" },
-        { status: 400 }
-      );
+    const { success: allowed } = loginLimiter.check(lockKey);
+    if (!allowed) {
+      return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     }
 
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
-      LOGIN_LOCK.set(lockKey, Date.now());
-      return Response.json(
-        { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
-        { status: 401 }
-      );
+      return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);
     }
 
     const { verifyHash } = await import("@/lib/hash");
     const valid = verifyHash(password, user.password);
     if (!valid) {
-      LOGIN_LOCK.set(lockKey, Date.now());
-      return Response.json(
-        { success: false, message: "اسم المستخدم أو كلمة المرور غير صحيحة" },
-        { status: 401 }
-      );
+      return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);
     }
 
     const cookieStore = await cookies();
@@ -50,14 +42,15 @@ export async function POST(request: Request) {
     if (user.restaurantId) {
       cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
     }
+    cookieStore.set(CSRF_COOKIE, generateToken(), { httpOnly: false, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 });
 
     return Response.json({
       success: true,
       message: "تم تسجيل الدخول بنجاح",
       user: { id: user.id, username: user.username, name: user.name, role: user.role, restaurantId: user.restaurantId },
     });
-  } catch (error) {
-    console.error("Login error:", error);
-    return Response.json({ success: false, message: "حدث خطأ في الخادم" }, { status: 500 });
+  } catch (e) {
+    console.error("Login error:", e);
+    return error("حدث خطأ في الخادم", 500);
   }
 }

@@ -31,8 +31,8 @@ const adminUpdateSchema = z.object({
   planId: z.number().int().optional(),
   planStart: z.string().datetime().optional(),
   planEnd: z.string().datetime().optional(),
-  maxItemsLimit: z.number().int().positive().optional(),
-  maxOrdersLimit: z.number().int().positive().optional(),
+  maxItems: z.number().int().positive().optional(),
+  maxOrders: z.number().int().positive().optional(),
 });
 
 export async function GET(

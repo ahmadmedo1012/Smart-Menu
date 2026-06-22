@@ -140,6 +140,7 @@ export default function MenuPageClient({
           {search && (
             <button
               type="button"
+              aria-label="مسح البحث"
               onClick={() => setSearch("")}
               className="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
             >
@@ -152,24 +153,25 @@ export default function MenuPageClient({
         <div className="relative">
           <button
             type="button"
+            aria-label="ترتيب"
             onClick={() => setShowSort(!showSort)}
             className="h-12 px-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
           >
-            <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
             </svg>
           </button>
           {showSort && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
-              <div className="absolute left-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/30 bg-card shadow-xl animate-scale-in origin-top-left">
+              <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right">
                 {SORT_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => { setSort(opt.value); setShowSort(false); }}
                     className={cn(
-                      "w-full text-right px-4 py-3 text-sm transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent",
+                      "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent",
                       sort === opt.value && "bg-accent font-medium text-primary",
                     )}
                   >
@@ -304,7 +306,7 @@ export default function MenuPageClient({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            "fixed bottom-6 left-6 z-50 size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
+            "fixed bottom-6 end-6 z-50 size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
             showFloatingWa
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8 pointer-events-none",

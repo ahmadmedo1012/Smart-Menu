@@ -13,7 +13,7 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
       const rest = rd.data ?? rd
       fetch(`/api/stats?restaurantId=${restaurantId}`).then(r => r.json()).then(d => {
         const data = d.data ?? d
-        setUsage({ current: data.totalItems || 0, max: rest.maxItemsLimit || 50, planName: rest.plan?.nameAr || "مجاني" })
+        setUsage({ current: data.totalItems || 0, max: rest.maxItems || 50, planName: rest.plan?.nameAr || "مجاني" })
       }).catch(() => {})
     }).catch(() => {})
   }, [restaurantId])

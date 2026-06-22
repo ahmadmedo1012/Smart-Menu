@@ -31,10 +31,10 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
   const save = async () => {
     if (!form.name.trim() || !form.price) { toast.error("يرجى إدخال الاسم والسعر"); return; }
     try {
-      const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, status: form.status, categoryId, restaurantId: 0 /* overridden server-side via auth */ };
+      const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, status: form.status, categoryId };
       const res = editing
         ? await fetch(`/api/items/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-        : await fetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, restaurantId: Number(sessionStorage.getItem("restaurantId") || 0) }) });
+        : await fetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error();
       toast.success(editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
       onOpenChange(false); onSaved();

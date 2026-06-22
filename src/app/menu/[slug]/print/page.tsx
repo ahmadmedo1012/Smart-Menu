@@ -88,9 +88,9 @@ export default async function PrintMenuPage({
                     <span className="nm">{item.nameAr || item.name}</span>
                     <span className="pr">
                       {item.discountedPrice ? (
-                        <><span className="old">{toArabicNumber(item.price.toFixed(1))}</span> {toArabicNumber(item.discountedPrice.toFixed(1))}</>
+                        <><span className="old">{toArabicNumber(Number(item.price).toFixed(1))}</span> {toArabicNumber(Number(item.discountedPrice).toFixed(1))}</>
                       ) : (
-                        toArabicNumber(item.price.toFixed(1))
+                        toArabicNumber(Number(item.price).toFixed(1))
                       )} د.ل
                     </span>
                   </div>

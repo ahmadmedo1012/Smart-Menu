@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, handleError, error, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
+import { ItemStatus } from "@/generated/prisma/enums";
 
 const createSchema = z.object({
   name: z.string().min(1),
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Check plan limits: get category -> restaurant -> plan
     const category = await prisma.menuCategory.findUnique({
       where: { id: body.categoryId },
-      include: { restaurant: { select: { id: true, name: true, maxItemsLimit: true, planId: true, plan: { select: { name: true, nameAr: true, maxItems: true } } } } },
+      include: { restaurant: { select: { id: true, name: true, maxItems: true, planId: true, plan: { select: { name: true, nameAr: true, maxItems: true } } } } },
     });
     if (!category) return error("التصنيف غير موجود", 404);
 
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
       where: { category: { restaurantId: category.restaurant.id } },
     });
 
-    const maxItems = category.restaurant.maxItemsLimit;
+    const maxItems = category.restaurant.maxItems;
     if (existingCount >= maxItems) {
       return error(
         `لقد وصلت إلى الحد الأقصى للأصناف (${maxItems}). قم بترقية خطتك لإضافة المزيد.`,
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
         price: body.price,
         discountedPrice: body.discountedPrice ?? null,
         image: body.image ?? "",
-        status: body.status ?? "available",
+        status: (body.status ?? "available") as ItemStatus,
         sortOrder: body.sortOrder ?? 0,
         categoryId: body.categoryId,
       },

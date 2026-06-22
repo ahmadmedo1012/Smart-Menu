@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
     lines.push("");
     lines.push(`💰 المجموع: ${order.total} د.ل`);
-    if (order.discount > 0) lines.push(`🔖 الخصم: ${order.discount} د.ل`);
+    if (Number(order.discount) > 0) lines.push(`🔖 الخصم: ${order.discount} د.ل`);
     lines.push(`📅 ${formatDate(order.createdAt)}`);
 
     const message = lines.join("\n");

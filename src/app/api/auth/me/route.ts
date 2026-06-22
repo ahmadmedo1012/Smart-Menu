@@ -1,25 +1,16 @@
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
-import { success, handleError } from "@/lib/api-helpers";
+import { success, handleError, error } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const authCookie = cookieStore.get("smart-menu-auth");
-    const roleCookie = cookieStore.get("smart-menu-role");
-    const restaurantCookie = cookieStore.get("smart-menu-restaurant");
-
-    if (authCookie?.value !== "true") {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    const auth = await requireAuth();
+    if (!auth.authorized) return error("Not authenticated", 401);
 
     return success({
       authenticated: true,
-      role: roleCookie?.value ?? null,
-      restaurantId: restaurantCookie?.value ? Number(restaurantCookie.value) : null,
+      role: auth.role,
+      restaurantId: auth.restaurantId,
     });
   } catch (e) {
     return handleError(e);

@@ -101,18 +101,18 @@ function LogoutButton() {
         try {
           const res = await fetch("/api/auth/logout", { method: "POST" })
           if (res.ok) {
-            toast.success("Logged out")
+            toast.success("تم تسجيل الخروج")
             router.push("/login")
             router.refresh()
           }
         } catch {
-          toast.error("Logout failed")
+          toast.error("فشل تسجيل الخروج")
         }
       }}
       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
     >
       <LogOut className="size-4" />
-      Logout
+      تسجيل الخروج
     </button>
   )
 }
@@ -127,7 +127,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       <aside
         className={cn(
           "relative hidden w-60 shrink-0 flex-col lg:flex",
-          "border-l border-white/10 bg-white/40 backdrop-blur-xl",
+          "border-s border-white/10 bg-white/40 backdrop-blur-xl",
           "dark:border-white/5 dark:bg-black/30",
           "shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.3)]",
         )}
@@ -143,6 +143,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
               variant="ghost"
               size="icon"
               className="fixed right-3 top-3 z-50 flex lg:hidden"
+              aria-label="فتح القائمة"
             >
               <Menu className="size-5" />
             </Button>
@@ -164,6 +165,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
               <button
                 className="flex lg:hidden rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
                 onClick={() => setSheetOpen(true)}
+                aria-label="فتح القائمة"
               >
                 <Menu className="size-5" />
               </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Check, X, ArrowLeft, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -164,13 +164,19 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true);
   const [yearly, setYearly] = useState(false);
 
-  useEffect(() => {
+  const [error, setError] = useState<string | null>(null);
+
+  const loadPlans = useCallback(() => {
+    setLoading(true);
+    setError(null);
     fetch("/api/plans")
       .then((r) => r.json())
       .then((d) => setPlans(d.data ?? d ?? []))
-      .catch(() => {})
+      .catch(() => setError("فشل تحميل الخطط"))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { loadPlans(); }, [loadPlans]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-amber-50/20 to-background dark:via-amber-950/10">
@@ -238,6 +244,11 @@ export default function PricingPage() {
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center gap-4 py-20 text-muted-foreground">
+              <span>{error}</span>
+              <Button variant="outline" onClick={loadPlans}>إعادة المحاولة</Button>
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">

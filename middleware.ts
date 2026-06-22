@@ -41,6 +41,23 @@ function isRateLimited(ip: string): boolean {
   return entry.count > RATE_MAX;
 }
 
+function setCsrfCookie(resp: NextResponse, req: NextRequest) {
+  if (!req.cookies.get(CSRF_COOKIE)?.value) {
+    resp.cookies.set(CSRF_COOKIE, generateToken(), {
+      path: "/", httpOnly: false, sameSite: "lax",
+      secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
+    });
+  }
+}
+
+function setSecurityHeaders(resp: NextResponse) {
+  resp.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  resp.headers.set("X-Content-Type-Options", "nosniff");
+  resp.headers.set("X-Frame-Options", "DENY");
+  resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  resp.headers.set("Permissions-Policy", "geolocation=()");
+}
+
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 export function middleware(request: NextRequest) {
@@ -48,24 +65,10 @@ export function middleware(request: NextRequest) {
   const method = request.method;
 
   // Public paths and static files — skip all checks, just set CSRF cookie
-  if (publicPrefixes.some((p) => pathname.startsWith(p))) {
+  if (publicPrefixes.some((p) => pathname.startsWith(p)) || pathname === "/") {
     const resp = NextResponse.next();
-    if (!request.cookies.get(CSRF_COOKIE)?.value) {
-      resp.cookies.set(CSRF_COOKIE, generateToken(), {
-        path: "/", httpOnly: false, sameSite: "lax",
-        secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
-      });
-    }
-    return resp;
-  }
-  if (pathname === "/") {
-    const resp = NextResponse.next();
-    if (!request.cookies.get(CSRF_COOKIE)?.value) {
-      resp.cookies.set(CSRF_COOKIE, generateToken(), {
-        path: "/", httpOnly: false, sameSite: "lax",
-        secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
-      });
-    }
+    setSecurityHeaders(resp);
+    setCsrfCookie(resp, request);
     return resp;
   }
 
@@ -80,11 +83,7 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  // Security headers
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "geolocation=()");
+  setSecurityHeaders(response);
 
   // 🚫 No cache — everything is real-time, always fresh
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
@@ -92,13 +91,7 @@ export function middleware(request: NextRequest) {
   response.headers.set("Expires", "0");
   response.headers.set("Surrogate-Control", "no-store");
 
-  // CSRF: set cookie on any request that doesn't have one yet
-  if (!request.cookies.get(CSRF_COOKIE)?.value) {
-    response.cookies.set(CSRF_COOKIE, generateToken(), {
-      path: "/", httpOnly: false, sameSite: "lax",
-      secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
-    });
-  }
+  setCsrfCookie(response, request);
 
   // API routes — CSRF validation only (APIs handle their own auth)
   if (pathname.startsWith("/api")) {

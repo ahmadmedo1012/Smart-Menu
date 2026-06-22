@@ -1,15 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
+import dynamic from "next/dynamic"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
-import BarChart from "@/components/shared/BarChart"
+
+const BarChart = dynamic(() => import("@/components/shared/BarChart"), { ssr: false })
+
 import {
   Store, ShoppingCart, TrendingUp, AlertCircle,
-  Crown, Users, ArrowUpRight, Sparkles
+  Crown, Users, ArrowUpRight, Sparkles, Plus
 } from "lucide-react"
 
 interface Restaurant { id: number; name: string; slug: string; _count: { orders: number; categories: number }; plan: { name: string; nameAr: string; price: number } | null }
@@ -108,7 +111,9 @@ export default function AdminDashboard() {
             <Button variant="ghost" size="xs" className="text-xs">إدارة</Button>
           </Link>
         </div>
-        <BarChart data={chartData} height={180} />
+        <Suspense fallback={<div className="h-[180px] rounded-2xl skeleton" />}>
+          <BarChart data={chartData} height={180} />
+        </Suspense>
       </div>
 
       {/* Restaurants + Recent activity */}
@@ -149,7 +154,15 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : (
-            <div className="px-6 py-12 text-center text-sm text-muted-foreground">لا توجد مطاعم بعد</div>
+            <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+              <Store className="size-10 text-muted-foreground/40" />
+              <p className="text-sm text-muted-foreground">لا توجد مطاعم بعد</p>
+              <Link href="/admin/restaurants">
+                <Button variant="outline" size="sm" className="rounded-xl gap-1.5 text-xs">
+                  <Plus className="size-3.5" /> أضف أول مطعم
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
 

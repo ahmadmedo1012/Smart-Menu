@@ -2,13 +2,16 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import type { Metadata } from "next";
-import MenuPageClient from "@/components/menu/MenuPageClient";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Store, Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
+import dynamicNext from "next/dynamic";
+import MenuPageClient from "@/components/menu/MenuPageClient";
 import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
-import GalleryCarousel from "@/components/menu/GalleryCarousel";
+
+const GalleryCarousel = dynamicNext(() => import("@/components/menu/GalleryCarousel"));
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -58,6 +61,9 @@ export default async function PublicMenuPage({
       orderBy: { sortOrder: "asc" },
     }),
   ]);
+  const serializedItems = items.map(({ price, discountedPrice, ...rest }) => ({
+    ...rest, price: Number(price), discountedPrice: discountedPrice ? Number(discountedPrice) : null,
+  }));
 
   const hasContact = restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address;
   const mapQuery = restaurant.address ? encodeURIComponent(restaurant.address) : null;
@@ -145,7 +151,9 @@ export default async function PublicMenuPage({
       {/* Gallery */}
       {hasGallery && (
         <div className="max-w-4xl mx-auto px-4 -mt-2 relative z-20 mb-6">
-          <GalleryCarousel images={restaurant.gallery} restaurantName={restaurant.name} />
+          <Suspense fallback={<div className="h-64 rounded-2xl skeleton" />}>
+            <GalleryCarousel images={restaurant.gallery} restaurantName={restaurant.name} />
+          </Suspense>
         </div>
       )}
 
@@ -153,7 +161,7 @@ export default async function PublicMenuPage({
       <div className="max-w-4xl mx-auto px-4 -mt-1 relative z-20">
         <MenuPageClient
           categories={categories}
-          items={items}
+          items={serializedItems}
           restaurantWhatsapp={restaurant.whatsapp}
           restaurantName={restaurant.name}
           restaurantId={restaurant.id}

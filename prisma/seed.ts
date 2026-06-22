@@ -178,7 +178,7 @@ async function main() {
   });
 
   await prisma.referral.createMany({ data: [
-    { referralCode: "ALWAHA001", referrerId: card1.id, referredPhone: "218922222222", referredName: "سارة خالد", status: "converted", discountPercent: 10, referrerRewardPct: 10 },
+    { referralCode: "ALWAHA001", referrerId: card1.id, referredPhone: "218922222222", referredName: "سارة خالد", status: "converted", discountPercent: 10, referrerRewardPct: 10, restaurantId: r1.id },
   ]});
 
   await prisma.rewardTransaction.createMany({ data: [

@@ -4,8 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { 
-  LayoutDashboard, UtensilsCrossed, ScrollText, 
-  Settings, QrCode, Store, Users, ChevronLeft 
+  LayoutDashboard, UtensilsCrossed, ScrollText,
+  Settings, QrCode, Store, Users, ChevronRight
 } from "lucide-react"
 
 export interface NavItem {
@@ -53,7 +53,7 @@ function NavItem({ href, label, icon: Icon }: NavItem) {
 
 export function AdminSidebar() {
   return (
-    <aside className="hidden h-screen w-60 shrink-0 border-l border-border/40 bg-card/40 backdrop-blur-2xl lg:flex lg:flex-col shadow-sm">
+    <aside className="hidden h-screen w-60 shrink-0 border-s border-border/40 bg-card/40 backdrop-blur-2xl lg:flex lg:flex-col shadow-sm">
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-4 py-4">
         <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-400 dark:to-amber-500">
@@ -78,7 +78,7 @@ export function AdminSidebar() {
           href="/" 
           className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
         >
-          <ChevronLeft className="size-3" />
+          <ChevronRight className="size-3" />
           العودة للموقع
         </Link>
       </div>

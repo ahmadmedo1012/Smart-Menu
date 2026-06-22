@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, MessageCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import ShareAfterOrder from "@/components/loyalty/ShareAfterOrder";
-import Confetti from "@/components/shared/Confetti";
+
+const Confetti = dynamic(() => import("@/components/shared/Confetti"), { ssr: false });
 
 function OrderContent() {
   const searchParams = useSearchParams();
@@ -44,7 +46,7 @@ function OrderContent() {
 
   return (
     <>
-      <Confetti active={showConfetti} />
+      <Suspense fallback={null}><Confetti active={showConfetti} /></Suspense>
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-6 px-4 text-center animate-fade-in">
         {/* Success icon */}
         <div className="size-20 rounded-full bg-green-500/10 flex items-center justify-center">

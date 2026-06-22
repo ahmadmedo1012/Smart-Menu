@@ -1,39 +1,47 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
+import { error } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAuth();
-  if (!auth.authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+  try {
+    const auth = await requireAuth();
+    if (!auth.authorized) return error("غير مصرح", 401);
 
-  const { searchParams } = new URL(request.url);
-  const restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
-  if (!restaurantId) return Response.json({ success: false, error: "معرف المطعم مطلوب" }, { status: 400 });
-  if (auth.role === "owner" && auth.restaurantId !== restaurantId) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
+    if (!restaurantId) return error("معرف المطعم مطلوب", 400);
+    if (auth.role === "owner" && auth.restaurantId !== restaurantId) return error("غير مصرح", 401);
 
-  let lastCount = await prisma.order.count({ where: { restaurantId } });
+    let lastCount = await prisma.order.count({ where: { restaurantId } });
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ count: lastCount })}\n\n`));
-      const interval = setInterval(async () => {
-        try {
-          const currentCount = await prisma.order.count({ where: { restaurantId } });
-          if (currentCount !== lastCount) {
-            const newOrders = currentCount - lastCount;
-            lastCount = currentCount;
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify({ count: currentCount, newOrders })}\n\n`)
-            );
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ count: lastCount })}\n\n`));
+        const interval = setInterval(async () => {
+          try {
+            const currentCount = await prisma.order.count({ where: { restaurantId } });
+            if (currentCount !== lastCount) {
+              const newOrders = currentCount - lastCount;
+              lastCount = currentCount;
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ count: currentCount, newOrders })}\n\n`)
+              );
+            }
+          } catch (e) {
+            controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ message: "خطأ في التحقق من الطلبات" })}\n\n`));
+            clearInterval(interval);
           }
-        } catch { clearInterval(interval); }
-      }, 5000);
-      request.signal.addEventListener("abort", () => { clearInterval(interval); controller.close(); });
-    },
-  });
+        }, 5000);
+        request.signal.addEventListener("abort", () => { clearInterval(interval); controller.close(); });
+      },
+    });
 
-  return new Response(stream, {
-    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
-  });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
+    });
+  } catch (e) {
+    return error("حدث خطأ في الخادم", 500);
+  }
 }

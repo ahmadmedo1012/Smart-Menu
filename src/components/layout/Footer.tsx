@@ -13,7 +13,7 @@ export function Footer({ className }: FooterProps) {
       )}
     >
       <div className="mx-auto max-w-7xl px-4">
-        <p>&copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.</p>
       </div>
     </footer>
   )

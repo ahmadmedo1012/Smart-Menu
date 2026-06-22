@@ -49,36 +49,40 @@ export async function POST(request: NextRequest) {
     const existingSlug = await prisma.restaurant.findUnique({ where: { slug: body.slug } });
     if (existingSlug) return error("الرابط المختصر مستخدم بالفعل", 409);
 
-    const data = await prisma.restaurant.create({
-      data: {
-        name: body.name,
-        slug: body.slug,
-        description: body.description ?? "",
-        phone: body.phone ?? "",
-        whatsapp: body.whatsapp ?? "",
-        email: body.email ?? "",
-        address: body.address ?? "",
-        workingHours: body.workingHours ?? "",
-        planId: body.planId ?? null,
-      },
-    });
-
-    // Create owner user if username/password provided
-    if (body.username && body.password) {
-      const { hashPassword } = await import("@/lib/hash");
-      await prisma.user.create({
+    const result = await prisma.$transaction(async (tx) => {
+      const restaurant = await tx.restaurant.create({
         data: {
-          username: body.username,
-          password: hashPassword(body.password),
           name: body.name,
-          role: "owner",
-          restaurantId: data.id,
+          slug: body.slug,
+          description: body.description ?? "",
+          phone: body.phone ?? "",
+          whatsapp: body.whatsapp ?? "",
+          email: body.email ?? "",
+          address: body.address ?? "",
+          workingHours: body.workingHours ?? "",
           planId: body.planId ?? null,
         },
       });
-    }
 
-    return success(data, 201);
+      // Create owner user if username/password provided
+      if (body.username && body.password) {
+        const { hashPassword } = await import("@/lib/hash");
+        await tx.user.create({
+          data: {
+            username: body.username,
+            password: hashPassword(body.password),
+            name: body.name,
+            role: "owner",
+            restaurantId: restaurant.id,
+            planId: body.planId ?? null,
+          },
+        });
+      }
+
+      return restaurant;
+    });
+
+    return success(result, 201);
   } catch (e) {
     return handleError(e);
   }

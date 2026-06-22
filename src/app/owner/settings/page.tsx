@@ -21,7 +21,7 @@ interface RestaurantData {
   id: number; name: string; description: string; phone: string;
   whatsapp: string; email: string; address: string; workingHours: string;
   logo: string; gallery: string[];
-  plan: Plan | null; planId: number | null; maxItemsLimit: number; maxOrdersLimit: number;
+  plan: Plan | null; planId: number | null; maxItems: number; maxOrders: number;
   _count: { orders: number; categories: number };
 }
 
@@ -137,7 +137,7 @@ export default function OwnerSettingsPage() {
 
   const currentPlan = restaurant?.plan
   const itemUsage = restaurant?._count?.categories ?? 0
-  const maxItems = restaurant?.maxItemsLimit ?? 50
+  const maxItems = restaurant?.maxItems ?? 50
   const usagePercent = Math.min(100, Math.round((itemUsage / maxItems) * 100))
 
   if (loading) return (

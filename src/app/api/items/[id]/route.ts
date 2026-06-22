@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { success, notFound, handleError } from "@/lib/api-helpers";
+import { success, notFound, handleError, error } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
+import { ItemStatus } from "@/generated/prisma/enums";
 
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -22,7 +23,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
     const { id } = await params;
     const body = updateSchema.parse(await request.json());
 
@@ -33,7 +34,7 @@ export async function PUT(
 
     const data = await prisma.menuItem.update({
       where: { id: Number(id) },
-      data: body,
+      data: { ...body, status: body.status as ItemStatus },
       include: { category: { select: { id: true, name: true, nameAr: true } } },
     });
     return success(data);
@@ -47,7 +48,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAuth()).authorized) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
     const { id } = await params;
     const existing = await prisma.menuItem.findUnique({
       where: { id: Number(id) },

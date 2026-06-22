@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { error } from "@/lib/api-helpers";
 
 export async function POST() {
   try {
@@ -19,6 +20,6 @@ export async function POST() {
     return Response.json({ success: true, message: "Logged out" });
   } catch (e) {
     console.error("Logout error:", e);
-    return Response.json({ success: false, message: "Logout failed" }, { status: 500 });
+    return error("Logout failed", 500);
   }
 }
