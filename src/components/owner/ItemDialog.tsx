@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,10 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { csrfFetch } from "@/lib/csrf-client";
 
 interface Item { id: number; name: string; nameAr?: string; description: string; descriptionAr?: string; price: number; discountedPrice: number | null; image: string; status: string; categoryId: number }
 
 const initForm = (catId: number) => ({ name: "", nameAr: "", description: "", descriptionAr: "", price: 0, discountedPrice: "", status: "available", categoryId: catId, image: "" });
+
+const IMAGE_URL_RE = /^https?:\/\//i;
 
 export default function ItemDialog({ open, onOpenChange, editing, categoryId, onSaved }: {
   open: boolean; onOpenChange: (o: boolean) => void;
@@ -30,11 +34,12 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
 
   const save = async () => {
     if (!form.name.trim() || !form.price) { toast.error("يرجى إدخال الاسم والسعر"); return; }
+    if (form.image && !IMAGE_URL_RE.test(form.image)) { toast.error("رابط الصورة غير صالح"); return; }
     try {
       const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, status: form.status, categoryId };
       const res = editing
-        ? await fetch(`/api/items/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-        : await fetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        ? await csrfFetch(`/api/items/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        : await csrfFetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error();
       toast.success(editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
       onOpenChange(false); onSaved();
@@ -65,9 +70,9 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
               <label className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0">
                 <input type="file" accept="image/*" className="hidden" onChange={async e => {
                   const file = e.target.files?.[0]; if (!file) return; const fd = new FormData(); fd.append("file", file);
-                  try { const r = await fetch("/api/upload", { method: "POST", body: fd }); const d = await r.json(); if (d.data?.url) setForm({...form, image: d.data.url}); else toast.error("فشل رفع الصورة"); } catch { toast.error("فشل رفع الصورة"); }
+                  try { const r = await csrfFetch("/api/upload", { method: "POST", body: fd }); const d = await r.json(); if (d.data?.url) setForm({...form, image: d.data.url}); else toast.error("فشل رفع الصورة"); } catch { toast.error("فشل رفع الصورة"); }
                 }} />
-                <svg className="size-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+                <Upload className="size-4 text-muted-foreground" />
               </label>
             </div>
             {form.image && <div className="mt-2 rounded-xl overflow-hidden size-20 border border-border/30"><img src={form.image} alt="" className="size-full object-cover" /></div>}

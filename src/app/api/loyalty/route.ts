@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
 import { randomBytes } from "crypto";
+import { z } from "zod";
 
 const TIER_ORDER = ["bronze", "silver", "gold", "platinum"] as const;
 
@@ -27,19 +28,29 @@ function getNextTierInfo(currentTier: string) {
   return { nextTier: info.next, pointsToNext: nextMin };
 }
 
+const PHONE_RE = /^\+?[0-9]{7,15}$/;
+
+const createSchema = z.object({
+  customerPhone: z.string().regex(PHONE_RE, "Invalid phone number"),
+  customerName: z.string().optional(),
+  restaurantId: z.number().int().positive().optional(),
+});
+
 function generateReferralCode(): string {
   return randomBytes(4).toString("hex").toUpperCase();
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = createSchema.parse(await request.json());
     const { customerPhone, customerName } = body;
     const cookieStore = await cookies();
     const cookieId = cookieStore.get("smart-menu-restaurant")?.value;
     const restaurantId = body.restaurantId ?? (Number(cookieId) || 1);
 
-    if (!customerPhone) return error("customerPhone is required");
+    // Verify restaurant exists
+    const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) return error("المطعم غير موجود", 404);
 
     let card = await prisma.loyaltyCard.findUnique({
       where: {
@@ -87,7 +98,7 @@ export async function GET(request: NextRequest) {
     const cookieStore2 = await cookies();
     const restaurantId = Number(cookieStore2.get("smart-menu-restaurant")?.value) || 1;
 
-    if (!phone) return error("phone query parameter is required");
+    if (!phone || !PHONE_RE.test(phone)) return error("Invalid phone number", 400);
 
     const card = await prisma.loyaltyCard.findUnique({
       where: {

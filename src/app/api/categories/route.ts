@@ -40,12 +40,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!(await requireAuth()).authorized) {
-      return error("غير مصرح", 401);
-    }
+    const auth = await requireAuth();
+    if (!auth.authorized) return error("غير مصرح", 401);
 
     const body = createSchema.parse(await request.json());
     const rid = body.restaurantId;
+
+    // Owners can only add categories to their own restaurant
+    if (auth.role === "owner" && auth.restaurantId !== rid) {
+      return error("غير مصرح", 401);
+    }
 
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: rid },

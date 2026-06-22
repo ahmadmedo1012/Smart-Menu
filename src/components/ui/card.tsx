@@ -6,16 +6,28 @@ function Card({
   className,
   size = "default",
   variant = "default",
+  elevation = "elevated",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm"; variant?: "default" | "glass" | "gradient" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm";
+  variant?: "default" | "glass" | "gradient";
+  elevation?: "elevated" | "flat" | "outlined";
+}) {
   return (
     <div
       data-slot="card"
       data-size={size}
       data-variant={variant}
+      data-elevation={elevation}
       className={cn(
         "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
-        "transition-all duration-400 hover:shadow-lg hover:-translate-y-1 hover:border-amber-300/30",
+        "transition-all duration-400",
+        // Elevated: hover with lift and glow (default, backward-compatible)
+        "data-[elevation=elevated]:hover:shadow-lg data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-amber-300/30",
+        // Flat: no hover transform or shadow
+        "data-[elevation=flat]:hover:shadow-none data-[elevation=flat]:hover:translate-y-0",
+        // Outlined: prominent border, no hover effects
+        "data-[elevation=outlined]:border-2 data-[elevation=outlined]:border-foreground/10 data-[elevation=outlined]:hover:shadow-none data-[elevation=outlined]:hover:translate-y-0",
         variant === "glass" && "glass-card",
         variant === "gradient" && "bg-gradient-to-br from-amber-500/5 via-card to-secondary/50",
         className

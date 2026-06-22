@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { csrfFetch } from "@/lib/csrf-client";
 import {
   LogIn,
   Moon,
@@ -102,7 +103,7 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await csrfFetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

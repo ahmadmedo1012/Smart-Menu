@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Confetti from "@/components/shared/Confetti";
 import {
   CheckCircle,
   Copy,
@@ -23,69 +24,6 @@ type ShareAfterOrderProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-// ─── Confetti particles ───────────────────────────────────────────────
-
-const CONFETTI_COLORS = [
-  "#FFD700",
-  "#FF6B6B",
-  "#4ECDC4",
-  "#45B7D1",
-  "#96CEB4",
-  "#FFEAA7",
-  "#DDA0DD",
-  "#FF8C00",
-];
-
-type Particle = {
-  id: number;
-  x: number;
-  color: string;
-  size: number;
-  delay: number;
-  duration: number;
-  rotation: number;
-};
-
-function generateParticles(count: number): Particle[] {
-  const particles: Particle[] = [];
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      id: i,
-      x: Math.random() * 100,
-      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-      size: 4 + Math.random() * 8,
-      delay: Math.random() * 1.5,
-      duration: 2.5 + Math.random() * 2,
-      rotation: Math.random() * 360,
-    });
-  }
-  return particles;
-}
-
-function Confetti() {
-  const particles = useRef(generateParticles(20)).current;
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="absolute rounded-sm opacity-80"
-          style={{
-            left: `${p.x}%`,
-            top: "-8px",
-            width: `${p.size}px`,
-            height: `${p.size * 0.6}px`,
-            backgroundColor: p.color,
-            animation: `confetti-fall ${p.duration}s ease-in ${p.delay}s infinite`,
-            transform: `rotate(${p.rotation}deg)`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 // ─── Component ─────────────────────────────────────────────────────────
 
@@ -212,7 +150,7 @@ ${referralUrl}
       <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-2xl">
         {/* Confetti header */}
         <div className="relative h-36 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 overflow-hidden">
-          <Confetti />
+          <Confetti active variant="rects" count={20} loop className="absolute inset-0 pointer-events-none overflow-hidden" />
 
           {/* Decorative glow */}
           <div className="absolute -top-10 -right-10 size-32 rounded-full bg-white/10 blur-3xl" />

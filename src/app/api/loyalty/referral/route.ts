@@ -1,13 +1,18 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
+import { z } from "zod";
+
+const referralSchema = z.object({
+  referralCode: z.string().min(1),
+  referredPhone: z.string().optional(),
+  referredName: z.string().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = referralSchema.parse(await request.json());
     const { referralCode, referredPhone, referredName } = body;
-
-    if (!referralCode) return error("referralCode is required");
 
     const referrerCard = await prisma.loyaltyCard.findUnique({
       where: { referralCode },

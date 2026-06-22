@@ -62,7 +62,11 @@ export async function GET() {
       prisma.restaurant.count({ where: { planId: { not: null } } }),
     ]);
 
-    const freePlanCount = plans.filter((p) => Number(p.price) === 0).length;
+    const noPlanCount = totalRestaurants - linkedRestaurants;
+    const restaurantsOnFreePlans = plans
+      .filter((p) => Number(p.price) === 0)
+      .reduce((sum, p) => sum + p.restaurants.length, 0);
+    const freePlanCount = noPlanCount + restaurantsOnFreePlans;
     const paidPlans = plans.filter((p) => Number(p.price) > 0);
     const monthlyRevenue = paidPlans.reduce(
       (sum, p) => sum + Number(p.price) * p.restaurants.length,
@@ -74,7 +78,7 @@ export async function GET() {
       totalRestaurants,
       totalOrders,
       freePlanCount,
-      paidPlanCount: plans.length - freePlanCount,
+      paidPlanCount: linkedRestaurants - restaurantsOnFreePlans,
       monthlyRevenue,
       recentSignups: recentSignups.map((r) => ({
         id: r.id,

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { cookies } from "next/headers";
 import { error } from "@/lib/api-helpers";
 import { z } from "zod";
-import { CSRF_COOKIE, generateToken } from "@/lib/csrf";
+import { CSRF_COOKIE, CSRF_HEADER, generateToken, validateToken } from "@/lib/csrf";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
@@ -16,6 +16,14 @@ const loginLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 
 export async function POST(request: Request) {
   try {
+    // Validate CSRF token (login is in publicPrefixes so middleware skips this)
+    const cookieStore = await cookies();
+    const csrfHeader = request.headers.get(CSRF_HEADER);
+    const csrfCookie = cookieStore.get(CSRF_COOKIE)?.value;
+    if (!validateToken(csrfHeader, csrfCookie)) {
+      return error("Invalid CSRF token", 403);
+    }
+
     const parsed = loginSchema.safeParse(await request.json());
     if (!parsed.success) return error("يرجى إدخال اسم المستخدم وكلمة المرور", 400);
     const { username, password } = parsed.data;
@@ -45,7 +53,6 @@ export async function POST(request: Request) {
     await logAudit({ action: "login", actorId: user.id, targetType: "user", targetId: user.id, ip });
     await notifyEvent("user_login", { username: user.username, name: user.name, role: user.role });
 
-    const cookieStore = await cookies();
     const secure = process.env.NODE_ENV === "production";
     cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
     cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });

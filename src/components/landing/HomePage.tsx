@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, BadgePercent, Store, ChefHat, Check, Menu, Star } from "lucide-react";
+import { ArrowLeft, Sparkles, BadgePercent, Store, Check, Menu, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { BENEFITS, PARTNERS, STATS, STEPS, PRICING_PLANS, SHOWCASES } from "./landing-data";
+import { BENEFITS, PARTNERS, STATS, STEPS, PRICING_PLANS, SHOWCASES, TESTIMONIALS } from "./landing-data";
 import Reveal from "./Reveal";
 import CountUp from "./CountUp";
 import MobileNav from "./MobileNav";
@@ -53,7 +53,7 @@ export default function HomePage() {
               </div>
             </Reveal>
             <Reveal delay={0.1}>
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-[1.1]">
+              <h1 className="text-5xl md:text-7xl font-bold mb-5 leading-[0.95] tracking-tight">
                 <span className="text-gradient-animated">حوّل مطعمك</span><br /><span className="text-foreground">إلى منيو رقمي</span>
               </h1>
             </Reveal>
@@ -105,9 +105,13 @@ export default function HomePage() {
           <Reveal delay={0.1}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
               {PARTNERS.map((p, i) => (
-                <Link key={i} href={`/menu/${p.slug}`} className="group relative overflow-hidden rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-amber-200/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-right">
+                <Link key={i} href={`/menu/${p.slug}`} className={cn("group relative overflow-hidden rounded-2xl border p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-right",
+                  i === 0 ? "bg-gradient-to-br from-amber-50/60 to-card/50 dark:from-amber-950/15 dark:to-card/50 border-amber-200/30 hover:border-amber-300/50" :
+                  i === 1 ? "bg-card/50 border-border/30 hover:border-primary/30" :
+                  "bg-gradient-to-br from-blue-50/50 to-card/50 dark:from-blue-950/10 dark:to-card/50 border-border/30 hover:border-blue-300/50")}>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="size-10 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className={cn("size-10 rounded-xl bg-gradient-to-br flex items-center justify-center group-hover:scale-110 transition-transform",
+                      i === 0 ? "from-amber-400/20 to-amber-600/10" : i === 1 ? "from-amber-400/20 to-amber-600/10" : "from-blue-400/20 to-blue-600/10")}>
                       <Store className="size-5 text-primary" />
                     </div>
                     <div><h3 className="font-bold">{p.name}</h3><p className="text-xs text-muted-foreground">{p.desc}</p></div>
@@ -289,8 +293,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-24">
+        <div className="max-w-6xl mx-auto px-4">
+          <Reveal className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-animated">ماذا يقول عملاؤنا</span></h2>
+            <p className="text-lg text-muted-foreground">كلمات من مطاعم ومقاهي تثق في الربط الذكي</p>
+          </Reveal>
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <Reveal key={i} delay={i * 0.12}>
+                <div className="relative h-full rounded-2xl border border-border/40 bg-card/40 p-7 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(t.rating)].map((_, j) => (
+                      <Star key={j} className="size-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed mb-5 flex-1">&ldquo;{t.content}&rdquo;</p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border/30">
+                    <div className="size-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="py-24 relative overflow-hidden">
+      <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-background to-primary/5" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/5 blur-3xl" />
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">

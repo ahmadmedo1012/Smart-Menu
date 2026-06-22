@@ -63,6 +63,11 @@ export async function POST(request: NextRequest) {
     });
     if (!category) return error("التصنيف غير موجود", 404);
 
+    // Owners can only add items to their own restaurant's categories
+    if (auth.role === "owner" && auth.restaurantId !== category.restaurant.id) {
+      return error("غير مصرح", 401);
+    }
+
     // Count existing items for this restaurant
     const existingCount = await prisma.menuItem.count({
       where: { category: { restaurantId: category.restaurant.id } },

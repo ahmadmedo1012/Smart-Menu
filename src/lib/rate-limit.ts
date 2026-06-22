@@ -11,14 +11,17 @@ interface RateLimitResult {
 
 interface RateLimiter {
   check(key: string): RateLimitResult;
+  destroy(): void;
 }
 
 export function createRateLimiter(config: RateLimiterConfig): RateLimiter {
   const { windowMs, max } = config;
   const hits = new Map<string, { count: number; resetAt: number }>();
+  let destroyed = false;
 
   // Periodic cleanup every 60s to prevent memory leaks
   const interval = setInterval(() => {
+    if (destroyed) { clearInterval(interval); return; }
     const now = Date.now();
     for (const [key, entry] of hits) {
       if (entry.resetAt <= now) hits.delete(key);
@@ -40,6 +43,11 @@ export function createRateLimiter(config: RateLimiterConfig): RateLimiter {
         remaining: Math.max(0, max - entry.count),
         reset: entry.resetAt,
       };
+    },
+    destroy() {
+      destroyed = true;
+      clearInterval(interval);
+      hits.clear();
     },
   };
 }

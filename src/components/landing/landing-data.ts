@@ -6,6 +6,7 @@ export type Stat = { icon: LucideIcon; value: number; suffix: string; label: str
 export type Step = { title: string; desc: string; icon: LucideIcon };
 export type PricingPlan = { name: string; price: string; period: string; features: string[]; cta: string; popular: boolean; gradient: string };
 export type Showcase = { title: string; desc: string; icon: LucideIcon };
+export type Testimonial = { name: string; role: string; content: string; rating: number };
 
 export const BENEFITS: Benefit[] = [
   { icon: Smartphone, title: "منيو رقمي تفاعلي", desc: "قائمة طعام رقمية مع صور وأسعار وتفاصيل. محدثة بشكل لحظي دون طباعة.", gradient: "from-amber-400 to-amber-600" },
@@ -45,4 +46,10 @@ export const SHOWCASES: Showcase[] = [
   { title: "طلبات لحظية", desc: "الطلبات تصل مباشرة لواتساب المطعم مع تفاصيل كاملة", icon: MessageCircle },
   { title: "لوحة تحكم متكاملة", desc: "إدارة المطاعم والمنيو والطلبات والإحصائيات من مكان واحد", icon: LayoutDashboard },
   { title: "يعمل على جميع الشاشات", desc: "تجربة مثالية على الجوال والتابلت والحاسوب", icon: Monitor },
+];
+
+export const TESTIMONIALS: Testimonial[] = [
+  { name: "أحمد المبروك", role: "صاحب مقهى الواحة", content: "منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب بشكل ملحوظ. الزبائن صاروا يطلبون بسهولة بدون الاتصال المباشر.", rating: 5 },
+  { name: "سارة التومي", role: "مديرة مطعم الأصيل", content: "وفرت لنا المنصة وقتاً وجهداً كبيرين. تحديث المنيو يتم لحظياً والطلبات تصل مرتبة. أنصح بها كل مطعم.", rating: 5 },
+  { name: "عمر بن عاشور", role: "صاحب بيتزا روما", content: "أكثر ما أعجبني هو نظام الولاء. الزبائن عادوا مراراً بسبب النقاط والمكافآت. زيادة ملحوظة في المبيعات.", rating: 5 },
 ];

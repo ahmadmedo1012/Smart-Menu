@@ -23,7 +23,7 @@ test.describe('Smart Menu - Public Pages', () => {
 
   test('subscribe page loads with plan selection', async ({ page }) => {
     await page.goto('/subscribe');
-    await expect(page.locator('text=اختر خطة تناسب مطعمك')).toBeVisible();
+    await expect(page.locator('h1')).toContainText('انضم إلى الربط الذكي', { timeout: 15000 });
   });
 
   test('menu redirects to first restaurant or shows empty state', async ({ page }) => {
@@ -37,8 +37,8 @@ test.describe('Smart Menu - Public Pages', () => {
   });
 
   test('unknown route redirects to login via proxy', async ({ page }) => {
-    await page.goto('/nonexistent-xyz', { waitUntil: 'networkidle' });
-    await expect(page).toHaveURL(/\/login/);
+    page.goto('/nonexistent-xyz');
+    await page.waitForURL(/\/login/, { timeout: 10000 });
   });
 
   test('cart page shows empty state', async ({ page }) => {
@@ -55,18 +55,18 @@ test.describe('Smart Menu - Public Pages', () => {
 test.describe('Smart Menu - Auth Redirects', () => {
 
   test('admin redirects to login when not authenticated', async ({ page }) => {
-    await page.goto('/admin');
-    await expect(page).toHaveURL(/\/login/);
+    page.goto('/admin');
+    await page.waitForURL(/\/login/, { timeout: 10000 });
   });
 
   test('admin/restaurants redirects to login when not authenticated', async ({ page }) => {
-    await page.goto('/admin/restaurants');
-    await expect(page).toHaveURL(/\/login/);
+    page.goto('/admin/restaurants');
+    await page.waitForURL(/\/login/, { timeout: 10000 });
   });
 
   test('owner redirects to login when not authenticated', async ({ page }) => {
-    await page.goto('/owner');
-    await expect(page).toHaveURL(/\/login/);
+    page.goto('/owner');
+    await page.waitForURL(/\/login/, { timeout: 10000 });
   });
 });
 
@@ -80,9 +80,9 @@ test.describe('Smart Menu - SEO & Static Files', () => {
     expect(text).toContain('Disallow');
   });
 
-  test('sitemap.xml is served', async ({ page }) => {
-    const resp = await page.goto('/sitemap.xml');
-    expect(resp?.ok()).toBeTruthy();
+  test('sitemap.xml is served', async ({ request }) => {
+    const resp = await request.get('/sitemap.xml');
+    expect(resp.ok()).toBeTruthy();
   });
 
   test('favicon.ico is served', async ({ page }) => {
@@ -93,5 +93,74 @@ test.describe('Smart Menu - SEO & Static Files', () => {
   test('manifest.json is served', async ({ page }) => {
     const resp = await page.goto('/manifest.json');
     expect(resp?.ok()).toBeTruthy();
+  });
+});
+
+test.describe('Smart Menu - Homepage Details', () => {
+
+  test('Homepage - Testimonials section', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('text=ماذا يقول عملاؤنا').first()).toBeVisible();
+    await expect(page.locator('text=منذ استخدام الربط الذكي').first()).toBeVisible();
+    await expect(page.locator('.fill-amber-400').first()).toBeVisible();
+  });
+
+  test('Homepage - Hero animation', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('h1')).toContainText('حوّل مطعمك');
+    await expect(page.locator('a:has-text("ابدأ مجاناً")').first()).toBeVisible();
+  });
+});
+
+test.describe('Smart Menu - Cart Details', () => {
+
+  test('Cart page - visual elements', async ({ page }) => {
+    await page.goto('/cart', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('text=السلة فارغة')).toBeVisible();
+    await expect(page.locator('a:has-text("العودة إلى القائمة")')).toBeVisible();
+  });
+});
+
+test.describe('Smart Menu - Menu Search', () => {
+
+  test('Menu page - search functionality', async ({ page }) => {
+    await page.goto('/menu', { waitUntil: 'networkidle' });
+    const searchInput = page.locator('input[placeholder*="ابحث"]');
+    if (await searchInput.count() > 0) {
+      await expect(searchInput.first()).toBeVisible();
+    } else {
+      await expect(page.locator('text=No restaurants available')).toBeVisible({ timeout: 5000 });
+    }
+  });
+});
+
+test.describe('Smart Menu - Login Details', () => {
+
+  test('Login page - visual elements', async ({ page }) => {
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#username')).toBeVisible();
+    await expect(page.locator('#password')).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toContainText('تسجيل الدخول');
+    await expect(page.locator('[aria-label="تبديل الثيم"]')).toBeVisible();
+    await expect(page.locator('text=الربط الذكي').first()).toBeVisible();
+  });
+});
+
+test.describe('Smart Menu - Order Confirmed Details', () => {
+
+  test('Order confirmed page', async ({ page }) => {
+    await page.goto('/order-confirmed', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('text=تم تأكيد الطلب')).toBeVisible();
+    await expect(page.locator('button:has-text("إرسال عبر واتساب")')).toBeVisible();
+    await expect(page.locator('a:has-text("العودة إلى القائمة")')).toBeVisible();
+  });
+});
+
+test.describe('Smart Menu - 404 Page', () => {
+
+  test('404 page', async ({ page }) => {
+    await page.goto('/nonexistent-page-xyz-123', { waitUntil: 'domcontentloaded' });
+    const body = page.locator('body');
+    await expect(body).toContainText(/404|الصفحة غير موجودة/);
   });
 });

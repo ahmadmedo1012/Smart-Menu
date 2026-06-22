@@ -17,12 +17,18 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
+    const auth = await requireAuth();
+    if (!auth.authorized) return error("غير مصرح", 401);
 
     const { id } = await params;
     const body = updateSchema.parse(await request.json());
     const existing = await prisma.menuCategory.findUnique({ where: { id: Number(id) } });
     if (!existing) return notFound("Category");
+
+    // Owners can only update their own restaurant's categories
+    if (auth.role === "owner" && auth.restaurantId !== existing.restaurantId) {
+      return error("غير مصرح", 401);
+    }
 
     const data = await prisma.menuCategory.update({ where: { id: Number(id) }, data: body });
     return success(data);
@@ -36,11 +42,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAuth()).authorized) return error("غير مصرح", 401);
+    const auth = await requireAuth();
+    if (!auth.authorized) return error("غير مصرح", 401);
 
     const { id } = await params;
     const existing = await prisma.menuCategory.findUnique({ where: { id: Number(id) } });
     if (!existing) return notFound("Category");
+
+    // Owners can only delete their own restaurant's categories
+    if (auth.role === "owner" && auth.restaurantId !== existing.restaurantId) {
+      return error("غير مصرح", 401);
+    }
 
     await prisma.menuCategory.delete({ where: { id: Number(id) } });
     return success({ id: Number(id) });

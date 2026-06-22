@@ -15,7 +15,7 @@ const BarChart = dynamic(() => import("@/components/shared/BarChart"), { ssr: fa
 
 import {
   Store, ShoppingCart, TrendingUp, AlertCircle,
-  Users, ArrowUpRight,
+  Users, ArrowUpRight, BarChart3,
   RefreshCw, UserPlus, LogIn, Bell, ShieldAlert,
   Activity, DollarSign, MapPin,
 } from "lucide-react"
@@ -71,8 +71,8 @@ export default function AdminDashboard() {
 
   const chartData = stats
     ? [
-        { label: "مجاني", value: stats.freePlanCount, color: "#9ca3af" },
-        { label: "مدفوع", value: stats.paidPlanCount, color: "#f59e0b" },
+        { label: "مجاني", value: stats.freePlanCount, color: "var(--color-chart-2, hsl(215 14% 34%))" },
+        { label: "مدفوع", value: stats.paidPlanCount, color: "var(--color-chart-1, hsl(38 92% 50%))" },
       ]
     : []
 
@@ -88,12 +88,17 @@ export default function AdminDashboard() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 rounded-2xl bg-muted/50 animate-breath" />
+            <div key={i} className="h-28 rounded-2xl skeleton" />
           ))}
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="h-64 rounded-2xl bg-muted/50 animate-breath" />
-          <div className="h-64 rounded-2xl bg-muted/50 animate-breath" />
+          <div className="h-[300px] rounded-2xl skeleton" />
+          <div className="h-[300px] rounded-2xl skeleton" />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-[260px] rounded-2xl skeleton" />
+          ))}
         </div>
       </div>
     )
@@ -123,7 +128,7 @@ export default function AdminDashboard() {
   if (!stats) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-        <Store className="size-12 text-muted-foreground/50" />
+        <BarChart3 className="size-12 text-muted-foreground/50" />
         <p className="text-lg font-medium">لا توجد بيانات</p>
         <Button variant="gradient-outline" onClick={load} className="gap-2 rounded-xl">
           <RefreshCw className="size-4" />
@@ -145,7 +150,7 @@ export default function AdminDashboard() {
           <Button variant="ghost" size="icon-sm" onClick={load} aria-label="تحديث">
             <RefreshCw className="size-4" />
           </Button>
-          <Badge variant="outline" className="gap-1.5 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
+          <Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20">
             <Activity className="size-3.5 text-emerald-500" />
             مباشر
           </Badge>
@@ -155,23 +160,23 @@ export default function AdminDashboard() {
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, color: "text-amber-600", bg: "bg-amber-50" },
-          { label: "إجمالي المستخدمين", value: stats.totalUsers, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-          { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", suffix: " د.ل" },
-          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, bg: "bg-amber-50/80 dark:bg-amber-950/20", iconColor: "text-amber-600 dark:text-amber-400" },
+          { label: "إجمالي المستخدمين", value: stats.totalUsers, icon: Users, bg: "bg-purple-50/80 dark:bg-purple-950/20", iconColor: "text-purple-600 dark:text-purple-400" },
+          { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, bg: "bg-emerald-50/80 dark:bg-emerald-950/20", iconColor: "text-emerald-600 dark:text-emerald-400", suffix: " د.ل" },
+          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-blue-50/80 dark:bg-blue-950/20", iconColor: "text-blue-600 dark:text-blue-400" },
         ].map((card, i) => {
           const Icon = card.icon
           return (
-            <div key={i} className="relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm group">
-              <div className="relative z-10 flex items-start justify-between">
+            <div key={i} className={cn("rounded-2xl p-5 shadow-sm border", card.bg, "border-white/30 dark:border-white/10")}>
+              <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
                   <p className="text-3xl font-bold tracking-tight">
                     <CountUp value={card.value} suffix={card.suffix || ""} />
                   </p>
                 </div>
-                <div className={cn("rounded-2xl p-3.5 ring-1 ring-white/20", card.bg + "/50")} aria-hidden="true">
-                  <Icon className={cn("size-6", card.color)} aria-hidden="true" />
+                <div className={cn("rounded-xl p-3", card.bg)} aria-hidden="true">
+                  <Icon className={cn("size-5", card.iconColor)} aria-hidden="true" />
                 </div>
               </div>
             </div>
@@ -207,7 +212,7 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Plan distribution chart */}
-        <div className="rounded-2xl bg-white/50 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 p-6 shadow-sm">
+        <div className="rounded-2xl bg-card/70 border border-border/30 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -230,15 +235,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* System alerts */}
-        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <Bell className="size-4 text-muted-foreground" aria-hidden="true" />
               <h3 className="text-sm font-semibold">تنبيهات النظام</h3>
             </div>
           </div>
           {stats.systemEvents.length > 0 ? (
-            <div className="divide-y divide-white/10 max-h-[300px] overflow-y-auto">
+            <div className="divide-y divide-border/20 max-h-[300px] overflow-y-auto">
               {stats.systemEvents.map((ev) => {
                 const sev = SEVERITY_STYLES[ev.severity] || SEVERITY_STYLES.info
                 return (
@@ -275,15 +280,15 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent signups */}
-        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <UserPlus className="size-4 text-muted-foreground" aria-hidden="true" />
               <h3 className="text-sm font-semibold">آخر الاشتراكات</h3>
             </div>
           </div>
           {stats.recentSignups.length > 0 ? (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-border/20">
               {stats.recentSignups.map((r) => (
                 <div key={r.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors">
                   <div className="flex items-center gap-3">
@@ -315,15 +320,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent logins */}
-        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <LogIn className="size-4 text-muted-foreground" aria-hidden="true" />
               <h3 className="text-sm font-semibold">آخر تسجيلات الدخول</h3>
             </div>
           </div>
           {stats.recentLogins.length > 0 ? (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-border/20">
               {stats.recentLogins.map((u) => (
                 <div key={u.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors">
                   <div className="flex items-center gap-3">
@@ -352,15 +357,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Active restaurants */}
-        <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-sm">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <MapPin className="size-4 text-muted-foreground" aria-hidden="true" />
               <h3 className="text-sm font-semibold">المطاعم النشطة</h3>
             </div>
           </div>
           {stats.recentSignups.length > 0 ? (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-border/20">
               {stats.recentSignups.slice(0, 6).map((r) => (
                 <div key={r.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors">
                   <div className="flex items-center gap-3">
@@ -388,7 +393,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick actions */}
-      <div className="rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10 p-5 shadow-sm">
+      <div className="rounded-2xl bg-card/70 border border-border/30 p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
@@ -402,7 +407,7 @@ export default function AdminDashboard() {
               <Link key={i} href={item.href}>
                 <button
                   type="button"
-                  className="flex w-full flex-col items-center gap-2 rounded-xl border border-white/20 bg-white/40 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-all group"
+                  className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-all group"
                 >
                   <Icon className={cn("size-5 group-hover:scale-110 transition-transform", item.color)} aria-hidden="true" />
                   <span className="text-xs font-medium">{item.label}</span>
