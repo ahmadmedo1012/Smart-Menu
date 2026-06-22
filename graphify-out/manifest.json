@@ -1,0 +1,922 @@
+{
+  "/home/ahmed/UTILITIES/smart-menu/components.json": {
+    "mtime": 1781892827.5925968,
+    "ast_hash": "bcc556afcd286c9bb789c923ceca20de",
+    "semantic_hash": "bcc556afcd286c9bb789c923ceca20de"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/eslint.config.mjs": {
+    "mtime": 1781986662.6960516,
+    "ast_hash": "52cf7d1a3f17e5eb00c12dac991c3d42",
+    "semantic_hash": "52cf7d1a3f17e5eb00c12dac991c3d42"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/middleware.ts": {
+    "mtime": 1782145928.557335,
+    "ast_hash": "8dd6d27eab2159504e14cd5723684318",
+    "semantic_hash": "8dd6d27eab2159504e14cd5723684318"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/next.config.ts": {
+    "mtime": 1782112619.1728947,
+    "ast_hash": "f1d93044ba7a6b46bf656090c0a5f177",
+    "semantic_hash": "f1d93044ba7a6b46bf656090c0a5f177"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/package.json": {
+    "mtime": 1782152907.9553132,
+    "ast_hash": "01532e354605ca35a2ee341f7cb16d2b",
+    "semantic_hash": "01532e354605ca35a2ee341f7cb16d2b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/playwright.config.ts": {
+    "mtime": 1782089308.678792,
+    "ast_hash": "e9f1a41fd6b4211316fdbafbdcd73d36",
+    "semantic_hash": "e9f1a41fd6b4211316fdbafbdcd73d36"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/postcss.config.mjs": {
+    "mtime": 1781721568.4743254,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/prisma.config.ts": {
+    "mtime": 1781833181.4304292,
+    "ast_hash": "489f7c9b62261964510ea071ed83ae4c",
+    "semantic_hash": "489f7c9b62261964510ea071ed83ae4c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/prisma/fix-admin-role.ts": {
+    "mtime": 1782129991.589218,
+    "ast_hash": "ca6ef632527ec509ada864568be751f7",
+    "semantic_hash": "ca6ef632527ec509ada864568be751f7"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/prisma/seed.ts": {
+    "mtime": 1782107244.5770926,
+    "ast_hash": "f6e98d52f142fe7727dbbc7550800ff8",
+    "semantic_hash": "f6e98d52f142fe7727dbbc7550800ff8"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/lottie/empty.json": {
+    "mtime": 1782154355.7998993,
+    "ast_hash": "d82cdb6cd74f97618db10fe466371fa8",
+    "semantic_hash": "d82cdb6cd74f97618db10fe466371fa8"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/lottie/loading.json": {
+    "mtime": 1782154355.7976687,
+    "ast_hash": "95df79444232b2241e26e184caf1e617",
+    "semantic_hash": "95df79444232b2241e26e184caf1e617"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/lottie/success.json": {
+    "mtime": 1782154355.8006687,
+    "ast_hash": "bf6227dd5a0556406cabb446405e9862",
+    "semantic_hash": "bf6227dd5a0556406cabb446405e9862"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/manifest.json": {
+    "mtime": 1782086499.872066,
+    "ast_hash": "18c215a35f60a9bd505a01276e2354a1",
+    "semantic_hash": "18c215a35f60a9bd505a01276e2354a1"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/sw.js": {
+    "mtime": 1782085894.8652544,
+    "ast_hash": "ebfb5fc1e4941a865463f47bd5cbbca9",
+    "semantic_hash": "ebfb5fc1e4941a865463f47bd5cbbca9"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/remotion/package.json": {
+    "mtime": 1782154552.3999512,
+    "ast_hash": "a27d97354672b0ebdd981768e71872e7",
+    "semantic_hash": "a27d97354672b0ebdd981768e71872e7"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/remotion/src/IntroVideo.tsx": {
+    "mtime": 1782154582.2912972,
+    "ast_hash": "a1a3ff66588d50b955586d699cd51be4",
+    "semantic_hash": "a1a3ff66588d50b955586d699cd51be4"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/remotion/src/Root.tsx": {
+    "mtime": 1782154560.236042,
+    "ast_hash": "b51075727388bb2d44bfc4e4cef24719",
+    "semantic_hash": "b51075727388bb2d44bfc4e4cef24719"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/remotion/src/index.ts": {
+    "mtime": 1782154588.7073715,
+    "ast_hash": "d92d9dee1ab16aa44a75ae7fbfb843ca",
+    "semantic_hash": "d92d9dee1ab16aa44a75ae7fbfb843ca"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/remotion/tsconfig.json": {
+    "mtime": 1782154594.7734416,
+    "ast_hash": "8a6dea17ce5ed4ba99876be6cc31b002",
+    "semantic_hash": "8a6dea17ce5ed4ba99876be6cc31b002"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/scripts/start.sh": {
+    "mtime": 1782122285.7664068,
+    "ast_hash": "00e819f89b07ba6542f2e91a947bb11f",
+    "semantic_hash": "00e819f89b07ba6542f2e91a947bb11f"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/skills-lock.json": {
+    "mtime": 1782157363.9234228,
+    "ast_hash": "06a69c739ff0eb4fea7619145140aec7",
+    "semantic_hash": "06a69c739ff0eb4fea7619145140aec7"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/audit-logs/page.tsx": {
+    "mtime": 1782134304.4525442,
+    "ast_hash": "4be2130285521b9368fa20c89293475f",
+    "semantic_hash": "4be2130285521b9368fa20c89293475f"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/error.tsx": {
+    "mtime": 1781999683.211311,
+    "ast_hash": "5484b1e7553e44e8dff02bca068b78d0",
+    "semantic_hash": "5484b1e7553e44e8dff02bca068b78d0"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/layout.tsx": {
+    "mtime": 1782151640.1646576,
+    "ast_hash": "a165c69ae3d5189df141ea83a6c9f25c",
+    "semantic_hash": "a165c69ae3d5189df141ea83a6c9f25c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/loading.tsx": {
+    "mtime": 1781999673.7192981,
+    "ast_hash": "84dd1e448057d6d4f5310d29918b8dc5",
+    "semantic_hash": "84dd1e448057d6d4f5310d29918b8dc5"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/menu/page.tsx": {
+    "mtime": 1782134434.2588134,
+    "ast_hash": "9706fffc8dca0444cd4e9ca29e9bab04",
+    "semantic_hash": "9706fffc8dca0444cd4e9ca29e9bab04"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/orders/[id]/page.tsx": {
+    "mtime": 1782134421.4827063,
+    "ast_hash": "ff0979b54f7e03fc075222ae8014308a",
+    "semantic_hash": "ff0979b54f7e03fc075222ae8014308a"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/orders/page.tsx": {
+    "mtime": 1782134404.2285607,
+    "ast_hash": "60fb1c8688cd5bf2e747e5af7bfd8b62",
+    "semantic_hash": "60fb1c8688cd5bf2e747e5af7bfd8b62"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/page.tsx": {
+    "mtime": 1782152189.284179,
+    "ast_hash": "71f2403d4e659383f301fe48a723093a",
+    "semantic_hash": "71f2403d4e659383f301fe48a723093a"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/qr/page.tsx": {
+    "mtime": 1781901890.9337466,
+    "ast_hash": "fec76dd44aaf5381f317e142dfb63138",
+    "semantic_hash": "fec76dd44aaf5381f317e142dfb63138"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/restaurants/page.tsx": {
+    "mtime": 1782134347.4120717,
+    "ast_hash": "99a1b592efee9c890b07bc701284d98a",
+    "semantic_hash": "99a1b592efee9c890b07bc701284d98a"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/settings/page.tsx": {
+    "mtime": 1782134393.106466,
+    "ast_hash": "274766d2058df6eea2fc0fdeca12eb44",
+    "semantic_hash": "274766d2058df6eea2fc0fdeca12eb44"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/admin/users/page.tsx": {
+    "mtime": 1782134360.638187,
+    "ast_hash": "e3467b887de4cbce93735d12567e0bbc",
+    "semantic_hash": "e3467b887de4cbce93735d12567e0bbc"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/audit-logs/route.ts": {
+    "mtime": 1782125629.016609,
+    "ast_hash": "6ec1dfe549fa9e338120a681eeb75728",
+    "semantic_hash": "6ec1dfe549fa9e338120a681eeb75728"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/create-owner/route.ts": {
+    "mtime": 1782107244.5780928,
+    "ast_hash": "835d2056338dd53afe95bff8c526143e",
+    "semantic_hash": "835d2056338dd53afe95bff8c526143e"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/fix-role/route.ts": {
+    "mtime": 1782131468.4793177,
+    "ast_hash": "5f946a0f1e95ac0bbcd964d7a4c58968",
+    "semantic_hash": "5f946a0f1e95ac0bbcd964d7a4c58968"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/reset-password/route.ts": {
+    "mtime": 1782129916.8232975,
+    "ast_hash": "cdbe0b7ffaf4e8de8573d891aa978b7b",
+    "semantic_hash": "cdbe0b7ffaf4e8de8573d891aa978b7b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/stats/route.ts": {
+    "mtime": 1782153651.0492792,
+    "ast_hash": "7d5c8a64619fc8176889c97d10e49b4a",
+    "semantic_hash": "7d5c8a64619fc8176889c97d10e49b4a"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/admin/system-events/route.ts": {
+    "mtime": 1782125631.5186677,
+    "ast_hash": "b55fd765173cdea1296d4818758cb928",
+    "semantic_hash": "b55fd765173cdea1296d4818758cb928"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/auth/login/route.ts": {
+    "mtime": 1782154095.1116145,
+    "ast_hash": "8f31fa9e4dd3de93f10de68bd7fd8388",
+    "semantic_hash": "8f31fa9e4dd3de93f10de68bd7fd8388"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/auth/logout/route.ts": {
+    "mtime": 1782153498.304377,
+    "ast_hash": "82fb0fc110c1941706f25dc8c906cb6c",
+    "semantic_hash": "82fb0fc110c1941706f25dc8c906cb6c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/auth/me/route.ts": {
+    "mtime": 1782107244.5780928,
+    "ast_hash": "d331264bc3286cfc051cd60a3369c759",
+    "semantic_hash": "d331264bc3286cfc051cd60a3369c759"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/categories/[id]/route.ts": {
+    "mtime": 1782154165.5604439,
+    "ast_hash": "fe3b0ca143f6eae471ac2eea24ba6a81",
+    "semantic_hash": "fe3b0ca143f6eae471ac2eea24ba6a81"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/categories/route.ts": {
+    "mtime": 1782154152.0812855,
+    "ast_hash": "1de5fb6d9ef8e72fa1bab8fab646c187",
+    "semantic_hash": "1de5fb6d9ef8e72fa1bab8fab646c187"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/items/[id]/route.ts": {
+    "mtime": 1782154125.0379672,
+    "ast_hash": "23d8262bf2e8be2bb3d9d3886d07e20f",
+    "semantic_hash": "23d8262bf2e8be2bb3d9d3886d07e20f"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/items/route.ts": {
+    "mtime": 1782154114.1408389,
+    "ast_hash": "3d32a3eeb57c53a6e180f305f6bd3df9",
+    "semantic_hash": "3d32a3eeb57c53a6e180f305f6bd3df9"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/loyalty/referral/route.ts": {
+    "mtime": 1782154197.1908152,
+    "ast_hash": "432c7086012bf1f41697bdc8bfd8e880",
+    "semantic_hash": "432c7086012bf1f41697bdc8bfd8e880"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/loyalty/route.ts": {
+    "mtime": 1782154191.4107473,
+    "ast_hash": "606460b0973371e5cc3a0ad0c1b2bed4",
+    "semantic_hash": "606460b0973371e5cc3a0ad0c1b2bed4"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/loyalty/stats/route.ts": {
+    "mtime": 1782125926.2530918,
+    "ast_hash": "32473bd1c61f8c386d20435c7b814f87",
+    "semantic_hash": "32473bd1c61f8c386d20435c7b814f87"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/orders/[id]/route.ts": {
+    "mtime": 1782125740.9540076,
+    "ast_hash": "b14fcf5a1395dad4a660dfe794d8ff1b",
+    "semantic_hash": "b14fcf5a1395dad4a660dfe794d8ff1b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/orders/route.ts": {
+    "mtime": 1782125929.6461399,
+    "ast_hash": "17100cc3bab0eab27315f92d6055ba15",
+    "semantic_hash": "17100cc3bab0eab27315f92d6055ba15"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/orders/stream/route.ts": {
+    "mtime": 1782107244.5780928,
+    "ast_hash": "817195615536aaa21a8ab9c6d2f679dd",
+    "semantic_hash": "817195615536aaa21a8ab9c6d2f679dd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/plans/route.ts": {
+    "mtime": 1782121421.337706,
+    "ast_hash": "07598c57150c907533856a70cb2e4c85",
+    "semantic_hash": "07598c57150c907533856a70cb2e4c85"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/restaurants/[id]/route.ts": {
+    "mtime": 1782125805.0011847,
+    "ast_hash": "207195a4ec5bd9a36d1b6a7616a96159",
+    "semantic_hash": "207195a4ec5bd9a36d1b6a7616a96159"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/restaurants/route.ts": {
+    "mtime": 1782161698.9965665,
+    "ast_hash": "bd18ab5748786251b5a9ac023af402b0",
+    "semantic_hash": "bd18ab5748786251b5a9ac023af402b0"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/seed/route.ts": {
+    "mtime": 1782129766.7452676,
+    "ast_hash": "3f9165a0c1a030fc14051386fe4b7093",
+    "semantic_hash": "3f9165a0c1a030fc14051386fe4b7093"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/settings/route.ts": {
+    "mtime": 1782125633.7957213,
+    "ast_hash": "e07fed577fa4a26c7cc5758ecd5f9a14",
+    "semantic_hash": "e07fed577fa4a26c7cc5758ecd5f9a14"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/stats/route.ts": {
+    "mtime": 1782125715.1854963,
+    "ast_hash": "94525bcbfb0ae0d9e36e6f401b01d688",
+    "semantic_hash": "94525bcbfb0ae0d9e36e6f401b01d688"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/telegram/config/route.ts": {
+    "mtime": 1782125616.2313037,
+    "ast_hash": "1bef5337e6c2af887f4979f9dd3a0be5",
+    "semantic_hash": "1bef5337e6c2af887f4979f9dd3a0be5"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/telegram/test/route.ts": {
+    "mtime": 1782129941.4496067,
+    "ast_hash": "ac5c999d35e8d268500e92abd5a5c1fc",
+    "semantic_hash": "ac5c999d35e8d268500e92abd5a5c1fc"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/upload/route.ts": {
+    "mtime": 1781888979.9966586,
+    "ast_hash": "51e5ebcadb76a271645cf50acb204d74",
+    "semantic_hash": "51e5ebcadb76a271645cf50acb204d74"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/users/[id]/route.ts": {
+    "mtime": 1782129772.9233568,
+    "ast_hash": "a341f4139d79641fbc04315b3d79c3b6",
+    "semantic_hash": "a341f4139d79641fbc04315b3d79c3b6"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/users/route.ts": {
+    "mtime": 1782125868.7972362,
+    "ast_hash": "60b1ff92dcb71a055ffec3638163430e",
+    "semantic_hash": "60b1ff92dcb71a055ffec3638163430e"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/api/whatsapp/generate/route.ts": {
+    "mtime": 1782125899.742707,
+    "ast_hash": "8aad67983ea9f5655b46c7cce6b760ee",
+    "semantic_hash": "8aad67983ea9f5655b46c7cce6b760ee"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/cart/loading.tsx": {
+    "mtime": 1782107244.5862432,
+    "ast_hash": "744aebbd23b3025956989dc858d8136a",
+    "semantic_hash": "744aebbd23b3025956989dc858d8136a"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/cart/page.tsx": {
+    "mtime": 1782134463.9290597,
+    "ast_hash": "cbb08e3cb0280c2789f949a49ef7ed09",
+    "semantic_hash": "cbb08e3cb0280c2789f949a49ef7ed09"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/demo/route.ts": {
+    "mtime": 1782127380.3886664,
+    "ast_hash": "9cdb4330a153e2ec9d57c35265accf44",
+    "semantic_hash": "9cdb4330a153e2ec9d57c35265accf44"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/error.tsx": {
+    "mtime": 1781985551.763119,
+    "ast_hash": "aab17839573926e9c58bbf95044f9ed6",
+    "semantic_hash": "aab17839573926e9c58bbf95044f9ed6"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/layout.tsx": {
+    "mtime": 1782112211.343052,
+    "ast_hash": "35143c65a7673b79d3c146d2a981aca7",
+    "semantic_hash": "35143c65a7673b79d3c146d2a981aca7"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/login/page.tsx": {
+    "mtime": 1782153865.0588784,
+    "ast_hash": "52e9249f9ffdc3fb733d16162bb9bad7",
+    "semantic_hash": "52e9249f9ffdc3fb733d16162bb9bad7"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/menu/[slug]/loading.tsx": {
+    "mtime": 1781737129.548039,
+    "ast_hash": "ad2a268e37d29c5943ede2daf7e3a9b4",
+    "semantic_hash": "ad2a268e37d29c5943ede2daf7e3a9b4"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/menu/[slug]/page.tsx": {
+    "mtime": 1782126096.9522092,
+    "ast_hash": "16fdcb4a564d4a496d092e07978250c5",
+    "semantic_hash": "16fdcb4a564d4a496d092e07978250c5"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/menu/[slug]/print/page.tsx": {
+    "mtime": 1782107244.579093,
+    "ast_hash": "30f668e05c4d909a4cb10b8af128e9ab",
+    "semantic_hash": "30f668e05c4d909a4cb10b8af128e9ab"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/menu/layout.tsx": {
+    "mtime": 1781795321.9547346,
+    "ast_hash": "ab35ed035f5174e20e62e260a2dda4aa",
+    "semantic_hash": "ab35ed035f5174e20e62e260a2dda4aa"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/menu/page.tsx": {
+    "mtime": 1781830394.3536732,
+    "ast_hash": "cf0aef3db9d9bc3439766c8b59b26da6",
+    "semantic_hash": "cf0aef3db9d9bc3439766c8b59b26da6"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/not-found.tsx": {
+    "mtime": 1781985501.2844512,
+    "ast_hash": "282aa24b556be46a4ce90735a05f5b4e",
+    "semantic_hash": "282aa24b556be46a4ce90735a05f5b4e"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/order-confirmed/page.tsx": {
+    "mtime": 1782118096.954833,
+    "ast_hash": "eaf600abb853d889f6406e435c50d3e6",
+    "semantic_hash": "eaf600abb853d889f6406e435c50d3e6"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/error.tsx": {
+    "mtime": 1781999683.195311,
+    "ast_hash": "fa4fb6681a5f2ea50ad93d5bce6565b2",
+    "semantic_hash": "fa4fb6681a5f2ea50ad93d5bce6565b2"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/layout.tsx": {
+    "mtime": 1782107244.579093,
+    "ast_hash": "e6de96f7329b9f5de727416b74b4860e",
+    "semantic_hash": "e6de96f7329b9f5de727416b74b4860e"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/loading.tsx": {
+    "mtime": 1781999673.7152982,
+    "ast_hash": "e5e205db65e987d2a299f56bd676fe75",
+    "semantic_hash": "e5e205db65e987d2a299f56bd676fe75"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/loyalty/page.tsx": {
+    "mtime": 1782125889.8115587,
+    "ast_hash": "6df84dadea157f67c4642fdaec2f691c",
+    "semantic_hash": "6df84dadea157f67c4642fdaec2f691c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/menu/page.tsx": {
+    "mtime": 1782125921.432023,
+    "ast_hash": "faad86e2c9968de6e4de8fd79e2d0d7c",
+    "semantic_hash": "faad86e2c9968de6e4de8fd79e2d0d7c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/orders/[id]/page.tsx": {
+    "mtime": 1782126055.9417517,
+    "ast_hash": "f8d6a8d39f857ee35adae1e3a52824a8",
+    "semantic_hash": "f8d6a8d39f857ee35adae1e3a52824a8"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/orders/page.tsx": {
+    "mtime": 1782129979.1010678,
+    "ast_hash": "cfb1ecc3997b132495d45d031fc4cce1",
+    "semantic_hash": "cfb1ecc3997b132495d45d031fc4cce1"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/page.tsx": {
+    "mtime": 1782126328.852326,
+    "ast_hash": "2b88f04d0b7f9968044a1b12eff6e7ac",
+    "semantic_hash": "2b88f04d0b7f9968044a1b12eff6e7ac"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/qr/page.tsx": {
+    "mtime": 1781901890.9346502,
+    "ast_hash": "c100b4916bf8933fed70207a897f0cd6",
+    "semantic_hash": "c100b4916bf8933fed70207a897f0cd6"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/owner/settings/page.tsx": {
+    "mtime": 1782107244.579093,
+    "ast_hash": "24d48a2d1c815238233c9382674a07bc",
+    "semantic_hash": "24d48a2d1c815238233c9382674a07bc"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/page.tsx": {
+    "mtime": 1781982991.0631063,
+    "ast_hash": "ca9628c1114b4e4df0d9eeec3a35a00c",
+    "semantic_hash": "ca9628c1114b4e4df0d9eeec3a35a00c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/pricing/loading.tsx": {
+    "mtime": 1782107244.5870936,
+    "ast_hash": "dd05d607afca0120b3d9d53c9cf30828",
+    "semantic_hash": "dd05d607afca0120b3d9d53c9cf30828"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/pricing/page.tsx": {
+    "mtime": 1782107244.579093,
+    "ast_hash": "5fab9d34a7cc42a11c6f28cb4c2caecb",
+    "semantic_hash": "5fab9d34a7cc42a11c6f28cb4c2caecb"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/robots.ts": {
+    "mtime": 1781801492.8082194,
+    "ast_hash": "72da943238e15ffac524b2109c43f610",
+    "semantic_hash": "72da943238e15ffac524b2109c43f610"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/sitemap.ts": {
+    "mtime": 1781830433.3666997,
+    "ast_hash": "5ed832e2b271fef844d5666f2645ab54",
+    "semantic_hash": "5ed832e2b271fef844d5666f2645ab54"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/app/subscribe/page.tsx": {
+    "mtime": 1782161687.1765015,
+    "ast_hash": "e8ef8cb0d6932e5a0b4a623c35e7ad33",
+    "semantic_hash": "e8ef8cb0d6932e5a0b4a623c35e7ad33"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/CountUp.tsx": {
+    "mtime": 1781982927.9665644,
+    "ast_hash": "b6e1353010dc181eff90d26ae57d7e38",
+    "semantic_hash": "b6e1353010dc181eff90d26ae57d7e38"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/HeroAnimation.tsx": {
+    "mtime": 1782150704.4363518,
+    "ast_hash": "e1c08c8aac734f0d27bf6e3fabf28002",
+    "semantic_hash": "e1c08c8aac734f0d27bf6e3fabf28002"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/HomePage.tsx": {
+    "mtime": 1782151455.8829672,
+    "ast_hash": "395df56de12ddb663da24885b03f191f",
+    "semantic_hash": "395df56de12ddb663da24885b03f191f"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/LottieAnimation.tsx": {
+    "mtime": 1781792960.802805,
+    "ast_hash": "0b6c3f347cb0d34df078a5ea1e79c637",
+    "semantic_hash": "0b6c3f347cb0d34df078a5ea1e79c637"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/MobileNav.tsx": {
+    "mtime": 1781982927.9675422,
+    "ast_hash": "07206532596796ce14bb97296594ab6d",
+    "semantic_hash": "07206532596796ce14bb97296594ab6d"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/Reveal.tsx": {
+    "mtime": 1781982927.9640956,
+    "ast_hash": "6535de77575133f8ea772ba2b36c74d1",
+    "semantic_hash": "6535de77575133f8ea772ba2b36c74d1"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/landing/landing-data.ts": {
+    "mtime": 1782151039.355678,
+    "ast_hash": "4728cc8d99d253d7dbafc8f0d7e2861b",
+    "semantic_hash": "4728cc8d99d253d7dbafc8f0d7e2861b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/layout/AdminSidebar.tsx": {
+    "mtime": 1782126224.8954654,
+    "ast_hash": "715d561331f21f6a12534f5fa3757693",
+    "semantic_hash": "715d561331f21f6a12534f5fa3757693"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/layout/Footer.tsx": {
+    "mtime": 1782107244.580093,
+    "ast_hash": "d30811e554e8b2cfbbc7320399ab82eb",
+    "semantic_hash": "d30811e554e8b2cfbbc7320399ab82eb"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/layout/Header.tsx": {
+    "mtime": 1781723568.9729743,
+    "ast_hash": "46cf464d32cb5f021698d7e5f8d444a1",
+    "semantic_hash": "46cf464d32cb5f021698d7e5f8d444a1"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/layout/OrderNotifier.tsx": {
+    "mtime": 1781814228.5475707,
+    "ast_hash": "1a8b421c01f1d8137059c3f8716d5ffd",
+    "semantic_hash": "1a8b421c01f1d8137059c3f8716d5ffd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/loyalty/LoyaltySettings.tsx": {
+    "mtime": 1782125802.0321329,
+    "ast_hash": "8d548ab0492653d575a3ba556a23329b",
+    "semantic_hash": "8d548ab0492653d575a3ba556a23329b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/loyalty/LoyaltyWidget.tsx": {
+    "mtime": 1781988566.4369867,
+    "ast_hash": "24929433673124238f96f06e3df1d886",
+    "semantic_hash": "24929433673124238f96f06e3df1d886"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/loyalty/ReferralCard.tsx": {
+    "mtime": 1782125737.6169426,
+    "ast_hash": "94fd21a7e8f4982e2604c41c5cf4e43d",
+    "semantic_hash": "94fd21a7e8f4982e2604c41c5cf4e43d"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/loyalty/ShareAfterOrder.tsx": {
+    "mtime": 1782152188.0991473,
+    "ast_hash": "cb1e1d764e14dac461152b67041105a3",
+    "semantic_hash": "cb1e1d764e14dac461152b67041105a3"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/menu/CartFloatingButton.tsx": {
+    "mtime": 1782112182.40916,
+    "ast_hash": "fc11b6c84d821ca27f7e09ccb57de9ef",
+    "semantic_hash": "fc11b6c84d821ca27f7e09ccb57de9ef"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/menu/GalleryCarousel.tsx": {
+    "mtime": 1782125960.4275634,
+    "ast_hash": "c7ea0692b44e3637ee51c13a152fa4a8",
+    "semantic_hash": "c7ea0692b44e3637ee51c13a152fa4a8"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/menu/MenuItemCard.tsx": {
+    "mtime": 1782107244.580093,
+    "ast_hash": "a66e5483e19fab720bb31fbebefb62fa",
+    "semantic_hash": "a66e5483e19fab720bb31fbebefb62fa"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/menu/MenuPageClient.tsx": {
+    "mtime": 1782118031.899474,
+    "ast_hash": "8de13dd41e0dd143b9fbac0c46990c99",
+    "semantic_hash": "8de13dd41e0dd143b9fbac0c46990c99"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/menu/OrderDialog.tsx": {
+    "mtime": 1782134504.0853877,
+    "ast_hash": "155d40f65a8b445e1e2a618f5c2ee49c",
+    "semantic_hash": "155d40f65a8b445e1e2a618f5c2ee49c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/menu/StickyMenuHeader.tsx": {
+    "mtime": 1782107244.580093,
+    "ast_hash": "a706b20388efe50717808e1aac288c30",
+    "semantic_hash": "a706b20388efe50717808e1aac288c30"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/owner/ItemDialog.tsx": {
+    "mtime": 1782152236.9834228,
+    "ast_hash": "a8ee93c5215db8f107765a05cb070da5",
+    "semantic_hash": "a8ee93c5215db8f107765a05cb070da5"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/owner/PlanUsageBadge.tsx": {
+    "mtime": 1782152234.474359,
+    "ast_hash": "6164f1fc8a06afce7e5b26cc492ee00a",
+    "semantic_hash": "6164f1fc8a06afce7e5b26cc492ee00a"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/BarChart.tsx": {
+    "mtime": 1781835750.4293673,
+    "ast_hash": "e94fc3eaa16a7ad82e10cda44b9be211",
+    "semantic_hash": "e94fc3eaa16a7ad82e10cda44b9be211"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/Confetti.tsx": {
+    "mtime": 1782152127.5744674,
+    "ast_hash": "6efd2f573ef2347c495409b3fc994001",
+    "semantic_hash": "6efd2f573ef2347c495409b3fc994001"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/LottieEmpty.tsx": {
+    "mtime": 1782154387.2300346,
+    "ast_hash": "922246ae98e7b0902a8efdef2721cf3d",
+    "semantic_hash": "922246ae98e7b0902a8efdef2721cf3d"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/LottieLoading.tsx": {
+    "mtime": 1782154377.5919225,
+    "ast_hash": "af1297bfdd46f601d6418a54850ff6a0",
+    "semantic_hash": "af1297bfdd46f601d6418a54850ff6a0"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/LottieSuccess.tsx": {
+    "mtime": 1782154395.6871328,
+    "ast_hash": "8ce712de59a11f3be090f3baaab5c2eb",
+    "semantic_hash": "8ce712de59a11f3be090f3baaab5c2eb"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/ScrollToTop.tsx": {
+    "mtime": 1782107244.580093,
+    "ast_hash": "4f3977a2ac3d590b479e2c6a13ffe0da",
+    "semantic_hash": "4f3977a2ac3d590b479e2c6a13ffe0da"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/ServiceWorkerInit.tsx": {
+    "mtime": 1782086007.6981528,
+    "ast_hash": "cd7af74580a654e2f75feb029d257d28",
+    "semantic_hash": "cd7af74580a654e2f75feb029d257d28"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/ShareButton.tsx": {
+    "mtime": 1781800130.5425763,
+    "ast_hash": "165ca915fe5dd7c429fb79f40403b823",
+    "semantic_hash": "165ca915fe5dd7c429fb79f40403b823"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/shared/ThemeToggle.tsx": {
+    "mtime": 1782112160.4012198,
+    "ast_hash": "81a697b9a04390585819cd18ceaaac8e",
+    "semantic_hash": "81a697b9a04390585819cd18ceaaac8e"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/badge.tsx": {
+    "mtime": 1782125628.5715983,
+    "ast_hash": "ded53a94e7d36a34aaff2c45f65db8a0",
+    "semantic_hash": "ded53a94e7d36a34aaff2c45f65db8a0"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/button.tsx": {
+    "mtime": 1782125613.3012326,
+    "ast_hash": "a8fe4d38b3a01aa9ec463982691ef8ab",
+    "semantic_hash": "a8fe4d38b3a01aa9ec463982691ef8ab"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/card.tsx": {
+    "mtime": 1782150587.5715268,
+    "ast_hash": "2b7954b2a0b9203a1f34979f985aea8d",
+    "semantic_hash": "2b7954b2a0b9203a1f34979f985aea8d"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/dialog.tsx": {
+    "mtime": 1782150565.06515,
+    "ast_hash": "9040352bbb9ea6367237c03ed5b1ae40",
+    "semantic_hash": "9040352bbb9ea6367237c03ed5b1ae40"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/dropdown-menu.tsx": {
+    "mtime": 1781721791.1661015,
+    "ast_hash": "e6107cbb2088437e76a858f75b5a0280",
+    "semantic_hash": "e6107cbb2088437e76a858f75b5a0280"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/input.tsx": {
+    "mtime": 1782125625.477525,
+    "ast_hash": "17361725de0d93e76f093a57e1b59b67",
+    "semantic_hash": "17361725de0d93e76f093a57e1b59b67"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/label.tsx": {
+    "mtime": 1781721791.5681112,
+    "ast_hash": "a70440da86bfc6a07f15197cca48cb08",
+    "semantic_hash": "a70440da86bfc6a07f15197cca48cb08"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/select.tsx": {
+    "mtime": 1781721790.906095,
+    "ast_hash": "ab95f478cb74d1906b07425c15b124cc",
+    "semantic_hash": "ab95f478cb74d1906b07425c15b124cc"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/separator.tsx": {
+    "mtime": 1781721791.4141073,
+    "ast_hash": "3de2dca3e47ab29c4b1f632671545628",
+    "semantic_hash": "3de2dca3e47ab29c4b1f632671545628"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/sheet.tsx": {
+    "mtime": 1781721791.8801186,
+    "ast_hash": "43ad8bec991f7a28d2aa22d4f374e6b7",
+    "semantic_hash": "43ad8bec991f7a28d2aa22d4f374e6b7"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/switch.tsx": {
+    "mtime": 1781721791.4871092,
+    "ast_hash": "049ff4b9c939a42157e99d6bbdeaaaec",
+    "semantic_hash": "049ff4b9c939a42157e99d6bbdeaaaec"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/table.tsx": {
+    "mtime": 1782107244.580093,
+    "ast_hash": "ca3b6bdb2182047ab4eea8cb193fad53",
+    "semantic_hash": "ca3b6bdb2182047ab4eea8cb193fad53"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/components/ui/textarea.tsx": {
+    "mtime": 1781721790.9970973,
+    "ast_hash": "d448d2a90e48542e51b93a1189127bf2",
+    "semantic_hash": "d448d2a90e48542e51b93a1189127bf2"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/api-helpers.ts": {
+    "mtime": 1782107244.581093,
+    "ast_hash": "09cd5fe0bcfdaa0fb8b435c56d5ab2e8",
+    "semantic_hash": "09cd5fe0bcfdaa0fb8b435c56d5ab2e8"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/audit.ts": {
+    "mtime": 1782125594.1677604,
+    "ast_hash": "d24b987fa08301bff2a3c29dda9a5c26",
+    "semantic_hash": "d24b987fa08301bff2a3c29dda9a5c26"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/auth.ts": {
+    "mtime": 1782129887.5579221,
+    "ast_hash": "bc93f0d04951a092ea8151cc2ecc58fa",
+    "semantic_hash": "bc93f0d04951a092ea8151cc2ecc58fa"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/csrf-client.ts": {
+    "mtime": 1782087575.6256406,
+    "ast_hash": "c7936a0dab2c94d499888614def63f42",
+    "semantic_hash": "c7936a0dab2c94d499888614def63f42"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/csrf.ts": {
+    "mtime": 1782085100.800713,
+    "ast_hash": "6b53e0a04ed8657b20c0b7352a10dc71",
+    "semantic_hash": "6b53e0a04ed8657b20c0b7352a10dc71"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/currency.ts": {
+    "mtime": 1781835488.45267,
+    "ast_hash": "b3c1bfbc96dd15fd29ab9419df8fd733",
+    "semantic_hash": "b3c1bfbc96dd15fd29ab9419df8fd733"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/db.ts": {
+    "mtime": 1782086499.873066,
+    "ast_hash": "1c49dadabc3a92ee5f43270d7f13708b",
+    "semantic_hash": "1c49dadabc3a92ee5f43270d7f13708b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/format.ts": {
+    "mtime": 1781889375.4574034,
+    "ast_hash": "2aa0e16238d116d53d159d10a00e6c09",
+    "semantic_hash": "2aa0e16238d116d53d159d10a00e6c09"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/hash.ts": {
+    "mtime": 1781888874.008462,
+    "ast_hash": "47bc3ed944955c3e900766b4e8673699",
+    "semantic_hash": "47bc3ed944955c3e900766b4e8673699"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/logger.ts": {
+    "mtime": 1782086127.3717558,
+    "ast_hash": "2f21495c2aef4ad75707fff1767f97d1",
+    "semantic_hash": "2f21495c2aef4ad75707fff1767f97d1"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/rate-limit.ts": {
+    "mtime": 1782154215.53003,
+    "ast_hash": "a53799949dfccfd3c27733a4668697fd",
+    "semantic_hash": "a53799949dfccfd3c27733a4668697fd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/receipt.ts": {
+    "mtime": 1782117919.3681047,
+    "ast_hash": "f9162e9fc763e11d1fdba9256b7718fe",
+    "semantic_hash": "f9162e9fc763e11d1fdba9256b7718fe"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/restaurant-context.tsx": {
+    "mtime": 1781835680.9310431,
+    "ast_hash": "bfda1421b939326dc6a6f399b7fffa71",
+    "semantic_hash": "bfda1421b939326dc6a6f399b7fffa71"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/sw-register.ts": {
+    "mtime": 1782085915.6777415,
+    "ast_hash": "0ff97861c3757c89fb30124a7fa5e5c3",
+    "semantic_hash": "0ff97861c3757c89fb30124a7fa5e5c3"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/telegram.ts": {
+    "mtime": 1782125712.7454467,
+    "ast_hash": "c1b8b2f3f321d8a039089dba948f8960",
+    "semantic_hash": "c1b8b2f3f321d8a039089dba948f8960"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/lib/utils.ts": {
+    "mtime": 1781721760.8103666,
+    "ast_hash": "5a6fd53fdcf2be529e9cc0b718fde352",
+    "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/src/store/cart.ts": {
+    "mtime": 1782117992.9766302,
+    "ast_hash": "19a41df8575698734cf08866358fcbf3",
+    "semantic_hash": "19a41df8575698734cf08866358fcbf3"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/e2e-full.mjs": {
+    "mtime": 1782086499.873066,
+    "ast_hash": "b5f6f2b41cf5426b7d447628422807b0",
+    "semantic_hash": "b5f6f2b41cf5426b7d447628422807b0"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/e2e-local.mjs": {
+    "mtime": 1781999693.9703257,
+    "ast_hash": "d738db854bcdf8d70a316ab0509dfa86",
+    "semantic_hash": "d738db854bcdf8d70a316ab0509dfa86"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/admin-dashboard.spec.ts": {
+    "mtime": 1782125715.4705021,
+    "ast_hash": "7d05f9b7393f6a27447d34ed38929edf",
+    "semantic_hash": "7d05f9b7393f6a27447d34ed38929edf"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/auth.spec.ts": {
+    "mtime": 1782125736.0289116,
+    "ast_hash": "13ba74b5b36ef20d6f4a8798ba6e96b5",
+    "semantic_hash": "13ba74b5b36ef20d6f4a8798ba6e96b5"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/deep-verify.spec.ts": {
+    "mtime": 1782090045.6477506,
+    "ast_hash": "42d06e6ed6d485c17b0f51978bfda294",
+    "semantic_hash": "42d06e6ed6d485c17b0f51978bfda294"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/owner-dashboard.spec.ts": {
+    "mtime": 1782125723.0946558,
+    "ast_hash": "99b56cce8534c0259023ad104a6d2424",
+    "semantic_hash": "99b56cce8534c0259023ad104a6d2424"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/playwright.config.ts": {
+    "mtime": 1781999683.188311,
+    "ast_hash": "e2a4bffef054dbabc3fc42a9d0cff144",
+    "semantic_hash": "e2a4bffef054dbabc3fc42a9d0cff144"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/public-menu.spec.ts": {
+    "mtime": 1782125730.5398037,
+    "ast_hash": "ed2d8afd2cbf818eaa45a67cc0b148e9",
+    "semantic_hash": "ed2d8afd2cbf818eaa45a67cc0b148e9"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/referral.spec.ts": {
+    "mtime": 1782125740.9540076,
+    "ast_hash": "d3b35c6ba853a399f8271422fecb4bfd",
+    "semantic_hash": "d3b35c6ba853a399f8271422fecb4bfd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/playwright/smart-menu.spec.ts": {
+    "mtime": 1782158397.9689703,
+    "ast_hash": "a168476327c3329c85d70cdbc3a47dcd",
+    "semantic_hash": "a168476327c3329c85d70cdbc3a47dcd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tests/prod-verify.mjs": {
+    "mtime": 1781913540.217274,
+    "ast_hash": "4bc47119d46fdd8a97d977f0c86c9bcd",
+    "semantic_hash": "4bc47119d46fdd8a97d977f0c86c9bcd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/tsconfig.json": {
+    "mtime": 1782155985.3754876,
+    "ast_hash": "58e591fabf8987fa096cd76889dc5aef",
+    "semantic_hash": "58e591fabf8987fa096cd76889dc5aef"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/.agents/skills/neon-postgres/SKILL.md": {
+    "mtime": 1782157363.9222624,
+    "ast_hash": "7a3712480f92889e7a91cdc2b559a47c",
+    "semantic_hash": "7a3712480f92889e7a91cdc2b559a47c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/.agents/skills/neon/SKILL.md": {
+    "mtime": 1782157362.2520418,
+    "ast_hash": "14c215f2506adf8abaf9e5cff552c839",
+    "semantic_hash": "14c215f2506adf8abaf9e5cff552c839"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/.github/workflows/deploy-render.yml": {
+    "mtime": 1781879252.7821815,
+    "ast_hash": "021a9d1e1f5441d1905b5496adf86b99",
+    "semantic_hash": "021a9d1e1f5441d1905b5496adf86b99"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/.github/workflows/keep_alive.yml": {
+    "mtime": 1782127594.062088,
+    "ast_hash": "ce0a9e763810f96929966ae7957bd368",
+    "semantic_hash": "ce0a9e763810f96929966ae7957bd368"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/.github/workflows/neon_workflow.yml": {
+    "mtime": 1781880100.4371424,
+    "ast_hash": "3865aa7eedeff13b7496e708c70de245",
+    "semantic_hash": "3865aa7eedeff13b7496e708c70de245"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/AGENTS.md": {
+    "mtime": 1781721677.3023524,
+    "ast_hash": "9e09241799026ac05be315a2f0b50055",
+    "semantic_hash": "9e09241799026ac05be315a2f0b50055"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/CLAUDE.md": {
+    "mtime": 1781721677.3023524,
+    "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
+    "semantic_hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/README.md": {
+    "mtime": 1781999631.1707947,
+    "ast_hash": "35b1f5fbfb44c38179e73945efee2dce",
+    "semantic_hash": "35b1f5fbfb44c38179e73945efee2dce"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/docker-compose.yml": {
+    "mtime": 1781892791.7919617,
+    "ast_hash": "493c85d64fa1a4c3d10a24a96d16b710",
+    "semantic_hash": "493c85d64fa1a4c3d10a24a96d16b710"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/docs/accessibility-audit.md": {
+    "mtime": 1782126134.8156066,
+    "ast_hash": "d1fbd06d4bd7da04dad68c716bdd165b",
+    "semantic_hash": "d1fbd06d4bd7da04dad68c716bdd165b"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/docs/db-schema-report.md": {
+    "mtime": 1782125715.916511,
+    "ast_hash": "f106439ffb94da9a0cdd9d257e54f6dd",
+    "semantic_hash": "f106439ffb94da9a0cdd9d257e54f6dd"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/docs/performance-recommendations.md": {
+    "mtime": 1782125603.2359862,
+    "ast_hash": "6a5d5e5429b7a06f3469daf97f143ba9",
+    "semantic_hash": "6a5d5e5429b7a06f3469daf97f143ba9"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/offline.html": {
+    "mtime": 1782085896.3682888,
+    "ast_hash": "715717bcf617ecf49b1d75b2b7e975ac",
+    "semantic_hash": "715717bcf617ecf49b1d75b2b7e975ac"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/render.yaml": {
+    "mtime": 1782123074.1902623,
+    "ast_hash": "57cf27ccf2ff43a19dac7c0fb88102fb",
+    "semantic_hash": "57cf27ccf2ff43a19dac7c0fb88102fb"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/icon-192.svg": {
+    "mtime": 1781794858.1715677,
+    "ast_hash": "88a3dd6246fc61880dac628e67ddb06c",
+    "semantic_hash": "88a3dd6246fc61880dac628e67ddb06c"
+  },
+  "/home/ahmed/UTILITIES/smart-menu/public/icon-512.svg": {
+    "mtime": 1781794858.1716554,
+    "ast_hash": "eec3c51167fb83220753246023cd80f0",
+    "semantic_hash": "eec3c51167fb83220753246023cd80f0"
+  }
+}
