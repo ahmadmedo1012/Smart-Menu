@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, Award } from "lucide-react"
+import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -99,7 +100,7 @@ function LogoutButton() {
     <button
       onClick={async () => {
         try {
-          const res = await fetch("/api/auth/logout", { method: "POST" })
+          const res = await csrfFetch("/api/auth/logout", { method: "POST" })
           if (res.ok) {
             toast.success("تم تسجيل الخروج")
             router.push("/login")

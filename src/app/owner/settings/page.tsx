@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { csrfFetch } from "@/lib/csrf-client"
 import { Save, Crown, Store, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
@@ -65,7 +66,7 @@ export default function OwnerSettingsPage() {
     try {
       const formData = new FormData()
       formData.append("file", file)
-      const res = await fetch("/api/upload", { method: "POST", body: formData })
+      const res = await csrfFetch("/api/upload", { method: "POST", body: formData })
       if (!res.ok) throw new Error()
       const data = await res.json()
       return data.data?.url ?? data.url
@@ -118,7 +119,7 @@ export default function OwnerSettingsPage() {
         { key: "restaurant_logo", value: logo },
         { key: "restaurant_gallery", value: JSON.stringify(gallery) },
       ]
-      const res = await fetch("/api/settings", {
+      const res = await csrfFetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(items),
