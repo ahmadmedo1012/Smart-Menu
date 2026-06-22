@@ -9,6 +9,8 @@ const publicPrefixes = [
   "/sitemap.xml",
   "/robots.txt",
   "/uploads",
+  "/fonts",
+  "/sw.js",
   "/manifest.json",
   "/icon-192.svg",
   "/icon-512.svg",
@@ -45,6 +47,28 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
+  // Public paths and static files — skip all checks, just set CSRF cookie
+  if (publicPrefixes.some((p) => pathname.startsWith(p))) {
+    const resp = NextResponse.next();
+    if (!request.cookies.get(CSRF_COOKIE)?.value) {
+      resp.cookies.set(CSRF_COOKIE, generateToken(), {
+        path: "/", httpOnly: false, sameSite: "lax",
+        secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
+      });
+    }
+    return resp;
+  }
+  if (pathname === "/") {
+    const resp = NextResponse.next();
+    if (!request.cookies.get(CSRF_COOKIE)?.value) {
+      resp.cookies.set(CSRF_COOKIE, generateToken(), {
+        path: "/", httpOnly: false, sameSite: "lax",
+        secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
+      });
+    }
+    return resp;
+  }
+
   // Ponytail: IP-based rate limiting
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -52,15 +76,6 @@ export function middleware(request: NextRequest) {
     "unknown";
   if (isRateLimited(ip)) {
     return new NextResponse("Too Many Requests", { status: 429 });
-  }
-
-  // CSRF: validate API mutations before building response
-  if (!SAFE_METHODS.has(method) && pathname.startsWith("/api")) {
-    const header = request.headers.get(CSRF_HEADER);
-    const cookie = request.cookies.get(CSRF_COOKIE)?.value;
-    if (!validateToken(header, cookie)) {
-      return new NextResponse("Forbidden", { status: 403 });
-    }
   }
 
   const response = NextResponse.next();
@@ -72,38 +87,28 @@ export function middleware(request: NextRequest) {
   response.headers.set("Permissions-Policy", "geolocation=()");
 
   // 🚫 No cache — everything is real-time, always fresh
-  response.headers.set(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
-  );
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
   response.headers.set("Pragma", "no-cache");
   response.headers.set("Expires", "0");
   response.headers.set("Surrogate-Control", "no-store");
 
   // CSRF: set cookie on any request that doesn't have one yet
-  const existingCsrf = request.cookies.get(CSRF_COOKIE)?.value;
-  if (!existingCsrf) {
+  if (!request.cookies.get(CSRF_COOKIE)?.value) {
     response.cookies.set(CSRF_COOKIE, generateToken(), {
-      path: "/",
-      httpOnly: false,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60, // 1 hour
+      path: "/", httpOnly: false, sameSite: "lax",
+      secure: process.env.NODE_ENV === "production", maxAge: 60 * 60,
     });
   }
 
-  // Public paths — no auth needed
-  if (publicPrefixes.some((p) => pathname.startsWith(p))) {
-    return response;
-  }
-
-  // Other API routes — allow through
+  // API routes — CSRF validation only (APIs handle their own auth)
   if (pathname.startsWith("/api")) {
-    return response;
-  }
-
-  // Root page — allow through
-  if (pathname === "/") {
+    if (!SAFE_METHODS.has(method)) {
+      const header = request.headers.get(CSRF_HEADER);
+      const cookie = request.cookies.get(CSRF_COOKIE)?.value;
+      if (!validateToken(header, cookie)) {
+        return new NextResponse("Forbidden", { status: 403 });
+      }
+    }
     return response;
   }
 

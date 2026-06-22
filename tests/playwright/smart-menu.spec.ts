@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Smart Menu - Public Pages', () => {
 
   test('homepage loads and shows hero section', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText('حوّل مطعمك');
     await expect(page.locator('nav a:has-text("الخطط والأسعار")').first()).toBeVisible();
   });
