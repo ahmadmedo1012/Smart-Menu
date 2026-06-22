@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Check, X, ArrowLeft, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 
@@ -180,18 +181,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-amber-50/20 to-background dark:via-amber-950/10">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 h-16 bg-background/80 backdrop-blur-lg border-b">
-        <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold">
-            <ArrowLeft className="size-4" />
-            <span>الربط الذكي</span>
-          </Link>
-          <Link href="/login">
-            <Button variant="outline" size="sm">لوحة التحكم</Button>
-          </Link>
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero */}
       <section className="relative py-20 text-center overflow-hidden">
