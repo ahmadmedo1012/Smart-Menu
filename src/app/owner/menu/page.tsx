@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, ChevronDown, Package, ArrowRight, Search, GripVertical, AlertCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, ChevronDown, Package, Search, GripVertical, AlertCircle } from "lucide-react"
+import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -100,9 +101,7 @@ export default function OwnerMenuPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2 -mr-2 text-muted-foreground">
-            <ArrowRight className="ml-1 h-4 w-4" /> العودة
-          </Button>
+          <BackButton href="/owner" />
           <h2 className="text-2xl font-bold">إدارة المنيو</h2>
           <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
         </div>

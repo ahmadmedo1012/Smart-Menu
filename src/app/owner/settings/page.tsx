@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { Save, ArrowRight, Crown, Store, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
+import { Save, Crown, Store, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
+import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -150,9 +151,7 @@ export default function OwnerSettingsPage() {
   return (
     <div className="max-w-2xl space-y-5 animate-page-enter">
 
-      <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-1 text-muted-foreground self-start">
-        <ArrowRight className="ml-1 size-4" /> العودة
-      </Button>
+      <BackButton href="/owner" />
 
       {/* Plan card */}
       <div className="rounded-2xl bg-gradient-to-br from-amber-50/70 to-white dark:from-amber-950/15 dark:to-card border border-amber-200/20 dark:border-amber-500/15 overflow-hidden">

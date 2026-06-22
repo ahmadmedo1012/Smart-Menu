@@ -2,7 +2,7 @@ name: Keep Website Alive
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '*/12 * * * *'
 
 jobs:
   ping:

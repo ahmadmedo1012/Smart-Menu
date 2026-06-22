@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect, useState, useCallback, useRef } from "react"
+import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { ClipboardList, ArrowRight, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
+import { ClipboardList, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
 
@@ -158,10 +159,7 @@ export default function OwnerOrdersPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2 text-muted-foreground">
-        <ArrowRight className="ml-1 h-4 w-4" />
-        العودة
-      </Button>
+      <BackButton href="/owner" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

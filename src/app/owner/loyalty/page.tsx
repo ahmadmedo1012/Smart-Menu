@@ -98,10 +98,10 @@ function AnimatedCount({ value, suffix = "" }: { value: number; suffix?: string 
 /* ---------- Tier config ---------- */
 
 const TIERS = [
-  { key: "platinum", label: "Platinum", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
-  { key: "gold", label: "Gold", color: "text-amber-500 dark:text-amber-300", bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600", bar: "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600", icon: Star },
-  { key: "silver", label: "Silver", color: "text-slate-500 dark:text-slate-300", bg: "bg-gradient-to-br from-slate-300 to-slate-500", bar: "bg-gradient-to-r from-slate-300 to-slate-500", icon: Medal },
-  { key: "bronze", label: "Bronze", color: "text-amber-700 dark:text-amber-400", bg: "bg-gradient-to-br from-amber-400 to-amber-600", bar: "bg-gradient-to-r from-amber-400 to-amber-600", icon: Award },
+  { key: "platinum", label: "بلاتيني", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
+  { key: "gold", label: "ذهبي", color: "text-amber-500 dark:text-amber-300", bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600", bar: "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600", icon: Star },
+  { key: "silver", label: "فضي", color: "text-slate-500 dark:text-slate-300", bg: "bg-gradient-to-br from-slate-300 to-slate-500", bar: "bg-gradient-to-r from-slate-300 to-slate-500", icon: Medal },
+  { key: "bronze", label: "برونزي", color: "text-amber-700 dark:text-amber-400", bg: "bg-gradient-to-br from-amber-400 to-amber-600", bar: "bg-gradient-to-r from-amber-400 to-amber-600", icon: Award },
 ]
 
 /* ---------- Stat Card ---------- */
@@ -135,7 +135,7 @@ function ConversionRate({ rate, total, converted }: { rate: number; total: numbe
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <TrendingUp className="size-4 text-amber-600 dark:text-amber-400" />
-          <span className="text-sm font-semibold">Conversion Rate</span>
+          <span className="text-sm font-semibold">معدل التحويل</span>
         </div>
         <span className="text-sm font-bold tabular-nums text-amber-700 dark:text-amber-300">{rate}%</span>
       </div>
@@ -146,8 +146,8 @@ function ConversionRate({ rate, total, converted }: { rate: number; total: numbe
         />
       </div>
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>{toArabicNumber(converted)} converted</span>
-        <span>{toArabicNumber(total)} total</span>
+        <span>{toArabicNumber(converted)} تم التحويل</span>
+        <span>{toArabicNumber(total)} إجمالي</span>
       </div>
     </div>
   )
@@ -191,9 +191,9 @@ function TierChart({ distribution }: { distribution: Record<string, number> }) {
 
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    pending: { label: "Pending", classes: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
-    converted: { label: "Converted", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
-    expired: { label: "Expired", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
+    pending: { label: "معلق", classes: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
+    converted: { label: "تم التحويل", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
+    expired: { label: "منتهي", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
   }
   const m = map[status] ?? { label: status, classes: "bg-muted text-muted-foreground" }
 
@@ -232,8 +232,8 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
         <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-amber-500/10">
           <Gift className="size-6 text-amber-500" />
         </div>
-        <p className="text-sm font-medium text-muted-foreground">No referrals yet</p>
-        <p className="text-xs text-muted-foreground/60 mt-1">Share referral links to get started</p>
+        <p className="text-sm font-medium text-muted-foreground">لا توجد إحالات بعد</p>
+        <p className="text-xs text-muted-foreground/60 mt-1">شارك رابط الإحالة للبدء</p>
       </div>
     )
   }
@@ -245,7 +245,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Search by name or phone..."
+            placeholder="ابحث بالاسم أو الهاتف..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-9 pr-9 text-sm rounded-xl"
@@ -264,7 +264,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent",
               )}
             >
-              {s === "all" ? "All" : s}
+              {s === "all" ? "الكل" : s === "pending" ? "معلق" : s === "converted" ? "تم التحويل" : s === "expired" ? "منتهي" : s}
             </button>
           ))}
         </div>
@@ -275,7 +275,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-10 text-center">
             <FilterX className="size-6 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">No matching referrals</p>
+            <p className="text-sm text-muted-foreground">لا توجد إحالات مطابقة</p>
           </div>
         ) : (
           filtered.map((r) => (
@@ -289,7 +289,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
               <div className="flex items-center gap-3 shrink-0">
                 <ReferralStatusBadge status={r.status} />
                 <span className="text-xs text-muted-foreground tabular-nums">
-                  {new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {new Date(r.createdAt).toLocaleDateString("ar-LY", { month: "short", day: "numeric" })}
                 </span>
                 {r.status === "converted" && (
                   <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
@@ -304,7 +304,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
 
       {filtered.length > 0 && filtered.length < referrals.length && (
         <div className="px-5 py-2 text-center text-xs text-muted-foreground border-t border-white/10">
-          Showing {filtered.length} of {referrals.length}
+          عرض {filtered.length} من {referrals.length}
         </div>
       )}
     </div>
@@ -320,7 +320,7 @@ function TransactionsTable({ transactions }: { transactions: StatsData["recentTr
         <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-muted/50">
           <Clock className="size-5 text-muted-foreground" />
         </div>
-        <p className="text-sm font-medium text-muted-foreground">No transactions yet</p>
+        <p className="text-sm font-medium text-muted-foreground">لا توجد معاملات بعد</p>
       </div>
     )
   }
@@ -337,9 +337,9 @@ function TransactionsTable({ transactions }: { transactions: StatsData["recentTr
                 isEarn ? "bg-emerald-500" : "bg-red-500",
               )} />
               <div>
-                <p className="text-sm font-medium">{tx.description || (isEarn ? "Points earned" : "Points redeemed")}</p>
+                <p className="text-sm font-medium">{tx.description || (isEarn ? "نقاط مكتسبة" : "نقاط مستردة")}</p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(tx.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  {new Date(tx.createdAt).toLocaleDateString("ar-LY", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
             </div>
@@ -381,7 +381,7 @@ function ReferralQR({ url }: { url: string }) {
         width={180}
         height={180}
       />
-      <p className="text-[10px] text-muted-foreground">Scan to share</p>
+      <p className="text-[10px] text-muted-foreground">امسح للمشاركة</p>
     </div>
   )
 }
@@ -411,7 +411,7 @@ export default function OwnerLoyaltyPage() {
       if (json.success && json.data) setStats(json.data)
       else throw new Error("Invalid response")
     } catch {
-      setError("Failed to load loyalty data")
+      setError("فشل تحميل بيانات الولاء")
     } finally {
       setLoading(false)
     }
@@ -453,11 +453,11 @@ export default function OwnerLoyaltyPage() {
         <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-destructive/10">
           <AlertCircle className="size-7 text-destructive" />
         </div>
-        <p className="text-lg font-semibold">Error loading loyalty data</p>
+        <p className="text-lg font-semibold">خطأ في تحميل بيانات الولاء</p>
         <p className="mt-1 text-sm text-muted-foreground">{error}</p>
         <Button variant="outline" className="mt-5" onClick={() => load()}>
           <RefreshCw className="size-4 mr-2" />
-          Retry
+          إعادة المحاولة
         </Button>
       </div>
     )
@@ -465,22 +465,22 @@ export default function OwnerLoyaltyPage() {
 
   const statCards = [
     {
-      label: "Total Members", value: stats?.totalLoyaltyCards ?? 0,
+      label: "إجمالي الأعضاء", value: stats?.totalLoyaltyCards ?? 0,
       icon: Users, color: "text-blue-600 dark:text-blue-400",
       bg: "bg-blue-50 dark:bg-blue-950/30",
     },
     {
-      label: "Total Referrals", value: stats?.totalReferrals ?? 0,
+      label: "إجمالي الإحالات", value: stats?.totalReferrals ?? 0,
       icon: Gift, color: "text-emerald-600 dark:text-emerald-400",
       bg: "bg-emerald-50 dark:bg-emerald-950/30",
     },
     {
-      label: "Converted", value: stats?.convertedReferrals ?? 0,
+      label: "تم التحويل", value: stats?.convertedReferrals ?? 0,
       icon: TrendingUp, color: "text-amber-600 dark:text-amber-400",
       bg: "bg-amber-50 dark:bg-amber-950/30",
     },
     {
-      label: "Points Earned", value: stats?.totalRewardPoints ?? 0,
+      label: "النقاط المكتسبة", value: stats?.totalRewardPoints ?? 0,
       icon: Award, color: "text-purple-600 dark:text-purple-400",
       bg: "bg-purple-50 dark:bg-purple-950/30",
     },
@@ -497,9 +497,9 @@ export default function OwnerLoyaltyPage() {
       </Button>
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Loyalty Program</h2>
+          <h2 className="text-2xl font-bold tracking-tight">برنامج الولاء</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage your loyalty program, referrals, and rewards
+            إدارة برنامج الولاء والإحالات والمكافآت
           </p>
         </div>
         <div className="flex gap-2">
@@ -510,7 +510,7 @@ export default function OwnerLoyaltyPage() {
             onClick={() => setShowSettings(!showSettings)}
           >
             <Award className="size-4" />
-            {showSettings ? "Hide Settings" : "Settings"}
+            {showSettings ? "إخفاء الإعدادات" : "الإعدادات"}
           </Button>
           <Button
             variant="outline"
@@ -519,7 +519,7 @@ export default function OwnerLoyaltyPage() {
             onClick={() => load()}
           >
             <RefreshCw className="size-4" />
-            Refresh
+            تحديث
           </Button>
         </div>
       </div>
@@ -551,13 +551,13 @@ export default function OwnerLoyaltyPage() {
         <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
             <Award className="size-4 text-muted-foreground" />
-            Referrals by Status
+            الإحالات حسب الحالة
           </h3>
           <div className="space-y-3">
             {[
-              { label: "Pending", count: rbs.pending, color: "bg-amber-500" },
-              { label: "Converted", count: rbs.converted, color: "bg-emerald-500" },
-              { label: "Expired", count: rbs.expired, color: "bg-slate-400" },
+              { label: "معلق", count: rbs.pending, color: "bg-amber-500" },
+              { label: "تم التحويل", count: rbs.converted, color: "bg-emerald-500" },
+              { label: "منتهي", count: rbs.expired, color: "bg-slate-400" },
             ].map((s) => (
               <div key={s.label} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -574,7 +574,7 @@ export default function OwnerLoyaltyPage() {
         <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
             <Share2 className="size-4 text-muted-foreground" />
-            Share Referral Link
+            مشاركة رابط الإحالة
           </h3>
           <div className="flex flex-col items-center gap-3">
             <ReferralQR url={ownerRefUrl} />
@@ -588,7 +588,7 @@ export default function OwnerLoyaltyPage() {
                 }}
               >
                 <MessageCircle className="size-3.5" />
-                WhatsApp
+                واتساب
               </Button>
               <Button
                 variant="outline"
@@ -597,7 +597,7 @@ export default function OwnerLoyaltyPage() {
                 onClick={handleCopyReferralLink}
               >
                 {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-                {copied ? "Copied!" : "Copy Link"}
+                {copied ? "تم النسخ!" : "نسخ الرابط"}
               </Button>
             </div>
           </div>
@@ -611,10 +611,10 @@ export default function OwnerLoyaltyPage() {
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div className="flex items-center gap-2">
               <Gift className="size-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">Referrals</h3>
+              <h3 className="text-sm font-semibold">الإحالات</h3>
             </div>
             <Badge variant="outline" className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5">
-              {stats?.totalReferrals ?? 0} total
+              {stats?.totalReferrals ?? 0} إجمالي
             </Badge>
           </div>
           <ReferralsTable referrals={stats?.recentReferrals ?? []} />
@@ -625,7 +625,7 @@ export default function OwnerLoyaltyPage() {
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div className="flex items-center gap-2">
               <Clock className="size-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">Recent Reward Transactions</h3>
+              <h3 className="text-sm font-semibold">آخر المعاملات</h3>
             </div>
           </div>
           <TransactionsTable transactions={stats?.recentTransactions ?? []} />
@@ -637,10 +637,10 @@ export default function OwnerLoyaltyPage() {
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-2">
             <Award className="size-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold">Tier Distribution</h3>
+            <h3 className="text-sm font-semibold">توزيع المستويات</h3>
           </div>
           <Badge variant="outline" className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5">
-            {stats?.totalLoyaltyCards ?? 0} total
+            {stats?.totalLoyaltyCards ?? 0} إجمالي
           </Badge>
         </div>
         <div className="p-5">

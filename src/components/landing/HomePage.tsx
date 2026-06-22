@@ -1,40 +1,18 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, BadgePercent, Store, Check, Menu, Star } from "lucide-react";
+import { ArrowLeft, Sparkles, BadgePercent, Store, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Header } from "@/components/layout/Header";
 import { BENEFITS, PARTNERS, STATS, STEPS, PRICING_PLANS, SHOWCASES, TESTIMONIALS } from "./landing-data";
 import Reveal from "./Reveal";
 import CountUp from "./CountUp";
-import MobileNav from "./MobileNav";
 import HeroAnimation from "./HeroAnimation";
 
 export default function HomePage() {
-  const [mobileNav, setMobileNav] = useState(false);
-
   return (
     <div className="flex flex-col min-h-screen bg-dot-pattern/30">
-      <MobileNav open={mobileNav} onClose={() => setMobileNav(false)} />
-
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-30 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/30 shadow-sm supports-backdrop-filter:bg-background/40">
-        <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <button onClick={() => setMobileNav(true)} className="lg:hidden size-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors" aria-label="فتح القائمة">
-              <Menu className="size-4" />
-            </button>
-            <span className="text-lg font-bold"><span className="text-gradient-amber">الربط الذكي</span></span>
-            <div className="hidden lg:flex items-center gap-1">
-              <Link href="/pricing" className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all">الخطط والأسعار</Link>
-              <Link href={`/menu/${PARTNERS[0].slug}`} className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all">منيو تجريبي</Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/subscribe"><Button variant="gradient" size="sm" className="rounded-xl">ابدأ الآن مجاناً</Button></Link>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
