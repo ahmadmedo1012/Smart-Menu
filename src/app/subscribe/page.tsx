@@ -7,6 +7,7 @@ import { Check, ArrowLeft, Loader2, Sparkles, Store, Building2, Crown, Star } fr
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { csrfFetch } from "@/lib/csrf-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
@@ -82,7 +83,7 @@ function SubscribeContent() {
     if (!selectedPlan || !isFormValid) return;
     setSubmitting(true);
     try {
-      const res = await fetch("/api/restaurants", {
+      const res = await csrfFetch("/api/restaurants", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -198,8 +199,8 @@ function SubscribeContent() {
                     </div>
                     <h3 className="font-bold text-lg mb-1">{plan.nameAr}</h3>
                     <div className="flex items-baseline gap-1 mb-3">
-                      <span className="text-2xl font-bold">{plan.price === 0 ? "مجاني" : toArabicNumber(plan.price)}</span>
-                      {plan.price > 0 && <span className="text-xs text-muted-foreground">د.ل/شهر</span>}
+                      <span className="text-2xl font-bold">{Number(plan.price) === 0 ? "مجاني" : toArabicNumber(plan.price)}</span>
+                      {Number(plan.price) > 0 && <span className="text-xs text-muted-foreground">د.ل/شهر</span>}
                     </div>
                     <div className="space-y-1.5 mb-4 flex-1">
                       {plan.features.slice(0, 4).map((f, j) => (
@@ -250,7 +251,7 @@ function SubscribeContent() {
                     <div>
                       <p className="font-bold">{currentPlan.nameAr}</p>
                       <p className="text-xs text-muted-foreground">
-                        {currentPlan.price === 0 ? "مجاني" : `${currentPlan.price} د.ل/شهر`}
+                        {Number(currentPlan.price) === 0 ? "مجاني" : `${currentPlan.price} د.ل/شهر`}
                         {" • "}
                         {currentPlan.maxItems === 9999 ? "أصناف غير محدودة" : `حتى ${toArabicNumber(currentPlan.maxItems)} صنف`}
                       </p>
@@ -372,7 +373,7 @@ function SubscribeContent() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">السعر</span>
-                      <span className="font-medium">{currentPlan.price === 0 ? "مجاني" : `${currentPlan.price} د.ل/شهر`}</span>
+                      <span className="font-medium">{Number(currentPlan.price) === 0 ? "مجاني" : `${currentPlan.price} د.ل/شهر`}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">الحد الأقصى للأصناف</span>

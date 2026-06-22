@@ -1,0 +1,16 @@
+/home/ahmed/UTILITIES/smart-menu/.agents/skills/neon-postgres/SKILL.md
+/home/ahmed/UTILITIES/smart-menu/.agents/skills/neon/SKILL.md
+/home/ahmed/UTILITIES/smart-menu/.github/workflows/deploy-render.yml
+/home/ahmed/UTILITIES/smart-menu/.github/workflows/keep_alive.yml
+/home/ahmed/UTILITIES/smart-menu/.github/workflows/neon_workflow.yml
+/home/ahmed/UTILITIES/smart-menu/AGENTS.md
+/home/ahmed/UTILITIES/smart-menu/CLAUDE.md
+/home/ahmed/UTILITIES/smart-menu/README.md
+/home/ahmed/UTILITIES/smart-menu/docker-compose.yml
+/home/ahmed/UTILITIES/smart-menu/docs/accessibility-audit.md
+/home/ahmed/UTILITIES/smart-menu/docs/db-schema-report.md
+/home/ahmed/UTILITIES/smart-menu/docs/performance-recommendations.md
+/home/ahmed/UTILITIES/smart-menu/public/offline.html
+/home/ahmed/UTILITIES/smart-menu/render.yaml
+/home/ahmed/UTILITIES/smart-menu/public/icon-192.svg
+/home/ahmed/UTILITIES/smart-menu/public/icon-512.svg
