@@ -13,7 +13,7 @@ const BarChart = dynamic(() => import("@/components/shared/BarChart"), { ssr: fa
 
 import {
   Store, ShoppingCart, TrendingUp, AlertCircle,
-  Crown, Users, ArrowUpRight, Sparkles, Plus,
+  Users, ArrowUpRight,
   RefreshCw, UserPlus, LogIn, Bell, ShieldAlert,
   Activity, DollarSign, MapPin,
 } from "lucide-react"

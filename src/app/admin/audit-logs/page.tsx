@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
   Select,
@@ -21,7 +20,7 @@ import {
 } from "@/components/ui/table"
 import {
   ChevronLeft, ChevronRight, RefreshCw, AlertCircle,
-  Search, Activity, FilterX, History,
+  Activity, FilterX, History,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"

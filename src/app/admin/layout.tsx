@@ -2,13 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { AdminSidebar, navItems } from "@/components/layout/AdminSidebar"
 import { Menu, Store } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
@@ -50,20 +47,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Desktop sidebar */}
       <AdminSidebar />
 
-      {/* Mobile hamburger */}
+      {/* Mobile drawer */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="fixed right-3 top-3 z-50 flex lg:hidden"
-              aria-label="فتح القائمة"
-            >
-              <Menu className="size-5" aria-hidden="true" />
-            </Button>
-          }
-        />
         <SheetContent
           side="right"
           className="w-60 border-0 bg-white/80 backdrop-blur-2xl dark:bg-black/70"

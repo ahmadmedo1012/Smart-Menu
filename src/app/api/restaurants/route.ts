@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, paginated } from "@/lib/api-helpers";
-import { requireAuth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { z } from "zod";
@@ -20,17 +20,40 @@ const createSchema = z.object({
   password: z.string().min(4).optional(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 10));
+    const search = searchParams.get("search")?.trim();
+    const planFilter = searchParams.get("planFilter");
+
+    const where: Record<string, unknown> = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { slug: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search } },
+      ];
+    }
+    if (planFilter === "free") {
+      where.planId = null;
+    } else if (planFilter && planFilter !== "all") {
+      where.planId = Number(planFilter);
+    }
+
     const [data, total] = await Promise.all([
       prisma.restaurant.findMany({
+        where,
         orderBy: { createdAt: "desc" },
         include: {
           _count: { select: { orders: true, categories: true } },
           plan: { select: { id: true, name: true, nameAr: true, price: true } },
         },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
       }),
-      prisma.restaurant.count(),
+      prisma.restaurant.count({ where }),
     ]);
     return success({ restaurants: data, total });
   } catch (e) {
@@ -42,9 +65,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = createSchema.parse(await request.json());
     // Allow public registration when username/password provided (new account)
+    let actorId: number | undefined;
     if (!body.username || !body.password) {
-      const auth = await requireAuth();
-      if (!auth.authorized || auth.role !== "admin") return error("غير مصرح", 401);
+      const auth = await requireAdmin();
+      if (!auth.authorized) return error("غير مصرح", 401);
+      actorId = auth.userId!;
     }
 
     // Check slug uniqueness
@@ -66,11 +91,6 @@ export async function POST(request: NextRequest) {
         },
       });
 
-        // Audit log
-      await import("@/lib/audit").then(({ logAudit }) =>
-        logAudit({ action: "create", targetType: "restaurant", targetId: restaurant.id })
-      );
-
       // Create owner user if username/password provided
       if (body.username && body.password) {
         const { hashPassword } = await import("@/lib/hash");
@@ -90,7 +110,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Audit log + Telegram
-    await logAudit({ action: "create", targetType: "restaurant", targetId: result.id });
+    await logAudit({ action: "create", targetType: "restaurant", targetId: result.id, actorId });
     await notifyEvent("restaurant_created", { name: result.name, slug: result.slug, plan: result.planId ? "paid" : "free" });
 
     return success(result, 201);

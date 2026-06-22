@@ -19,10 +19,12 @@ export async function GET() {
       await prisma.subscriptionPlan.create({ data: p });
     }
 
-    // Check if admin exists
+    // Upsert admin — create if missing, or fix role if wrong
     const existingAdmin = await prisma.user.findUnique({ where: { username: "admin" } });
     if (!existingAdmin) {
       await prisma.user.create({ data: { username: "admin", password: hashPassword("admin123"), name: "مدير النظام", role: "admin" } });
+    } else if (existingAdmin.role !== "admin") {
+      await prisma.user.update({ where: { id: existingAdmin.id }, data: { role: "admin" } });
     }
 
     return Response.json({ message: "seeded with 2 plans (Free + Premium @10 LYD)" });

@@ -9,6 +9,7 @@ export async function POST(_request: NextRequest) {
     if (!auth.authorized) return error("غير مصرح", 401);
     const ok = await sendTelegramMessage(
       "🔔 *Test Notification*\n\nSmart Menu Telegram integration is working correctly!",
+      { parseMode: "Markdown" },
     );
     if (!ok) return error("فشل إرسال رسالة الاختبار. تحقق من الإعدادات.", 400);
     return success({ sent: true });

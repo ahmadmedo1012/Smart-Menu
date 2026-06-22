@@ -47,7 +47,7 @@ export default function OwnerOrdersPage() {
   const router = useRouter()
   const eventSourceRef = useRef<EventSource | null>(null)
 
-  const fetchOrders = useCallback(async (status: string, pageNum = 1, append = false, dateF = dateFrom, dateT = dateTo) => {
+  const fetchOrders = useCallback(async (status: string, pageNum = 1, append = false, dateF?: string, dateT?: string) => {
     try {
       if (pageNum === 1) setLoading(true)
       else setLoadingMore(true)
@@ -56,8 +56,10 @@ export default function OwnerOrdersPage() {
       if (status) params.set("status", status)
       params.set("page", String(pageNum))
       params.set("pageSize", "20")
-      if (dateF) params.set("dateFrom", dateF)
-      if (dateT) params.set("dateTo", dateT)
+      const from = dateF ?? dateFrom
+      const to = dateT ?? dateTo
+      if (from) params.set("dateFrom", from)
+      if (to) params.set("dateTo", to)
       const url = `/api/orders?${params.toString()}`
       const res = await fetch(url)
       if (!res.ok) throw new Error()
@@ -73,7 +75,7 @@ export default function OwnerOrdersPage() {
       setLastOrderCount(newOrders.length > 0 ? newOrders[0].id : 0)
     } catch { setError("فشل تحميل الطلبات"); toast.error("فشل تحميل الطلبات") }
     finally { if (pageNum === 1) setLoading(false); else setLoadingMore(false) }
-  }, [])
+  }, [dateFrom, dateTo])
 
   const loadMore = () => fetchOrders(filter, page + 1, true)
 

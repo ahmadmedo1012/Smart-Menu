@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -10,12 +9,11 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
-  Save, Store, Phone, Mail, MapPin, Clock, Globe, Image,
-  Bot, Eye, EyeOff, Send, Settings, MessageSquare,
+  Save, Store, Phone, Mail, MapPin, Clock, Image,
+  Bot, Eye, EyeOff, Send, MessageSquare,
   UserPlus, Store as StoreIcon, AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from "@/lib/format"
 
 interface Restaurant {
   id: number; name: string; slug: string; description: string

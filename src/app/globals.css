@@ -562,6 +562,35 @@
   pointer-events: none;
 }
 
+/* === Hero mesh & blobs === */
+.hero-mesh {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-mesh .blob {
+  position: absolute;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--amber-300), var(--amber-500));
+  opacity: 0.06;
+  filter: blur(60px);
+  animation: float 8s ease-in-out infinite;
+}
+.dark .hero-mesh .blob {
+  background: linear-gradient(135deg, var(--amber-500), var(--amber-700));
+  opacity: 0.08;
+}
+
+/* === Hide scrollbar === */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* === Gallery === */
 .gallery-zoom { overflow: hidden; }
 .gallery-zoom img { transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1); }

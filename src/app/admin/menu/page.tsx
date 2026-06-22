@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, Package, Search, Store, Eye, EyeOff } from "lucide-react"
+import { Trash2, Package, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 

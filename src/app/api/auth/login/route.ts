@@ -43,11 +43,12 @@ export async function POST(request: Request) {
       data: { lastLoginAt: new Date() },
     });
     await logAudit({ action: "login", actorId: user.id, targetType: "user", targetId: user.id, ip });
-    await notifyEvent("user_signup", { username: user.username, name: user.name, role: user.role });
+    await notifyEvent("user_login", { username: user.username, name: user.name, role: user.role });
 
     const cookieStore = await cookies();
     const secure = process.env.NODE_ENV === "production";
     cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
+    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
     cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
     if (user.restaurantId) {
       cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
