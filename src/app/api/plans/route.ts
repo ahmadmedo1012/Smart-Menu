@@ -11,7 +11,7 @@ export async function GET() {
     // Parse features JSON for each plan
     const parsed = plans.map((p) => ({
       ...p,
-      features: JSON.parse(p.features),
+      features: Array.isArray(p.features) ? p.features : JSON.parse(p.features as string),
     }));
     return success(parsed);
   } catch (e) {
