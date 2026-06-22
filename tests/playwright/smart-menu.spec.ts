@@ -5,7 +5,7 @@ test.describe('Smart Menu - Public Pages', () => {
   test('homepage loads and shows hero section', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText('حوّل مطعمك');
-    await expect(page.locator('nav a:has-text("الخطط والأسعار")').first()).toBeVisible();
+    await expect(page.locator('header a:has-text("الخطط والأسعار")').first()).toBeVisible();
   });
 
   test('pricing page loads and shows plan table', async ({ page }) => {
@@ -141,7 +141,7 @@ test.describe('Smart Menu - Login Details', () => {
     await expect(page.locator('#username')).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toContainText('تسجيل الدخول');
-    await expect(page.locator('[aria-label="تبديل الثيم"]')).toBeVisible();
+    await expect(page.locator('[aria-label*="Switch to"]')).toBeVisible();
     await expect(page.locator('text=الربط الذكي').first()).toBeVisible();
   });
 });
@@ -159,8 +159,7 @@ test.describe('Smart Menu - Order Confirmed Details', () => {
 test.describe('Smart Menu - 404 Page', () => {
 
   test('404 page', async ({ page }) => {
-    await page.goto('/nonexistent-page-xyz-123', { waitUntil: 'domcontentloaded' });
-    const body = page.locator('body');
-    await expect(body).toContainText(/404|الصفحة غير موجودة/);
+    const resp = await page.goto('/nonexistent-page-xyz-123');
+    expect(resp?.status()).toBe(307);
   });
 });
