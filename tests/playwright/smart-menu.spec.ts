@@ -158,8 +158,8 @@ test.describe('Smart Menu - Order Confirmed Details', () => {
 
 test.describe('Smart Menu - 404 Page', () => {
 
-  test('404 page', async ({ page }) => {
-    const resp = await page.goto('/nonexistent-page-xyz-123');
-    expect(resp?.status()).toBe(307);
+  test('404 page', async ({ request }) => {
+    const resp = await request.get('/nonexistent-page-xyz-123', { maxRedirects: 0 });
+    expect(resp.status()).toBe(307);
   });
 });

@@ -17,7 +17,7 @@ export default function AdminLoading() {
       </div>
       {/* Table skeleton */}
       <div className="rounded-xl border border-border/50">
-        <div className="p-5 border-b border-border/50">
+        <div className="p-5 border-b border-border/30">
           <div className="h-5 w-32 skeleton rounded" />
         </div>
         <div className="divide-y divide-border/50">

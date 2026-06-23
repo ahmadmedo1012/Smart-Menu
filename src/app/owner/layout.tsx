@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
-import { ThemeToggle } from "@/components/shared/ThemeToggle"
+import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, Award } from "lucide-react"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
@@ -158,23 +158,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-40 border-b border-border/50 bg-background/60 backdrop-blur-xl">
-          <div className="flex h-14 items-center justify-between px-4 md:px-6 lg:px-8">
-            <div className="flex items-center gap-3">
-              <button
-                className="flex lg:hidden rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
-                onClick={() => setSheetOpen(true)}
-                aria-label="فتح القائمة"
-              >
-                <Menu className="size-5" />
-              </button>
-              <h1 className="text-sm font-semibold text-muted-foreground">
-                لوحة التحكم
-              </h1>
-            </div>
-            <ThemeToggle />
-          </div>
-        </header>
+        <LayoutHeader onMenuClick={() => setSheetOpen(true)} />
         <main className="flex-1 p-4 md:p-6 lg:p-8 bg-subtle-pattern content-area">{children}</main>
       </div>
     </div>

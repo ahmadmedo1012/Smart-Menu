@@ -5,9 +5,9 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { AdminSidebar, navItems } from "@/components/layout/AdminSidebar"
-import { Menu, Store } from "lucide-react"
+import { LayoutHeader } from "@/components/layout/LayoutHeader"
+import { Store } from "lucide-react"
 
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   const pathname = usePathname()
@@ -77,23 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-40 border-b border-border/50 bg-background/60 backdrop-blur-xl">
-          <div className="flex h-14 items-center justify-between px-4 md:px-6 lg:px-8">
-            <div className="flex items-center gap-3">
-              <button
-                className="flex rounded-lg p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
-                onClick={() => setSheetOpen(true)}
-                aria-label="فتح القائمة"
-              >
-                <Menu className="size-5" aria-hidden="true" />
-              </button>
-              <h1 className="text-sm font-semibold text-muted-foreground">
-                لوحة التحكم
-              </h1>
-            </div>
-            <ThemeToggle />
-          </div>
-        </header>
+        <LayoutHeader onMenuClick={() => setSheetOpen(true)} />
         <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-subtle-pattern p-4 md:p-6 lg:p-8 animate-page-enter">
           {children}
         </main>
