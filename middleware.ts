@@ -14,6 +14,9 @@ const publicPrefixes = [
   "/manifest.json",
   "/icon-192.svg",
   "/icon-512.svg",
+  "/logo.png",
+  "/icon-192.png",
+  "/icon-512.png",
   "/api/auth",
   "/api/loyalty",
   "/api/subscriptions",
@@ -141,6 +144,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.json|icon-192\\.svg|icon-512\\.svg).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.json|icon-192\\.svg|icon-512\\.svg|\\.png|\\.jpg|\\.jpeg|\\.webp|\\.avif).*)",
   ],
 };
