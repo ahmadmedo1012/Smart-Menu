@@ -9,8 +9,8 @@ export async function sendTelegramNotification(
     if (!config || !config.isActive || !config.botToken || !config.chatId) {
       return false;
     }
-    const body: Record<string, string> = {
-      chat_id: config.chatId,
+    const body: Record<string, number | string> = {
+      chat_id: Number(config.chatId),
       text: message,
     };
     if (opts?.parseMode) body.parse_mode = opts.parseMode;
@@ -22,6 +22,13 @@ export async function sendTelegramNotification(
         body: JSON.stringify(body),
       }
     );
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error(
+        `Telegram API error (${res.status}): ${errBody.slice(0, 500)}`,
+        "| Check: bot is a member of the group chat? chatId type? (Number vs String)"
+      );
+    }
     return res.ok;
   } catch (e) {
     console.error("Telegram error:", e);

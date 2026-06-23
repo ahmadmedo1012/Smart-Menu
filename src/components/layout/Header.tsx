@@ -72,7 +72,7 @@ export function Header({ className }: HeaderProps) {
       )}
       <div
         className={cn(
-          "fixed top-0 left-0 bottom-0 z-50 w-72 bg-card border-0 shadow-2xl transition-transform duration-400 ease-out",
+          "fixed top-0 left-0 bottom-0 z-50 w-72 bg-card border-r border-border/20 shadow-2xl transition-transform duration-400 ease-out",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

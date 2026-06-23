@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           side="right"
-          className="w-60 border-0 bg-card"
+          className="w-60 border-0 bg-card dark:bg-card"
         >
           <MobileNav onNavClick={() => setSheetOpen(false)} />
         </SheetContent>

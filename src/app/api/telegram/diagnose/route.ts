@@ -23,28 +23,61 @@ export async function GET(_request: NextRequest) {
       });
     }
 
-    let telegramApiError: string | null = null;
+    const testResults: { format: "number" | "string"; ok: boolean; error: string | null }[] = [];
+    let workingFormat: "number" | "string" | null = null;
+
     if (config.botToken && config.chatId && config.isActive) {
+      const chatIdNum = Number(config.chatId);
+      const chatIdStr = String(config.chatId);
+      const botUrl = `https://api.telegram.org/bot${config.botToken}/sendMessage`;
+
+      const testPayload = (chatId: number | string): Record<string, unknown> => ({
+        chat_id: chatId,
+        text: `\u{1F50D} Diagnostic Test (${typeof chatId})\n\nIf you see this, ${typeof chatId} format works.`,
+        parse_mode: "Markdown",
+      });
+
+      // Try Number first
       try {
-        const res = await fetch(
-          `https://api.telegram.org/bot${config.botToken}/sendMessage`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: config.chatId,
-              text: "🔍 *Diagnostic Test*\n\nIf you see this, Telegram is working.",
-              parse_mode: "Markdown",
-            }),
+        const r1 = await fetch(botUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(testPayload(chatIdNum)),
+        });
+        if (r1.ok) {
+          testResults.push({ format: "number", ok: true, error: null });
+          workingFormat = "number";
+        } else {
+          const err = await r1.text();
+          testResults.push({ format: "number", ok: false, error: err.slice(0, 300) });
+          // Try String fallback
+          try {
+            const r2 = await fetch(botUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(testPayload(chatIdStr)),
+            });
+            if (r2.ok) {
+              testResults.push({ format: "string", ok: true, error: null });
+              workingFormat = "string";
+            } else {
+              const err2 = await r2.text();
+              testResults.push({ format: "string", ok: false, error: err2.slice(0, 300) });
+            }
+          } catch (e2) {
+            testResults.push({
+              format: "string",
+              ok: false,
+              error: e2 instanceof Error ? e2.message : "Network error",
+            });
           }
-        );
-        if (!res.ok) {
-          const body = await res.text();
-          telegramApiError = `HTTP ${res.status}: ${body.slice(0, 500)}`;
         }
       } catch (e) {
-        telegramApiError =
-          e instanceof Error ? e.message : "Network error during test call";
+        testResults.push({
+          format: "number",
+          ok: false,
+          error: e instanceof Error ? e.message : "Network error",
+        });
       }
     }
 
@@ -59,7 +92,11 @@ export async function GET(_request: NextRequest) {
         chatId: config.chatId || null,
         events: (config.events as string[]) ?? [],
       },
-      telegramApiError,
+      testResults,
+      workingFormat,
+      note: workingFormat === null
+        ? "Neither format worked. Ensure the bot is added as a member of the Telegram group/supergroup."
+        : `chat_id as ${workingFormat} works.`,
     });
   } catch (e) {
     return handleError(e);

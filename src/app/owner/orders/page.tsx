@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import { csrfFetch } from "@/lib/csrf-client"
 import { ClipboardList, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
@@ -100,7 +101,7 @@ export default function OwnerOrdersPage() {
 
   const updateStatus = async (orderId: number, newStatus: string) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}`, {
+      const res = await csrfFetch(`/api/orders/${orderId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

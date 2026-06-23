@@ -144,7 +144,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
         />
         <SheetContent
           side="right"
-          className="w-60 border-0 bg-card"
+          className="w-60 border-0 bg-card dark:bg-card"
         >
           <SidebarContent onNavClick={() => setSheetOpen(false)} />
         </SheetContent>
