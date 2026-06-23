@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import { Plus, Pencil, Trash2, ChevronDown, Package, Search, GripVertical, AlertCircle } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
+import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -58,8 +59,8 @@ export default function OwnerMenuPage() {
     if (!catForm.name.trim()) { toast.error("يرجى إدخال الاسم"); return }
     try {
       const body = { name: catForm.name.trim(), nameAr: catForm.nameAr.trim() || undefined, icon: catForm.icon.trim(), restaurantId }
-      if (catEditing) await fetch(`/api/categories/${catEditing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-      else await fetch("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      if (catEditing) await csrfFetch(`/api/categories/${catEditing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      else await csrfFetch("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       toast.success(catEditing ? "تم التحديث" : "تمت الإضافة"); setCatDialog(false); fetchCats(); setUsageKey(k => k + 1)
     } catch { toast.error("فشل الحفظ") }
   }
@@ -67,7 +68,7 @@ export default function OwnerMenuPage() {
   const delTarget = async () => {
     if (!deleteTarget) return
     try {
-      await fetch(`/api/${deleteTarget.type === "category" ? "categories" : "items"}/${deleteTarget.id}`, { method: "DELETE" })
+      await csrfFetch(`/api/${deleteTarget.type === "category" ? "categories" : "items"}/${deleteTarget.id}`, { method: "DELETE" })
       toast.success("تم الحذف"); setDeleteTarget(null)
       if (deleteTarget.type === "category") fetchCats(); else if (expandedCat) fetchItems(expandedCat); setUsageKey(k => k + 1)
     } catch { toast.error("فشل الحذف") }
@@ -75,7 +76,7 @@ export default function OwnerMenuPage() {
 
   const toggleStatus = async (item: Item) => {
     const ns = item.status === "available" ? "unavailable" : "available"
-    try { await fetch(`/api/items/${item.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: ns }) }); toast.success(ns === "available" ? "متوفر" : "غير متوفر"); if (expandedCat) fetchItems(expandedCat) }
+    try { await csrfFetch(`/api/items/${item.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: ns }) }); toast.success(ns === "available" ? "متوفر" : "غير متوفر"); if (expandedCat) fetchItems(expandedCat) }
     catch { toast.error("فشل التحديث") }
   }
 
