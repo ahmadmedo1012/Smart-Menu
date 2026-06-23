@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { Menu } from "lucide-react"
 
@@ -9,8 +10,28 @@ interface LayoutHeaderProps {
 }
 
 export function LayoutHeader({ title = "لوحة التحكم", onMenuClick }: LayoutHeaderProps) {
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setVisible(false)
+      } else {
+        setVisible(true)
+      }
+      lastScrollY = currentScrollY
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/60 backdrop-blur-xl">
+    <header
+      className="sticky top-0 z-40 border-b border-border/50 bg-background/60 backdrop-blur-xl transition-transform duration-300"
+      style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
+    >
       <div className="flex h-14 items-center justify-between px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <button
