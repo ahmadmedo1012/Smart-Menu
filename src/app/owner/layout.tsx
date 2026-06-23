@@ -151,7 +151,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       </Sheet>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col stagger-children">
         <LayoutHeader onMenuClick={() => setSheetOpen(true)} />
         <main className="flex-1 p-4 md:p-6 lg:p-8 bg-subtle-pattern content-area">{children}</main>
       </div>

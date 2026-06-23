@@ -61,18 +61,19 @@ function PlanCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02]",
+        "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
         isPopular
-          ? "border-amber-300/50 bg-gradient-to-b from-amber-50/80 to-white shadow-xl shadow-amber-500/10 dark:from-amber-950/20 dark:to-card dark:border-amber-500/30"
-          : "border-border/50 bg-card/50 hover:border-amber-200/30 hover:shadow-lg hover:shadow-amber-500/5",
+          ? "border-amber-300/50 bg-gradient-to-b from-amber-50/80 to-white shadow-xl shadow-amber-500/10 dark:from-amber-950/20 dark:to-card dark:border-amber-500/30 hover:shadow-2xl hover:shadow-amber-500/20"
+          : "border-border/50 bg-card/50 hover:border-amber-200/30 hover:shadow-xl hover:shadow-amber-500/10 hover:bg-card/80",
       )}
     >
       {/* Badge */}
       {PLAN_BADGES[index] && (
         <div
           className={cn(
-            "absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold shadow-lg",
+            "absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold shadow-lg animate-fade-in-down",
             PLAN_BADGE_COLORS[index],
+            isPopular && "animate-pulse-glow-ring",
           )}
         >
           {PLAN_BADGES[index]}
@@ -80,9 +81,14 @@ function PlanCard({
       )}
 
       {/* Shine effect on hover */}
-      <div className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 overflow-hidden">
-        <div className="absolute -inset-full z-0 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:inset-0 transition-all duration-700 dark:via-white/5" />
+      <div className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
+        <div className="absolute -inset-full z-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:inset-0 transition-all duration-700 dark:via-white/10" />
       </div>
+
+      {/* Subtle bottom gradient glow for popular card */}
+      {isPopular && (
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-amber-500/5 to-transparent pointer-events-none" />
+      )}
 
       <div className="relative z-10 flex flex-col flex-1">
         {/* Icon + Name */}
@@ -108,10 +114,13 @@ function PlanCard({
             <div className="text-4xl font-bold">مجاني</div>
           ) : (
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold">{toArabicNumber(displayPrice)}</span>
-              <span className="text-lg text-muted-foreground">د.ل</span>
+              <span className="text-4xl font-bold tracking-tight">{toArabicNumber(displayPrice)}</span>
+              <span className="text-lg text-muted-foreground font-medium">د.ل</span>
               <span className="text-sm text-muted-foreground">{periodLabel}</span>
             </div>
+          )}
+          {yearly && !isFree && (
+            <p className="text-xs text-emerald-500 mt-1">وفر شهرين عند الاشتراك السنوي</p>
           )}
         </div>
 
@@ -134,9 +143,12 @@ function PlanCard({
         {/* Features */}
         <div className="space-y-3 mb-8 flex-1">
           {plan.features.map((feature: string, i: number) => (
-            <div key={i} className="flex items-start gap-3 text-sm">
-              <Check className="size-4 text-emerald-500 shrink-0 mt-0.5" />
-              <span>{feature}</span>
+            <div key={i} className="group/feature flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-1">
+              <div className="relative shrink-0 mt-0.5">
+                <Check className="size-4 text-emerald-500 transition-all duration-300 group-hover/feature:scale-110 group-hover/feature:text-emerald-400" />
+                <span className="absolute inset-0 size-4 rounded-full bg-emerald-400/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
+              </div>
+              <span className="group-hover/feature:text-foreground/90 transition-colors duration-300">{feature}</span>
             </div>
           ))}
         </div>

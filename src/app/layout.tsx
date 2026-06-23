@@ -60,6 +60,20 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/noto-naskh-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/noto-sans-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/readex-pro.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "الربط الذكي | Smart Menu",
+              "description": "منيو رقمي ذكي للمطاعم والمقاهي",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "offers": { "@type": "Offer", "price": "0", "priceCurrency": "LYD" },
+            }),
+          }}
+        />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
         <ThemeProvider

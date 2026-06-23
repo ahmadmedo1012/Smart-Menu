@@ -8,7 +8,7 @@ import {
   Store, ClipboardList, ShoppingCart, TrendingUp, Clock,
   AlertCircle, ExternalLink, Package, Award, Gift, Users,
   ChefHat, CheckCircle, XCircle, ArrowLeft, Sparkles,
-  BarChart3, QrCode, Copy,
+  BarChart3, QrCode, Copy, Settings,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -386,12 +386,12 @@ export default function OwnerDashboard() {
               </div>
             </div>
           </Link>
-          <Link href={`/menu/${restaurant?.slug}`} target="_blank">
+          <Link href="/owner/settings">
             <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 hover:border-purple-300/40 cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
-                <ExternalLink className="size-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
-                <span className="text-xs font-medium">المنيو العام</span>
+                <Settings className="size-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <span className="text-xs font-medium">الإعدادات</span>
               </div>
             </div>
           </Link>
