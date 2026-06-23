@@ -16,6 +16,7 @@ const publicPrefixes = [
   "/icon-512.svg",
   "/api/auth",
   "/api/loyalty",
+  "/api/subscriptions",
   "/api/plans",
   "/login",
   "/menu",

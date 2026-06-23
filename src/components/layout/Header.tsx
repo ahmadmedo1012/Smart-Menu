@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Star, Store, LayoutDashboard } from "lucide-react"
 import { useState } from "react"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 interface HeaderProps {
   className?: string
@@ -54,6 +55,9 @@ export function Header({ className }: HeaderProps) {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <div className="hidden lg:flex">
+            <ThemeToggle />
+          </div>
           <Link href="/subscribe">
             <Button variant="gradient" size="sm" className="rounded-xl">
               ابدأ الآن مجاناً

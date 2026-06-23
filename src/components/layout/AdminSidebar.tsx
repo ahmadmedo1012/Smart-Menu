@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard, UtensilsCrossed, ScrollText,
   Settings, QrCode, Store, Users, ChevronRight, Sparkles,
-  Activity,
+  Activity, DollarSign,
 } from "lucide-react"
 
 export interface NavItem {
@@ -22,6 +22,7 @@ export const navItems: NavItem[] = [
   { href: "/admin/menu", label: "المينيو", icon: UtensilsCrossed },
   { href: "/admin/orders", label: "الطلبات", icon: ScrollText },
   { href: "/admin/qr", label: "رمز QR", icon: QrCode },
+  { href: "/admin/subscriptions", label: "المدفوعات", icon: DollarSign },
   { href: "/admin/audit-logs", label: "سجل التدقيق", icon: Activity },
   { href: "/admin/settings", label: "الإعدادات", icon: Settings },
 ]

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
+import PaymentDialog from "@/components/shared/PaymentDialog";
 
 type Plan = {
   id: number;
@@ -48,6 +49,8 @@ function SubscribeContent() {
     preselectedPlan ? "form" : "plan"
   );
 
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -82,6 +85,19 @@ function SubscribeContent() {
 
   const handleSubmit = async () => {
     if (!selectedPlan || !isFormValid) return;
+
+    // Paid plan → show payment dialog
+    if (currentPlan && Number(currentPlan.price) > 0) {
+      setPaymentOpen(true);
+      return;
+    }
+
+    // Free plan → create account immediately
+    await createAccount();
+  };
+
+  const createAccount = async () => {
+    if (!selectedPlan) return;
     setSubmitting(true);
     try {
       const res = await csrfFetch("/api/restaurants", {
@@ -404,6 +420,19 @@ function SubscribeContent() {
           </div>
         )}
       </div>
+
+      {/* Payment Dialog for paid plans */}
+      {currentPlan && (
+        <PaymentDialog
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          planId={currentPlan.id}
+          planName={currentPlan.name}
+          planNameAr={currentPlan.nameAr}
+          price={Number(currentPlan.price)}
+          onSuccess={createAccount}
+        />
+      )}
     </div>
   );
 }

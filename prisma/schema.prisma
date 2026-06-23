@@ -323,6 +323,20 @@ model AuditLog {
   @@index([createdAt])
 }
 
+model SubscriptionPayment {
+  id        Int      @id @default(autoincrement())
+  phone     String
+  amount    Decimal  @db.Decimal(10, 2)
+  provider  String   @default("")
+  planId    Int
+  planName  String   @default("")
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
 model SystemEvent {
   id         Int      @id @default(autoincrement())
   eventType  String
