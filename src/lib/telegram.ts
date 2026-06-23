@@ -23,7 +23,8 @@ export async function sendTelegramNotification(
       }
     );
     return res.ok;
-  } catch {
+  } catch (e) {
+    console.error("Telegram error:", e);
     return false;
   }
 }

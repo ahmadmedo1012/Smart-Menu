@@ -57,7 +57,7 @@ function NavItem({ href, label, icon: Icon }: NavItem) {
 
 export function AdminSidebar() {
   return (
-    <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/40 bg-card/40 backdrop-blur-2xl lg:flex lg:flex-col shadow-sm">
+    <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/40 bg-card backdrop-blur-lg lg:flex lg:flex-col shadow-sm">
       {/* Brand */}
       <div className="relative flex items-center gap-3 border-b border-border/20 px-4 py-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-500/[0.03] to-transparent pointer-events-none" />

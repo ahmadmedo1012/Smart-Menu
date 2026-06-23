@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
@@ -119,7 +118,6 @@ function LogoutButton() {
 }
 
 export default function OwnerLayout({ children }: { children: React.ReactNode }) {
-  const { theme, setTheme } = useTheme()
   const [sheetOpen, setSheetOpen] = useState(false)
 
   return (
