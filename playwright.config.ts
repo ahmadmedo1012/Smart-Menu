@@ -8,9 +8,11 @@ export default defineConfig({
     baseURL: "http://localhost:3001",
     trace: "on-first-retry",
   },
-  webServer: {
-    command: "npm run dev",
-    port: 3001,
-    reuseExistingServer: true,
-  },
+  webServer: [
+    {
+      command: "npm run dev",
+      port: 3001,
+      reuseExistingServer: true,
+    },
+  ],
 });

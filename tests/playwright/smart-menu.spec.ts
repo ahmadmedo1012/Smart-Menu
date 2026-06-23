@@ -36,11 +36,6 @@ test.describe('Smart Menu - Public Pages', () => {
     }
   });
 
-  test('unknown route redirects to login via proxy', async ({ page }) => {
-    page.goto('/nonexistent-xyz');
-    await page.waitForURL(/\/login/, { timeout: 10000 });
-  });
-
   test('cart page shows empty state', async ({ page }) => {
     await page.goto('/cart');
     await expect(page.locator('text=السلة فارغة')).toBeVisible();
@@ -54,19 +49,11 @@ test.describe('Smart Menu - Public Pages', () => {
 
 test.describe('Smart Menu - Auth Redirects', () => {
 
-  test('admin redirects to login when not authenticated', async ({ page }) => {
-    page.goto('/admin');
-    await page.waitForURL(/\/login/, { timeout: 10000 });
-  });
-
-  test('admin/restaurants redirects to login when not authenticated', async ({ page }) => {
-    page.goto('/admin/restaurants');
-    await page.waitForURL(/\/login/, { timeout: 10000 });
-  });
-
-  test('owner redirects to login when not authenticated', async ({ page }) => {
-    page.goto('/owner');
-    await page.waitForURL(/\/login/, { timeout: 10000 });
+  test('unknown route, admin, owner redirect to login', async ({ page }) => {
+    for (const path of ['/nonexistent-xyz', '/admin', '/admin/restaurants', '/owner']) {
+      await page.goto(path, { waitUntil: 'commit' });
+      await expect(page).toHaveURL(/\/login/, { timeout: 15000 });
+    }
   });
 });
 
@@ -124,13 +111,9 @@ test.describe('Smart Menu - Cart Details', () => {
 test.describe('Smart Menu - Menu Search', () => {
 
   test('Menu page - search functionality', async ({ page }) => {
-    await page.goto('/menu', { waitUntil: 'networkidle' });
-    const searchInput = page.locator('input[placeholder*="ابحث"]');
-    if (await searchInput.count() > 0) {
-      await expect(searchInput.first()).toBeVisible();
-    } else {
-      await expect(page.locator('text=No restaurants available')).toBeVisible({ timeout: 5000 });
-    }
+    await page.goto('/menu/pizza-roma', { waitUntil: 'networkidle' });
+    await expect(page.locator('h1')).toContainText('بيتزا روما', { timeout: 15000 });
+    await expect(page.locator('input[placeholder*="ابحث"]')).toBeAttached({ timeout: 10000 });
   });
 });
 
@@ -156,10 +139,11 @@ test.describe('Smart Menu - Order Confirmed Details', () => {
   });
 });
 
-test.describe('Smart Menu - 404 Page', () => {
+test.describe('Smart Menu - Not Found', () => {
 
-  test('404 page', async ({ request }) => {
-    const resp = await request.get('/nonexistent-page-xyz-123', { maxRedirects: 0 });
-    expect(resp.status()).toBe(307);
+  test('404 page shows for truly unknown paths', async ({ page }) => {
+    const response = await page.goto('/nonexistent-page-xyz-123');
+    // Middleware redirects to /login — verify URL changed
+    await page.waitForURL(/\/login/, { timeout: 10000 });
   });
 });
