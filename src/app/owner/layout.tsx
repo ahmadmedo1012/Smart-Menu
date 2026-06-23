@@ -64,14 +64,8 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   return (
     <>
       {/* Brand */}
-      <div className="relative z-10 flex items-center gap-3 border-b border-white/10 px-4 pb-4 pt-5">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-400 dark:to-amber-500">
-          <Store className="size-5 text-white" />
-        </div>
-        <div>
-          <span className="block text-base font-bold tracking-tight">الربط الذكي</span>
-          <span className="block text-[11px] text-muted-foreground">لوحة المالك</span>
-        </div>
+      <div className="relative z-10 flex items-center border-b border-white/10 px-4 py-4 min-h-[72px]">
+        <img src="/logo.png" alt="الربط الذكي" className="max-h-9 w-auto" />
       </div>
 
       {/* Nav */}

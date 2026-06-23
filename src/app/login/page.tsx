@@ -141,8 +141,8 @@ function LoginForm() {
       <Card className="animate-scale-in relative z-10 w-full max-w-sm border-none bg-white/70 shadow-xl backdrop-blur-xl sm:max-w-md sm:rounded-2xl dark:bg-zinc-900/70 dark:shadow-2xl">
         {/* Logo area */}
         <CardHeader className="pb-2 pt-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-500 dark:to-amber-700">
-            <UtensilsCrossed className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
+            <img src="/logo.png" alt="الربط الذكي" className="h-full w-full object-contain" />
           </div>
           <CardTitle className="font-arabic text-2xl font-bold tracking-tight">
             الربط الذكي

@@ -38,9 +38,9 @@ export function Header({ className }: HeaderProps) {
           >
             <Menu className="size-4" />
           </button>
-          <span className="text-lg font-bold">
-            <span className="text-gradient-amber">الربط الذكي</span>
-          </span>
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <img src="/logo.png" alt="الربط الذكي" className="h-8 w-auto" />
+          </Link>
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
             {landingLinks.map((link) => (
@@ -78,7 +78,9 @@ export function Header({ className }: HeaderProps) {
       >
         <div className="p-5">
           <div className="flex items-center justify-between mb-8">
-            <span className="text-lg font-bold text-gradient">الربط الذكي</span>
+            <Link href="/" onClick={() => setMobileOpen(false)}>
+              <img src="/logo.png" alt="الربط الذكي" className="h-8 w-auto" />
+            </Link>
             <button
               onClick={() => setMobileOpen(false)}
               className="size-9 rounded-full border flex items-center justify-center hover:bg-muted transition-colors"

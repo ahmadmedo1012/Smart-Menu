@@ -60,15 +60,8 @@ export function AdminSidebar() {
   return (
     <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/40 bg-card backdrop-blur-lg lg:flex lg:flex-col shadow-sm">
       {/* Brand */}
-      <div className="relative flex items-center gap-3 border-b border-border/20 px-4 py-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/[0.03] to-transparent pointer-events-none" />
-        <div className="relative flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 dark:from-amber-400 dark:to-amber-500" aria-hidden="true">
-          <Sparkles className="size-5 text-white" aria-hidden="true" />
-        </div>
-        <div>
-          <span className="block text-base font-bold tracking-tight">الربط الذكي</span>
-          <span className="block text-[11px] text-muted-foreground">لوحة الإدارة</span>
-        </div>
+      <div className="flex items-center border-b border-border/20 px-4 py-4 min-h-[72px]">
+        <img src="/logo.png" alt="الربط الذكي" className="max-h-9 w-auto" />
       </div>
 
       {/* Navigation */}
