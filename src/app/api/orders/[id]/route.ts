@@ -18,7 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!(await requireAuth()).authorized) return apiError("غير مصرح", 401);
+    const auth = await requireAuth();
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const { id } = await params;
     const data = await prisma.order.findUnique({
@@ -29,6 +30,12 @@ export async function GET(
       },
     });
     if (!data) return notFound("Order");
+
+    // Owners can only view their own restaurant's orders
+    if (auth.role === "owner" && auth.restaurantId !== data.restaurantId) {
+      return apiError("غير مصرح", 401);
+    }
+
     return success(data);
   } catch (e) {
     return handleError(e);

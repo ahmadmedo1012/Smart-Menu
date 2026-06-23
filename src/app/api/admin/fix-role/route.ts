@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { cookies } from "next/headers";
+import { requireAdmin } from "@/lib/auth";
+import { error as apiError } from "@/lib/api-helpers";
 
 /**
  * One-shot endpoint: fixes admin user role.
@@ -8,10 +9,8 @@ import { cookies } from "next/headers";
  */
 export async function POST() {
   try {
-    const c = await cookies();
-    if (c.get("smart-menu-auth")?.value !== "true") {
-      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
-    }
+    const auth = await requireAdmin();
+    if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const user = await prisma.user.findUnique({ where: { username: "admin" } });
     if (!user) {

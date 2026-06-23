@@ -45,6 +45,7 @@ function SubscribeContent() {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState<"plan" | "form">(
     preselectedPlan ? "form" : "plan"
   );
@@ -77,13 +78,24 @@ function SubscribeContent() {
   }, [preselectedPlan]);
 
   const currentPlan = plans.find((p) => p.id === selectedPlan);
+  const fieldError = (field: string) => {
+    if (!submitted) return false;
+    switch (field) {
+      case "name": return form.name.trim().length < 2;
+      case "slug": return form.slug.trim().length < 2;
+      case "username": return form.username.trim().length < 3;
+      case "password": return form.password.trim().length < 4;
+      default: return false;
+    }
+  };
   const isFormValid =
-    form.name.trim().length >= 2 &&
-    form.slug.trim().length >= 2 &&
-    form.username.trim().length >= 3 &&
-    form.password.trim().length >= 4;
+    !fieldError("name") &&
+    !fieldError("slug") &&
+    !fieldError("username") &&
+    !fieldError("password");
 
   const handleSubmit = async () => {
+    setSubmitted(true);
     if (!selectedPlan || !isFormValid) return;
 
     // Paid plan → show payment dialog
@@ -277,10 +289,12 @@ function SubscribeContent() {
                   <Label>اسم المطعم *</Label>
                   <Input
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => { setForm({ ...form, name: e.target.value }); setSubmitted(false); }}
                     placeholder="مقهى الواحة"
-                    className="h-11 rounded-xl mt-1.5"
+                    className={cn("h-11 rounded-xl mt-1.5", fieldError("name") && "border-destructive ring-1 ring-destructive/30")}
+                    aria-invalid={fieldError("name") || undefined}
                   />
+                  {fieldError("name") && <p className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>}
                 </div>
                 <div>
                   <Label>الرابط المختصر *</Label>
@@ -290,12 +304,14 @@ function SubscribeContent() {
                     </span>
                     <Input
                       value={form.slug}
-                      onChange={(e) => setForm({ ...form, slug: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase() })}
+                      onChange={(e) => { setForm({ ...form, slug: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase() }); setSubmitted(false); }}
                       placeholder="al-waha-cafe"
-                      className="h-11 rounded-s-none rounded-e-xl text-left"
+                      className={cn("h-11 rounded-s-none rounded-e-xl text-left", fieldError("slug") && "border-destructive ring-1 ring-destructive/30")}
                       dir="ltr"
+                      aria-invalid={fieldError("slug") || undefined}
                     />
                   </div>
+                  {fieldError("slug") && <p className="text-xs text-destructive mt-1">الرابط مطلوب (حرفان على الأقل)</p>}
                 </div>
               </div>
 
@@ -350,21 +366,25 @@ function SubscribeContent() {
                   <Label>اسم المستخدم *</Label>
                   <Input
                     value={form.username}
-                    onChange={(e) => setForm({ ...form, username: e.target.value })}
+                    onChange={(e) => { setForm({ ...form, username: e.target.value }); setSubmitted(false); }}
                     placeholder="admin"
-                    className="h-11 rounded-xl mt-1.5 text-left"
+                    className={cn("h-11 rounded-xl mt-1.5 text-left", fieldError("username") && "border-destructive ring-1 ring-destructive/30")}
                     dir="ltr"
+                    aria-invalid={fieldError("username") || undefined}
                   />
+                  {fieldError("username") && <p className="text-xs text-destructive mt-1">اسم المستخدم مطلوب (3 أحرف على الأقل)</p>}
                 </div>
                 <div>
                   <Label>كلمة المرور *</Label>
                   <Input
                     type="password"
                     value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    onChange={(e) => { setForm({ ...form, password: e.target.value }); setSubmitted(false); }}
                     placeholder="أدخل كلمة المرور"
-                    className="h-11 rounded-xl mt-1.5"
+                    className={cn("h-11 rounded-xl mt-1.5", fieldError("password") && "border-destructive ring-1 ring-destructive/30")}
+                    aria-invalid={fieldError("password") || undefined}
                   />
+                  {fieldError("password") && <p className="text-xs text-destructive mt-1">كلمة المرور مطلوبة (4 أحرف على الأقل)</p>}
                 </div>
               </div>
 

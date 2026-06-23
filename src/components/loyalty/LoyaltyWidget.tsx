@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { toArabicNumber } from "@/lib/format";
 import { Phone, Award, Star, Sparkles, Medal, UserPlus, Gift } from "lucide-react";
 import { toast } from "sonner";
+import { csrfFetch } from "@/lib/csrf-client";
 import ReferralCard from "./ReferralCard";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +46,7 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
         toast.success("تم العثور على بطاقة الولاء!");
       } else {
         setNotFound(true);
-        const cr = await fetch("/api/loyalty", {
+        const cr = await csrfFetch("/api/loyalty", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ customerPhone: cleaned, customerName: "", restaurantId: restaurantId ?? 1 }),
         });

@@ -4,6 +4,9 @@ import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
 import { randomBytes } from "crypto";
 import { z } from "zod";
+import { createRateLimiter } from "@/lib/rate-limit";
+
+const loyaltyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 
 const TIER_ORDER = ["bronze", "silver", "gold", "platinum"] as const;
 
@@ -42,6 +45,12 @@ function generateReferralCode(): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? request.headers.get("x-real-ip")
+      ?? "unknown";
+    const rateCheck = loyaltyLimiter.check(ip);
+    if (!rateCheck.success) return error("Too many requests", 429);
+
     const body = createSchema.parse(await request.json());
     const { customerPhone, customerName } = body;
     const cookieStore = await cookies();

@@ -64,7 +64,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   return (
     <>
       {/* Brand */}
-      <div className="relative z-10 flex items-center border-b border-white/10 px-4 py-4 min-h-[72px]">
+      <div className="relative z-10 flex items-center border-b border-border/20 px-4 py-4 min-h-[72px]">
         <img src="/logo.png" alt="الربط الذكي" className="max-h-9 w-auto" />
       </div>
 
@@ -76,7 +76,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
       </nav>
 
       {/* Logout */}
-      <div className="relative z-10 border-t border-white/10 px-3 py-3">
+      <div className="relative z-10 border-t border-border/20 px-3 py-3">
         <LogoutButton />
       </div>
 
@@ -120,7 +120,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       <aside
         className={cn(
           "relative hidden w-60 shrink-0 flex-col lg:flex",
-          "border-s border-white/10 bg-card/80 backdrop-blur-lg",
+          "border-s border-border/20 bg-card/80 backdrop-blur-lg",
           "dark:border-white/5",
           "shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.3)]",
         )}

@@ -36,6 +36,7 @@ export default function OwnerSettingsPage() {
   const [gallery, setGallery] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [uploading, setUploading] = useState({ logo: false, gallery: false })
   const logoInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
@@ -111,6 +112,7 @@ export default function OwnerSettingsPage() {
   }
 
   const save = async () => {
+    setSubmitted(true)
     if (!form.name.trim()) { toast.error("يرجى إدخال اسم المطعم"); return }
     setSaving(true)
     try {
@@ -274,7 +276,13 @@ export default function OwnerSettingsPage() {
         <div className="space-y-3.5">
           <div>
             <Label className="text-xs">اسم المطعم</Label>
-            <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="h-10 rounded-xl mt-1 text-sm" />
+            <Input
+              value={form.name}
+              onChange={e => { setForm({ ...form, name: e.target.value }); setSubmitted(false) }}
+              className={cn("h-10 rounded-xl mt-1 text-sm", submitted && !form.name.trim() && "border-destructive ring-1 ring-destructive/30")}
+              aria-invalid={submitted && !form.name.trim() || undefined}
+            />
+            {submitted && !form.name.trim() && <p className="text-xs text-destructive mt-1">هذا الحقل مطلوب</p>}
           </div>
           <div>
             <Label className="text-xs">الوصف</Label>

@@ -112,7 +112,7 @@ function StatCard({
   label: string; value: number; suffix?: string; icon: typeof Users; color: string; bg: string
 }) {
   return (
-    <div className="group card-premium relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-white/10 shadow-lg shadow-black/5 dark:shadow-black/20">
+    <div className="group card-premium relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-border/20 shadow-lg shadow-black/5 dark:shadow-black/20">
       <div className="pointer-events-none absolute -inset-full z-0 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-700 group-hover:inset-0 group-hover:skew-x-0 dark:via-white/5" />
       <div className="relative z-10 flex items-start justify-between">
         <div className="space-y-1">
@@ -131,7 +131,7 @@ function StatCard({
 
 function ConversionRate({ rate, total, converted }: { rate: number; total: number; converted: number }) {
   return (
-    <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+    <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <TrendingUp className="size-4 text-amber-600 dark:text-amber-400" />
@@ -241,7 +241,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
   return (
     <div>
       {/* Filters */}
-      <div className="flex items-center gap-2 px-5 pb-3 border-b border-white/10">
+      <div className="flex items-center gap-2 px-5 pb-3 border-b border-border/20">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
@@ -303,7 +303,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
       </div>
 
       {filtered.length > 0 && filtered.length < referrals.length && (
-        <div className="px-5 py-2 text-center text-xs text-muted-foreground border-t border-white/10">
+        <div className="px-5 py-2 text-center text-xs text-muted-foreground border-t border-border/20">
           عرض {filtered.length} من {referrals.length}
         </div>
       )}
@@ -449,7 +449,7 @@ export default function OwnerLoyaltyPage() {
   /* ---------- Error ---------- */
   if (error) {
     return (
-      <div className="card-premium flex flex-col items-center justify-center rounded-2xl bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-white/10">
+      <div className="card-premium flex flex-col items-center justify-center rounded-2xl bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
         <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-destructive/10">
           <AlertCircle className="size-7 text-destructive" />
         </div>
@@ -548,7 +548,7 @@ export default function OwnerLoyaltyPage() {
         />
 
         {/* Status Breakdown */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
             <Award className="size-4 text-muted-foreground" />
             الإحالات حسب الحالة
@@ -571,7 +571,7 @@ export default function OwnerLoyaltyPage() {
         </div>
 
         {/* Share Section */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
             <Share2 className="size-4 text-muted-foreground" />
             مشاركة رابط الإحالة
@@ -607,8 +607,8 @@ export default function OwnerLoyaltyPage() {
       {/* ---- Referrals + Transactions ---- */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Referrals Table */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <Gift className="size-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold">الإحالات</h3>
@@ -621,8 +621,8 @@ export default function OwnerLoyaltyPage() {
         </div>
 
         {/* Recent Transactions */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <Clock className="size-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold">آخر المعاملات</h3>
@@ -633,8 +633,8 @@ export default function OwnerLoyaltyPage() {
       </div>
 
       {/* ---- Tier Distribution ---- */}
-      <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-white/10">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+      <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+        <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
           <div className="flex items-center gap-2">
             <Award className="size-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold">توزيع المستويات</h3>

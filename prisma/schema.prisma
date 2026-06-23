@@ -286,6 +286,7 @@ model Referral {
   @@index([referralCode])
   @@index([referrerId])
   @@index([referrerId, status])
+  @@index([restaurantId])
 }
 
 model RewardTransaction {

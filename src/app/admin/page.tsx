@@ -167,7 +167,7 @@ export default function AdminDashboard() {
         ].map((card, i) => {
           const Icon = card.icon
           return (
-            <div key={i} className={cn("rounded-2xl p-5 shadow-sm border", card.bg, "border-white/30 dark:border-white/10")}>
+            <div key={i} className={cn("rounded-2xl p-5 shadow-sm border", card.bg, "border-border/30 dark:border-white/10")}>
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
