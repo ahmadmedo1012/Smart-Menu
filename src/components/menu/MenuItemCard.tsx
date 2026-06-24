@@ -2,7 +2,7 @@
 
 import { useState, memo } from "react";
 import { toArabicNumber } from "@/lib/format";
-import { Plus } from "lucide-react";
+import { Coffee, Pizza, Beef, UtensilsCrossed, Fish, Apple, Wine, CupSoda, Milk, IceCream, Plus } from "lucide-react";
 
 export type MenuItemProp = {
   id: number;
@@ -42,52 +42,54 @@ const BGS = [
   "bg-cyan-50 dark:bg-cyan-950/20",
 ];
 
-const FOOD_EMOJI_MAP: [RegExp, string][] = [
-  [/قهوة|coffee|إسبريسو|espresso|كابتشينو|cappuccino|نسكافيه| latte/, "☕"],
-  [/شاي|tea|lipton/, "🫖"],
-  [/عصير|juice|ليموناضة|lemonade|سموثي|smoothie|موهيتو|mojito/, "🧃"],
-  [/مشروب|drink|كولا|cola|بيبسي|pepsi|آيس|ice/, "🥤"],
-  [/بيتزا|pizza/, "🍕"],
-  [/برجر|burger|ساندويتش|sandwich/, "🍔"],
-  [/بطاطس|fries|potato/, "🍟"],
-  [/سلطة|salad/, "🥗"],
-  [/تشيز|cheese|كيك|cake|حلو|dessert/, "🍰"],
-  [/كنافة|kunafa/, "🍯"],
-  [/كريب|crepe/, "🥞"],
-  [/بسبوسة|basbousa/, "🧁"],
-  [/شربة|soup/, "🍜"],
-  [/بازين|bazeen/, "🍲"],
-  [/مبكبكة|mbakbaka/, "🍝"],
-  [/كُسكُسي|couscous/, "🍚"],
-  [/بريك|brik/, "🥟"],
-  [/سوشي|sushi/, "🍣"],
-  [/فطائر|pastry/, "🥐"],
-  [/لحم|meat|steak/, "🥩"],
-  [/دجاج|chicken/, "🍗"],
-  [/سمك|fish/, "🐟"],
-  [/فواكه|fruit/, "🍉"],
-  [/مثلجات|ice cream|آيس كريم/, "🍦"],
-  [/خبز|bread/, "🍞"],
-  [/جبن|cheese/, "🧀"],
-  [/بيض|egg/, "🥚"],
-  [/مقبلات|appetizer/, "🥨"],
-  [/وجبة|meal|plate/, "🍽️"],
+type IconComponent = typeof import("lucide-react").Coffee;
+
+const FOOD_ICON_MAP: [RegExp, IconComponent][] = [
+  [/قهوة|coffee|إسبريسو|espresso|كابتشينو|cappuccino|نسكافيه| latte/, Coffee],
+  [/شاي|tea|lipton/, CupSoda],
+  [/عصير|juice|ليموناضة|lemonade|سموثي|smoothie|موهيتو|mojito/, CupSoda],
+  [/مشروب|drink|كولا|cola|بيبسي|pepsi|آيس|ice/, CupSoda],
+  [/بيتزا|pizza/, Pizza],
+  [/برجر|burger|ساندويتش|sandwich/, Beef],
+  [/بطاطس|fries|potato/, UtensilsCrossed],
+  [/سلطة|salad/, Apple],
+  [/تشيز|cheese|كيك|cake|حلو|dessert/, IceCream],
+  [/كنافة|kunafa/, IceCream],
+  [/كريب|crepe/, IceCream],
+  [/بسبوسة|basbousa/, IceCream],
+  [/شربة|soup/, UtensilsCrossed],
+  [/بازين|bazeen/, UtensilsCrossed],
+  [/مبكبكة|mbakbaka/, UtensilsCrossed],
+  [/كُسكُسي|couscous/, UtensilsCrossed],
+  [/بريك|brik/, UtensilsCrossed],
+  [/سوشي|sushi/, Fish],
+  [/فطائر|pastry/, UtensilsCrossed],
+  [/لحم|meat|steak/, Beef],
+  [/دجاج|chicken/, Beef],
+  [/سمك|fish/, Fish],
+  [/فواكه|fruit/, Apple],
+  [/مثلجات|ice cream|آيس كريم/, IceCream],
+  [/خبز|bread/, UtensilsCrossed],
+  [/جبن|cheese/, Milk],
+  [/بيض|egg/, UtensilsCrossed],
+  [/مقبلات|appetizer/, UtensilsCrossed],
+  [/وجبة|meal|plate/, UtensilsCrossed],
 ];
 
-function getFoodEmoji(name: string): string {
+function getFoodIcon(name: string): IconComponent {
   const lower = name.toLowerCase();
-  for (const [pattern, emoji] of FOOD_EMOJI_MAP) {
-    if (pattern.test(lower)) return emoji;
+  for (const [pattern, icon] of FOOD_ICON_MAP) {
+    if (pattern.test(lower)) return icon;
   }
-  return "🍽️";
+  return UtensilsCrossed;
 }
 
 function Placeholder({ name }: { name: string }) {
   const idx = name.charCodeAt(0) % COLORS.length;
-  const emoji = getFoodEmoji(name);
+  const Icon = getFoodIcon(name);
   return (
-    <div className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]} text-3xl md:text-4xl`}>
-      {emoji}
+    <div className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]}`}>
+      <Icon className="size-8 md:size-10 text-white/80 drop-shadow-sm" />
     </div>
   );
 }

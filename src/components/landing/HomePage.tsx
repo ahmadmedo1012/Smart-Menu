@@ -78,7 +78,7 @@ export default function HomePage() {
       <section className="py-20 bg-gradient-to-b from-amber-500/5 to-transparent">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}>
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-amber">اكتشف كيف سيبدو منيو مطعمك</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>اكتشف كيف سيبدو منيو مطعمك</span></h2>
             <p className="text-lg text-muted-foreground mb-8">اختر مطعماً من القائمة وشاهد منيو تجريبي</p>
           </Reveal>
           <Reveal delay={0.1}>
@@ -115,7 +115,7 @@ export default function HomePage() {
       <section className="py-20 border-y border-border/40 bg-muted/20">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-amber">لماذا الربط الذكي؟</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>لماذا الربط الذكي؟</span></h2>
             <p className="text-lg text-muted-foreground">كل ما يحتاجه مطعمك في منصة واحدة</p>
           </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -141,7 +141,7 @@ export default function HomePage() {
             {STATS.map((s, i) => (
               <Reveal key={i} delay={i * 0.1} className="text-center">
                 <div className="inline-flex items-center justify-center size-14 rounded-2xl glass mb-3 mx-auto"><s.icon className="size-6 text-primary" /></div>
-                <div className="text-3xl md:text-4xl font-bold text-gradient-amber mb-1"><CountUp value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} /></div>
+                <div className="text-3xl md:text-4xl font-bold text-foreground mb-1"><CountUp value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} /></div>
                 <div className="text-sm text-muted-foreground">{s.label}</div>
               </Reveal>
             ))}
@@ -153,7 +153,7 @@ export default function HomePage() {
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-animated">مميزات متكاملة</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>مميزات متكاملة</span></h2>
             <p className="text-lg text-muted-foreground">كل الأدوات التي تحتاجها لإدارة مطعمك رقمياً</p>
           </Reveal>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -179,7 +179,7 @@ export default function HomePage() {
       <section className="py-24 bg-muted/20 border-y border-border/40">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-amber">ثلاث خطوات لانطلاق مطعمك الرقمي</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>ثلاث خطوات لانطلاق مطعمك الرقمي</span></h2>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-8">
             {STEPS.map((step, i) => {
@@ -205,7 +205,7 @@ export default function HomePage() {
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-animated">خطط تناسب الجميع</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>خطط تناسب الجميع</span></h2>
             <p className="text-lg text-muted-foreground">ابدأ مجاناً وطور مطعمك مع نمو أعمالك</p>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -250,7 +250,7 @@ export default function HomePage() {
       <section className="py-24 bg-muted/20 border-y border-border/40">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-amber">شركاؤنا في النجاح</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>شركاؤنا في النجاح</span></h2>
             <p className="text-lg text-muted-foreground">انضم إلى عشرات المطاعم التي تستخدم الربط الذكي</p>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-6">
@@ -276,7 +276,7 @@ export default function HomePage() {
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-animated">ماذا يقول عملاؤنا</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>ماذا يقول عملاؤنا</span></h2>
             <p className="text-lg text-muted-foreground">كلمات من مطاعم ومقاهي تثق في الربط الذكي</p>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-6">
@@ -310,7 +310,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-background to-primary/5" />
         <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/5 blur-3xl" />
         <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
-          <Reveal delay={0}><h2 className="text-3xl md:text-5xl font-bold mb-4"><span className="text-gradient-amber">مستعد لانطلاق مطعمك الرقمي؟</span></h2></Reveal>
+          <Reveal delay={0}><h2 className="text-3xl md:text-5xl font-bold mb-4"><span>مستعد لانطلاق مطعمك الرقمي؟</span></h2></Reveal>
           <Reveal delay={0.1}>
             <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">انضم إلى عشرات المطاعم والمقاهي واستقبل الطلبات عبر واتساب بدون وسيط</p>
           </Reveal>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, ChevronDown, Package, Search, GripVertical, AlertCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, ChevronDown, Package, Search, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
@@ -16,7 +16,11 @@ import ItemDialog from "@/components/owner/ItemDialog"
 interface Category { id: number; name: string; nameAr?: string; icon: string; sortOrder: number; isActive: boolean; items: Item[]; _count?: { items: number } }
 interface Item { id: number; name: string; nameAr?: string; description: string; descriptionAr?: string; price: number; discountedPrice: number | null; image: string; status: string; sortOrder: number; categoryId: number }
 
-const CATEGORY_ICONS = ["📦","☕","🍕","🥤","🍰","🥗","🍔","🍝","🥩","🍣","🌮","🥨"];
+const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+  Package, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, Milk, UtensilsCrossed,
+};
+
+const CATEGORY_ICONS = ["Package","Coffee","Pizza","CupSoda","IceCream","Apple","Beef","UtensilsCrossed","Fish","Milk","Beef","UtensilsCrossed"];
 
 export default function OwnerMenuPage() {
   const router = useRouter()
@@ -133,9 +137,13 @@ export default function OwnerMenuPage() {
           {filteredCategories.map(cat => (
             <div key={cat.id} className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-amber-200/30 hover:shadow-md">
               <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20" onClick={() => toggleCat(cat.id)}>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{cat.icon || "📦"}</span>
-                  <div>
+                  <div className="flex items-center gap-3">
+                    {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
+                      (() => { const I = CATEGORY_ICON_MAP[cat.icon]; return <I className="size-6" />; })()
+                    ) : (
+                      <span className="text-2xl">{cat.icon || "📦"}</span>
+                    )}
+                    <div>
                     <span className="font-bold">{cat.name}</span>
                     {cat.nameAr && <span className="text-xs text-muted-foreground mr-2">{cat.nameAr}</span>}
                     <span className="text-xs text-muted-foreground mr-2 bg-muted/50 px-2 py-0.5 rounded-full">
@@ -203,10 +211,16 @@ export default function OwnerMenuPage() {
             <div><label className="text-sm font-medium">الاسم بالإنجليزية</label><input value={catForm.nameAr} onChange={e => setCatForm({...catForm, nameAr: e.target.value})} placeholder="Hot Drinks" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 text-left" dir="ltr" /></div>
             <div><label className="text-sm font-medium">أيقونة</label>
               <div className="flex flex-wrap gap-2 mt-1.5">
-                {CATEGORY_ICONS.map(icon => (
-                  <button key={icon} type="button" onClick={() => setCatForm({...catForm, icon})}
-                    className={cn("size-10 rounded-xl text-xl flex items-center justify-center border transition-all", catForm.icon === icon ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 scale-110" : "border-border/30 hover:border-amber-200/30")}>{icon}</button>
-                ))}
+                {CATEGORY_ICONS.map(iconName => {
+                  const IconComp = iconName in CATEGORY_ICON_MAP ? CATEGORY_ICON_MAP[iconName] : null;
+                  if (!IconComp) return null;
+                  return (
+                    <button key={iconName} type="button" onClick={() => setCatForm({...catForm, icon: iconName})}
+                      className={cn("size-10 rounded-xl flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 scale-110" : "border-border/30 hover:border-amber-200/30")}>
+                      <IconComp className="size-5" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>

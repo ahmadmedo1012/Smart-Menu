@@ -208,7 +208,7 @@ export default function PricingPage() {
             خطط تناسب جميع الأحجام
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            <span className="text-gradient-amber">اختر خطتك</span>
+            <span>اختر خطتك</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
@@ -271,7 +271,7 @@ export default function PricingPage() {
       <section className="pb-24">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-10">
-            <span className="text-gradient">أسئلة شائعة</span>
+            <span>أسئلة شائعة</span>
           </h2>
           <div className="space-y-4">
             {[
@@ -297,7 +297,7 @@ export default function PricingPage() {
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="glass-strong rounded-3xl p-12">
             <h2 className="text-3xl font-bold mb-4">
-              <span className="text-gradient">مستعد لانطلاق مطعمك الرقمي؟</span>
+              <span>مستعد لانطلاق مطعمك الرقمي؟</span>
             </h2>
             <p className="text-muted-foreground mb-8">
               ابدأ الآن مجاناً بدون بطاقة ائتمان

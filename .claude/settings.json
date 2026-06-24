@@ -44,6 +44,12 @@
             "type": "command",
             "command": "sh -c 'D=\"${CLAUDE_PROJECT_DIR:-.}\"; [ -f \"$D/.claude/helpers/hook-handler.cjs\" ] || D=\"${HOME}\"; exec node \"$D/.claude/helpers/hook-handler.cjs\" post-edit'",
             "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/skills/impeccable/scripts/hook.mjs\"",
+            "timeout": 5,
+            "statusMessage": "Checking UI changes"
           }
         ]
       },

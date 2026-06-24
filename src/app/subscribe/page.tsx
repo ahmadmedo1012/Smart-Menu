@@ -157,7 +157,7 @@ function SubscribeContent() {
             اشترك الآن
           </div>
           <h1 className="text-3xl md:text-5xl font-bold mb-3">
-            <span className="text-gradient-amber">انضم إلى الربط الذكي</span>
+            <span>انضم إلى الربط الذكي</span>
           </h1>
           <p className="text-muted-foreground text-lg">
             وأنشئ منيو رقمي لمطعمك في دقائق

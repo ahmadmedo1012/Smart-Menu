@@ -30,7 +30,7 @@ export default function NotFound() {
           </div>
           <div className="absolute -inset-2 rounded-full bg-primary/10 blur-xl -z-10" />
         </div>
-        <div className="text-8xl md:text-9xl font-bold text-gradient leading-none mb-4 select-none">404</div>
+        <div className="text-8xl md:text-9xl font-bold text-foreground leading-none mb-4 select-none">404</div>
         <h1 className="text-3xl md:text-4xl font-bold mb-4">الصفحة غير موجودة</h1>
         <p className="text-lg text-muted-foreground max-w-md mb-6 leading-relaxed">
           الرابط الذي تبحث عنه غير صحيح أو تم نقله

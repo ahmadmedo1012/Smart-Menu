@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -88,6 +89,7 @@ export default function RootLayout({
           {children}
           <Toaster position="top-center" richColors />
           <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

@@ -93,7 +93,7 @@ export default async function PublicMenuPage({
             </div>
           )}
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 text-gradient-amber">{restaurant.name}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-2 text-foreground">{restaurant.name}</h1>
 
           {restaurant.description && (
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
