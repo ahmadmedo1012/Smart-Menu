@@ -10,7 +10,7 @@ export default function HeroAnimation() {
 
         <div className="w-full h-full rounded-[2.6rem] bg-white dark:bg-gray-950 overflow-hidden relative">
           {/* Dynamic Island */}
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10" />
+          <div className="absolute top-3 start-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10" />
 
           {/* Mock menu screen */}
           <div className="pt-10 px-4">
@@ -20,7 +20,7 @@ export default function HeroAnimation() {
                 م
               </div>
               <div className="min-w-0">
-                <div className="text-[11px] font-semibold text-gray-800 dark:text-gray-100 leading-tight truncate">
+                <div className="text-[11px] font-semibold text-foreground dark:text-foreground leading-tight truncate">
                   مطعم مذاق الشام
                 </div>
                 <div className="text-[9px] text-amber-600 dark:text-amber-400 mt-px">
@@ -58,14 +58,14 @@ export default function HeroAnimation() {
               <div key={i} className="flex gap-2.5 mb-3 items-center">
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start gap-1">
-                    <span className="text-[10px] font-semibold text-gray-800 dark:text-gray-100 truncate">
+                    <span className="text-[10px] font-semibold text-foreground dark:text-foreground truncate">
                       {item.name}
                     </span>
                     <span className="text-[9px] font-medium text-amber-600 dark:text-amber-400 shrink-0">
                       {item.price} ر.س
                     </span>
                   </div>
-                  <div className="text-[8px] text-gray-400 dark:text-gray-500 truncate mt-px">
+                  <div className="text-[8px] text-muted-foreground dark:text-muted-foreground truncate mt-px">
                     {item.desc}
                   </div>
                   <div className="text-[8px] text-amber-300 dark:text-amber-600 mt-px ltr">
@@ -77,7 +77,7 @@ export default function HeroAnimation() {
             ))}
 
             {/* Floating CTA button */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg flex items-center justify-center text-white text-[11px] font-semibold">
+            <div className="absolute bottom-6 start-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg flex items-center justify-center text-white text-[11px] font-semibold">
               ابدأ الطلب
             </div>
           </div>
@@ -85,18 +85,18 @@ export default function HeroAnimation() {
       </div>
 
       {/* Floating badges — gradient-border premium glass */}
-      <div className="absolute -top-4 -right-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-500">
+      <div className="absolute -top-4 -end-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-500">
         <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-green-400 animate-breath" />
-          <span className="text-gray-800 dark:text-gray-100 text-[11px] font-semibold">
+          <span className="size-2 rounded-full bg-primary animate-breath" />
+          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
             مسح واطلب
           </span>
         </div>
       </div>
-      <div className="absolute -bottom-4 -left-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-700">
+      <div className="absolute -bottom-4 -start-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-700">
         <div className="flex items-center gap-1.5">
-          <span className="text-emerald-500 text-[11px]">✓</span>
-          <span className="text-gray-800 dark:text-gray-100 text-[11px] font-semibold">
+          <span className="text-primary text-[11px]">✓</span>
+          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
             طلب عبر واتساب
           </span>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Footer } from "@/components/layout/Footer";
 import { ArrowLeft, Sparkles, BadgePercent, Store, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -323,35 +324,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/40 py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div className="md:col-span-2">
-              <span className="text-lg font-bold text-gradient-amber">الربط الذكي</span>
-              <p className="text-sm text-muted-foreground mt-2 max-w-xs leading-relaxed">منصة رقمية لإدارة منيو المطاعم والمقاهي واستقبال الطلبات عبر واتساب</p>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm mb-3">روابط سريعة</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <Link href="/pricing" className="block hover:text-foreground transition-colors">الخطط</Link>
-                <Link href={`/menu/${PARTNERS[0].slug}`} className="block hover:text-foreground transition-colors">منيو تجريبي</Link>
-                <Link href="/login" className="block hover:text-foreground transition-colors">تسجيل الدخول</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm mb-3">تواصل معنا</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>واتساب: +218 91 111 1111</p>
-                <p>بريد: info@rabtzaki.ly</p>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-border/30 pt-6 text-center text-xs text-muted-foreground">
-            <p>جميع الحقوق محفوظة &copy; {new Date().getFullYear()} — الربط الذكي | Smart Menu</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

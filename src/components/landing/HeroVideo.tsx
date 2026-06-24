@@ -25,7 +25,7 @@ export default function HeroVideo() {
           {/* Inner screen — dark background, video fills it */}
           <div className="w-full h-full rounded-[2.6rem] bg-black overflow-hidden relative">
             {/* Dynamic Island */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20 border border-white/[0.07]" />
+            <div className="absolute top-3 start-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20 border border-white/[0.07]" />
 
             {/* Video fills the phone screen, hidden until loaded */}
             <video
@@ -46,18 +46,18 @@ export default function HeroVideo() {
       </div>
 
       {/* Floating badges — same as HeroAnimation */}
-      <div className="absolute -top-4 -right-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-500">
+      <div className="absolute -top-4 -end-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-500">
         <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-green-400 animate-breath" />
-          <span className="text-gray-800 dark:text-gray-100 text-[11px] font-semibold">
+          <span className="size-2 rounded-full bg-primary animate-breath" />
+          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
             مسح واطلب
           </span>
         </div>
       </div>
-      <div className="absolute -bottom-4 -left-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-700">
+      <div className="absolute -bottom-4 -start-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-700">
         <div className="flex items-center gap-1.5">
-          <span className="text-emerald-500 text-[11px]">✓</span>
-          <span className="text-gray-800 dark:text-gray-100 text-[11px] font-semibold">
+          <span className="text-primary text-[11px]">✓</span>
+          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
             طلب عبر واتساب
           </span>
         </div>
