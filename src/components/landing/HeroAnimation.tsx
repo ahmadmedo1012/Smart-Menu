@@ -62,7 +62,7 @@ export default function HeroAnimation() {
                       {item.name}
                     </span>
                     <span className="text-[9px] font-medium text-amber-600 dark:text-amber-400 shrink-0">
-                      {item.price} ر.س
+                      {item.price} د.ل
                     </span>
                   </div>
                   <div className="text-[8px] text-muted-foreground dark:text-muted-foreground truncate mt-px">

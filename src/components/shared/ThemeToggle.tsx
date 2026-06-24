@@ -69,7 +69,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-90 scale-0 opacity-0 absolute"
           )}
         >
-          <Sun className="size-full text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+          <Sun className="size-full text-amber-400" />
         </span>
 
         <span
@@ -80,7 +80,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-0 scale-100 opacity-100"
           )}
         >
-          <Moon className="size-full text-amber-300 drop-shadow-[0_0_8px_rgba(217,119,6,0.6)]" />
+          <Moon className="size-full text-amber-300" />
         </span>
 
         <div

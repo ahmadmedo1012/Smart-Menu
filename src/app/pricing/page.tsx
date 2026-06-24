@@ -303,7 +303,7 @@ export default function PricingPage() {
             </p>
             <div className="flex gap-3 justify-center">
             <Link href="/subscribe">
-              <Button size="lg" className="text-lg px-10 h-14 animate-pulse-glow">
+              <Button size="lg" className="text-lg px-10 h-14">
                 ابدأ الآن مجاناً
               </Button>
             </Link>

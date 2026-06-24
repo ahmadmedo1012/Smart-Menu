@@ -28,7 +28,7 @@ export default function NotFound() {
           <div className="size-24 rounded-full glass flex items-center justify-center mx-auto animate-float">
             <FileQuestion className="size-12 text-primary" />
           </div>
-          <div className="absolute -inset-2 rounded-full bg-primary/10 blur-xl -z-10 animate-pulse-glow" />
+          <div className="absolute -inset-2 rounded-full bg-primary/10 blur-xl -z-10" />
         </div>
         <div className="text-8xl md:text-9xl font-bold text-gradient leading-none mb-4 select-none">404</div>
         <h1 className="text-3xl md:text-4xl font-bold mb-4">الصفحة غير موجودة</h1>
@@ -53,7 +53,7 @@ export default function NotFound() {
 
         <div className="flex flex-col sm:flex-row gap-4">
           <Link href="/">
-            <Button size="lg" className="text-base px-8 h-12 animate-pulse-glow">
+            <Button size="lg" className="text-base px-8 h-12">
               العودة إلى الرئيسية
             </Button>
           </Link>

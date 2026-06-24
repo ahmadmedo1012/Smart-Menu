@@ -385,7 +385,8 @@
 @keyframes image-fade-in { from { opacity: 0; filter: blur(4px); } to { opacity: 1; filter: blur(0); } }
 @keyframes page-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fade-in-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulse-glow-ring { 0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); } 50% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); } }
+@keyframes pulse-glow-ring { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ring) 40%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in oklch, var(--ring) 0%, transparent); } }
+/* ponytail: color-mix tier — caps browser support at ~2023+; add static fallback if needed */
 
 /* === Animation utility classes === */
 .animate-float         { animation: float 3s ease-in-out infinite; }

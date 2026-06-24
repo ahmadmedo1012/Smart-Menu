@@ -8,6 +8,7 @@ import { CheckCircle, MessageCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import ShareAfterOrder from "@/components/loyalty/ShareAfterOrder";
+import { Header } from "@/components/layout/Header";
 
 const Confetti = dynamic(() => import("@/components/shared/Confetti"), { ssr: false });
 
@@ -48,6 +49,7 @@ function OrderContent() {
 
   return (
     <>
+      <Header />
       <Suspense fallback={null}><Confetti active={showConfetti} /></Suspense>
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-6 px-4 text-center animate-fade-in">
         {/* Success icon */}

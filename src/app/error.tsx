@@ -28,12 +28,12 @@ export default function Error({
           <div className="size-24 rounded-full glass flex items-center justify-center mx-auto">
             <AlertTriangle className="size-12 text-destructive" />
           </div>
-          <div className="absolute -inset-2 rounded-full bg-destructive/10 blur-xl -z-10 animate-pulse-glow" />
+          <div className="absolute -inset-2 rounded-full bg-destructive/10 blur-xl -z-10" />
         </div>
         <h1 className="text-3xl md:text-4xl font-bold mb-4">حدث خطأ غير متوقع</h1>
         <p className="text-lg text-muted-foreground max-w-md mb-8 leading-relaxed">يرجى المحاولة مرة أخرى</p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button size="lg" className="text-base px-8 h-12 animate-pulse-glow" onClick={() => reset()}>
+          <Button size="lg" className="text-base px-8 h-12" onClick={() => reset()}>
             إعادة المحاولة
           </Button>
           <a href="/">

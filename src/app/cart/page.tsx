@@ -10,6 +10,7 @@ import { toArabicNumber } from "@/lib/format";
 import { buildReceiptMessage } from "@/lib/receipt";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Header } from "@/components/layout/Header";
 import {
   Dialog,
   DialogContent,
@@ -106,6 +107,8 @@ export default function CartPage() {
 
   if (items.length === 0 && !confirmed) {
     return (
+      <>
+      <Header />
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 px-4 text-center animate-fade-in">
         <div className="size-24 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center animate-float">
           <ShoppingCart className="size-12 text-muted-foreground" />
@@ -119,11 +122,14 @@ export default function CartPage() {
           </Button>
         </Link>
       </div>
+      </>
     );
   }
 
   if (confirmed) {
     return (
+      <>
+      <Header />
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center animate-scale-in">
         <div className="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 animate-scale-in">
           <Check className="size-12 text-emerald-500" />
@@ -134,11 +140,14 @@ export default function CartPage() {
           <Loader2 className="size-4 animate-spin" />
         </p>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in">
+    <>
+      <Header />
+      <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8 animate-slide-down">
         <Link href="/menu" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -149,7 +158,7 @@ export default function CartPage() {
           <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border/30">
             {toArabicNumber(items.length)} {items.length > 10 ? "صنف" : "أصناف"}
           </span>
-          <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary animate-pulse-glow" />
+          <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary animate-breath" />
         </div>
       </div>
 
@@ -371,5 +380,6 @@ export default function CartPage() {
         </DialogContent>
       </Dialog>
     </div>
+  </>
   );
 }
