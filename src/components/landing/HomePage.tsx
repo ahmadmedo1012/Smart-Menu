@@ -65,7 +65,7 @@ export default function HomePage() {
           </div>
           <Reveal delay={0.15} className="order-first lg:order-last"><HeroVideo /></Reveal>
         </div>
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-xs text-muted-foreground animate-float">
+        <div className="absolute bottom-8 start-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-xs text-muted-foreground animate-float">
           <span>اسحب لأسفل</span>
           <div className="size-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
             <div className="size-1.5 rounded-full bg-primary/60 animate-breath" />
@@ -228,7 +228,7 @@ export default function HomePage() {
                   <div className="space-y-2.5 mb-7 flex-1">
                     {plan.features.map((f, j) => (
                       <div key={j} className="flex items-center gap-2.5 text-sm">
-                        <Check className="size-4 text-emerald-500 shrink-0" /><span>{f}</span>
+                        <Check className="size-4 text-primary shrink-0" /><span>{f}</span>
                       </div>
                     ))}
                   </div>
@@ -307,7 +307,7 @@ export default function HomePage() {
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-background to-primary/5" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/5 blur-3xl" />
+        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/5 blur-3xl" />
         <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}><h2 className="text-3xl md:text-5xl font-bold mb-4"><span className="text-gradient-amber">مستعد لانطلاق مطعمك الرقمي؟</span></h2></Reveal>
           <Reveal delay={0.1}>
