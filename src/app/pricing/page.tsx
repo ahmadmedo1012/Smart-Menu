@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 
@@ -317,10 +318,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        <p>جميع الحقوق محفوظة &copy; {new Date().getFullYear()} — الربط الذكي</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

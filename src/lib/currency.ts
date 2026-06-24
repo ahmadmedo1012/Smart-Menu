@@ -16,7 +16,7 @@ export function getCurrencyConfig(currency?: string | null) {
 
 export function formatPrice(amount: number, currency?: string | null): string {
   const cfg = getCurrencyConfig(currency);
-  return `${toArabicNumber(amount.toFixed(2))} ${cfg.symbol}`;
+  return `${toArabicNumber(amount.toFixed(1))} ${cfg.symbol}`;
 }
 
 export function formatPriceShort(amount: number, currency?: string | null): string {
