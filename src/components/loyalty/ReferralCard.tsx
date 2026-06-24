@@ -161,7 +161,7 @@ export default function ReferralCard({
               </button>
               <button
                 type="button"
-                onClick={handleCopyLink} className="cursor-pointer"
+                onClick={handleCopyLink}
                 className="flex-1 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 active:scale-[0.98] transition-all cursor-pointer"
               >
                 {copied ? (
