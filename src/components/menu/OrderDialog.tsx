@@ -121,19 +121,19 @@ export default function OrderDialog({
             <img src={item.image} alt={displayName} className="w-full h-full object-cover" loading="lazy" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
             <button type="button" onClick={() => onOpenChange(false)}
-              className="absolute top-3 left-3 size-8 rounded-full bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center">
+              className="absolute top-3 start-3 size-8 rounded-full bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center">
               <X className="size-4" />
             </button>
-            <div className="absolute bottom-4 right-4 left-16">
-              <h3 className="text-white font-bold text-lg drop-shadow-lg">{displayName}</h3>
+            <div className="absolute bottom-4 end-4 start-16">
+              <h3 className="text-white font-bold text-lg drop-shadow-sm">{displayName}</h3>
             </div>
           </div>
         )}
 
         {confirmed ? (
           <div className="p-10 text-center animate-scale-in">
-            <div className="size-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
-              <Check className="size-10 text-emerald-500" />
+            <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Check className="size-10 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-1">تم إرسال الطلب! <svg className="size-5 inline text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 12l2 2 4-4M7.5 7.5l.5-.5M16.5 7.5l-.5-.5M12 5.5V3M12 21v-2.5M5.5 12H3M21 12h-2.5"/></svg></h3>
             <p className="text-sm text-muted-foreground">جاري فتح واتساب لتأكيد الإرسال</p>
