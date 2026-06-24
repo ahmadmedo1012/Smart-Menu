@@ -69,12 +69,12 @@ function OrderContent() {
 
         <div className="flex flex-col gap-3 w-full max-w-xs">
           <Button className="w-full" onClick={handleWhatsApp}>
-            <MessageCircle className="ml-2 size-4" />
+            <MessageCircle className="ms-2 size-4" />
             إرسال عبر واتساب
           </Button>
           <Link href="/menu">
             <Button variant="outline" className="w-full">
-              <ArrowLeft className="ml-2 size-4" />
+              <ArrowLeft className="ms-2 size-4" />
               العودة إلى القائمة
             </Button>
           </Link>

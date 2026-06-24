@@ -106,7 +106,7 @@ export default function ReferralCard({
             </label>
             <div
               className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-amber-950/60 border-2 border-amber-300/50 dark:border-amber-600/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-              onClick={handleCopyLink}
+              onClick={handleCopyLink} className="cursor-pointer"
             >
               <span className="text-2xl font-bold tracking-[0.25em] text-amber-900 dark:text-amber-100 font-mono" dir="ltr">
                 {referralCode}
@@ -161,7 +161,7 @@ export default function ReferralCard({
               </button>
               <button
                 type="button"
-                onClick={handleCopyLink}
+                onClick={handleCopyLink} className="cursor-pointer"
                 className="flex-1 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 active:scale-[0.98] transition-all cursor-pointer"
               >
                 {copied ? (
@@ -194,7 +194,7 @@ export default function ReferralCard({
             </div>
             <button
               type="button"
-              onClick={handleCopyLink}
+              onClick={handleCopyLink} className="cursor-pointer"
               aria-label="نسخ رابط الإحالة"
               className="size-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
             >

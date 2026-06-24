@@ -8,7 +8,7 @@ export const RemotionRoot = () => {
       <Composition
         id="smart-menu-intro"
         component={IntroVideo}
-        durationInFrames={150}
+        durationInFrames={178}
         fps={30}
         width={1080}
         height={1080}

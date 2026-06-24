@@ -244,7 +244,7 @@ function SubscribeContent() {
                 onClick={() => setStep("form")}
               >
                 {selectedPlan ? `اخترت ${plans.find(p => p.id === selectedPlan)?.nameAr}` : "اختر خطة أولاً"}
-                <ArrowLeft className="mr-2 size-5" />
+                <ArrowLeft className="ms-2 size-5" />
               </Button>
             </div>
           </div>

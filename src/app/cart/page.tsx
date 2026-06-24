@@ -167,7 +167,25 @@ export default function CartPage() {
                 : "bg-card/50 border-border/30 hover:border-amber-200/30 hover:shadow-md",
             )}
           >
-            <span className="text-lg">{opt.icon === "inside" ? "🍽" : opt.icon === "takeaway" ? "🛍" : "🚚"}</span>
+            {opt.icon === "inside" ? (
+              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+            ) : opt.icon === "takeaway" ? (
+              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+            ) : (
+              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="3" width="15" height="13" rx="2" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+              </svg>
+            )}
             <span>{opt.label}</span>
           </button>
         ))}
@@ -296,7 +314,25 @@ export default function CartPage() {
             <div className="flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">نوع الطلب:</span>
               <span className="font-medium px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300">
-                {pickupType === "inside" ? "🍽" : pickupType === "takeaway" ? "🛍" : "🚚"}
+                {pickupType === "inside" ? (
+                  <svg className="size-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                ) : pickupType === "takeaway" ? (
+                  <svg className="size-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                ) : (
+                  <svg className="size-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="1" y="3" width="15" height="13" rx="2" />
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                    <circle cx="5.5" cy="18.5" r="2.5" />
+                    <circle cx="18.5" cy="18.5" r="2.5" />
+                  </svg>
+                )}
                 {PICKUP_LABELS[pickupType]}
               </span>
             </div>

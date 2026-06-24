@@ -545,7 +545,7 @@
   background: linear-gradient(135deg, var(--amber-300), var(--amber-500), var(--amber-300));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
+  -webkit-mask-composite: exclude; /* XOR replaced in modern WebKit */
   mask-composite: exclude;
   pointer-events: none;
 }
@@ -564,6 +564,24 @@
   opacity: 0.06;
   filter: blur(60px);
   animation: float 8s ease-in-out infinite;
+  width: 600px;
+  height: 600px;
+}
+.hero-mesh .blob:nth-child(1) {
+  top: -20%;
+  right: -10%;
+}
+.hero-mesh .blob:nth-child(2) {
+  bottom: -20%;
+  left: -10%;
+  animation-delay: -3s;
+}
+.hero-mesh .blob:nth-child(3) {
+  top: 40%;
+  left: 30%;
+  width: 300px;
+  height: 300px;
+  animation-delay: -5s;
 }
 .dark .hero-mesh .blob {
   background: linear-gradient(135deg, var(--amber-500), var(--amber-700));

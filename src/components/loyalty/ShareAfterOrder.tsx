@@ -287,7 +287,7 @@ ${referralUrl}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={handleShareWhatsApp}
+                  onClick={handleShareWhatsApp} className="cursor-pointer"
                   className="h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <MessageCircle className="size-5" />

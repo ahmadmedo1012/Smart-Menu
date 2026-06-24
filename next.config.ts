@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
 
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "onrender.com" },
-      { protocol: "https", hostname: "*.onrender.com" },
+      { protocol: "https", hostname: "vercel.app" },
+      { protocol: "https", hostname: "*.vercel.app" },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 1080, 1200, 1920],
