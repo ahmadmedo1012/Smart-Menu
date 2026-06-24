@@ -106,7 +106,7 @@ export default function ReferralCard({
             </label>
             <div
               className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-amber-950/60 border-2 border-amber-300/50 dark:border-amber-600/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
-              onClick={handleCopyLink} className="cursor-pointer"
+              onClick={handleCopyLink}
             >
               <span className="text-2xl font-bold tracking-[0.25em] text-amber-900 dark:text-amber-100 font-mono" dir="ltr">
                 {referralCode}
