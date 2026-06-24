@@ -127,7 +127,7 @@ export default function PaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md rounded-2xl p-0 gap-0" showCloseButton={false}>
+      <DialogContent className="max-w-sm sm:max-w-md mx-2 rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto" showCloseButton={false}>
         {/* Header */}
         <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-primary-foreground p-6 rounded-t-2xl">
           <div className="flex items-center gap-2 mb-2">

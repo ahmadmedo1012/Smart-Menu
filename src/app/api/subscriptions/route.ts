@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
+import { notifyEvent } from "@/lib/telegram";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +28,14 @@ export async function POST(request: NextRequest) {
         status: "pending",
       },
     });
+
+    // Notify via Telegram
+    notifyEvent("new_subscription", {
+      plan: plan?.nameAr ?? "غير معروف",
+      phone: String(phone),
+      amount: String(amount),
+      provider: String(provider),
+    }).catch(() => {});
 
     return success({ id: payment.id }, 201);
   } catch (e) {
