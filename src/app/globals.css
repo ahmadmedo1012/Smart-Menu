@@ -6,7 +6,7 @@
 @theme inline {
   --font-sans: "Noto Sans Arabic", system-ui, sans-serif;
   --font-mono: "Noto Naskh Arabic", "Courier New", monospace;
-  --font-display: var(--font-display, "DM Serif Display", "Playfair Display", Georgia, serif);
+  --font-display: var(--font-display, "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif);
   --font-arabic: "Noto Naskh Arabic", "Traditional Arabic", serif;
   --font-body: var(--font-body, "Noto Sans Arabic", system-ui, sans-serif);
   --font-heading: var(--font-heading, "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif);

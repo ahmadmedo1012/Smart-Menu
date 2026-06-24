@@ -13,11 +13,12 @@ interface HeaderProps {
   className?: string
 }
 
-const PARTNER_SLUG = "pizza-roma"
+const PARTNER_SLUG = "al-waha-cafe"
 
 const landingLinks = [
   { href: "/pricing", label: "الخطط والأسعار" },
   { href: `/menu/${PARTNER_SLUG}`, label: "منيو تجريبي" },
+  { href: "/login", label: "لوحة التحكم" },
 ]
 
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
@@ -27,27 +28,19 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
         <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
       </div>
       <nav className="space-y-2 px-3 py-4">
-        <Link
-          href="/pricing"
-          onClick={onNavClick}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
-        >
-          <Star className="size-4 text-amber-500" /> الخطط والأسعار
-        </Link>
-        <Link
-          href={`/menu/${PARTNER_SLUG}`}
-          onClick={onNavClick}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
-        >
-          <Store className="size-4 text-amber-500" /> منيو تجريبي
-        </Link>
-        <Link
-          href="/login"
-          onClick={onNavClick}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
-        >
-          <LayoutDashboard className="size-4 text-amber-500" /> لوحة التحكم
-        </Link>
+        {landingLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={onNavClick}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
+          >
+            {link.href === "/pricing" && <Star className="size-4 text-amber-500" />}
+            {link.href.includes("/menu/") && <Store className="size-4 text-amber-500" />}
+            {link.href === "/login" && <LayoutDashboard className="size-4 text-amber-500" />}
+            {link.label}
+          </Link>
+        ))}
       </nav>
     </>
   )
@@ -99,7 +92,7 @@ export function Header({ className }: HeaderProps) {
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link href="/subscribe">
+          <Link href="/login">
             <Button variant="gradient" size="sm" className="rounded-xl">
               ابدأ الآن مجاناً
             </Button>

@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
-import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, Award } from "lucide-react"
+import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, QrCode, Gift } from "lucide-react"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -18,8 +18,8 @@ const navItems = [
   { href: "/owner", label: "لوحة التحكم", icon: LayoutDashboard },
   { href: "/owner/orders", label: "الطلبات", icon: ClipboardList },
   { href: "/owner/menu", label: "المنيو", icon: Store },
-  { href: "/owner/qr", label: "رمز QR", icon: Award },
-  { href: "/owner/loyalty", label: "الولاء", icon: Award },
+  { href: "/owner/qr", label: "رمز QR", icon: QrCode },
+  { href: "/owner/loyalty", label: "الولاء", icon: Gift },
   { href: "/owner/settings", label: "الإعدادات", icon: Settings },
 ]
 

@@ -12,7 +12,7 @@ const SUGGESTIONS = [
   { href: "/", label: "الرئيسية", icon: Store },
   { href: "/pricing", label: "الخطط والأسعار", icon: Star },
   { href: "/login", label: "لوحة التحكم", icon: LayoutDashboard },
-  { href: "/menu/pizza-roma", label: "منيو تجريبي", icon: MessageCircle },
+  { href: "/menu/al-waha-cafe", label: "منيو تجريبي", icon: MessageCircle },
 ]
 
 export default function NotFound() {

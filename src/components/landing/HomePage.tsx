@@ -43,7 +43,7 @@ export default function HomePage() {
             </Reveal>
             <Reveal delay={0.3}>
               <div className="flex gap-3 justify-center lg:justify-start flex-wrap">
-                <Link href="/login">
+                <Link href="/subscribe">
                   <Button variant="gradient" size="lg" className="text-lg px-8 h-14">
                     ابدأ مجاناً <ArrowLeft className="ms-2 size-5" />
                   </Button>
@@ -316,7 +316,7 @@ export default function HomePage() {
           </Reveal>
           <Reveal delay={0.2}>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/login"><Button variant="gradient" size="lg" className="text-lg px-10 h-14 magnetic-btn">ابدأ مجاناً الآن <ArrowLeft className="ms-2 size-5" /></Button></Link>
+              <Link href="/subscribe"><Button variant="gradient" size="lg" className="text-lg px-10 h-14 magnetic-btn">ابدأ مجاناً الآن <ArrowLeft className="ms-2 size-5" /></Button></Link>
               <Link href="/pricing"><Button variant="outline" size="lg" className="text-lg px-10 h-14 border-2">عرض الخطط</Button></Link>
             </div>
           </Reveal>
