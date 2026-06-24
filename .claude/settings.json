@@ -11,10 +11,7 @@
       "Bash(node .claude/*)",
       "mcp__claude-flow__*"
     ],
-    "deny": [
-      "Read(./.env)",
-      "Read(./.env.*)"
-    ]
+    "deny": []
   },
   "hooks": {
     "PreToolUse": [

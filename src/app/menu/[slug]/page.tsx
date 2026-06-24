@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: "summary_large_image",
-      title: `${restaurant.name} | المنيو الذكي`,
+      title: restaurant.name,
       description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
       images: restaurant.logo ? [restaurant.logo] : [],
     },
