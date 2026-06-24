@@ -277,8 +277,8 @@ export default function OwnerOrdersPage() {
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-          <div className="size-20 rounded-2xl bg-muted/50 flex items-center justify-center">
-            <ClipboardList className="size-10 text-muted-foreground/50" />
+          <div className="empty-state-icon">
+            <ClipboardList />
           </div>
           <p className="text-lg font-medium">{search ? "لا توجد نتائج" : "لا توجد طلبات"}</p>
           <p className="text-sm text-muted-foreground/60">

@@ -1,5 +1,6 @@
 "use client";
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type CartItem = {
   id: string;
@@ -41,7 +42,9 @@ function genId() {
     : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export const useCart = create<CartStore>()((set, get) => ({
+export const useCart = create<CartStore>()(
+  persist(
+    (set, get) => ({
   items: [],
   customerName: "",
   customerPhone: "",
@@ -86,4 +89,20 @@ export const useCart = create<CartStore>()((set, get) => ({
   clearCart: () => set({ items: [], customerName: "", customerPhone: "", notes: "", pickupType: "inside", restaurantId: 0, restaurantWhatsapp: "", restaurantName: "" }),
   totalItems: () => get().items.reduce((a, i) => a + i.quantity, 0),
   subtotal: () => get().items.reduce((a, i) => a + i.price * i.quantity, 0),
-}));
+}),
+    {
+      name: "cart-storage",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        items: state.items,
+        customerName: state.customerName,
+        customerPhone: state.customerPhone,
+        notes: state.notes,
+        pickupType: state.pickupType,
+        restaurantId: state.restaurantId,
+        restaurantWhatsapp: state.restaurantWhatsapp,
+        restaurantName: state.restaurantName,
+      }),
+    }
+  )
+);

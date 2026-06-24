@@ -263,11 +263,11 @@ export default function MenuPageClient({
       {/* Items grid */}
       {filteredItems.length === 0 ? (
         <div className="text-center py-20 animate-fade-in">
-          <div className="size-20 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto mb-4">
-            <Search className="size-8 text-muted-foreground/50" />
+          <div className="empty-state-icon">
+            <Search />
           </div>
           <p className="text-muted-foreground text-lg font-medium mb-1">
-            {search ? "لا توجد نتائج للبحث" : "لا توجد أصناف في هذه الفئة"}
+            {search ? "لا توجد أصناف تطابق بحثك" : "لا توجد أصناف في هذه الفئة"}
           </p>
           <p className="text-sm text-muted-foreground/60">
             {search ? "جرب كلمات بحث أخرى" : "اختر فئة أخرى"}

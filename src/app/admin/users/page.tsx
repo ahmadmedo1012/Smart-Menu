@@ -177,7 +177,9 @@ export default function AdminUsersPage() {
       {/* Users list */}
       {users.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <Users className="size-12 text-muted-foreground/50" />
+          <div className="empty-state-icon">
+            <Users />
+          </div>
           <p className="text-lg font-medium">{search || roleFilter !== "all" ? "لا توجد نتائج" : "لا يوجد مستخدمين"}</p>
           {(search || roleFilter !== "all") && (
             <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setRoleFilter("all") }} className="gap-2 rounded-xl">

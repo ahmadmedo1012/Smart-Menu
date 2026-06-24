@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { error as logError } from "@/lib/logger"
 import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -12,7 +13,7 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error(error)
+    logError(error?.message || "Client error")
   }, [error])
 
   return (

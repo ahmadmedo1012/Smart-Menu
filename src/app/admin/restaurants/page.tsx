@@ -331,8 +331,10 @@ export default function AdminRestaurantsPage() {
       {/* Restaurant list */}
       {restaurants.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <Store className="size-12 text-muted-foreground/50" />
-          <p className="text-lg font-medium">{search || planFilter !== "all" ? "لا توجد نتائج" : "لا توجد مطاعم"}</p>
+          <div className="empty-state-icon">
+            <Store />
+          </div>
+          <p className="text-lg font-medium">{search || planFilter !== "all" ? "لا توجد نتائج" : "لا يوجد مطاعم مسجلة"}</p>
           {(search || planFilter !== "all") ? (
             <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setPlanFilter("all") }} className="gap-2 rounded-xl">
               <FilterX className="size-4" /> إزالة الفلتر

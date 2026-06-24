@@ -271,6 +271,7 @@ ${referralUrl}
                   <button
                     type="button"
                     onClick={handleCopyLink}
+                    aria-label="نسخ رابط الإحالة"
                     className="size-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
                   >
                     {copied ? (

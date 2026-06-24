@@ -30,21 +30,9 @@ const publicPrefixes = [
   "/demo",
 ];
 
-// Ponytail: simple in-memory rate limiter, use Redis if scaling
-const rateLimit = new Map<string, { count: number; reset: number }>();
-const RATE_WINDOW = 60_000;
-const RATE_MAX = 120;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimit.get(ip);
-  if (!entry || now > entry.reset) {
-    rateLimit.set(ip, { count: 1, reset: now + RATE_WINDOW });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_MAX;
-}
+// ponytail: Vercel edge handles rate limiting (WAF + Firewall).
+// In-memory rate limiter omitted — it's single-instance only and
+// provides no real enforcement on serverless. See /src/lib/rate-limit.ts.
 
 function setCsrfCookie(resp: NextResponse, req: NextRequest) {
   if (!req.cookies.get(CSRF_COOKIE)?.value) {
@@ -75,15 +63,6 @@ export function middleware(request: NextRequest) {
     setSecurityHeaders(resp);
     setCsrfCookie(resp, request);
     return resp;
-  }
-
-  // Ponytail: IP-based rate limiting
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-  if (isRateLimited(ip)) {
-    return new NextResponse("Too Many Requests", { status: 429 });
   }
 
   const response = NextResponse.next();

@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { error as logError } from "@/lib/logger";
 import { success, error } from "@/lib/api-helpers";
 import { CSRF_COOKIE } from "@/lib/csrf";
 
@@ -22,7 +23,7 @@ export async function POST() {
 
     return success({ message: "Logged out" });
   } catch (e) {
-    console.error("Logout error:", e);
+    logError("Logout error:", { error: e instanceof Error ? e.message : String(e) });
     return error("Logout failed", 500);
   }
 }

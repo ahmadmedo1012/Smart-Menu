@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { error as logError } from "@/lib/logger";
 import { cookies } from "next/headers";
 import { error } from "@/lib/api-helpers";
 import { z } from "zod";
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
       user: { id: user.id, username: user.username, name: user.name, role: user.role, restaurantId: user.restaurantId },
     });
   } catch (e) {
-    console.error("Login error:", e);
+    logError("Login error:", { error: e instanceof Error ? e.message : String(e) });
     return error("حدث خطأ في الخادم", 500);
   }
 }

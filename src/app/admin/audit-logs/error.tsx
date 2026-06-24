@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { error as logError } from "@/lib/logger"
 import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -11,7 +12,7 @@ export default function AdminAuditLogsError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  useEffect(() => { console.error(error) }, [error])
+  useEffect(() => { logError(error?.message || "Client error") }, [error])
 
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 animate-fade-in">

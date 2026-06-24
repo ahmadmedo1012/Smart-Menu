@@ -1,3 +1,14 @@
+/**
+ * WARNING: In-memory rate limiter — **single-instance only**.
+ * On Vercel serverless/edge, each cold-start gets its own Map, so this
+ * provides zero actual rate enforcement across instances.
+ *
+ * Vercel's edge network (Firewall + WAF) handles global DDoS/throttling.
+ * Only configure this if you have a shared store (Vercel KV / Redis).
+ *
+ * @see https://vercel.com/docs/security/vercel-waf
+ */
+
 interface RateLimiterConfig {
   windowMs: number;
   max: number;
