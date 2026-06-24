@@ -77,18 +77,18 @@ export function middleware(request: NextRequest) {
       return response;
     }
 
-    // Protected routes — auth check (via session token presence, not forgeable "true")
-    const sessionToken = request.cookies.get("smart-menu-session")?.value;
-    const hasSession = !!sessionToken;
+    // Protected routes — auth check via cookie-based auth (backward compatible)
+    const authCookie = request.cookies.get("smart-menu-auth")?.value;
+    const hasAuth = authCookie === "true";
     const roleCookie = request.cookies.get("smart-menu-role")?.value;
 
-    if (pathname.startsWith("/admin") && (!hasSession || roleCookie !== "admin")) {
+    if (pathname.startsWith("/admin") && (!hasAuth || roleCookie !== "admin")) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    if (pathname.startsWith("/owner") && (!hasSession || roleCookie !== "owner")) {
+    if (pathname.startsWith("/owner") && (!hasAuth || roleCookie !== "owner")) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
