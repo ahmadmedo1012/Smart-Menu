@@ -153,11 +153,11 @@ ${referralUrl}
           <Confetti active variant="rects" count={20} loop className="absolute inset-0 pointer-events-none overflow-hidden" />
 
           {/* Decorative glow */}
-          <div className="absolute -top-10 -right-10 size-32 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 size-32 rounded-full bg-white/5 blur-3xl" />
+          <div className="absolute -top-10 -end-10 size-32 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-10 -start-10 size-32 rounded-full bg-white/5 blur-3xl" />
 
           {/* Sparkle decoration */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="absolute top-1/2 start-1/2 -translate-x-1-2 -translate-y-1/2">
             <Sparkles className="size-12 text-white/20 animate-spin-slow" />
           </div>
 
@@ -208,7 +208,7 @@ ${referralUrl}
                 </label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative glow-within rounded-xl border border-border/40 bg-white/70 dark:bg-card/70 backdrop-blur-xl">
-                    <Phone className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                    <Phone className="absolute end-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                     <input
                       type="tel"
                       value={phone}

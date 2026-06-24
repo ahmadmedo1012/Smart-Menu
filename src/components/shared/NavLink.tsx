@@ -32,7 +32,7 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       )}
     >
       {isActive && (
-        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-gradient-to-b from-amber-500 to-amber-600 shadow-sm shadow-amber-500/30 dark:from-amber-400 dark:to-amber-500 animate-scale-in" />
+        <span className="absolute end-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-gradient-to-b from-amber-500 to-amber-600 shadow-sm shadow-amber-500/30 dark:from-amber-400 dark:to-amber-500 animate-scale-in" />
       )}
       {isActive && <span className="sr-only">(الصفحة الحالية)</span>}
       <Icon

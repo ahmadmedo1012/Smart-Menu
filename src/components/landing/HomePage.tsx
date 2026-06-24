@@ -43,12 +43,12 @@ export default function HomePage() {
             <Reveal delay={0.3}>
               <div className="flex gap-3 justify-center lg:justify-start flex-wrap">
                 <Link href="/login">
-                  <Button variant="gradient" size="lg" className="text-lg px-8 h-13">
+                  <Button variant="gradient" size="lg" className="text-lg px-8 h-14">
                     ابدأ مجاناً <ArrowLeft className="ms-2 size-5" />
                   </Button>
                 </Link>
                 <Link href={`/menu/${PARTNERS[0].slug}`}>
-                  <Button variant="gradient-outline" size="lg" className="text-lg px-8 h-13">عرض منيو تجريبي</Button>
+                  <Button variant="gradient-outline" size="lg" className="text-lg px-8 h-14">عرض منيو تجريبي</Button>
                 </Link>
               </div>
             </Reveal>
@@ -102,7 +102,7 @@ export default function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={0.2}>
-            <Link href={`/menu/${PARTNERS[0].slug}`} className="inline-flex items-center gap-2 h-13 px-8 mt-8 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-amber-700 transition-all text-base">
+            <Link href={`/menu/${PARTNERS[0].slug}`} className="inline-flex items-center gap-2 h-14 px-8 mt-8 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-amber-700 transition-all text-base">
               <Store className="size-5" /> عرض منيو تجريبي
             </Link>
             <p className="text-xs text-muted-foreground mt-3">أو <Link href="/demo" className="text-primary hover:text-amber-600 font-medium">جرب لوحة التحكم</Link> كصاحب مطعم</p>
@@ -158,7 +158,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {BENEFITS.map((b, i) => (
               <Reveal key={i} delay={i * 0.08}>
-                <div className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-400">
+                <div className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br", b.gradient.replace("from-", "from-").replace("to-", "to-") + "/5")} />
                   <div className="relative z-10">
                     <div className={cn("size-12 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg", b.gradient)}>
@@ -315,8 +315,8 @@ export default function HomePage() {
           </Reveal>
           <Reveal delay={0.2}>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/login"><Button variant="gradient" size="lg" className="text-lg px-10 h-13 animate-pulse-glow">ابدأ مجاناً الآن <ArrowLeft className="ms-2 size-5" /></Button></Link>
-              <Link href="/pricing"><Button variant="outline" size="lg" className="text-lg px-10 h-13 border-2">عرض الخطط</Button></Link>
+              <Link href="/login"><Button variant="gradient" size="lg" className="text-lg px-10 h-14 animate-pulse-glow">ابدأ مجاناً الآن <ArrowLeft className="ms-2 size-5" /></Button></Link>
+              <Link href="/pricing"><Button variant="outline" size="lg" className="text-lg px-10 h-14 border-2">عرض الخطط</Button></Link>
             </div>
           </Reveal>
           <Reveal delay={0.3}><p className="text-xs text-muted-foreground mt-4">مجاناً بدون بطاقة ائتمان • إلغاء في أي وقت</p></Reveal>

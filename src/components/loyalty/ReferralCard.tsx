@@ -78,8 +78,8 @@ export default function ReferralCard({
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-0.5 shadow-xl shadow-amber-500/30">
       {/* Decorative glowing orbs */}
-      <div className="absolute -top-20 -right-20 size-40 rounded-full bg-amber-300/20 blur-3xl" />
-      <div className="absolute -bottom-20 -left-20 size-40 rounded-full bg-amber-400/15 blur-3xl" />
+      <div className="absolute -top-20 -end-20 size-40 rounded-full bg-amber-300/20 blur-3xl" />
+      <div className="absolute -bottom-20 -start-20 size-40 rounded-full bg-amber-400/15 blur-3xl" />
 
       <div className="relative rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/80 dark:to-orange-950/80 p-6 overflow-hidden">
         {/* Inner decorative dots */}

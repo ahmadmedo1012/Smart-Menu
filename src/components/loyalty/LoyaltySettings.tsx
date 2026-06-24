@@ -107,7 +107,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
   }
 
   return (
-    <Card className="border-white/30 bg-white/60 backdrop-blur-xl dark:bg-white/5 dark:border-white/10">
+    <Card className="border-white/30 bg-card/60 backdrop-blur-xl dark:bg-card dark:border-border/10">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
           />
         </div>
 
-        <Separator className="bg-white/10" />
+        <Separator className="bg-card/10" />
 
         {/* Points Configuration */}
         <div className="space-y-4">
@@ -186,7 +186,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
           </div>
         </div>
 
-        <Separator className="bg-white/10" />
+        <Separator className="bg-card/10" />
 
         {/* Referral-Specific Settings */}
         <div className="space-y-4">
@@ -231,7 +231,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
           </div>
         </div>
 
-        <Separator className="bg-white/10" />
+        <Separator className="bg-card/10" />
 
         {/* Tier Thresholds */}
         <div className="space-y-4">

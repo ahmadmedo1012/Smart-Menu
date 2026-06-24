@@ -125,14 +125,14 @@ export default function PaymentDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md rounded-2xl p-0 gap-0" showCloseButton={false}>
         {/* Header */}
-        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-t-2xl">
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-primary-foreground p-6 rounded-t-2xl">
           <div className="flex items-center gap-2 mb-2">
             <Smartphone className="size-5" />
-            <DialogTitle className="text-white text-lg font-bold">
+            <DialogTitle className="text-primary-foreground text-lg font-bold">
               دفع الاشتراك
             </DialogTitle>
           </div>
-          <DialogDescription className="text-white/80 text-sm">
+          <DialogDescription className="text-primary-foreground/80 text-sm">
             ادفع عبر المحفظة الإلكترونية وأرسل إيصال الدفع
           </DialogDescription>
         </div>

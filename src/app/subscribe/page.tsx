@@ -239,7 +239,7 @@ function SubscribeContent() {
             <div className="text-center">
               <Button
                 size="lg"
-                className="px-10 h-13 text-lg rounded-xl"
+                className="px-10 h-14 text-lg rounded-xl"
                 disabled={!selectedPlan}
                 onClick={() => setStep("form")}
               >
@@ -414,7 +414,7 @@ function SubscribeContent() {
               )}
 
               <Button
-                className="w-full h-13 text-base font-semibold rounded-xl mt-4"
+                className="w-full h-14 text-base font-semibold rounded-xl mt-4"
                 size="lg"
                 onClick={handleSubmit}
                 disabled={!isFormValid || submitting}

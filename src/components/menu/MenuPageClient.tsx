@@ -223,7 +223,7 @@ export default function MenuPageClient({
               className={cn(
                 "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
                 activeCategory === null
-                  ? "bg-white/20 text-white"
+                  ? "bg-background/20 text-foreground"
                   : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
               )}
             >
@@ -249,7 +249,7 @@ export default function MenuPageClient({
                 className={cn(
                   "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
                   activeCategory === cat.id
-                    ? "bg-white/20 text-white"
+                    ? "bg-background/20 text-foreground"
                     : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
                 )}
               >

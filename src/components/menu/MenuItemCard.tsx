@@ -111,12 +111,12 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-400 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-amber-500/10 active:scale-[0.98] border border-border/30 hover:border-amber-300/40 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-amber-500/10 active:scale-[0.98] border border-border/30 hover:border-amber-300/40 overflow-hidden"
       onClick={() => onOrder(item)}
     >
       <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 
-      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-amber-300/30 group-hover:shadow-lg group-hover:shadow-amber-500/10 transition-all duration-400">
+      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-amber-300/30 group-hover:shadow-lg group-hover:shadow-amber-500/10 transition-all duration-300">
         {item.image && !imageError ? (
           <>
             {!imageLoaded && <div className="absolute inset-0 skeleton" />}

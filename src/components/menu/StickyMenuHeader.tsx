@@ -23,7 +23,7 @@ export default function StickyMenuHeader({
   return (
     <div
       className={cn(
-        "fixed inset-x-0 top-0 z-40 h-14 flex items-center px-4 gap-3 transition-all duration-400",
+        "fixed inset-x-0 top-0 z-40 h-14 flex items-center px-4 gap-3 transition-all duration-300",
         scrolled
           ? "bg-background/85 backdrop-blur-xl border-b border-border/40 shadow-sm"
           : "bg-transparent",
@@ -31,7 +31,7 @@ export default function StickyMenuHeader({
     >
       <div
         className={cn(
-          "size-8 rounded-xl flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-400",
+          "size-8 rounded-xl flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-300",
           scrolled
             ? logo
               ? "ring-1 ring-border/30"
@@ -53,7 +53,7 @@ export default function StickyMenuHeader({
       <div className="flex-1 min-w-0">
         <span
           className={cn(
-            "font-bold text-sm truncate block transition-all duration-400",
+            "font-bold text-sm truncate block transition-all duration-300",
             scrolled ? "opacity-100" : "opacity-0",
           )}
         >
