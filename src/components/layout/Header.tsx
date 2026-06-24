@@ -24,7 +24,7 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
     <>
       <div className="flex items-center gap-3 border-b border-border/20 px-4 pb-4 pt-5">
-        <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-8 w-auto" priority />
+        <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
       </div>
       <nav className="space-y-2 px-3 py-4">
         <Link
@@ -82,7 +82,7 @@ export function Header({ className }: HeaderProps) {
             </SheetContent>
           </Sheet>
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-8 w-auto" priority />
+            <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
           </Link>
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">

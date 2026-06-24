@@ -13,7 +13,7 @@ export function Footer({ className, partnerSlug = "al-waha-cafe" }: FooterProps)
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="md:col-span-2">
-            <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-8 w-auto mb-3" loading="lazy" />
+            <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto mb-3" loading="lazy" />
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
               منصة رقمية لإدارة منيو المطاعم والمقاهي واستقبال الطلبات عبر واتساب
             </p>

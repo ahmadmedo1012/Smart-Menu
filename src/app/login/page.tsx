@@ -143,7 +143,7 @@ function LoginForm() {
         {/* Logo area */}
         <CardHeader className="pb-2 pt-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
-            <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-full w-full object-contain" priority />
+            <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-full w-full object-contain" priority />
           </div>
           <CardTitle className="font-arabic text-2xl font-bold tracking-tight">
             الربط الذكي

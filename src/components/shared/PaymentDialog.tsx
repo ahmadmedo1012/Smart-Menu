@@ -75,7 +75,7 @@ export default function PaymentDialog({
     }
     setSubmitting(true);
     try {
-      const res = await csrfFetch("/api/subscriptions/pending", {
+      const res = await csrfFetch("/api/subscriptions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: phone.trim(), amount, provider, planId }),
@@ -102,9 +102,13 @@ export default function PaymentDialog({
     return () => clearTimeout(t);
   }, [step, countdown]);
 
-  const handleConfirm = () => {
-    onSuccess();
-    onOpenChange(false);
+  const handleConfirm = async () => {
+    try {
+      await onSuccess();
+      onOpenChange(false);
+    } catch {
+      // if createAccount fails, stay open so user can retry
+    }
   };
 
   // reset on close

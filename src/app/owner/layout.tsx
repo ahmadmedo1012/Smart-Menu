@@ -28,7 +28,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
     <>
       {/* Brand */}
       <div className="relative z-10 flex items-center border-b border-border/20 px-4 py-4 min-h-[72px]">
-        <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="max-h-9 w-auto" priority />
+        <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="max-h-9 w-auto" priority />
       </div>
 
       {/* Nav */}
