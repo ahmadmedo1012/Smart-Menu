@@ -194,7 +194,7 @@ export default function ReferralCard({
             </div>
             <button
               type="button"
-              onClick={handleCopyLink} className="cursor-pointer"
+              onClick={handleCopyLink}
               aria-label="نسخ رابط الإحالة"
               className="size-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
             >
