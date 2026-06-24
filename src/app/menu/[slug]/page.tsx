@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
   const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
-  if (!restaurant) return { title: "المطعم غير موجود" };
+  if (!restaurant) notFound();
   return {
     title: restaurant.name,
     description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
