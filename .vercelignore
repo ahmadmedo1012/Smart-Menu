@@ -1,0 +1,14 @@
+node_modules
+.claude
+.claude-flow
+.swarm
+.git
+.gitignore
+README.md
+test-results
+tests
+docs
+remotion
+graphify-out
+scripts
+.vscode

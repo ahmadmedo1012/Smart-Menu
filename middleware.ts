@@ -133,12 +133,7 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  if (!isAuthenticated) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
+  // All other routes are public — render normally (404, pages, etc.)
   return response;
 }
 

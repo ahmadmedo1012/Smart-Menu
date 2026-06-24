@@ -1045,3 +1045,6 @@
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/components/shared/ScrollToTop.tsx","timestamp":1782261251662,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/layout.tsx","timestamp":1782261254896,"sessionId":null}
 {"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/globals.css","timestamp":1782261267658,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/.vercelignore","timestamp":1782261744655,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/src/app/menu/[slug]/page.tsx","timestamp":1782262878574,"sessionId":null}
+{"type":"edit","file":"/home/ahmed/UTILITIES/smart-menu/middleware.ts","timestamp":1782262903176,"sessionId":null}

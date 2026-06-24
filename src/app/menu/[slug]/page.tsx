@@ -19,10 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
   if (!restaurant) return { title: "المطعم غير موجود" };
   return {
-    title: `${restaurant.name} | المنيو الذكي`,
+    title: restaurant.name,
     description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
     openGraph: {
-      title: `${restaurant.name} | المنيو الذكي`,
+      title: restaurant.name,
       description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
       url: `${origin}/menu/${slug}`,
       siteName: "الربط الذكي",
