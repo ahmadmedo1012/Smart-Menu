@@ -492,7 +492,7 @@ export default function OwnerLoyaltyPage() {
     <div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
       {/* ---- Header ---- */}
       <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2">
-        <ArrowRight className="ml-1 h-4 w-4" />
+        <ArrowRight className="size-4 me-1" />
         العودة
       </Button>
       <div className="flex items-center justify-between flex-wrap gap-4">

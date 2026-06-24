@@ -154,7 +154,10 @@ export default function MenuPageClient({
           <button
             type="button"
             aria-label="ترتيب"
+            aria-haspopup="listbox"
+            aria-expanded={showSort}
             onClick={() => setShowSort(!showSort)}
+            onKeyDown={(e) => { if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") { e.preventDefault(); setShowSort(true); } }}
             className="h-12 px-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
           >
             <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -164,11 +167,22 @@ export default function MenuPageClient({
           {showSort && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
-              <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right">
+              <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
+                role="listbox"
+                aria-label="خيارات الترتيب"
+                onKeyDown={(e) => {
+                  const opts = e.currentTarget.querySelectorAll<HTMLButtonElement>("[role='option']");
+                  const cur = Array.from(opts).findIndex((o) => o === document.activeElement);
+                  if (e.key === "ArrowDown") { e.preventDefault(); opts[(cur + 1) % opts.length]?.focus(); }
+                  if (e.key === "ArrowUp") { e.preventDefault(); opts[(cur - 1 + opts.length) % opts.length]?.focus(); }
+                  if (e.key === "Escape") { setShowSort(false); }
+                }}>
                 {SORT_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
+                    role="option"
                     type="button"
+                    aria-selected={sort === opt.value}
                     onClick={() => { setSort(opt.value); setShowSort(false); }}
                     className={cn(
                       "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent",

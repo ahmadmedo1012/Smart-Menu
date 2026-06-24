@@ -300,8 +300,8 @@ export default function PaymentDialog({
           {step === "success" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
-                <div className="size-16 rounded-full bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-center">
-                  <ShieldCheck className="size-8 text-emerald-500" />
+                <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <ShieldCheck className="size-8 text-primary" />
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">

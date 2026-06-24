@@ -223,7 +223,7 @@ function SubscribeContent() {
                     <div className="space-y-1.5 mb-4 flex-1">
                       {plan.features.slice(0, 4).map((f, j) => (
                         <div key={j} className="flex items-center gap-2 text-xs">
-                          <Check className="size-3 text-emerald-500 shrink-0" />
+                          <Check className="size-3 text-primary shrink-0" />
                           <span>{f}</span>
                         </div>
                       ))}

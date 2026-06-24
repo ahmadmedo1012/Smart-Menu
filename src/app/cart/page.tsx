@@ -132,7 +132,7 @@ export default function CartPage() {
       <Header />
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center animate-scale-in">
         <div className="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 animate-scale-in">
-          <Check className="size-12 text-emerald-500" />
+          <Check className="size-12 text-primary" />
         </div>
         <h2 className="text-2xl font-bold mb-2">تم تأكيد الطلب!</h2>
         <p className="text-muted-foreground flex items-center gap-2">

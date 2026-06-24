@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight, X, Maximize2, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +42,25 @@ export default function GalleryCarousel({
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [next, paused]);
+
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const lightboxPrevRef = useRef<HTMLButtonElement>(null);
+  const lightboxNextRef = useRef<HTMLButtonElement>(null);
+
+  const trapFocus = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") { closeLightbox(); return; }
+    if (e.key !== "Tab") return;
+    const focusable = [closeRef.current, lightboxPrevRef.current, lightboxNextRef.current].filter(Boolean) as HTMLElement[];
+    if (focusable.length < 2) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }, []);
+
+  useEffect(() => {
+    if (lightbox) closeRef.current?.focus();
+  }, [lightbox]);
 
   if (!images.length) return null;
 
@@ -127,8 +146,9 @@ export default function GalleryCarousel({
 
       {lightbox && (
         <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
-          onClick={closeLightbox}>
-          <button type="button" onClick={closeLightbox}
+          onClick={closeLightbox}
+          onKeyDown={trapFocus}>
+          <button ref={closeRef} type="button" onClick={closeLightbox}
             aria-label="إغلاق"
             className="absolute top-4 left-4 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
             <X className="size-5" aria-hidden="true" />
@@ -142,13 +162,13 @@ export default function GalleryCarousel({
 
             {images.length > 1 && (
               <>
-                <button type="button"
+                <button type="button" ref={lightboxPrevRef}
                   onClick={() => setLightboxIdx((prev) => (prev - 1 + images.length) % images.length)}
                   aria-label="الصورة السابقة"
                   className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
                   <ChevronLeft className="size-5" aria-hidden="true" />
                 </button>
-                <button type="button"
+                <button type="button" ref={lightboxNextRef}
                   onClick={() => setLightboxIdx((prev) => (prev + 1) % images.length)}
                   aria-label="الصورة التالية"
                   className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">

@@ -137,7 +137,7 @@ function LoginForm() {
       </div>
 
       {/* Decorative top bar */}
-      <div className="fixed top-0 right-0 left-0 z-10 h-1 bg-gradient-to-l from-amber-400 via-amber-500 to-amber-300 dark:from-amber-500 dark:via-amber-400 dark:to-amber-600" />
+      <div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-l from-amber-400 via-amber-500 to-amber-300 dark:from-amber-500 dark:via-amber-400 dark:to-amber-600" />
 
       <Card className="animate-scale-in relative z-10 w-full max-w-sm border-none bg-white/70 shadow-xl backdrop-blur-xl sm:max-w-md sm:rounded-2xl dark:bg-zinc-900/70 dark:shadow-2xl">
         {/* Logo area */}
@@ -196,7 +196,7 @@ function LoginForm() {
                   tabIndex={-1}
                   aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
             </div>
@@ -208,12 +208,12 @@ function LoginForm() {
             >
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <LogIn className="h-4 w-4 animate-pulse" />
+                  <LogIn className="size-4 animate-pulse" />
                   جاري تسجيل الدخول...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <LogIn className="h-4 w-4" />
+                  <LogIn className="size-4" />
                   تسجيل الدخول
                 </span>
               )}
@@ -236,7 +236,7 @@ export default function LoginPage() {
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-amber-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-10 w-10 animate-pulse rounded-full bg-amber-400/40" />
+            <div className="size-10 animate-pulse rounded-full bg-amber-400/40" />
             <span className="animate-breath font-arabic text-sm text-muted-foreground">
               جاري التحميل...
             </span>

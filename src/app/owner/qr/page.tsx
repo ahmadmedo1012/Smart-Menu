@@ -57,7 +57,7 @@ export default function OwnerQRPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
       <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2 text-muted-foreground">
-        <ArrowRight className="ml-1 h-4 w-4" />
+        <ArrowRight className="size-4 me-1" />
         العودة
       </Button>
 

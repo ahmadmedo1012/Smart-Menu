@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
+import { createSession } from "@/lib/session";
 
 export async function GET() {
   if (process.env.NODE_ENV === "production") {
@@ -15,6 +16,8 @@ export async function GET() {
 
   const redirectUrl = new URL("/owner", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000");
   const response = NextResponse.redirect(redirectUrl);
+
+  await createSession(user.id);
 
   const cookieOpts = {
     httpOnly: true,

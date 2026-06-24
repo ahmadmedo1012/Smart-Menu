@@ -37,26 +37,38 @@ export default async function PrintMenuPage({
         <meta charSet="utf-8" />
         <title>{`${restaurant.name} - المنيو | للطباعة`}</title>
         <style>{`
+          :root {
+            --print-foreground: #1a1a1a;
+            --print-background: #fff;
+            --print-primary: #b45309;
+            --print-amber-500: #d97706;
+            --print-amber-700: #92400e;
+            --print-muted: #ccc;
+            --print-border: #ddd;
+            --print-sub: #666;
+            --print-desc: #888;
+            --print-footer: #999;
+          }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
             font-family: 'Traditional Arabic', 'Noto Naskh Arabic', serif;
-            color: #1a1a1a; background: #fff;
+            color: var(--print-foreground); background: var(--print-background);
             line-height: 1.6; padding: 1.5cm;
           }
-          h1 { font-size: 1.8rem; color: #b45309; text-align: center; }
-          .sub { text-align: center; color: #666; font-size: 0.85rem; margin: 0.3rem 0; }
-          .divider { border: none; border-top: 2px solid #d97706; margin: 1rem 0; }
+          h1 { font-size: 1.8rem; color: var(--print-primary); text-align: center; }
+          .sub { text-align: center; color: var(--print-sub); font-size: 0.85rem; margin: 0.3rem 0; }
+          .divider { border: none; border-top: 2px solid var(--print-amber-500); margin: 1rem 0; }
           .cat { margin: 1.2rem 0; page-break-inside: avoid; }
-          .cat h2 { font-size: 1.1rem; color: #92400e; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+          .cat h2 { font-size: 1.1rem; color: var(--print-amber-700); border-bottom: 1px solid var(--print-border); padding-bottom: 0.3rem; }
           .item { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.95rem; }
           .item .nm { font-weight: 500; }
-          .item .pr { font-weight: 700; color: #b45309; white-space: nowrap; }
-          .item .old { text-decoration: line-through; color: #ccc; font-weight: 400; }
-          .desc { font-size: 0.8rem; color: #888; }
-          .footer { text-align: center; font-size: 0.75rem; color: #999; border-top: 1px solid #ddd; padding-top: 1rem; margin-top: 2rem; }
+          .item .pr { font-weight: 700; color: var(--print-primary); white-space: nowrap; }
+          .item .old { text-decoration: line-through; color: var(--print-muted); font-weight: 400; }
+          .desc { font-size: 0.8rem; color: var(--print-desc); }
+          .footer { text-align: center; font-size: 0.75rem; color: var(--print-footer); border-top: 1px solid var(--print-border); padding-top: 1rem; margin-top: 2rem; }
           .actions { text-align: center; margin-bottom: 1rem; }
-          .actions a, .actions button { color: #d97706; font-size: 0.85rem; margin: 0 0.5rem; cursor: pointer; background: none; border: none; text-decoration: underline; }
-          .print-btn { background: #d97706; color: #fff !important; text-decoration: none !important; padding: 8px 24px; border-radius: 8px; display: inline-block; margin-top: 0.5rem; font-size: 1rem !important; }
+          .actions a, .actions button { color: var(--print-amber-500); font-size: 0.85rem; margin: 0 0.5rem; cursor: pointer; background: none; border: none; text-decoration: underline; }
+          .print-btn { background: var(--print-amber-500); color: var(--print-background) !important; text-decoration: none !important; padding: 8px 24px; border-radius: 8px; display: inline-block; margin-top: 0.5rem; font-size: 1rem !important; }
           @media print { .actions { display: none; } body { padding: 0; } @page { margin: 1.5cm; } }
         `}</style>
       </head>
@@ -71,7 +83,7 @@ export default async function PrintMenuPage({
           {restaurant.phone && <> 📞 {restaurant.phone}  </>}
           {restaurant.workingHours && <>  🕐 {restaurant.workingHours}</>}
         </p>
-        <p className="sub" style={{fontSize:"0.8rem",color:"#999"}}>
+        <p className="sub" style={{fontSize:"0.8rem",color:"var(--print-footer)"}}>
           {toArabicNumber(categories.length)} قسم · {toArabicNumber(totalItems)} صنف
         </p>
         <hr className="divider" />
@@ -80,7 +92,7 @@ export default async function PrintMenuPage({
           <div key={cat.id} className="cat">
             <h2>{cat.nameAr || cat.name}</h2>
             {cat.items.length === 0 ? (
-              <p style={{color:"#999",fontSize:"0.85rem"}}>لا توجد أصناف</p>
+              <p style={{color:"var(--print-footer)",fontSize:"0.85rem"}}>لا توجد أصناف</p>
             ) : (
               cat.items.map(item => (
                 <div key={item.id}>

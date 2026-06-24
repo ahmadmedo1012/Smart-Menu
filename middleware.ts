@@ -5,13 +5,9 @@ const CSRF_COOKIE = "csrf-token";
 const CSRF_HEADER = "x-csrf-token";
 
 function generateToken(): string {
-  try {
-    const bytes = new Uint8Array(32);
-    crypto.getRandomValues(bytes);
-    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-  } catch {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-  }
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 function validateToken(h: string | null | undefined, c: string | null | undefined): boolean {
@@ -42,7 +38,9 @@ function setHeaders(resp: NextResponse) {
   resp.headers.set("X-Content-Type-Options", "nosniff");
   resp.headers.set("X-Frame-Options", "DENY");
   resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  resp.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
   resp.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 }
 
 const SAFE = new Set(["GET", "HEAD", "OPTIONS"]);
@@ -58,6 +56,7 @@ export function middleware(request: NextRequest) {
       resp.headers.set("X-Content-Type-Options", "nosniff");
       resp.headers.set("X-Frame-Options", "DENY");
       resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+      resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
       setCsrfCookie(resp, request);
       return resp;
     }
@@ -78,19 +77,18 @@ export function middleware(request: NextRequest) {
       return response;
     }
 
-    // Protected routes — auth check
-    const authCookie = request.cookies.get("smart-menu-auth");
-    const roleCookie = request.cookies.get("smart-menu-role");
-    const isAuth = authCookie?.value === "true";
-    const role = roleCookie?.value;
+    // Protected routes — auth check (via session token presence, not forgeable "true")
+    const sessionToken = request.cookies.get("smart-menu-session")?.value;
+    const hasSession = !!sessionToken;
+    const roleCookie = request.cookies.get("smart-menu-role")?.value;
 
-    if (pathname.startsWith("/admin") && (!isAuth || role !== "admin")) {
+    if (pathname.startsWith("/admin") && (!hasSession || roleCookie !== "admin")) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    if (pathname.startsWith("/owner") && (!isAuth || role !== "owner")) {
+    if (pathname.startsWith("/owner") && (!hasSession || roleCookie !== "owner")) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);

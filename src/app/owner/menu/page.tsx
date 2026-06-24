@@ -31,7 +31,7 @@ export default function OwnerMenuPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [catDialog, setCatDialog] = useState(false)
   const [catEditing, setCatEditing] = useState<Category | null>(null)
-  const [catForm, setCatForm] = useState({ name: "", nameAr: "", icon: "📦" })
+  const [catForm, setCatForm] = useState({ name: "", nameAr: "", icon: "Package" })
   const [itemCatId, setItemCatId] = useState(0)
   const [itemEditing, setItemEditing] = useState<Item | null>(null)
   const [itemDialogOpen, setItemDialogOpen] = useState(false)
@@ -111,7 +111,7 @@ export default function OwnerMenuPage() {
           <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
         </div>
         <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-xl gap-2">
-          <Plus className="h-4 w-4" /> تصنيف جديد
+          <Plus className="size-4" /> تصنيف جديد
         </Button>
       </div>
 
@@ -126,11 +126,11 @@ export default function OwnerMenuPage() {
       {filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
           <div className="size-20 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center">
-            <Package className="h-10 w-10 text-muted-foreground/50" />
+            <Package className="size-10 text-muted-foreground/50" />
           </div>
           <p className="text-lg font-medium">{searchTerm ? "لا توجد نتائج" : "لا توجد تصنيفات"}</p>
           <p className="text-sm text-muted-foreground/60">{searchTerm ? "جرب كلمات بحث أخرى" : "أضف تصنيفاً جديداً لبدء بناء المنيو"}</p>
-          {!searchTerm && <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "📦" }); setCatDialog(true) }} className="rounded-xl gap-2"><Plus className="h-4 w-4" /> إضافة تصنيف</Button>}
+          {!searchTerm && <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="rounded-xl gap-2"><Plus className="size-4" /> إضافة تصنيف</Button>}
         </div>
       ) : (
         <div className="space-y-3">
@@ -152,10 +152,10 @@ export default function OwnerMenuPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="h-4 w-4" /></Button>
-                  <ChevronDown className={cn("h-5 w-5 text-muted-foreground transition-transform duration-300 mr-1", expandedCat === cat.id && "rotate-180")} />
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="size-4" /></Button>
+                  <ChevronDown className={cn("size-5 text-muted-foreground transition-transform duration-300 mr-1", expandedCat === cat.id && "rotate-180")} />
                 </div>
               </div>
 
@@ -183,8 +183,8 @@ export default function OwnerMenuPage() {
                             <span className={cn("text-xs w-14", item.status === "available" ? "text-emerald-600" : "text-red-500")}>{item.status === "available" ? "متوفر" : "غير متوفر"}</span>
                           </div>
                           <div className="flex gap-0.5">
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="h-3.5 w-3.5" /></Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={() => setDeleteTarget({ type: "item", id: item.id, name: item.name })} title="حذف"><Trash2 className="h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="size-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={() => setDeleteTarget({ type: "item", id: item.id, name: item.name })} title="حذف"><Trash2 className="size-3.5" /></Button>
                           </div>
                         </div>
                       ))}
@@ -192,7 +192,7 @@ export default function OwnerMenuPage() {
                   ) : (
                     <div className="py-8 text-center">
                       <p className="text-sm text-muted-foreground mb-3">لا توجد أصناف في هذا التصنيف</p>
-                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1"><Plus className="h-3.5 w-3.5" /> إضافة صنف</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1"><Plus className="size-3.5" /> إضافة صنف</Button>
                     </div>
                   )}
                 </div>

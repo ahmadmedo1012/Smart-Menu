@@ -73,7 +73,7 @@ export default function Confetti({
   if (particles.length === 0) return null;
 
   return (
-    <div className={className ?? DEFAULT_CLASS}>
+    <div className={className ?? DEFAULT_CLASS} aria-hidden="true">
       {particles.map((p) =>
         variant === "rects" ? (
           <div

@@ -115,6 +115,9 @@ const MenuItemCard = memo(function MenuItemCard({
     <div
       className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-amber-500/10 active:scale-[0.98] border border-border/30 hover:border-amber-300/40 overflow-hidden"
       onClick={() => onOrder(item)}
+      tabIndex={0}
+      role="button"
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
       <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 

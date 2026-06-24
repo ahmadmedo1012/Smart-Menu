@@ -2,11 +2,13 @@ import { cookies } from "next/headers";
 import { error as logError } from "@/lib/logger";
 import { success, error } from "@/lib/api-helpers";
 import { CSRF_COOKIE } from "@/lib/csrf";
+import { destroySession } from "@/lib/session";
 
 export async function POST() {
   try {
-    const cookieStore = await cookies();
+    await destroySession();
 
+    const cookieStore = await cookies();
     const opts = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

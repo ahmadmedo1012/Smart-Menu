@@ -88,7 +88,7 @@ function PlanCard({
 
       {/* Subtle bottom gradient glow for popular card */}
       {isPopular && (
-        <div className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-amber-500/5 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-amber-500/5 to-transparent pointer-events-none" />
       )}
 
       <div className="relative z-10 flex flex-col flex-1">
@@ -121,7 +121,7 @@ function PlanCard({
             </div>
           )}
           {yearly && !isFree && (
-            <p className="text-xs text-emerald-500 mt-1">وفر شهرين عند الاشتراك السنوي</p>
+            <p className="text-xs text-primary mt-1">وفر شهرين عند الاشتراك السنوي</p>
           )}
         </div>
 
@@ -146,8 +146,8 @@ function PlanCard({
           {plan.features.map((feature: string, i: number) => (
             <div key={i} className="group/feature flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-1">
               <div className="relative shrink-0 mt-0.5">
-                <Check className="size-4 text-emerald-500 transition-all duration-300 group-hover/feature:scale-110 group-hover/feature:text-emerald-400" />
-                <span className="absolute inset-0 size-4 rounded-full bg-emerald-400/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
+                <Check className="size-4 text-primary transition-all duration-300 group-hover/feature:scale-110 group-hover/feature:text-primary/80" />
+                <span className="absolute inset-0 size-4 rounded-full bg-primary/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
               </div>
               <span className="group-hover/feature:text-foreground/90 transition-colors duration-300">{feature}</span>
             </div>
@@ -235,7 +235,7 @@ export default function PricingPage() {
               )}
             >
               سنوي
-              <span className="mr-1.5 text-xs text-emerald-500 font-bold">وفر شهرين</span>
+              <span className="mr-1.5 text-xs text-primary font-bold">وفر شهرين</span>
             </button>
           </div>
         </div>
