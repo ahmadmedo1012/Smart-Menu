@@ -79,6 +79,7 @@ export default function GalleryCarousel({
                   src={img}
                   alt={`${restaurantName || "صورة"} ${i + 1}`}
                   className="w-full h-full object-cover img-fade-in"
+                  loading="lazy"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />
@@ -136,7 +137,8 @@ export default function GalleryCarousel({
           <div className="relative max-w-5xl max-h-[92vh] mx-4 w-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}>
             <img src={images[lightboxIdx]} alt={`${restaurantName || "صورة"} ${lightboxIdx + 1}`}
-              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-lightbox-scale" />
+              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-lightbox-scale"
+              loading="lazy" />
 
             {images.length > 1 && (
               <>

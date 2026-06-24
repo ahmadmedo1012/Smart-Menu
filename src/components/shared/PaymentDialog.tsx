@@ -206,7 +206,7 @@ export default function PaymentDialog({
                   رمز التحويل السريع
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm font-bold text-green-800 dark:text-green-300" dir="ltr">
+                  <span className="font-mono text-sm font-bold text-amber-800 dark:text-amber-300" dir="ltr">
                     {quickTransferCode}
                   </span>
                   <button

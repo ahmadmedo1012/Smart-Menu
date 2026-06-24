@@ -144,9 +144,9 @@ export default function OwnerMenuPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="h-4 w-4" /></Button>
                   <ChevronDown className={cn("h-5 w-5 text-muted-foreground transition-transform duration-300 mr-1", expandedCat === cat.id && "rotate-180")} />
                 </div>
               </div>
@@ -175,8 +175,8 @@ export default function OwnerMenuPage() {
                             <span className={cn("text-xs w-14", item.status === "available" ? "text-emerald-600" : "text-red-500")}>{item.status === "available" ? "متوفر" : "غير متوفر"}</span>
                           </div>
                           <div className="flex gap-0.5">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="h-3.5 w-3.5" /></Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive" onClick={() => setDeleteTarget({ type: "item", id: item.id, name: item.name })} title="حذف"><Trash2 className="h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={() => setDeleteTarget({ type: "item", id: item.id, name: item.name })} title="حذف"><Trash2 className="h-3.5 w-3.5" /></Button>
                           </div>
                         </div>
                       ))}

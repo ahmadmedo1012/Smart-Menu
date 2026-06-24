@@ -241,7 +241,7 @@ export default function AdminSettingsPage() {
               </div>
               {form.logo && (
                 <div className="size-20 rounded-xl overflow-hidden border">
-                  <img src={form.logo} alt="شعار المطعم" className="size-full object-cover" />
+                  <img src={form.logo} alt="شعار المطعم" className="size-full object-cover" loading="lazy" />
                 </div>
               )}
               <div className="flex justify-end pt-2">

@@ -3,11 +3,10 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Store, ClipboardList, ShoppingCart, TrendingUp, Clock,
   AlertCircle, ExternalLink, Package, Award, Gift, Users,
-  ChefHat, CheckCircle, XCircle, ArrowLeft, Sparkles,
+  CheckCircle, ArrowLeft, Sparkles,
   BarChart3, QrCode, Copy, Settings,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -427,7 +426,7 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <Link href="/owner/qr">
-              <Button size="sm" className="rounded-xl h-8 text-xs gap-1.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+              <Button size="sm" className="rounded-xl h-8 text-xs gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
                 <QrCode className="size-3.5" />
                 عرض QR
               </Button>

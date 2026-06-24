@@ -109,7 +109,7 @@ export default function AdminQRPage() {
                   style={{ width: qrSize, height: qrSize, maxWidth: "100%" }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="size-10 md:size-14 rounded-2xl bg-white/90 dark:bg-gray-900/90 shadow flex items-center justify-center">
+                  <div className="size-10 md:size-14 rounded-2xl bg-card/90 shadow flex items-center justify-center">
                     <Store className="size-5 md:size-7 text-amber-500" />
                   </div>
                 </div>

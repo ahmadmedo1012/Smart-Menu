@@ -75,7 +75,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
                 <Upload className="size-4 text-muted-foreground" />
               </label>
             </div>
-            {form.image && <div className="mt-2 rounded-xl overflow-hidden size-20 border border-border/30"><img src={form.image} alt="" className="size-full object-cover" /></div>}
+            {form.image && <div className="mt-2 rounded-xl overflow-hidden size-20 border border-border/30"><img src={form.image} alt="" className="size-full object-cover" loading="lazy" /></div>}
           </div>
           <div>
             <Label>الحالة</Label>

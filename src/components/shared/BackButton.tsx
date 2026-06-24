@@ -16,7 +16,7 @@ export default function BackButton({ href }: BackButtonProps) {
     return (
       <Link href={href}>
         <Button variant="ghost" size="sm">
-          <ArrowRight className="ml-1 size-4" />
+          <ArrowRight className="ms-1 size-4" />
           العودة
         </Button>
       </Link>
@@ -25,7 +25,7 @@ export default function BackButton({ href }: BackButtonProps) {
 
   return (
     <Button variant="ghost" size="sm" onClick={() => router.back()}>
-      <ArrowRight className="ml-1 size-4" />
+      <ArrowRight className="ms-1 size-4" />
       العودة
     </Button>
   )

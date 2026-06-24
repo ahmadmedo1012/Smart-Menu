@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { NavLink } from "@/components/shared/NavLink"
 
 const navItems = [
   { href: "/owner", label: "لوحة التحكم", icon: LayoutDashboard },
@@ -21,57 +23,18 @@ const navItems = [
   { href: "/owner/settings", label: "الإعدادات", icon: Settings },
 ]
 
-function NavLink({
-  href,
-  label,
-  icon: Icon,
-  onClick,
-}: {
-  href: string
-  label: string
-  icon: typeof LayoutDashboard
-  onClick?: () => void
-}) {
-  const pathname = usePathname()
-  const isActive = pathname === href || (href !== "/owner" && pathname.startsWith(href))
-
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={cn(
-        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300 overflow-hidden",
-        isActive
-          ? "bg-gradient-to-r from-amber-500/15 to-amber-600/10 text-foreground shadow-sm dark:from-amber-400/15 dark:to-amber-500/10"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-      )}
-    >
-      {isActive && (
-        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-gradient-to-b from-amber-500 to-amber-600 dark:from-amber-400 dark:to-amber-500" />
-      )}
-      <Icon
-        className={cn(
-          "size-4 shrink-0 transition-transform duration-300 group-hover:scale-110",
-          isActive && "text-amber-600 dark:text-amber-400",
-        )}
-      />
-      {label}
-    </Link>
-  )
-}
-
 function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   return (
     <>
       {/* Brand */}
       <div className="relative z-10 flex items-center border-b border-border/20 px-4 py-4 min-h-[72px]">
-        <img src="/logo.png" alt="الربط الذكي" className="max-h-9 w-auto" />
+        <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="max-h-9 w-auto" priority />
       </div>
 
       {/* Nav */}
       <nav className="relative z-10 flex-1 space-y-1 px-3 py-4">
         {navItems.map((item) => (
-          <NavLink key={item.href} {...item} onClick={onNavClick} />
+          <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={onNavClick} />
         ))}
       </nav>
 
@@ -135,7 +98,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
             <Button
               variant="ghost"
               size="icon"
-              className="fixed right-3 top-3 z-50 flex lg:hidden"
+              className="fixed right-3 top-3 z-[60] flex lg:hidden"
               aria-label="فتح القائمة"
             >
               <Menu className="size-5" />

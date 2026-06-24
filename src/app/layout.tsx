@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب",
     url: "/",
     siteName: "الربط الذكي",
+    images: [{ url: "/icon-512.png", width: 512, height: 512 }],
     locale: "ar_LY",
     type: "website",
   },
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "الربط الذكي | Smart Menu",
     description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب",
+    images: ["/icon-512.png"],
   },
   robots: {
     index: true,
@@ -45,15 +47,10 @@ export default function RootLayout({
       dir="rtl"
       suppressHydrationWarning
       className=""
-      style={{
-        "--font-body": "'Noto Sans Arabic', system-ui, sans-serif",
-        "--font-heading": "'Readex Pro', 'Noto Sans Arabic', system-ui, sans-serif",
-      } as React.CSSProperties}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
         <meta name="theme-color" content="#d97706" />
@@ -79,7 +76,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col antialiased">
+      <body className="min-h-screen flex flex-col antialiased overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

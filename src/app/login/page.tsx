@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { csrfFetch } from "@/lib/csrf-client";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import Image from "next/image"
 import Link from "next/link";
 import {
   LogIn,
@@ -142,7 +143,7 @@ function LoginForm() {
         {/* Logo area */}
         <CardHeader className="pb-2 pt-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
-            <img src="/logo.png" alt="الربط الذكي" className="h-full w-full object-contain" />
+            <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-full w-full object-contain" priority />
           </div>
           <CardTitle className="font-arabic text-2xl font-bold tracking-tight">
             الربط الذكي

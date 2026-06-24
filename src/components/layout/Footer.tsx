@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface FooterProps {
@@ -13,7 +14,7 @@ export function Footer({ className }: FooterProps) {
       )}
     >
       <div className="mx-auto max-w-7xl px-4 flex flex-col items-center gap-3">
-        <img src="/logo.png" alt="الربط الذكي" className="h-8 w-auto opacity-60" />
+        <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-8 w-auto opacity-60" loading="lazy" />
         <p>&copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.</p>
       </div>
     </footer>

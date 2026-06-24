@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Check, X, ArrowLeft, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
+import { Check, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";

@@ -1,7 +1,5 @@
 "use client"
 
-import { csrfFetch } from "@/lib/csrf-client";
-
 import { useEffect, useState, useCallback, Suspense } from "react"
 import dynamic from "next/dynamic"
 import { Badge } from "@/components/ui/badge"

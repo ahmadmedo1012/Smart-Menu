@@ -68,8 +68,8 @@ export default async function PrintMenuPage({
         <h1>{restaurant.name}</h1>
         {restaurant.description && <p className="sub">{restaurant.description}</p>}
         <p className="sub">
-          {restaurant.phone && <>📞 {restaurant.phone}  </>}
-          {restaurant.workingHours && <>🕐 {restaurant.workingHours}</>}
+          {restaurant.phone && <> 📞 {restaurant.phone}  </>}
+          {restaurant.workingHours && <>  🕐 {restaurant.workingHours}</>}
         </p>
         <p className="sub" style={{fontSize:"0.8rem",color:"#999"}}>
           {toArabicNumber(categories.length)} قسم · {toArabicNumber(totalItems)} صنف

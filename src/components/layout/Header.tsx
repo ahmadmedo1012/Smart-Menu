@@ -1,11 +1,13 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Star, Store, LayoutDashboard } from "lucide-react"
+import { Menu, Star, Store, LayoutDashboard } from "lucide-react"
 import { useState } from "react"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface HeaderProps {
   className?: string
@@ -18,28 +20,69 @@ const landingLinks = [
   { href: `/menu/${PARTNER_SLUG}`, label: "منيو تجريبي" },
 ]
 
+function MobileNav({ onNavClick }: { onNavClick: () => void }) {
+  return (
+    <>
+      <div className="flex items-center gap-3 border-b border-border/20 px-4 pb-4 pt-5">
+        <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-8 w-auto" priority />
+      </div>
+      <nav className="space-y-2 px-3 py-4">
+        <Link
+          href="/pricing"
+          onClick={onNavClick}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
+        >
+          <Star className="size-4 text-amber-500" /> الخطط والأسعار
+        </Link>
+        <Link
+          href={`/menu/${PARTNER_SLUG}`}
+          onClick={onNavClick}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
+        >
+          <Store className="size-4 text-amber-500" /> منيو تجريبي
+        </Link>
+        <Link
+          href="/login"
+          onClick={onNavClick}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
+        >
+          <LayoutDashboard className="size-4 text-amber-500" /> لوحة التحكم
+        </Link>
+      </nav>
+    </>
+  )
+}
+
 export function Header({ className }: HeaderProps) {
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-30 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/30 shadow-sm supports-backdrop-filter:bg-background/40",
+        "fixed top-0 inset-x-0 z-30 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/30 shadow-sm supports-backdrop-filter:bg-background/40",
         className
       )}
     >
       <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
         <div className="flex items-center gap-6">
           {/* Mobile hamburger */}
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden size-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors"
-            aria-label="فتح القائمة"
-          >
-            <Menu className="size-4" />
-          </button>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger
+              render={
+                <button
+                  className="lg:hidden size-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors"
+                  aria-label="فتح القائمة"
+                >
+                  <Menu className="size-4" />
+                </button>
+              }
+            />
+            <SheetContent side="right" className="w-72 border-0 bg-card">
+              <MobileNav onNavClick={() => setSheetOpen(false)} />
+            </SheetContent>
+          </Sheet>
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <img src="/logo.png" alt="الربط الذكي" className="h-8 w-auto" />
+            <Image src="/logo.png" alt="الربط الذكي" width={1989} height={791} className="h-8 w-auto" priority />
           </Link>
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
@@ -55,62 +98,12 @@ export function Header({ className }: HeaderProps) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden lg:flex">
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
           <Link href="/subscribe">
             <Button variant="gradient" size="sm" className="rounded-xl">
               ابدأ الآن مجاناً
             </Button>
           </Link>
-        </div>
-      </div>
-
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-      )}
-      <div
-        className={cn(
-          "fixed top-0 left-0 bottom-0 z-50 w-72 bg-card border-r border-border/20 shadow-2xl transition-transform duration-400 ease-out",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        <div className="p-5">
-          <div className="flex items-center justify-between mb-8">
-            <Link href="/" onClick={() => setMobileOpen(false)}>
-              <img src="/logo.png" alt="الربط الذكي" className="h-8 w-auto" />
-            </Link>
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="size-9 rounded-full border flex items-center justify-center hover:bg-muted transition-colors"
-            >
-              <X className="size-4" />
-            </button>
-          </div>
-          <div className="space-y-2">
-            <Link
-              href="/pricing"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
-            >
-              <Star className="size-4 text-amber-500" /> الخطط والأسعار
-            </Link>
-            <Link
-              href={`/menu/${PARTNER_SLUG}`}
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
-            >
-              <Store className="size-4 text-amber-500" /> منيو تجريبي
-            </Link>
-            <Link
-              href="/login"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
-            >
-              <LayoutDashboard className="size-4 text-amber-500" /> لوحة التحكم
-            </Link>
-          </div>
         </div>
       </div>
     </header>

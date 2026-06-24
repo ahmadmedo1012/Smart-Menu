@@ -306,7 +306,7 @@ export default function MenuPageClient({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            "fixed bottom-6 end-6 z-50 size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
+            "fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] end-6 z-[59] size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
             showFloatingWa
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8 pointer-events-none",

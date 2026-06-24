@@ -75,13 +75,13 @@ export default function HomePage() {
 
       {/* Demo Preview */}
       <section className="py-20 bg-gradient-to-b from-amber-500/5 to-transparent">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}>
             <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-amber">اكتشف كيف سيبدو منيو مطعمك</span></h2>
             <p className="text-lg text-muted-foreground mb-8">اختر مطعماً من القائمة وشاهد منيو تجريبي</p>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-6xl mx-auto">
               {PARTNERS.map((p, i) => (
                 <Link key={i} href={`/menu/${p.slug}`} className={cn("group relative overflow-hidden rounded-2xl border p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-right",
                   i === 0 ? "bg-gradient-to-br from-amber-50/60 to-card/50 dark:from-amber-950/15 dark:to-card/50 border-amber-200/30 hover:border-amber-300/50" :
@@ -207,7 +207,7 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold mb-3"><span className="text-gradient-animated">خطط تناسب الجميع</span></h2>
             <p className="text-lg text-muted-foreground">ابدأ مجاناً وطور مطعمك مع نمو أعمالك</p>
           </Reveal>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {PRICING_PLANS.map((plan, i) => (
               <Reveal key={i} delay={i * 0.12}>
                 <div className={cn("relative flex flex-col rounded-3xl border p-7 transition-all duration-500 hover:scale-[1.02] card-premium",
@@ -308,7 +308,7 @@ export default function HomePage() {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-background to-primary/5" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/5 blur-3xl" />
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}><h2 className="text-3xl md:text-5xl font-bold mb-4"><span className="text-gradient-amber">مستعد لانطلاق مطعمك الرقمي؟</span></h2></Reveal>
           <Reveal delay={0.1}>
             <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">انضم إلى عشرات المطاعم والمقاهي واستقبل الطلبات عبر واتساب بدون وسيط</p>

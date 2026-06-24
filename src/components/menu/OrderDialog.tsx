@@ -118,7 +118,7 @@ export default function OrderDialog({
         {/* Image preview */}
         {item.image && (
           <div className="relative h-44 bg-muted overflow-hidden">
-            <img src={item.image} alt={displayName} className="w-full h-full object-cover" />
+            <img src={item.image} alt={displayName} className="w-full h-full object-cover" loading="lazy" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
             <button type="button" onClick={() => onOpenChange(false)}
               className="absolute top-3 left-3 size-8 rounded-full bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center">
@@ -150,7 +150,7 @@ export default function OrderDialog({
             <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-3">
               <div className="size-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-md">
                 {restaurantLogo ? (
-                  <img src={restaurantLogo} alt="" className="size-full object-cover rounded-xl" />
+                  <img src={restaurantLogo} alt="" className="size-full object-cover rounded-xl" loading="lazy" />
                 ) : (
                   <Store className="size-6 text-white" />
                 )}

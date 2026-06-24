@@ -202,7 +202,7 @@ export default function OwnerSettingsPage() {
           <div className="size-24 rounded-2xl overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
             {logo ? (
               <>
-                <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                <img src={logo} alt="Logo" className="w-full h-full object-cover" loading="lazy" />
                 <button type="button" onClick={() => setLogo("")}
                   className="absolute top-1.5 right-1.5 size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X className="size-3" />
@@ -245,18 +245,18 @@ export default function OwnerSettingsPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
             {gallery.map((url, i) => (
               <div key={i} className="group relative aspect-square rounded-xl overflow-hidden bg-muted/20 border border-border/20">
-                <img src={url} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" />
+                <img src={url} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button type="button" onClick={() => removeGalleryImage(i)}
-                    className="size-8 rounded-full bg-destructive/80 text-white flex items-center justify-center hover:bg-destructive transition-colors">
+                    className="size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center hover:bg-destructive transition-colors">
                     <X className="size-3.5" />
                   </button>
                 </div>
                 <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   {i > 0 && <button type="button" onClick={() => moveGalleryImage(i, i - 1)}
-                    className="size-6 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-[10px]">→</button>}
+                    className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm">→</button>}
                   {i < gallery.length - 1 && <button type="button" onClick={() => moveGalleryImage(i, i + 1)}
-                    className="size-6 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-[10px]">←</button>}
+                    className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm">←</button>}
                 </div>
               </div>
             ))}

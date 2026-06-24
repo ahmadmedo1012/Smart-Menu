@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { csrfFetch } from "@/lib/csrf-client";
-import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2 } from "lucide-react";
@@ -26,9 +25,9 @@ const PICKUP_LABELS: Record<string, string> = {
 };
 
 const PICKUP_OPTIONS = [
-  { value: "inside", label: "داخل المكان", icon: "🍽️" },
-  { value: "takeaway", label: "سفري", icon: "🛍️" },
-  { value: "delivery", label: "توصيل", icon: "🚚" },
+  { value: "inside", label: "داخل المكان", icon: "inside" },
+  { value: "takeaway", label: "سفري", icon: "takeaway" },
+  { value: "delivery", label: "توصيل", icon: "delivery" },
 ] as const;
 
 export default function CartPage() {
@@ -126,7 +125,7 @@ export default function CartPage() {
   if (confirmed) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center animate-scale-in">
-        <div className="size-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-6 animate-scale-in">
+        <div className="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 animate-scale-in">
           <Check className="size-12 text-emerald-500" />
         </div>
         <h2 className="text-2xl font-bold mb-2">تم تأكيد الطلب!</h2>
@@ -168,7 +167,7 @@ export default function CartPage() {
                 : "bg-card/50 border-border/30 hover:border-amber-200/30 hover:shadow-md",
             )}
           >
-            <span className="text-lg">{opt.icon}</span>
+            <span className="text-lg">{opt.icon === "inside" ? "🍽" : opt.icon === "takeaway" ? "🛍" : "🚚"}</span>
             <span>{opt.label}</span>
           </button>
         ))}
@@ -297,7 +296,7 @@ export default function CartPage() {
             <div className="flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">نوع الطلب:</span>
               <span className="font-medium px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300">
-                {pickupType === "inside" ? "🍽️ " : pickupType === "takeaway" ? "🛍️ " : "🚚 "}
+                {pickupType === "inside" ? "🍽" : pickupType === "takeaway" ? "🛍" : "🚚"}
                 {PICKUP_LABELS[pickupType]}
               </span>
             </div>
@@ -307,7 +306,7 @@ export default function CartPage() {
                   <div className="flex-1 min-w-0">
                     <span className="font-medium">{item.name}</span>
                     <span className="text-muted-foreground mr-1">× {toArabicNumber(item.quantity)}</span>
-                    {item.notes && <p className="text-xs text-muted-foreground/70 mt-0.5">📝 {item.notes}</p>}
+                    {item.notes && <p className="text-xs text-muted-foreground/70 mt-0.5 flex items-center gap-1"><svg className="size-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> {item.notes}</p>}
                   </div>
                   <span className="tabular-nums shrink-0 font-medium">
                     {toArabicNumber((item.price * item.quantity).toFixed(1))} د.ل
