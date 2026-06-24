@@ -63,7 +63,7 @@ function FloatingShapes() {
         style={{ animationDuration: "20s" }}
       />
       <div
-        className="absolute -bottom-32 -left-32 h-96 w-96 animate-spin-slow rounded-full bg-gradient-to-tr from-amber-400/15 to-orange-300/10 blur-3xl dark:from-amber-500/8 dark:to-orange-400/5"
+        className="absolute -bottom-32 -left-32 h-96 w-96 animate-spin-slow rounded-full bg-gradient-to-tr from-amber-400/15 to-amber-300/10 blur-3xl dark:from-amber-500/8 dark:to-amber-400/5"
         style={{ animationDuration: "25s" }}
       />
       <div
@@ -120,7 +120,7 @@ function LoginForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6">
       {/* Background gradient */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-amber-50 via-orange-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-amber-50 via-amber-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30" />
 
       <FloatingShapes />
       <FloatingIcons />
@@ -234,7 +234,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-amber-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30">
           <div className="flex flex-col items-center gap-3">
             <div className="h-10 w-10 animate-pulse rounded-full bg-amber-400/40" />
             <span className="animate-breath font-arabic text-sm text-muted-foreground">

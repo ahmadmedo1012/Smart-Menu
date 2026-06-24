@@ -25,7 +25,7 @@ const COLORS = [
   "from-teal-400 to-teal-600",
   "from-pink-400 to-pink-600",
   "from-indigo-400 to-indigo-600",
-  "from-orange-400 to-orange-600",
+  "from-amber-400 to-amber-600",
   "from-cyan-400 to-cyan-600",
 ];
 
@@ -38,7 +38,7 @@ const BGS = [
   "bg-teal-50 dark:bg-teal-950/20",
   "bg-pink-50 dark:bg-pink-950/20",
   "bg-indigo-50 dark:bg-indigo-950/20",
-  "bg-orange-50 dark:bg-orange-950/20",
+  "bg-amber-50 dark:bg-amber-950/20",
   "bg-cyan-50 dark:bg-cyan-950/20",
 ];
 
