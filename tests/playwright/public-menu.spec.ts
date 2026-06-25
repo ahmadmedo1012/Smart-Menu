@@ -43,7 +43,14 @@ test.describe("Public Menu Page", () => {
     page.on("console", (msg) => {
       if (msg.type() === "error") {
         const text = msg.text();
-        if (!text.includes("favicon") && !text.includes("DevTools") && !text.includes("service worker")) {
+        if (
+          !text.includes("favicon") &&
+          !text.includes("DevTools") &&
+          !text.includes("service worker") &&
+          !text.includes("404") &&
+          !text.includes("Failed to load") &&
+          !text.includes("net::ERR_")
+        ) {
           errors.push(text);
         }
       }

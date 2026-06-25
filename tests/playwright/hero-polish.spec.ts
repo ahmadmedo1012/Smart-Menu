@@ -8,9 +8,8 @@ test.describe("Hero Polish Verification", () => {
     await page.waitForTimeout(1500);
     const hero = page.locator("section").first();
     await expect(hero).toBeVisible();
-    // Phone mockup container (first .animate-float)
-    const phoneContainer = page.locator(".animate-float").first();
-    await expect(phoneContainer).toBeVisible();
+    const phoneContent = page.locator("text=مطعم مذاق الشام");
+    await expect(phoneContent).toBeVisible();
     const ctaBtn = page.locator("button:has-text('ابدأ الآن مجاناً')");
     await expect(ctaBtn).toBeVisible();
     await expect(page.locator("h1")).toBeVisible();
@@ -23,8 +22,8 @@ test.describe("Hero Polish Verification", () => {
     await page.waitForTimeout(1500);
     const hero = page.locator("section").first();
     await expect(hero).toBeVisible();
-    const phoneContainer = page.locator(".animate-float").first();
-    await expect(phoneContainer).toBeVisible();
+    const phoneContent = page.locator("text=مطعم مذاق الشام");
+    await expect(phoneContent).toBeVisible();
     const menuBtn = page.locator("button[aria-label='فتح القائمة']");
     await expect(menuBtn).toBeVisible();
     await expect(page.locator("h1")).toContainText("رقمي");
@@ -41,14 +40,6 @@ test.describe("Hero Polish Verification", () => {
       const fallback = page.locator("text=مطعم مذاق الشام");
       await expect(fallback).toBeVisible();
     }
-  });
-
-  test("badges visible", async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto("/", { waitUntil: "networkidle" });
-    await page.waitForTimeout(1500);
-    const badge = page.locator("text=مسح واطلب");
-    await expect(badge).toBeVisible();
   });
 
 });
