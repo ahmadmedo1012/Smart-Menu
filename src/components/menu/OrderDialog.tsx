@@ -148,7 +148,7 @@ export default function OrderDialog({
 
             {/* Restaurant info bar */}
             <div className="flex items-center gap-3 rounded-2xl bg-muted/40 p-3">
-              <div className="size-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0 shadow-md">
+              <div className="size-12 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shrink-0 shadow-md">
                 {restaurantLogo ? (
                   <img src={restaurantLogo} alt="" className="size-full object-cover rounded-xl" loading="lazy" />
                 ) : (
@@ -170,10 +170,10 @@ export default function OrderDialog({
             <div className="grid grid-cols-2 gap-2">
               <input value={customerName} onChange={e => setCustomerName(e.target.value)}
                 placeholder="الاسم (اختياري)" maxLength={30}
-                className="h-11 rounded-xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-blue-300" />
+                className="h-11 rounded-xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-gold" />
               <input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
                 placeholder="رقم الهاتف (اختياري)" maxLength={15} dir="ltr"
-                className="h-11 rounded-xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-blue-300 text-left" />
+                className="h-11 rounded-xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-gold text-left" />
             </div>
 
             {/* Quantity selector */}
@@ -187,12 +187,12 @@ export default function OrderDialog({
               </div>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}
-                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-blue-500/10 hover:border-blue-300/30 disabled:opacity-30">
+                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-gold-muted hover:border-gold/30 disabled:opacity-30">
                   <Minus className="size-4" />
                 </button>
                 <span className="font-bold text-xl min-w-[2.5ch] text-center tabular-nums">{toArabicNumber(quantity)}</span>
                 <button type="button" onClick={() => setQuantity(Math.min(99, quantity + 1))} disabled={quantity >= 99}
-                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-blue-500/10 hover:border-blue-300/30 disabled:opacity-30">
+                  className="size-10 rounded-xl border border-border/40 flex items-center justify-center hover:bg-gold-muted hover:border-gold/30 disabled:opacity-30">
                   <Plus className="size-4" />
                 </button>
               </div>
@@ -204,8 +204,8 @@ export default function OrderDialog({
                 <button key={type} type="button" onClick={() => setOrderType(type)}
                   className={cn("flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all",
                     orderType === type
-                      ? "bg-blue-500/10 border-blue-300/30 text-blue-700 dark:text-blue-300"
-                      : "border-border/30 text-muted-foreground hover:border-blue-200/30")}>
+                      ? "bg-gold-muted border-blue-300/30 text-blue-700 dark:text-blue-300"
+                      : "border-border/30 text-muted-foreground hover:border-gold/30")}>
                   {type === "delivery" ? "توصيل" : "استلام"}
                 </button>
               ))}
@@ -219,8 +219,8 @@ export default function OrderDialog({
                   <button key={note} type="button" onClick={() => toggleQuickNote(note)}
                     className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border",
                       notes.includes(note)
-                        ? "bg-blue-500/10 border-blue-300/30 text-blue-700 dark:text-blue-300"
-                        : "bg-muted/30 border-border/30 text-muted-foreground hover:border-blue-200/30")}>
+                        ? "bg-gold-muted border-blue-300/30 text-blue-700 dark:text-blue-300"
+                        : "bg-muted/30 border-border/30 text-muted-foreground hover:border-gold/30")}>
                     {note}
                   </button>
                 ))}
@@ -229,7 +229,7 @@ export default function OrderDialog({
 
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
               placeholder="ملاحظات إضافية للطلب..."
-              rows={2} className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-blue-300 focus-visible:ring-4 focus-visible:ring-blue-500/20 resize-none" />
+              rows={2} className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-blue-500/20 resize-none" />
 
             {/* Total + WhatsApp */}
             <div className="space-y-3 pt-1">

@@ -38,7 +38,7 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       <Icon
         className={cn(
           "size-4 shrink-0 transition-all duration-200",
-          isActive && "text-blue-600 dark:text-blue-400",
+          isActive && "text-gold dark:text-gold",
           !isActive && "group-hover:scale-110 group-hover:text-primary/70 group-hover:drop-shadow-sm",
         )}
       />

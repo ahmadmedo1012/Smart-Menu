@@ -129,7 +129,7 @@ export default function PaymentDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-sm sm:max-w-md mx-2 rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto" showCloseButton={false}>
         {/* Header */}
-        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-primary-foreground p-6 rounded-t-2xl">
+        <div className="bg-gradient-to-br from-gold to-gold/80 text-primary-foreground p-6 rounded-t-2xl">
           <div className="flex items-center gap-2 mb-2">
             <Smartphone className="size-5" />
             <DialogTitle className="text-primary-foreground text-lg font-bold">
@@ -143,10 +143,10 @@ export default function PaymentDialog({
 
         <div className="p-5 space-y-5">
           {/* Plan summary */}
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/20 p-4">
+          <div className="rounded-xl bg-gold-muted dark:bg-gold-muted border border-gold/20 p-4">
             <div className="flex justify-between items-center">
               <span className="font-bold">{planNameAr}</span>
-              <span className="text-lg font-bold text-amber-600">{price} د.ل</span>
+              <span className="text-lg font-bold text-gold">{price} د.ل</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">اشتراك شهري</p>
           </div>
@@ -163,8 +163,8 @@ export default function PaymentDialog({
                     className={cn(
                       "h-12 rounded-xl border-2 text-sm font-medium transition-all",
                       provider === "libyana"
-                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/20"
-                        : "border-border/30 hover:border-amber-200/30"
+                        ? "border-gold bg-gold-muted dark:bg-gold-muted"
+                        : "border-border/30 hover:border-gold/30"
                     )}
                   >
                     ليبيانا
@@ -175,8 +175,8 @@ export default function PaymentDialog({
                     className={cn(
                       "h-12 rounded-xl border-2 text-sm font-medium transition-all",
                       provider === "madar"
-                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/20"
-                        : "border-border/30 hover:border-amber-200/30"
+                        ? "border-gold bg-gold-muted dark:bg-gold-muted"
+                        : "border-border/30 hover:border-gold/30"
                     )}
                   >
                     مدار
@@ -210,7 +210,7 @@ export default function PaymentDialog({
                   رمز التحويل السريع
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm font-bold text-amber-800 dark:text-amber-300" dir="ltr">
+                  <span className="font-mono text-sm font-bold text-gold dark:text-gold" dir="ltr">
                     {quickTransferCode}
                   </span>
                   <button
@@ -275,8 +275,8 @@ export default function PaymentDialog({
           {step === "waiting" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
-                <div className="size-16 rounded-full bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center">
-                  <Timer className="size-8 text-amber-500 animate-pulse" />
+                <div className="size-16 rounded-full bg-gold-muted dark:bg-gold-muted flex items-center justify-center">
+                  <Timer className="size-8 text-gold animate-pulse" />
                 </div>
               </div>
               <div className="text-lg font-bold">

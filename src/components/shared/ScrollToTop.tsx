@@ -21,7 +21,7 @@ function ProgressBar() {
     <div className="fixed top-0 inset-x-0 z-[100] h-0.5">
       <div
         className={cn(
-          "h-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 transition-all duration-500 ease-out",
+          "h-full bg-gradient-to-r from-gold to-gold/80 transition-all duration-500 ease-out",
           loading ? "w-full opacity-100" : "w-0 opacity-0",
         )}
       />
@@ -44,7 +44,7 @@ function ScrollButton() {
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
-        "fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] start-6 z-[61] size-11 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300 flex items-center justify-center",
+        "fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] start-6 z-[61] size-11 rounded-2xl bg-gradient-to-r from-gold to-gold/80 text-white shadow-lg shadow-gold/25 hover:shadow-xl hover:shadow-gold/30 hover:scale-105 transition-all duration-300 flex items-center justify-center",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none",
       )}
       aria-label="العودة للأعلى"

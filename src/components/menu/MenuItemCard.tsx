@@ -18,9 +18,9 @@ export type MenuItemProp = {
 
 const COLORS = [
   "from-red-400 to-red-600",
-  "from-blue-400 to-blue-600",
+  "from-gold to-gold/80",
   "from-green-400 to-green-600",
-  "from-blue-400 to-blue-600",
+  "from-gold to-gold/80",
   "from-purple-400 to-purple-600",
   "from-teal-400 to-teal-600",
   "from-pink-400 to-pink-600",
@@ -113,7 +113,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-blue-500/10 active:scale-[0.98] border border-border/30 hover:border-blue-300/40 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-gold-muted active:scale-[0.98] border border-border/30 hover:border-blue-300/40 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
@@ -121,7 +121,7 @@ const MenuItemCard = memo(function MenuItemCard({
     >
       <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 
-      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-blue-300/30 group-hover:shadow-lg group-hover:shadow-blue-500/10 transition-all duration-300">
+      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-blue-300/30 group-hover:shadow-lg group-hover:shadow-gold-muted transition-all duration-300">
         {item.image && !imageError ? (
           <>
             {!imageLoaded && <div className="absolute inset-0 skeleton" />}
