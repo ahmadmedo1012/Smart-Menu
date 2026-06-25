@@ -4,7 +4,7 @@ export default function HeroAnimation() {
   return (
     <div className="relative w-full max-w-md mx-auto">
       {/* Ambient glow behind the phone */}
-      <div className="absolute -inset-8 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute -inset-8 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
 
       {/* Phone wrapper — slowed float for subtle lift */}
       <div
@@ -12,7 +12,7 @@ export default function HeroAnimation() {
         style={{ animationDuration: "4s" }}
       >
         {/* Bezel — metallic gradient with depth */}
-        <div className="relative w-full h-full rounded-[3rem] bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 p-[3px] shadow-2xl shadow-amber-500/30">
+        <div className="relative w-full h-full rounded-[3rem] bg-gradient-to-b from-blue-500 via-blue-600 to-blue-800 p-[3px] shadow-2xl shadow-blue-500/30">
           {/* Screen — dark glass */}
           <div className="relative w-full h-full rounded-[2.6rem] bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden z-0">
             {/* Subtle scanline texture at 2% opacity for realism */}
@@ -34,14 +34,14 @@ export default function HeroAnimation() {
             <div className="relative z-0 pt-10 px-4">
               {/* Restaurant header */}
               <div className="flex items-center gap-2 mb-4">
-                <div className="size-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+                <div className="size-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
                   م
                 </div>
                 <div className="min-w-0">
                   <div className="text-[11px] font-semibold text-white leading-tight truncate">
                     مطعم مذاق الشام
                   </div>
-                  <div className="text-[9px] text-amber-400 mt-px">
+                  <div className="text-[9px] text-blue-400 mt-px">
                     مفتوح الآن • ١٢:٠٠ م - ١٢:٠٠ ص
                   </div>
                 </div>
@@ -59,7 +59,7 @@ export default function HeroAnimation() {
                     key={i}
                     className="h-7 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center px-2.5 border border-white/5"
                   >
-                    <span className="text-[9px] font-semibold text-amber-300 truncate">
+                    <span className="text-[9px] font-semibold text-blue-300 truncate">
                       {label}
                     </span>
                   </div>
@@ -79,23 +79,23 @@ export default function HeroAnimation() {
                       <span className="text-[10px] font-semibold text-white truncate">
                         {item.name}
                       </span>
-                      <span className="text-[9px] font-medium text-amber-400 shrink-0">
+                      <span className="text-[9px] font-medium text-blue-400 shrink-0">
                         {item.price} د.ل
                       </span>
                     </div>
                     <div className="text-[8px] text-white/50 truncate mt-px">
                       {item.desc}
                     </div>
-                    <div className="text-[8px] text-amber-700 mt-px ltr">
+                    <div className="text-[8px] text-blue-400 mt-px ltr">
                       ★★★★☆
                     </div>
                   </div>
-                  <div className="size-11 rounded-lg bg-gradient-to-br from-amber-800 to-amber-600 shrink-0" />
+                  <div className="size-11 rounded-lg bg-gradient-to-br from-blue-800 to-blue-600 shrink-0" />
                 </div>
               ))}
 
               {/* CTA button */}
-              <div className="absolute bottom-6 start-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg shadow-amber-500/25 flex items-center justify-center text-white text-[11px] font-semibold">
+              <div className="absolute bottom-6 start-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25 flex items-center justify-center text-white text-[11px] font-semibold">
                 ابدأ الطلب
               </div>
             </div>

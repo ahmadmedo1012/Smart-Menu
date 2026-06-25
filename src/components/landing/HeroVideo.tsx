@@ -18,7 +18,7 @@ export default function HeroVideo() {
     <div className="relative w-full max-w-md mx-auto">
       {/* Phone mockup frame — animated gradient border (CSS vars), responsive width, same shape as HeroAnimation. animate-float on wrapper to avoid clashing with gradient-shift */}
       <div className="animate-float">
-        <div className="relative mx-auto max-w-[260px] w-[80vw] h-[530px] rounded-[3rem] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 p-[3px] shadow-frame bg-[length:200%_200%] animate-[gradient-shift_6s_ease_infinite]">
+        <div className="relative mx-auto max-w-[260px] w-[80vw] h-[530px] rounded-[3rem] bg-gradient-to-b from-blue-500 via-blue-600 to-blue-700 p-[3px] shadow-frame bg-[length:200%_200%] animate-[gradient-shift_6s_ease_infinite]">
           {/* Frame depth overlay — subtle metallic shine */}
           <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-t from-black/5 via-transparent to-white/10 pointer-events-none z-10" />
 

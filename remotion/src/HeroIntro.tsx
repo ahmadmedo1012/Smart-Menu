@@ -42,16 +42,16 @@ function Scene1() {
   return (
     <AbsoluteFill style={{ opacity, display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
       {/* Rotating rings */}
-      <div style={{ width: 380, height: 380, borderRadius: "50%", border: "1.5px solid rgba(217,119,6,0.22)", position: "absolute", rotate: `${ringRotate}deg`, opacity: ringOpacity }} />
-      <div style={{ width: 400, height: 400, borderRadius: "50%", border: "1px solid rgba(217,119,6,0.08)", position: "absolute", rotate: `${-ringRotate}deg`, opacity: ringOpacity * 0.7 }} />
+      <div style={{ width: 380, height: 380, borderRadius: "50%", border: "1.5px solid rgba(37,99,235,0.22)", position: "absolute", rotate: `${ringRotate}deg`, opacity: ringOpacity }} />
+      <div style={{ width: 400, height: 400, borderRadius: "50%", border: "1px solid rgba(37,99,235,0.08)", position: "absolute", rotate: `${-ringRotate}deg`, opacity: ringOpacity * 0.7 }} />
 
       {/* Logo circle */}
       <div style={{
         width: 110, height: 110, borderRadius: 28,
-        background: "linear-gradient(135deg, #f59e0b, #d97706)",
+        background: "linear-gradient(135deg, #3b82f6, #2563eb)",
         display: "flex", alignItems: "center", justifyContent: "center",
         marginBottom: 24, scale: String(logoScale),
-        boxShadow: "0 0 80px rgba(217,119,6,0.3)",
+        boxShadow: "0 0 80px rgba(37,99,235,0.3)",
       }}>
         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
@@ -62,7 +62,7 @@ function Scene1() {
       <h1 style={{
         fontFamily: headingFont, fontSize: 82, fontWeight: 700,
         margin: 0,
-        background: "linear-gradient(135deg, #fbbf24, #d97706, #f59e0b)",
+        background: "linear-gradient(135deg, #60a5fa, #3b82f6, #2563eb)",
         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         lineHeight: 1.15, textAlign: "center", scale: String(logoScale),
       }}>
@@ -137,10 +137,10 @@ function Scene2() {
           }}>
             <div style={{
               width: 80, height: 80, borderRadius: 22,
-              background: "linear-gradient(135deg, rgba(217,119,6,0.15), rgba(217,119,6,0.05))",
-              border: "1px solid rgba(217,119,6,0.15)",
+              background: "linear-gradient(135deg, rgba(37,99,235,0.15), rgba(37,99,235,0.05))",
+              border: "1px solid rgba(37,99,235,0.15)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#f59e0b",
+              color: "#3b82f6",
             }}>
               {feat.icon}
             </div>
@@ -154,7 +154,7 @@ function Scene2() {
       {/* Connecting dots */}
       <div style={{ display: "flex", gap: 8, marginTop: 48, opacity: headingOpacity }}>
         {[0, 1, 2].map(i => (
-          <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(217,119,6,0.4)" }} />
+          <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(37,99,235,0.4)" }} />
         ))}
       </div>
     </AbsoluteFill>
@@ -199,17 +199,17 @@ function Scene3() {
   return (
     <AbsoluteFill style={{ opacity, display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl" }}>
       {/* Rotating rings */}
-      <div style={{ width: 360, height: 360, borderRadius: "50%", border: "1.5px solid rgba(217,119,6,0.12)", position: "absolute", rotate: `${ringRotate}deg` }} />
-      <div style={{ width: 380, height: 380, borderRadius: "50%", border: "1px solid rgba(217,119,6,0.06)", position: "absolute", rotate: `${-ringRotate}deg` }} />
+      <div style={{ width: 360, height: 360, borderRadius: "50%", border: "1.5px solid rgba(37,99,235,0.12)", position: "absolute", rotate: `${ringRotate}deg` }} />
+      <div style={{ width: 380, height: 380, borderRadius: "50%", border: "1px solid rgba(37,99,235,0.06)", position: "absolute", rotate: `${-ringRotate}deg` }} />
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         {/* Phone frame */}
         <div style={{
           width: 190, height: 390, borderRadius: 36,
-          border: "2.5px solid rgba(251,191,36,0.35)",
-          background: "linear-gradient(180deg, rgba(217,119,6,0.08) 0%, rgba(217,119,6,0.02) 100%)",
+          border: "2.5px solid rgba(59,130,246,0.35)",
+          background: "linear-gradient(180deg, rgba(37,99,235,0.08) 0%, rgba(37,99,235,0.02) 100%)",
           scale: String(phoneScale), translate: `0 ${phoneY}px`,
-          boxShadow: "0 0 40px rgba(217,119,6,0.1), inset 0 0 60px rgba(217,119,6,0.03)",
+          boxShadow: "0 0 40px rgba(37,99,235,0.1), inset 0 0 60px rgba(37,99,235,0.03)",
           position: "relative", overflow: "hidden",
         }}>
           {/* Dynamic Island */}
@@ -217,25 +217,25 @@ function Scene3() {
 
           {/* Screen: mini menu preview */}
           <div style={{ position: "absolute", top: 38, left: 10, right: 10, bottom: 10, display: "flex", flexDirection: "column", gap: 5 }}>
-            <div style={{ height: 5, width: "55%", borderRadius: 3, background: "rgba(251,191,36,0.25)", marginBottom: 3 }} />
+            <div style={{ height: 5, width: "55%", borderRadius: 3, background: "rgba(59,130,246,0.25)", marginBottom: 3 }} />
             {[0, 1, 2, 3].map(i => (
               <div key={i} style={{ display: "flex", gap: 4, alignItems: "center" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ height: 5, width: "75%", borderRadius: 3, background: "rgba(255,255,255,0.1)", marginBottom: 2 }} />
                   <div style={{ height: 3, width: "45%", borderRadius: 2, background: "rgba(255,255,255,0.05)" }} />
                 </div>
-                <div style={{ width: 20, height: 20, borderRadius: 6, background: "rgba(217,119,6,0.12)" }} />
+                <div style={{ width: 20, height: 20, borderRadius: 6, background: "rgba(37,99,235,0.12)" }} />
               </div>
             ))}
-            <div style={{ height: 6, width: "65%", borderRadius: 3, background: "linear-gradient(135deg, #f59e0b, #d97706)", margin: "auto auto 0", opacity: 0.4 }} />
+            <div style={{ height: 6, width: "65%", borderRadius: 3, background: "linear-gradient(135deg, #3b82f6, #2563eb)", margin: "auto auto 0", opacity: 0.4 }} />
           </div>
         </div>
 
         {/* CTA text with pulse glow */}
         <p style={{
           fontFamily: headingFont, fontSize: 32, fontWeight: 700,
-          color: "#fbbf24", margin: "22px 0 0", textAlign: "center",
-          textShadow: `0 0 ${20 * glowPulse}px rgba(251,191,36,${0.3 * glowPulse})`,
+          color: "#60a5fa", margin: "22px 0 0", textAlign: "center",
+          textShadow: `0 0 ${20 * glowPulse}px rgba(59,130,246,${0.3 * glowPulse})`,
         }}>
           اطلب عبر واتساب
         </p>
@@ -244,9 +244,9 @@ function Scene3() {
         <div style={{
           opacity: ctaOpacity, translate: `0 ${ctaY}px`, marginTop: 18,
           padding: "12px 40px", borderRadius: 50,
-          background: "linear-gradient(135deg, #f59e0b, #d97706)",
+          background: "linear-gradient(135deg, #3b82f6, #2563eb)",
           color: "white", fontFamily: bodyFont, fontSize: 17,
-          fontWeight: 600, boxShadow: "0 4px 24px rgba(217,119,6,0.35)",
+          fontWeight: 600, boxShadow: "0 4px 24px rgba(37,99,235,0.35)",
         }}>
           ابدأ الآن
         </div>
@@ -271,7 +271,7 @@ export const HeroIntro = () => {
       {/* Background gradient — shared across scenes */}
       <div style={{
         position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(217,119,6,0.12) 0%, transparent 70%), radial-gradient(ellipse at 50% 100%, rgba(251,191,36,0.05) 0%, transparent 50%)",
+        background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(37,99,235,0.12) 0%, transparent 70%), radial-gradient(ellipse at 50% 100%, rgba(59,130,246,0.05) 0%, transparent 50%)",
       }} />
 
       {/* Grain overlay */}
