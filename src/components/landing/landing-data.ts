@@ -9,12 +9,12 @@ export type Showcase = { title: string; desc: string; icon: LucideIcon };
 export type Testimonial = { name: string; role: string; content: string; rating: number };
 
 export const BENEFITS: Benefit[] = [
-  { icon: Smartphone, title: "منيو رقمي تفاعلي", desc: "قائمة طعام رقمية مع صور وأسعار وتفاصيل. محدثة بشكل لحظي دون طباعة.", gradient: "from-amber-400 to-amber-600" },
-  { icon: MessageCircle, title: "طلب عبر واتساب", desc: "يصل الطلب مباشرة إلى واتساب المطعم مع تفاصيل كاملة وجاهزة للتحضير.", gradient: "from-amber-400 to-amber-600" },
-  { icon: QrCode, title: "QR كود مخصص", desc: "رمز QR خاص لمطعمك للطباعة على الطاولات والفواتير والمواد الدعائية.", gradient: "from-amber-500 to-amber-700" },
-  { icon: BarChart3, title: "إحصائيات وتحليلات", desc: "تقارير مفصلة عن الطلبات والأصناف الأكثر طلباً وسلوك الزبائن.", gradient: "from-amber-400 to-amber-600" },
-  { icon: Gift, title: "برنامج ولاء", desc: "نظام نقاط ومكافآت يحفز الزبائن على العودة ويزيد ارتباطهم بمطعمك.", gradient: "from-amber-500 to-amber-700" },
-  { icon: Shield, title: "تحكم كامل", desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات.", gradient: "from-amber-400 to-amber-600" },
+  { icon: Smartphone, title: "منيو رقمي تفاعلي", desc: "قائمة طعام رقمية مع صور وأسعار وتفاصيل. محدثة بشكل لحظي دون طباعة.", gradient: "from-blue-500 to-blue-700" },
+  { icon: MessageCircle, title: "طلب عبر واتساب", desc: "يصل الطلب مباشرة إلى واتساب المطعم مع تفاصيل كاملة وجاهزة للتحضير.", gradient: "from-blue-500 to-blue-700" },
+  { icon: QrCode, title: "QR كود مخصص", desc: "رمز QR خاص لمطعمك للطباعة على الطاولات والفواتير والمواد الدعائية.", gradient: "from-blue-500 to-blue-700" },
+  { icon: BarChart3, title: "إحصائيات وتحليلات", desc: "تقارير مفصلة عن الطلبات والأصناف الأكثر طلباً وسلوك الزبائن.", gradient: "from-blue-500 to-blue-700" },
+  { icon: Gift, title: "برنامج ولاء", desc: "نظام نقاط ومكافآت يحفز الزبائن على العودة ويزيد ارتباطهم بمطعمك.", gradient: "from-blue-500 to-blue-700" },
+  { icon: Shield, title: "تحكم كامل", desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات.", gradient: "from-blue-500 to-blue-700" },
 ];
 
 export const PARTNERS: Partner[] = [
@@ -37,8 +37,8 @@ export const STEPS: Step[] = [
 ];
 
 export const PRICING_PLANS: PricingPlan[] = [
-  { name: "مجاني", price: "0", period: "دائماً", features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"], cta: "ابدأ مجاناً", popular: false, gradient: "from-gray-400 to-gray-500" },
-  { name: "المدفوعة", price: "29", period: "شهرياً", features: ["جميع ميزات المجانية", "أصناف غير محدودة", "برنامج ولاء متكامل", "QR كود مخصص", "إحصائيات متقدمة", "دعم فني فوري", "تخصيص كامل"], cta: "اشترك الآن", popular: true, gradient: "from-amber-500 to-amber-600" },
+  { name: "مجاني", price: "0", period: "دائماً", features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"], cta: "ابدأ مجاناً", popular: false, gradient: "from-blue-400 to-blue-600" },
+  { name: "المدفوعة", price: "29", period: "شهرياً", features: ["جميع ميزات المجانية", "أصناف غير محدودة", "برنامج ولاء متكامل", "QR كود مخصص", "إحصائيات متقدمة", "دعم فني فوري", "تخصيص كامل"], cta: "اشترك الآن", popular: true, gradient: "from-blue-500 to-blue-700" },
 ];
 
 export const SHOWCASES: Showcase[] = [
@@ -49,7 +49,7 @@ export const SHOWCASES: Showcase[] = [
 ];
 
 export const TESTIMONIALS: Testimonial[] = [
-  { name: "أحمد المبروك", role: "صاحب مقهى الواحة", content: "منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب بشكل ملحوظ. الزبائن صاروا يطلبون بسهولة بدون الاتصال المباشر.", rating: 5 },
-  { name: "سارة التومي", role: "مديرة مطعم الأصيل", content: "وفرت لنا المنصة وقتاً وجهداً كبيرين. تحديث المنيو يتم لحظياً والطلبات تصل مرتبة. أنصح بها كل مطعم.", rating: 4 },
-  { name: "عمر بن عاشور", role: "صاحب بيتزا روما", content: "أكثر ما أعجبني هو نظام الولاء. الزبائن عادوا مراراً بسبب النقاط والمكافآت. زيادة ملحوظة في المبيعات.", rating: 5 },
+  { name: "أحمد المبروك", role: "صاحب مقهى الواحة", content: "منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب. الزبائن صاروا يطلبون مباشرة من المنيو دون الاتصال بنا.", rating: 5 },
+  { name: "سارة التومي", role: "مديرة مطعم الأصيل", content: "وفرت لنا المنصة وقتاً وجهداً. تحديث المنيو يتم لحظياً والطلبات تصل مرتبة. أنصح بها كل مطعم.", rating: 5 },
+  { name: "عمر بن عاشور", role: "صاحب بيتزا روما", content: "نظام الولاء والنقاط جعل الزبائن يعودون باستمرار. زيادة واضحة في المبيعات الشهرية.", rating: 5 },
 ];

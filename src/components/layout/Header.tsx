@@ -54,20 +54,19 @@ export function Header({ className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "fixed top-0 inset-x-0 z-30 h-16 bg-background/70 backdrop-blur-xl border-b border-border/30 shadow-xs supports-backdrop-filter:bg-background/60",
+        "fixed top-4 inset-x-4 z-30 h-14 rounded-2xl glass-strong supports-backdrop-filter:bg-background/60",
         className
       )}
     >
+      {/* Subtle bottom border gradient */}
+      <div className="absolute bottom-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent pointer-events-none" />
+
       <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
         <div className="flex items-center gap-6">
-          {/* Mobile hamburger */}
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger
               render={
-                <button
-                  className="lg:hidden size-9 rounded-lg border flex items-center justify-center hover:bg-muted transition-colors"
-                  aria-label="فتح القائمة"
-                >
+                <button className="lg:hidden size-8 rounded-xl border border-border/40 flex items-center justify-center hover:bg-muted transition-colors" aria-label="فتح القائمة">
                   <Menu className="size-4" />
                 </button>
               }
@@ -77,35 +76,32 @@ export function Header({ className }: HeaderProps) {
             </SheetContent>
           </Sheet>
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
+            <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-7 w-auto" priority />
           </Link>
-          {/* Desktop nav */}
-          <div className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5">
             {landingLinks.map((link) => {
-              const isActive = link.href === "/login"
-                ? pathname === "/login"
-                : pathname.startsWith(link.href.replace(/:.*/, ""))
+              const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href.replace(/:.*/, ""))
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "px-3 py-2 rounded-lg text-sm transition-all duration-200",
+                    "px-3 py-1.5 rounded-lg text-sm transition-colors duration-200",
                     isActive
                       ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   )}
                 >
                   {link.label}
                 </Link>
               )
             })}
-          </div>
+          </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link href="/subscribe">
-            <Button variant="gradient" size="sm" className="rounded-xl">
+            <Button variant="gradient" size="sm" className="rounded-xl text-xs h-8 px-3">
               ابدأ الآن مجاناً
             </Button>
           </Link>

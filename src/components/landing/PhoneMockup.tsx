@@ -24,90 +24,53 @@ export default function PhoneMockup({ showVideo = true }: PhoneMockupProps) {
 
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Stronger ambient glow */}
+      {/* Ambient glow — deeper, more premium */}
       <div
-        className="absolute -inset-8 md:-inset-12 rounded-full pointer-events-none"
+        className="absolute -inset-10 md:-inset-16 rounded-full pointer-events-none"
         style={{
           background: "var(--frame-glow)",
-          filter: "blur(70px)",
+          filter: "blur(80px)",
           transform: "translateZ(0)",
-          opacity: 0.85,
+          opacity: 0.7,
         }}
       />
 
-      {/* Floating badge — top-right */}
-      <div className="absolute -top-5 -end-5 glass-card rounded-xl px-3.5 py-2 shadow-lg animate-fade-in delay-500 border-blue-300/20 dark:border-blue-500/20 z-20">
-        <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-blue-500 animate-breath" />
-          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
-            مسح واطلب
-          </span>
-        </div>
-      </div>
-
-      {/* Floating badge — bottom-left */}
-      <div className="absolute -bottom-5 -start-5 glass-card rounded-xl px-3.5 py-2 shadow-lg animate-fade-in delay-[700ms] border-blue-300/20 dark:border-blue-500/20 z-20">
-        <div className="flex items-center gap-1.5">
-          <svg
-            className="size-3.5 text-blue-500 shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
-            طلب عبر واتساب
-          </span>
-        </div>
-      </div>
-
-      {/* Phone bezel */}
-      <div className="relative mx-auto max-w-[270px] w-[85vw]">
+      {/* Phone bezel — dark titanium inspired */}
+      <div className="relative mx-auto max-w-[260px] w-[82vw]">
         <div
-          className="relative w-full rounded-[2.8rem] p-[3px] shadow-frame-premium"
+          className="relative w-full rounded-[3rem] p-[3px]"
           style={{
-            background: "var(--frame-gradient)",
+            background: "linear-gradient(145deg, #1a1d23 0%, #2c2f38 30%, #1a1d23 60%, #2c2f38 100%)",
+            boxShadow: "var(--frame-shadow-premium)",
           }}
         >
           {/* Bezel metallic shine */}
           <div
-            className="absolute inset-0 rounded-[2.8rem] pointer-events-none z-10"
+            className="absolute inset-0 rounded-[3rem] pointer-events-none z-10"
             style={{
-              background: "var(--frame-highlight)",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.1) 100%)",
             }}
           />
 
-          {/* Camera lens bump */}
-          <div className="absolute -top-[1px] -right-[1px] z-30 w-12 h-12 rounded-[2.8rem] bg-gradient-to-br from-blue-500 to-blue-800 flex items-center justify-center pointer-events-none">
-            <div className="w-[18px] h-[18px] rounded-full bg-gradient-to-br from-blue-400 to-blue-900 border border-white/10 shadow-inner" />
-          </div>
-
           {/* Inner screen */}
-          <div className="relative w-full h-[540px] rounded-[2.5rem] bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+          <div className="relative w-full h-[540px] rounded-[2.7rem] bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
             {/* Glass reflection — subtle diagonal sweep */}
             <div
-              className="absolute inset-0 z-20 pointer-events-none rounded-[2.5rem]"
+              className="absolute inset-0 z-20 pointer-events-none rounded-[2.7rem]"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 35%, transparent 60%, rgba(255,255,255,0.02) 100%)",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 35%, transparent 62%, rgba(255,255,255,0.02) 100%)",
               }}
             />
 
             {/* Screen edge glow */}
             <div
-              className="absolute inset-0 z-20 pointer-events-none rounded-[2.5rem]"
-              style={{
-                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
-              }}
+              className="absolute inset-0 z-20 pointer-events-none rounded-[2.7rem]"
+              style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}
             />
 
             {/* Dynamic Island */}
-            <div className="absolute top-2.5 start-1/2 -translate-x-1/2 w-[88px] h-[24px] bg-black rounded-full z-30 border border-white/[0.06] shadow-sm">
-              <div className="absolute end-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500/70" />
+            <div className="absolute top-2.5 start-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full z-30 border border-white/[0.05] shadow-sm">
+              <div className="absolute end-3.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/60" />
             </div>
 
             {/* Screen content (visible until video loads) */}
@@ -132,65 +95,48 @@ export default function PhoneMockup({ showVideo = true }: PhoneMockupProps) {
 
               {/* Search bar */}
               <div className="h-8 rounded-xl bg-white/8 backdrop-blur-sm flex items-center px-3 mb-4 border border-white/5">
-                <svg
-                  className="size-3 text-white/30 ms-1.5 shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.35-4.35" />
+                <svg className="size-3 text-white/30 ms-1.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                 </svg>
                 <span className="text-[10px] text-white/35">ابحث عن طبق...</span>
               </div>
 
-              {/* Category pills */}
+              {/* Category pills — iOS-style tag chips */}
               <div className="flex gap-1.5 mb-4 overflow-hidden">
                 {["مشاوي", "مقبلات", "مشروبات", "حلويات"].map((label, i) => (
-                  <div
-                    key={i}
-                    className="h-7 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center px-2.5 border border-white/5"
+                  <div key={i} className="h-7 rounded-full backdrop-blur-sm flex items-center justify-center px-2.5 border"
+                    style={{
+                      background: "rgba(255,255,255,0.08)",
+                      borderColor: "rgba(255,255,255,0.08)",
+                    }}
                   >
-                    <span className="text-[9px] font-semibold text-blue-300/90 truncate">
-                      {label}
-                    </span>
+                    <span className="text-[9px] font-semibold text-blue-300/90 truncate">{label}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Menu items */}
+              {/* Menu items — refined layout */}
               {[
-                { name: "شاورما دجاج", desc: "خبز صاج، ثوم، مخلل", price: "٢٥" },
-                { name: "كباب بندورة", desc: "لحم مفروم، بندورة، بصل", price: "٣٠" },
-                { name: "فتوش", desc: "خس، بندورة، نعناع، خبز", price: "١٥" },
-                { name: "عصير ليمون", desc: "ليمون طازج، نعناع", price: "١٢" },
+                { name: "شاورما دجاج", desc: "خبز صاج • ثوم • مخلل", price: "٢٥" },
+                { name: "كباب بندورة", desc: "لحم مفروم • بندورة • بصل", price: "٣٠" },
+                { name: "فتوش", desc: "خس • بندورة • نعناع • خبز", price: "١٥" },
+                { name: "عصير ليمون", desc: "ليمون طازج • نعناع", price: "١٢" },
               ].map((item, i) => (
                 <div key={i} className="flex gap-2.5 mb-3 items-center">
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-1">
-                      <span className="text-[10px] font-semibold text-white truncate">
-                        {item.name}
-                      </span>
-                      <span className="text-[9px] font-medium text-blue-400/90 shrink-0">
-                        {item.price} د.ل
-                      </span>
+                      <span className="text-[10px] font-semibold text-white truncate">{item.name}</span>
+                      <span className="text-[9px] font-medium text-blue-400/90 shrink-0">{item.price} د.ل</span>
                     </div>
-                    <div className="text-[8px] text-white/50 truncate mt-px">
-                      {item.desc}
-                    </div>
-                    <div className="text-[8px] text-blue-400/70 mt-px ltr">
-                      ★★★★☆
-                    </div>
+                    <div className="text-[8px] text-white/50 truncate mt-px">{item.desc}</div>
+                    <div className="text-[8px] text-blue-400/70 mt-px ltr">★★★★☆</div>
                   </div>
-                  <div className="size-11 rounded-full bg-gradient-to-br from-blue-500/60 to-purple-500/40 shrink-0" />
+                  <div className="size-10 rounded-xl bg-gradient-to-br from-blue-500/50 to-blue-700/30 shrink-0" />
                 </div>
               ))}
 
               {/* CTA button */}
-              <div className="absolute bottom-6 start-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25 flex items-center justify-center text-white text-[11px] font-semibold">
+              <div className="absolute bottom-6 start-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center text-white text-[11px] font-semibold">
                 ابدأ الطلب
               </div>
             </div>
@@ -201,32 +147,23 @@ export default function PhoneMockup({ showVideo = true }: PhoneMockupProps) {
                 ref={videoRef}
                 src="/hero-intro.mp4"
                 poster="/hero-poster.jpg"
-                autoPlay
-                loop
-                muted
-                playsInline
+                autoPlay loop muted playsInline
                 onCanPlay={handleCanPlay}
                 onError={handleError}
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-out"
-                style={{
-                  opacity: videoLoaded ? 1 : 0,
-                  objectPosition: "center",
-                }}
+                style={{ opacity: videoLoaded ? 1 : 0, objectPosition: "center" }}
               />
             )}
 
             {/* Bottom edge reflection */}
             <div
-              className="absolute bottom-0 left-0 right-0 h-12 z-20 pointer-events-none rounded-[2.5rem]"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(255,255,255,0.03) 0%, transparent 100%)",
-              }}
+              className="absolute bottom-0 left-0 right-0 h-12 z-20 pointer-events-none rounded-[2.7rem]"
+              style={{ background: "linear-gradient(to top, rgba(255,255,255,0.03) 0%, transparent 100%)" }}
             />
           </div>
 
           {/* Inner bezel rim */}
-          <div className="absolute inset-[3px] rounded-[2.5rem] ring-1 ring-inset ring-white/[0.1] pointer-events-none z-20" />
+          <div className="absolute inset-[3px] rounded-[2.7rem] ring-1 ring-inset ring-white/[0.08] pointer-events-none z-20" />
         </div>
       </div>
     </div>
