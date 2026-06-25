@@ -107,7 +107,7 @@ function TiltWrapper({ children }: { children: ReactNode }) {
       <div
         className="relative"
         style={{
-          transform: "perspective(1200px) rotateY(-36deg) rotateX(3deg) rotateZ(-1deg)",
+          transform: "perspective(1200px) rotateY(-40deg) rotateX(3deg) rotateZ(-1deg)",
           transformStyle: "preserve-3d",
         }}
       >
