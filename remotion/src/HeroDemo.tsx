@@ -25,24 +25,25 @@ export const HeroDemo: React.FC = () => {
   const frame = useCurrentFrame();
 
   // Global cinematic slow zoom — Ken Burns subtle push
-  const globalZoom = interpolate(frame, [0, 240], [1, 1.035], {
+  const globalZoom = interpolate(frame, [0, 450], [1, 1.05], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
     easing: Easing.bezier(0.43, 0, 0.32, 1),
   });
 
   // Vignette darkening — pulses subtly
-  const vignetteOpacity = interpolate(frame, [0, 120, 240], [0.15, 0.08, 0.12], {
+  const vignetteOpacity = interpolate(frame, [0, 225, 450], [0.18, 0.08, 0.15], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
     easing: Easing.bezier(0.43, 0, 0.32, 1),
   });
 
-  const SCENE_PHONE = 55;
-  const SCENE_MENU = 55;
-  const SCENE_SELECT = 50;
-  const SCENE_QUANTITY = 50;
-  const SCENE_WHATSAPP = 60;
+  // 15 seconds total @ 30fps — slow, readable, premium
+  const SCENE_PHONE = 100;
+  const SCENE_MENU = 100;
+  const SCENE_SELECT = 90;
+  const SCENE_QUANTITY = 85;
+  const SCENE_WHATSAPP = 110;
 
   let t = 0;
   const SCENE_DEFS: SceneDef[] = [

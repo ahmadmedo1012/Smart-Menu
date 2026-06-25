@@ -2,8 +2,8 @@ import { Composition } from "remotion";
 import { SmartMenuIntro } from "./SmartMenuIntro";
 import { HeroDemo } from "./HeroDemo";
 
-// Hero demo: 8 sec @ 30fps = 240 frames
-const HERO_TOTAL = 240;
+// Hero demo: 15 sec @ 30fps = 450 frames — slow, readable, cinematic
+const HERO_TOTAL = 450;
 
 // Total: 70 + 70 + 70 - 15 - 15 = 180 frames
 const SCENE = 70;

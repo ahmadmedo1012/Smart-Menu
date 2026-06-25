@@ -37,7 +37,7 @@ export default function HomePage() {
         {/* Subtle dot pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, oklch(0 0 0 / 0.5) 0.5px, transparent 0.5px)", backgroundSize: "24px 24px" }} />
 
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid lg:grid-cols-[1fr_1.15fr] gap-10 items-center py-4">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center py-4">
           {/* Text */}
           <div className="text-center lg:text-right order-last lg:order-first">
             <Reveal animation="animate-fade-in" delay={0}>
@@ -72,7 +72,7 @@ export default function HomePage() {
             <Reveal animation="animate-fade-in" delay={0.24}>
               <div className="mt-8 flex items-center gap-2 justify-center lg:justify-start text-sm text-muted-foreground">
                 <Star className="size-4 fill-gold text-gold" />
-                <span>يثق بنا أكثر من <span className="font-bold text-foreground">{stats?.totalRestaurants ?? "..."}</span> مطعماً</span>
+                <span>يثق بنا أكثر من <span className="font-bold text-foreground">{stats?.totalRestaurants ?? "..."}</span> مطعماً ومقهى</span>
               </div>
             </Reveal>
           </div>
