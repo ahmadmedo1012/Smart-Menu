@@ -20,7 +20,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-amber-50/40 to-background dark:via-amber-950/10" />
         <div className="hero-mesh"><div className="blob" /><div className="blob" /><div className="blob" /></div>
         <Reveal delay={0} className="absolute top-24 right-4 md:right-12 z-20">
-          <div className="glass-strong px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-amber-500/20 shadow-amber-500/10">
+          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-amber-500/20 shadow-amber-500/10">
             <Sparkles className="size-3.5 text-amber-500" /><span>المنصة الأسرع نمواً في 2026</span>
           </div>
         </Reveal>
@@ -57,7 +57,7 @@ export default function HomePage() {
               <div className="flex items-center gap-4 mt-8 justify-center lg:justify-start">
                 <div className="flex -space-x-2">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm animate-scale-in" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>{String.fromCharCode(65 + i)}</div>
+                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm animate-scale-in" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>{String.fromCharCode(65 + i)}</div>
                   ))}
                 </div>
                 <div className="text-sm"><span className="font-bold">+50</span> <span className="text-muted-foreground">مطعماً يثقون بنا</span></div>
@@ -69,7 +69,7 @@ export default function HomePage() {
         <div className="absolute bottom-8 start-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-xs text-muted-foreground animate-float">
           <span>اسحب لأسفل</span>
           <div className="size-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
-            <div className="size-1.5 rounded-full bg-primary/60 animate-breath" />
+            <div className="size-1.5 rounded-full bg-primary/70 animate-[breath_4s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>
@@ -86,8 +86,8 @@ export default function HomePage() {
               {PARTNERS.map((p, i) => (
                 <Link key={i} href={`/menu/${p.slug}`} className={cn("group relative overflow-hidden rounded-2xl border p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-right",
                   i === 0 ? "bg-gradient-to-br from-amber-50/60 to-card/50 dark:from-amber-950/15 dark:to-card/50 border-amber-200/30 hover:border-amber-300/50" :
-                  i === 1 ? "bg-card/50 border-border/30 hover:border-primary/30" :
-                  "bg-gradient-to-br from-blue-50/50 to-card/50 dark:from-blue-950/10 dark:to-card/50 border-border/30 hover:border-blue-300/50")}>
+                  i === 1 ? "bg-card/50 border-border/30 hover:border-amber-300/50" :
+                  "bg-gradient-to-br from-blue-50/50 to-card/50 dark:from-blue-950/10 dark:to-card/50 border-border/30 hover:border-amber-300/50")}>
                   <div className="flex items-center gap-3 mb-2">
                     <div className={cn("size-10 rounded-xl bg-gradient-to-br flex items-center justify-center group-hover:scale-110 transition-transform",
                       i === 0 ? "from-amber-400/20 to-amber-600/10" : i === 1 ? "from-amber-400/20 to-amber-600/10" : "from-blue-400/20 to-blue-600/10")}>

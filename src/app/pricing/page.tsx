@@ -64,7 +64,7 @@ function PlanCard({
       className={cn(
         "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
         isPopular
-          ? "border-amber-400/60 bg-gradient-to-b from-amber-50/80 to-white shadow-2xl shadow-amber-500/20 dark:from-amber-950/20 dark:to-card dark:border-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.25)] hover:shadow-amber-500/30"
+          ? "border-amber-400/60 bg-gradient-to-b from-amber-50/80 to-white shadow-2xl shadow-amber-500/20 dark:from-amber-950/20 dark:to-card dark:border-amber-400/40 hover:shadow-[0_0_30px_color-mix(in_oklch,var(--amber-500)_25%,transparent)] hover:shadow-amber-500/30"
           : "border-border/50 bg-card/50 hover:border-amber-200/30 hover:shadow-xl hover:shadow-amber-500/10 hover:bg-card/80",
       )}
     >
@@ -142,7 +142,7 @@ function PlanCard({
         {/* Features */}
         <div className="space-y-3 mb-8 flex-1">
           {plan.features.map((feature: string, i: number) => (
-            <div key={i} className="group/feature flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-1">
+            <div key={i} className="group/feature flex items-start gap-3 text-sm transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:translate-x-1">
               <div className="relative shrink-0 mt-0.5">
                 <Check className="size-4 text-primary transition-all duration-300 group-hover/feature:scale-110 group-hover/feature:text-primary/80" />
                 <span className="absolute inset-0 size-4 rounded-full bg-primary/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
@@ -278,13 +278,15 @@ export default function PricingPage() {
               { q: "هل يمكنني إلغاء الاشتراك؟", a: "نعم، يمكنك إلغاء الاشتراك في أي وقت. يظل المنيو نشطاً حتى نهاية الفترة المدفوعة." },
               { q: "هل تدعمون جميع أنواع المطاعم؟", a: "نعم، المنصة تدير المطاعم والمقاهي والمخابز والمطاعم السيارة وجميع أنواع الخدمات الغذائية." },
             ].map((faq, i) => (
-              <details key={i} className="group rounded-2xl border border-border/40 bg-card/50 open:bg-card/80 open:border-border/60 open:shadow-md transition-all duration-300 overflow-hidden">
-                <summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none">
+              <details key={i} className="group rounded-2xl border border-border/40 bg-card/50 open:bg-card/80 open:border-border/60 open:shadow-md transition-all duration-[500ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none px-5 py-4">
                   {faq.q}
                   <span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300">▼</span>
                 </summary>
-                <div className="animate-slide-down origin-top">
-                  <p className="pt-3 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                <div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+                  <div className="overflow-hidden">
+                    <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                  </div>
                 </div>
               </details>
             ))}
@@ -295,8 +297,10 @@ export default function PricingPage() {
       {/* CTA */}
       <section className="pb-24">
         <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="glass-strong rounded-3xl p-12 relative overflow-hidden">
+          <div className="glass-strong rounded-3xl p-12 relative overflow-hidden transition-all duration-[500ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-xl">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full" />
+            <div className="absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br from-amber-500/10 to-transparent blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-gradient-to-tr from-primary/10 to-transparent blur-2xl pointer-events-none" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               <span>مستعد لانطلاق مطعمك الرقمي؟</span>
             </h2>

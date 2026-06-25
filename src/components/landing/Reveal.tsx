@@ -16,8 +16,8 @@ export default function Reveal({ children, delay = 0, className = "" }: { childr
     return () => observer.disconnect();
   }, []);
   return (
-    <div ref={ref} className={cn("transition-all duration-700 ease-out", revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8", className)}
-      style={{ transitionDelay: `${delay}s` }}>
+    <div ref={ref} aria-hidden="true" className={cn("transition-all duration-700 ease-out", revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8", className)}
+      style={{ transitionDelay: `${delay}s`, willChange: "transform, opacity" }}>
       {children}
     </div>
   );

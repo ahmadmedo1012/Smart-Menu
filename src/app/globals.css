@@ -106,6 +106,10 @@
   --gradient-gold: linear-gradient(135deg, oklch(0.75 0.12 72), oklch(0.62 0.14 55));
   --gradient-surface: linear-gradient(180deg, oklch(1 0 0 / 0.8), oklch(0.975 0.012 70 / 0.4));
 
+  /* === Phone frame === */
+  --frame-gradient: linear-gradient(to bottom, var(--amber-400), var(--amber-500), var(--amber-600));
+  --frame-shadow: 0 25px 50px -12px color-mix(in oklch, rgb(0 0 0) 25%, transparent), 0 0 25px color-mix(in oklch, var(--amber-500) 25%, transparent);
+
   /* === Glass === */
   --glass-bg: oklch(1 0 0 / 0.65);
   --glass-bg-strong: oklch(1 0 0 / 0.82);
@@ -361,7 +365,7 @@
 }
 .dark .text-gradient-animated {
   background: linear-gradient(135deg, oklch(0.72 0.19 60) 0%, oklch(0.80 0.10 70) 25%, oklch(0.78 0.14 68) 50%, oklch(0.72 0.19 60) 75%, oklch(0.80 0.10 70) 100%);
-  background-size: 200% 200%;
+  background-size: 300% 300%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -372,7 +376,7 @@
 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
 @keyframes float-delayed { 0%, 100% { transform: translateY(0px) rotate(0deg); } 25% { transform: translateY(-8px) rotate(2deg); } 75% { transform: translateY(-4px) rotate(-1deg); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent); } 50% { box-shadow: 0 0 14px color-mix(in oklch, var(--ring) 60%, transparent), 0 0 28px color-mix(in oklch, var(--ring) 30%, transparent); } }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent); } 50% { box-shadow: 0 0 14px color-mix(in oklch, var(--ring) 60%, transparent), 0 0 22px color-mix(in oklch, var(--ring) 30%, transparent); } }
 @keyframes scale-in { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 @keyframes slide-down { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes reveal { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -389,7 +393,7 @@
 @keyframes image-fade-in { from { opacity: 0; filter: blur(4px); } to { opacity: 1; filter: blur(0); } }
 @keyframes page-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fade-in-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulse-glow-ring { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ring) 40%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in oklch, var(--ring) 0%, transparent); } }
+@keyframes pulse-glow-ring { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ring) 30%, transparent); } 50% { box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 0%, transparent); } }
 /* ponytail: color-mix tier — caps browser support at ~2023+; add static fallback if needed */
 
 /* === Animation utility classes === */
@@ -398,7 +402,7 @@
 .animate-shimmer {
   background: linear-gradient(90deg, transparent 25%, var(--muted) 50%, transparent 75%);
   background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+  animation: shimmer 2.5s infinite;
 }
 .animate-pulse-glow  { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-scale-in    { animation: scale-in 0.35s ease-out both; }
@@ -415,6 +419,7 @@
 .animate-fade-in-down { animation: fade-in-down 0.5s ease-out both; }
 .animate-pulse-glow-ring { animation: pulse-glow-ring 2s ease-in-out infinite; }
 .animate-lightbox-scale { animation: lightbox-scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.shadow-frame { box-shadow: var(--frame-shadow); }
 
 /* Delay helpers */
 .delay-100 { animation-delay: 100ms; }
@@ -550,7 +555,7 @@
   background: linear-gradient(135deg, var(--amber-300), var(--amber-500));
   opacity: 0.06;
   filter: blur(60px);
-  animation: float 8s ease-in-out infinite;
+  animation: float 12s ease-in-out infinite;
   width: 600px;
   height: 600px;
 }

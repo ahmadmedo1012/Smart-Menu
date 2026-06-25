@@ -16,9 +16,9 @@ export default function HeroVideo() {
 
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Phone mockup frame — animated gradient border, responsive width, same shape as HeroAnimation. animate-float on wrapper to avoid clashing with gradient-shift */}
+      {/* Phone mockup frame — animated gradient border (CSS vars), responsive width, same shape as HeroAnimation. animate-float on wrapper to avoid clashing with gradient-shift */}
       <div className="animate-float">
-        <div className="relative mx-auto max-w-[260px] w-[80vw] h-[530px] rounded-[3rem] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 p-[3px] shadow-2xl shadow-amber-500/25 bg-[length:200%_200%] animate-[gradient-shift_6s_ease_infinite]">
+        <div className="relative mx-auto max-w-[260px] w-[80vw] h-[530px] rounded-[3rem] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 p-[3px] shadow-frame bg-[length:200%_200%] animate-[gradient-shift_6s_ease_infinite]">
           {/* Frame depth overlay — subtle metallic shine */}
           <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-t from-black/5 via-transparent to-white/10 pointer-events-none z-10" />
 
@@ -26,6 +26,13 @@ export default function HeroVideo() {
           <div className="w-full h-full rounded-[2.6rem] bg-black overflow-hidden relative">
             {/* Dynamic Island */}
             <div className="absolute top-3 start-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20 border border-white/[0.07]" />
+
+            {/* Loading skeleton while video buffers */}
+            {!loaded && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="skeleton size-16 rounded-full" />
+              </div>
+            )}
 
             {/* Video fills the phone screen, hidden until loaded */}
             <video
@@ -45,19 +52,19 @@ export default function HeroVideo() {
         </div>
       </div>
 
-      {/* Floating badges — same as HeroAnimation */}
-      <div className="absolute -top-4 -end-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-500">
+      {/* Floating badges — glass-card */}
+      <div className="absolute -top-4 -end-4 glass-card rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-500">
         <div className="flex items-center gap-1.5">
           <span className="size-2 rounded-full bg-primary animate-breath" />
-          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
+          <span className="text-foreground text-[11px] font-semibold">
             مسح واطلب
           </span>
         </div>
       </div>
-      <div className="absolute -bottom-4 -start-4 gradient-border glass rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-700">
+      <div className="absolute -bottom-4 -start-4 glass-card rounded-xl px-3 py-2 shadow-lg animate-fade-in delay-[700ms]">
         <div className="flex items-center gap-1.5">
           <span className="text-primary text-[11px]">✓</span>
-          <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
+          <span className="text-foreground text-[11px] font-semibold">
             طلب عبر واتساب
           </span>
         </div>
