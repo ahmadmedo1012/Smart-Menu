@@ -1,5 +1,9 @@
 import { Composition } from "remotion";
 import { SmartMenuIntro } from "./SmartMenuIntro";
+import { HeroDemo } from "./HeroDemo";
+
+// Hero demo: 8 sec @ 30fps = 240 frames
+const HERO_TOTAL = 240;
 
 // Total: 70 + 70 + 70 - 15 - 15 = 180 frames
 const SCENE = 70;
@@ -8,13 +12,23 @@ const TOTAL = SCENE * 3 - TRANSITION * 2;
 
 export const RemotionRoot = () => {
   return (
-    <Composition
-      id="smart-menu-intro"
-      component={SmartMenuIntro}
-      durationInFrames={TOTAL}
-      fps={30}
-      width={1080}
-      height={1080}
-    />
+    <>
+      <Composition
+        id="smart-menu-intro"
+        component={SmartMenuIntro}
+        durationInFrames={TOTAL}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="HeroDemo"
+        component={HeroDemo}
+        durationInFrames={HERO_TOTAL}
+        fps={30}
+        width={1080}
+        height={390}
+      />
+    </>
   );
 };
