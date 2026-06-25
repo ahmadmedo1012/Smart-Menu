@@ -17,11 +17,11 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/40 to-background dark:via-blue-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/30 via-blue-100/20 to-background dark:via-blue-950/15 dark:via-indigo-950/5" />
         <div className="hero-mesh"><div className="blob" /><div className="blob" /><div className="blob" /></div>
         <Reveal delay={0} className="absolute top-24 right-4 md:right-12 z-20">
           <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-primary/20 shadow-blue-500/10">
-            <Sparkles className="size-3.5 text-blue-500" /><span>المنصة الأسرع نمواً في 2026</span>
+            <Sparkles className="size-3.5 text-blue-500" /><span>المنصة الأسرع نمواً في ٢٠٢٦</span>
           </div>
         </Reveal>
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center py-10">
@@ -67,9 +67,9 @@ export default function HomePage() {
           <Reveal delay={0.15} className="order-first lg:order-last"><HeroVideo /></Reveal>
         </div>
         <div className="absolute bottom-8 start-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-xs text-muted-foreground animate-float">
-          <span>اسحب لأسفل</span>
+          <span className="font-medium">اسحب لأسفل</span>
           <div className="size-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
-            <div className="size-1.5 rounded-full bg-primary/70 animate-[breath_4s_ease-in-out_infinite]" />
+            <div className="size-2 rounded-full bg-blue-500/80 animate-[breath_4s_ease-in-out_infinite]" />
           </div>
         </div>
       </section>

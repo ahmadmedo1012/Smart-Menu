@@ -3,19 +3,44 @@
 export default function HeroAnimation() {
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Ambient glow behind the phone */}
-      <div className="absolute -inset-8 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-
-      {/* Phone wrapper — slowed float for subtle lift */}
+      {/* Ambient glow behind phone */}
       <div
-        className="relative mx-auto w-[260px] h-[530px] animate-float"
-        style={{ animationDuration: "4s" }}
+        className="absolute -inset-6 md:-inset-10 rounded-full opacity-70 pointer-events-none"
+        style={{
+          background: "var(--frame-glow)",
+          filter: "blur(60px)",
+          transform: "translateZ(0)",
+        }}
+      />
+
+      {/* Phone wrapper */}
+      <div
+        className="relative mx-auto max-w-[260px] w-[80vw] animate-float"
+        style={{ animationDuration: "4.5s" }}
       >
-        {/* Bezel — metallic gradient with depth */}
-        <div className="relative w-full h-full rounded-[3rem] bg-gradient-to-b from-blue-500 via-blue-600 to-blue-800 p-[3px] shadow-2xl shadow-blue-500/30">
-          {/* Screen — dark glass */}
-          <div className="relative w-full h-full rounded-[2.6rem] bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden z-0">
-            {/* Subtle scanline texture at 2% opacity for realism */}
+        {/* ——— Outer Bezel ——— */}
+        <div
+          className="relative w-full rounded-[2.8rem] p-[3px] shadow-frame-premium"
+          style={{
+            background: "var(--frame-gradient)",
+          }}
+        >
+          {/* Bezel metallic shine */}
+          <div
+            className="absolute inset-0 rounded-[2.8rem] pointer-events-none z-10"
+            style={{
+              background: "var(--frame-highlight)",
+            }}
+          />
+
+          {/* Camera lens bump — top right */}
+          <div className="absolute -top-[1px] -right-[1px] z-30 w-12 h-12 rounded-[2.8rem] bg-gradient-to-br from-blue-500 to-blue-800 flex items-center justify-center pointer-events-none">
+            <div className="w-[18px] h-[18px] rounded-full bg-gradient-to-br from-blue-400 to-blue-900 border border-white/10 shadow-inner" />
+          </div>
+
+          {/* ——— Screen ——— */}
+          <div className="relative w-full h-[530px] rounded-[2.5rem] bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden z-0">
+            {/* Scanline texture */}
             <div
               className="absolute inset-0 pointer-events-none z-20"
               style={{
@@ -24,49 +49,69 @@ export default function HeroAnimation() {
               }}
             />
 
-            {/* Screen glass reflection overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-black/[0.04] pointer-events-none z-10" />
+            {/* Screen glass reflection — diagonal sweep */}
+            <div
+              className="absolute inset-0 z-20 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 35%, transparent 60%, rgba(255,255,255,0.02) 100%)",
+              }}
+            />
+
+            {/* Screen edge glow */}
+            <div
+              className="absolute inset-0 z-20 pointer-events-none"
+              style={{
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+              }}
+            />
 
             {/* Dynamic Island */}
-            <div className="absolute top-3 start-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-30 border border-white/[0.07]" />
+            <div className="absolute top-2.5 start-1/2 -translate-x-1/2 w-[88px] h-[24px] bg-black rounded-full z-30 border border-white/[0.06] shadow-sm">
+              <div className="absolute end-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500/70" />
+            </div>
 
-            {/* Screen content */}
+            {/* ——— Screen Content ——— */}
             <div className="relative z-0 pt-10 px-4">
               {/* Restaurant header */}
               <div className="flex items-center gap-2 mb-4">
-                <div className="size-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+                <div className="size-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold shadow-sm shadow-blue-500/20">
                   م
                 </div>
                 <div className="min-w-0">
                   <div className="text-[11px] font-semibold text-white leading-tight truncate">
                     مطعم مذاق الشام
                   </div>
-                  <div className="text-[9px] text-blue-400 mt-px">
+                  <div className="text-[9px] text-blue-400/80 mt-px">
                     مفتوح الآن • ١٢:٠٠ م - ١٢:٠٠ ص
                   </div>
                 </div>
               </div>
 
-              {/* Search bar */}
-              <div className="h-8 rounded-xl bg-white/10 backdrop-blur-sm flex items-center px-3 mb-4 border border-white/5">
-                <span className="text-[10px] text-white/40">ابحث عن طبق...</span>
+              {/* Search bar — refined glass */}
+              <div className="h-8 rounded-xl bg-white/8 backdrop-blur-sm flex items-center px-3 mb-4 border border-white/5">
+                <svg className="size-3 text-white/30 ms-1.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <span className="text-[10px] text-white/35">ابحث عن طبق...</span>
               </div>
 
-              {/* Category pills — soft glass */}
+              {/* Category pills */}
               <div className="flex gap-1.5 mb-4 overflow-hidden">
                 {["مشاوي", "مقبلات", "مشروبات", "حلويات"].map((label, i) => (
                   <div
                     key={i}
                     className="h-7 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center px-2.5 border border-white/5"
                   >
-                    <span className="text-[9px] font-semibold text-blue-300 truncate">
+                    <span className="text-[9px] font-semibold text-blue-300/90 truncate">
                       {label}
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* Menu items — premium dark-mode restaurant listing */}
+              {/* Menu items */}
               {[
                 { name: "شاورما دجاج", desc: "خبز صاج، ثوم، مخلل", price: "٢٥" },
                 { name: "كباب بندورة", desc: "لحم مفروم، بندورة، بصل", price: "٣٠" },
@@ -79,18 +124,18 @@ export default function HeroAnimation() {
                       <span className="text-[10px] font-semibold text-white truncate">
                         {item.name}
                       </span>
-                      <span className="text-[9px] font-medium text-blue-400 shrink-0">
+                      <span className="text-[9px] font-medium text-blue-400/90 shrink-0">
                         {item.price} د.ل
                       </span>
                     </div>
                     <div className="text-[8px] text-white/50 truncate mt-px">
                       {item.desc}
                     </div>
-                    <div className="text-[8px] text-blue-400 mt-px ltr">
+                    <div className="text-[8px] text-blue-400/70 mt-px ltr">
                       ★★★★☆
                     </div>
                   </div>
-                  <div className="size-11 rounded-lg bg-gradient-to-br from-blue-800 to-blue-600 shrink-0" />
+                  <div className="size-11 rounded-lg bg-gradient-to-br from-blue-800/60 to-blue-600/40 shrink-0" />
                 </div>
               ))}
 
@@ -99,25 +144,35 @@ export default function HeroAnimation() {
                 ابدأ الطلب
               </div>
             </div>
+
+            {/* Bottom edge reflection */}
+            <div
+              className="absolute bottom-0 left-0 right-0 h-12 z-20 pointer-events-none"
+              style={{
+                background: "linear-gradient(to top, rgba(255,255,255,0.03) 0%, transparent 100%)",
+              }}
+            />
           </div>
 
-          {/* Bezel inner rim highlight — where bezel meets screen */}
-          <div className="absolute inset-[3px] rounded-[2.6rem] ring-1 ring-inset ring-white/[0.08] pointer-events-none" />
+          {/* Inner bezel rim */}
+          <div className="absolute inset-[3px] rounded-[2.5rem] ring-1 ring-inset ring-white/[0.1] pointer-events-none z-20" />
         </div>
       </div>
 
-      {/* Floating badges — glass-card replaces banned gradient-border */}
-      <div className="absolute -top-4 -end-4 glass-card rounded-xl px-3 py-2 animate-fade-in delay-500">
+      {/* Floating badges */}
+      <div className="absolute -top-4 -end-4 glass-card rounded-xl px-3 py-2 animate-fade-in delay-500 border-blue-300/20 dark:border-blue-500/20">
         <div className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-primary animate-breath" />
+          <span className="size-2 rounded-full bg-blue-500 animate-breath" />
           <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
             مسح واطلب
           </span>
         </div>
       </div>
-      <div className="absolute -bottom-4 -start-4 glass-card rounded-xl px-3 py-2 animate-fade-in delay-700">
+      <div className="absolute -bottom-4 -start-4 glass-card rounded-xl px-3 py-2 animate-fade-in delay-[700ms] border-blue-300/20 dark:border-blue-500/20">
         <div className="flex items-center gap-1.5">
-          <span className="text-primary text-[11px]">✓</span>
+          <svg className="size-3.5 text-blue-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
           <span className="text-foreground dark:text-foreground text-[11px] font-semibold">
             طلب عبر واتساب
           </span>
