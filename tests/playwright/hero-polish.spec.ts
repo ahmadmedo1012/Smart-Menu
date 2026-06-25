@@ -13,7 +13,7 @@ test.describe("Hero Polish Verification", () => {
     const ctaBtn = page.locator("button:has-text('ابدأ الآن مجاناً')");
     await expect(ctaBtn).toBeVisible();
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.locator("h1")).toContainText("حوّل مطعمك");
+    await expect(page.locator("h1")).toContainText("للرقمنة");
   });
 
   test("hero responsive on mobile viewport", async ({ page }) => {
@@ -26,7 +26,7 @@ test.describe("Hero Polish Verification", () => {
     await expect(phoneContent).toBeVisible();
     const menuBtn = page.locator("button[aria-label='فتح القائمة']");
     await expect(menuBtn).toBeVisible();
-    await expect(page.locator("h1")).toContainText("رقمي");
+    await expect(page.locator("h1")).toContainText("للرقمنة");
   });
 
   test("video element loads inside phone", async ({ page }) => {

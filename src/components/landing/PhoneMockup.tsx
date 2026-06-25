@@ -6,108 +6,123 @@ import { cn } from "@/lib/utils";
 interface PhoneMockupProps {
   showVideo?: boolean;
   tilt?: boolean;
+  videoSrc?: string;
+  posterSrc?: string;
 }
 
-const MENU_ITEMS = [
-  { name: "شاورما دجاج", desc: "خبز صاج • ثوم • مخلل", price: "٢٥" },
-  { name: "كباب بندورة", desc: "لحم مفروم • بندورة • بصل", price: "٣٠" },
-  { name: "فتوش", desc: "خس • بندورة • نعناع • خبز", price: "١٥" },
-  { name: "عصير ليمون", desc: "ليمون طازج • نعناع", price: "١٢" },
-];
-
-const CATEGORIES = ["مشاوي", "مقبلات", "مشروبات", "حلويات"];
-
-/** Static menu screen — always visible, fades when video loads */
-function MenuScreen({ show }: { show: boolean }) {
+/** Premium menu screen — fallback while video loads */
+function MenuScreen() {
   return (
-    <div
-      className="relative z-0 pt-10 px-4 transition-opacity duration-700 ease-out"
-      style={{ opacity: show ? 1 : 0 }}
-    >
-      {/* Restaurant header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="size-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-[11px] font-bold shadow-sm shadow-blue-500/20">
-          م
-        </div>
-        <div className="min-w-0">
-          <div className="text-[11px] font-semibold text-white leading-tight truncate">
-            مطعم مذاق الشام
-          </div>
-          <div className="text-[9px] text-blue-400/80 mt-px">
-            مفتوح الآن • ١٢:٠٠ م - ١٢:٠٠ ص
-          </div>
+    <div className="absolute inset-0 z-10 bg-gray-950 overflow-hidden">
+      {/* Gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950" />
+
+      {/* Status bar */}
+      <div className="relative z-10 flex items-center justify-between pt-3 px-5">
+        <span className="text-[9px] text-white/40 font-medium">٩:٤١</span>
+        <div className="flex items-center gap-1.5">
+          <svg className="size-2.5 text-white/40" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="2" y="10" width="4" height="12" rx="0.5" />
+            <rect x="8" y="6" width="4" height="16" rx="0.5" />
+            <rect x="14" y="2" width="4" height="20" rx="0.5" />
+          </svg>
+          <svg className="size-2.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 17a4.5 4.5 0 0 1-1-3 4.5 4.5 0 0 1 9 0 4.5 4.5 0 0 1-1 3" />
+            <path d="M8 12a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2" />
+          </svg>
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="h-8 rounded-xl bg-white/8 backdrop-blur-sm flex items-center px-3 mb-4 border border-white/5">
-        <svg className="size-3 text-white/30 ms-1.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-        </svg>
-        <span className="text-[10px] text-white/35">ابحث عن طبق...</span>
-      </div>
+      {/* Restaurant card */}
+      <div className="relative z-10 px-5 mt-2">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="size-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/20">
+            م
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-white">مطعم مذاق الشام</div>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="size-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[9px] text-green-400/80">مفتوح الآن</span>
+            </div>
+          </div>
+        </div>
 
-      {/* Category pills */}
-      <div className="flex gap-1.5 mb-4 overflow-hidden">
-        {CATEGORIES.map((label, i) => (
-          <div
-            key={i}
-            className="h-7 rounded-full backdrop-blur-sm flex items-center justify-center px-2.5 border"
-            style={{
-              background: "rgba(255,255,255,0.08)",
-              borderColor: "rgba(255,255,255,0.08)",
-            }}
-          >
-            <span className="text-[9px] font-semibold text-blue-300/90 truncate">{label}</span>
+        {/* Hero dish image */}
+        <div className="h-28 rounded-2xl bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-gray-800 flex items-center justify-center mb-4 overflow-hidden border border-white/5">
+          <div className="text-center">
+            <div className="text-[22px] mb-1">🍽️</div>
+            <div className="text-[9px] text-white/60">تشكيلة المشاوي الملكية</div>
+          </div>
+        </div>
+
+        {/* Category pills */}
+        <div className="flex gap-1.5 mb-4">
+          {["مشاوي", "مقبلات", "مشروبات", "حلويات", "سلطات"].map((label) => (
+            <div
+              key={label}
+              className={cn(
+                "h-7 rounded-full flex items-center justify-center px-3 text-[9px] font-semibold transition-colors",
+                label === "مشاوي"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  : "bg-white/8 text-blue-300/70 border border-white/5",
+              )}
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+
+        {/* Menu items */}
+        {[
+          { name: "شاورما دجاج", desc: "خبز صاج • ثوم • مخلل", price: "٢٥", stars: 5 },
+          { name: "كباب بندورة", desc: "لحم مفروم • بندورة • بصل", price: "٣٠", stars: 4 },
+          { name: "فتوش", desc: "خس • بندورة • نعناع • خبز", price: "١٥", stars: 4 },
+          { name: "عصير ليمون", desc: "ليمون طازج • نعناع", price: "١٢", stars: 5 },
+        ].map((item, i) => (
+          <div key={i} className="flex items-center gap-3 mb-2.5 py-1.5">
+            <div className="size-9 shrink-0 rounded-xl bg-gradient-to-br from-blue-500/40 to-blue-700/20 border border-white/5" />
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-semibold text-white">{item.name}</span>
+                <span className="text-[9px] font-medium text-blue-400/80">{item.price} د.ل</span>
+              </div>
+              <div className="text-[8px] text-white/40 truncate mt-px">{item.desc}</div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Menu items */}
-      {MENU_ITEMS.map((item, i) => (
-        <div key={i} className="flex gap-2.5 mb-3 items-center">
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-start gap-1">
-              <span className="text-[10px] font-semibold text-white truncate">{item.name}</span>
-              <span className="text-[9px] font-medium text-blue-400/90 shrink-0">{item.price} د.ل</span>
-            </div>
-            <div className="text-[8px] text-white/50 truncate mt-px">{item.desc}</div>
-            <div className="text-[8px] text-blue-400/70 mt-px ltr">★★★★☆</div>
-          </div>
-          <div className="size-10 rounded-xl bg-gradient-to-br from-blue-500/50 to-blue-700/30 shrink-0" />
+      {/* Bottom CTA */}
+      <div className="absolute bottom-6 left-4 right-4 z-10">
+        <div className="h-11 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center text-white text-[11px] font-semibold shadow-xl shadow-blue-600/30">
+          ابدأ الطلب
         </div>
-      ))}
-
-      {/* CTA button */}
-      <div className="absolute bottom-6 start-1/2 -translate-x-1/2 h-10 w-36 rounded-full bg-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center text-white text-[11px] font-semibold">
-        ابدأ الطلب
       </div>
     </div>
   );
 }
 
-/** Tilt wrapper — applies 3D perspective */
+/** Tilt wrapper — natural 3D perspective */
 function TiltWrapper({ children }: { children: ReactNode }) {
   return (
-    <div
-      className="relative"
-      style={{ perspective: "1200px" }}
-    >
+    <div className="relative" style={{ perspective: "1400px" }}>
       <div
-        className="relative transition-transform duration-700 ease-out"
+        className="relative"
         style={{
-          transform: "perspective(1200px) rotateY(-6deg) rotateX(2deg)",
+          transform:
+            "perspective(1400px) rotateY(-5.5deg) rotateX(1.5deg) rotateZ(-0.5deg)",
           transformStyle: "preserve-3d",
         }}
       >
         {/* Cast shadow under tilted phone */}
         <div
-          className="absolute -bottom-3 left-[5%] right-[5%] h-8 rounded-[50%] pointer-events-none"
+          className="absolute -bottom-2 left-[10%] right-[10%] h-10 rounded-[50%] pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse, oklch(0 0 0 / 0.2) 0%, transparent 70%)",
-            filter: "blur(6px)",
-            transform: "translateZ(-20px)",
+              "radial-gradient(ellipse, oklch(0 0 0 / 0.25) 0%, transparent 70%)",
+            filter: "blur(8px)",
+            transform: "translateZ(-30px)",
           }}
         />
         {children}
@@ -116,13 +131,18 @@ function TiltWrapper({ children }: { children: ReactNode }) {
   );
 }
 
-export default function PhoneMockup({ showVideo = true, tilt = false }: PhoneMockupProps) {
+/** Primary export — premium phone mockup */
+export default function PhoneMockup({
+  showVideo = true,
+  tilt = false,
+  videoSrc,
+  posterSrc,
+}: PhoneMockupProps) {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoErrored, setVideoErrored] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const isVideo = showVideo && !videoErrored;
-  const showAnim = !isVideo || !videoLoaded;
 
   const handleCanPlay = useCallback(() => {
     requestAnimationFrame(() => setVideoLoaded(true));
@@ -133,94 +153,102 @@ export default function PhoneMockup({ showVideo = true, tilt = false }: PhoneMoc
   }, []);
 
   const PhoneFrame = (
-    <div className="relative mx-auto max-w-[260px] w-[82vw]">
-      {/* Phone bezel */}
+    <div className="relative mx-auto max-w-[280px] w-[80vw]">
+      {/* External ambient glow */}
       <div
-        className="relative w-full rounded-[3rem] p-[3px]"
+        className="absolute -inset-12 rounded-full pointer-events-none"
         style={{
-          background: "linear-gradient(145deg, #1a1d23 0%, #2c2f38 30%, #1a1d23 60%, #2c2f38 100%)",
-          boxShadow: "var(--frame-shadow-premium)",
+          background:
+            "radial-gradient(ellipse at 50% 100%, oklch(0.52 0.14 264 / 0.15) 0%, transparent 70%)",
+          filter: "blur(60px)",
+          transform: "translateZ(0)",
+        }}
+      />
+
+      {/* Bezel */}
+      <div
+        className="relative w-full rounded-[3.2rem] p-[4px]"
+        style={{
+          background:
+            "linear-gradient(160deg, oklch(0.3 0.04 265) 0%, oklch(0.45 0.06 268) 30%, oklch(0.25 0.03 262) 55%, oklch(0.4 0.05 265) 80%, oklch(0.28 0.04 268) 100%)",
+          boxShadow:
+            "0 35px 80px -20px oklch(0 0 0 / 0.45), 0 0 70px oklch(0.45 0.14 265 / 0.12), inset 0 0 0 1px oklch(1 1 0 / 0.04)",
         }}
       >
-        {/* Bezel metallic shine */}
+        {/* Bezel metallic highlight */}
         <div
-          className="absolute inset-0 rounded-[3rem] pointer-events-none z-10"
+          className="absolute inset-0 rounded-[3.2rem] pointer-events-none z-10"
           style={{
-            background: "var(--frame-highlight)",
+            background:
+              "linear-gradient(170deg, oklch(1 1 0 / 0.1) 0%, transparent 35%, transparent 65%, oklch(0 0 0 / 0.06) 100%)",
           }}
         />
 
-        {/* Inner screen */}
-        <div className="relative w-full h-[540px] rounded-[2.7rem] bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+        {/* Screen */}
+        <div className="relative w-full aspect-[9/19.5] rounded-[2.9rem] bg-gray-950 overflow-hidden">
           {/* Glass reflection */}
           <div
-            className="absolute inset-0 z-20 pointer-events-none rounded-[2.7rem]"
+            className="absolute inset-0 z-20 pointer-events-none rounded-[2.9rem]"
             style={{
               background:
-                "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 35%, transparent 62%, rgba(255,255,255,0.02) 100%)",
+                "linear-gradient(135deg, oklch(1 1 0 / 0.06) 0%, transparent 40%, transparent 60%, oklch(1 1 0 / 0.015) 100%)",
             }}
           />
 
-          {/* Screen edge glow */}
+          {/* Screen edge rim */}
           <div
-            className="absolute inset-0 z-20 pointer-events-none rounded-[2.7rem]"
-            style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}
+            className="absolute inset-0 z-20 pointer-events-none rounded-[2.9rem]"
+            style={{ boxShadow: "inset 0 0 0 1px oklch(1 1 0 / 0.06)" }}
           />
 
           {/* Dynamic Island */}
-          <div className="absolute top-2.5 start-1/2 -translate-x-1/2 w-[90px] h-[22px] bg-black rounded-full z-30 border border-white/[0.05] shadow-sm">
-            <div className="absolute end-3.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/60" />
+          <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[100px] h-[24px] bg-black rounded-full z-30 border border-white/[0.04] shadow-sm">
+            <div className="absolute end-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500/50" />
           </div>
 
-          {/* Screen content (visible until video loads, or always if no video) */}
-          <MenuScreen show={showAnim} />
+          {/* Content */}
+          <MenuScreen />
 
           {/* Video overlay */}
           {isVideo && (
             <video
               ref={videoRef}
-              src="/hero-intro.mp4"
-              poster="/hero-poster.jpg"
+              src={videoSrc || "/hero-intro.mp4"}
+              poster={posterSrc || "/hero-poster.jpg"}
               autoPlay
               loop
               muted
               playsInline
               onCanPlay={handleCanPlay}
               onError={handleError}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-out"
-              style={{ opacity: videoLoaded ? 1 : 0, objectPosition: "center" }}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-out z-5"
+              style={{ opacity: videoLoaded ? 1 : 0 }}
             />
           )}
 
           {/* Bottom edge reflection */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-12 z-20 pointer-events-none rounded-[2.7rem]"
+            className="absolute bottom-0 left-0 right-0 h-10 z-20 pointer-events-none rounded-[2.9rem]"
             style={{
               background:
-                "linear-gradient(to top, rgba(255,255,255,0.03) 0%, transparent 100%)",
+                "linear-gradient(to top, oklch(1 1 0 / 0.03) 0%, transparent 100%)",
             }}
           />
         </div>
 
-        {/* Inner bezel rim */}
-        <div className="absolute inset-[3px] rounded-[2.7rem] ring-1 ring-inset ring-white/[0.08] pointer-events-none z-20" />
+        {/* Inner bezel accent rim */}
+        <div className="absolute inset-[4px] rounded-[2.9rem] ring-1 ring-inset ring-white/[0.07] pointer-events-none z-20" />
       </div>
     </div>
   );
 
   return (
-    <div className={cn("relative w-full max-w-md mx-auto", tilt && "scale-105 md:scale-110 origin-center")}>
-      {/* Ambient glow */}
-      <div
-        className="absolute -inset-10 md:-inset-16 rounded-full pointer-events-none"
-        style={{
-          background: "var(--frame-glow)",
-          filter: "blur(80px)",
-          transform: "translateZ(0)",
-          opacity: 0.7,
-        }}
-      />
-
+    <div
+      className={cn(
+        "relative w-full max-w-md mx-auto",
+        tilt && "scale-[1.02] md:scale-105 origin-center animate-phone-float",
+      )}
+    >
       {tilt ? <TiltWrapper>{PhoneFrame}</TiltWrapper> : PhoneFrame}
     </div>
   );
