@@ -12,60 +12,69 @@ const GOLD = "oklch(0.72 0.14 75)";
 export const QuantitySelect: React.FC = () => {
   const frame = useCurrentFrame();
 
-  // Header fade
-  const headerOpacity = interpolate(frame, [0, 15], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-
-  // Minus button
-  const minusOpacity = interpolate(frame, [15, 30], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-  const minusScale = interpolate(frame, [15, 30], [0.5, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-
-  // Counter animation: 1 -> 2 at frame 25
-  const count = frame < 25 ? 1 : 2;
-  const countScale = interpolate(
-    frame,
-    [20, 25, 30],
-    [1, 1.4, 1],
-    { extrapolateRight: "clamp", extrapolateLeft: "clamp", easing: Easing.bezier(0.16, 1, 0.3, 1) },
-  );
-
-  // Plus button
-  const plusOpacity = interpolate(frame, [20, 35], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-  const plusScale = interpolate(frame, [20, 35], [0.5, 1], {
+  const headerOpacity = interpolate(frame, [0, 10], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
     easing: Easing.bezier(0.16, 1, 0.3, 1),
   });
 
   // Item name
-  const itemOpacity = interpolate(frame, [0, 15], [0, 1], {
+  const itemOpacity = interpolate(frame, [0, 10], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
 
-  // Total price
-  const totalOpacity = interpolate(frame, [30, 45], [0, 1], {
+  // Minus button
+  const minusOpacity = interpolate(frame, [12, 25], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+  const minusScale = interpolate(frame, [12, 25], [0.3, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
     easing: Easing.bezier(0.16, 1, 0.3, 1),
   });
 
-  const totalPrice = count * 42;
+  // Counter: 1 → 2 at frame 28
+  const count = frame < 28 ? 1 : 2;
+  const countBounce = interpolate(
+    frame,
+    [23, 28, 33],
+    [1, 1.5, 1],
+    {
+      extrapolateRight: "clamp",
+      extrapolateLeft: "clamp",
+      easing: Easing.bezier(0.16, 1, 0.3, 1),
+    },
+  );
+
+  // Plus button
+  const plusOpacity = interpolate(frame, [18, 30], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+  const plusScale = interpolate(frame, [18, 30], [0.3, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+
+  // Total price fade
+  const totalOpacity = interpolate(frame, [30, 42], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+
+  // Quantity line shimmer
+  const shimmer = interpolate(frame, [0, 50], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const total = count * 30;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -74,53 +83,52 @@ export const QuantitySelect: React.FC = () => {
         style={{
           position: "absolute",
           top: "12%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          fontFamily: arabicFont,
-          fontSize: 18,
-          fontWeight: 700,
-          color: GOLD,
+          left: 20,
+          right: 20,
+          textAlign: "center",
           opacity: headerOpacity,
         }}
       >
-        اختر الكمية
-      </div>
-
-      {/* Item name */}
-      <div
-        style={{
-          position: "absolute",
-          top: "24%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          fontFamily: arabicFont,
-          fontSize: 14,
-          fontWeight: 400,
-          color: "rgba(255,255,255,0.6)",
-          opacity: itemOpacity,
-        }}
-      >
-        كباب بندورة
+        <div
+          style={{
+            fontFamily: arabicFont,
+            fontSize: 20,
+            fontWeight: 700,
+            color: "#fff",
+          }}
+        >
+          اختر الكمية
+        </div>
+        <div
+          style={{
+            fontFamily: arabicFont,
+            fontSize: 11,
+            color: "rgba(255,255,255,0.35)",
+            marginTop: 2,
+          }}
+        >
+          كباب بندورة
+        </div>
       </div>
 
       {/* Quantity selector */}
       <div
         style={{
           position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          top: "46%",
+          left: 20,
+          right: 20,
           display: "flex",
-          flexDirection: "row",
           alignItems: "center",
-          gap: 24,
+          justifyContent: "center",
+          gap: 28,
         }}
       >
-        {/* Minus button */}
+        {/* Minus */}
         <div
           style={{
-            width: 48,
-            height: 48,
+            width: 50,
+            height: 50,
             borderRadius: "50%",
             border: `2px solid ${GOLD}`,
             display: "flex",
@@ -128,32 +136,36 @@ export const QuantitySelect: React.FC = () => {
             justifyContent: "center",
             opacity: minusOpacity,
             scale: `${minusScale}`,
-            background: "rgba(212,168,83,0.1)",
+            background: "rgba(212,168,83,0.06)",
+            cursor: "pointer",
           }}
         >
-          <div style={{ color: GOLD, fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
-            -
+          <div style={{ color: GOLD, fontSize: 26, fontWeight: 300, lineHeight: 1, marginTop: -2 }}>
+            −
           </div>
         </div>
 
-        {/* Counter */}
+        {/* Count */}
         <div
           style={{
             fontFamily: "system-ui, sans-serif",
-            fontSize: 48,
+            fontSize: 52,
             fontWeight: 700,
             color: "#fff",
-            scale: `${countScale}`,
+            scale: `${countBounce}`,
+            minWidth: 60,
+            textAlign: "center",
+            direction: "ltr",
           }}
         >
           {count}
         </div>
 
-        {/* Plus button */}
+        {/* Plus */}
         <div
           style={{
-            width: 48,
-            height: 48,
+            width: 50,
+            height: 50,
             borderRadius: "50%",
             border: `2px solid ${GOLD}`,
             display: "flex",
@@ -161,10 +173,11 @@ export const QuantitySelect: React.FC = () => {
             justifyContent: "center",
             opacity: plusOpacity,
             scale: `${plusScale}`,
-            background: "rgba(212,168,83,0.1)",
+            background: `radial-gradient(circle, ${GOLD}22, rgba(212,168,83,0.06))`,
+            cursor: "pointer",
           }}
         >
-          <div style={{ color: GOLD, fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
+          <div style={{ color: GOLD, fontSize: 26, fontWeight: 300, lineHeight: 1 }}>
             +
           </div>
         </div>
@@ -174,9 +187,9 @@ export const QuantitySelect: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          bottom: "18%",
-          left: "50%",
-          transform: "translateX(-50%)",
+          bottom: "20%",
+          left: 20,
+          right: 20,
           textAlign: "center",
           opacity: totalOpacity,
         }}
@@ -184,8 +197,9 @@ export const QuantitySelect: React.FC = () => {
         <div
           style={{
             fontFamily: arabicFont,
-            fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
+            fontSize: 11,
+            color: "rgba(255,255,255,0.35)",
+            marginBottom: 6,
           }}
         >
           المجموع
@@ -193,15 +207,28 @@ export const QuantitySelect: React.FC = () => {
         <div
           style={{
             fontFamily: "system-ui, sans-serif",
-            fontSize: 28,
+            fontSize: 36,
             fontWeight: 700,
             color: GOLD,
-            marginTop: 4,
+            direction: "ltr",
           }}
         >
-          {totalPrice} SAR
+          {total} د.ل
         </div>
       </div>
+
+      {/* Gold accent line — bottom */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "12%",
+          left: "30%",
+          right: "30%",
+          height: 1,
+          background: `linear-gradient(90deg, transparent, ${GOLD}33, transparent)`,
+          opacity: shimmer,
+        }}
+      />
     </AbsoluteFill>
   );
 };

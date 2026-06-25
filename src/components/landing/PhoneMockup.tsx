@@ -47,7 +47,7 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
           style={{ background: "var(--frame-highlight)" }}
         />
 
-        {/* Screen */}
+        {/* Screen — portrait content */}
         <div className="relative w-full aspect-[9/19.5] rounded-[2.9rem] bg-black overflow-hidden">
           {/* Glass reflection */}
           <div
@@ -81,15 +81,15 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             preload="auto"
             onCanPlay={handleCanPlay}
             onError={handleError}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out z-10"
-            style={{ opacity: videoLoaded ? 1 : 0 }}
+            className="absolute inset-0 w-full h-full transition-opacity duration-700 ease-out z-10"
+            style={{ objectFit: "contain", opacity: videoLoaded ? 1 : 0 }}
           />
           {/* Fallback poster when video unavailable */}
           {(!videoLoaded || videoError) && (
             <img
               src="/hero-poster.jpg"
               alt=""
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-4"
+              className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500 z-4"
               style={{ opacity: videoError ? 1 : 0.6 }}
               loading="lazy"
             />
@@ -124,7 +124,7 @@ function TiltWrapper({ children }: { children: ReactNode }) {
       <div
         className="relative"
         style={{
-          transform: "perspective(1200px) rotateY(-40deg) rotateX(3deg) rotateZ(-1deg)",
+          transform: "perspective(1200px) rotateY(-22deg) rotateX(5deg) rotateZ(-2deg)",
           transformStyle: "preserve-3d",
         }}
       >

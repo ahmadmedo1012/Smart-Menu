@@ -26,8 +26,8 @@ export const RemotionRoot = () => {
         component={HeroDemo}
         durationInFrames={HERO_TOTAL}
         fps={30}
-        width={1080}
-        height={390}
+        width={540}
+        height={1170}
       />
     </>
   );
