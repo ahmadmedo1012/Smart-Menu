@@ -36,7 +36,7 @@ export default function CartFloatingButton() {
         "hover:shadow-2xl hover:shadow-amber-500/30 hover:from-amber-600 hover:to-amber-700",
         "active:scale-95 transition-all duration-300",
         "animate-slide-up",
-        bounce && "animate-wiggle",
+        bounce && "scale-110",
       )}
     >
       <div className="relative">

@@ -116,7 +116,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       {/* Main content */}
       <div className="flex flex-1 flex-col animate-fade-in">
         <LayoutHeader onMenuClick={() => setSheetOpen(true)} />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-subtle-pattern content-area">{children}</main>
+        <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-subtle-pattern p-4 md:p-6 lg:p-8 animate-page-enter">{children}</main>
       </div>
     </div>
   )

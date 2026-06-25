@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Menu, Star, Store, LayoutDashboard } from "lucide-react"
@@ -48,11 +49,12 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
 
 export function Header({ className }: HeaderProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
+  const pathname = usePathname()
 
   return (
     <header
       className={cn(
-        "fixed top-0 inset-x-0 z-30 h-16 bg-background/60 backdrop-blur-2xl border-b border-border/30 shadow-sm supports-backdrop-filter:bg-background/40",
+        "fixed top-0 inset-x-0 z-30 h-16 bg-background/70 backdrop-blur-xl border-b border-border/20 shadow-xs supports-backdrop-filter:bg-background/60",
         className
       )}
     >
@@ -79,15 +81,25 @@ export function Header({ className }: HeaderProps) {
           </Link>
           {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-1">
-            {landingLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {landingLinks.map((link) => {
+              const isActive = link.href === "/login"
+                ? pathname === "/login"
+                : pathname.startsWith(link.href.replace(/:.*/, ""))
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "px-3 py-2 rounded-lg text-sm transition-all duration-200",
+                    isActive
+                      ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
           </div>
         </div>
         <div className="flex items-center gap-3">

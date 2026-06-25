@@ -150,6 +150,7 @@ export default function AdminOrdersPage() {
           onChange={e => { setDateFrom(e.target.value); fetchOrders(filter) }}
           className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
           title="من تاريخ"
+          aria-label="من تاريخ"
         />
         <input
           type="date"
@@ -157,6 +158,7 @@ export default function AdminOrdersPage() {
           onChange={e => { setDateTo(e.target.value); fetchOrders(filter) }}
           className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
           title="إلى تاريخ"
+          aria-label="إلى تاريخ"
         />
         {(dateFrom || dateTo) && (
           <button

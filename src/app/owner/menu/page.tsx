@@ -107,7 +107,7 @@ export default function OwnerMenuPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <BackButton href="/owner" />
-          <h2 className="text-2xl font-bold">إدارة المنيو</h2>
+          <h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
           <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
         </div>
         <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-xl gap-2">
@@ -139,7 +139,7 @@ export default function OwnerMenuPage() {
               <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20" onClick={() => toggleCat(cat.id)}>
                   <div className="flex items-center gap-3">
                     {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
-                      (() => { const I = CATEGORY_ICON_MAP[cat.icon]; return <I className="size-6" />; })()
+                      (() => { const I = CATEGORY_ICON_MAP[cat.icon]; return <I className="size-6 text-primary" />; })()
                     ) : (
                       <span className="text-2xl">{cat.icon || "📦"}</span>
                     )}

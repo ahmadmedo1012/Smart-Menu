@@ -64,7 +64,7 @@ function PlanCard({
       className={cn(
         "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
         isPopular
-          ? "border-amber-300/50 bg-gradient-to-b from-amber-50/80 to-white shadow-xl shadow-amber-500/10 dark:from-amber-950/20 dark:to-card dark:border-amber-500/30 hover:shadow-2xl hover:shadow-amber-500/20"
+          ? "border-amber-400/60 bg-gradient-to-b from-amber-50/80 to-white shadow-2xl shadow-amber-500/20 dark:from-amber-950/20 dark:to-card dark:border-amber-400/40 hover:shadow-[0_0_30px_rgba(251,191,36,0.25)] hover:shadow-amber-500/30"
           : "border-border/50 bg-card/50 hover:border-amber-200/30 hover:shadow-xl hover:shadow-amber-500/10 hover:bg-card/80",
       )}
     >
@@ -126,19 +126,17 @@ function PlanCard({
         </div>
 
         {/* Limits */}
-        <div className="space-y-2 mb-6 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">المنيو</span>
-            <span className="font-medium">{plan.maxMenus === 9999 ? "غير محدود" : `${plan.maxMenus}`}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">الأصناف</span>
-            <span className="font-medium">{plan.maxItems === 9999 ? "غير محدود" : `حتى ${toArabicNumber(plan.maxItems)}`}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">الطلبات</span>
-            <span className="font-medium">{plan.maxOrders === 99999 ? "غير محدود" : `حتى ${toArabicNumber(plan.maxOrders)}`}</span>
-          </div>
+        <div className="space-y-2.5 mb-6">
+          {[
+            ["المنيو", plan.maxMenus === 9999 ? "غير محدود" : toArabicNumber(plan.maxMenus)],
+            ["الأصناف", plan.maxItems === 9999 ? "غير محدود" : `حتى ${toArabicNumber(plan.maxItems)}`],
+            ["الطلبات", plan.maxOrders === 99999 ? "غير محدود" : `حتى ${toArabicNumber(plan.maxOrders)}`],
+          ].map(([label, val]) => (
+            <div key={label as string} className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
+              <span className="text-muted-foreground">{label as string}</span>
+              <span className="font-semibold">{val as string}</span>
+            </div>
+          ))}
         </div>
 
         {/* Features */}
@@ -215,24 +213,24 @@ export default function PricingPage() {
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-3 mt-8 bg-muted/60 rounded-full p-1">
+          <div className="inline-flex items-center mt-8 bg-muted/60 rounded-full p-1 relative">
+            <div
+              className={cn(
+                "absolute inset-y-1 w-1/2 rounded-full bg-white dark:bg-card shadow-sm transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+                yearly ? "translate-x-full" : "translate-x-0",
+              )}
+            />
             <button
               type="button"
               onClick={() => setYearly(false)}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                !yearly && "bg-white dark:bg-card shadow-sm",
-              )}
+              className="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
             >
               شهري
             </button>
             <button
               type="button"
               onClick={() => setYearly(true)}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                yearly && "bg-white dark:bg-card shadow-sm",
-              )}
+              className="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
             >
               سنوي
               <span className="mr-1.5 text-xs text-primary font-bold">وفر شهرين</span>
@@ -280,12 +278,14 @@ export default function PricingPage() {
               { q: "هل يمكنني إلغاء الاشتراك؟", a: "نعم، يمكنك إلغاء الاشتراك في أي وقت. يظل المنيو نشطاً حتى نهاية الفترة المدفوعة." },
               { q: "هل تدعمون جميع أنواع المطاعم؟", a: "نعم، المنصة تدير المطاعم والمقاهي والمخابز والمطاعم السيارة وجميع أنواع الخدمات الغذائية." },
             ].map((faq, i) => (
-              <details key={i} className="group rounded-2xl border border-border/40 bg-card/50 p-5 open:shadow-md transition-all duration-300">
+              <details key={i} className="group rounded-2xl border border-border/40 bg-card/50 open:bg-card/80 open:border-border/60 open:shadow-md transition-all duration-300 overflow-hidden">
                 <summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none">
                   {faq.q}
                   <span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300">▼</span>
                 </summary>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                <div className="animate-slide-down origin-top">
+                  <p className="pt-3 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                </div>
               </details>
             ))}
           </div>
@@ -295,25 +295,26 @@ export default function PricingPage() {
       {/* CTA */}
       <section className="pb-24">
         <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="glass-strong rounded-3xl p-12">
-            <h2 className="text-3xl font-bold mb-4">
+          <div className="glass-strong rounded-3xl p-12 relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full" />
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               <span>مستعد لانطلاق مطعمك الرقمي؟</span>
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
               ابدأ الآن مجاناً بدون بطاقة ائتمان
             </p>
-            <div className="flex gap-3 justify-center">
-            <Link href="/subscribe">
-              <Button size="lg" className="text-lg px-10 h-14">
-                ابدأ الآن مجاناً
-              </Button>
-            </Link>
-            <Link href="/demo">
-              <Button size="lg" variant="outline" className="text-lg px-10 h-14 border-2">
-                جرب لوحة التحكم
-              </Button>
-            </Link>
-          </div>
+            <div className="flex gap-4 justify-center flex-wrap">
+              <Link href="/subscribe">
+                <Button size="lg" className="text-lg px-10 h-14 shadow-lg shadow-amber-500/20">
+                  ابدأ الآن مجاناً
+                </Button>
+              </Link>
+              <Link href="/demo">
+                <Button size="lg" variant="outline" className="text-lg px-10 h-14 border-2">
+                  جرب لوحة التحكم
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

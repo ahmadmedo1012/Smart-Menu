@@ -38,16 +38,16 @@ export default async function PrintMenuPage({
         <title>{`${restaurant.name} - المنيو | للطباعة`}</title>
         <style>{`
           :root {
-            --print-foreground: #1a1a1a;
-            --print-background: #fff;
-            --print-primary: #b45309;
-            --print-amber-500: #d97706;
-            --print-amber-700: #92400e;
-            --print-muted: #ccc;
-            --print-border: #ddd;
-            --print-sub: #666;
-            --print-desc: #888;
-            --print-footer: #999;
+            --print-foreground: oklch(0.2 0.02 85);
+            --print-background: oklch(1 0 0);
+            --print-primary: oklch(0.62 0.18 50);
+            --print-amber-500: oklch(0.62 0.14 55);
+            --print-amber-700: oklch(0.38 0.08 50);
+            --print-muted: oklch(0.78 0.02 75);
+            --print-border: oklch(0.85 0.03 70);
+            --print-sub: oklch(0.5 0.025 70);
+            --print-desc: oklch(0.6 0.02 70);
+            --print-footer: oklch(0.65 0.02 70);
           }
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body {

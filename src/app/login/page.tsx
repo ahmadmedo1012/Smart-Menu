@@ -39,7 +39,7 @@ function FloatingIcons() {
       {foodIcons.map(({ Icon, x, y, size, delay, duration }, i) => (
         <div
           key={i}
-          className="absolute animate-float text-amber-200/30 dark:text-amber-400/15"
+          className="absolute animate-float text-amber-200/20 dark:text-amber-400/10"
           style={{
             left: x,
             top: y,
@@ -128,8 +128,8 @@ function LoginForm() {
       {/* Back to home + ThemeToggle */}
       <div className="fixed right-4 top-4 z-50 flex items-center gap-2">
         <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowRight className="size-4" />
+          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground/60 hover:text-foreground">
+            <ArrowRight className="size-3.5" />
             العودة للرئيسية
           </Button>
         </Link>
@@ -137,9 +137,9 @@ function LoginForm() {
       </div>
 
       {/* Decorative top bar */}
-      <div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-l from-amber-400 via-amber-500 to-amber-300 dark:from-amber-500 dark:via-amber-400 dark:to-amber-600" />
+      <div className="fixed top-0 inset-x-0 z-10 h-1 bg-amber-500 dark:bg-amber-400" />
 
-      <Card className="animate-scale-in relative z-10 w-full max-w-sm border-none bg-white/70 shadow-xl backdrop-blur-xl sm:max-w-md sm:rounded-2xl dark:bg-zinc-900/70 dark:shadow-2xl">
+      <Card className="animate-scale-in relative z-10 w-full max-w-sm border border-amber-200/20 bg-white/80 shadow-2xl shadow-amber-500/5 backdrop-blur-2xl backdrop-saturate-150 sm:max-w-md sm:rounded-2xl dark:border-amber-400/10 dark:bg-zinc-900/80 dark:shadow-2xl dark:shadow-amber-500/10">
         {/* Logo area */}
         <CardHeader className="pb-2 pt-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
@@ -159,7 +159,7 @@ function LoginForm() {
               <Label htmlFor="username" className="font-arabic text-sm font-medium">
                 اسم المستخدم
               </Label>
-              <div className="glow-within rounded-lg border border-input bg-background/50 transition-colors focus-within:border-amber-400 dark:focus-within:border-amber-500">
+              <div className="glow-within rounded-lg border border-input/60 bg-background/50 transition-all duration-300">
                 <Input
                   id="username"
                   type="text"
@@ -178,7 +178,7 @@ function LoginForm() {
               <Label htmlFor="password" className="font-arabic text-sm font-medium">
                 كلمة المرور
               </Label>
-              <div className="glow-within relative rounded-lg border border-input bg-background/50 transition-colors focus-within:border-amber-400 dark:focus-within:border-amber-500">
+              <div className="glow-within relative rounded-lg border border-input/60 bg-background/50 transition-all duration-300">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -203,7 +203,8 @@ function LoginForm() {
 
             <Button
               type="submit"
-              className="magnetic-btn mt-2 h-10 w-full rounded-xl bg-gradient-to-l from-amber-500 to-amber-600 font-arabic text-base font-semibold text-white shadow-lg shadow-amber-500/30 hover:from-amber-600 hover:to-amber-700 hover:shadow-amber-500/40 disabled:opacity-60 dark:from-amber-400 dark:to-amber-500 dark:text-zinc-900 dark:shadow-amber-400/25 dark:hover:from-amber-500 dark:hover:to-amber-600"
+              variant="gradient"
+              className="magnetic-btn mt-2 h-10 w-full rounded-xl font-arabic text-base font-semibold"
               disabled={loading}
             >
               {loading ? (

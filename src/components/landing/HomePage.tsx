@@ -20,7 +20,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-amber-50/40 to-background dark:via-amber-950/10" />
         <div className="hero-mesh"><div className="blob" /><div className="blob" /><div className="blob" /></div>
         <Reveal delay={0} className="absolute top-24 right-4 md:right-12 z-20">
-          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg gradient-border">
+          <div className="glass-strong px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-amber-500/20 shadow-amber-500/10">
             <Sparkles className="size-3.5 text-amber-500" /><span>المنصة الأسرع نمواً في 2026</span>
           </div>
         </Reveal>
@@ -214,7 +214,7 @@ export default function HomePage() {
                 <div className={cn("relative flex flex-col rounded-3xl border p-7 transition-all duration-500 hover:scale-[1.02] card-premium",
                   plan.popular ? "border-amber-300/50 bg-gradient-to-b from-amber-50/80 to-white shadow-xl shadow-amber-500/15 dark:from-amber-950/20 dark:to-card dark:border-amber-500/30" : "border-border/40 bg-card/50 hover:shadow-lg")}>
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-lg">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-lg shadow-amber-500/30 ring-1 ring-amber-300/30">
                       الأكثر شعبية
                     </div>
                   )}
@@ -306,9 +306,9 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-background to-primary/5" />
-        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/5 blur-3xl" />
+      <section className="py-20 relative overflow-hidden border-t border-amber-500/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-background to-primary/10" />
+        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/10 blur-3xl" />
         <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}><h2 className="text-3xl md:text-5xl font-bold mb-4"><span>مستعد لانطلاق مطعمك الرقمي؟</span></h2></Reveal>
           <Reveal delay={0.1}>
