@@ -110,7 +110,7 @@ export default function OwnerMenuPage() {
           <h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
           <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
         </div>
-        <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-xl gap-2">
+        <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-xl gap-2 bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="size-4" /> تصنيف جديد
         </Button>
       </div>
@@ -118,24 +118,24 @@ export default function OwnerMenuPage() {
       <div className="relative">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <input type="text" placeholder="ابحث في القائمة..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20" />
+          className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-blue-300 focus-visible:ring-4 focus-visible:ring-blue-500/20" />
       </div>
 
       {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}
 
       {filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-          <div className="size-20 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center">
+          <div className="size-20 rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 flex items-center justify-center">
             <Package className="size-10 text-muted-foreground/50" />
           </div>
           <p className="text-lg font-medium">{searchTerm ? "لا توجد نتائج" : "لا توجد تصنيفات"}</p>
           <p className="text-sm text-muted-foreground/60">{searchTerm ? "جرب كلمات بحث أخرى" : "أضف تصنيفاً جديداً لبدء بناء المنيو"}</p>
-          {!searchTerm && <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="rounded-xl gap-2"><Plus className="size-4" /> إضافة تصنيف</Button>}
+          {!searchTerm && <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="rounded-xl gap-2 bg-blue-600 hover:bg-blue-700 text-white"><Plus className="size-4" /> إضافة تصنيف</Button>}
         </div>
       ) : (
         <div className="space-y-3">
           {filteredCategories.map(cat => (
-            <div key={cat.id} className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-amber-200/30 hover:shadow-md">
+            <div key={cat.id} className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-blue-200/30 hover:shadow-md">
               <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20" onClick={() => toggleCat(cat.id)}>
                   <div className="flex items-center gap-3">
                     {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
@@ -192,7 +192,7 @@ export default function OwnerMenuPage() {
                   ) : (
                     <div className="py-8 text-center">
                       <p className="text-sm text-muted-foreground mb-3">لا توجد أصناف في هذا التصنيف</p>
-                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1"><Plus className="size-3.5" /> إضافة صنف</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1 border-blue-200/30 text-blue-700 hover:bg-blue-50"><Plus className="size-3.5" /> إضافة صنف</Button>
                     </div>
                   )}
                 </div>
@@ -207,7 +207,7 @@ export default function OwnerMenuPage() {
         <DialogContent className="rounded-2xl">
           <DialogHeader><DialogTitle>{catEditing ? "تعديل تصنيف" : "إضافة تصنيف"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div><label className="text-sm font-medium">الاسم</label><input value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} placeholder="مشروبات ساخنة" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 focus-visible:border-amber-300" /></div>
+            <div><label className="text-sm font-medium">الاسم</label><input value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} placeholder="مشروبات ساخنة" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 focus-visible:border-blue-300" /></div>
             <div><label className="text-sm font-medium">الاسم بالإنجليزية</label><input value={catForm.nameAr} onChange={e => setCatForm({...catForm, nameAr: e.target.value})} placeholder="Hot Drinks" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 text-left" dir="ltr" /></div>
             <div><label className="text-sm font-medium">أيقونة</label>
               <div className="flex flex-wrap gap-2 mt-1.5">
@@ -216,7 +216,7 @@ export default function OwnerMenuPage() {
                   if (!IconComp) return null;
                   return (
                     <button key={iconName} type="button" onClick={() => setCatForm({...catForm, icon: iconName})}
-                      className={cn("size-10 rounded-xl flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 scale-110" : "border-border/30 hover:border-amber-200/30")}>
+                      className={cn("size-10 rounded-xl flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30 scale-110" : "border-border/30 hover:border-blue-200/30")}>
                       <IconComp className="size-5" />
                     </button>
                   );
@@ -226,7 +226,7 @@ export default function OwnerMenuPage() {
           </div>
           <div className="flex justify-end gap-2 mt-2">
             <Button variant="outline" onClick={() => setCatDialog(false)} className="rounded-xl">إلغاء</Button>
-            <Button onClick={saveCat} className="rounded-xl">{catEditing ? "تحديث" : "إضافة"}</Button>
+            <Button onClick={saveCat} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white">{catEditing ? "تحديث" : "إضافة"}</Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -60,7 +60,7 @@ export default function MenuPageClient({
     });
     toast.success(
       <div className="flex items-center gap-3">
-        <div className="size-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0">
+        <div className="size-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0">
           <ShoppingCart className="size-4 text-white" />
         </div>
         <div>
@@ -135,7 +135,7 @@ export default function MenuPageClient({
             placeholder="ابحث في القائمة..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 pr-11 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20 shadow-sm"
+            className="w-full h-12 pr-11 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-blue-300 focus-visible:ring-4 focus-visible:ring-blue-500/20 shadow-sm"
           />
           {search && (
             <button
@@ -227,8 +227,8 @@ export default function MenuPageClient({
           className={cn(
             "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
             activeCategory === null
-              ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105"
-              : "glass-card hover:bg-amber-500/10",
+              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105"
+              : "glass-card hover:bg-blue-500/10",
           )}
         >
           <span className="flex items-center gap-2">
@@ -238,7 +238,7 @@ export default function MenuPageClient({
                 "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
                 activeCategory === null
                   ? "bg-background/20 text-foreground"
-                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                  : "bg-blue-500/10 text-blue-600 dark:text-blue-400",
               )}
             >
               {toArabicNumber(itemCounts.get(null) ?? 0)}
@@ -253,8 +253,8 @@ export default function MenuPageClient({
             className={cn(
               "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
               activeCategory === cat.id
-                ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105"
-                : "glass-card hover:bg-amber-500/10",
+                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105"
+                : "glass-card hover:bg-blue-500/10",
             )}
           >
             <span className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export default function MenuPageClient({
                   "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
                   activeCategory === cat.id
                     ? "bg-background/20 text-foreground"
-                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                    : "bg-blue-500/10 text-blue-600 dark:text-blue-400",
                 )}
               >
                 {toArabicNumber(itemCounts.get(cat.id) ?? 0)}

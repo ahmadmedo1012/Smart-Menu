@@ -149,7 +149,7 @@ ${referralUrl}
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-2xl">
         {/* Confetti header */}
-        <div className="relative h-36 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 overflow-hidden">
+        <div className="relative h-36 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 overflow-hidden">
           <Confetti active variant="rects" count={20} loop className="absolute inset-0 pointer-events-none overflow-hidden" />
 
           {/* Decorative glow */}
@@ -189,7 +189,7 @@ ${referralUrl}
             <>
               {/* CTA */}
               <div className="text-center">
-                <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
                   <Gift className="size-7 text-white" />
                 </div>
                 <p className="text-base font-semibold mb-1">
@@ -272,7 +272,7 @@ ${referralUrl}
                     type="button"
                     onClick={handleCopyLink}
                     aria-label="نسخ رابط الإحالة"
-                    className="size-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+                    className="size-11 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
                   >
                     {copied ? (
                       <Check className="size-4" />

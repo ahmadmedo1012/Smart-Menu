@@ -76,43 +76,43 @@ export default function ReferralCard({
   }, [restaurantName, discountText, referralUrl, whatsapp, handleCopyLink]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 p-0.5 shadow-xl shadow-amber-500/30">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-0.5 shadow-xl shadow-blue-500/30">
       {/* Decorative glowing orbs */}
-      <div className="absolute -top-20 -end-20 size-40 rounded-full bg-amber-300/20 blur-3xl" />
-      <div className="absolute -bottom-20 -start-20 size-40 rounded-full bg-amber-400/15 blur-3xl" />
+      <div className="absolute -top-20 -end-20 size-40 rounded-full bg-blue-300/20 blur-3xl" />
+      <div className="absolute -bottom-20 -start-20 size-40 rounded-full bg-blue-400/15 blur-3xl" />
 
-      <div className="relative rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/80 dark:to-orange-950/80 p-6 overflow-hidden">
+      <div className="relative rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50 dark:from-blue-950/80 dark:to-blue-950/80 p-6 overflow-hidden">
         {/* Inner decorative dots */}
         <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-10" />
 
         <div className="relative z-10 space-y-5">
           {/* ===== Header ===== */}
           <div className="text-center">
-            <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 animate-float">
+            <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 animate-float">
               <Gift className="size-7 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100">
+            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">
               {restaurantName}
             </h3>
-            <p className="text-sm text-amber-700/80 dark:text-amber-300/80 mt-1">
+            <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">
               {discountText}
             </p>
           </div>
 
           {/* ===== Referral Code Display ===== */}
           <div>
-            <label className="block text-xs font-medium text-amber-800/70 dark:text-amber-200/70 mb-2 text-center">
+            <label className="block text-xs font-medium text-blue-800/70 dark:text-blue-200/70 mb-2 text-center">
               كود الإحالة الخاص بك
             </label>
             <div
-              className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-amber-950/60 border-2 border-amber-300/50 dark:border-amber-600/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+              className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-blue-950/60 border-2 border-blue-300/50 dark:border-blue-600/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
               onClick={handleCopyLink}
             >
-              <span className="text-2xl font-bold tracking-[0.25em] text-amber-900 dark:text-amber-100 font-mono" dir="ltr">
+              <span className="text-2xl font-bold tracking-[0.25em] text-blue-900 dark:text-blue-100 font-mono" dir="ltr">
                 {referralCode}
               </span>
             </div>
-            <p className="text-[10px] text-amber-600/60 dark:text-amber-400/60 text-center mt-1.5">
+            <p className="text-[10px] text-blue-600/60 dark:text-blue-400/60 text-center mt-1.5">
               {copied ? (
                 <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                   <Check className="size-3" /> تم النسخ!
@@ -125,21 +125,21 @@ export default function ReferralCard({
 
           {/* ===== Stats Bar ===== */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-white/60 dark:bg-amber-950/40 border border-amber-300/30 dark:border-amber-700/30 p-3 text-center">
-              <Users className="size-4 mx-auto mb-1 text-amber-600 dark:text-amber-400" />
-              <p className="text-lg font-bold text-amber-900 dark:text-amber-100 tabular-nums">
+            <div className="rounded-xl bg-white/60 dark:bg-blue-950/40 border border-blue-300/30 dark:border-blue-700/30 p-3 text-center">
+              <Users className="size-4 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
+              <p className="text-lg font-bold text-blue-900 dark:text-blue-100 tabular-nums">
                 {timesShared}
               </p>
-              <p className="text-[10px] text-amber-700/60 dark:text-amber-300/60">
+              <p className="text-[10px] text-blue-700/60 dark:text-blue-300/60">
                 تم المشاركة
               </p>
             </div>
-            <div className="rounded-xl bg-white/60 dark:bg-amber-950/40 border border-amber-300/30 dark:border-amber-700/30 p-3 text-center">
-              <TrendingUp className="size-4 mx-auto mb-1 text-emerald-600 dark:text-emerald-400" />
-              <p className="text-lg font-bold text-amber-900 dark:text-amber-100 tabular-nums">
+            <div className="rounded-xl bg-white/60 dark:bg-blue-950/40 border border-blue-300/30 dark:border-blue-700/30 p-3 text-center">
+              <TrendingUp className="size-4 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
+              <p className="text-lg font-bold text-blue-900 dark:text-blue-100 tabular-nums">
                 {timesUsed}
               </p>
-              <p className="text-[10px] text-amber-700/60 dark:text-amber-300/60">
+              <p className="text-[10px] text-blue-700/60 dark:text-blue-300/60">
                 تم الاستخدام
               </p>
             </div>
@@ -147,7 +147,7 @@ export default function ReferralCard({
 
           {/* ===== Share Buttons ===== */}
           <div className="space-y-2">
-            <p className="text-xs font-medium text-amber-800/60 dark:text-amber-200/60 text-center">
+            <p className="text-xs font-medium text-blue-800/60 dark:text-blue-200/60 text-center">
               شارك عبر
             </p>
             <div className="flex gap-2">
@@ -162,7 +162,7 @@ export default function ReferralCard({
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="flex-1 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 active:scale-[0.98] transition-all cursor-pointer"
+                className="flex-1 h-11 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98] transition-all cursor-pointer"
               >
                 {copied ? (
                   <Check className="size-4" />
@@ -187,7 +187,7 @@ export default function ReferralCard({
           {/* ===== Full referral link (copy fallback) ===== */}
           <div className="flex items-center gap-2">
             <div
-              className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-amber-950/50 border border-amber-300/30 dark:border-amber-700/30 flex items-center px-3 text-[11px] text-amber-800 dark:text-amber-200 truncate font-mono"
+              className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-blue-950/50 border border-blue-300/30 dark:border-blue-700/30 flex items-center px-3 text-[11px] text-blue-800 dark:text-blue-200 truncate font-mono"
               dir="ltr"
             >
               {referralUrl}
@@ -196,7 +196,7 @@ export default function ReferralCard({
               type="button"
               onClick={handleCopyLink}
               aria-label="نسخ رابط الإحالة"
-              className="size-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+              className="size-9 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
             >
               {copied ? (
                 <Check className="size-3.5" />
@@ -207,7 +207,7 @@ export default function ReferralCard({
           </div>
 
           {/* ===== Footer ===== */}
-          <p className="text-center text-[10px] text-amber-600/50 dark:text-amber-400/50 flex items-center justify-center gap-1">
+          <p className="text-center text-[10px] text-blue-600/50 dark:text-blue-400/50 flex items-center justify-center gap-1">
             <Sparkles className="size-3" />
             شارك الرابط مع أصدقائك واحصل على نقاط مكافأة
             <Sparkles className="size-3" />

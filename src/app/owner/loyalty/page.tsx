@@ -134,14 +134,14 @@ function ConversionRate({ rate, total, converted }: { rate: number; total: numbe
     <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <TrendingUp className="size-4 text-amber-600 dark:text-amber-400" />
+          <TrendingUp className="size-4 text-blue-600 dark:text-blue-400" />
           <span className="text-sm font-semibold">معدل التحويل</span>
         </div>
-        <span className="text-sm font-bold tabular-nums text-amber-700 dark:text-amber-300">{rate}%</span>
+        <span className="text-sm font-bold tabular-nums text-blue-700 dark:text-blue-300">{rate}%</span>
       </div>
       <div className="h-3 rounded-full bg-muted overflow-hidden mb-2">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-500 transition-all duration-1000 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-blue-400 to-emerald-500 transition-all duration-1000 ease-out"
           style={{ width: `${rate}%` }}
         />
       </div>
@@ -191,7 +191,7 @@ function TierChart({ distribution }: { distribution: Record<string, number> }) {
 
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    pending: { label: "معلق", classes: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" },
+    pending: { label: "معلق", classes: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
     converted: { label: "تم التحويل", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
     expired: { label: "منتهي", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
   }
@@ -201,7 +201,7 @@ function ReferralStatusBadge({ status }: { status: string }) {
     <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", m.classes)}>
       <span className={cn(
         "size-1.5 rounded-full",
-        status === "pending" && "bg-amber-500",
+        status === "pending" && "bg-blue-500",
         status === "converted" && "bg-emerald-500",
         status === "expired" && "bg-slate-400",
       )} />
@@ -229,8 +229,8 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
   if (referrals.length === 0) {
     return (
       <div className="flex flex-col items-center py-10 text-center">
-        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-amber-500/10">
-          <Gift className="size-6 text-amber-500" />
+        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-blue-500/10">
+          <Gift className="size-6 text-blue-500" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">لا توجد إحالات بعد</p>
         <p className="text-xs text-muted-foreground/60 mt-1">شارك رابط الإحالة للبدء</p>
@@ -260,7 +260,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
               className={cn(
                 "h-9 rounded-lg px-3 text-xs font-medium transition-all",
                 statusFilter === s
-                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-300/30"
+                  ? "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-300/30"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent",
               )}
             >
@@ -476,8 +476,8 @@ export default function OwnerLoyaltyPage() {
     },
     {
       label: "تم التحويل", value: stats?.convertedReferrals ?? 0,
-      icon: TrendingUp, color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-50 dark:bg-amber-950/30",
+      icon: TrendingUp, color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/30",
     },
     {
       label: "النقاط المكتسبة", value: stats?.totalRewardPoints ?? 0,
@@ -555,7 +555,7 @@ export default function OwnerLoyaltyPage() {
           </h3>
           <div className="space-y-3">
             {[
-              { label: "معلق", count: rbs.pending, color: "bg-amber-500" },
+              { label: "معلق", count: rbs.pending, color: "bg-blue-500" },
               { label: "تم التحويل", count: rbs.converted, color: "bg-emerald-500" },
               { label: "منتهي", count: rbs.expired, color: "bg-slate-400" },
             ].map((s) => (

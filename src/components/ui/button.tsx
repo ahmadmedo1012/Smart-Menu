@@ -19,9 +19,9 @@ const buttonVariants = cva(
 					"bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40 active:scale-[0.98] transition-all duration-200",
 				link: "text-primary underline-offset-4 hover:underline",
 				gradient:
-					"bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 border-0 active:scale-[0.98] transition-all duration-200",
+					"bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:from-blue-600 hover:to-blue-800 shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 border-0 active:scale-[0.98] transition-all duration-200",
 				"gradient-outline":
-					"border-amber-300/40 bg-gradient-to-r from-amber-500/10 to-amber-600/5 text-foreground hover:from-amber-500/20 hover:to-amber-600/10 hover:border-amber-300/60 active:scale-[0.98] transition-all duration-200",
+					"border-blue-300/40 bg-gradient-to-r from-blue-500/10 to-blue-600/5 text-foreground hover:from-blue-500/20 hover:to-blue-600/10 hover:border-blue-300/60 active:scale-[0.98] transition-all duration-200",
 			},
 			size: {
 				default:

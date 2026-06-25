@@ -17,7 +17,7 @@ export function Footer({ className, partnerSlug = "al-waha-cafe" }: FooterProps)
             <div className="w-full border-t border-border/20" />
           </div>
           <div className="relative flex justify-center">
-            <div className="h-px w-32 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+            <div className="h-px w-32 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
           </div>
         </div>
 

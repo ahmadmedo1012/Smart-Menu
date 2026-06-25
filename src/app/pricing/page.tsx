@@ -25,21 +25,21 @@ type Plan = {
 const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
 const PLAN_GRADIENTS = [
   "from-gray-400 to-gray-500",
-  "from-amber-500 to-amber-600",
-  "from-amber-500 via-yellow-500 to-amber-600",
+  "from-blue-500 to-blue-600",
+  "from-blue-500 via-yellow-500 to-blue-600",
   "from-cyan-500 via-purple-500 to-pink-500",
 ];
 const PLAN_GLOWS = [
   "shadow-gray-400/20",
-  "shadow-amber-500/25",
-  "shadow-amber-500/30",
+  "shadow-blue-500/25",
+  "shadow-blue-500/30",
   "shadow-purple-500/25",
 ];
 const PLAN_BADGES = ["", "الأكثر شعبية", "الأفضل قيمة", "للشركات الكبرى"];
 const PLAN_BADGE_COLORS = [
   "",
-  "bg-amber-500 text-white",
-  "bg-gradient-to-r from-amber-500 to-yellow-500 text-white",
+  "bg-blue-500 text-white",
+  "bg-gradient-to-r from-blue-500 to-cyan-500 text-white",
   "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
 ];
 
@@ -64,8 +64,8 @@ function PlanCard({
       className={cn(
         "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
         isPopular
-          ? "border-amber-400/60 bg-gradient-to-b from-amber-50/80 to-white shadow-2xl shadow-amber-500/20 dark:from-amber-950/20 dark:to-card dark:border-amber-400/40 hover:shadow-[0_0_30px_color-mix(in_oklch,var(--amber-500)_25%,transparent)] hover:shadow-amber-500/30"
-          : "border-border/50 bg-card/50 hover:border-amber-200/30 hover:shadow-xl hover:shadow-amber-500/10 hover:bg-card/80",
+          ? "border-blue-400/60 bg-gradient-to-b from-blue-50/80 to-white shadow-2xl shadow-blue-500/20 dark:from-blue-950/20 dark:to-card dark:border-blue-400/40 hover:shadow-[0_0_30px_color-mix(in_oklch,var(--blue-500)_25%,transparent)] hover:shadow-blue-500/30"
+          : "border-border/50 bg-card/50 hover:border-blue-200/30 hover:shadow-xl hover:shadow-blue-500/10 hover:bg-card/80",
       )}
     >
       {/* Badge */}
@@ -88,7 +88,7 @@ function PlanCard({
 
       {/* Subtle bottom gradient glow for popular card */}
       {isPopular && (
-        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-amber-500/5 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-blue-500/5 to-transparent pointer-events-none" />
       )}
 
       <div className="relative z-10 flex flex-col flex-1">
@@ -158,7 +158,7 @@ function PlanCard({
             className={cn(
               "w-full h-12 rounded-xl text-base font-semibold transition-all duration-300",
               isPopular
-                ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30"
+                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
                 : "",
             )}
             variant={isPopular ? "default" : "outline"}
@@ -191,13 +191,13 @@ export default function PricingPage() {
   useEffect(() => { loadPlans(); }, [loadPlans]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-amber-50/20 to-background dark:via-amber-950/10">
+    <div className="min-h-screen bg-gradient-to-b from-background via-blue-50/20 to-background dark:via-blue-950/10">
       <Header />
 
       {/* Hero */}
       <section className="relative py-20 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-        <div className="absolute top-20 left-10 size-64 rounded-full bg-amber-500/5 blur-3xl animate-float" />
+        <div className="absolute top-20 left-10 size-64 rounded-full bg-blue-500/5 blur-3xl animate-float" />
         <div className="absolute bottom-20 right-10 size-80 rounded-full bg-primary/5 blur-3xl animate-float-delayed" />
 
         <div className="relative z-10 max-w-3xl mx-auto px-4">
@@ -298,8 +298,8 @@ export default function PricingPage() {
       <section className="pb-24">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="glass-strong rounded-3xl p-12 relative overflow-hidden transition-all duration-[500ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-xl">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full" />
-            <div className="absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br from-amber-500/10 to-transparent blur-2xl pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full" />
+            <div className="absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br from-blue-500/10 to-transparent blur-2xl pointer-events-none" />
             <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-gradient-to-tr from-primary/10 to-transparent blur-2xl pointer-events-none" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               <span>مستعد لانطلاق مطعمك الرقمي؟</span>
@@ -309,7 +309,7 @@ export default function PricingPage() {
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/subscribe">
-                <Button size="lg" className="text-lg px-10 h-14 shadow-lg shadow-amber-500/20">
+                <Button size="lg" className="text-lg px-10 h-14 shadow-lg shadow-blue-500/20">
                   ابدأ الآن مجاناً
                 </Button>
               </Link>

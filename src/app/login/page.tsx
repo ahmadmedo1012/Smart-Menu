@@ -39,7 +39,7 @@ function FloatingIcons() {
       {foodIcons.map(({ Icon, x, y, size, delay, duration }, i) => (
         <div
           key={i}
-          className="absolute animate-float text-amber-200/20 dark:text-amber-400/10"
+          className="absolute animate-float text-blue-200/20 dark:text-blue-400/10"
           style={{
             left: x,
             top: y,
@@ -59,15 +59,15 @@ function FloatingShapes() {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div
-        className="absolute -top-20 -right-20 h-72 w-72 animate-spin-slow rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/10 blur-3xl dark:from-amber-400/10 dark:to-amber-600/5"
+        className="absolute -top-20 -right-20 h-72 w-72 animate-spin-slow rounded-full bg-gradient-to-br from-blue-300/20 to-blue-500/10 blur-3xl dark:from-blue-400/10 dark:to-blue-600/5"
         style={{ animationDuration: "20s" }}
       />
       <div
-        className="absolute -bottom-32 -left-32 h-96 w-96 animate-spin-slow rounded-full bg-gradient-to-tr from-amber-400/15 to-amber-300/10 blur-3xl dark:from-amber-500/8 dark:to-amber-400/5"
+        className="absolute -bottom-32 -left-32 h-96 w-96 animate-spin-slow rounded-full bg-gradient-to-tr from-blue-400/15 to-blue-300/10 blur-3xl dark:from-blue-500/8 dark:to-blue-400/5"
         style={{ animationDuration: "25s" }}
       />
       <div
-        className="absolute left-1/3 top-1/4 h-48 w-48 animate-float-delayed rounded-full bg-gradient-to-b from-amber-200/20 to-transparent blur-2xl dark:from-amber-400/8"
+        className="absolute left-1/3 top-1/4 h-48 w-48 animate-float-delayed rounded-full bg-gradient-to-b from-blue-200/20 to-transparent blur-2xl dark:from-blue-400/8"
         style={{ animationDelay: "1s", animationDuration: "8s" }}
       />
     </div>
@@ -120,7 +120,7 @@ function LoginForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6">
       {/* Background gradient */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-amber-50 via-amber-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50 via-blue-50/60 to-blue-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-blue-950/30" />
 
       <FloatingShapes />
       <FloatingIcons />
@@ -137,9 +137,9 @@ function LoginForm() {
       </div>
 
       {/* Decorative top bar */}
-      <div className="fixed top-0 inset-x-0 z-10 h-1 bg-amber-500 dark:bg-amber-400" />
+      <div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-400 dark:from-blue-500 dark:via-blue-600 dark:to-blue-400" />
 
-      <Card className="animate-scale-in relative z-10 w-full max-w-sm border border-amber-200/20 bg-white/80 shadow-2xl shadow-amber-500/5 backdrop-blur-2xl backdrop-saturate-150 sm:max-w-md sm:rounded-2xl dark:border-amber-400/10 dark:bg-zinc-900/80 dark:shadow-2xl dark:shadow-amber-500/10">
+      <Card className="animate-scale-in relative z-10 w-full max-w-sm border border-blue-200/20 bg-white/80 shadow-2xl shadow-blue-500/5 backdrop-blur-2xl backdrop-saturate-150 sm:max-w-md sm:rounded-2xl dark:border-blue-400/10 dark:bg-zinc-900/80 dark:shadow-2xl dark:shadow-blue-500/10">
         {/* Logo area */}
         <CardHeader className="pb-2 pt-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
@@ -235,9 +235,9 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-amber-50/60 to-amber-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-amber-950/30">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-blue-50/60 to-blue-100/40 dark:from-zinc-900 dark:via-zinc-900 dark:to-blue-950/30">
           <div className="flex flex-col items-center gap-3">
-            <div className="size-10 animate-pulse rounded-full bg-amber-400/40" />
+            <div className="size-10 animate-pulse rounded-full bg-blue-400/40" />
             <span className="animate-breath font-arabic text-sm text-muted-foreground">
               جاري التحميل...
             </span>

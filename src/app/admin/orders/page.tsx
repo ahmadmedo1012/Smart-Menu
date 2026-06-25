@@ -24,7 +24,7 @@ interface Order {
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   new: { label: "جديد", icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
   ready: { label: "جاهز", icon: CheckCircle, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-50 dark:bg-gray-800/30" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30" },
@@ -120,9 +120,9 @@ export default function AdminOrdersPage() {
           <p className="text-xs text-blue-600 dark:text-blue-400">جديد</p>
           <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">{toArabicNumber(totalNew)}</p>
         </div>
-        <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 p-4">
-          <p className="text-xs text-amber-600 dark:text-amber-400">قيد التحضير</p>
-          <p className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">{toArabicNumber(totalPreparing)}</p>
+        <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/30 p-4">
+          <p className="text-xs text-blue-600 dark:text-blue-400">قيد التحضير</p>
+          <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">{toArabicNumber(totalPreparing)}</p>
         </div>
         <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
           <p className="text-xs text-emerald-600 dark:text-emerald-400">جاهز + مكتمل</p>
@@ -141,14 +141,14 @@ export default function AdminOrdersPage() {
             placeholder="ابحث برقم الطلب أو العميل أو المطعم..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-amber-300 focus-visible:ring-4 focus-visible:ring-amber-500/20"
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-blue-300 focus-visible:ring-4 focus-visible:ring-blue-500/20"
           />
         </div>
         <input
           type="date"
           value={dateFrom}
           onChange={e => { setDateFrom(e.target.value); fetchOrders(filter) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-blue-300"
           title="من تاريخ"
           aria-label="من تاريخ"
         />
@@ -156,7 +156,7 @@ export default function AdminOrdersPage() {
           type="date"
           value={dateTo}
           onChange={e => { setDateTo(e.target.value); fetchOrders(filter) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-amber-300"
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-blue-300"
           title="إلى تاريخ"
           aria-label="إلى تاريخ"
         />
@@ -181,8 +181,8 @@ export default function AdminOrdersPage() {
             className={cn(
               "snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
               filter === tab.value
-                ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25"
-                : "bg-card/50 border border-border/30 hover:border-amber-200/30"
+                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
+                : "bg-card/50 border border-border/30 hover:border-blue-200/30"
             )}
           >
             {tab.label}
@@ -205,7 +205,7 @@ export default function AdminOrdersPage() {
             return (
               <div
                 key={order.id}
-                className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-amber-200/30 hover:shadow-md transition-all cursor-pointer"
+                className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-blue-200/30 hover:shadow-md transition-all cursor-pointer"
                 onClick={() => router.push(`/admin/orders/${order.id}`)}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -249,7 +249,7 @@ export default function AdminOrdersPage() {
                       onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
                       className={cn(
                         "flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
-                        next === "preparing" && "border-amber-200/30 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20",
+                        next === "preparing" && "border-blue-200/30 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/20",
                         next === "ready" && "border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20",
                         next === "completed" && "border-blue-200/30 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/20",
                       )}

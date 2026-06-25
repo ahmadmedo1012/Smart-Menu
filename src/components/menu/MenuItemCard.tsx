@@ -20,12 +20,12 @@ const COLORS = [
   "from-red-400 to-red-600",
   "from-blue-400 to-blue-600",
   "from-green-400 to-green-600",
-  "from-amber-400 to-amber-600",
+  "from-blue-400 to-blue-600",
   "from-purple-400 to-purple-600",
   "from-teal-400 to-teal-600",
   "from-pink-400 to-pink-600",
   "from-indigo-400 to-indigo-600",
-  "from-amber-400 to-amber-600",
+  "from-sky-400 to-sky-600",
   "from-cyan-400 to-cyan-600",
 ];
 
@@ -33,12 +33,12 @@ const BGS = [
   "bg-red-50 dark:bg-red-950/20",
   "bg-blue-50 dark:bg-blue-950/20",
   "bg-green-50 dark:bg-green-950/20",
-  "bg-amber-50 dark:bg-amber-950/20",
+  "bg-blue-50 dark:bg-blue-950/20",
   "bg-purple-50 dark:bg-purple-950/20",
   "bg-teal-50 dark:bg-teal-950/20",
   "bg-pink-50 dark:bg-pink-950/20",
   "bg-indigo-50 dark:bg-indigo-950/20",
-  "bg-amber-50 dark:bg-amber-950/20",
+  "bg-sky-50 dark:bg-sky-950/20",
   "bg-cyan-50 dark:bg-cyan-950/20",
 ];
 
@@ -113,7 +113,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-amber-500/10 active:scale-[0.98] border border-border/30 hover:border-amber-300/40 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-blue-500/10 active:scale-[0.98] border border-border/30 hover:border-blue-300/40 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
@@ -121,7 +121,7 @@ const MenuItemCard = memo(function MenuItemCard({
     >
       <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 
-      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-amber-300/30 group-hover:shadow-lg group-hover:shadow-amber-500/10 transition-all duration-300">
+      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-blue-300/30 group-hover:shadow-lg group-hover:shadow-blue-500/10 transition-all duration-300">
         {item.image && !imageError ? (
           <>
             {!imageLoaded && <div className="absolute inset-0 skeleton" />}

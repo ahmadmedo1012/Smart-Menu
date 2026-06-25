@@ -111,7 +111,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Award className="size-5 text-amber-500" />
+            <Award className="size-5 text-blue-500" />
             <h3 className="text-base font-semibold">Loyalty Program Settings</h3>
           </div>
           <Button onClick={save} disabled={saving} size="sm" className="gap-1.5">
@@ -124,8 +124,8 @@ export default function LoyaltySettings({ onSaved }: Props) {
         {/* Enable / Disable Toggle */}
         <div className="flex items-center justify-between rounded-xl bg-muted/30 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10">
-              <Award className="size-5 text-amber-500" />
+            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/10">
+              <Award className="size-5 text-blue-500" />
             </div>
             <div>
               <p className="text-sm font-medium">Enable Loyalty Program</p>

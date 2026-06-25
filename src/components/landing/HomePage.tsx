@@ -17,17 +17,17 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-amber-50/40 to-background dark:via-amber-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/40 to-background dark:via-blue-950/10" />
         <div className="hero-mesh"><div className="blob" /><div className="blob" /><div className="blob" /></div>
         <Reveal delay={0} className="absolute top-24 right-4 md:right-12 z-20">
-          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-amber-500/20 shadow-amber-500/10">
-            <Sparkles className="size-3.5 text-amber-500" /><span>المنصة الأسرع نمواً في 2026</span>
+          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-primary/20 shadow-blue-500/10">
+            <Sparkles className="size-3.5 text-blue-500" /><span>المنصة الأسرع نمواً في 2026</span>
           </div>
         </Reveal>
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center py-10">
           <div className="text-center lg:text-right order-last lg:order-first">
             <Reveal delay={0}>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm mb-6 border border-amber-500/20">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary dark:text-blue-400 text-sm mb-6 border border-primary/20">
                 <BadgePercent className="size-4" /> منصة إدارة منيو رقمية للمطاعم
               </div>
             </Reveal>
@@ -57,7 +57,7 @@ export default function HomePage() {
               <div className="flex items-center gap-4 mt-8 justify-center lg:justify-start">
                 <div className="flex -space-x-2">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm animate-scale-in" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>{String.fromCharCode(65 + i)}</div>
+                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm animate-scale-in" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>{String.fromCharCode(65 + i)}</div>
                   ))}
                 </div>
                 <div className="text-sm"><span className="font-bold">+50</span> <span className="text-muted-foreground">مطعماً يثقون بنا</span></div>
@@ -75,7 +75,7 @@ export default function HomePage() {
       </section>
 
       {/* Demo Preview */}
-      <section className="py-20 bg-gradient-to-b from-amber-500/5 to-transparent">
+      <section className="py-20 bg-gradient-to-b from-blue-500/5 to-transparent">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}>
             <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>اكتشف كيف سيبدو منيو مطعمك</span></h2>
@@ -85,12 +85,12 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-6xl mx-auto">
               {PARTNERS.map((p, i) => (
                 <Link key={i} href={`/menu/${p.slug}`} className={cn("group relative overflow-hidden rounded-2xl border p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-right",
-                  i === 0 ? "bg-gradient-to-br from-amber-50/60 to-card/50 dark:from-amber-950/15 dark:to-card/50 border-amber-200/30 hover:border-amber-300/50" :
-                  i === 1 ? "bg-card/50 border-border/30 hover:border-amber-300/50" :
-                  "bg-gradient-to-br from-blue-50/50 to-card/50 dark:from-blue-950/10 dark:to-card/50 border-border/30 hover:border-amber-300/50")}>
+                  i === 0 ? "bg-gradient-to-br from-blue-50/60 to-card/50 dark:from-blue-950/15 dark:to-card/50 border-blue-200/30 hover:border-blue-300/50" :
+                  i === 1 ? "bg-card/50 border-border/30 hover:border-blue-300/50" :
+                  "bg-gradient-to-br from-blue-50/50 to-card/50 dark:from-blue-950/10 dark:to-card/50 border-border/30 hover:border-blue-300/50")}>
                   <div className="flex items-center gap-3 mb-2">
                     <div className={cn("size-10 rounded-xl bg-gradient-to-br flex items-center justify-center group-hover:scale-110 transition-transform",
-                      i === 0 ? "from-amber-400/20 to-amber-600/10" : i === 1 ? "from-amber-400/20 to-amber-600/10" : "from-blue-400/20 to-blue-600/10")}>
+                      i === 0 ? "from-blue-400/20 to-blue-600/10" : i === 1 ? "from-blue-400/20 to-blue-600/10" : "from-blue-400/20 to-blue-600/10")}>
                       <Store className="size-5 text-primary" />
                     </div>
                     <div><h3 className="font-bold">{p.name}</h3><p className="text-xs text-muted-foreground">{p.desc}</p></div>
@@ -103,10 +103,10 @@ export default function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={0.2}>
-            <Link href={`/menu/${PARTNERS[0].slug}`} className="inline-flex items-center gap-2 h-14 px-8 mt-8 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-amber-700 transition-all text-base">
+            <Link href={`/menu/${PARTNERS[0].slug}`} className="inline-flex items-center gap-2 h-14 px-8 mt-8 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium shadow-lg shadow-blue-500/25 hover:from-blue-600 hover:to-blue-700 transition-all text-base">
               <Store className="size-5" /> عرض منيو تجريبي
             </Link>
-            <p className="text-xs text-muted-foreground mt-3">أو <Link href="/demo" className="text-primary hover:text-amber-600 font-medium">جرب لوحة التحكم</Link> كصاحب مطعم</p>
+            <p className="text-xs text-muted-foreground mt-3">أو <Link href="/demo" className="text-primary hover:text-blue-600 font-medium">جرب لوحة التحكم</Link> كصاحب مطعم</p>
           </Reveal>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function HomePage() {
             {SHOWCASES.map((s, i) => (
               <Reveal key={i} delay={i * 0.1}>
                 <div className="glass-card rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <div className="size-14 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center mx-auto mb-4">
+                  <div className="size-14 rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 flex items-center justify-center mx-auto mb-4">
                     <s.icon className="size-7 text-primary" />
                   </div>
                   <h3 className="font-bold mb-2">{s.title}</h3>
@@ -135,7 +135,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-gradient-to-br from-amber-500/5 to-primary/5">
+      <section className="py-16 bg-gradient-to-br from-blue-500/5 to-primary/5">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {STATS.map((s, i) => (
@@ -187,10 +187,10 @@ export default function HomePage() {
               return (
                 <Reveal key={i} delay={i * 0.15} className="text-center">
                   <div className="relative">
-                    <div className="size-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/25">
+                    <div className="size-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
                       <Icon className="size-7 text-white" />
                     </div>
-                    {i < 2 && <div className="hidden md:block absolute top-8 left-[60%] w-[calc(80%)] h-0.5 bg-gradient-to-r from-amber-300/50 to-transparent" />}
+                    {i < 2 && <div className="hidden md:block absolute top-8 left-[60%] w-[calc(80%)] h-0.5 bg-gradient-to-r from-blue-300/50 to-transparent" />}
                   </div>
                   <h3 className="text-lg font-bold mb-2">{step.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{step.desc}</p>
@@ -212,9 +212,9 @@ export default function HomePage() {
             {PRICING_PLANS.map((plan, i) => (
               <Reveal key={i} delay={i * 0.12}>
                 <div className={cn("relative flex flex-col rounded-3xl border p-7 transition-all duration-500 hover:scale-[1.02] card-premium",
-                  plan.popular ? "border-amber-300/50 bg-gradient-to-b from-amber-50/80 to-white shadow-xl shadow-amber-500/15 dark:from-amber-950/20 dark:to-card dark:border-amber-500/30" : "border-border/40 bg-card/50 hover:shadow-lg")}>
+                  plan.popular ? "border-blue-300/50 bg-gradient-to-b from-blue-50/80 to-white shadow-xl shadow-blue-500/15 dark:from-blue-950/20 dark:to-card dark:border-blue-500/30" : "border-border/40 bg-card/50 hover:shadow-lg")}>
                   {plan.popular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-lg shadow-amber-500/30 ring-1 ring-amber-300/30">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold shadow-lg shadow-blue-500/30 ring-1 ring-blue-300/30">
                       الأكثر شعبية
                     </div>
                   )}
@@ -234,14 +234,14 @@ export default function HomePage() {
                     ))}
                   </div>
                   <Link href="/pricing">
-                    <Button className={cn("w-full h-11 rounded-xl", plan.popular && "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/20")} variant={plan.popular ? "default" : "outline"}>{plan.cta}</Button>
+                    <Button className={cn("w-full h-11 rounded-xl", plan.popular && "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/20")} variant={plan.popular ? "default" : "outline"}>{plan.cta}</Button>
                   </Link>
                 </div>
               </Reveal>
             ))}
           </div>
           <Reveal delay={0.3} className="text-center mt-8">
-            <Link href="/pricing" className="text-sm text-primary hover:text-amber-600 transition-colors font-medium">عرض جميع الخطط والمقارنة →</Link>
+            <Link href="/pricing" className="text-sm text-primary hover:text-blue-600 transition-colors font-medium">عرض جميع الخطط والمقارنة →</Link>
           </Reveal>
         </div>
       </section>
@@ -257,7 +257,7 @@ export default function HomePage() {
             {PARTNERS.map((p, i) => (
               <Reveal key={i} delay={i * 0.15}>
                 <Link href={`/menu/${p.slug}`} className="block glass-card rounded-2xl p-8 text-center group hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500">
-                  <div className="size-20 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                  <div className="size-20 rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
                     <Store className="size-9 text-primary/70" />
                   </div>
                   <h3 className="text-xl font-bold mb-1">{p.name}</h3>
@@ -285,12 +285,12 @@ export default function HomePage() {
                 <div className="relative h-full rounded-2xl border border-border/40 bg-card/40 p-7 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
                   <div className="flex gap-1 mb-4">
                     {[...Array(t.rating)].map((_, j) => (
-                      <Star key={j} className="size-4 fill-amber-400 text-amber-400" />
+                      <Star key={j} className="size-4 fill-blue-400 text-blue-400" />
                     ))}
                   </div>
                   <p className="text-sm text-foreground/80 leading-relaxed mb-5 flex-1">&ldquo;{t.content}&rdquo;</p>
                   <div className="flex items-center gap-3 pt-4 border-t border-border/30">
-                    <div className="size-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    <div className="size-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
                       {t.name.charAt(0)}
                     </div>
                     <div>
@@ -306,9 +306,9 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 relative overflow-hidden border-t border-amber-500/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-background to-primary/10" />
-        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-amber-500/10 blur-3xl" />
+      <section className="py-20 relative overflow-hidden border-t border-blue-500/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 via-background to-primary/10" />
+        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 size-[40rem] rounded-full bg-blue-500/10 blur-3xl" />
         <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
           <Reveal delay={0}><h2 className="text-3xl md:text-5xl font-bold mb-4"><span>مستعد لانطلاق مطعمك الرقمي؟</span></h2></Reveal>
           <Reveal delay={0.1}>

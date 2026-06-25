@@ -27,7 +27,7 @@ interface OrderDetail {
 const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   new: { label: "جديد", icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
   ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
@@ -121,10 +121,10 @@ ${items}
 
       {/* Restaurant info */}
       {order.restaurant && (
-        <div className="rounded-2xl bg-gradient-to-l from-amber-50/50 to-transparent dark:from-amber-950/10 border border-amber-200/20 dark:border-amber-500/20 p-4 flex items-center gap-3">
+        <div className="rounded-2xl bg-gradient-to-l from-blue-50/50 to-transparent dark:from-blue-950/10 border border-blue-200/20 dark:border-blue-500/20 p-4 flex items-center gap-3">
           <Store className="size-5 text-primary" />
           <span className="font-medium">{order.restaurant.name}</span>
-          <Link href={`/menu/${order.restaurant.slug}`} target="_blank" className="text-xs text-primary hover:text-amber-600 transition-colors mr-auto">
+          <Link href={`/menu/${order.restaurant.slug}`} target="_blank" className="text-xs text-primary hover:text-blue-600 transition-colors mr-auto">
             عرض المنيو ←
           </Link>
         </div>
@@ -145,7 +145,7 @@ ${items}
                   disabled={!isActive || order.status === "cancelled"}
                   className={cn(
                     "size-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2",
-                    isCurrent ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white border-amber-500 shadow-lg shadow-amber-500/25 scale-110" :
+                    isCurrent ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25 scale-110" :
                     isActive ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 border-emerald-300 dark:border-emerald-700" :
                     "bg-muted/30 text-muted-foreground/30 border-border/20"
                   )}
@@ -162,7 +162,7 @@ ${items}
                   <div className={cn(
                     "h-0.5 w-full -mt-6 mr-10",
                     isActive && idx < currentIdx ? "bg-emerald-300 dark:bg-emerald-700" :
-                    isActive ? "bg-amber-300 dark:bg-amber-700" : "bg-border/20"
+                    isActive ? "bg-blue-300 dark:bg-blue-700" : "bg-border/20"
                   )} />
                 )}
               </div>
@@ -175,7 +175,7 @@ ${items}
               {currentIdx < STATUS_FLOW.length - 1 && (
                 <Button
                   onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
-                  className="flex-1 rounded-xl h-11 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                  className="flex-1 rounded-xl h-11 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                 >
                   ← {STATUS_CONFIG[STATUS_FLOW[currentIdx + 1]]?.label}
                 </Button>
@@ -205,7 +205,7 @@ ${items}
             </div>
             <div>
               <p className="text-xs text-muted-foreground">رقم الهاتف</p>
-              <a href={`tel:${order.customerPhone}`} className="font-medium text-primary hover:text-amber-600 transition-colors flex items-center gap-1" dir="ltr">
+              <a href={`tel:${order.customerPhone}`} className="font-medium text-primary hover:text-blue-600 transition-colors flex items-center gap-1" dir="ltr">
                 <Phone className="size-3" />
                 {order.customerPhone}
               </a>
@@ -260,7 +260,7 @@ ${items}
           {order.items.map(oi => (
             <div key={oi.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors">
               <div className="flex items-center gap-3">
-                <span className="size-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-bold flex items-center justify-center">
+                <span className="size-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center">
                   {toArabicNumber(oi.quantity)}
                 </span>
                 <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>

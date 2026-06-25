@@ -36,9 +36,9 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
             onClick={onNavClick}
             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
           >
-            {link.href === "/pricing" && <Star className="size-4 text-amber-500" />}
-            {link.href.includes("/menu/") && <Store className="size-4 text-amber-500" />}
-            {link.href === "/login" && <LayoutDashboard className="size-4 text-amber-500" />}
+            {link.href === "/pricing" && <Star className="size-4 text-blue-500" />}
+            {link.href.includes("/menu/") && <Store className="size-4 text-blue-500" />}
+            {link.href === "/login" && <LayoutDashboard className="size-4 text-blue-500" />}
             {link.label}
           </Link>
         ))}
@@ -92,7 +92,7 @@ export function Header({ className }: HeaderProps) {
                   className={cn(
                     "px-3 py-2 rounded-lg text-sm transition-all duration-200",
                     isActive
-                      ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                      ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                   )}
                 >

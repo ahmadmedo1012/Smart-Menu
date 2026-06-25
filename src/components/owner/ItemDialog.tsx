@@ -83,7 +83,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
               {["available","unavailable"].map(s => (
                 <button key={s} type="button" onClick={() => setForm({...form, status: s})}
                   className={cn("flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all",
-                    form.status === s ? s === "available" ? "bg-emerald-500/10 border-emerald-400/30 text-emerald-700" : "bg-red-500/10 border-red-400/30 text-red-700" : "border-border/30 hover:border-amber-200/30")}>
+                    form.status === s ? s === "available" ? "bg-emerald-500/10 border-emerald-400/30 text-emerald-700" : "bg-red-500/10 border-red-400/30 text-red-700" : "border-border/30 hover:border-blue-200/30")}>
                   {s === "available" ? "متوفر" : "غير متوفر"}
                 </button>
               ))}
@@ -92,7 +92,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
         </div>
         <div className="flex justify-end gap-2 mt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">إلغاء</Button>
-          <Button onClick={save} className="rounded-xl">{editing ? "تحديث" : "إضافة"}</Button>
+          <Button onClick={save} className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white">{editing ? "تحديث" : "إضافة"}</Button>
         </div>
       </DialogContent>
     </Dialog>
