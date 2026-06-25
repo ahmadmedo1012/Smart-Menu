@@ -12,14 +12,7 @@ export function Footer({ className, partnerSlug = "al-waha-cafe" }: FooterProps)
     <footer className={cn("border-t border-border/40 pt-16 pb-12 bg-background", className)}>
       <div className="max-w-6xl mx-auto px-4">
         {/* Gradient brand separator line */}
-        <div className="relative mb-12">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border/20" />
-          </div>
-          <div className="relative flex justify-center">
-            <div className="h-px w-32 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
-          </div>
-        </div>
+        <div className="mx-auto w-32 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent mb-12" />
 
         <div className="grid md:grid-cols-4 gap-10 mb-10">
           <div className="md:col-span-2">

@@ -25,7 +25,7 @@ const landingLinks = [
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
     <>
-      <div className="flex items-center gap-3 border-b border-border/20 px-4 pb-4 pt-5">
+      <div className="flex items-center gap-3 border-b border-border/30 px-4 pb-4 pt-5">
         <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
       </div>
       <nav className="space-y-2 px-3 py-4">
@@ -36,9 +36,9 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
             onClick={onNavClick}
             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
           >
-            {link.href === "/pricing" && <Star className="size-4 text-blue-500" />}
-            {link.href.includes("/menu/") && <Store className="size-4 text-blue-500" />}
-            {link.href === "/login" && <LayoutDashboard className="size-4 text-blue-500" />}
+            {link.href === "/pricing" && <Star className="size-4 text-primary" />}
+            {link.href.includes("/menu/") && <Store className="size-4 text-primary" />}
+            {link.href === "/login" && <LayoutDashboard className="size-4 text-primary" />}
             {link.label}
           </Link>
         ))}
@@ -54,7 +54,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "fixed top-0 inset-x-0 z-30 h-16 bg-background/70 backdrop-blur-xl border-b border-border/20 shadow-xs supports-backdrop-filter:bg-background/60",
+        "fixed top-0 inset-x-0 z-30 h-16 bg-background/70 backdrop-blur-xl border-b border-border/30 shadow-xs supports-backdrop-filter:bg-background/60",
         className
       )}
     >
@@ -104,7 +104,7 @@ export function Header({ className }: HeaderProps) {
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link href="/login">
+          <Link href="/subscribe">
             <Button variant="gradient" size="sm" className="rounded-xl">
               ابدأ الآن مجاناً
             </Button>

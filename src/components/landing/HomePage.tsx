@@ -11,19 +11,14 @@ import CountUp from "./CountUp";
 import HeroVideo from "./HeroVideo";
 
 export default function HomePage() {
+  const [s0, s1, s2, s3] = SHOWCASES;
   return (
     <div className="flex flex-col min-h-screen bg-dot-pattern/30">
       <Header />
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/30 via-blue-100/20 to-background dark:via-blue-950/15 dark:via-indigo-950/5" />
-        <div className="hero-mesh"><div className="blob" /><div className="blob" /><div className="blob" /></div>
-        <Reveal delay={0} className="absolute top-24 right-4 md:right-12 z-20">
-          <div className="glass px-4 py-2 rounded-full hidden sm:flex items-center gap-2 text-xs font-medium shadow-lg border-primary/20 shadow-blue-500/10">
-            <Sparkles className="size-3.5 text-blue-500" /><span>المنصة الأسرع نمواً في ٢٠٢٦</span>
-          </div>
-        </Reveal>
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/20 to-background dark:via-blue-950/10" />
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center py-10">
           <div className="text-center lg:text-right order-last lg:order-first">
             <Reveal delay={0}>
@@ -54,23 +49,23 @@ export default function HomePage() {
               </div>
             </Reveal>
             <Reveal delay={0.4}>
-              <div className="flex items-center gap-4 mt-8 justify-center lg:justify-start">
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-3 mt-8 justify-center lg:justify-start">
+                <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="size-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm animate-scale-in" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>{String.fromCharCode(65 + i)}</div>
+                    <Star key={i} className="size-4 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <div className="text-sm"><span className="font-bold">+50</span> <span className="text-muted-foreground">مطعماً يثقون بنا</span></div>
+                <div className="text-sm">
+                  <span className="font-bold text-foreground">5.0</span>
+                  <span className="text-muted-foreground"> +50 مطعماً يثقون بنا</span>
+                </div>
               </div>
             </Reveal>
           </div>
           <Reveal delay={0.15} className="order-first lg:order-last"><HeroVideo /></Reveal>
         </div>
-        <div className="absolute bottom-8 start-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-xs text-muted-foreground animate-float">
-          <span className="font-medium">اسحب لأسفل</span>
-          <div className="size-5 rounded-full border-2 border-primary/30 flex items-center justify-center">
-            <div className="size-2 rounded-full bg-blue-500/80 animate-[breath_4s_ease-in-out_infinite]" />
-          </div>
+        <div className="absolute bottom-8 start-1/2 -translate-x-1/2 animate-float">
+          <div className="size-1.5 rounded-full bg-primary/40" />
         </div>
       </section>
 
@@ -111,36 +106,70 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Showcase */}
+      {/* Showcase — bento: 2 large feature cards + 2 compact */}
       <section className="py-20 border-y border-border/40 bg-muted/20">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>لماذا الربط الذكي؟</span></h2>
             <p className="text-lg text-muted-foreground">كل ما يحتاجه مطعمك في منصة واحدة</p>
           </Reveal>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SHOWCASES.map((s, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="glass-card rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <div className="size-14 rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 flex items-center justify-center mx-auto mb-4">
-                    <s.icon className="size-7 text-primary" />
-                  </div>
-                  <h3 className="font-bold mb-2">{s.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+          <div className="grid sm:grid-cols-2 gap-5">
+            {/* Card 0 — large feature (full width) */}
+            <Reveal delay={0} className="sm:col-span-2">
+              <div className="h-full rounded-2xl border border-border/40 bg-card/50 p-7 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex flex-row items-center gap-6">
+                <div className="size-16 shrink-0 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                  <s0.icon className="size-8 text-white" />
                 </div>
-              </Reveal>
-            ))}
+                <div>
+                  <h3 className="text-xl font-bold mb-2">{s0.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s0.desc}</p>
+                </div>
+              </div>
+            </Reveal>
+            {/* Card 1 — compact */}
+            <Reveal delay={0.1}>
+              <div className="h-full rounded-2xl border border-border/40 bg-card/50 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-center">
+                <div className="size-12 rounded-xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 flex items-center justify-center mx-auto mb-3">
+                  <s1.icon className="size-6 text-primary" />
+                </div>
+                <h3 className="font-bold mb-1">{s1.title}</h3>
+                <p className="text-xs text-muted-foreground">{s1.desc}</p>
+              </div>
+            </Reveal>
+            {/* Card 2 — stat-like minimal */}
+            <Reveal delay={0.15}>
+              <div className="h-full rounded-2xl border border-border/40 bg-gradient-to-br from-primary/5 to-transparent p-5 flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <s2.icon className="size-5 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-sm">{s2.title}</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">{s2.desc}</p>
+              </div>
+            </Reveal>
+            {/* Card 3 — large feature (full width) */}
+            <Reveal delay={0.2} className="sm:col-span-2">
+              <div className="h-full rounded-2xl border border-border/40 bg-card/50 p-7 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex flex-row items-center gap-6">
+                <div className="size-16 shrink-0 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                  <s3.icon className="size-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">{s3.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s3.desc}</p>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Stats — simpler, no glass containers */}
       <section className="py-16 bg-gradient-to-br from-blue-500/5 to-primary/5">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {STATS.map((s, i) => (
               <Reveal key={i} delay={i * 0.1} className="text-center">
-                <div className="inline-flex items-center justify-center size-14 rounded-2xl glass mb-3 mx-auto"><s.icon className="size-6 text-primary" /></div>
                 <div className="text-3xl md:text-4xl font-bold text-foreground mb-1"><CountUp value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} /></div>
                 <div className="text-sm text-muted-foreground">{s.label}</div>
               </Reveal>
@@ -149,7 +178,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* Benefits — alternating icon-top / icon-left */}
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-16">
@@ -159,14 +188,31 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {BENEFITS.map((b, i) => (
               <Reveal key={i} delay={i * 0.08}>
-                <div className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className={cn(
+                  "group relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
+                  i % 2 === 0 ? "p-6" : "p-5"
+                )}>
                   <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br", b.gradient.replace("from-", "from-").replace("to-", "to-") + "/5")} />
                   <div className="relative z-10">
-                    <div className={cn("size-12 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg", b.gradient)}>
-                      <b.icon className="size-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-bold mb-2">{b.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
+                    {i % 2 === 0 ? (
+                      <>
+                        <div className={cn("size-12 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 shadow-lg", b.gradient)}>
+                          <b.icon className="size-6 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold mb-2">{b.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
+                      </>
+                    ) : (
+                      <div className="flex items-start gap-4">
+                        <div className={cn("size-12 shrink-0 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg", b.gradient)}>
+                          <b.icon className="size-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold mb-1.5">{b.title}</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Reveal>
@@ -175,7 +221,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* How It Works — cleaner connecting line */}
       <section className="py-24 bg-muted/20 border-y border-border/40">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-16">
@@ -187,10 +233,10 @@ export default function HomePage() {
               return (
                 <Reveal key={i} delay={i * 0.15} className="text-center">
                   <div className="relative">
-                    <div className="size-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/25">
+                    <div className="size-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
                       <Icon className="size-7 text-white" />
                     </div>
-                    {i < 2 && <div className="hidden md:block absolute top-8 left-[60%] w-[calc(80%)] h-0.5 bg-gradient-to-r from-blue-300/50 to-transparent" />}
+                    {i < 2 && <div className="hidden md:block absolute top-8 left-[60%] w-[calc(80%)] h-px bg-gradient-to-r from-primary/40 to-transparent" />}
                   </div>
                   <h3 className="text-lg font-bold mb-2">{step.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{step.desc}</p>
@@ -201,14 +247,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Pricing — md:grid-cols-2 */}
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-3"><span>خطط تناسب الجميع</span></h2>
             <p className="text-lg text-muted-foreground">ابدأ مجاناً وطور مطعمك مع نمو أعمالك</p>
           </Reveal>
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {PRICING_PLANS.map((plan, i) => (
               <Reveal key={i} delay={i * 0.12}>
                 <div className={cn("relative flex flex-col rounded-3xl border p-7 transition-all duration-500 hover:scale-[1.02] card-premium",
@@ -219,7 +265,7 @@ export default function HomePage() {
                     </div>
                   )}
                   <div className={cn("size-10 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg", plan.gradient)}>
-                    <Star className={cn("size-5 text-white", i === 2 && "text-yellow-300")} />
+                    <Star className="size-5 text-white" />
                   </div>
                   <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
                   <div className="flex items-baseline gap-1 mb-5">
@@ -246,7 +292,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Partners */}
+      {/* Partners — bigger, more prominent */}
       <section className="py-24 bg-muted/20 border-y border-border/40">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-12">
@@ -256,13 +302,13 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-6">
             {PARTNERS.map((p, i) => (
               <Reveal key={i} delay={i * 0.15}>
-                <Link href={`/menu/${p.slug}`} className="block glass-card rounded-2xl p-8 text-center group hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500">
-                  <div className="size-20 rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <Store className="size-9 text-primary/70" />
+                <Link href={`/menu/${p.slug}`} className="block rounded-2xl border border-border/20 bg-background/40 p-10 text-center group hover:bg-gradient-to-br hover:from-blue-50/30 hover:to-background dark:hover:from-blue-950/10 hover:shadow-lg hover:-translate-y-1.5 transition-all duration-500">
+                  <div className="size-24 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/20 flex items-center justify-center mx-auto mb-5 group-hover:scale-110 group-hover:shadow-xl transition-all duration-500">
+                    <Store className="size-11 text-primary/60 group-hover:text-primary transition-colors duration-500" />
                   </div>
-                  <h3 className="text-xl font-bold mb-1">{p.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{p.desc}</p>
-                  <div className="flex items-center justify-center gap-1 text-sm text-primary font-medium">
+                  <h3 className="text-2xl font-bold mb-2">{p.name}</h3>
+                  <p className="text-base text-muted-foreground mb-4">{p.desc}</p>
+                  <div className="w-fit mx-auto flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 text-sm text-primary font-medium group-hover:bg-primary/10 transition-colors">
                     <span>عرض المنيو</span><ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform duration-300" />
                   </div>
                 </Link>
@@ -272,7 +318,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials — left border accent, varied ratings */}
       <section className="py-24">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal className="text-center mb-14">
@@ -283,10 +329,15 @@ export default function HomePage() {
             {TESTIMONIALS.map((t, i) => (
               <Reveal key={i} delay={i * 0.12}>
                 <div className="relative h-full rounded-2xl border border-border/40 bg-card/40 p-7 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(t.rating)].map((_, j) => (
-                      <Star key={j} className="size-4 fill-blue-400 text-blue-400" />
-                    ))}
+                  {/* Subtle top accent instead of side-tab */}
+                  <div className="absolute top-0 inset-x-4 h-0.5 rounded-full bg-gradient-to-r from-blue-400/30 to-transparent" />
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm font-bold text-blue-500">{t.rating}</span>
+                    <div className="flex gap-0.5">
+                      {[...Array(Math.floor(t.rating))].map((_, j) => (
+                        <Star key={j} className="size-3.5 fill-blue-400 text-blue-400" />
+                      ))}
+                    </div>
                   </div>
                   <p className="text-sm text-foreground/80 leading-relaxed mb-5 flex-1">&ldquo;{t.content}&rdquo;</p>
                   <div className="flex items-center gap-3 pt-4 border-t border-border/30">

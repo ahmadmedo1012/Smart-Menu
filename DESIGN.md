@@ -1,14 +1,14 @@
 # Smart Menu — Design System
 
 > Single source of truth for all visual, interactive, and motion decisions.
-> Brand: **Warm · Premium · Trusted** | Register: **product** (with brand marketing surface)
+> Brand: **Cool · Premium · Trusted** | Register: **product** (with brand marketing surface)
 
 ---
 
 ## 1. Brand Identity
 
 ### DNA
-- **Warmth** — amber/gold tones carry hospitality warmth. Not beige, not cream — true gold with purpose.
+- **Warmth** — deep blue tones convey trust and professionalism. Not cold — a premium, confident blue with purpose.
 - **Premium** — refined glass surfaces, subtle shadows, generous spacing. Quiet confidence in every pixel.
 - **Trusted** — consistent affordances, bank-grade form controls, no dark patterns.
 
@@ -33,73 +33,81 @@ All colors use **OKLCH** for perceptual uniformity. Two modes: light (`:root`) a
 
 | Token | Light | Dark | Purpose |
 |-------|-------|------|---------|
-| `--background` | `oklch(0.98 0.015 75)` | `oklch(0.14 0.015 75)` | Page / app bg |
-| `--foreground` | `oklch(0.2 0.02 85)` | `oklch(0.95 0.01 85)` | Body text |
-| `--card` | `oklch(1 0 0)` | `oklch(0.17 0.015 70)` | Elevated surfaces |
-| `--card-foreground` | `oklch(0.2 0.02 85)` | `oklch(0.95 0.01 85)` | Text on card |
-| `--primary` | `oklch(0.62 0.14 55)` | `oklch(0.72 0.16 65)` | Key CTA, brand accent |
+| `--background` | `oklch(0.985 0.003 260)` | `oklch(0.14 0.018 260)` | Page / app bg |
+| `--foreground` | `oklch(0.18 0.03 265)` | `oklch(0.95 0.01 260)` | Body text |
+| `--card` | `oklch(1 0 0)` | `oklch(0.17 0.02 260)` | Elevated surfaces |
+| `--card-foreground` | `oklch(0.18 0.03 265)` | `oklch(0.95 0.01 260)` | Text on card |
+| `--popover` | `oklch(1 0 0)` | `oklch(0.17 0.02 260)` | Dropdowns, popovers |
+| `--popover-foreground` | `oklch(0.18 0.03 265)` | `oklch(0.95 0.01 260)` | Text on popover |
+| `--primary` | `oklch(0.43 0.16 260)` | `oklch(0.62 0.16 253)` | Key CTA, brand accent |
 | `--primary-foreground` | `oklch(0.98 0 0)` | `oklch(0.15 0 0)` | Text on primary |
-| `--secondary` | `oklch(0.94 0.04 75)` | `oklch(0.23 0.03 75)` | Muted surfaces |
-| `--secondary-foreground` | `oklch(0.3 0.03 75)` | `oklch(0.85 0.02 85)` | Text on secondary |
-| `--muted` | `oklch(0.96 0.02 70)` | `oklch(0.2 0.02 70)` | Low-emphasis surfaces |
-| `--muted-foreground` | `oklch(0.55 0.02 85)` | `oklch(0.65 0.02 85)` | Secondary text |
-| `--accent` | `oklch(0.62 0.14 55 / 0.1)` | `oklch(0.72 0.16 65 / 0.15)` | Subtle highlight |
-| `--accent-foreground` | `oklch(0.45 0.10 55)` | `oklch(0.78 0.14 65)` | Text on accent |
+| `--secondary` | `oklch(0.93 0.02 260)` | `oklch(0.22 0.025 260)` | Muted surfaces |
+| `--secondary-foreground` | `oklch(0.35 0.04 265)` | `oklch(0.85 0.02 260)` | Text on secondary |
+| `--muted` | `oklch(0.95 0.01 262)` | `oklch(0.2 0.015 260)` | Low-emphasis surfaces |
+| `--muted-foreground` | `oklch(0.55 0.025 265)` | `oklch(0.6 0.025 260)` | Secondary text |
+| `--accent` | `oklch(0.45 0.14 265 / 0.1)` | `oklch(0.62 0.16 260 / 0.15)` | Subtle highlight |
+| `--accent-foreground` | `oklch(0.43 0.16 260)` | `oklch(0.62 0.16 253)` | Text on accent |
 | `--destructive` | `oklch(0.58 0.2 25)` | `oklch(0.6 0.22 25)` | Errors, deletion |
-| `--border` | `oklch(0.9 0.03 75)` | `oklch(0.26 0.03 75)` | Borders, dividers |
-| `--input` | `oklch(0.9 0.03 75)` | `oklch(0.26 0.03 75)` | Form input borders |
-| `--ring` | `oklch(0.62 0.14 55)` | `oklch(0.72 0.16 65)` | Focus rings |
+| `--success` | `oklch(0.62 0.15 145)` | `oklch(0.7 0.15 145)` | Success states |
+| `--success-foreground` | `oklch(0.98 0 0)` | `oklch(0.15 0 0)` | Text on success |
+| `--border` | `oklch(0.87 0.02 265)` | `oklch(0.25 0.03 260)` | Borders, dividers |
+| `--input` | `oklch(0.87 0.02 265)` | `oklch(0.25 0.03 260)` | Form input borders |
+| `--ring` | `oklch(0.43 0.16 260)` | `oklch(0.62 0.16 253)` | Focus rings |
 | `--radius` | `0.75rem` | `0.75rem` | Base radius |
 
-### 2.2 Amber Palette (OKLCH)
+### 2.2 Blue Palette (OKLCH)
 
 | Scale | Light | Dark |
 |-------|-------|------|
-| 50 | `oklch(0.97 0.04 70)` | `oklch(0.22 0.04 40)` |
-| 100 | `oklch(0.92 0.06 72)` | `oklch(0.28 0.05 45)` |
-| 200 | `oklch(0.85 0.09 74)` | `oklch(0.35 0.07 48)` |
-| 300 | `oklch(0.75 0.12 72)` | `oklch(0.45 0.10 55)` |
-| 400 | `oklch(0.68 0.16 60)` | `oklch(0.60 0.14 55)` |
-| 500 | `oklch(0.62 0.14 55)` | `oklch(0.72 0.16 65)` |
-| 600 | `oklch(0.52 0.12 50)` | `oklch(0.78 0.14 68)` |
-| 700 | `oklch(0.38 0.08 50)` | `oklch(0.80 0.10 70)` |
-| 800 | `oklch(0.30 0.06 45)` | `oklch(0.88 0.07 72)` |
-| 900 | `oklch(0.22 0.04 40)` | `oklch(0.94 0.04 70)` |
+| 50 | `oklch(0.965 0.025 258)` | `oklch(0.20 0.06 265)` |
+| 100 | `oklch(0.92 0.04 258)` | `oklch(0.28 0.10 264)` |
+| 200 | `oklch(0.85 0.07 256)` | `oklch(0.36 0.14 262)` |
+| 300 | `oklch(0.72 0.10 255)` | `oklch(0.43 0.14 258)` |
+| 400 | `oklch(0.60 0.14 255)` | `oklch(0.52 0.16 255)` |
+| 500 | `oklch(0.50 0.16 258)` | `oklch(0.62 0.16 253)` |
+| 600 | `oklch(0.43 0.16 260)` | `oklch(0.75 0.12 255)` |
+| 700 | `oklch(0.36 0.14 262)` | `oklch(0.85 0.08 256)` |
+| 800 | `oklch(0.28 0.10 264)` | `oklch(0.92 0.05 258)` |
+| 900 | `oklch(0.20 0.06 265)` | `oklch(0.96 0.025 258)` |
 
 ### 2.3 Surface Tokens
 
 | Token | Light | Dark | Usage |
 |-------|-------|------|-------|
-| `--surface-raised` | `oklch(1 0 0)` | `oklch(0.2 0.02 75)` | Modals, dropdowns |
-| `--surface-overlay` | `oklch(1 0 0)` | `oklch(0.19 0.02 78)` | Sheets, drawers |
-| `--surface-sunken` | `oklch(0.97 0.012 78)` | `oklch(0.12 0.012 72)` | Content sections |
-| `--warm-bg` | `oklch(0.98 0.015 75)` | `oklch(0.13 0.015 75)` | Brand content area |
-| `--warm-surface` | `oklch(0.96 0.015 80)` | `oklch(0.17 0.02 75)` | Brand cards |
-| `--warm-border` | `oklch(0.88 0.02 80)` | `oklch(0.24 0.03 75)` | Brand borders |
+| `--surface-raised` | `oklch(1 0 0)` | `oklch(0.2 0.02 260)` | Modals, dropdowns |
+| `--surface-overlay` | `oklch(1 0 0)` | `oklch(0.19 0.02 260)` | Sheets, drawers |
+| `--surface-sunken` | `oklch(0.98 0.004 258)` | `oklch(0.12 0.015 258)` | Content sections |
+| `--cool-bg` | `oklch(0.985 0.003 260)` | `oklch(0.14 0.018 260)` | Brand content area |
+| `--cool-surface` | `oklch(0.97 0.005 262)` | `oklch(0.17 0.02 260)` | Brand cards |
+| `--cool-border` | `oklch(0.88 0.015 265)` | `oklch(0.24 0.03 260)` | Brand borders |
 
 ### 2.4 Gradients
 
-- **`--gradient-warm`**: `linear-gradient(135deg, primary@0.08, amber-400@0.05)` — subtle brand wash
-- **`--gradient-card`**: `linear-gradient(180deg, card, background)` — card depth
-- **`--gradient-amber`**: `linear-gradient(135deg, amber-400, amber-600)` — primary CTAs
-- **`--gradient-gold`**: `linear-gradient(135deg, amber-300, primary)` — premium CTAs
-- **Button gradient**: `from-amber-500 to-amber-600` on `variant="gradient"`
-- **Gradient text** (`text-gradient-amber`, `text-gradient-animated`): used sparingly on hero only — banned elsewhere per impeccable rules
+- **`--gradient-warm`**: `linear-gradient(135deg, oklch(0.45 0.14 265 / 0.08), oklch(0.52 0.14 264 / 0.05))` — subtle brand wash
+- **`--gradient-card`**: `linear-gradient(180deg, oklch(1 0 0), oklch(0.985 0.003 260))` — card depth
+- **`--gradient-blue`**: `linear-gradient(135deg, oklch(0.52 0.14 264), oklch(0.38 0.12 266))` — primary CTAs
+- **`--gradient-brand`**: `linear-gradient(135deg, oklch(0.45 0.14 265), oklch(0.52 0.14 264))` — premium CTAs
+- **`--gradient-shine`**: `linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.4) 50%, transparent 100%)` — shimmer overlay
+- **`--gradient-surface`**: `linear-gradient(180deg, oklch(1 0 0 / 0.8), oklch(0.985 0.003 260 / 0.4))` — surface fades
+- **Button gradient**: `from-blue-500 to-blue-600` on `variant="gradient"`
+- **Gradient text** (`text-gradient-animated`, `.text-gradient-animated`): deep blue-to-blue animated gradient used sparingly on hero only — banned elsewhere per impeccable rules
 
 ### 2.5 Glass Tokens
 
-- `--glass-bg` / `--glass-bg-strong`: semi-transparent surface
-- `--glass-border` / `--glass-border-strong`: blurred border
+- `--glass-bg`: `oklch(1 0 0 / 0.65)` light / `oklch(0.17 0.02 260 / 0.55)` dark
+- `--glass-bg-strong`: `oklch(1 0 0 / 0.82)` light / `oklch(0.2 0.02 260 / 0.7)` dark
+- `--glass-border`: `oklch(0.87 0.02 265 / 0.5)` light / `oklch(0.25 0.03 260 / 0.5)` dark
+- `--glass-border-strong`: `oklch(0.82 0.03 265 / 0.6)` light / `oklch(0.3 0.03 260 / 0.6)` dark
 - Classes: `.glass` (blur-16), `.glass-strong` (blur-20), `.glass-card` (hover glow), `.glass-interactive`
 
 ### 2.6 Shadows
 
 ```css
---shadow-sm:   0 1px 3px rgba(0,0,0,0.04)
---shadow-md:   0 4px 12px rgba(0,0,0,0.06)
---shadow-lg:   0 10px 30px rgba(0,0,0,0.08)
---shadow-xl:   0 20px 50px rgba(0,0,0,0.1)
---shadow-glow: 0 0 20px primary@0.25
+--shadow-sm:   0 1px 3px oklch(0.2 0.04 265 / 0.04), 0 1px 2px oklch(0.2 0.04 265 / 0.03)
+--shadow-md:   0 4px 12px oklch(0.2 0.04 265 / 0.06), 0 2px 4px oklch(0.2 0.04 265 / 0.04)
+--shadow-lg:   0 10px 30px oklch(0.2 0.04 265 / 0.08), 0 4px 8px oklch(0.2 0.04 265 / 0.05)
+--shadow-xl:   0 20px 50px oklch(0.2 0.04 265 / 0.1), 0 8px 16px oklch(0.2 0.04 265 / 0.06)
+--shadow-glow: 0 0 20px oklch(0.43 0.16 260 / 0.2)
 ```
 
 ### 2.7 Color Rules
@@ -209,8 +217,8 @@ Built on `@base-ui/react/button` + `class-variance-authority`.
 | `ghost` | Subtle action | `hover:bg-muted` |
 | `destructive` | Delete/remove | `bg-destructive/10 text-destructive` |
 | `link` | Text link | `underline-offset-4 hover:underline` |
-| `gradient` | Premium CTA | `from-amber-500 to-amber-600 text-white shadow-lg` |
-| `gradient-outline` | Premium secondary CTA | `border-amber-300/40 from-amber-500/10` |
+| `gradient` | Premium CTA | `from-blue-500 to-blue-600 text-white shadow-lg` |
+| `gradient-outline` | Premium secondary CTA | `border-blue-300/40 from-blue-500/10` |
 
 **Sizes:** `xs` (h-6), `sm` (h-7), `default` (h-8), `lg` (h-9), `icon` (size-8), `icon-xs/sm/lg`
 
@@ -234,7 +242,7 @@ Built on `@base-ui/react/input`.
 
 - **Height:** h-9 (36px)
 - **Radius:** rounded-xl (12px)
-- **Border:** `border-input` with `focus-visible:border-amber-400` + `ring-3 ring-amber-500/20`
+- **Border:** `border-input` with `focus-visible:border-blue-400` + `ring-3 ring-blue-500/20`
 - **Disabled:** `bg-input/50 opacity-50 pointer-events-none`
 - **Aria-invalid:** `border-destructive ring-destructive/20`
 
@@ -259,7 +267,7 @@ Built on `@base-ui/react`.
 ### 5.6 Other UI Components
 
 All in `src/components/ui/`: badge, label, separator, sheet, switch, table, textarea.
-All share: `rounded-xl`, `border-input`, `focus-visible:border-amber-400`, same Font/color tokens.
+All share: `rounded-xl`, `border-input`, `focus-visible:border-blue-400`, same Font/color tokens.
 
 ### 5.7 Component Rules
 
@@ -328,7 +336,7 @@ All share: `rounded-xl`, `border-input`, `focus-visible:border-amber-400`, same 
 - **Top:** brand icon + logo (72px)
 - **Nav items:** 10 items — لوحة التحكم, المطاعم, المستخدمون, المينيو, الطلبات, QR, المدفوعات, التليجرام, سجل التدقيق, الإعدادات
 - **Each nav item:** `NavLink` component with icon + label + active indicator
-- **Active indicator:** gradient amber bar on end (end-0, w-1, rounded-full) + amber gradient bg
+- **Active indicator:** gradient blue bar on end (end-0, w-1, rounded-full) + blue gradient bg
 - **Bottom:** "العودة للموقع" link
 
 ### 8.2 Owner Sidebar (`owner/layout.tsx`)
@@ -342,9 +350,9 @@ All share: `rounded-xl`, `border-input`, `focus-visible:border-amber-400`, same 
 
 - **Props:** href, label, icon, onClick, exact
 - **Active detection:** `pathname === href || pathname.startsWith(href)` (unless exact=true)
-- **Active style:** `bg-gradient-to-r from-amber-500/15 to-amber-600/10` + amber bar indicator
+- **Active style:** `bg-gradient-to-r from-blue-500/15 to-blue-600/10` + blue bar indicator
 - **Hover:** `hover:bg-accent/50 hover:text-foreground`
-- **Icon turns amber-600 when active**, scales up on hover when inactive
+- **Icon turns blue-600 when active**, scales up on hover when inactive
 
 ### 8.4 Sidebar Rules
 
@@ -527,7 +535,7 @@ All animation keyframes in `globals.css` (lines 367–389). Single source of tru
 ### Icons
 - **Library:** lucide-react (v1.20.0) — consistent outline style.
 - **Size convention:** `size-4` (16px) default, `size-5` (20px) for buttons, `size-6` (24px) for stats, `size-7` (28px) for showcase cards, `size-9` (36px) for partner cards.
-- **Color:** `text-primary` for interactive icons, `text-muted-foreground` for decorative, `text-amber-500`/`text-amber-600` for active nav icons.
+- **Color:** `text-primary` for interactive icons, `text-muted-foreground` for decorative, `text-blue-500`/`text-blue-600` for active nav icons.
 - **Gradient icon containers:** `size-10 rounded-2xl bg-gradient-to-br` for feature cards.
 
 ### Icon Rules
@@ -667,5 +675,5 @@ Live mode (`/impeccable live`) uses `.impeccable/live/config.json` with the foll
 
 ---
 
-*Last updated: 2026-06-24*
+*Last updated: 2026-06-25*
 *Maintained by: Smart Menu team*

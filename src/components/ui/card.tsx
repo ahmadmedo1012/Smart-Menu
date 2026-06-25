@@ -23,7 +23,7 @@ function Card({
         "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         "transition-all duration-250 ease-out",
         // Elevated: hover with lift and premium shadow-glow (default, backward-compatible)
-        "data-[elevation=elevated]:hover:shadow-[var(--shadow-xl),var(--shadow-glow)] data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-amber-300/30",
+        "data-[elevation=elevated]:hover:shadow-[var(--shadow-xl),var(--shadow-glow)] data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-blue-300/30",
         // Flat: no hover transform or shadow
         "data-[elevation=flat]:hover:shadow-none data-[elevation=flat]:hover:translate-y-0",
         // Outlined: prominent border, no hover effects
