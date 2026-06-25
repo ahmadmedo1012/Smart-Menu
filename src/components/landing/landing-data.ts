@@ -2,11 +2,26 @@ import { Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, Store, Shop
 
 export type Benefit = { icon: LucideIcon; title: string; desc: string; gradient: string };
 export type Partner = { name: string; slug: string; desc: string };
-export type Stat = { icon: LucideIcon; value: number; suffix: string; label: string; decimals?: number };
+export type Stat = { icon: LucideIcon; value: number; suffix?: string; label: string; decimals?: number };
 export type Step = { title: string; desc: string; icon: LucideIcon };
 export type PricingPlan = { name: string; price: string; period: string; features: string[]; cta: string; popular: boolean; gradient: string };
 export type Showcase = { title: string; desc: string; icon: LucideIcon };
 export type Testimonial = { name: string; role: string; content: string; rating: number };
+
+export type PublicStats = {
+  totalRestaurants: number;
+  totalUsers: number;
+};
+
+export async function fetchPublicStats(): Promise<PublicStats> {
+  try {
+    const res = await fetch("/api/public/stats");
+    if (!res.ok) throw new Error("Stats unavailable");
+    return await res.json();
+  } catch {
+    return { totalRestaurants: 0, totalUsers: 0 };
+  }
+}
 
 export const BENEFITS: Benefit[] = [
   { icon: Smartphone, title: "منيو رقمي تفاعلي", desc: "قائمة طعام رقمية مع صور وأسعار وتفاصيل. محدثة بشكل لحظي دون طباعة.", gradient: "from-gold to-gold/80" },
@@ -21,18 +36,6 @@ export const PARTNERS: Partner[] = [
   { name: "مقهى الواحة", slug: "al-waha-cafe", desc: "مشروبات وحلويات" },
   { name: "مطعم الأصيل", slug: "al-aseel", desc: "مأكولات ليبية تقليدية" },
   { name: "بيتزا روما", slug: "pizza-roma", desc: "بيتزا إيطالية طازجة" },
-];
-
-// Real Vercel-verified platform stats — sourced from production runtime logs (last 30 days)
-// Source: Vercel production (smart-menu-sigma.vercel.app, project prj_h9LlzVPyGFxZpjffb4pLNCdsbzhG)
-// ~130 edge-logged HTTP requests (200:73, 304:46, 206:5), 11 server fn invocations, 15 unique routes
-// Cache HIT rate is very high — most requests served by edge without hitting the server
-// Restaurants (50+) and rating (4.8) from platform records; orders/users scaled from traffic base
-export const STATS: Stat[] = [
-  { icon: Store, value: 50, suffix: "+", label: "مطعم ومقهى" },
-  { icon: ShoppingCart, value: 550, suffix: "+", label: "طلب شهرياً" },
-  { icon: Users, value: 1200, suffix: "+", label: "زبون نشط" },
-  { icon: Star, value: 4.8, suffix: "", label: "تقييم المستخدمين", decimals: 1 },
 ];
 
 export const STEPS: Step[] = [

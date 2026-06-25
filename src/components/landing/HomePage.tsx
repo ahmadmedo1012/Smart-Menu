@@ -1,18 +1,28 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { ArrowLeft, Store, Check, Star, Smartphone, MessageCircle, LayoutDashboard, Gift, QrCode, BarChart3, Monitor, TrendingUp, Users, ShoppingCart, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
-import { BENEFITS, PARTNERS, STATS, STEPS, PRICING_PLANS, TESTIMONIALS } from "./landing-data";
+import { BENEFITS, PARTNERS, STEPS, PRICING_PLANS, TESTIMONIALS, fetchPublicStats, type PublicStats } from "./landing-data";
 import Reveal from "./Reveal";
 import CountUp from "./CountUp";
 import PhoneMockup from "./PhoneMockup";
 
 export default function HomePage() {
   const [activePartner, setActivePartner] = useState(0);
+  const [stats, setStats] = useState<PublicStats | null>(null);
+
+  useEffect(() => {
+    fetchPublicStats().then(setStats);
+  }, []);
+
+  const STATS = stats ? [
+    { icon: Store, value: stats.totalRestaurants, suffix: "+", label: "مطعم ومقهى", decimals: 0 },
+    { icon: Users, value: stats.totalUsers, suffix: "+", label: "مستخدم", decimals: 0 },
+  ] : null;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -62,7 +72,7 @@ export default function HomePage() {
             <Reveal animation="animate-fade-in" delay={0.24}>
               <div className="mt-8 flex items-center gap-2 justify-center lg:justify-start text-sm text-muted-foreground">
                 <Star className="size-4 fill-gold text-gold" />
-                <span>يثق بنا أكثر من <span className="font-bold text-foreground">٥٠</span> مطعماً</span>
+                <span>يثق بنا أكثر من <span className="font-bold text-foreground">{stats?.totalRestaurants ?? "..."}</span> مطعماً</span>
               </div>
             </Reveal>
           </div>
@@ -75,9 +85,10 @@ export default function HomePage() {
       </section>
 
       {/* ═══ Stats ═══ */}
+      {STATS && (
       <section className="py-20 bg-gradient-to-br from-gold-muted/60 to-background">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 gap-8 max-w-lg mx-auto">
             {STATS.map((s, i) => (
               <Reveal key={i} animation="animate-reveal" delay={i * 0.1}>
                 <div className="text-center">
@@ -94,6 +105,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ═══ Features ═══ */}
       <section className="py-28 relative">

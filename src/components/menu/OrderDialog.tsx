@@ -177,7 +177,7 @@ export default function OrderDialog({
             </div>
 
             {/* Quantity selector */}
-            <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-blue-500/5 to-blue-600/5 border border-blue-200/20 p-4">
+            <div className="flex items-center justify-between rounded-2xl bg-gold-muted/30 border border-gold/15 p-4">
               <div>
                 <span className="text-xs text-muted-foreground">السعر</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
@@ -204,7 +204,7 @@ export default function OrderDialog({
                 <button key={type} type="button" onClick={() => setOrderType(type)}
                   className={cn("flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all",
                     orderType === type
-                      ? "bg-gold-muted border-blue-300/30 text-blue-700 dark:text-blue-300"
+                      ? "bg-gold-muted border-gold/30 text-gold"
                       : "border-border/30 text-muted-foreground hover:border-gold/30")}>
                   {type === "delivery" ? "توصيل" : "استلام"}
                 </button>
@@ -219,7 +219,7 @@ export default function OrderDialog({
                   <button key={note} type="button" onClick={() => toggleQuickNote(note)}
                     className={cn("px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border",
                       notes.includes(note)
-                        ? "bg-gold-muted border-blue-300/30 text-blue-700 dark:text-blue-300"
+                        ? "bg-gold-muted border-gold/20 text-foreground"
                         : "bg-muted/30 border-border/30 text-muted-foreground hover:border-gold/30")}>
                     {note}
                   </button>

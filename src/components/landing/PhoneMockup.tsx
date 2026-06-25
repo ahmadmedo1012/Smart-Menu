@@ -11,10 +11,15 @@ interface PhoneMockupProps {
 /** Premium tilted phone mockup — black/gold, ~40° tilt, editorial */
 export default function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleCanPlay = useCallback(() => {
     requestAnimationFrame(() => setVideoLoaded(true));
+  }, []);
+
+  const handleError = useCallback(() => {
+    setVideoError(true);
   }, []);
 
   const frame = (
@@ -64,7 +69,7 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
           {/* Screen content — elegant menu */}
           <ScreenContent />
 
-          {/* Video overlay */}
+          {/* Video overlay — world-class menu demo */}
           <video
             ref={videoRef}
             src="/hero-intro.mp4"
@@ -73,10 +78,22 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             loop
             muted
             playsInline
+            preload="auto"
             onCanPlay={handleCanPlay}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-out z-5"
+            onError={handleError}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out z-10"
             style={{ opacity: videoLoaded ? 1 : 0 }}
           />
+          {/* Fallback poster when video unavailable */}
+          {(!videoLoaded || videoError) && (
+            <img
+              src="/hero-poster.jpg"
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-4"
+              style={{ opacity: videoError ? 1 : 0.6 }}
+              loading="lazy"
+            />
+          )}
 
           {/* Bottom edge reflection */}
           <div
