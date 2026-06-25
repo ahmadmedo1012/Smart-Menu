@@ -36,7 +36,7 @@ interface LoyaltyStats {
 /* ---------- Status Config ---------- */
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; indicator: string }> = {
-  new:        { label: "جديد",       color: "text-blue-600 dark:text-blue-400",       bg: "bg-blue-50 dark:bg-blue-950/20",      indicator: "bg-blue-500" },
+  new:        { label: "جديد",       color: "text-gold dark:text-gold",       bg: "bg-blue-50 dark:bg-blue-950/20",      indicator: "bg-blue-500" },
   preparing:  { label: "قيد التحضير", color: "text-amber-600 dark:text-amber-400",    bg: "bg-amber-50 dark:bg-amber-950/20",   indicator: "bg-amber-500" },
   ready:      { label: "جاهز",       color: "text-green-600 dark:text-green-400",     bg: "bg-green-50 dark:bg-green-950/20",   indicator: "bg-green-500" },
   completed:  { label: "مكتمل",      color: "text-gray-600 dark:text-gray-400",       bg: "bg-gray-50 dark:bg-gray-800/20",     indicator: "bg-gray-400" },
@@ -252,7 +252,7 @@ export default function OwnerDashboard() {
       {/* Stats grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="إجمالي الطلبات" value={stats?.totalOrders ?? 0} icon={ShoppingCart} subtitle="كل الوقت"
-          color="text-blue-600 dark:text-blue-400" bg="bg-blue-50 dark:bg-blue-950/20"
+          color="text-gold dark:text-gold" bg="bg-blue-50 dark:bg-blue-950/20"
           onClick={() => router.push("/owner/orders")} />
         <StatCard label="طلبات اليوم" value={stats?.todayOrders ?? 0} icon={TrendingUp}
           subtitle={stats?.todayRevenue ? `${toArabicNumber(stats.todayRevenue.toFixed(1))} د.ل` : undefined}
@@ -371,14 +371,14 @@ export default function OwnerDashboard() {
             <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 hover:border-blue-300/40 cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
-                <ShoppingCart className="size-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <ShoppingCart className="size-4 text-gold dark:text-gold group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
                 <span className="text-xs font-medium">الطلبات</span>
               </div>
             </div>
           </Link>
           <Link href="/owner/qr">
             <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 hover:border-emerald-300/40 cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-gold/80/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
                 <QrCode className="size-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
                 <span className="text-xs font-medium">رمز QR</span>
@@ -451,7 +451,7 @@ export default function OwnerDashboard() {
           </div>
           <div className="grid gap-2.5 sm:grid-cols-4">
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
-              <div className="size-9 rounded-xl bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center"><Users className="size-4 text-blue-600 dark:text-blue-400" /></div>
+              <div className="size-9 rounded-xl bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center"><Users className="size-4 text-gold dark:text-gold" /></div>
               <div><p className="text-[11px] text-muted-foreground">الأعضاء</p><p className="text-base font-bold">{toArabicNumber(loyaltyStats.totalLoyaltyCards ?? 0)}</p></div>
             </div>
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">

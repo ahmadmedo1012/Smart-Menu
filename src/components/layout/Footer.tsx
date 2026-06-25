@@ -14,7 +14,7 @@ export function Footer({ className, partnerSlug = "al-waha-cafe" }: FooterProps)
         <div className="grid md:grid-cols-4 gap-8 md:gap-6 mb-12">
           <div className="md:col-span-2">
             <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto mb-4" loading="lazy" />
-            <p className="text-sm text-amber-700/90 dark:text-amber-400/90 max-w-xs leading-relaxed border-r-2 border-amber-500/40 pr-3">
+            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed border-r-2 border-gold/40 pr-3">
               منصة رقمية لإدارة منيو المطاعم والمقاهي واستقبال الطلبات عبر واتساب
             </p>
           </div>
@@ -29,7 +29,7 @@ export function Footer({ className, partnerSlug = "al-waha-cafe" }: FooterProps)
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-4">تواصل معنا</h4>
             <div className="space-y-3 text-sm text-muted-foreground">
-              <p className="hover:text-foreground transition-colors cursor-default">واتساب: +218 91 111 1111</p>{/* ponytail: placeholder number */}
+              <p className="hover:text-foreground transition-colors cursor-default">واتساب: +218 91 111 1111</p>
               <p className="hover:text-foreground transition-colors cursor-default">بريد: info@rabtzaki.ly</p>
             </div>
           </div>

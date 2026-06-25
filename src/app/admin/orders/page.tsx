@@ -23,8 +23,8 @@ interface Order {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
-  new: { label: "جديد", icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  new: { label: "جديد", icon: Clock, color: "text-gold dark:text-gold", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-gold dark:text-gold", bg: "bg-blue-50 dark:bg-blue-950/30" },
   ready: { label: "جاهز", icon: CheckCircle, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-50 dark:bg-gray-800/30" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30" },
@@ -117,12 +117,12 @@ export default function AdminOrdersPage() {
           <p className="text-2xl font-bold mt-1">{toArabicNumber(orders.length)}</p>
         </div>
         <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/30 p-4">
-          <p className="text-xs text-blue-600 dark:text-blue-400">جديد</p>
-          <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">{toArabicNumber(totalNew)}</p>
+          <p className="text-xs text-gold dark:text-gold">جديد</p>
+          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">{toArabicNumber(totalNew)}</p>
         </div>
         <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/30 p-4">
-          <p className="text-xs text-blue-600 dark:text-blue-400">قيد التحضير</p>
-          <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">{toArabicNumber(totalPreparing)}</p>
+          <p className="text-xs text-gold dark:text-gold">قيد التحضير</p>
+          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">{toArabicNumber(totalPreparing)}</p>
         </div>
         <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
           <p className="text-xs text-emerald-600 dark:text-emerald-400">جاهز + مكتمل</p>
@@ -141,14 +141,14 @@ export default function AdminOrdersPage() {
             placeholder="ابحث برقم الطلب أو العميل أو المطعم..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-blue-300 focus-visible:ring-4 focus-visible:ring-blue-500/20"
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-blue-500/20"
           />
         </div>
         <input
           type="date"
           value={dateFrom}
           onChange={e => { setDateFrom(e.target.value); fetchOrders(filter) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-blue-300"
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-gold"
           title="من تاريخ"
           aria-label="من تاريخ"
         />
@@ -156,7 +156,7 @@ export default function AdminOrdersPage() {
           type="date"
           value={dateTo}
           onChange={e => { setDateTo(e.target.value); fetchOrders(filter) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-blue-300"
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-gold"
           title="إلى تاريخ"
           aria-label="إلى تاريخ"
         />
@@ -249,9 +249,9 @@ export default function AdminOrdersPage() {
                       onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
                       className={cn(
                         "flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
-                        next === "preparing" && "border-blue-200/30 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/20",
+                        next === "preparing" && "border-blue-200/30 text-gold dark:text-gold hover:bg-blue-50 dark:hover:bg-blue-950/20",
                         next === "ready" && "border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20",
-                        next === "completed" && "border-blue-200/30 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/20",
+                        next === "completed" && "border-blue-200/30 text-gold dark:text-gold hover:bg-blue-50 dark:hover:bg-blue-950/20",
                       )}
                     >
                       ← {STATUS_CONFIG[next]?.label}

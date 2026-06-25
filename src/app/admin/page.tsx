@@ -35,7 +35,7 @@ interface StatsData {
 const SEVERITY_STYLES: Record<string, { label: string; color: string; bg: string }> = {
   error: { label: "خطأ", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
   warning: { label: "تحذير", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
-  info: { label: "معلومة", color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  info: { label: "معلومة", color: "text-gold", bg: "bg-blue-50 dark:bg-blue-950/30" },
   success: { label: "نجاح", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
 }
 
@@ -161,7 +161,7 @@ export default function AdminDashboard() {
           { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, bg: "bg-amber-50/80 dark:bg-amber-950/20", iconColor: "text-amber-600 dark:text-amber-400" },
           { label: "إجمالي المستخدمين", value: stats.totalUsers, icon: Users, bg: "bg-purple-50/80 dark:bg-purple-950/20", iconColor: "text-purple-600 dark:text-purple-400" },
           { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, bg: "bg-emerald-50/80 dark:bg-emerald-950/20", iconColor: "text-emerald-600 dark:text-emerald-400", suffix: " د.ل" },
-          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-blue-50/80 dark:bg-blue-950/20", iconColor: "text-blue-600 dark:text-blue-400" },
+          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-blue-50/80 dark:bg-blue-950/20", iconColor: "text-gold dark:text-gold" },
         ].map((card, i) => {
           const Icon = card.icon
           return (
@@ -195,8 +195,8 @@ export default function AdminDashboard() {
           <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.freePlanCount)}</p>
         </div>
         <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/30 p-4">
-          <p className="text-xs text-blue-600 dark:text-blue-400">مرتبط</p>
-          <p className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">
+          <p className="text-xs text-gold dark:text-gold">مرتبط</p>
+          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">
             {toArabicNumber(stats.linkedRestaurants)}
           </p>
         </div>
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: "إضافة مطعم", href: "/admin/restaurants", icon: Store, color: "text-amber-600" },
-            { label: "الطلبات", href: "/admin/orders", icon: ShoppingCart, color: "text-blue-600" },
+            { label: "الطلبات", href: "/admin/orders", icon: ShoppingCart, color: "text-gold" },
             { label: "المستخدمين", href: "/admin/users", icon: Users, color: "text-purple-600" },
             { label: "سجل التدقيق", href: "/admin/audit-logs", icon: Activity, color: "text-emerald-600" },
           ].map((item, i) => {

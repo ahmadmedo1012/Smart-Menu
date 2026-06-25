@@ -38,26 +38,23 @@ export function ThemeToggle({ className }: { className?: string }) {
           "bg-card/10 dark:bg-card/10",
           "backdrop-blur-xl",
           "border border-white/20 dark:border-white/10",
-          "shadow-[0_0_0_1px_rgba(255,255,255,0.1)]",
-          "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05)]",
-          "shadow-lg shadow-amber-500/10 dark:shadow-amber-500/20",
+          "shadow-lg shadow-gold/10 dark:shadow-gold/20",
           "transition-all duration-300",
           "hover:bg-white/20 dark:hover:bg-black/20",
           "hover:border-white/30 dark:hover:border-white/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50",
           "active:scale-95",
           "cursor-pointer",
           "flex items-center justify-center",
           "overflow-hidden",
-          animating && "animate-wiggle",
         )}
       >
         <div
           className={cn(
             "absolute inset-0 rounded-xl",
-            "bg-gradient-to-br from-amber-500/20 via-transparent to-amber-600/20",
+            "bg-gradient-to-br from-gold/20 via-transparent to-gold/30",
             "opacity-0 hover:opacity-100 transition-opacity duration-300",
-            "dark:from-amber-500/30 dark:via-transparent dark:to-amber-600/30"
+            "dark:from-gold/30 dark:via-transparent dark:to-gold/40"
           )}
         />
 
@@ -69,7 +66,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-90 scale-0 opacity-0 absolute"
           )}
         >
-          <Sun className="size-full text-amber-400" />
+          <Sun className="size-full text-gold" />
         </span>
 
         <span
@@ -80,7 +77,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-0 scale-100 opacity-100"
           )}
         >
-          <Moon className="size-full text-amber-300" />
+          <Moon className="size-full text-gold" />
         </span>
 
         <div

@@ -134,14 +134,14 @@ function ConversionRate({ rate, total, converted }: { rate: number; total: numbe
     <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <TrendingUp className="size-4 text-blue-600 dark:text-blue-400" />
+          <TrendingUp className="size-4 text-gold dark:text-gold" />
           <span className="text-sm font-semibold">معدل التحويل</span>
         </div>
-        <span className="text-sm font-bold tabular-nums text-blue-700 dark:text-blue-300">{rate}%</span>
+        <span className="text-sm font-bold tabular-nums text-gold dark:text-gold">{rate}%</span>
       </div>
       <div className="h-3 rounded-full bg-muted overflow-hidden mb-2">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-blue-400 to-emerald-500 transition-all duration-1000 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-gold to-gold/80 transition-all duration-1000 ease-out"
           style={{ width: `${rate}%` }}
         />
       </div>
@@ -191,7 +191,7 @@ function TierChart({ distribution }: { distribution: Record<string, number> }) {
 
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    pending: { label: "معلق", classes: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+    pending: { label: "معلق", classes: "bg-blue-100 text-gold dark:bg-blue-900/40 dark:text-gold" },
     converted: { label: "تم التحويل", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
     expired: { label: "منتهي", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
   }
@@ -260,7 +260,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
               className={cn(
                 "h-9 rounded-lg px-3 text-xs font-medium transition-all",
                 statusFilter === s
-                  ? "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-300/30"
+                  ? "bg-blue-500/10 text-gold dark:text-gold border border-blue-300/30"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent",
               )}
             >
@@ -466,7 +466,7 @@ export default function OwnerLoyaltyPage() {
   const statCards = [
     {
       label: "إجمالي الأعضاء", value: stats?.totalLoyaltyCards ?? 0,
-      icon: Users, color: "text-blue-600 dark:text-blue-400",
+      icon: Users, color: "text-gold dark:text-gold",
       bg: "bg-blue-50 dark:bg-blue-950/30",
     },
     {
@@ -476,7 +476,7 @@ export default function OwnerLoyaltyPage() {
     },
     {
       label: "تم التحويل", value: stats?.convertedReferrals ?? 0,
-      icon: TrendingUp, color: "text-blue-600 dark:text-blue-400",
+      icon: TrendingUp, color: "text-gold dark:text-gold",
       bg: "bg-blue-50 dark:bg-blue-950/30",
     },
     {

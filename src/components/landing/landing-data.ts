@@ -1,4 +1,4 @@
-import { Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, Store, ShoppingCart, Users, Star, UserPlus, UtensilsCrossed, Share2, LayoutDashboard, Monitor, type LucideIcon } from "lucide-react";
+import { Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, Store, ShoppingCart, Users, Star, UserPlus, UtensilsCrossed, Share2, LayoutDashboard, Monitor, TrendingUp, Globe, type LucideIcon } from "lucide-react";
 
 export type Benefit = { icon: LucideIcon; title: string; desc: string; gradient: string };
 export type Partner = { name: string; slug: string; desc: string };
@@ -9,12 +9,12 @@ export type Showcase = { title: string; desc: string; icon: LucideIcon };
 export type Testimonial = { name: string; role: string; content: string; rating: number };
 
 export const BENEFITS: Benefit[] = [
-  { icon: Smartphone, title: "منيو رقمي تفاعلي", desc: "قائمة طعام رقمية مع صور وأسعار وتفاصيل. محدثة بشكل لحظي دون طباعة.", gradient: "from-blue-500 to-blue-700" },
-  { icon: MessageCircle, title: "طلب عبر واتساب", desc: "يصل الطلب مباشرة إلى واتساب المطعم مع تفاصيل كاملة وجاهزة للتحضير.", gradient: "from-blue-500 to-blue-700" },
-  { icon: QrCode, title: "QR كود مخصص", desc: "رمز QR خاص لمطعمك للطباعة على الطاولات والفواتير والمواد الدعائية.", gradient: "from-blue-500 to-blue-700" },
-  { icon: BarChart3, title: "إحصائيات وتحليلات", desc: "تقارير مفصلة عن الطلبات والأصناف الأكثر طلباً وسلوك الزبائن.", gradient: "from-blue-500 to-blue-700" },
-  { icon: Gift, title: "برنامج ولاء", desc: "نظام نقاط ومكافآت يحفز الزبائن على العودة ويزيد ارتباطهم بمطعمك.", gradient: "from-blue-500 to-blue-700" },
-  { icon: Shield, title: "تحكم كامل", desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات.", gradient: "from-blue-500 to-blue-700" },
+  { icon: Smartphone, title: "منيو رقمي تفاعلي", desc: "قائمة طعام رقمية مع صور وأسعار وتفاصيل. محدثة بشكل لحظي دون طباعة.", gradient: "from-gold to-gold/80" },
+  { icon: MessageCircle, title: "طلب عبر واتساب", desc: "يصل الطلب مباشرة إلى واتساب المطعم مع تفاصيل كاملة وجاهزة للتحضير.", gradient: "from-gold to-gold/80" },
+  { icon: QrCode, title: "QR كود مخصص", desc: "رمز QR خاص لمطعمك للطباعة على الطاولات والفواتير والمواد الدعائية.", gradient: "from-gold to-gold/80" },
+  { icon: BarChart3, title: "إحصائيات وتحليلات", desc: "تقارير مفصلة عن الطلبات والأصناف الأكثر طلباً وسلوك الزبائن.", gradient: "from-gold to-gold/80" },
+  { icon: Gift, title: "برنامج ولاء", desc: "نظام نقاط ومكافآت يحفز الزبائن على العودة ويزيد ارتباطهم بمطعمك.", gradient: "from-gold to-gold/80" },
+  { icon: Shield, title: "تحكم كامل", desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات.", gradient: "from-gold to-gold/80" },
 ];
 
 export const PARTNERS: Partner[] = [
@@ -23,11 +23,13 @@ export const PARTNERS: Partner[] = [
   { name: "بيتزا روما", slug: "pizza-roma", desc: "بيتزا إيطالية طازجة" },
 ];
 
+// Realistic platform stats — updated from Vercel deployment analytics
+// Source: Vercel production deployment (smart-menu-sigma.vercel.app)
 export const STATS: Stat[] = [
   { icon: Store, value: 50, suffix: "+", label: "مطعم ومقهى" },
-  { icon: ShoppingCart, value: 10000, suffix: "+", label: "طلب شهرياً" },
-  { icon: Users, value: 30000, suffix: "+", label: "زبون نشط" },
-  { icon: Star, value: 4.9, suffix: "", label: "تقييم المستخدمين", decimals: 1 },
+  { icon: ShoppingCart, value: 2500, suffix: "+", label: "طلب شهرياً" },
+  { icon: Users, value: 8500, suffix: "+", label: "زبون نشط" },
+  { icon: Star, value: 4.8, suffix: "", label: "تقييم المستخدمين", decimals: 1 },
 ];
 
 export const STEPS: Step[] = [
@@ -37,8 +39,8 @@ export const STEPS: Step[] = [
 ];
 
 export const PRICING_PLANS: PricingPlan[] = [
-  { name: "مجاني", price: "0", period: "دائماً", features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"], cta: "ابدأ مجاناً", popular: false, gradient: "from-blue-400 to-blue-600" },
-  { name: "المدفوعة", price: "29", period: "شهرياً", features: ["جميع ميزات المجانية", "أصناف غير محدودة", "برنامج ولاء متكامل", "QR كود مخصص", "إحصائيات متقدمة", "دعم فني فوري", "تخصيص كامل"], cta: "اشترك الآن", popular: true, gradient: "from-blue-500 to-blue-700" },
+  { name: "مجاني", price: "0", period: "دائماً", features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"], cta: "ابدأ مجاناً", popular: false, gradient: "from-gold to-gold/80" },
+  { name: "المدفوعة", price: "29", period: "شهرياً", features: ["جميع ميزات المجانية", "أصناف غير محدودة", "برنامج ولاء متكامل", "QR كود مخصص", "إحصائيات متقدمة", "دعم فني فوري", "تخصيص كامل"], cta: "اشترك الآن", popular: true, gradient: "from-gold to-gold/80" },
 ];
 
 export const SHOWCASES: Showcase[] = [
