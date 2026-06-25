@@ -6,10 +6,12 @@ export default function Reveal({
   children,
   delay = 0,
   className = "",
+  animation = "animate-reveal",
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  animation?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [animate, setAnimate] = useState(false);
@@ -34,7 +36,7 @@ export default function Reveal({
   return (
     <div
       ref={ref}
-      className={cn(animate && "animate-reveal", className)}
+      className={cn(animate && animation, className)}
       style={{
         transitionDelay: animate ? `${delay}s` : "0s",
         willChange: animate ? "transform, opacity" : "auto",

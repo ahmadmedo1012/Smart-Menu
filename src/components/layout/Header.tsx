@@ -34,7 +34,7 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
             key={link.href}
             href={link.href}
             onClick={onNavClick}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors text-sm font-medium"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[oklch(0.62_0.08_75_/_0.12)] transition-colors text-sm font-medium"
           >
             {link.href === "/pricing" && <Star className="size-4 text-primary" />}
             {link.href.includes("/menu/") && <Store className="size-4 text-primary" />}
@@ -59,14 +59,14 @@ export function Header({ className }: HeaderProps) {
       )}
     >
       {/* Subtle bottom border gradient */}
-      <div className="absolute bottom-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-[var(--warm)]/20 to-transparent pointer-events-none" />
 
       <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger
               render={
-                <button className="lg:hidden size-8 rounded-xl border border-border/40 flex items-center justify-center hover:bg-muted transition-colors" aria-label="فتح القائمة">
+                <button className="lg:hidden size-8 rounded-xl border border-border/40 flex items-center justify-center hover:bg-[oklch(0.62_0.08_75_/_0.12)] transition-colors" aria-label="فتح القائمة">
                   <Menu className="size-4" />
                 </button>
               }
@@ -88,8 +88,8 @@ export function Header({ className }: HeaderProps) {
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-sm transition-colors duration-200",
                     isActive
-                      ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                      ? "bg-[var(--warm)]/10 text-[var(--warm)] font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-[oklch(0.62_0.08_75_/_0.12)]"
                   )}
                 >
                   {link.label}
@@ -101,7 +101,7 @@ export function Header({ className }: HeaderProps) {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link href="/subscribe">
-            <Button variant="gradient" size="sm" className="rounded-xl text-xs h-8 px-3">
+            <Button variant="gradient" size="sm" className="rounded-xl text-xs h-8 px-3 bg-warm text-warm-foreground">
               ابدأ الآن مجاناً
             </Button>
           </Link>

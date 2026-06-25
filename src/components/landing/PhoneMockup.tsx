@@ -51,7 +51,11 @@ function MenuScreen() {
         {/* Hero dish image */}
         <div className="h-28 rounded-2xl bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-gray-800 flex items-center justify-center mb-4 overflow-hidden border border-white/5">
           <div className="text-center">
-            <div className="text-[22px] mb-1">🍽️</div>
+            <svg viewBox="0 0 48 48" className="size-7 mx-auto" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6v12c0 3.3-2.7 6-6 6s-6-2.7-6-6V6"/>
+              <path d="M42 6v36"/>
+              <path d="M30 6v12c0 3.3 2.7 6 6 6s6-2.7 6-6V6"/>
+            </svg>
             <div className="text-[9px] text-white/60">تشكيلة المشاوي الملكية</div>
           </div>
         </div>
@@ -64,8 +68,9 @@ function MenuScreen() {
               className={cn(
                 "h-7 rounded-full flex items-center justify-center px-3 text-[9px] font-semibold transition-colors",
                 label === "مشاوي"
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  ? "text-white shadow-lg"
                   : "bg-white/8 text-blue-300/70 border border-white/5",
+                label === "مشاوي" ? "bg-[oklch(0.7_0.12_65)] shadow-[oklch(0.7_0.12_65)/0.3]" : undefined,
               )}
             >
               {label}
@@ -85,7 +90,7 @@ function MenuScreen() {
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-semibold text-white">{item.name}</span>
-                <span className="text-[9px] font-medium text-blue-400/80">{item.price} د.ل</span>
+                <span className="text-[9px] font-medium text-amber-400/80">{item.price} د.ل</span>
               </div>
               <div className="text-[8px] text-white/40 truncate mt-px">{item.desc}</div>
             </div>
@@ -95,7 +100,7 @@ function MenuScreen() {
 
       {/* Bottom CTA */}
       <div className="absolute bottom-6 left-4 right-4 z-10">
-        <div className="h-11 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center text-white text-[11px] font-semibold shadow-xl shadow-blue-600/30">
+        <div className="h-11 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 flex items-center justify-center text-white text-[11px] font-semibold shadow-xl shadow-amber-600/30">
           ابدأ الطلب
         </div>
       </div>

@@ -50,6 +50,9 @@
   --color-blue-700: var(--blue-700);
   --color-blue-800: var(--blue-800);
   --color-blue-900: var(--blue-900);
+  --color-warm: var(--warm);
+  --color-warm-foreground: var(--warm-foreground);
+  --color-warm-muted: var(--warm-muted);
 }
 
 :root {
@@ -93,6 +96,11 @@
   --radius: 0.75rem;
   --success: oklch(0.62 0.15 145);
   --success-foreground: oklch(0.98 0 0);
+
+  /* === Warm accent — hospitality touch === */
+  --warm: oklch(0.62 0.08 75);
+  --warm-foreground: oklch(0.98 0 0);
+  --warm-muted: oklch(0.62 0.08 75 / 0.12);
 
   /* redesign: Refined blue palette - deeper, more premium, navy-leaning */
   --blue-50: oklch(0.965 0.028 260);
@@ -173,6 +181,11 @@
   --ring: oklch(0.65 0.17 255);
   --success: oklch(0.7 0.15 145);
   --success-foreground: oklch(0.12 0 0);
+
+  /* === Warm accent — hospitality touch === */
+  --warm: oklch(0.70 0.10 75);
+  --warm-foreground: oklch(0.12 0 0);
+  --warm-muted: oklch(0.70 0.10 75 / 0.15);
 
   /* redesign: Dark blue palette - inverted premium cool blues */
   --blue-50: oklch(0.20 0.08 268);
@@ -417,6 +430,9 @@
 .animate-spin-slow   { animation: spin-slow 8s linear infinite; }
 .animate-breath      { animation: breath 2.5s ease-in-out infinite; }
 .animate-page-enter  { animation: page-enter 0.4s ease-out both; }
+.animate-feature-in  { animation: reveal 0.6s ease-out both; }
+.animate-quick-fade  { animation: fade-in 0.4s ease-out both; }
+.animate-scale-fade  { animation: scale-in 0.4s ease-out both; }
 .animate-fade-in-down { animation: fade-in-down 0.5s ease-out both; }
 .animate-pulse-glow-ring { animation: pulse-glow-ring 2s ease-in-out infinite; }
 .animate-lightbox-scale { animation: lightbox-scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
@@ -429,6 +445,8 @@
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
 
 /* === Magnetic hover === */
 .magnetic { transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1); }
