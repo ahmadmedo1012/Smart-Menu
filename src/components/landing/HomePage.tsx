@@ -6,30 +6,52 @@ import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { ScrollToTopBtn } from "@/components/shared/ScrollToTopBtn";
 import { fetchPublicStats, type PublicStats } from "./landing-data";
 import HeroSection from "./HeroSection";
-import { PhoneShowcaseSection, StatsSection, HowItWorksSection, DisplayCards, TestimonialsSection, FAQSection, LogosSection, CTASection } from "./CTASection";
+import {
+	ProblemSection,
+	FeaturesGridSection,
+	DigitalMenuSection,
+	ExperienceSection,
+	TestimonialsSection,
+	FAQSection,
+	ClientsSection,
+	MidCTASection,
+	ContactSection,
+	CTASection,
+} from "./CTASection";
 
 export default function HomePage() {
-  const [stats, setStats] = useState<PublicStats | null>(null);
+	const [stats, setStats] = useState<PublicStats | null>(null);
 
-  useEffect(() => {
-    fetchPublicStats().then(setStats);
-  }, []);
+	useEffect(() => {
+		fetchPublicStats().then(setStats);
+	}, []);
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <HeroSection stats={stats} />
-      <PhoneShowcaseSection />
-      {stats && <StatsSection stats={stats} />}
-      <HowItWorksSection />
-      <DisplayCards />
-      <TestimonialsSection />
-      <FAQSection />
-      <LogosSection />
-      <CTASection />
-      <Footer />
-      <FloatingWhatsApp />
-      <ScrollToTopBtn />
-    </div>
-  );
+	return (
+		<div className="flex flex-col min-h-screen">
+			<Header />
+			<HeroSection stats={stats} />
+			<ProblemSection />
+			<FeaturesGridSection />
+			<DigitalMenuSection />
+			<ExperienceSection />
+			{stats && (
+				<section className="relative py-20 bg-white text-center">
+					<div className="max-w-[1220px] mx-auto px-4 grid md:grid-cols-3 gap-8">
+						<div><div className="text-5xl font-medium text-foreground">{stats.totalRestaurants}+</div><div className="text-sm text-muted-foreground">مطعم ومقهى</div></div>
+						<div><div className="text-5xl font-medium text-foreground">{stats.totalUsers}+</div><div className="text-sm text-muted-foreground">مستخدم نشط</div></div>
+						<div><div className="text-5xl font-medium text-foreground">100%</div><div className="text-sm text-muted-foreground">رضا العملاء</div></div>
+					</div>
+				</section>
+			)}
+			<TestimonialsSection />
+			<FAQSection />
+			<ClientsSection />
+			<MidCTASection />
+			<ContactSection />
+			<CTASection />
+			<Footer />
+			<FloatingWhatsApp />
+			<ScrollToTopBtn />
+		</div>
+	);
 }
