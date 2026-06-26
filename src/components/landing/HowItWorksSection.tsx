@@ -37,7 +37,7 @@ export default function HowItWorksSection() {
 
           <div className="grid md:grid-cols-3 gap-8 md:gap-12">
             {STEPS.map((step, i) => (
-              <motion.div {...fadeUp(i * 0.25)}>
+              <motion.div key={i} {...fadeUp(i * 0.25)}>
                 <div className="text-center">
                   {/* Step number badge */}
                   <div className="relative mb-5 inline-flex">

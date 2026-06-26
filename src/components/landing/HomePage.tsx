@@ -4,12 +4,10 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { fetchPublicStats, type PublicStats } from "./landing-data";
 import HeroSection from "./HeroSection";
+import PhoneShowcaseSection from "./PhoneShowcaseSection";
 import StatsSection from "./StatsSection";
-import ScrollStorytelling from "./ScrollStorytelling";
+import HowItWorksSection from "./HowItWorksSection";
 import DisplayCards from "./DisplayCards";
-import PartnersSection from "./PartnersSection";
-import TestimonialsSection from "./TestimonialsSection";
-import PricingSection from "./PricingSection";
 import CTASection from "./CTASection";
 
 export default function HomePage() {
@@ -23,12 +21,10 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <HeroSection stats={stats} />
+      <PhoneShowcaseSection />
       {stats && <StatsSection stats={stats} />}
-      <ScrollStorytelling />
+      <HowItWorksSection />
       <DisplayCards />
-      <PartnersSection />
-      <TestimonialsSection />
-      <PricingSection />
       <CTASection />
       <Footer />
     </div>

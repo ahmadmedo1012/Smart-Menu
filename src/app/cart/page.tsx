@@ -359,7 +359,7 @@ export default function CartPage() {
                 </div>
               ))}
             </div>
-            <div className="h-px bg-gradient-to-r from-transparent via-amber-200/30 to-transparent" />
+            <div className="h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
             <div className="flex justify-between font-bold text-lg">
               <span>الإجمالي</span>
               <span className="tabular-nums text-primary">{toArabicNumber(cartSubtotal.toFixed(1))} د.ل</span>

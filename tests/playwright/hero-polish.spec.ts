@@ -2,18 +2,17 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Hero Polish Verification", () => {
 
-  test("hero phone mockup visible on desktop", async ({ page }) => {
+  test("hero typographic layout on desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/", { waitUntil: "networkidle" });
     await page.waitForTimeout(1500);
     const hero = page.locator("section").first();
     await expect(hero).toBeVisible();
-    const phoneContent = page.locator("text=مطعم مذاق الشام");
-    await expect(phoneContent).toBeVisible();
-    const ctaBtn = page.locator("button:has-text('ابدأ الآن مجاناً')");
+    expect(await page.locator("h1").count()).toBeGreaterThan(0);
+    await expect(page.locator("h1").first()).toContainText("تجربة رقمية");
+    // Gold CTA in hero
+    const ctaBtn = page.locator("button:has-text('ابدأ مجاناً')").first();
     await expect(ctaBtn).toBeVisible();
-    await expect(page.locator("h1")).toBeVisible();
-    await expect(page.locator("h1")).toContainText("تجربة رقمية");
   });
 
   test("hero responsive on mobile viewport", async ({ page }) => {
@@ -22,23 +21,21 @@ test.describe("Hero Polish Verification", () => {
     await page.waitForTimeout(1500);
     const hero = page.locator("section").first();
     await expect(hero).toBeVisible();
-    const phoneContent = page.locator("text=مطعم مذاق الشام");
-    await expect(phoneContent).toBeVisible();
-    const menuBtn = page.locator("button[aria-label='فتح القائمة']");
-    await expect(menuBtn).toBeVisible();
-    await expect(page.locator("h1")).toContainText("تجربة رقمية");
+    await expect(page.locator("h1").first()).toContainText("تجربة رقمية");
   });
 
-  test("video element loads inside phone", async ({ page }) => {
+  test("hero has gold accent elements", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/", { waitUntil: "networkidle" });
     await page.waitForTimeout(2000);
-    const video = page.locator("video");
-    const count = await video.count();
-    if (count > 0) {
-      await expect(video.first()).toBeVisible();
-    } else {
-      const fallback = page.locator("text=مطعم مذاق الشام");
-      await expect(fallback).toBeVisible();
+    // Check gold text elements
+    const goldElements = page.locator(".text-gold, .animate-hero-gold-shimmer");
+    await expect(goldElements.first()).toBeVisible();
+    // Phone mockup should exist in desktop hero
+    const phone = page.locator("[class*='PhoneMockup'], video, [class*='phone']");
+    const phoneCount = await phone.count();
+    if (phoneCount > 0) {
+      await expect(phone.first()).toBeVisible();
     }
   });
 

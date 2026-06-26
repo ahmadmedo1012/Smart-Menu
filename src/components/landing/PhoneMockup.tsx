@@ -35,7 +35,7 @@ export function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
         animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.04, 1] }}
         transition={{ duration: 6, repeat: Infinity, ease: CINEMATIC_EASE }}
         style={{
-          background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.14 75 / 0.08) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.16 55 / 0.08) 0%, transparent 70%)",
           filter: "blur(80px)",
         }}
       />

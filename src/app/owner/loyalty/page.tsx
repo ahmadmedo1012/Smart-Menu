@@ -101,7 +101,7 @@ const TIERS = [
   { key: "platinum", label: "بلاتيني", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
   { key: "gold", label: "ذهبي", color: "text-gold dark:text-gold", bg: "bg-gradient-to-br from-gold to-gold/80", bar: "bg-gradient-to-r from-gold to-gold/80", icon: Star },
   { key: "silver", label: "فضي", color: "text-slate-500 dark:text-slate-300", bg: "bg-gradient-to-br from-slate-300 to-slate-500", bar: "bg-gradient-to-r from-slate-300 to-slate-500", icon: Medal },
-  { key: "bronze", label: "برونزي", color: "text-amber-700 dark:text-amber-400", bg: "bg-gradient-to-br from-amber-400 to-amber-600", bar: "bg-gradient-to-r from-amber-400 to-amber-600", icon: Award },
+  { key: "bronze", label: "برونزي", color: "text-gold/70 dark:text-gold/60", bg: "bg-gradient-to-br from-gold/40 to-gold/60", bar: "bg-gradient-to-r from-gold/40 to-gold/60", icon: Award },
 ]
 
 /* ---------- Stat Card ---------- */
@@ -191,7 +191,7 @@ function TierChart({ distribution }: { distribution: Record<string, number> }) {
 
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    pending: { label: "معلق", classes: "bg-blue-100 text-gold dark:bg-blue-900/40 dark:text-gold" },
+    pending: { label: "معلق", classes: "bg-gold/10 text-gold dark:bg-gold/10 dark:text-gold" },
     converted: { label: "تم التحويل", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
     expired: { label: "منتهي", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
   }
@@ -201,7 +201,7 @@ function ReferralStatusBadge({ status }: { status: string }) {
     <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", m.classes)}>
       <span className={cn(
         "size-1.5 rounded-full",
-        status === "pending" && "bg-blue-500",
+        status === "pending" && "bg-gold",
         status === "converted" && "bg-emerald-500",
         status === "expired" && "bg-slate-400",
       )} />
@@ -229,8 +229,8 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
   if (referrals.length === 0) {
     return (
       <div className="flex flex-col items-center py-10 text-center">
-        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-blue-500/10">
-          <Gift className="size-6 text-blue-500" />
+        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-gold/10">
+          <Gift className="size-6 text-gold" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">لا توجد إحالات بعد</p>
         <p className="text-xs text-muted-foreground/60 mt-1">شارك رابط الإحالة للبدء</p>
@@ -260,7 +260,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
               className={cn(
                 "h-9 rounded-lg px-3 text-xs font-medium transition-all",
                 statusFilter === s
-                  ? "bg-blue-500/10 text-gold dark:text-gold border border-blue-300/30"
+                  ? "bg-gold/10 text-gold dark:text-gold border border-gold/20"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent",
               )}
             >
@@ -467,7 +467,7 @@ export default function OwnerLoyaltyPage() {
     {
       label: "إجمالي الأعضاء", value: stats?.totalLoyaltyCards ?? 0,
       icon: Users, color: "text-gold dark:text-gold",
-      bg: "bg-blue-50 dark:bg-blue-950/30",
+      bg: "bg-gold/10",
     },
     {
       label: "إجمالي الإحالات", value: stats?.totalReferrals ?? 0,
@@ -477,7 +477,7 @@ export default function OwnerLoyaltyPage() {
     {
       label: "تم التحويل", value: stats?.convertedReferrals ?? 0,
       icon: TrendingUp, color: "text-gold dark:text-gold",
-      bg: "bg-blue-50 dark:bg-blue-950/30",
+      bg: "bg-gold/10",
     },
     {
       label: "النقاط المكتسبة", value: stats?.totalRewardPoints ?? 0,
@@ -555,7 +555,7 @@ export default function OwnerLoyaltyPage() {
           </h3>
           <div className="space-y-3">
             {[
-              { label: "معلق", count: rbs.pending, color: "bg-blue-500" },
+              { label: "معلق", count: rbs.pending, color: "bg-gold" },
               { label: "تم التحويل", count: rbs.converted, color: "bg-emerald-500" },
               { label: "منتهي", count: rbs.expired, color: "bg-slate-400" },
             ].map((s) => (

@@ -31,9 +31,9 @@ const COLORS = [
 
 const BGS = [
   "bg-red-50 dark:bg-red-950/20",
-  "bg-blue-50 dark:bg-blue-950/20",
+  "bg-gold/10 dark:bg-gold/10",
   "bg-green-50 dark:bg-green-950/20",
-  "bg-blue-50 dark:bg-blue-950/20",
+  "bg-gold/10 dark:bg-gold/10",
   "bg-purple-50 dark:bg-purple-950/20",
   "bg-teal-50 dark:bg-teal-950/20",
   "bg-pink-50 dark:bg-pink-950/20",
@@ -113,7 +113,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-gold-muted active:scale-[0.98] border border-border/30 hover:border-blue-300/40 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-gold-muted active:scale-[0.98] border border-border/30 hover:border-gold/30 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
@@ -121,7 +121,7 @@ const MenuItemCard = memo(function MenuItemCard({
     >
       <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 
-      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-blue-300/30 group-hover:shadow-lg group-hover:shadow-gold-muted transition-all duration-300">
+      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-gold/30 group-hover:shadow-lg group-hover:shadow-gold-muted transition-all duration-300">
         {item.image && !imageError ? (
           <>
             {!imageLoaded && <div className="absolute inset-0 skeleton" />}

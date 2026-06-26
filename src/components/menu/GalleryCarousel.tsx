@@ -110,12 +110,12 @@ export default function GalleryCarousel({
           <>
             <button type="button" onClick={(e) => { e.stopPropagation(); prev(); }}
               aria-label="الصورة السابقة"
-              className="absolute start-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-blue-500/20 hover:text-blue-600 hover:scale-110 shadow-lg">
+              className="absolute start-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gold/20 hover:text-gold hover:scale-110 shadow-lg">
               <ChevronLeft className="size-4" aria-hidden="true" />
             </button>
             <button type="button" onClick={(e) => { e.stopPropagation(); next(); }}
               aria-label="الصورة التالية"
-              className="absolute end-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-blue-500/20 hover:text-blue-600 hover:scale-110 shadow-lg">
+              className="absolute end-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gold/20 hover:text-gold hover:scale-110 shadow-lg">
               <ChevronRight className="size-4" aria-hidden="true" />
             </button>
 
@@ -130,7 +130,7 @@ export default function GalleryCarousel({
                 <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
                   className={cn(
                     "h-1.5 rounded-full transition-all duration-300",
-                    i === current ? "w-6 bg-blue-500 shadow-md" : "w-1.5 bg-white/40 hover:bg-white/60",
+                    i === current ? "w-6 bg-gold shadow-md" : "w-1.5 bg-white/40 hover:bg-white/60",
                   )} aria-label={`صورة ${i + 1}`} />
               ))}
             </div>

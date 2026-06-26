@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const SHAPE_COLORS = ["#f59e0b", "#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#ec4899", "#f97316"];
+const SHAPE_COLORS = ["#D4AF37", "#ef4444", "#3b82f6", "#10b981", "#8b5cf6", "#ec4899", "#FFD700"];
 const SHAPES = ["■", "●", "▲", "★", "♦"];
-const RECT_COLORS = ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#FF8C00"];
+const RECT_COLORS = ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#D4AF37", "#DDA0DD", "#FF8C00"];
 
 type Variant = "shapes" | "rects";
 

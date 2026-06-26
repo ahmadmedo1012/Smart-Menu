@@ -43,7 +43,7 @@ const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }
   create: { label: "إنشاء", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
   update: { label: "تحديث", color: "text-gold", bg: "bg-gold-muted dark:bg-gold-muted" },
   delete: { label: "حذف", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
-  login: { label: "دخول", color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  login: { label: "دخول", color: "text-gold", bg: "bg-gold/10" },
   other: { label: "أخرى", color: "text-gray-600", bg: "bg-gray-50 dark:bg-gray-800/30" },
 }
 

@@ -65,12 +65,12 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
   const isAt = usage.current >= usage.max;
 
   return (
-    <div className={cn("rounded-2xl p-4 border transition-all", isAt ? "bg-red-50 dark:bg-red-950/20 border-red-200/30" : isNear ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200/30" : "bg-card/50 border-border/30")}>
+    <div className={cn("rounded-2xl p-4 border transition-all", isAt ? "bg-red-50 dark:bg-red-950/20 border-red-200/30" : isNear ? "bg-gold/[0.06] dark:bg-gold/10 border-gold/20" : "bg-card/50 border-border/30")}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-sm">
           <span className="font-medium">{usage.planName}</span>
           <span className="text-muted-foreground">ـ</span>
-          <span className={cn("tabular-nums", isAt ? "text-destructive font-bold" : isNear ? "text-amber-600" : "")}>
+          <span className={cn("tabular-nums", isAt ? "text-destructive font-bold" : isNear ? "text-gold" : "")}>
             {toArabicNumber(usage.current)} / {usage.max === 9999 ? "∞" : toArabicNumber(usage.max)}
           </span>
           <span className="text-muted-foreground text-xs">صنف</span>

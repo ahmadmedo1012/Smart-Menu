@@ -229,7 +229,7 @@ export default function OrderDialog({
 
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
               placeholder="ملاحظات إضافية للطلب..."
-              rows={2} className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-blue-500/20 resize-none" />
+              rows={2} className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20 resize-none" />
 
             {/* Total + WhatsApp */}
             <div className="space-y-3 pt-1">

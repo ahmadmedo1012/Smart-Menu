@@ -91,7 +91,7 @@ export default function ReferralCard({
             <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg shadow-gold/25 animate-float">
               <Gift className="size-7 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">
+            <h3 className="text-lg font-bold text-gold dark:text-gold">
               {restaurantName}
             </h3>
             <p className="text-sm text-gold/80 dark:text-gold/80 mt-1">
@@ -101,14 +101,14 @@ export default function ReferralCard({
 
           {/* ===== Referral Code Display ===== */}
           <div>
-            <label className="block text-xs font-medium text-blue-800/70 dark:text-blue-200/70 mb-2 text-center">
+            <label className="block text-xs font-medium text-gold/80 dark:text-gold/80 mb-2 text-center">
               كود الإحالة الخاص بك
             </label>
             <div
               className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-gold-muted/60 border-2 border-gold/50 dark:border-gold/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
               onClick={handleCopyLink}
             >
-              <span className="text-2xl font-bold tracking-[0.25em] text-blue-900 dark:text-blue-100 font-mono" dir="ltr">
+              <span className="text-2xl font-bold tracking-[0.25em] text-gold dark:text-gold font-mono" dir="ltr">
                 {referralCode}
               </span>
             </div>
@@ -127,7 +127,7 @@ export default function ReferralCard({
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-white/60 dark:bg-gold-muted/40 border border-gold/30 dark:border-gold/30 p-3 text-center">
               <Users className="size-4 mx-auto mb-1 text-gold dark:text-gold" />
-              <p className="text-lg font-bold text-blue-900 dark:text-blue-100 tabular-nums">
+              <p className="text-lg font-bold text-gold dark:text-gold tabular-nums">
                 {timesShared}
               </p>
               <p className="text-[10px] text-gold/60 dark:text-gold/60">
@@ -136,7 +136,7 @@ export default function ReferralCard({
             </div>
             <div className="rounded-xl bg-white/60 dark:bg-gold-muted/40 border border-gold/30 dark:border-gold/30 p-3 text-center">
               <TrendingUp className="size-4 mx-auto mb-1 text-gold dark:text-gold" />
-              <p className="text-lg font-bold text-blue-900 dark:text-blue-100 tabular-nums">
+              <p className="text-lg font-bold text-gold dark:text-gold tabular-nums">
                 {timesUsed}
               </p>
               <p className="text-[10px] text-gold/60 dark:text-gold/60">
@@ -147,7 +147,7 @@ export default function ReferralCard({
 
           {/* ===== Share Buttons ===== */}
           <div className="space-y-2">
-            <p className="text-xs font-medium text-blue-800/60 dark:text-blue-200/60 text-center">
+            <p className="text-xs font-medium text-gold/70 dark:text-gold/70 text-center">
               شارك عبر
             </p>
             <div className="flex gap-2">
@@ -187,7 +187,7 @@ export default function ReferralCard({
           {/* ===== Full referral link (copy fallback) ===== */}
           <div className="flex items-center gap-2">
             <div
-              className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-gold-muted/50 border border-gold/30 dark:border-gold/30 flex items-center px-3 text-[11px] text-blue-800 dark:text-blue-200 truncate font-mono"
+              className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-gold-muted/50 border border-gold/30 dark:border-gold/30 flex items-center px-3 text-[11px] text-gold/70 dark:text-gold/70 truncate font-mono"
               dir="ltr"
             >
               {referralUrl}

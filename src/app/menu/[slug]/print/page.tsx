@@ -41,8 +41,8 @@ export default async function PrintMenuPage({
             --print-foreground: oklch(0.2 0.02 85);
             --print-background: oklch(1 0 0);
             --print-primary: oklch(0.62 0.18 50);
-            --print-amber-500: oklch(0.62 0.14 55);
-            --print-amber-700: oklch(0.38 0.08 50);
+            --print-amber-500: oklch(0.72 0.14 65);
+            --print-amber-700: oklch(0.55 0.12 55);
             --print-muted: oklch(0.78 0.02 75);
             --print-border: oklch(0.85 0.03 70);
             --print-sub: oklch(0.5 0.025 70);

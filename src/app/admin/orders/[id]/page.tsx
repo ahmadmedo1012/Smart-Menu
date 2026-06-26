@@ -26,8 +26,8 @@ interface OrderDetail {
 
 const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
-  new: { label: "جديد", icon: Clock, color: "text-gold dark:text-gold", bg: "bg-blue-100 dark:bg-blue-900/30" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-gold dark:text-gold", bg: "bg-blue-100 dark:bg-blue-900/30" },
+  new: { label: "جديد", icon: Clock, color: "text-gold dark:text-gold", bg: "bg-gold/10" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-gold dark:text-gold", bg: "bg-gold/10" },
   ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
@@ -260,7 +260,7 @@ ${items}
           {order.items.map(oi => (
             <div key={oi.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors">
               <div className="flex items-center gap-3">
-                <span className="size-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-gold dark:text-gold text-xs font-bold flex items-center justify-center">
+                <span className="size-7 rounded-lg bg-gold/10 text-gold dark:text-gold text-xs font-bold flex items-center justify-center">
                   {toArabicNumber(oi.quantity)}
                 </span>
                 <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>

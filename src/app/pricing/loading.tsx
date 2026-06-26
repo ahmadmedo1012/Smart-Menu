@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 
 export default function PricingLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-amber-50/20 to-background dark:via-amber-950/10">
+    <div className="min-h-screen bg-gradient-to-b from-background via-gold/[0.04] to-background dark:via-gold/[0.06]">
       <Header />
 
       {/* Hero */}
