@@ -8,7 +8,7 @@ interface PhoneMockupProps {
   className?: string;
 }
 
-/** Premium tilted phone mockup — black/gold, ~40° tilt, editorial */
+/** Premium tilted phone mockup — black frame, gold accents, cinematic video */
 export default function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
@@ -23,19 +23,19 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   }, []);
 
   const frame = (
-    <div className={cn("relative mx-auto max-w-[280px] w-[80vw]", className)}>
-      {/* Ambient gold glow */}
+    <div className={cn("relative mx-auto max-w-[280px] w-[75vw] lg:w-[80vw]", className)}>
+      {/* Ambient glow — softer, wider */}
       <div
-        className="absolute -inset-12 rounded-full pointer-events-none"
+        className="absolute -inset-16 rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at 50% 100%, oklch(0.72 0.14 75 / 0.1) 0%, transparent 70%)",
-          filter: "blur(60px)",
+          background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.14 75 / 0.08) 0%, transparent 70%)",
+          filter: "blur(80px)",
         }}
       />
 
-      {/* Bezel — premium metallic gradient */}
+      {/* Bezel — dark metallic */}
       <div
-        className="relative w-full rounded-[3.2rem] p-[4px]"
+        className="relative w-full rounded-[3rem] p-[3px]"
         style={{
           background: "var(--frame-gradient)",
           boxShadow: "var(--frame-shadow-premium)",
@@ -43,33 +43,34 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
       >
         {/* Bezel highlight */}
         <div
-          className="absolute inset-0 rounded-[3.2rem] pointer-events-none z-10"
+          className="absolute inset-0 rounded-[3rem] pointer-events-none z-10"
           style={{ background: "var(--frame-highlight)" }}
         />
 
-        {/* Screen — portrait content */}
-        <div className="relative w-full aspect-[9/19.5] rounded-[2.9rem] bg-black overflow-hidden">
+        {/* Screen */}
+        <div className="relative w-full aspect-[9/19.5] rounded-[2.8rem] bg-black overflow-hidden">
           {/* Glass reflection */}
           <div
-            className="absolute inset-0 z-20 pointer-events-none rounded-[2.9rem]"
+            className="absolute inset-0 z-20 pointer-events-none rounded-[2.8rem]"
             style={{
-              background: "linear-gradient(135deg, oklch(1 0 0 / 0.06) 0%, transparent 40%, transparent 60%, oklch(1 0 0 / 0.015) 100%)",
+              background:
+                "linear-gradient(135deg, oklch(1 0 0 / 0.05) 0%, transparent 40%, transparent 60%, oklch(1 0 0 / 0.015) 100%)",
             }}
           />
           <div
-            className="absolute inset-0 z-20 pointer-events-none rounded-[2.9rem]"
-            style={{ boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 0.06)" }}
+            className="absolute inset-0 z-20 pointer-events-none rounded-[2.8rem]"
+            style={{ boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 0.05)" }}
           />
 
           {/* Dynamic Island */}
-          <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[100px] h-[24px] bg-black rounded-full z-30 border border-white/[0.04] shadow-sm">
+          <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[100px] h-[24px] bg-black rounded-full z-30 border border-white/[0.03] shadow-sm">
             <div className="absolute end-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gold/50" />
           </div>
 
-          {/* Screen content — elegant menu */}
+          {/* Menu screen content (behind video) */}
           <ScreenContent />
 
-          {/* Video overlay — world-class menu demo */}
+          {/* Hero video overlay */}
           <video
             ref={videoRef}
             src="/hero-intro.mp4"
@@ -81,29 +82,33 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             preload="auto"
             onCanPlay={handleCanPlay}
             onError={handleError}
-            className="absolute inset-0 w-full h-full transition-opacity duration-700 ease-out z-10"
+            className="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-out z-10"
             style={{ objectFit: "contain", opacity: videoLoaded ? 1 : 0 }}
           />
-          {/* Fallback poster when video unavailable */}
+
+          {/* Fallback poster */}
           {(!videoLoaded || videoError) && (
             <img
               src="/hero-poster.jpg"
               alt=""
-              className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500 z-4"
-              style={{ opacity: videoError ? 1 : 0.6 }}
+              className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-4"
+              style={{ opacity: videoError ? 1 : 0.5 }}
               loading="lazy"
             />
           )}
 
-          {/* Bottom edge reflection */}
+          {/* Bottom reflection */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-10 z-20 pointer-events-none rounded-[2.9rem]"
-            style={{ background: "linear-gradient(to top, oklch(1 0 0 / 0.03) 0%, transparent 100%)" }}
+            className="absolute bottom-0 left-0 right-0 h-12 z-20 pointer-events-none rounded-[2.8rem]"
+            style={{
+              background:
+                "linear-gradient(to top, oklch(1 0 0 / 0.03) 0%, transparent 100%)",
+            }}
           />
         </div>
 
         {/* Inner bezel rim */}
-        <div className="absolute inset-[4px] rounded-[2.9rem] ring-1 ring-inset ring-white/[0.07] pointer-events-none z-20" />
+        <div className="absolute inset-[3px] rounded-[2.8rem] ring-1 ring-inset ring-white/[0.06] pointer-events-none z-20" />
       </div>
     </div>
   );
@@ -111,29 +116,35 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   if (!tilt) return frame;
 
   return (
-    <div className={cn("relative w-full max-w-md mx-auto", tilt && "md:scale-105 origin-center animate-float-gentle")}>
+    <div
+      className={cn(
+        "relative w-full max-w-md mx-auto",
+        tilt && "md:scale-105 origin-center"
+      )}
+    >
       <TiltWrapper>{frame}</TiltWrapper>
     </div>
   );
 }
 
-/** 3D tilt wrapper — ~15° left tilt, refined perspective, cinematic shadow */
+/** 3D tilt wrapper — ~12° left tilt, refined perspective */
 function TiltWrapper({ children }: { children: ReactNode }) {
   return (
-    <div className="relative" style={{ perspective: "1400px" }}>
+    <div className="relative" style={{ perspective: "1200px" }}>
       <div
-        className="relative transition-transform duration-700 ease-out"
+        className="relative transition-transform duration-700 ease-out animate-float-gentle"
         style={{
-          transform: "perspective(1400px) rotateY(-15deg) rotateX(4deg)",
+          transform: "perspective(1200px) rotateY(-12deg) rotateX(3deg)",
           transformStyle: "preserve-3d",
         }}
       >
-        {/* Cast shadow — wider, softer */}
+        {/* Cast shadow — soft, wide */}
         <div
-          className="absolute -bottom-1 left-[10%] right-[20%] h-10 rounded-[50%] pointer-events-none"
+          className="absolute -bottom-2 left-[10%] right-[25%] h-12 rounded-[50%] pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse, oklch(0 0 0 / 0.2) 0%, transparent 70%)",
-            filter: "blur(12px)",
+            background:
+              "radial-gradient(ellipse, oklch(0 0 0 / 0.15) 0%, transparent 70%)",
+            filter: "blur(14px)",
             transform: "translateZ(-30px)",
           }}
         />
@@ -147,7 +158,6 @@ function TiltWrapper({ children }: { children: ReactNode }) {
 function ScreenContent() {
   return (
     <div className="absolute inset-0 z-10 bg-black overflow-hidden">
-      {/* Subtle gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" />
 
       {/* Status bar */}
@@ -202,7 +212,7 @@ function ScreenContent() {
                 "h-7 rounded-full flex items-center justify-center px-3 text-[9px] font-semibold transition-colors",
                 label === "مشاوي"
                   ? "bg-gold text-black"
-                  : "bg-white/5 text-white/50 border border-white/5",
+                  : "bg-white/5 text-white/50 border border-white/5"
               )}
             >
               {label}

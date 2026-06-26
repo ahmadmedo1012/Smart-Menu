@@ -5,7 +5,8 @@ import { Header } from "@/components/layout/Header";
 import { fetchPublicStats, type PublicStats } from "./landing-data";
 import HeroSection from "./HeroSection";
 import StatsSection from "./StatsSection";
-import FeaturesSection from "./FeaturesSection";
+import ScrollStorytelling from "./ScrollStorytelling";
+import DisplayCards from "./DisplayCards";
 import HowItWorksSection from "./HowItWorksSection";
 import PartnersSection from "./PartnersSection";
 import TestimonialsSection from "./TestimonialsSection";
@@ -24,7 +25,8 @@ export default function HomePage() {
       <Header />
       <HeroSection stats={stats} />
       {stats && <StatsSection stats={stats} />}
-      <FeaturesSection />
+      <ScrollStorytelling />
+      <DisplayCards />
       <HowItWorksSection />
       <PartnersSection />
       <TestimonialsSection />
