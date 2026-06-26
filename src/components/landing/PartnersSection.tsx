@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { ArrowLeft, Store } from "lucide-react";
 import { PARTNERS } from "./landing-data";
 import { cn } from "@/lib/utils";
-import Reveal from "./Reveal";
 
 export default function PartnersSection() {
   const [activePartner, setActivePartner] = useState(0);
@@ -14,11 +14,22 @@ export default function PartnersSection() {
   return (
     <section className="py-16">
       <div className="max-w-6xl mx-auto px-4">
-        <Reveal animation="animate-fade-in" className="text-center mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] as const }}
+          className="text-center mb-8"
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-3">جرب منيو تجريبي</h2>
           <p className="text-lg text-muted-foreground">اختر مطعماً وشاهد كيف يعمل</p>
-        </Reveal>
-        <Reveal animation="animate-fade-in">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.1, ease: [0.19, 1, 0.22, 1] as const }}
+        >
           <div className="flex gap-2 justify-center mb-10 flex-wrap">
             {PARTNERS.map((p, i) => (
               <button
@@ -36,8 +47,8 @@ export default function PartnersSection() {
               </button>
             ))}
           </div>
-        </Reveal>
-        <Reveal key={activePartner} animation="animate-fade-in">
+        </motion.div>
+        <motion.div key={activePartner} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] as const }}>
           <Link
             href={`/menu/${PARTNERS[activePartner].slug}`}
             className="block max-w-md mx-auto rounded-2xl border border-border/20 bg-card/40 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-gold-muted/60 hover:shadow-lg text-center"
@@ -52,7 +63,7 @@ export default function PartnersSection() {
               <ArrowLeft className="size-4" />
             </div>
           </Link>
-        </Reveal>
+        </motion.div>
       </div>
     </section>
   );

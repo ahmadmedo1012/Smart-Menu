@@ -7,7 +7,6 @@ import HeroSection from "./HeroSection";
 import StatsSection from "./StatsSection";
 import ScrollStorytelling from "./ScrollStorytelling";
 import DisplayCards from "./DisplayCards";
-import HowItWorksSection from "./HowItWorksSection";
 import PartnersSection from "./PartnersSection";
 import TestimonialsSection from "./TestimonialsSection";
 import PricingSection from "./PricingSection";
@@ -27,7 +26,6 @@ export default function HomePage() {
       {stats && <StatsSection stats={stats} />}
       <ScrollStorytelling />
       <DisplayCards />
-      <HowItWorksSection />
       <PartnersSection />
       <TestimonialsSection />
       <PricingSection />

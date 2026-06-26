@@ -1,89 +1,70 @@
 "use client";
 
-import { Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, Store, Users, Star, TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { QrCode, Globe, Shield, TrendingUp } from "lucide-react";
 
-interface DisplayCard {
-  icon: typeof Smartphone;
-  title: string;
-  desc: string;
-  variant: "glass" | "gradient" | "border" | "minimal";
-}
-
-const CARDS: DisplayCard[] = [
-  {
-    icon: Smartphone,
-    title: "منيو رقمي تفاعلي",
-    desc: "قائمة طعام رقمية بصور عالية الجودة. محدثة لحظياً بدون طباعة. تشتغل على كل الأجهزة.",
-    variant: "glass",
-  },
-  {
-    icon: MessageCircle,
-    title: "طلب عبر واتساب",
-    desc: "يصل الطلب مباشرة إلى واتساب المطعم مع تفاصيل كاملة جاهزة للتحضير.",
-    variant: "gradient",
-  },
+/** Four cards — each with a unique visual identity. No icon+text repeat pattern. */
+const CARDS = [
   {
     icon: QrCode,
     title: "QR كود مخصص",
-    desc: "رمز QR خاص لمطعمك للطباعة على الطاولات والفواتير والمواد الدعائية.",
-    variant: "border",
+    desc: "كل طاولة QR خاص. الزبون يمسح ويطلب من جواله بدون انتظار.",
+    tag: "ابدأ في دقائق",
+    // "glass" variant — transparent, blur, gold border accent
+    treatment: "glass" as const,
   },
   {
-    icon: BarChart3,
-    title: "إحصائيات وتحليلات",
-    desc: "تقارير مفصلة عن الطلبات والأصناف الأكثر طلباً وسلوك الزبائن.",
-    variant: "minimal",
-  },
-  {
-    icon: Gift,
-    title: "برنامج ولاء",
-    desc: "نظام نقاط ومكافآت يحفز الزبائن على العودة ويزيد ارتباطهم بمطعمك.",
-    variant: "glass",
+    icon: Globe,
+    title: "يعمل على كل الشاشات",
+    desc: "تجربة مثالية على الجوال، التابلت، والحاسوب — بدون تطبيق. تصميم متجاوب بالكامل.",
+    tag: "responsive",
+    treatment: "editorial" as const,
   },
   {
     icon: Shield,
     title: "تحكم كامل",
-    desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات.",
-    variant: "gradient",
-  },
-  {
-    icon: Store,
-    title: "إدارة مطاعم متعددة",
-    desc: "لوحة تحكم واحدة تدير كل فروع مطعمك — كل فرع بمنيو مستقل.",
-    variant: "border",
+    desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات. مطاعم متعددة بحساب واحد.",
+    tag: "dashboard",
+    treatment: "minimal" as const,
   },
   {
     icon: TrendingUp,
     title: "نمو المبيعات",
-    desc: "زيادة المبيعات عبر الطلب الرقمي السريع وتجربة مستخدم مريحة.",
-    variant: "minimal",
+    desc: "زيادة المبيعات عبر الطلب الرقمي السريع وتجربة مستخدم مريحة. نظام ولاء يضمن عودة الزبائن.",
+    tag: "نتائج ملموسة",
+    treatment: "gold" as const,
   },
 ];
 
-/** Premium display cards with staggered reveal — inspired by Codehagen */
+/** Premium display cards — staggered reveal, 4 unique visual treatments */
 export default function DisplayCards() {
   return (
-    <section className="relative py-32 overflow-hidden" dir="rtl">
+    <section className="relative py-32 md:py-40 overflow-hidden" dir="rtl">
       {/* Subtle texture */}
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none" 
-        style={{ backgroundImage: "radial-gradient(circle, oklch(0 0 0 / 0.6) 0.5px, transparent 0.5px)", backgroundSize: "20px 20px" }} 
+      <div
+        className="absolute inset-0 opacity-[0.012] pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, oklch(0 0 0 / 0.6) 0.5px, transparent 0.5px)",
+          backgroundSize: "20px 20px",
+        }}
       />
 
       <div className="relative max-w-6xl mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 md:mb-20">
           <span className="inline-block px-3 py-1 text-[11px] font-semibold tracking-widest uppercase mb-5 text-gold border border-gold/15 rounded-full">
-            مميزات متقدمة
+            أربع أدوات، منصة واحدة
           </span>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.05] text-balance">
-            أدوات احترافية<br />
-            <span className="text-gold">لمطعمك الرقمي</span>
+            كل ما تحتاجه
+            <br />
+            <span className="text-gold">لإدارة مطعمك رقمياً</span>
           </h2>
         </div>
 
-        {/* Cards grid — 4 columns on desktop, 2 on tablet, 1 on mobile */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        {/* Cards — 2x2 grid, unique treatments */}
+        <div className="grid sm:grid-cols-2 gap-5 md:gap-6 max-w-4xl mx-auto">
           {CARDS.map((card, i) => (
             <DisplayCardItem key={i} card={card} index={i} />
           ))}
@@ -93,54 +74,73 @@ export default function DisplayCards() {
   );
 }
 
-function DisplayCardItem({ card, index }: { card: DisplayCard; index: number }) {
-  const variants: Record<string, string> = {
-    glass:
-      "bg-glass-bg backdrop-blur-sm border border-glass-border shadow-glass hover:shadow-glass-lg hover:border-gold/30",
-    gradient:
-      "bg-gradient-to-br from-gold/5 via-gold/[0.02] to-transparent border border-gold/10 hover:border-gold/30 shadow-sm hover:shadow-lg hover:shadow-gold/5",
-    border:
-      "bg-card/20 border-2 border-border/30 hover:border-gold/30 shadow-sm hover:shadow-md",
+const itemVariants = {
+  hidden: { opacity: 0, y: 60 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1.2, ease: [0.19, 1, 0.22, 1] as const },
+  },
+};
+
+function DisplayCardItem({
+  card,
+  index,
+}: {
+  card: (typeof CARDS)[number];
+  index: number;
+}) {
+  const treatments = {
+    glass: "bg-glass-bg backdrop-blur-sm border border-glass-border shadow-glass hover:shadow-glass-lg hover:border-gold/30",
+    editorial:
+      "bg-card border-2 border-border/30 shadow-sm hover:shadow-lg hover:border-gold/30",
     minimal:
       "bg-transparent border border-transparent hover:border-border/40 shadow-none hover:shadow-sm",
+    gold: "bg-gradient-to-br from-gold/10 via-gold/[0.04] to-transparent border border-gold/20 shadow-md hover:shadow-xl hover:shadow-gold/10 hover:border-gold/40",
   };
 
   return (
-    <div
-      className={cn(
-        "group relative rounded-2xl p-6 transition-all duration-700 ease-out",
-        "hover:-translate-y-1.5",
-        "opacity-0 animate-fade-in",
-        variants[card.variant],
-      )}
-      style={{
-        animationDelay: `${60 * (index + 1)}ms`,
-        animationFillMode: "forwards",
-      }}
+    <motion.div
+      className="relative"
+      variants={itemVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ delay: index * 0.25 }}
     >
-      {/* Card number */}
-      <span className="absolute start-3 top-3 text-[10px] font-bold text-muted-foreground/20 select-none">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-
-      {/* Icon container — varies by variant */}
       <div
-        className={cn(
-          "size-10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-500 group-hover:scale-110",
-          card.variant === "gradient"
-            ? "bg-gold text-gold-foreground"
-            : "bg-gold-muted text-gold",
-        )}
+        className={`group relative rounded-2xl p-7 md:p-8 transition-all duration-700 ease-out hover:-translate-y-1 ${treatments[card.treatment]}`}
       >
-        <card.icon className="size-5" />
+        {/* Card number — corner */}
+        <span className="absolute start-3 top-3 text-[10px] font-bold text-muted-foreground/15 select-none">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+
+        {/* Icon */}
+        <div
+          className={`size-11 rounded-xl flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-110 ${
+            card.treatment === "gold"
+              ? "bg-gold text-gold-foreground"
+              : "bg-gold-muted text-gold"
+          }`}
+        >
+          <card.icon className="size-5" />
+        </div>
+
+        {/* Tag */}
+        <div className="text-[10px] font-semibold tracking-widest uppercase text-gold/60 mb-2">
+          {card.tag}
+        </div>
+
+        {/* Content */}
+        <h3 className="text-base font-bold mb-2 leading-snug">{card.title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
+
+        {/* Hover accent line — glass and gold treatments */}
+        {card.treatment !== "minimal" && (
+          <div className="absolute bottom-0 start-4 end-4 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
+        )}
       </div>
-
-      {/* Content */}
-      <h3 className="text-sm font-bold mb-2 leading-snug">{card.title}</h3>
-      <p className="text-xs text-muted-foreground leading-relaxed">{card.desc}</p>
-
-      {/* Hover accent line */}
-      <div className="absolute bottom-0 start-4 end-4 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
-    </div>
+    </motion.div>
   );
 }

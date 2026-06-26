@@ -1,6 +1,7 @@
 "use client";
 
-import { type ReactNode, useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface PhoneMockupProps {
@@ -8,7 +9,8 @@ interface PhoneMockupProps {
   className?: string;
 }
 
-/** Premium tilted phone mockup — black frame, gold accents, cinematic video */
+/** Premium tilted phone mockup — black frame, gold accents, cinematic video.
+ *  No poster flash: ScreenContent is always base layer, video crossfades on top. */
 export default function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
@@ -24,9 +26,11 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
 
   const frame = (
     <div className={cn("relative mx-auto max-w-[280px] w-[75vw] lg:w-[80vw]", className)}>
-      {/* Ambient glow — softer, wider */}
-      <div
+      {/* Ambient glow — soft, wide */}
+      <motion.div
         className="absolute -inset-16 rounded-full pointer-events-none"
+        animate={{ opacity: [0.4, 0.7, 0.4] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         style={{
           background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.14 75 / 0.08) 0%, transparent 70%)",
           filter: "blur(80px)",
@@ -67,14 +71,13 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             <div className="absolute end-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gold/50" />
           </div>
 
-          {/* Menu screen content (behind video) */}
+          {/* Static screen content — always visible */}
           <ScreenContent />
 
-          {/* Hero video overlay */}
-          <video
+          {/* Hero video — fades in over content once loaded. No poster flash. */}
+          <motion.video
             ref={videoRef}
             src="/hero-intro.mp4"
-            poster="/hero-poster.jpg"
             autoPlay
             loop
             muted
@@ -82,17 +85,19 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             preload="auto"
             onCanPlay={handleCanPlay}
             onError={handleError}
-            className="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-out z-10"
-            style={{ objectFit: "contain", opacity: videoLoaded ? 1 : 0 }}
+            className="absolute inset-0 w-full h-full z-15"
+            style={{ objectFit: "contain" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: videoLoaded ? 1 : 0 }}
+            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] as const }}
           />
 
-          {/* Fallback poster */}
-          {(!videoLoaded || videoError) && (
+          {/* Fallback poster — only if video errored */}
+          {videoError && (
             <img
               src="/hero-poster.jpg"
               alt=""
-              className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700 z-4"
-              style={{ opacity: videoError ? 1 : 0.5 }}
+              className="absolute inset-0 w-full h-full object-contain z-15"
               loading="lazy"
             />
           )}
@@ -116,40 +121,39 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   if (!tilt) return frame;
 
   return (
-    <div
-      className={cn(
-        "relative w-full max-w-md mx-auto",
-        tilt && "md:scale-105 origin-center"
-      )}
-    >
+    <div className={cn("relative w-full mx-auto", tilt && "md:scale-105 origin-center")}>
       <TiltWrapper>{frame}</TiltWrapper>
     </div>
   );
 }
 
-/** 3D tilt wrapper — ~12° left tilt, refined perspective */
+/** 3D tilt wrapper — ~15° left tilt, refined perspective, framer-motion float */
 function TiltWrapper({ children }: { children: ReactNode }) {
   return (
-    <div className="relative" style={{ perspective: "1200px" }}>
-      <div
-        className="relative transition-transform duration-700 ease-out animate-float-gentle"
-        style={{
-          transform: "perspective(1200px) rotateY(-12deg) rotateX(3deg)",
-          transformStyle: "preserve-3d",
+    <div className="relative" style={{ perspective: "1000px" }}>
+      <motion.div
+        className="relative"
+        style={{ transformStyle: "preserve-3d" }}
+        initial={{ transform: "perspective(1000px) rotateY(-15deg) rotateX(4deg)" }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{
+          y: { duration: 7, repeat: Infinity, ease: "easeInOut" },
         }}
       >
         {/* Cast shadow — soft, wide */}
-        <div
-          className="absolute -bottom-2 left-[10%] right-[25%] h-12 rounded-[50%] pointer-events-none"
+        <motion.div
+          className="absolute -bottom-1 left-[10%] right-[25%] h-16 rounded-[50%] pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse, oklch(0 0 0 / 0.15) 0%, transparent 70%)",
-            filter: "blur(14px)",
-            transform: "translateZ(-30px)",
+              "radial-gradient(ellipse, oklch(0 0 0 / 0.18) 0%, transparent 70%)",
+            filter: "blur(16px)",
+            transform: "translateZ(-40px)",
           }}
+          animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.05, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
         />
         {children}
-      </div>
+      </motion.div>
     </div>
   );
 }
