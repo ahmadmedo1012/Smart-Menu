@@ -149,7 +149,7 @@ ${referralUrl}
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-2xl">
         {/* Confetti header */}
-        <div className="relative h-36 bg-gradient-to-br from-gold via-gold to-gold/80 overflow-hidden">
+        <div className="relative h-36 bg-gradient-to-br from-orange via-orange to-orange/80 overflow-hidden">
           <Confetti active variant="rects" count={20} loop className="absolute inset-0 pointer-events-none overflow-hidden" />
 
           {/* Decorative glow */}
@@ -189,7 +189,7 @@ ${referralUrl}
             <>
               {/* CTA */}
               <div className="text-center">
-                <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg shadow-gold/25">
+                <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
                   <Gift className="size-7 text-white" />
                 </div>
                 <p className="text-base font-semibold mb-1">
@@ -272,7 +272,7 @@ ${referralUrl}
                     type="button"
                     onClick={handleCopyLink}
                     aria-label="نسخ رابط الإحالة"
-                    className="size-11 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center text-white shadow-lg shadow-gold/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+                    className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
                   >
                     {copied ? (
                       <Check className="size-4" />
@@ -296,7 +296,7 @@ ${referralUrl}
                 <button
                   type="button"
                   onClick={handleShareInstagram}
-                  className="h-12 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-gold/25 hover:shadow-xl hover:shadow-gold/30 active:scale-[0.98] transition-all cursor-pointer"
+                  className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <Camera className="size-5" />
                   إنستغرام

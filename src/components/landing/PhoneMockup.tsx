@@ -11,7 +11,7 @@ interface PhoneMockupProps {
 
 const CINEMATIC_EASE = [0.16, 1, 0.2, 1] as const;
 
-/** Premium tilted phone mockup — black frame, gold accents, cinematc video.
+/** Premium tilted phone mockup — black frame, orange accents, cinematic video.
  *  Double-bezel architecture, Dynamic Island, restaurant menu screen.
  *  Static content always base layer, video crossfades on top — no poster flash. */
 export function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
@@ -35,12 +35,12 @@ export function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
         animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.04, 1] }}
         transition={{ duration: 6, repeat: Infinity, ease: CINEMATIC_EASE }}
         style={{
-          background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.16 55 / 0.08) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse at 50% 80%, oklch(0.68 0.19 45 / 0.08) 0%, transparent 70%)",
           filter: "blur(80px)",
         }}
       />
 
-      {/* Outer shell — double-bezel gold architecture */}
+      {/* Outer shell — double-bezel orange architecture */}
       <div
         className="relative w-full rounded-[3rem] p-[3px]"
         style={{
@@ -73,7 +73,7 @@ export function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
 
           {/* Dynamic Island — camera dot */}
           <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-black rounded-full z-30 border border-white/[0.03] shadow-sm">
-            <div className="absolute end-[18px] top-1/2 -translate-y-1/2 size-[7px] rounded-full bg-gold/50" />
+            <div className="absolute end-[18px] top-1/2 -translate-y-1/2 size-[7px] rounded-full bg-orange/50" />
           </div>
 
           {/* Static screen content — always visible */}
@@ -157,7 +157,7 @@ function TiltWrapper({ children }: { children: ReactNode }) {
   );
 }
 
-/** Dark restaurant menu screen — typographic hierarchy, gold accents, Arabic */
+/** Dark restaurant menu screen — orange accents, Arabic */
 function ScreenContent() {
   return (
     <div className="absolute inset-0 z-10 bg-black overflow-hidden">
@@ -182,7 +182,7 @@ function ScreenContent() {
       {/* Restaurant header */}
       <div className="relative z-10 px-5 mt-3">
         <div className="flex items-center gap-3 mb-4">
-          <div className="size-10 rounded-2xl bg-white/10 flex items-center justify-center text-gold text-sm font-bold border border-white/10">
+          <div className="size-10 rounded-2xl bg-white/10 flex items-center justify-center text-orange text-sm font-bold border border-white/10">
             م
           </div>
           <div>
@@ -214,7 +214,7 @@ function ScreenContent() {
               className={cn(
                 "h-7 rounded-full flex items-center justify-center px-3 text-[9px] font-semibold transition-colors",
                 label === "مشاوي"
-                  ? "bg-gold text-black"
+                  ? "bg-orange text-black"
                   : "bg-white/5 text-white/50 border border-white/5"
               )}
             >
@@ -235,7 +235,7 @@ function ScreenContent() {
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-semibold text-white">{item.name}</span>
-                <span className="text-[9px] font-medium text-gold/80">{item.price} د.ل</span>
+                <span className="text-[9px] font-medium text-orange/80">{item.price} د.ل</span>
               </div>
               <div className="text-[8px] text-white/40 truncate mt-px">{item.desc}</div>
             </div>
@@ -245,7 +245,7 @@ function ScreenContent() {
 
       {/* Bottom CTA */}
       <div className="absolute bottom-6 left-4 right-4 z-10">
-        <div className="h-11 rounded-full bg-gold flex items-center justify-center text-black text-[11px] font-semibold shadow-xl">
+        <div className="h-11 rounded-full bg-orange flex items-center justify-center text-black text-[11px] font-semibold shadow-xl">
           ابدأ الطلب
         </div>
       </div>

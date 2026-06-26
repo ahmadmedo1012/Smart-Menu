@@ -38,11 +38,11 @@ export function ThemeToggle({ className }: { className?: string }) {
           "bg-card/10 dark:bg-card/10",
           "backdrop-blur-xl",
           "border border-white/20 dark:border-white/10",
-          "shadow-lg shadow-gold/10 dark:shadow-gold/20",
+          "shadow-lg shadow-orange/10 dark:shadow-orange/20",
           "transition-all duration-300",
           "hover:bg-white/20 dark:hover:bg-black/20",
           "hover:border-white/30 dark:hover:border-white/20",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
           "active:scale-95",
           "cursor-pointer",
           "flex items-center justify-center",
@@ -52,9 +52,9 @@ export function ThemeToggle({ className }: { className?: string }) {
         <div
           className={cn(
             "absolute inset-0 rounded-xl",
-            "bg-gradient-to-br from-gold/20 via-transparent to-gold/30",
+            "bg-gradient-to-br from-orange/20 via-transparent to-orange/30",
             "opacity-0 hover:opacity-100 transition-opacity duration-300",
-            "dark:from-gold/30 dark:via-transparent dark:to-gold/40"
+            "dark:from-orange/30 dark:via-transparent dark:to-orange/40"
           )}
         />
 
@@ -66,7 +66,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-90 scale-0 opacity-0 absolute"
           )}
         >
-          <Sun className="size-full text-gold" />
+          <Sun className="size-full text-orange" />
         </span>
 
         <span
@@ -77,7 +77,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               : "rotate-0 scale-100 opacity-100"
           )}
         >
-          <Moon className="size-full text-gold" />
+          <Moon className="size-full text-orange" />
         </span>
 
         <div

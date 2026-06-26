@@ -25,21 +25,21 @@ type Plan = {
 const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
 const PLAN_GRADIENTS = [
   "from-gray-400 to-gray-500",
-  "from-gold to-gold/80",
-  "from-gold via-yellow-500 to-gold/80",
+  "from-orange to-orange/80",
+  "from-orange via-yellow-500 to-orange/80",
   "from-gray-600 to-gray-800",
 ];
 const PLAN_GLOWS = [
   "shadow-gray-400/20",
-  "shadow-gold/25",
-  "shadow-gold/30",
+  "shadow-orange/25",
+  "shadow-orange/30",
   "shadow-gray-600/25",
 ];
 const PLAN_BADGES = ["", "الأكثر شعبية", "الأفضل قيمة", "للشركات الكبرى"];
 const PLAN_BADGE_COLORS = [
   "",
-  "bg-gold text-gold-foreground",
-  "bg-gradient-to-r from-gold to-gold/80 text-gold-foreground",
+  "bg-orange text-orange-foreground",
+  "bg-gradient-to-r from-orange to-orange/80 text-orange-foreground",
   "bg-gradient-to-r from-gray-600 to-gray-800 text-white",
 ];
 
@@ -64,8 +64,8 @@ function PlanCard({
       className={cn(
         "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
         isPopular
-          ? "border-gold/40 bg-gradient-to-b from-gold-muted/60 to-white shadow-2xl shadow-gold/20 dark:from-gold-muted/20 dark:to-card dark:border-gold/30 hover:shadow-[0_0_30px_var(--shadow-glow)]"
-          : "border-border/50 bg-card/50 hover:border-gold-muted/60 hover:shadow-xl hover:shadow-gold/10 hover:bg-card/80",
+          ? "border-orange/40 bg-gradient-to-b from-orange-muted/60 to-white shadow-2xl shadow-orange/20 dark:from-orange-muted/20 dark:to-card dark:border-orange/30 hover:shadow-[0_0_30px_var(--shadow-glow)]"
+          : "border-border/50 bg-card/50 hover:border-orange-muted/60 hover:shadow-xl hover:shadow-orange/10 hover:bg-card/80",
       )}
     >
       {/* Badge */}
@@ -88,7 +88,7 @@ function PlanCard({
 
       {/* Subtle bottom gradient glow for popular card */}
       {isPopular && (
-        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-gold/5 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-orange/5 to-transparent pointer-events-none" />
       )}
 
       <div className="relative z-10 flex flex-col flex-1">
@@ -121,7 +121,7 @@ function PlanCard({
             </div>
           )}
           {yearly && !isFree && (
-            <p className="text-xs text-gold mt-1">وفر شهرين عند الاشتراك السنوي</p>
+            <p className="text-xs text-orange mt-1">وفر شهرين عند الاشتراك السنوي</p>
           )}
         </div>
 
@@ -144,8 +144,8 @@ function PlanCard({
           {plan.features.map((feature: string, i: number) => (
             <div key={i} className="group/feature flex items-start gap-3 text-sm transition-all duration-[400ms] ease-[var(--ease-out-quart)] hover:translate-x-1">
               <div className="relative shrink-0 mt-0.5">
-                <Check className="size-4 text-gold transition-all duration-300 group-hover/feature:scale-110 group-hover/feature:text-gold/80" />
-                <span className="absolute inset-0 size-4 rounded-full bg-gold/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
+                <Check className="size-4 text-orange transition-all duration-300 group-hover/feature:scale-110 group-hover/feature:text-orange/80" />
+                <span className="absolute inset-0 size-4 rounded-full bg-orange/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
               </div>
               <span className="group-hover/feature:text-foreground/90 transition-colors duration-300">{feature}</span>
             </div>
@@ -158,7 +158,7 @@ function PlanCard({
             className={cn(
               "w-full h-12 rounded-xl text-base font-semibold transition-all duration-300",
               isPopular
-                ? "bg-gold text-gold-foreground hover:opacity-90 shadow-lg shadow-gold/25 hover:shadow-xl hover:shadow-gold/30"
+                ? "bg-orange text-orange-foreground hover:opacity-90 shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30"
                 : "",
             )}
             variant={isPopular ? "default" : "outline"}
@@ -190,17 +190,17 @@ export default function PricingPage() {
   useEffect(() => { loadPlans(); }, [loadPlans]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-gold-muted/30 to-background dark:via-gold-muted/15">
+    <div className="min-h-screen bg-gradient-to-b from-background via-orange-muted/30 to-background dark:via-orange-muted/15">
       <Header />
 
       {/* Hero */}
       <section className="relative py-20 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-gold/5 via-transparent to-transparent" />
-        <div className="absolute top-20 left-10 size-64 rounded-full bg-gold-muted blur-3xl" />
-        <div className="absolute bottom-20 right-10 size-80 rounded-full bg-gold/5 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange/5 via-transparent to-transparent" />
+        <div className="absolute top-20 left-10 size-64 rounded-full bg-orange-muted blur-3xl" />
+        <div className="absolute bottom-20 right-10 size-80 rounded-full bg-orange/5 blur-3xl" />
 
         <div className="relative z-10 max-w-3xl mx-auto px-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-muted text-gold text-sm mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-muted text-orange text-sm mb-6">
             <Sparkles className="size-4" />
             خطط تناسب جميع الأحجام
           </div>
@@ -232,7 +232,7 @@ export default function PricingPage() {
               className="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
             >
               سنوي
-              <span className="mr-1.5 text-xs text-gold font-bold">وفر شهرين</span>
+              <span className="mr-1.5 text-xs text-orange font-bold">وفر شهرين</span>
             </button>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function PricingPage() {
         <div className="max-w-6xl mx-auto px-4">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="size-8 animate-spin text-gold" />
+              <Loader2 className="size-8 animate-spin text-orange" />
             </div>
           ) : error ? (
             <div className="flex flex-col items-center gap-4 py-20 text-muted-foreground">
@@ -297,9 +297,9 @@ export default function PricingPage() {
       <section className="pb-24">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="glass-strong rounded-3xl p-12 relative overflow-hidden transition-all duration-[500ms] ease-[var(--ease-out-quart)] hover:-translate-y-0.5 hover:shadow-xl">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-gold to-transparent rounded-full" />
-            <div className="absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br from-gold/10 to-transparent blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-gradient-to-tr from-gold/10 to-transparent blur-2xl pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-orange to-transparent rounded-full" />
+            <div className="absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br from-orange/10 to-transparent blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-gradient-to-tr from-orange/10 to-transparent blur-2xl pointer-events-none" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               <span>مستعد لانطلاق مطعمك الرقمي؟</span>
             </h2>
@@ -308,7 +308,7 @@ export default function PricingPage() {
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/subscribe">
-                <Button size="lg" className="text-lg px-10 h-14 bg-gold text-gold-foreground shadow-lg shadow-gold/20 hover:opacity-90">
+                <Button size="lg" className="text-lg px-10 h-14 bg-orange text-orange-foreground shadow-lg shadow-orange/20 hover:opacity-90">
                   ابدأ الآن مجاناً
                 </Button>
               </Link>

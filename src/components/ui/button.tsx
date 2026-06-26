@@ -19,9 +19,13 @@ const buttonVariants = cva(
 					"bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40 active:scale-[0.98] transition-all duration-200",
 				link: "text-primary underline-offset-4 hover:underline",
 				gradient:
-					"bg-gradient-to-r from-gold to-gold/80 text-gold-foreground hover:opacity-90 shadow-lg shadow-gold/20 hover:shadow-xl hover:shadow-gold/30 border-0 active:scale-[0.98] transition-all duration-200",
+					"bg-gradient-to-r from-orange to-orange/80 text-orange-foreground hover:opacity-90 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 border-0 active:scale-[0.98] transition-all duration-200",
 				"gradient-outline":
-					"border-gold/30 bg-gradient-to-r from-gold/10 to-gold/5 text-foreground hover:from-gold/20 hover:to-gold/10 hover:border-gold/50 active:scale-[0.98] transition-all duration-200",
+					"border-orange/30 bg-gradient-to-r from-orange/10 to-orange/5 text-foreground hover:from-orange/20 hover:to-orange/10 hover:border-orange/50 active:scale-[0.98] transition-all duration-200",
+				orange:
+					"bg-orange text-orange-foreground hover:bg-[#e05f0a] shadow-lg shadow-orange/20 border-0 active:scale-[0.98] transition-all duration-200",
+				"orange-outline":
+					"border-orange/40 bg-transparent text-orange hover:bg-orange/10 hover:border-orange/60 active:scale-[0.98] transition-all duration-200",
 			},
 			size: {
 				default:

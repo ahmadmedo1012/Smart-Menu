@@ -4,11 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { fetchPublicStats, type PublicStats } from "./landing-data";
 import HeroSection from "./HeroSection";
-import PhoneShowcaseSection from "./PhoneShowcaseSection";
-import StatsSection from "./StatsSection";
-import HowItWorksSection from "./HowItWorksSection";
-import DisplayCards from "./DisplayCards";
-import CTASection from "./CTASection";
+import { PhoneShowcaseSection, StatsSection, HowItWorksSection, DisplayCards, CTASection } from "./CTASection";
 
 export default function HomePage() {
   const [stats, setStats] = useState<PublicStats | null>(null);

@@ -31,9 +31,9 @@ type Plan = {
 const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
 const PLAN_GRADIENTS = [
   "from-gray-400 to-gray-500",
-  "from-gold to-gold/80",
-  "from-gold to-gold/80",
-  "from-gold to-gold/80",
+  "from-orange to-orange/80",
+  "from-orange to-orange/80",
+  "from-orange to-orange/80",
 ];
 
 function SubscribeContent() {
@@ -146,7 +146,7 @@ function SubscribeContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-gold-muted/20 to-background dark:via-gold-muted/10">
+    <div className="min-h-screen bg-gradient-to-b from-background via-orange-muted/20 to-background dark:via-orange-muted/10">
       <Header />
 
       <div className="max-w-4xl mx-auto px-4 py-12">
@@ -200,12 +200,12 @@ function SubscribeContent() {
                     className={cn(
                       "relative flex flex-col rounded-2xl border-2 p-5 text-start transition-all duration-300 hover:scale-[1.02]",
                       isSelected
-                        ? "border-gold bg-gold-muted/50 dark:bg-gold-muted shadow-lg shadow-gold/10"
-                        : "border-border/30 hover:border-gold/30 bg-card/50"
+                        ? "border-orange bg-orange-muted/50 dark:bg-orange-muted shadow-lg shadow-orange/10"
+                        : "border-border/30 hover:border-orange/30 bg-card/50"
                     )}
                   >
                     {isSelected && (
-                      <div className="absolute -top-2 -right-2 size-6 rounded-full bg-gold flex items-center justify-center shadow-lg">
+                      <div className="absolute -top-2 -right-2 size-6 rounded-full bg-orange flex items-center justify-center shadow-lg">
                         <Check className="size-3.5 text-white" />
                       </div>
                     )}
@@ -256,7 +256,7 @@ function SubscribeContent() {
             {/* Selected plan summary */}
             {currentPlan && (
               <div className={cn(
-                "rounded-2xl p-5 mb-8 border-2 border-gold/30 bg-gradient-to-r from-gold-muted/80 to-white dark:from-gold-muted/20 dark:to-card",
+                "rounded-2xl p-5 mb-8 border-2 border-orange/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card",
               )}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -390,7 +390,7 @@ function SubscribeContent() {
 
               {/* Summary */}
               {currentPlan && (
-                <div className="rounded-2xl bg-gradient-to-r from-gold/5 to-gold/5 border border-gold/20 p-5 mt-6">
+                <div className="rounded-2xl bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mt-6">
                   <h4 className="font-bold mb-3">ملخص الاشتراك</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">

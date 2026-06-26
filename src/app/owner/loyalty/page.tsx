@@ -99,9 +99,9 @@ function AnimatedCount({ value, suffix = "" }: { value: number; suffix?: string 
 
 const TIERS = [
   { key: "platinum", label: "بلاتيني", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
-  { key: "gold", label: "ذهبي", color: "text-gold dark:text-gold", bg: "bg-gradient-to-br from-gold to-gold/80", bar: "bg-gradient-to-r from-gold to-gold/80", icon: Star },
+  { key: "gold", label: "ذهبي", color: "text-orange dark:text-orange", bg: "bg-gradient-to-br from-orange to-orange/80", bar: "bg-gradient-to-r from-orange to-orange/80", icon: Star },
   { key: "silver", label: "فضي", color: "text-slate-500 dark:text-slate-300", bg: "bg-gradient-to-br from-slate-300 to-slate-500", bar: "bg-gradient-to-r from-slate-300 to-slate-500", icon: Medal },
-  { key: "bronze", label: "برونزي", color: "text-gold/70 dark:text-gold/60", bg: "bg-gradient-to-br from-gold/40 to-gold/60", bar: "bg-gradient-to-r from-gold/40 to-gold/60", icon: Award },
+  { key: "bronze", label: "برونزي", color: "text-orange/70 dark:text-orange/60", bg: "bg-gradient-to-br from-orange/40 to-orange/60", bar: "bg-gradient-to-r from-orange/40 to-orange/60", icon: Award },
 ]
 
 /* ---------- Stat Card ---------- */
@@ -134,14 +134,14 @@ function ConversionRate({ rate, total, converted }: { rate: number; total: numbe
     <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <TrendingUp className="size-4 text-gold dark:text-gold" />
+          <TrendingUp className="size-4 text-orange dark:text-orange" />
           <span className="text-sm font-semibold">معدل التحويل</span>
         </div>
-        <span className="text-sm font-bold tabular-nums text-gold dark:text-gold">{rate}%</span>
+        <span className="text-sm font-bold tabular-nums text-orange dark:text-orange">{rate}%</span>
       </div>
       <div className="h-3 rounded-full bg-muted overflow-hidden mb-2">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-gold to-gold/80 transition-all duration-1000 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-1000 ease-out"
           style={{ width: `${rate}%` }}
         />
       </div>
@@ -191,7 +191,7 @@ function TierChart({ distribution }: { distribution: Record<string, number> }) {
 
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    pending: { label: "معلق", classes: "bg-gold/10 text-gold dark:bg-gold/10 dark:text-gold" },
+    pending: { label: "معلق", classes: "bg-orange/10 text-orange dark:bg-orange/10 dark:text-orange" },
     converted: { label: "تم التحويل", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
     expired: { label: "منتهي", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
   }
@@ -201,7 +201,7 @@ function ReferralStatusBadge({ status }: { status: string }) {
     <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", m.classes)}>
       <span className={cn(
         "size-1.5 rounded-full",
-        status === "pending" && "bg-gold",
+        status === "pending" && "bg-orange",
         status === "converted" && "bg-emerald-500",
         status === "expired" && "bg-slate-400",
       )} />
@@ -229,8 +229,8 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
   if (referrals.length === 0) {
     return (
       <div className="flex flex-col items-center py-10 text-center">
-        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-gold/10">
-          <Gift className="size-6 text-gold" />
+        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-orange/10">
+          <Gift className="size-6 text-orange" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">لا توجد إحالات بعد</p>
         <p className="text-xs text-muted-foreground/60 mt-1">شارك رابط الإحالة للبدء</p>
@@ -260,7 +260,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
               className={cn(
                 "h-9 rounded-lg px-3 text-xs font-medium transition-all",
                 statusFilter === s
-                  ? "bg-gold/10 text-gold dark:text-gold border border-gold/20"
+                  ? "bg-orange/10 text-orange dark:text-orange border border-orange/20"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent",
               )}
             >
@@ -466,8 +466,8 @@ export default function OwnerLoyaltyPage() {
   const statCards = [
     {
       label: "إجمالي الأعضاء", value: stats?.totalLoyaltyCards ?? 0,
-      icon: Users, color: "text-gold dark:text-gold",
-      bg: "bg-gold/10",
+      icon: Users, color: "text-orange dark:text-orange",
+      bg: "bg-orange/10",
     },
     {
       label: "إجمالي الإحالات", value: stats?.totalReferrals ?? 0,
@@ -476,8 +476,8 @@ export default function OwnerLoyaltyPage() {
     },
     {
       label: "تم التحويل", value: stats?.convertedReferrals ?? 0,
-      icon: TrendingUp, color: "text-gold dark:text-gold",
-      bg: "bg-gold/10",
+      icon: TrendingUp, color: "text-orange dark:text-orange",
+      bg: "bg-orange/10",
     },
     {
       label: "النقاط المكتسبة", value: stats?.totalRewardPoints ?? 0,
@@ -555,7 +555,7 @@ export default function OwnerLoyaltyPage() {
           </h3>
           <div className="space-y-3">
             {[
-              { label: "معلق", count: rbs.pending, color: "bg-gold" },
+              { label: "معلق", count: rbs.pending, color: "bg-orange" },
               { label: "تم التحويل", count: rbs.converted, color: "bg-emerald-500" },
               { label: "منتهي", count: rbs.expired, color: "bg-slate-400" },
             ].map((s) => (

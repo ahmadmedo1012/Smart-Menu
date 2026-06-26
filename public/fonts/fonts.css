@@ -1,3 +1,21 @@
+/* AloaaxB — PlanPOS heading font (Somar Bold) */
+@font-face {
+  font-family: "AloaaxB";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://planpos.com/wp-content/uploads/2023/11/Somar-Bold.woff2") format("woff2");
+}
+
+/* Aloaax — PlanPOS body font (Somar Regular) */
+@font-face {
+  font-family: "Aloaax";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("https://planpos.com/wp-content/uploads/2023/11/Somar-Regular.woff2") format("woff2");
+}
+
 /* Noto Naskh Arabic — variable (400-700) */
 @font-face {
   font-family: "Noto Naskh Arabic";

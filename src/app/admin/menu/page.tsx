@@ -137,13 +137,13 @@ export default function AdminMenuPage() {
             placeholder="ابحث عن صنف..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20"
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         {<select
             value={restaurantFilter ?? ""}
             onChange={e => setRestaurantFilter(e.target.value ? Number(e.target.value) : null)}
-            className="h-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-gold"
+            className="h-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-orange"
           >
             <option value="">كل المطاعم</option>
             {restaurants.map(r => (

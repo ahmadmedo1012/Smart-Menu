@@ -139,9 +139,9 @@ export default function AdminUsersPage() {
           <p className="text-xs text-purple-600">مديرون</p>
           <p className="text-2xl font-bold mt-1 text-purple-600">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
-        <div className="rounded-2xl bg-gold-muted dark:bg-gold-muted border border-gold/20 p-4">
-          <p className="text-xs text-gold">أصحاب مطاعم</p>
-          <p className="text-2xl font-bold mt-1 text-gold">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
+        <div className="rounded-2xl bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
+          <p className="text-xs text-orange">أصحاب مطاعم</p>
+          <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
         <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
           <p className="text-xs text-emerald-600">مرتبط بمطعم</p>
@@ -159,7 +159,7 @@ export default function AdminUsersPage() {
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             aria-label="ابحث عن مستخدم"
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20"
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
@@ -191,16 +191,16 @@ export default function AdminUsersPage() {
         <>
           <div className="space-y-3">
             {users.map(user => (
-              <div key={user.id} className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-gold/20 hover:shadow-md transition-all">
+              <div key={user.id} className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       "size-11 rounded-xl flex items-center justify-center shrink-0",
-                      user.role === "admin" ? "bg-purple-50 dark:bg-purple-950/30" : "bg-gold-muted dark:bg-gold-muted"
+                      user.role === "admin" ? "bg-purple-50 dark:bg-purple-950/30" : "bg-orange-muted dark:bg-orange-muted"
                     )} aria-hidden="true">
                       {user.role === "admin"
                         ? <Shield className="size-5 text-purple-600 dark:text-purple-400" />
-                        : <UserPlus className="size-5 text-gold dark:text-gold" />
+                        : <UserPlus className="size-5 text-orange dark:text-orange" />
                       }
                     </div>
                     <div>
@@ -208,7 +208,7 @@ export default function AdminUsersPage() {
                         <p className="font-bold">{user.name}</p>
                         <Badge className={cn(
                           "text-[10px]",
-                          user.role === "admin" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-gold-muted text-gold/80 dark:bg-gold-muted dark:text-gold"
+                          user.role === "admin" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-orange-muted text-orange/80 dark:bg-orange-muted dark:text-orange"
                         )}>
                           {user.role === "admin" ? "مدير" : "مالك"}
                         </Badge>

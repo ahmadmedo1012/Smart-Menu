@@ -129,7 +129,7 @@ export default function PaymentDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-sm sm:max-w-md rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-gold to-gold/80 text-primary-foreground p-6 rounded-t-2xl">
+        <div className="bg-gradient-to-br from-orange to-orange/80 text-primary-foreground p-6 rounded-t-2xl">
           <div className="flex items-center gap-2 mb-2">
             <Smartphone className="size-5" />
             <DialogTitle className="text-primary-foreground text-lg font-bold">
@@ -143,10 +143,10 @@ export default function PaymentDialog({
 
         <div className="p-5 space-y-5">
           {/* Plan summary */}
-          <div className="rounded-xl bg-gold-muted dark:bg-gold-muted border border-gold/20 p-4">
+          <div className="rounded-xl bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
             <div className="flex justify-between items-center">
               <span className="font-bold">{planNameAr}</span>
-              <span className="text-lg font-bold text-gold">{price} د.ل</span>
+              <span className="text-lg font-bold text-orange">{price} د.ل</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">اشتراك شهري</p>
           </div>
@@ -161,10 +161,10 @@ export default function PaymentDialog({
                     type="button"
                     onClick={() => setProvider("libyana")}
                     className={cn(
-                      "h-12 rounded-xl border-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
+                      "h-12 rounded-xl border-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2",
                       provider === "libyana"
-                        ? "border-gold bg-gold-muted dark:bg-gold-muted"
-                        : "border-border/30 hover:border-gold/30"
+                        ? "border-orange bg-orange-muted dark:bg-orange-muted"
+                        : "border-border/30 hover:border-orange/30"
                     )}
                   >
                     ليبيانا
@@ -173,10 +173,10 @@ export default function PaymentDialog({
                     type="button"
                     onClick={() => setProvider("madar")}
                     className={cn(
-                      "h-12 rounded-xl border-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
+                      "h-12 rounded-xl border-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2",
                       provider === "madar"
-                        ? "border-gold bg-gold-muted dark:bg-gold-muted"
-                        : "border-border/30 hover:border-gold/30"
+                        ? "border-orange bg-orange-muted dark:bg-orange-muted"
+                        : "border-border/30 hover:border-orange/30"
                     )}
                   >
                     مدار
@@ -196,7 +196,7 @@ export default function PaymentDialog({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(providerPhone)}
-                    className="size-8 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+                    className="size-8 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2"
                     title="نسخ الرقم"
                   >
                     <Copy className="size-3.5" />
@@ -210,13 +210,13 @@ export default function PaymentDialog({
                   رمز التحويل السريع
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm font-bold text-gold dark:text-gold" dir="ltr">
+                  <span className="font-mono text-sm font-bold text-orange dark:text-orange" dir="ltr">
                     {quickTransferCode}
                   </span>
                   <button
                     type="button"
                     onClick={() => copyToClipboard(quickTransferCode)}
-                    className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+                    className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2"
                     title="نسخ الرمز"
                   >
                     <Copy className="size-3.5" />
@@ -276,8 +276,8 @@ export default function PaymentDialog({
           {step === "waiting" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
-                <div className="size-16 rounded-full bg-gold-muted dark:bg-gold-muted flex items-center justify-center">
-                  <Timer className="size-8 text-gold animate-pulse" />
+                <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
+                  <Timer className="size-8 text-orange animate-pulse" />
                 </div>
               </div>
               <div className="text-lg font-bold">
@@ -290,7 +290,7 @@ export default function PaymentDialog({
               </p>
               <div className="w-full bg-muted rounded-full h-2">
                 <div
-                  className="h-2 rounded-full bg-gradient-to-r from-gold to-gold/80 transition-all duration-1000"
+                  className="h-2 rounded-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-1000"
                   style={{ width: `${((30 - countdown) / 30) * 100}%` }}
                 />
               </div>
@@ -301,8 +301,8 @@ export default function PaymentDialog({
           {step === "success" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
-                <div className="size-16 rounded-full bg-gold-muted dark:bg-gold-muted flex items-center justify-center">
-                  <ShieldCheck className="size-8 text-gold" />
+                <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
+                  <ShieldCheck className="size-8 text-orange" />
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">

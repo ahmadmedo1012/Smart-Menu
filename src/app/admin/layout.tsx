@@ -11,7 +11,7 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
     <>
       <div className="flex items-center gap-3 border-b border-white/10 px-4 pb-4 pt-5">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-gold/80 shadow-lg shadow-gold/25 dark:from-gold dark:to-gold/80" aria-hidden="true">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange to-orange/80 shadow-lg shadow-orange/25 dark:from-orange dark:to-orange/80" aria-hidden="true">
           <Store className="size-5 text-white" aria-hidden="true" />
         </div>
         <div>

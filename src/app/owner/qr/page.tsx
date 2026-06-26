@@ -62,7 +62,7 @@ export default function OwnerQRPage() {
       </Button>
 
       <div className="flex items-center gap-3">
-        <div className="size-11 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg">
+        <div className="size-11 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
           <QrCode className="size-5 text-white" />
         </div>
         <div>
@@ -74,8 +74,8 @@ export default function OwnerQRPage() {
       {/* QR Card */}
       <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
         {/* Restaurant info */}
-        <div className="flex items-center gap-3 p-5 border-b border-border/20 bg-gradient-to-l from-gold-muted/30 to-transparent dark:from-gold-muted">
-          <div className="size-10 rounded-xl bg-gradient-to-br from-gold/20 to-gold/10 flex items-center justify-center">
+        <div className="flex items-center gap-3 p-5 border-b border-border/20 bg-gradient-to-l from-orange-muted/30 to-transparent dark:from-orange-muted">
+          <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
             <Store className="size-5 text-primary" />
           </div>
           <div>
@@ -104,7 +104,7 @@ export default function OwnerQRPage() {
               {/* Overlay with store icon */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="size-12 md:size-16 rounded-2xl bg-white/90 dark:bg-gray-900/90 shadow-lg flex items-center justify-center backdrop-blur-sm">
-                  <Store className="size-6 md:size-8 text-gold" />
+                  <Store className="size-6 md:size-8 text-orange" />
                 </div>
               </div>
             </div>
@@ -127,8 +127,8 @@ export default function OwnerQRPage() {
                   className={cn(
                     "flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all",
                     qrSize === s.value
-                      ? "bg-gold-muted border-gold/30 text-gold/80 dark:text-gold"
-                      : "border-border/30 hover:border-gold/20"
+                      ? "bg-orange-muted border-orange/30 text-orange/80 dark:text-orange"
+                      : "border-border/30 hover:border-orange/20"
                   )}
                 >
                   {s.label}
@@ -160,7 +160,7 @@ export default function OwnerQRPage() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 p-4 rounded-xl bg-gradient-to-r from-gold/5 to-gold/5 border border-gold/20">
+          <div className="flex items-center gap-2 p-4 rounded-xl bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20">
             <Printer className="size-4 text-primary shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
               اطبع رمز QR وضعه على الطاولات والفواتير والمواد الدعائية ليتمكن الزبائن من فتح المنيو مباشرة على هواتفهم

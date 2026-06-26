@@ -41,9 +41,9 @@ interface AuditLogEntry {
 
 const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }> = {
   create: { label: "إنشاء", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
-  update: { label: "تحديث", color: "text-gold", bg: "bg-gold-muted dark:bg-gold-muted" },
+  update: { label: "تحديث", color: "text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
   delete: { label: "حذف", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
-  login: { label: "دخول", color: "text-gold", bg: "bg-gold/10" },
+  login: { label: "دخول", color: "text-orange", bg: "bg-orange/10" },
   other: { label: "أخرى", color: "text-gray-600", bg: "bg-gray-50 dark:bg-gray-800/30" },
 }
 
@@ -132,7 +132,7 @@ export default function AdminAuditLogsPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="size-11 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg" aria-hidden="true">
+        <div className="size-11 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg" aria-hidden="true">
           <Activity className="size-5 text-white" />
         </div>
         <div>

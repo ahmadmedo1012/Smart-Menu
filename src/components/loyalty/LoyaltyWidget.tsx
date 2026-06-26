@@ -9,10 +9,10 @@ import ReferralCard from "./ReferralCard";
 import { cn } from "@/lib/utils";
 
 const TIER_CONFIG: Record<string, { labelAr: string; gradient: string; icon: typeof Award; minPoints: number; color: string }> = {
-  bronze:   { labelAr: "برونزي", gradient: "from-gold to-gold/80", icon: Medal, minPoints: 0, color: "text-gold" },
+  bronze:   { labelAr: "برونزي", gradient: "from-orange to-orange/80", icon: Medal, minPoints: 0, color: "text-orange" },
   silver:   { labelAr: "فضي",    gradient: "from-slate-300 to-slate-500", icon: Award, minPoints: 50, color: "text-slate-500" },
-  gold:     { labelAr: "ذهبي",   gradient: "from-gold via-gold to-gold/80", icon: Star, minPoints: 150, color: "text-gold" },
-  platinum: { labelAr: "بلاتيني", gradient: "from-gold to-gold/80", icon: Sparkles, minPoints: 400, color: "text-gold" },
+  gold:     { labelAr: "ذهبي",   gradient: "from-orange via-orange to-orange/80", icon: Star, minPoints: 150, color: "text-orange" },
+  platinum: { labelAr: "بلاتيني", gradient: "from-orange to-orange/80", icon: Sparkles, minPoints: 400, color: "text-orange" },
 };
 
 type LoyaltyWidgetProps = {
@@ -60,17 +60,17 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
 
   return (
     <section className="max-w-4xl mx-auto px-4 mb-4 mt-8">
-      <div className="rounded-2xl bg-gradient-to-br from-gold-muted/80 to-gold-muted/50 dark:from-gold-muted/20 dark:to-gold-muted/10 border border-gold/30 overflow-hidden">
+      <div className="rounded-2xl bg-gradient-to-br from-orange-muted/80 to-orange-muted/50 dark:from-orange-muted/20 dark:to-orange-muted/10 border border-orange/30 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-md">
+            <div className="size-10 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-md">
               <Gift className="size-5 text-white" />
             </div>
             <div>
               <h2 className="text-sm font-bold flex items-center gap-2">
                 برنامج الولاء
-                <span className="bg-gradient-to-r from-gold to-gold/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">جديد</span>
+                <span className="bg-gradient-to-r from-orange to-orange/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">جديد</span>
               </h2>
               <p className="text-xs text-muted-foreground">اكسب نقاط مع كل طلب</p>
             </div>
@@ -93,7 +93,7 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
                   placeholder="رقم هاتفك للولاء" className="w-full h-10 pr-10 px-3 bg-transparent text-sm outline-none rounded-xl" dir="ltr" />
               </div>
               <button type="button" onClick={handleCheck} disabled={loading}
-                className="h-10 px-4 rounded-xl bg-gradient-to-r from-gold to-gold text-white text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-50 shrink-0">
+                className="h-10 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-50 shrink-0">
                 {loading ? <span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin block" /> : "تحقق"}
               </button>
             </div>

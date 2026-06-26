@@ -23,7 +23,7 @@ export default function ShareButton({ url, title }: { url: string; title: string
     <button
       type="button"
       onClick={handleShare}
-      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass-card text-sm font-medium hover:bg-gold/10 transition-all duration-300"
+      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full glass-card text-sm font-medium hover:bg-orange/10 transition-all duration-300"
     >
       <Share2 className="size-4" />
       شارك المنيو

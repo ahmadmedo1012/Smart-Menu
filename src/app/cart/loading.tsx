@@ -46,7 +46,7 @@ export default function CartLoading() {
       </div>
 
       {/* Summary */}
-      <div className="rounded-2xl bg-gradient-to-r from-gold/5 to-gold/5 border border-gold/20 p-5 mb-8">
+      <div className="rounded-2xl bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8">
         <div className="h-4 w-24 skeleton rounded mb-4" />
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex justify-between mb-2">

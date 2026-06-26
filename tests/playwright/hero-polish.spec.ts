@@ -10,7 +10,7 @@ test.describe("Hero Polish Verification", () => {
     await expect(hero).toBeVisible();
     expect(await page.locator("h1").count()).toBeGreaterThan(0);
     await expect(page.locator("h1").first()).toContainText("تجربة رقمية");
-    // Gold CTA in hero
+    // Orange CTA in hero
     const ctaBtn = page.locator("button:has-text('ابدأ مجاناً')").first();
     await expect(ctaBtn).toBeVisible();
   });
@@ -24,13 +24,14 @@ test.describe("Hero Polish Verification", () => {
     await expect(page.locator("h1").first()).toContainText("تجربة رقمية");
   });
 
-  test("hero has gold accent elements", async ({ page }) => {
+  test("hero has orange accent elements", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/", { waitUntil: "networkidle" });
     await page.waitForTimeout(2000);
-    // Check gold text elements
-    const goldElements = page.locator(".text-gold, .animate-hero-gold-shimmer");
-    await expect(goldElements.first()).toBeVisible();
+    // Check orange text elements
+    const hero = page.locator("section").first();
+		const orangeKicker = hero.locator(".text-orange");
+    await expect(orangeKicker.first()).toBeVisible();
     // Phone mockup should exist in desktop hero
     const phone = page.locator("[class*='PhoneMockup'], video, [class*='phone']");
     const phoneCount = await phone.count();

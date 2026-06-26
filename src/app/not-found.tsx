@@ -18,9 +18,9 @@ const SUGGESTIONS = [
 export default function NotFound() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-gold/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-orange/5" />
       <div className="absolute top-10 left-10 size-56 rounded-full bg-primary/5 blur-3xl animate-float" />
-      <div className="absolute bottom-10 right-10 size-64 rounded-full bg-gold/5 blur-3xl animate-float-delayed" />
+      <div className="absolute bottom-10 right-10 size-64 rounded-full bg-orange/5 blur-3xl animate-float-delayed" />
       <div className="absolute top-1/3 right-1/4 size-40 rounded-full bg-primary/3 blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
 
       <div className="relative z-10 flex flex-col items-center text-center px-6 animate-fade-in">

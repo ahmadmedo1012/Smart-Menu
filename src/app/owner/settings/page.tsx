@@ -157,15 +157,15 @@ export default function OwnerSettingsPage() {
       <BackButton href="/owner" />
 
       {/* Plan card */}
-      <div className="rounded-2xl bg-gradient-to-br from-gold-muted/70 to-white dark:from-gold-muted dark:to-card border border-gold/20 dark:border-gold/15 overflow-hidden">
+      <div className="rounded-2xl bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className={cn(
                 "size-12 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0",
-                currentPlan?.name === "Pro" ? "from-gold to-gold/80" :
-                currentPlan?.name === "Enterprise" ? "from-gold to-gold/80" :
-                "from-gold to-gold/80"
+                currentPlan?.name === "Pro" ? "from-orange to-orange/80" :
+                currentPlan?.name === "Enterprise" ? "from-orange to-orange/80" :
+                "from-orange to-orange/80"
               )}>
                 <Crown className="size-6 text-white" />
               </div>
@@ -188,7 +188,7 @@ export default function OwnerSettingsPage() {
               <span className="font-medium">{toArabicNumber(itemUsage)} / {maxItems === 9999 ? "غير محدود" : toArabicNumber(maxItems)}</span>
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-all duration-700", usagePercent > 80 ? "bg-destructive" : "bg-gold")}
+              <div className={cn("h-full rounded-full transition-all duration-700", usagePercent > 80 ? "bg-destructive" : "bg-orange")}
                 style={{ width: `${Math.min(usagePercent, 100)}%` }} />
             </div>
           </div>
@@ -325,7 +325,7 @@ export default function OwnerSettingsPage() {
           </div>
           <div className="rounded-2xl bg-card/40 border border-border/20 p-4">
             <div className="flex items-center gap-2 mb-1.5">
-              <Package className="size-3.5 text-gold" />
+              <Package className="size-3.5 text-orange" />
               <span className="text-[11px] text-muted-foreground">الأقسام</span>
             </div>
             <p className="text-xl font-bold">{toArabicNumber(restaurant._count.categories)}</p>

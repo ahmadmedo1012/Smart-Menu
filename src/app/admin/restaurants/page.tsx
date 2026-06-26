@@ -47,9 +47,9 @@ const PLAN_ICONS: Record<string, typeof Sparkles> = {
 };
 const PLAN_COLORS: Record<string, string> = {
   "Free": "from-gray-400 to-gray-500",
-  "Basic": "from-gold to-gold/80",
-  "Pro": "from-gold to-gold/80",
-  "Enterprise": "from-gold to-gold/80",
+  "Basic": "from-orange to-orange/80",
+  "Pro": "from-orange to-orange/80",
+  "Enterprise": "from-orange to-orange/80",
 };
 
 export default function AdminRestaurantsPage() {
@@ -253,7 +253,7 @@ export default function AdminRestaurantsPage() {
             {toArabicNumber(total)} مطعم
           </p>
         </div>
-        <Button onClick={openAdd} className="rounded-xl gap-2 bg-gold hover:opacity-90 text-white">
+        <Button onClick={openAdd} className="rounded-xl gap-2 bg-orange hover:opacity-90 text-white">
           <Plus className="size-4" />
           إضافة مطعم
         </Button>
@@ -269,7 +269,7 @@ export default function AdminRestaurantsPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             aria-label="ابحث عن مطعم"
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20"
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         <Select value={planFilter} onValueChange={(v) => setPlanFilter(v ?? "all")}>
@@ -288,25 +288,25 @@ export default function AdminRestaurantsPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="rounded-2xl bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 dark:border-gold/15 p-4">
-          <p className="text-xs text-gold dark:text-gold">إجمالي المطاعم</p>
-          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">{toArabicNumber(total)}</p>
+        <div className="rounded-2xl bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
+          <p className="text-xs text-orange dark:text-orange">إجمالي المطاعم</p>
+          <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-2xl bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 dark:border-gold/15 p-4">
-          <p className="text-xs text-gold dark:text-gold">على الخطة المدفوعة</p>
-          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">
+        <div className="rounded-2xl bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
+          <p className="text-xs text-orange dark:text-orange">على الخطة المدفوعة</p>
+          <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
             {toArabicNumber(restaurants.filter((r) => r.plan?.price && Number(r.plan.price) > 0).length)}
           </p>
         </div>
-        <div className="rounded-2xl bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 dark:border-gold/15 p-4">
-          <p className="text-xs text-gold dark:text-gold">إجمالي الطلبات</p>
-          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">
+        <div className="rounded-2xl bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
+          <p className="text-xs text-orange dark:text-orange">إجمالي الطلبات</p>
+          <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
             {toArabicNumber(restaurants.reduce((a, r) => a + r._count.orders, 0))}
           </p>
         </div>
-        <div className="rounded-2xl bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 dark:border-gold/15 p-4">
-          <p className="text-xs text-gold dark:text-gold">مجاني</p>
-          <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">
+        <div className="rounded-2xl bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
+          <p className="text-xs text-orange dark:text-orange">مجاني</p>
+          <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
             {toArabicNumber(restaurants.filter((r) => !r.planId || Number(r.plan?.price) === 0).length)}
           </p>
         </div>
@@ -314,7 +314,7 @@ export default function AdminRestaurantsPage() {
 
       {/* Bulk actions */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gold-muted/50 dark:bg-gold-muted border border-gold/20">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-orange-muted/50 dark:bg-orange-muted border border-orange/20">
           <span className="text-sm text-muted-foreground">
             تم اختيار {toArabicNumber(selectedIds.size)} مطعم
           </span>
@@ -338,7 +338,7 @@ export default function AdminRestaurantsPage() {
               <FilterX className="size-4" /> إزالة الفلتر
             </Button>
           ) : (
-            <Button onClick={openAdd} className="rounded-xl gap-2 bg-gold hover:opacity-90 text-white">
+            <Button onClick={openAdd} className="rounded-xl gap-2 bg-orange hover:opacity-90 text-white">
               <Plus className="size-4" /> إضافة مطعم
             </Button>
           )}
@@ -367,8 +367,8 @@ export default function AdminRestaurantsPage() {
                   className={cn(
                     "rounded-2xl border p-5 transition-all",
                     isSelected
-                      ? "border-gold/40 bg-gold-muted/30 dark:bg-gold-muted"
-                      : "border-border/30 bg-card/50 hover:border-gold/20 hover:shadow-md"
+                      ? "border-orange/40 bg-orange-muted/30 dark:bg-orange-muted"
+                      : "border-border/30 bg-card/50 hover:border-orange/20 hover:shadow-md"
                   )}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -562,7 +562,7 @@ export default function AdminRestaurantsPage() {
           </div>
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">إلغاء</Button>
-            <Button onClick={save} disabled={saving} className="rounded-xl bg-gold hover:opacity-90 text-white">{saving ? "جارٍ..." : editing ? "تحديث" : "إضافة"}</Button>
+            <Button onClick={save} disabled={saving} className="rounded-xl bg-orange hover:opacity-90 text-white">{saving ? "جارٍ..." : editing ? "تحديث" : "إضافة"}</Button>
           </div>
         </DialogContent>
       </Dialog>

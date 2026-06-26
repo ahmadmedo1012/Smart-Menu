@@ -42,7 +42,7 @@ export function useOrderNotifier(restaurantId?: number) {
           playOrderSound();
           toast(
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-full bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center">
+              <div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
                 <ShoppingCart className="size-5 text-white" />
               </div>
               <div>

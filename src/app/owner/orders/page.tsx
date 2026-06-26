@@ -19,8 +19,8 @@ interface Order {
 
 const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const;
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string; next: string | null }> = {
-  new: { label: "جديد", icon: Clock, color: "text-gold dark:text-gold", bg: "bg-gold-muted dark:bg-gold-muted", next: "preparing" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-gold dark:text-gold", bg: "bg-gold-muted dark:bg-gold-muted", next: "ready" },
+  new: { label: "جديد", icon: Clock, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted", next: "preparing" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted", next: "ready" },
   ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30", next: "completed" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-500 dark:text-gray-400", bg: "bg-gray-50 dark:bg-gray-800/30", next: null },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30", next: null },
@@ -202,21 +202,21 @@ export default function OwnerOrdersPage() {
             placeholder="ابحث برقم الطلب أو اسم العميل..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20"
+            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         <input
           type="date"
           value={dateFrom}
           onChange={e => { const v = e.target.value; setDateFrom(v); fetchOrders(filter, 1, false, v, dateTo) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-gold"
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
           title="من تاريخ"
         />
         <input
           type="date"
           value={dateTo}
           onChange={e => { const v = e.target.value; setDateTo(v); fetchOrders(filter, 1, false, dateFrom, v) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-gold"
+          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
           title="إلى تاريخ"
         />
         {(dateFrom || dateTo) && (
@@ -240,8 +240,8 @@ export default function OwnerOrdersPage() {
             className={cn(
               "snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2",
               filter === tab.value
-                ? "bg-gradient-to-r from-gold to-gold/80 text-white shadow-lg shadow-gold/25"
-                : "bg-card/50 border border-border/30 hover:border-gold/30"
+                ? "bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25"
+                : "bg-card/50 border border-border/30 hover:border-orange/30"
             )}
           >
             {tab.label}
@@ -295,7 +295,7 @@ export default function OwnerOrdersPage() {
             return (
               <div
                 key={order.id}
-                className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-gold/30 hover:shadow-md transition-all cursor-pointer"
+                className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer"
                 onClick={() => router.push(`/owner/orders/${order.id}`)}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -331,9 +331,9 @@ export default function OwnerOrdersPage() {
                       onClick={e => { e.stopPropagation(); updateStatus(order.id, nextStatus) }}
                       className={cn(
                         "flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
-                        nextStatus === "preparing" && "border-gold/30 text-gold hover:bg-gold-muted dark:hover:bg-gold-muted",
+                        nextStatus === "preparing" && "border-orange/30 text-orange hover:bg-orange-muted dark:hover:bg-orange-muted",
                         nextStatus === "ready" && "border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20",
-                        nextStatus === "completed" && "border-gold/30 text-gold hover:bg-gold-muted dark:hover:bg-gold-muted",
+                        nextStatus === "completed" && "border-orange/30 text-orange hover:bg-orange-muted dark:hover:bg-orange-muted",
                       )}
                     >
                       ← {STATUS_CONFIG[nextStatus]?.label}
