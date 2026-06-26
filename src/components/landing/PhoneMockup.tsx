@@ -9,8 +9,12 @@ interface PhoneMockupProps {
   className?: string;
 }
 
+const ease = [0.19, 1, 0.22, 1] as const;
+const easeInOut = [0.16, 1, 0.3, 1] as const;
+
 /** Premium tilted phone mockup — black frame, gold accents, cinematic video.
- *  No poster flash: ScreenContent is always base layer, video crossfades on top. */
+ *  Double-bezel architecture, Dynamic Island, restaurant menu screen.
+ *  Static content always base layer, video crossfades on top — no poster flash. */
 export default function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
@@ -26,18 +30,18 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
 
   const frame = (
     <div className={cn("relative mx-auto max-w-[280px] w-[75vw] lg:w-[80vw]", className)}>
-      {/* Ambient glow — soft, wide */}
+      {/* Ambient glow — breathing opacity behind phone */}
       <motion.div
         className="absolute -inset-16 rounded-full pointer-events-none"
-        animate={{ opacity: [0.4, 0.7, 0.4] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ opacity: [0.3, 0.65, 0.3] }}
+        transition={{ duration: 6, repeat: Infinity, ease: easeInOut }}
         style={{
           background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.14 75 / 0.08) 0%, transparent 70%)",
           filter: "blur(80px)",
         }}
       />
 
-      {/* Bezel — dark metallic */}
+      {/* Outer shell — double-bezel */}
       <div
         className="relative w-full rounded-[3rem] p-[3px]"
         style={{
@@ -45,36 +49,38 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
           boxShadow: "var(--frame-shadow-premium)",
         }}
       >
-        {/* Bezel highlight */}
+        {/* Bezel highlight edge */}
         <div
           className="absolute inset-0 rounded-[3rem] pointer-events-none z-10"
           style={{ background: "var(--frame-highlight)" }}
         />
 
-        {/* Screen */}
+        {/* Inner screen */}
         <div className="relative w-full aspect-[9/19.5] rounded-[2.8rem] bg-black overflow-hidden">
-          {/* Glass reflection */}
+          {/* Glass reflection overlay */}
           <div
             className="absolute inset-0 z-20 pointer-events-none rounded-[2.8rem]"
             style={{
               background:
-                "linear-gradient(135deg, oklch(1 0 0 / 0.05) 0%, transparent 40%, transparent 60%, oklch(1 0 0 / 0.015) 100%)",
+                "linear-gradient(135deg, oklch(1 0 0 / 0.06) 0%, transparent 40%, transparent 60%, oklch(1 0 0 / 0.015) 100%)",
             }}
           />
+
+          {/* Inner rim light */}
           <div
             className="absolute inset-0 z-20 pointer-events-none rounded-[2.8rem]"
             style={{ boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 0.05)" }}
           />
 
-          {/* Dynamic Island */}
-          <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[100px] h-[24px] bg-black rounded-full z-30 border border-white/[0.03] shadow-sm">
-            <div className="absolute end-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gold/50" />
+          {/* Dynamic Island notch — 120x28, camera dot */}
+          <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-black rounded-full z-30 border border-white/[0.03] shadow-sm">
+            <div className="absolute end-[18px] top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-gold/50" />
           </div>
 
-          {/* Static screen content — always visible */}
+          {/* Static screen content — always visible, base layer */}
           <ScreenContent />
 
-          {/* Hero video — fades in over content once loaded. No poster flash. */}
+          {/* Hero video — crossfades over static content once loaded */}
           <motion.video
             ref={videoRef}
             src="/hero-intro.mp4"
@@ -89,10 +95,10 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             style={{ objectFit: "contain" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: videoLoaded ? 1 : 0 }}
-            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] as const }}
+            transition={{ duration: 1.2, ease }}
           />
 
-          {/* Fallback poster — only if video errored */}
+          {/* Fallback poster on error */}
           {videoError && (
             <img
               src="/hero-poster.jpg"
@@ -102,7 +108,7 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             />
           )}
 
-          {/* Bottom reflection */}
+          {/* Bottom reflection gradient */}
           <div
             className="absolute bottom-0 left-0 right-0 h-12 z-20 pointer-events-none rounded-[2.8rem]"
             style={{
@@ -127,7 +133,7 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   );
 }
 
-/** 3D tilt wrapper — ~15° left tilt, refined perspective, framer-motion float */
+/** 3D tilt wrapper — ~15deg left rotateY, perspective 1000px, 7s Y-axis float */
 function TiltWrapper({ children }: { children: ReactNode }) {
   return (
     <div className="relative" style={{ perspective: "1000px" }}>
@@ -137,10 +143,10 @@ function TiltWrapper({ children }: { children: ReactNode }) {
         initial={{ transform: "perspective(1000px) rotateY(-15deg) rotateX(4deg)" }}
         animate={{ y: [0, -6, 0] }}
         transition={{
-          y: { duration: 7, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: 7, repeat: Infinity, ease: easeInOut },
         }}
       >
-        {/* Cast shadow — soft, wide */}
+        {/* Cast shadow under tilted phone */}
         <motion.div
           className="absolute -bottom-1 left-[10%] right-[25%] h-16 rounded-[50%] pointer-events-none"
           style={{
@@ -150,7 +156,7 @@ function TiltWrapper({ children }: { children: ReactNode }) {
             transform: "translateZ(-40px)",
           }}
           animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.05, 1] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 7, repeat: Infinity, ease: easeInOut }}
         />
         {children}
       </motion.div>
@@ -158,21 +164,23 @@ function TiltWrapper({ children }: { children: ReactNode }) {
   );
 }
 
-/** Minimalist menu screen — dark, typographic, gold accents */
+/** Dark restaurant menu screen — typographic hierarchy, gold accents, Arabic */
 function ScreenContent() {
   return (
     <div className="absolute inset-0 z-10 bg-black overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" />
 
-      {/* Status bar */}
+      {/* Status bar — time left, signal/battery right */}
       <div className="relative z-10 flex items-center justify-between pt-3 px-5">
         <span className="text-[9px] text-white/40 font-medium">٩:٤١</span>
         <div className="flex items-center gap-1.5">
+          {/* Signal bars */}
           <svg className="size-2.5 text-white/40" viewBox="0 0 24 24" fill="currentColor">
             <rect x="2" y="10" width="4" height="12" rx="0.5" />
             <rect x="8" y="6" width="4" height="16" rx="0.5" />
             <rect x="14" y="2" width="4" height="20" rx="0.5" />
           </svg>
+          {/* Battery */}
           <svg className="size-2.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 17a4.5 4.5 0 0 1-1-3 4.5 4.5 0 0 1 9 0 4.5 4.5 0 0 1-1 3" />
             <path d="M8 12a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2" />
@@ -183,11 +191,13 @@ function ScreenContent() {
       {/* Restaurant header */}
       <div className="relative z-10 px-5 mt-3">
         <div className="flex items-center gap-3 mb-4">
+          {/* Avatar placeholder */}
           <div className="size-10 rounded-2xl bg-white/10 flex items-center justify-center text-gold text-sm font-bold border border-white/10">
             م
           </div>
           <div>
             <div className="text-xs font-semibold text-white">مطعم مذاق الشام</div>
+            {/* Open indicator with green pulse */}
             <div className="flex items-center gap-1 mt-0.5">
               <span className="size-1.5 rounded-full bg-green-500 animate-pulse" />
               <span className="text-[9px] text-green-400/80">مفتوح الآن</span>
@@ -195,7 +205,7 @@ function ScreenContent() {
           </div>
         </div>
 
-        {/* Featured dish */}
+        {/* Featured dish card */}
         <div className="h-28 rounded-2xl bg-neutral-900 flex items-center justify-center mb-4 overflow-hidden border border-white/5">
           <div className="text-center">
             <svg viewBox="0 0 48 48" className="size-7 mx-auto" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -207,7 +217,7 @@ function ScreenContent() {
           </div>
         </div>
 
-        {/* Category pills */}
+        {/* Category pills — gold active, muted rest */}
         <div className="flex gap-1.5 mb-4">
           {["مشاوي", "مقبلات", "مشروبات", "حلويات"].map((label) => (
             <div
@@ -224,7 +234,7 @@ function ScreenContent() {
           ))}
         </div>
 
-        {/* Menu items */}
+        {/* Menu items — image placeholder, name, desc, price */}
         {[
           { name: "شاورما دجاج", desc: "خبز صاج • ثوم • مخلل", price: "٢٥" },
           { name: "كباب بندورة", desc: "لحم مفروم • بندورة • بصل", price: "٣٠" },
@@ -244,7 +254,7 @@ function ScreenContent() {
         ))}
       </div>
 
-      {/* Bottom CTA */}
+      {/* Bottom CTA — ابدأ الطلب gold button */}
       <div className="absolute bottom-6 left-4 right-4 z-10">
         <div className="h-11 rounded-full bg-gold flex items-center justify-center text-black text-[11px] font-semibold shadow-xl">
           ابدأ الطلب

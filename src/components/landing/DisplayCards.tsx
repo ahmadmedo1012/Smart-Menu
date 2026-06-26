@@ -1,51 +1,46 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { QrCode, Globe, Shield, TrendingUp } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
+import Link from "next/link";
+import { BENEFITS } from "./landing-data";
 
-/** Four cards — each with a unique visual identity. No icon+text repeat pattern. */
-const CARDS = [
-  {
-    icon: QrCode,
-    title: "QR كود مخصص",
-    desc: "كل طاولة QR خاص. الزبون يمسح ويطلب من جواله بدون انتظار.",
-    tag: "ابدأ في دقائق",
-    // "glass" variant — transparent, blur, gold border accent
-    treatment: "glass" as const,
-  },
-  {
-    icon: Globe,
-    title: "يعمل على كل الشاشات",
-    desc: "تجربة مثالية على الجوال، التابلت، والحاسوب — بدون تطبيق. تصميم متجاوب بالكامل.",
-    tag: "responsive",
-    treatment: "editorial" as const,
-  },
-  {
-    icon: Shield,
-    title: "تحكم كامل",
-    desc: "لوحة تحكم متكاملة لإدارة المنيو والطلبات والموظفين والإعدادات. مطاعم متعددة بحساب واحد.",
-    tag: "dashboard",
-    treatment: "minimal" as const,
-  },
-  {
-    icon: TrendingUp,
-    title: "نمو المبيعات",
-    desc: "زيادة المبيعات عبر الطلب الرقمي السريع وتجربة مستخدم مريحة. نظام ولاء يضمن عودة الزبائن.",
-    tag: "نتائج ملموسة",
-    treatment: "gold" as const,
-  },
+const colSpan = [
+  "md:col-span-2 md:row-span-2",
+  "md:col-span-1",
+  "md:col-span-1",
+  "md:col-span-1",
+  "md:col-span-1",
+  "md:col-span-1",
 ];
 
-/** Premium display cards — staggered reveal, 4 unique visual treatments */
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.15 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] },
+  },
+};
+
 export default function DisplayCards() {
   return (
-    <section className="relative py-32 md:py-40 overflow-hidden" dir="rtl">
-      {/* Subtle texture */}
+    <section className="relative py-24 md:py-32 overflow-hidden" dir="rtl">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gold/[0.02] via-transparent to-transparent pointer-events-none" />
+
+      {/* Dot texture */}
       <div
-        className="absolute inset-0 opacity-[0.012] pointer-events-none"
+        className="absolute inset-0 opacity-[0.015] pointer-events-none"
         style={{
           backgroundImage:
-            "radial-gradient(circle, oklch(0 0 0 / 0.6) 0.5px, transparent 0.5px)",
+            "radial-gradient(circle, oklch(0 0 0 / 0.5) 0.5px, transparent 0.5px)",
           backgroundSize: "20px 20px",
         }}
       />
@@ -53,94 +48,73 @@ export default function DisplayCards() {
       <div className="relative max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16 md:mb-20">
-          <span className="inline-block px-3 py-1 text-[11px] font-semibold tracking-widest uppercase mb-5 text-gold border border-gold/15 rounded-full">
-            أربع أدوات، منصة واحدة
+          <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider mb-6 text-gold border border-gold/20 rounded-full">
+            مميزات Smart Menu
           </span>
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.05] text-balance">
-            كل ما تحتاجه
-            <br />
-            <span className="text-gold">لإدارة مطعمك رقمياً</span>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-balance">
+            كل ما تحتاجه لإدارة مطعمك رقمياً
           </h2>
         </div>
 
-        {/* Cards — 2x2 grid, unique treatments */}
-        <div className="grid sm:grid-cols-2 gap-5 md:gap-6 max-w-4xl mx-auto">
-          {CARDS.map((card, i) => (
-            <DisplayCardItem key={i} card={card} index={i} />
+        {/* Bento grid */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          {BENEFITS.map((benefit, i) => (
+            <motion.div
+              key={i}
+              className={`${colSpan[i] ?? ""}`}
+              variants={itemVariants}
+            >
+              <BentoCard benefit={benefit} index={i} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          className="flex justify-center mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
+        >
+          <Link
+            href="/demo"
+            className="inline-flex shrink-0 items-center justify-center rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-all duration-200 h-9 gap-1.5 px-6 bg-gradient-to-r from-gold to-gold/80 text-gold-foreground hover:opacity-90 shadow-lg shadow-gold/20 hover:shadow-xl hover:shadow-gold/30 border-0 active:scale-[0.98]"
+          >
+            اكتشف المزيد
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 60 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 1.2, ease: [0.19, 1, 0.22, 1] as const },
-  },
-};
-
-function DisplayCardItem({
-  card,
-  index,
-}: {
-  card: (typeof CARDS)[number];
-  index: number;
-}) {
-  const treatments = {
-    glass: "bg-glass-bg backdrop-blur-sm border border-glass-border shadow-glass hover:shadow-glass-lg hover:border-gold/30",
-    editorial:
-      "bg-card border-2 border-border/30 shadow-sm hover:shadow-lg hover:border-gold/30",
-    minimal:
-      "bg-transparent border border-transparent hover:border-border/40 shadow-none hover:shadow-sm",
-    gold: "bg-gradient-to-br from-gold/10 via-gold/[0.04] to-transparent border border-gold/20 shadow-md hover:shadow-xl hover:shadow-gold/10 hover:border-gold/40",
-  };
+function BentoCard({ benefit, index }: { benefit: (typeof BENEFITS)[number]; index: number }) {
+  const Icon = benefit.icon;
 
   return (
-    <motion.div
-      className="relative"
-      variants={itemVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ delay: index * 0.25 }}
-    >
-      <div
-        className={`group relative rounded-2xl p-7 md:p-8 transition-all duration-700 ease-out hover:-translate-y-1 ${treatments[card.treatment]}`}
-      >
-        {/* Card number — corner */}
-        <span className="absolute start-3 top-3 text-[10px] font-bold text-muted-foreground/15 select-none">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-
-        {/* Icon */}
-        <div
-          className={`size-11 rounded-xl flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-110 ${
-            card.treatment === "gold"
-              ? "bg-gold text-gold-foreground"
-              : "bg-gold-muted text-gold"
-          }`}
-        >
-          <card.icon className="size-5" />
-        </div>
-
-        {/* Tag */}
-        <div className="text-[10px] font-semibold tracking-widest uppercase text-gold/60 mb-2">
-          {card.tag}
+    <div className={`double-bezel group h-full ${index === 0 ? "md:min-h-[320px]" : ""}`}>
+      <div className="double-bezel-inner h-full p-6 md:p-8 flex flex-col">
+        {/* Gold circle icon */}
+        <div className="size-12 rounded-full bg-gold/12 flex items-center justify-center mb-5 shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:bg-gold/20">
+          <Icon className="size-6 text-gold" />
         </div>
 
         {/* Content */}
-        <h3 className="text-base font-bold mb-2 leading-snug">{card.title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
+        <h3 className="text-lg font-bold mb-2 leading-snug">{benefit.title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
 
-        {/* Hover accent line — glass and gold treatments */}
-        {card.treatment !== "minimal" && (
-          <div className="absolute bottom-0 start-4 end-4 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out" />
-        )}
+        {/* Subtle hover accent */}
+        <div className="mt-auto pt-4">
+          <div className="h-px w-0 group-hover:w-full bg-gradient-to-r from-gold/30 to-transparent transition-all duration-700 ease-out" />
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

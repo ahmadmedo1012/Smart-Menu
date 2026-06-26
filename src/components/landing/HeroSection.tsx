@@ -19,14 +19,14 @@ const childVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 1.2, ease: [0.19, 1, 0.22, 1] as const },
+    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
 
 /** Launch-grade hero — cinematic composition, dramatic phone, premium typography */
 export default function HeroSection({ stats }: { stats: PublicStats | null }) {
   return (
-    <section className="relative min-h-[95vh] flex items-center overflow-hidden pt-28 pb-20">
+    <section className="relative min-h-[90dvh] flex items-center overflow-hidden pt-28 pb-20">
       {/* Deep ambient layers */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-gold-muted/5 to-background" />
 
@@ -61,7 +61,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
           initial="hidden"
           animate="visible"
         >
-          {/* Text column */}
+          {/* Text column — right in RTL */}
           <div className="text-center lg:text-right order-last lg:order-first">
             {/* Kicker */}
             <motion.div variants={childVariants} className="flex justify-center lg:justify-start">
@@ -133,7 +133,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
             </motion.div>
           </div>
 
-          {/* Phone column — dramatic reveal */}
+          {/* Phone column — left in RTL */}
           <motion.div
             variants={childVariants}
             className="order-first lg:order-last flex justify-center lg:justify-end"
@@ -152,7 +152,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
           <span className="text-[10px] font-medium tracking-widest uppercase">اسحب لأسفل</span>
           <motion.div
             className="size-4 rounded-full border border-muted-foreground/30 flex items-center justify-center"
-            animate={{ opacity: [0.4, 1, 0.4] }}
+            animate={{ y: [0, 4, 0], opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           >
             <div className="size-1.5 rounded-full bg-gold/60" />

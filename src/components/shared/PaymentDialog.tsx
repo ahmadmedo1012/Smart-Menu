@@ -127,7 +127,7 @@ export default function PaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-sm sm:max-w-md mx-2 rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto" showCloseButton={false}>
+      <DialogContent className="max-w-sm sm:max-w-md rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-br from-gold to-gold/80 text-primary-foreground p-6 rounded-t-2xl">
           <div className="flex items-center gap-2 mb-2">
@@ -161,7 +161,7 @@ export default function PaymentDialog({
                     type="button"
                     onClick={() => setProvider("libyana")}
                     className={cn(
-                      "h-12 rounded-xl border-2 text-sm font-medium transition-all",
+                      "h-12 rounded-xl border-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
                       provider === "libyana"
                         ? "border-gold bg-gold-muted dark:bg-gold-muted"
                         : "border-border/30 hover:border-gold/30"
@@ -173,7 +173,7 @@ export default function PaymentDialog({
                     type="button"
                     onClick={() => setProvider("madar")}
                     className={cn(
-                      "h-12 rounded-xl border-2 text-sm font-medium transition-all",
+                      "h-12 rounded-xl border-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2",
                       provider === "madar"
                         ? "border-gold bg-gold-muted dark:bg-gold-muted"
                         : "border-border/30 hover:border-gold/30"
@@ -196,7 +196,7 @@ export default function PaymentDialog({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(providerPhone)}
-                    className="size-8 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent"
+                    className="size-8 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
                     title="نسخ الرقم"
                   >
                     <Copy className="size-3.5" />
@@ -216,7 +216,7 @@ export default function PaymentDialog({
                   <button
                     type="button"
                     onClick={() => copyToClipboard(quickTransferCode)}
-                    className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30"
+                    className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
                     title="نسخ الرمز"
                   >
                     <Copy className="size-3.5" />
@@ -255,6 +255,7 @@ export default function PaymentDialog({
 
               {/* Submit */}
               <Button
+                variant="gradient"
                 className="w-full h-12 text-base font-semibold rounded-xl"
                 onClick={handleSent}
                 disabled={submitting || !phone.trim()}
@@ -300,14 +301,15 @@ export default function PaymentDialog({
           {step === "success" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
-                <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <ShieldCheck className="size-8 text-primary" />
+                <div className="size-16 rounded-full bg-gold-muted dark:bg-gold-muted flex items-center justify-center">
+                  <ShieldCheck className="size-8 text-gold" />
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
                 سيتم تفعيل اشتراكك بعد التحقق من الدفع
               </p>
               <Button
+                variant="gradient"
                 className="w-full h-12 text-base font-semibold rounded-xl"
                 onClick={handleConfirm}
               >
