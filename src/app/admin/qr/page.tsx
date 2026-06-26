@@ -64,7 +64,7 @@ export default function AdminQRPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
       <div className="flex items-center gap-3">
-        <div className="size-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+        <div className="size-11 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg">
           <QrCode className="size-5 text-white" />
         </div>
         <div>
@@ -87,8 +87,8 @@ export default function AdminQRPage() {
                   className={cn(
                     "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all",
                     selectedSlug === r.slug
-                      ? "bg-amber-500/10 border-amber-300/30 text-amber-700 dark:text-amber-300"
-                      : "border-border/30 hover:border-amber-200/30"
+                      ? "bg-gold-muted border-gold/30 text-gold"
+                      : "border-border/30 hover:border-gold/30"
                   )}
                 >
                   <Store className="size-4" />
@@ -110,7 +110,7 @@ export default function AdminQRPage() {
                 />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="size-10 md:size-14 rounded-2xl bg-card/90 shadow flex items-center justify-center">
-                    <Store className="size-5 md:size-7 text-amber-500" />
+                    <Store className="size-5 md:size-7 text-gold" />
                   </div>
                 </div>
               </div>
@@ -129,8 +129,8 @@ export default function AdminQRPage() {
                   className={cn(
                     "flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all",
                     qrSize === s.value
-                      ? "bg-amber-500/10 border-amber-300/30 text-amber-700 dark:text-amber-300"
-                      : "border-border/30 hover:border-amber-200/30"
+                      ? "bg-gold-muted border-gold/30 text-gold"
+                      : "border-border/30 hover:border-gold/30"
                   )}
                 >
                   {s.label}

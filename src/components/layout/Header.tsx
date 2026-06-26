@@ -54,7 +54,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "fixed top-4 inset-x-4 z-30 h-14 rounded-2xl glass-strong supports-backdrop-filter:bg-background/60",
+        "fixed top-4 inset-x-4 z-30 h-14 rounded-2xl glass-strong supports-backdrop-filter:bg-background/60 opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
         className
       )}
     >

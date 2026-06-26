@@ -34,8 +34,8 @@ interface StatsData {
 
 const SEVERITY_STYLES: Record<string, { label: string; color: string; bg: string }> = {
   error: { label: "خطأ", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
-  warning: { label: "تحذير", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
-  info: { label: "معلومة", color: "text-gold", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  warning: { label: "تحذير", color: "text-gold", bg: "bg-gold-muted dark:bg-gold-muted" },
+  info: { label: "معلومة", color: "text-gold", bg: "bg-gold-muted dark:bg-gold-muted" },
   success: { label: "نجاح", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
 }
 
@@ -158,10 +158,10 @@ export default function AdminDashboard() {
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, bg: "bg-amber-50/80 dark:bg-amber-950/20", iconColor: "text-amber-600 dark:text-amber-400" },
+          { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, bg: "bg-gold-muted dark:bg-gold-muted", iconColor: "text-gold dark:text-gold" },
           { label: "إجمالي المستخدمين", value: stats.totalUsers, icon: Users, bg: "bg-purple-50/80 dark:bg-purple-950/20", iconColor: "text-purple-600 dark:text-purple-400" },
           { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, bg: "bg-emerald-50/80 dark:bg-emerald-950/20", iconColor: "text-emerald-600 dark:text-emerald-400", suffix: " د.ل" },
-          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-blue-50/80 dark:bg-blue-950/20", iconColor: "text-gold dark:text-gold" },
+          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-gold-muted/80 dark:bg-gold-muted", iconColor: "text-gold dark:text-gold" },
         ].map((card, i) => {
           const Icon = card.icon
           return (
@@ -194,15 +194,15 @@ export default function AdminDashboard() {
           <p className="text-xs text-muted-foreground">مجاني</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.freePlanCount)}</p>
         </div>
-        <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200/30 p-4">
+        <div className="rounded-2xl bg-gold-muted dark:bg-gold-muted border border-gold/30 p-4">
           <p className="text-xs text-gold dark:text-gold">مرتبط</p>
           <p className="text-2xl font-bold mt-1 text-gold dark:text-gold">
             {toArabicNumber(stats.linkedRestaurants)}
           </p>
         </div>
-        <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 p-4">
-          <p className="text-xs text-amber-600 dark:text-amber-400">طلبات اليوم</p>
-          <p className="text-2xl font-bold mt-1 text-amber-700 dark:text-amber-300">
+        <div className="rounded-2xl bg-gold-muted dark:bg-gold-muted border border-gold/20 p-4">
+          <p className="text-xs text-gold dark:text-gold">طلبات اليوم</p>
+          <p className="text-2xl font-bold mt-1 text-gold/80 dark:text-gold">
             {toArabicNumber(stats.ordersToday.count)}
           </p>
         </div>
@@ -290,7 +290,7 @@ export default function AdminDashboard() {
               {stats.recentSignups.map((r) => (
                 <div key={r.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="size-9 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center" aria-hidden="true">
+                    <div className="size-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold/10 flex items-center justify-center" aria-hidden="true">
                       <Store className="size-4 text-primary" />
                     </div>
                     <div>
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "إضافة مطعم", href: "/admin/restaurants", icon: Store, color: "text-amber-600" },
+            { label: "إضافة مطعم", href: "/admin/restaurants", icon: Store, color: "text-gold" },
             { label: "الطلبات", href: "/admin/orders", icon: ShoppingCart, color: "text-gold" },
             { label: "المستخدمين", href: "/admin/users", icon: Users, color: "text-purple-600" },
             { label: "سجل التدقيق", href: "/admin/audit-logs", icon: Activity, color: "text-emerald-600" },
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
               <Link key={i} href={item.href}>
                 <button
                   type="button"
-                  className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-all group"
+                  className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-gold-muted/30 dark:hover:bg-gold-muted transition-all group"
                 >
                   <Icon className={cn("size-5 group-hover:scale-110 transition-transform", item.color)} aria-hidden="true" />
                   <span className="text-xs font-medium">{item.label}</span>

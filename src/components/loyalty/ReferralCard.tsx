@@ -81,7 +81,7 @@ export default function ReferralCard({
       <div className="absolute -top-20 -end-20 size-40 rounded-full bg-gold/20 blur-3xl" />
       <div className="absolute -bottom-20 -start-20 size-40 rounded-full bg-gold/15 blur-3xl" />
 
-      <div className="relative rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50 dark:from-gold-muted/80 dark:to-gold-muted/80 p-6 overflow-hidden">
+      <div className="relative rounded-2xl bg-gradient-to-br from-gold-muted to-gold-muted dark:from-gold-muted/80 dark:to-gold-muted/80 p-6 overflow-hidden">
         {/* Inner decorative dots */}
         <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-10" />
 

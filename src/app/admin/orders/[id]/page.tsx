@@ -121,7 +121,7 @@ ${items}
 
       {/* Restaurant info */}
       {order.restaurant && (
-        <div className="rounded-2xl bg-gradient-to-l from-blue-50/50 to-transparent dark:from-blue-950/10 border border-blue-200/20 dark:border-blue-500/20 p-4 flex items-center gap-3">
+        <div className="rounded-2xl bg-gradient-to-l from-gold-muted/50 to-transparent dark:from-gold-muted border border-gold/20 dark:border-gold/15 p-4 flex items-center gap-3">
           <Store className="size-5 text-primary" />
           <span className="font-medium">{order.restaurant.name}</span>
           <Link href={`/menu/${order.restaurant.slug}`} target="_blank" className="text-xs text-primary hover:text-gold transition-colors mr-auto">
@@ -145,7 +145,7 @@ ${items}
                   disabled={!isActive || order.status === "cancelled"}
                   className={cn(
                     "size-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2",
-                    isCurrent ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25 scale-110" :
+                    isCurrent ? "bg-gradient-to-r from-gold to-gold/80 text-white border-gold shadow-lg shadow-gold/25 scale-110" :
                     isActive ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 border-emerald-300 dark:border-emerald-700" :
                     "bg-muted/30 text-muted-foreground/30 border-border/20"
                   )}
@@ -162,7 +162,7 @@ ${items}
                   <div className={cn(
                     "h-0.5 w-full -mt-6 mr-10",
                     isActive && idx < currentIdx ? "bg-emerald-300 dark:bg-emerald-700" :
-                    isActive ? "bg-blue-300 dark:bg-gold" : "bg-border/20"
+                    isActive ? "bg-gold/60 dark:bg-gold" : "bg-border/20"
                   )} />
                 )}
               </div>
@@ -175,7 +175,7 @@ ${items}
               {currentIdx < STATUS_FLOW.length - 1 && (
                 <Button
                   onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
-                  className="flex-1 rounded-xl h-11 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                  className="flex-1 rounded-xl h-11 bg-gold hover:opacity-90"
                 >
                   ← {STATUS_CONFIG[STATUS_FLOW[currentIdx + 1]]?.label}
                 </Button>

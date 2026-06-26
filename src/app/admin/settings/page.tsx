@@ -176,8 +176,8 @@ export default function AdminSettingsPage() {
               className={cn(
                 "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all",
                 selectedId === r.id
-                  ? "bg-amber-500/10 border-amber-300/30 text-amber-700 dark:text-amber-300"
-                  : "border-border/30 hover:border-amber-200/30"
+                  ? "bg-gold-muted border-gold/30 text-gold/80 dark:text-gold"
+                  : "border-border/30 hover:border-gold/20"
               )}
             >
               <Store className="size-4 inline ml-1.5" aria-hidden="true" />
@@ -190,7 +190,7 @@ export default function AdminSettingsPage() {
           <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-border/20">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 flex items-center justify-center" aria-hidden="true">
+                <div className="size-10 rounded-xl bg-gradient-to-br from-gold/20 to-gold/10 flex items-center justify-center" aria-hidden="true">
                   <Store className="size-5 text-primary" />
                 </div>
                 <div>
@@ -333,8 +333,8 @@ export default function AdminSettingsPage() {
                       className={cn(
                         "flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all",
                         enabled
-                          ? "border-amber-300/30 bg-amber-50/30 dark:bg-amber-950/20"
-                          : "border-border/30 hover:border-amber-200/30"
+                          ? "border-gold/30 bg-gold-muted/30 dark:bg-gold-muted"
+                          : "border-border/30 hover:border-gold/20"
                       )}
                     >
                       <input

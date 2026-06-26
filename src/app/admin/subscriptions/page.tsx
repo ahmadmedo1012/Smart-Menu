@@ -38,7 +38,7 @@ interface Payment {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  pending: { label: "قيد الانتظار", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
+  pending: { label: "قيد الانتظار", color: "bg-gold-muted text-gold/80 dark:bg-gold-muted dark:text-gold" },
   verified: { label: "تم التحقق", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
   cancelled: { label: "ملغي", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
 };
@@ -152,9 +152,9 @@ export default function AdminSubscriptionsPage() {
           <p className="text-xs text-muted-foreground">الإجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 p-4">
-          <p className="text-xs text-amber-600">قيد الانتظار</p>
-          <p className="text-2xl font-bold mt-1 text-amber-600">{toArabicNumber(payments.filter(p => p.status === "pending").length)}</p>
+        <div className="rounded-2xl bg-gold-muted dark:bg-gold-muted border border-gold/20 p-4">
+          <p className="text-xs text-gold">قيد الانتظار</p>
+          <p className="text-2xl font-bold mt-1 text-gold">{toArabicNumber(payments.filter(p => p.status === "pending").length)}</p>
         </div>
         <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
           <p className="text-xs text-emerald-600">تم التحقق</p>
@@ -200,12 +200,12 @@ export default function AdminSubscriptionsPage() {
               return (
                 <div
                   key={p.id}
-                  className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-amber-200/30 hover:shadow-md transition-all"
+                  className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-gold/20 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="size-11 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center shrink-0">
-                        <Smartphone className="size-5 text-amber-600 dark:text-amber-400" />
+                      <div className="size-11 rounded-xl bg-gold-muted dark:bg-gold-muted flex items-center justify-center shrink-0">
+                        <Smartphone className="size-5 text-gold dark:text-gold" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">

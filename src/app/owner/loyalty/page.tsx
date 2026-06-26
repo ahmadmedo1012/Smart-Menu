@@ -99,7 +99,7 @@ function AnimatedCount({ value, suffix = "" }: { value: number; suffix?: string 
 
 const TIERS = [
   { key: "platinum", label: "بلاتيني", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
-  { key: "gold", label: "ذهبي", color: "text-amber-500 dark:text-amber-300", bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600", bar: "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600", icon: Star },
+  { key: "gold", label: "ذهبي", color: "text-gold dark:text-gold", bg: "bg-gradient-to-br from-gold to-gold/80", bar: "bg-gradient-to-r from-gold to-gold/80", icon: Star },
   { key: "silver", label: "فضي", color: "text-slate-500 dark:text-slate-300", bg: "bg-gradient-to-br from-slate-300 to-slate-500", bar: "bg-gradient-to-r from-slate-300 to-slate-500", icon: Medal },
   { key: "bronze", label: "برونزي", color: "text-amber-700 dark:text-amber-400", bg: "bg-gradient-to-br from-amber-400 to-amber-600", bar: "bg-gradient-to-r from-amber-400 to-amber-600", icon: Award },
 ]

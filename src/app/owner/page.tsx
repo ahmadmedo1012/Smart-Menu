@@ -36,8 +36,8 @@ interface LoyaltyStats {
 /* ---------- Status Config ---------- */
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; indicator: string }> = {
-  new:        { label: "جديد",       color: "text-gold dark:text-gold",       bg: "bg-blue-50 dark:bg-blue-950/20",      indicator: "bg-blue-500" },
-  preparing:  { label: "قيد التحضير", color: "text-amber-600 dark:text-amber-400",    bg: "bg-amber-50 dark:bg-amber-950/20",   indicator: "bg-amber-500" },
+  new:        { label: "جديد",       color: "text-gold dark:text-gold",       bg: "bg-gold-muted dark:bg-gold-muted",      indicator: "bg-gold" },
+  preparing:  { label: "قيد التحضير", color: "text-gold dark:text-gold",    bg: "bg-gold-muted dark:bg-gold-muted",   indicator: "bg-gold" },
   ready:      { label: "جاهز",       color: "text-green-600 dark:text-green-400",     bg: "bg-green-50 dark:bg-green-950/20",   indicator: "bg-green-500" },
   completed:  { label: "مكتمل",      color: "text-gray-600 dark:text-gray-400",       bg: "bg-gray-50 dark:bg-gray-800/20",     indicator: "bg-gray-400" },
   cancelled:  { label: "ملغي",       color: "text-red-600 dark:text-red-400",         bg: "bg-red-50 dark:bg-red-950/20",        indicator: "bg-red-500" },
@@ -82,7 +82,7 @@ function StatCard({ label, value, icon: Icon, subtitle, color, bg, onClick }: {
     <div onClick={onClick}
       className={cn(
         "group relative overflow-hidden rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-all duration-300",
-        onClick && "cursor-pointer hover:border-amber-200/30 hover:shadow-lg hover:-translate-y-0.5",
+        onClick && "cursor-pointer hover:border-gold/30 hover:shadow-lg hover:-translate-y-0.5",
       )}>
       <div className="flex items-start justify-between">
         <div className="space-y-1.5">
@@ -202,9 +202,9 @@ export default function OwnerDashboard() {
 
       {/* Welcome banner (new owners) */}
       {restaurant && stats && stats.totalOrders === 0 && (
-        <div className="rounded-2xl bg-gradient-to-br from-amber-50/70 to-white dark:from-amber-950/15 dark:to-card border border-amber-200/20 dark:border-amber-500/15 p-5 animate-fade-in">
+        <div className="rounded-2xl bg-gradient-to-br from-gold-muted/70 to-white dark:from-gold-muted/20 dark:to-card border border-gold/20 dark:border-gold/15 p-5 animate-fade-in">
           <div className="flex items-start gap-4 flex-wrap">
-            <div className="size-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shrink-0">
+            <div className="size-12 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg shrink-0">
               <Sparkles className="size-6 text-white" />
             </div>
             <div className="flex-1 min-w-[200px]">
@@ -213,7 +213,7 @@ export default function OwnerDashboard() {
                 ابدأ بإضافة أصنافك في المنيو، ثم شارك الرابط مع زبائنك. أول طلب سيصل هنا مباشرة!
               </p>
               <div className="flex gap-2 flex-wrap">
-                <Link href="/owner/menu"><Button size="sm" className="rounded-xl gap-1.5 text-xs bg-gradient-to-r from-amber-500 to-amber-600"><ClipboardList className="size-3.5" /> أضف أصنافك</Button></Link>
+                <Link href="/owner/menu"><Button size="sm" className="rounded-xl gap-1.5 text-xs bg-gradient-to-r from-gold to-gold/80"><ClipboardList className="size-3.5" /> أضف أصنافك</Button></Link>
                 <Link href="/owner/qr"><Button size="sm" variant="outline" className="rounded-xl gap-1.5 text-xs"><QrCode className="size-3.5" /> احصل على QR</Button></Link>
                 <Link href={`/menu/${restaurant.slug}`} target="_blank"><Button size="sm" variant="outline" className="rounded-xl gap-1.5 text-xs"><ExternalLink className="size-3.5" /> عرض المنيو</Button></Link>
               </div>
@@ -227,7 +227,7 @@ export default function OwnerDashboard() {
         <div className="relative overflow-hidden rounded-2xl bg-card/50 border border-border/30 p-5 shadow-sm">
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <div className="size-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+              <div className="size-12 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg shadow-gold/20 shrink-0">
                 <Store className="size-6 text-white" />
               </div>
               <div>
@@ -252,17 +252,17 @@ export default function OwnerDashboard() {
       {/* Stats grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="إجمالي الطلبات" value={stats?.totalOrders ?? 0} icon={ShoppingCart} subtitle="كل الوقت"
-          color="text-gold dark:text-gold" bg="bg-blue-50 dark:bg-blue-950/20"
+          color="text-gold dark:text-gold" bg="bg-gold-muted dark:bg-gold-muted"
           onClick={() => router.push("/owner/orders")} />
         <StatCard label="طلبات اليوم" value={stats?.todayOrders ?? 0} icon={TrendingUp}
           subtitle={stats?.todayRevenue ? `${toArabicNumber(stats.todayRevenue.toFixed(1))} د.ل` : undefined}
           color="text-emerald-600 dark:text-emerald-400" bg="bg-emerald-50 dark:bg-emerald-950/20" />
         <StatCard label="قيد الانتظار" value={pendingOrders} icon={Clock}
           subtitle={stats ? `${toArabicNumber(stats.statusBreakdown["new"] ?? 0)} جديد • ${toArabicNumber(stats.statusBreakdown["preparing"] ?? 0)} تحضير` : ""}
-          color="text-amber-600 dark:text-amber-400" bg="bg-amber-50 dark:bg-amber-950/20"
+          color="text-gold dark:text-gold" bg="bg-gold-muted dark:bg-gold-muted"
           onClick={() => router.push("/owner/orders")} />
         <StatCard label="الأصناف" value={stats?.totalItems ?? 0} icon={ClipboardList}
-          color="text-purple-600 dark:text-purple-400" bg="bg-purple-50 dark:bg-purple-950/20"
+          color="text-gold dark:text-gold" bg="bg-gold-muted dark:bg-gold-muted"
           onClick={() => router.push("/owner/menu")} />
       </div>
 
@@ -314,8 +314,8 @@ export default function OwnerDashboard() {
                     <div className="flex items-center gap-2">
                       <span className={cn(
                         "flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold",
-                        idx === 0 ? "bg-gradient-to-br from-amber-400 to-amber-600 text-white" :
-                        idx < 3 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300" :
+                        idx === 0 ? "bg-gradient-to-br from-gold to-gold/80 text-white" :
+                        idx < 3 ? "bg-gold-muted text-gold" :
                         "bg-muted text-muted-foreground"
                       )}>{toArabicNumber(idx + 1)}</span>
                       <span className="text-sm">{item.name}</span>
@@ -359,17 +359,17 @@ export default function OwnerDashboard() {
         <h3 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <Link href="/owner/menu">
-            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-0.5 hover:border-amber-300/40 cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-gold/10 hover:-translate-y-0.5 hover:border-gold/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-gold/0 to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
-                <ClipboardList className="size-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <ClipboardList className="size-4 text-gold dark:text-gold group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
                 <span className="text-xs font-medium">إدارة المنيو</span>
               </div>
             </div>
           </Link>
           <Link href="/owner/orders">
-            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 hover:border-blue-300/40 cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-gold/10 hover:-translate-y-0.5 hover:border-gold/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-gold/0 to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
                 <ShoppingCart className="size-4 text-gold dark:text-gold group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
                 <span className="text-xs font-medium">الطلبات</span>
@@ -378,7 +378,7 @@ export default function OwnerDashboard() {
           </Link>
           <Link href="/owner/qr">
             <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 hover:border-emerald-300/40 cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-gold/80/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
                 <QrCode className="size-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
                 <span className="text-xs font-medium">رمز QR</span>
@@ -386,10 +386,10 @@ export default function OwnerDashboard() {
             </div>
           </Link>
           <Link href="/owner/settings">
-            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 hover:border-purple-300/40 cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="group relative overflow-hidden rounded-xl border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-gold/10 hover:-translate-y-0.5 hover:border-gold/40 cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-gold/0 to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex flex-col items-center gap-1.5">
-                <Settings className="size-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
+                <Settings className="size-4 text-gold dark:text-gold group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
                 <span className="text-xs font-medium">الإعدادات</span>
               </div>
             </div>
@@ -399,10 +399,10 @@ export default function OwnerDashboard() {
 
       {/* Share your menu card */}
       {restaurant && (
-        <div className="rounded-2xl bg-gradient-to-br from-purple-50/60 to-indigo-50/60 dark:from-purple-950/10 dark:to-indigo-950/10 border border-purple-200/20 dark:border-purple-500/10 p-5 animate-fade-in">
+        <div className="rounded-2xl bg-gradient-to-br from-gold-muted/60 to-gold-muted/30 dark:from-gold-muted/20 dark:to-gold-muted/10 border border-gold/20 dark:border-gold/10 p-5 animate-fade-in">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div className="flex items-start gap-3">
-              <div className="size-11 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+              <div className="size-11 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg shadow-gold/20 shrink-0">
                 <QrCode className="size-5 text-white" />
               </div>
               <div>
@@ -426,7 +426,7 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <Link href="/owner/qr">
-              <Button size="sm" className="rounded-xl h-8 text-xs gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+              <Button size="sm" className="rounded-xl h-8 text-xs gap-1.5 bg-gradient-to-r from-gold to-gold/80 text-white">
                 <QrCode className="size-3.5" />
                 عرض QR
               </Button>
@@ -437,21 +437,21 @@ export default function OwnerDashboard() {
 
       {/* Loyalty quick stats */}
       {(loyaltyStats.totalLoyaltyCards ?? 0) > 0 && (
-        <div className="rounded-2xl bg-gradient-to-br from-amber-500/5 to-amber-600/5 border border-amber-200/20 dark:border-amber-500/10 p-4">
+        <div className="rounded-2xl bg-gradient-to-br from-gold/5 to-gold/5 border border-gold/20 dark:border-gold/10 p-4">
           <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
             <div className="flex items-center gap-2">
-              <Award className="size-4 text-amber-600 dark:text-amber-400" />
+              <Award className="size-4 text-gold dark:text-gold" />
               <h3 className="text-xs font-semibold">برنامج الولاء والإحالات</h3>
             </div>
             <Link href="/owner/loyalty">
-              <Button size="sm" className="gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-xs shadow-sm h-8">
+              <Button size="sm" className="gap-1.5 bg-gradient-to-r from-gold to-gold/80 text-white rounded-xl text-xs shadow-sm h-8">
                 إدارة <ArrowLeft className="size-3" />
               </Button>
             </Link>
           </div>
           <div className="grid gap-2.5 sm:grid-cols-4">
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
-              <div className="size-9 rounded-xl bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center"><Users className="size-4 text-gold dark:text-gold" /></div>
+              <div className="size-9 rounded-xl bg-gold-muted dark:bg-gold-muted flex items-center justify-center"><Users className="size-4 text-gold dark:text-gold" /></div>
               <div><p className="text-[11px] text-muted-foreground">الأعضاء</p><p className="text-base font-bold">{toArabicNumber(loyaltyStats.totalLoyaltyCards ?? 0)}</p></div>
             </div>
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
@@ -459,7 +459,7 @@ export default function OwnerDashboard() {
               <div><p className="text-[11px] text-muted-foreground">الإحالات</p><p className="text-base font-bold">{toArabicNumber(loyaltyStats.totalReferrals ?? 0)}</p></div>
             </div>
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">
-              <div className="size-9 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center"><Award className="size-4 text-amber-600 dark:text-amber-400" /></div>
+              <div className="size-9 rounded-xl bg-gold-muted dark:bg-gold-muted flex items-center justify-center"><Award className="size-4 text-gold dark:text-gold" /></div>
               <div><p className="text-[11px] text-muted-foreground">تحويل</p><p className="text-base font-bold">{loyaltyStats.conversionRate ? `${toArabicNumber(loyaltyStats.conversionRate)}%` : "-"}</p></div>
             </div>
             <div className="flex items-center gap-2.5 rounded-xl bg-card/50 p-3">

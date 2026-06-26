@@ -118,14 +118,14 @@ export default function OwnerMenuPage() {
       <div className="relative">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <input type="text" placeholder="ابحث في القائمة..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-blue-500/20" />
+          className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20" />
       </div>
 
       {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}
 
       {filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-          <div className="size-20 rounded-2xl bg-gradient-to-br from-gold/20 to-blue-600/10 flex items-center justify-center">
+          <div className="size-20 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/10 flex items-center justify-center">
             <Package className="size-10 text-muted-foreground/50" />
           </div>
           <p className="text-lg font-medium">{searchTerm ? "لا توجد نتائج" : "لا توجد تصنيفات"}</p>
@@ -135,7 +135,7 @@ export default function OwnerMenuPage() {
       ) : (
         <div className="space-y-3">
           {filteredCategories.map(cat => (
-            <div key={cat.id} className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-blue-200/30 hover:shadow-md">
+            <div key={cat.id} className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-gold/30 hover:shadow-md">
               <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20" onClick={() => toggleCat(cat.id)}>
                   <div className="flex items-center gap-3">
                     {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
@@ -192,7 +192,7 @@ export default function OwnerMenuPage() {
                   ) : (
                     <div className="py-8 text-center">
                       <p className="text-sm text-muted-foreground mb-3">لا توجد أصناف في هذا التصنيف</p>
-                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1 border-blue-200/30 text-gold hover:bg-blue-50"><Plus className="size-3.5" /> إضافة صنف</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1 border-gold/30 text-gold hover:bg-gold-muted"><Plus className="size-3.5" /> إضافة صنف</Button>
                     </div>
                   )}
                 </div>
@@ -216,7 +216,7 @@ export default function OwnerMenuPage() {
                   if (!IconComp) return null;
                   return (
                     <button key={iconName} type="button" onClick={() => setCatForm({...catForm, icon: iconName})}
-                      className={cn("size-10 rounded-xl flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30 scale-110" : "border-border/30 hover:border-blue-200/30")}>
+                      className={cn("size-10 rounded-xl flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-gold bg-gold-muted dark:bg-gold-muted scale-110" : "border-border/30 hover:border-gold/30")}>
                       <IconComp className="size-5" />
                     </button>
                   );

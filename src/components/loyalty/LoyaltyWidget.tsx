@@ -12,7 +12,7 @@ const TIER_CONFIG: Record<string, { labelAr: string; gradient: string; icon: typ
   bronze:   { labelAr: "برونزي", gradient: "from-gold to-gold/80", icon: Medal, minPoints: 0, color: "text-gold" },
   silver:   { labelAr: "فضي",    gradient: "from-slate-300 to-slate-500", icon: Award, minPoints: 50, color: "text-slate-500" },
   gold:     { labelAr: "ذهبي",   gradient: "from-gold via-gold to-gold/80", icon: Star, minPoints: 150, color: "text-gold" },
-  platinum: { labelAr: "بلاتيني", gradient: "from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles, minPoints: 400, color: "text-cyan-600" },
+  platinum: { labelAr: "بلاتيني", gradient: "from-gold to-gold/80", icon: Sparkles, minPoints: 400, color: "text-gold" },
 };
 
 type LoyaltyWidgetProps = {
@@ -60,7 +60,7 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
 
   return (
     <section className="max-w-4xl mx-auto px-4 mb-4 mt-8">
-      <div className="rounded-2xl bg-gradient-to-br from-blue-50/80 to-blue-100/50 dark:from-gold-muted/20 dark:to-blue-900/10 border border-blue-200/30 overflow-hidden">
+      <div className="rounded-2xl bg-gradient-to-br from-gold-muted/80 to-gold-muted/50 dark:from-gold-muted/20 dark:to-gold-muted/10 border border-gold/30 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">

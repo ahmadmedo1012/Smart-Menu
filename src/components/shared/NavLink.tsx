@@ -27,12 +27,12 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       className={cn(
         "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 overflow-hidden",
         isActive
-          ? "bg-gradient-to-r from-blue-500/15 to-blue-600/10 text-foreground shadow-xs dark:from-blue-400/15 dark:to-blue-500/10"
+          ? "bg-gradient-to-r from-gold/15 to-gold/10 text-foreground shadow-xs dark:from-gold/15 dark:to-gold/10"
           : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
       )}
     >
       {isActive && (
-        <span className="absolute end-0 top-1/2 -translate-y-1/2 w-0.5 h-7 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 shadow-sm shadow-blue-500/20 dark:from-blue-400 dark:to-blue-500 animate-scale-in" />
+        <span className="absolute end-0 top-1/2 -translate-y-1/2 w-0.5 h-7 rounded-full bg-gradient-to-b from-gold to-gold/80 shadow-sm shadow-gold/20 dark:from-gold dark:to-gold/80 animate-scale-in" />
       )}
       {isActive && <span className="sr-only">(الصفحة الحالية)</span>}
       <Icon

@@ -289,7 +289,7 @@ export default function PaymentDialog({
               </p>
               <div className="w-full bg-muted rounded-full h-2">
                 <div
-                  className="h-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-1000"
+                  className="h-2 rounded-full bg-gradient-to-r from-gold to-gold/80 transition-all duration-1000"
                   style={{ width: `${((30 - countdown) / 30) * 100}%` }}
                 />
               </div>

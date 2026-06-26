@@ -74,7 +74,7 @@ export default async function PublicMenuPage({
       <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
       {/* Hero */}
-      <header className="relative overflow-hidden bg-gradient-to-b from-amber-500/8 via-background to-background">
+      <header className="relative overflow-hidden bg-gradient-to-b from-gold/8 via-background to-background">
         <div className="absolute inset-0 hero-mesh">
           <div className="blob" style={{ width: "500px", height: "500px", top: "-20%", left: "-10%", animationDuration: "22s" }} />
           <div className="blob" style={{ width: "400px", height: "400px", bottom: "-30%", right: "-15%", animationDuration: "26s" }} />
@@ -84,11 +84,11 @@ export default async function PublicMenuPage({
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-16 pb-8 md:pt-14 md:pb-12 text-center animate-page-enter">
           {restaurant.logo ? (
-            <div className="relative mx-auto mb-5 size-24 md:size-28 rounded-2xl overflow-hidden shadow-xl shadow-amber-500/15 ring-2 ring-amber-200/20 dark:ring-amber-500/15 animate-magnetic-float">
+            <div className="relative mx-auto mb-5 size-24 md:size-28 rounded-2xl overflow-hidden shadow-xl shadow-gold/15 ring-2 ring-gold/20 dark:ring-gold/15 animate-magnetic-float">
               <img src={restaurant.logo} alt={restaurant.name} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ) : (
-            <div className="relative mx-auto mb-5 size-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 animate-magnetic-float" aria-hidden="true">
+            <div className="relative mx-auto mb-5 size-20 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-lg shadow-gold/20 animate-magnetic-float" aria-hidden="true">
               <Store className="size-10 text-white" aria-hidden="true" />
             </div>
           )}
@@ -112,7 +112,7 @@ export default async function PublicMenuPage({
             <ShareButton url={`${origin}/menu/${slug}`} title={`منيو ${restaurant.name}`} />
 
             <a href={`/menu/${slug}/print`} target="_blank"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-amber-500/10 transition-all duration-300">
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-gold-muted transition-all duration-300">
               <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 9V3h12v6M6 18h12v3H6v-3z"/>
               </svg>
@@ -124,7 +124,7 @@ export default async function PublicMenuPage({
             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
               {restaurant.phone && (
                 <a href={`tel:${restaurant.phone}`} dir="ltr"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-amber-500/10 transition-all duration-300">
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-gold-muted transition-all duration-300">
                   <Phone className="size-3.5 text-primary" aria-hidden="true" />
                   {restaurant.phone}
                 </a>
@@ -138,7 +138,7 @@ export default async function PublicMenuPage({
               )}
               {restaurant.email && (
                 <a href={`mailto:${restaurant.email}`} dir="ltr"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-amber-500/10 transition-all duration-300">
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-gold-muted transition-all duration-300">
                   <Mail className="size-3.5 text-primary" aria-hidden="true" />
                   {restaurant.email}
                 </a>
@@ -190,8 +190,8 @@ export default async function PublicMenuPage({
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {restaurant.phone && (
                   <a href={`tel:${restaurant.phone}`} dir="ltr"
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-amber-500/5 hover:border-amber-300/20 transition-all duration-300 group">
-                    <div className="size-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-gold-muted/50 hover:border-gold/20 transition-all duration-300 group">
+                    <div className="size-10 rounded-xl bg-gold-muted dark:bg-gold-muted flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Phone className="size-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
@@ -214,8 +214,8 @@ export default async function PublicMenuPage({
                 )}
                 {restaurant.email && (
                   <a href={`mailto:${restaurant.email}`} dir="ltr"
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-amber-500/5 hover:border-amber-300/20 transition-all duration-300 group">
-                    <div className="size-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-gold-muted/50 hover:border-gold/20 transition-all duration-300 group">
+                    <div className="size-10 rounded-xl bg-gold-muted dark:bg-gold-muted flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Mail className="size-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
@@ -226,7 +226,7 @@ export default async function PublicMenuPage({
                 )}
                 {restaurant.address && (
                   <div className="flex items-center gap-3 p-3 rounded-xl border border-border/30">
-                    <div className="size-10 rounded-xl bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center shrink-0">
+                    <div className="size-10 rounded-xl bg-gold-muted dark:bg-gold-muted flex items-center justify-center shrink-0">
                       <MapPin className="size-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
@@ -252,7 +252,7 @@ export default async function PublicMenuPage({
       )}
 
       <footer className="border-t border-border/20 py-6 text-center text-xs text-muted-foreground">
-        <p>مدعوم من <Link href="/" className="text-primary hover:text-amber-600 transition-colors font-medium">الربط الذكي</Link></p>
+        <p>مدعوم من <Link href="/" className="text-primary hover:text-gold transition-colors font-medium">الربط الذكي</Link></p>
       </footer>
     </div>
   );

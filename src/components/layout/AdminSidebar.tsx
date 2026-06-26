@@ -35,7 +35,7 @@ export function AdminSidebar() {
     <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/40 bg-card/95 backdrop-blur-xl lg:flex lg:flex-col shadow-sm">
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">
-        <div className="size-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-sm">
+        <div className="size-8 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center shadow-sm">
           <Store className="size-4 text-white" />
         </div>
         <div>

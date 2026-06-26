@@ -29,7 +29,7 @@ function Card({
         // Outlined: prominent border, no hover effects
         "data-[elevation=outlined]:border-2 data-[elevation=outlined]:border-foreground/10 data-[elevation=outlined]:hover:shadow-none data-[elevation=outlined]:hover:translate-y-0",
         variant === "glass" && "glass-card backdrop-blur-xl",
-        variant === "gradient" && "bg-gradient-to-br from-amber-500/[0.03] via-card to-secondary/50",
+        variant === "gradient" && "bg-gradient-to-br from-gold/[0.03] via-card to-secondary/50",
         className
       )}
       {...props}

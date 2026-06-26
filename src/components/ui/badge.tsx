@@ -24,7 +24,7 @@ const badgeVariants = cva(
         blue: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/20",
         purple: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/20",
         gradient:
-          "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm shadow-blue-500/20",
+          "bg-gradient-to-r from-gold to-gold/80 text-white shadow-sm shadow-gold/20",
       },
     },
     defaultVariants: {

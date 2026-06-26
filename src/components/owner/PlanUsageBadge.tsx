@@ -77,7 +77,7 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
         </div>
         {isAt && (
           <Link href="/pricing">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-medium shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-amber-700">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-gold to-gold/80 text-gold-foreground text-xs font-medium shadow-lg shadow-gold/20 hover:opacity-90">
               <Crown className="size-3" /> ترقية
             </button>
           </Link>
@@ -87,7 +87,7 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
         <div
           className={cn(
             "h-full rounded-full transition-all duration-700",
-            isAt ? "bg-destructive" : isNear ? "bg-amber-500" : "bg-gradient-to-r from-amber-500 to-amber-600"
+            isAt ? "bg-destructive" : isNear ? "bg-gold" : "bg-gradient-to-r from-gold to-gold/80"
           )}
           style={{ width: `${pct}%` }}
         />

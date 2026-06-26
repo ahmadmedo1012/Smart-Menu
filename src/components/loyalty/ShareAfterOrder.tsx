@@ -296,7 +296,7 @@ ${referralUrl}
                 <button
                   type="button"
                   onClick={handleShareInstagram}
-                  className="h-12 rounded-xl bg-gradient-to-br from-pink-400 via-purple-500 to-orange-400 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 active:scale-[0.98] transition-all cursor-pointer"
+                  className="h-12 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-gold/25 hover:shadow-xl hover:shadow-gold/30 active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <Camera className="size-5" />
                   إنستغرام

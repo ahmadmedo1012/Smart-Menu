@@ -135,7 +135,7 @@ export default function MenuPageClient({
             placeholder="ابحث في القائمة..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 pr-11 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-blue-500/20 shadow-sm"
+            className="w-full h-12 pr-11 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-gold focus-visible:ring-4 focus-visible:ring-gold/20 shadow-sm"
           />
           {search && (
             <button
@@ -227,7 +227,7 @@ export default function MenuPageClient({
           className={cn(
             "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
             activeCategory === null
-              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105"
+              ? "bg-gold text-gold-foreground shadow-lg shadow-gold/25 scale-105"
               : "glass-card hover:bg-gold-muted",
           )}
         >
@@ -253,7 +253,7 @@ export default function MenuPageClient({
             className={cn(
               "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
               activeCategory === cat.id
-                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105"
+                ? "bg-gold text-gold-foreground shadow-lg shadow-gold/25 scale-105"
                 : "glass-card hover:bg-gold-muted",
             )}
           >

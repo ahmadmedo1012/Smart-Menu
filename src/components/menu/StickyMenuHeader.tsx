@@ -35,10 +35,10 @@ export default function StickyMenuHeader({
           scrolled
             ? logo
               ? "ring-1 ring-border/30"
-              : "bg-gradient-to-br from-amber-400 to-amber-600"
+              : "bg-gradient-to-br from-gold to-gold/80"
             : logo
               ? "ring-1 ring-white/20"
-              : "bg-gradient-to-br from-amber-400/80 to-amber-600/80",
+              : "bg-gradient-to-br from-gold/80 to-gold/60",
         )}
       >
         {logo ? (

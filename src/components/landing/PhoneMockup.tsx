@@ -111,30 +111,30 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   if (!tilt) return frame;
 
   return (
-    <div className={cn("relative w-full max-w-md mx-auto", tilt && "md:scale-105 origin-center animate-phone-float")}>
+    <div className={cn("relative w-full max-w-md mx-auto", tilt && "md:scale-105 origin-center animate-float-gentle")}>
       <TiltWrapper>{frame}</TiltWrapper>
     </div>
   );
 }
 
-/** 3D tilt wrapper — ~38° left tilt, natural perspective */
+/** 3D tilt wrapper — ~15° left tilt, refined perspective, cinematic shadow */
 function TiltWrapper({ children }: { children: ReactNode }) {
   return (
-    <div className="relative" style={{ perspective: "1200px" }}>
+    <div className="relative" style={{ perspective: "1400px" }}>
       <div
-        className="relative"
+        className="relative transition-transform duration-700 ease-out"
         style={{
-          transform: "perspective(1200px) rotateY(-22deg) rotateX(5deg) rotateZ(-2deg)",
+          transform: "perspective(1400px) rotateY(-15deg) rotateX(4deg)",
           transformStyle: "preserve-3d",
         }}
       >
-        {/* Cast shadow */}
+        {/* Cast shadow — wider, softer */}
         <div
-          className="absolute -bottom-2 left-[5%] right-[15%] h-12 rounded-[50%] pointer-events-none"
+          className="absolute -bottom-1 left-[10%] right-[20%] h-10 rounded-[50%] pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse, oklch(0 0 0 / 0.3) 0%, transparent 70%)",
-            filter: "blur(10px)",
-            transform: "translateZ(-40px)",
+            background: "radial-gradient(ellipse, oklch(0 0 0 / 0.2) 0%, transparent 70%)",
+            filter: "blur(12px)",
+            transform: "translateZ(-30px)",
           }}
         />
         {children}
