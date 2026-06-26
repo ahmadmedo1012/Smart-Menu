@@ -10,11 +10,11 @@ const EASE = [0.16, 1, 0.2, 1] as const;
 
 export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 	return (
-		<section className="relative min-h-[90dvh] flex items-center justify-center overflow-hidden bg-[#111013]">
+		<section className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-[#111013]">
 			{/* Orange radial glow */}
 			<motion.div
 				className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[70vmin] rounded-full pointer-events-none"
-				animate={{ opacity: [0.12, 0.25, 0.12], scale: [1, 1.05, 1] }}
+				animate={{ opacity: [0.1, 0.18, 0.1], scale: [1, 1.05, 1] }}
 				transition={{ duration: 8, repeat: Infinity, ease: EASE }}
 				style={{
 					background: "radial-gradient(ellipse at center, oklch(0.68 0.19 45 / 0.1) 0%, transparent 70%)",
@@ -24,23 +24,38 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 
 			<div className="relative z-10 w-full max-w-[1220px] mx-auto px-4 text-center py-20">
 				{/* Headline — big display like PlanPOS */}
-				<motion.h1
-					initial={{ opacity: 0, y: 30 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 1.2, ease: EASE }}
+				<motion.div
+					initial="hidden"
+					animate="visible"
+					variants={{
+						visible: { transition: { staggerChildren: 0.15 } },
+					}}
 					className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-medium leading-[1.15] text-white text-balance mb-6 max-w-4xl mx-auto"
 				>
-					اللي يواكب التطور
-					<br />
-					<span className="text-orange">يسبق الجميع</span>
-				</motion.h1>
+					<motion.p
+						variants={{
+							hidden: { opacity: 0, y: 30 },
+							visible: { opacity: 1, y: 0, transition: { duration: 1, ease: EASE } },
+						}}
+					>
+						اللي يواكب التطور
+					</motion.p>
+					<motion.p
+						variants={{
+							hidden: { opacity: 0, y: 30 },
+							visible: { opacity: 1, y: 0, transition: { duration: 1, ease: EASE } },
+						}}
+					>
+						<span className="text-orange font-bold">يسبق الجميع</span>
+					</motion.p>
+				</motion.div>
 
 				{/* Subtitle — problem statement */}
 				<motion.p
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1, delay: 0.2, ease: EASE }}
-					className="text-base sm:text-lg text-[#c0c0c0] max-w-2xl mx-auto leading-relaxed mb-10"
+					className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-10"
 				>
 					هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
 				</motion.p>
@@ -50,7 +65,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1, delay: 0.35, ease: EASE }}
-					className="flex gap-4 justify-center flex-wrap"
+					className="flex gap-3 sm:gap-4 justify-center flex-wrap"
 				>
 					<Link href="/subscribe">
 						<Button
@@ -74,7 +89,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 						<Button
 							variant="ghost"
 							size="lg"
-							className="px-6 h-14 text-base text-[#c0c0c0] hover:text-orange hover:bg-orange/10"
+							className="px-6 h-14 text-base text-white/70 hover:text-orange hover:bg-orange/10"
 						>
 							<MessageCircle className="ms-2 size-5" />
 							تواصل عبر واتساب
@@ -82,17 +97,34 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					</Link>
 				</motion.div>
 
-				{/* Scroll indicator */}
+				{/* Phone showcase */}
 				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ duration: 1, delay: 1.2, ease: EASE }}
-					className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+					initial={{ opacity: 0, y: 40 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 1.2, delay: 0.55, ease: EASE }}
+					className="mt-16"
 				>
-					<span className="text-[10px] tracking-widest uppercase text-white/30">اسحب لأسفل</span>
-					<ChevronDown className="size-4 text-white/30 animate-scroll-indicator" />
+					<div className="relative mx-auto w-full max-w-[800px] aspect-video rounded-xl overflow-hidden bg-gradient-to-b from-white/5 to-transparent border border-white/10 shadow-2xl">
+						<img
+							src="/hero-poster.jpg"
+							alt="Smart Menu showcase"
+							className="w-full h-full object-cover"
+							loading="eager"
+						/>
+					</div>
 				</motion.div>
 			</div>
+
+			{/* Scroll indicator */}
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ duration: 1, delay: 1.2, ease: EASE }}
+				className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+			>
+				<span className="text-[10px] tracking-widest uppercase text-white/30">اسحب لأسفل</span>
+				<ChevronDown className="size-4 text-white/30 animate-scroll-indicator" />
+			</motion.div>
 		</section>
 	);
 }

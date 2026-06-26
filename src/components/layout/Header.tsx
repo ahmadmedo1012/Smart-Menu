@@ -22,7 +22,7 @@ const landingLinks = [
 interface HamburgerProps { open: boolean; onClick: () => void }
 
 function HamburgerButton({ open, onClick }: HamburgerProps) {
-	const line = "absolute inset-x-0 h-[2px] rounded-full bg-foreground transition-all duration-500 origin-center"
+	const line = "absolute inset-x-0 h-[2px] rounded-full bg-foreground transition-all duration-500"
 	return (
 		<button
 			onClick={onClick}
@@ -30,9 +30,9 @@ function HamburgerButton({ open, onClick }: HamburgerProps) {
 			aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
 		>
 			<span className="relative size-4">
-				<span className={cn(line, "top-[2px]", open && "top-[7px] rotate-45")} />
+				<span className={cn(line, "top-[7px]", open && "rotate-45")} />
 				<span className={cn(line, "top-[7px]", open && "opacity-0 scale-x-0")} />
-				<span className={cn(line, "top-[12px]", open && "top-[7px] -rotate-45")} />
+				<span className={cn(line, "top-[7px]", open && "-rotate-45")} />
 			</span>
 		</button>
 	)
@@ -72,8 +72,8 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 				className={cn(
 					"fixed top-4 inset-x-4 z-50 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
 					open
-						? "opacity-100 translate-y-0 scale-100"
-						: "opacity-0 -translate-y-6 scale-95 pointer-events-none"
+						? "opacity-100 translate-y-0"
+						: "opacity-0 -translate-y-6 pointer-events-none"
 				)}
 			>
 				<div className="rounded-md glass-strong overflow-hidden shadow-2xl">
@@ -135,16 +135,6 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 	)
 }
 
-function ActiveUnderline({ active }: { active: boolean }) {
-	return (
-		<span
-			className={cn(
-				"absolute -bottom-px inset-x-2 h-[2px] rounded-full bg-orange transition-all duration-300 ease-smooth-out",
-				active ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
-			)}
-		/>
-	)
-}
 
 export function Header({ className }: HeaderProps) {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -157,7 +147,7 @@ export function Header({ className }: HeaderProps) {
 			<header
 				className={cn(
 					"fixed top-4 inset-x-4 z-30 max-w-[1220px] mx-auto",
-					"h-14 rounded-sm glass-strong",
+					"h-12 rounded-[14px] border border-white/10 glass-strong",
 					"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
 					className
 				)}
@@ -183,14 +173,13 @@ export function Header({ className }: HeaderProps) {
 									key={link.href}
 									href={link.href}
 									className={cn(
-										"relative px-3 py-1.5 rounded-sm text-sm transition-colors duration-200",
+										"px-3 py-1.5 rounded-sm text-sm transition-colors duration-200 border-b-2",
 										isActive
-											? "text-orange font-medium"
-											: "text-muted-foreground hover:text-foreground hover:bg-orange-muted"
+											? "text-orange font-medium border-orange"
+											: "text-muted-foreground hover:text-foreground bg-white/10 hover:bg-white/15 border-transparent"
 									)}
 								>
 									{link.label}
-									<ActiveUnderline active={isActive} />
 								</Link>
 							)
 						})}

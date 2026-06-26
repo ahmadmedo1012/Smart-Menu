@@ -23,6 +23,9 @@ export function ProblemSection() {
 	return (
 		<section className="relative py-20 bg-white" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4 text-center">
+				<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
+					تحديات العصر الرقمي
+				</span>
 				<motion.p {...fadeUp(0)} className="text-lg md:text-xl text-[#1f2124] leading-relaxed max-w-3xl mx-auto mb-4">
 					في عالم تتحكم فيه التكنولوجيا، ليس كافيًا أن يكون لديك طعام لذيذ
 				</motion.p>
@@ -67,7 +70,7 @@ export function FeaturesGridSection() {
 				</div>
 				<div className="grid md:grid-cols-3 gap-6">
 					{features.map((feat, i) => (
-						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-white/5 border border-white/10 p-8 hover:border-orange/30 transition-all duration-300">
+						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-white/5 border border-white/10 p-8 hover:border-orange/30 hover:scale-[1.02] transition-all duration-300">
 							<div className="size-12 rounded-md bg-orange/15 flex items-center justify-center mb-4">
 								<feat.icon className="size-6 text-orange" />
 							</div>
@@ -101,6 +104,9 @@ export function DigitalMenuSection() {
 		<section className="relative py-20 bg-white" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-12">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
+						المنيو الرقمي المثالي
+					</span>
 					<motion.h2 {...fadeUp(0)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-[#1f2124] mb-4">
 						نحن نوفر الحل الأمثل لعمل منيو الكتروني تفاعلي
 					</motion.h2>
@@ -108,7 +114,7 @@ export function DigitalMenuSection() {
 						مصمم بشكل جميل لأفضل واجهة مستخدم وتجربة مستخدم. كل ما يتطلبه الأمر لعمل لوحة فنية رقمية
 					</motion.p>
 				</div>
-				<div className="grid md:grid-cols-4 gap-6">
+				<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
 					{points.map((point, i) => (
 						<motion.div key={i} {...fadeUp(i + 2)} className="text-center p-6 rounded-md border border-gray-100 hover:border-orange/30 hover:shadow-sm transition-all duration-300">
 							<div className="size-12 rounded-full bg-orange/10 flex items-center justify-center mx-auto mb-3">
@@ -140,6 +146,9 @@ export function ExperienceSection() {
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-12">
 					<motion.h2 {...fadeUp(0)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-white mb-4">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
+						تجربة رقمية متطورة
+					</span>
 						قدم تجربة حديثة وآمنة لعملائك
 					</motion.h2>
 					<motion.p {...fadeUp(1)} className="text-base text-[#c0c0c0] max-w-xl mx-auto mb-8">
@@ -239,16 +248,16 @@ export function FAQSection() {
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="max-w-3xl mx-auto">
 					<div className="text-center mb-12">
-						<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 							أسئلة واجوبة
-						</span>
+					</span>
 						<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-[#1f2124]">
 							الأسئلة المتكررة
 						</motion.h2>
 					</div>
 					<div className="space-y-3">
 						{FAQ_ITEMS.map((faq, i) => (
-							<motion.details key={i} {...fadeUp(i * 0.5)} className="group rounded-md border border-gray-200 bg-white open:border-orange/30 open:shadow-sm transition-all duration-300 overflow-hidden">
+							<motion.details key={i} {...fadeUp(i * 0.5)} className="group rounded-md border border-gray-200 bg-white open:border-orange/30 open:shadow-md transition-all duration-300 overflow-hidden">
 								<summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none px-5 py-4 text-[#1f2124] hover:text-orange transition-colors [&::-webkit-details-marker]:hidden">
 									{faq.q}
 									<ChevronDown className="size-4 text-orange shrink-0 group-open:rotate-180 transition-transform duration-300" />
@@ -282,7 +291,7 @@ const CLIENTS = [
 
 export function ClientsSection() {
 	return (
-		<section className="relative py-16 bg-white overflow-hidden" dir="rtl">
+		<section className="relative py-20 bg-white overflow-hidden" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-10">
 					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
@@ -292,9 +301,9 @@ export function ClientsSection() {
 						عملاؤنا
 					</motion.h2>
 				</div>
-				<motion.div {...fadeUp(2)} className="flex flex-wrap justify-center gap-4">
+				<motion.div {...fadeUp(2)} className="flex flex-wrap justify-center gap-3">
 					{CLIENTS.map((name, i) => (
-						<div key={i} className="px-5 py-3 rounded-md bg-gray-50 border border-gray-100 text-sm font-medium text-[#1f2124] hover:border-orange/30 transition-colors">
+						<div key={i} className="px-4 py-2.5 rounded-md bg-gray-50 border border-gray-100 text-sm font-medium text-[#1f2124] hover:border-orange/30 transition-colors">
 							{name}
 						</div>
 					))}
@@ -311,6 +320,9 @@ export function MidCTASection() {
 			<div className="absolute inset-0 bg-gradient-to-b from-[#111013] via-orange/[0.02] to-[#111013]" />
 			<div className="relative max-w-[1220px] mx-auto px-4 text-center">
 				<motion.div {...fadeUp(0)}>
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
+						انطلق الآن
+					</span>
 					<h2 className="text-3xl md:text-5xl font-medium leading-[1.15] text-white mb-4">
 						اللي يواكب التطور
 						<br />
@@ -337,9 +349,9 @@ export function ContactSection() {
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="max-w-xl mx-auto">
 					<div className="text-center mb-10">
-						<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 							نرحب بكم دائماً
-						</span>
+					</span>
 						<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-[#1f2124]">
 							للأسئلة والإستفسارات
 							<br />
@@ -347,12 +359,12 @@ export function ContactSection() {
 						</motion.h2>
 					</div>
 					<motion.form {...fadeUp(2)} className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-						<input type="text" placeholder="الإسم بالكامل" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="text" placeholder="إسم نشاطك" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="email" placeholder="البريد الإلكترونى" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="text" placeholder="الدولة" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="tel" placeholder="رقم التواصل" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<textarea placeholder="رسالتك بالتفصيل" rows={5} className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all resize-none" />
+						<input type="text" placeholder="الإسم بالكامل" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all" />
+						<input type="text" placeholder="إسم نشاطك" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all" />
+						<input type="email" placeholder="البريد الإلكترونى" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all" />
+						<input type="text" placeholder="الدولة" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all" />
+						<input type="tel" placeholder="رقم التواصل" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all" />
+						<textarea placeholder="رسالتك بالتفصيل" rows={5} className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all resize-none" />
 						<Button type="submit" variant="orange" size="lg" className="w-full h-12 text-base">
 							إرسال رسالتك
 						</Button>
@@ -367,8 +379,8 @@ export function ContactSection() {
 export function CTASection() {
 	return (
 		<section className="relative overflow-hidden py-20 bg-background" dir="rtl">
-			<div className="absolute top-0 start-0 size-96 -translate-x-1/4 -translate-y-1/4 rounded-full bg-orange/15 blur-[160px] pointer-events-none" />
-			<div className="absolute bottom-0 end-0 size-96 translate-x-1/4 translate-y-1/4 rounded-full bg-orange/10 blur-[160px] pointer-events-none" />
+			<div className="absolute top-0 start-0 size-96 -translate-x-1/4 -translate-y-1/4 rounded-full bg-orange/15 blur-[120px] pointer-events-none" />
+			<div className="absolute bottom-0 end-0 size-96 translate-x-1/4 translate-y-1/4 rounded-full bg-orange/10 blur-[120px] pointer-events-none" />
 
 			<div className="relative max-w-[1220px] mx-auto px-4 text-center">
 				<motion.div {...fadeUp(0)}>
