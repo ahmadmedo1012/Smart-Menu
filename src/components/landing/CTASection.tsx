@@ -58,17 +58,17 @@ export function FeaturesGridSection() {
 		<section className="relative py-20 bg-[#111013]" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-14">
-					<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-4">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 						إليك ما يمكنك تحقيقه معنا
-					</motion.span>
+					</span>
 					<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-white">
 						ميزات متكاملة لمطعمك
 					</motion.h2>
 				</div>
 				<div className="grid md:grid-cols-3 gap-6">
 					{features.map((feat, i) => (
-						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-[6px] bg-white/5 border border-white/10 p-8 hover:border-orange/30 transition-all duration-300">
-							<div className="size-12 rounded-[6px] bg-orange/15 flex items-center justify-center mb-4">
+						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-white/5 border border-white/10 p-8 hover:border-orange/30 transition-all duration-300">
+							<div className="size-12 rounded-md bg-orange/15 flex items-center justify-center mb-4">
 								<feat.icon className="size-6 text-orange" />
 							</div>
 							<h3 className="text-xl font-medium text-white mb-4">{feat.title}</h3>
@@ -110,7 +110,7 @@ export function DigitalMenuSection() {
 				</div>
 				<div className="grid md:grid-cols-4 gap-6">
 					{points.map((point, i) => (
-						<motion.div key={i} {...fadeUp(i + 2)} className="text-center p-6 rounded-[6px] border border-gray-100 hover:border-orange/30 hover:shadow-sm transition-all duration-300">
+						<motion.div key={i} {...fadeUp(i + 2)} className="text-center p-6 rounded-md border border-gray-100 hover:border-orange/30 hover:shadow-sm transition-all duration-300">
 							<div className="size-12 rounded-full bg-orange/10 flex items-center justify-center mx-auto mb-3">
 								<point.icon className="size-6 text-orange" />
 							</div>
@@ -156,7 +156,7 @@ export function ExperienceSection() {
 				</div>
 				<div className="grid md:grid-cols-3 gap-6">
 					{items.map((item, i) => (
-						<motion.div key={i} {...fadeUp(i + 3)} className="rounded-[6px] bg-white/5 border border-white/10 p-6 text-center hover:border-orange/30 transition-all duration-300">
+						<motion.div key={i} {...fadeUp(i + 3)} className="rounded-md bg-white/5 border border-white/10 p-6 text-center hover:border-orange/30 transition-all duration-300">
 							<div className="size-12 rounded-full bg-orange/15 flex items-center justify-center mx-auto mb-3">
 								<item.icon className="size-6 text-orange" />
 							</div>
@@ -182,17 +182,17 @@ export function TestimonialsSection() {
 		<section id="reviews" className="relative py-20 bg-[#111013]" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-12">
-					<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-4">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 						ماذا يقول العملاء
-					</motion.span>
+					</span>
 					<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-white">
 						شكرا لعملائنا
 					</motion.h2>
 				</div>
 				<div className="grid md:grid-cols-3 gap-6">
 					{testimonials.map((t, i) => (
-						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-[6px] bg-white/5 border border-white/10 p-8 hover:border-orange/30 transition-all duration-300">
-							<span className="inline-block px-3 py-1 rounded-full text-[10px] font-semibold uppercase bg-orange/15 text-orange mb-4">
+						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-white/5 border border-white/10 p-8 hover:border-orange/30 transition-all duration-300">
+							<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 								{t.tag}
 							</span>
 							<div className="flex gap-0.5 mb-4">
@@ -239,16 +239,16 @@ export function FAQSection() {
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="max-w-3xl mx-auto">
 					<div className="text-center mb-12">
-						<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-4">
+						<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 							أسئلة واجوبة
-						</motion.span>
+						</span>
 						<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-[#1f2124]">
 							الأسئلة المتكررة
 						</motion.h2>
 					</div>
 					<div className="space-y-3">
 						{FAQ_ITEMS.map((faq, i) => (
-							<motion.details key={i} {...fadeUp(i * 0.5)} className="group rounded-[6px] border border-gray-200 bg-white open:border-orange/30 open:shadow-sm transition-all duration-300 overflow-hidden">
+							<motion.details key={i} {...fadeUp(i * 0.5)} className="group rounded-md border border-gray-200 bg-white open:border-orange/30 open:shadow-sm transition-all duration-300 overflow-hidden">
 								<summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none px-5 py-4 text-[#1f2124] hover:text-orange transition-colors [&::-webkit-details-marker]:hidden">
 									{faq.q}
 									<ChevronDown className="size-4 text-orange shrink-0 group-open:rotate-180 transition-transform duration-300" />
@@ -285,16 +285,16 @@ export function ClientsSection() {
 		<section className="relative py-16 bg-white overflow-hidden" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-10">
-					<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-4">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 						بعض العملاء و المشاريع القائمة
-					</motion.span>
+					</span>
 					<motion.h2 {...fadeUp(1)} className="text-2xl md:text-3xl font-medium text-[#1f2124]">
 						عملاؤنا
 					</motion.h2>
 				</div>
 				<motion.div {...fadeUp(2)} className="flex flex-wrap justify-center gap-4">
 					{CLIENTS.map((name, i) => (
-						<div key={i} className="px-5 py-3 rounded-[6px] bg-gray-50 border border-gray-100 text-sm font-medium text-[#1f2124] hover:border-orange/30 transition-colors">
+						<div key={i} className="px-5 py-3 rounded-md bg-gray-50 border border-gray-100 text-sm font-medium text-[#1f2124] hover:border-orange/30 transition-colors">
 							{name}
 						</div>
 					))}
@@ -337,9 +337,9 @@ export function ContactSection() {
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="max-w-xl mx-auto">
 					<div className="text-center mb-10">
-						<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-4">
+						<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-4">
 							نرحب بكم دائماً
-						</motion.span>
+						</span>
 						<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-[#1f2124]">
 							للأسئلة والإستفسارات
 							<br />
@@ -347,12 +347,12 @@ export function ContactSection() {
 						</motion.h2>
 					</div>
 					<motion.form {...fadeUp(2)} className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-						<input type="text" placeholder="الإسم بالكامل" className="w-full h-12 rounded-[6px] border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="text" placeholder="إسم نشاطك" className="w-full h-12 rounded-[6px] border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="email" placeholder="البريد الإلكترونى" className="w-full h-12 rounded-[6px] border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="text" placeholder="الدولة" className="w-full h-12 rounded-[6px] border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<input type="tel" placeholder="رقم التواصل" className="w-full h-12 rounded-[6px] border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
-						<textarea placeholder="رسالتك بالتفصيل" rows={5} className="w-full rounded-[6px] border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all resize-none" />
+						<input type="text" placeholder="الإسم بالكامل" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
+						<input type="text" placeholder="إسم نشاطك" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
+						<input type="email" placeholder="البريد الإلكترونى" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
+						<input type="text" placeholder="الدولة" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
+						<input type="tel" placeholder="رقم التواصل" className="w-full h-12 rounded-md border border-gray-200 bg-white px-4 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all" />
+						<textarea placeholder="رسالتك بالتفصيل" rows={5} className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all resize-none" />
 						<Button type="submit" variant="orange" size="lg" className="w-full h-12 text-base">
 							إرسال رسالتك
 						</Button>
@@ -372,7 +372,7 @@ export function CTASection() {
 
 			<div className="relative max-w-[1220px] mx-auto px-4 text-center">
 				<motion.div {...fadeUp(0)}>
-					<span className="inline-block px-4 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase mb-6 text-orange border border-orange/20 rounded-full">
+					<span className="inline-flex text-xs font-medium text-orange bg-orange/10 rounded-sm px-2 py-0.5 mb-6">
 						انطلق الآن
 					</span>
 					<h2 className="text-3xl md:text-5xl lg:text-[3.25rem] font-medium leading-[1.1] text-white mb-5 text-balance">

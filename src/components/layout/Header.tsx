@@ -26,7 +26,7 @@ function HamburgerButton({ open, onClick }: HamburgerProps) {
 	return (
 		<button
 			onClick={onClick}
-			className="lg:hidden relative size-9 rounded-xl border border-border/20 flex items-center justify-center hover:bg-orange-muted transition-colors"
+			className="lg:hidden relative size-9 rounded-sm border border-border/20 flex items-center justify-center hover:bg-orange-muted transition-colors"
 			aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
 		>
 			<span className="relative size-4">
@@ -76,12 +76,12 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 						: "opacity-0 -translate-y-6 scale-95 pointer-events-none"
 				)}
 			>
-				<div className="rounded-3xl glass-strong overflow-hidden shadow-2xl">
+				<div className="rounded-md glass-strong overflow-hidden shadow-2xl">
 					<div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
 						<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-7 w-auto" priority />
 						<button
 							onClick={onClose}
-							className="size-8 rounded-xl border border-border/30 flex items-center justify-center hover:bg-orange-muted transition-colors"
+							className="size-8 rounded-sm border border-border/30 flex items-center justify-center hover:bg-orange-muted transition-colors"
 							aria-label="إغلاق القائمة"
 						>
 							<X className="size-4" />
@@ -98,7 +98,7 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 									href={link.href}
 									onClick={onClose}
 									className={cn(
-										"flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-500",
+										"flex items-center gap-3 px-4 py-3.5 rounded-sm text-sm font-medium transition-all duration-500",
 										"opacity-0 translate-y-8 blur-[4px]",
 										open && "opacity-100 translate-y-0 blur-0",
 										isActive
@@ -123,7 +123,7 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 							}}
 						>
 							<Link href="/subscribe" onClick={onClose}>
-								<Button variant="orange" size="lg" className="w-full rounded-2xl text-sm">
+								<Button variant="orange" size="lg" className="w-full rounded-sm text-sm">
 									ابدأ الآن مجاناً
 								</Button>
 							</Link>
@@ -157,7 +157,7 @@ export function Header({ className }: HeaderProps) {
 			<header
 				className={cn(
 					"fixed top-4 inset-x-4 z-30 max-w-[1220px] mx-auto",
-					"h-14 rounded-2xl glass-strong",
+					"h-14 rounded-sm glass-strong",
 					"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
 					className
 				)}
@@ -183,7 +183,7 @@ export function Header({ className }: HeaderProps) {
 									key={link.href}
 									href={link.href}
 									className={cn(
-										"relative px-3 py-1.5 rounded-lg text-sm transition-colors duration-200",
+										"relative px-3 py-1.5 rounded-sm text-sm transition-colors duration-200",
 										isActive
 											? "text-orange font-medium"
 											: "text-muted-foreground hover:text-foreground hover:bg-orange-muted"
@@ -199,7 +199,7 @@ export function Header({ className }: HeaderProps) {
 					<div className="flex items-center gap-2">
 						<ThemeToggle />
 						<Link href="/subscribe">
-							<Button variant="orange" size="sm" className="rounded-xl text-xs h-8 px-3">
+							<Button variant="orange" size="sm" className="rounded-sm text-xs h-8 px-3">
 								ابدأ الآن مجاناً
 							</Button>
 						</Link>

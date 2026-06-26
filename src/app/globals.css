@@ -43,9 +43,9 @@
 	--radius-md: 6px;
 	--radius-lg: 12px;
 	--radius-xl: 14px;
-	--radius-2xl: 1.2rem;
-	--radius-3xl: 1.6rem;
-	--radius-4xl: 2rem;
+	--radius-2xl: 18px;/* glass pill nav */
+	--radius-3xl: 22px;/* generous */
+	--radius-4xl: 28px;/* hero badges */
 }
 
 :root {

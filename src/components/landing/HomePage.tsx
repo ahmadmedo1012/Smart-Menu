@@ -35,11 +35,11 @@ export default function HomePage() {
 			<DigitalMenuSection />
 			<ExperienceSection />
 			{stats && (
-				<section className="relative py-20 bg-white text-center">
+				<section className="relative py-20 bg-[#111013] text-center border-t border-white/5">
 					<div className="max-w-[1220px] mx-auto px-4 grid md:grid-cols-3 gap-8">
-						<div><div className="text-5xl font-medium text-foreground">{stats.totalRestaurants}+</div><div className="text-sm text-muted-foreground">مطعم ومقهى</div></div>
-						<div><div className="text-5xl font-medium text-foreground">{stats.totalUsers}+</div><div className="text-sm text-muted-foreground">مستخدم نشط</div></div>
-						<div><div className="text-5xl font-medium text-foreground">100%</div><div className="text-sm text-muted-foreground">رضا العملاء</div></div>
+						<div><div className="text-5xl font-medium text-white">{stats.totalRestaurants}+</div><div className="text-sm text-[#c0c0c0]">مطعم ومقهى</div></div>
+						<div><div className="text-5xl font-medium text-white">{stats.totalUsers}+</div><div className="text-sm text-[#c0c0c0]">مستخدم نشط</div></div>
+						<div><div className="text-5xl font-medium text-white">100%</div><div className="text-sm text-[#c0c0c0]">رضا العملاء</div></div>
 					</div>
 				</section>
 			)}

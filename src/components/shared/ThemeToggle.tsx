@@ -23,7 +23,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   if (!mounted) {
     return (
       <div className={cn("size-10", className)} aria-hidden="true">
-        <div className="size-full rounded-xl bg-card/10 dark:bg-card/10" />
+        <div className="size-full rounded-sm bg-card/10 dark:bg-card/10" />
       </div>
     )
   }
@@ -34,7 +34,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         onClick={toggle}
         aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         className={cn(
-          "relative size-10 rounded-xl",
+          "relative size-10 rounded-sm",
           "bg-card/10 dark:bg-card/10",
           "backdrop-blur-xl",
           "border border-white/20 dark:border-white/10",
@@ -51,7 +51,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       >
         <div
           className={cn(
-            "absolute inset-0 rounded-xl",
+            "absolute inset-0 rounded-sm",
             "bg-gradient-to-br from-orange/20 via-transparent to-orange/30",
             "opacity-0 hover:opacity-100 transition-opacity duration-300",
             "dark:from-orange/30 dark:via-transparent dark:to-orange/40"
@@ -82,7 +82,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
         <div
           className={cn(
-            "absolute inset-0 rounded-xl",
+            "absolute inset-0 rounded-sm",
             "bg-gradient-to-br from-transparent via-white/5 to-transparent",
             "opacity-0 hover:opacity-100 transition-opacity duration-300"
           )}
