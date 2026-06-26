@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fadeUp } from "./animations";
 
 /** Full-bleed CTA — dark gold ribbon with dramatic typography, double-bezel button */
 export default function CTASection() {
@@ -29,12 +30,7 @@ export default function CTASection() {
       />
 
       <div className="relative max-w-3xl mx-auto px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] as const }}
-        >
+        <motion.div {...fadeUp(0)}>
           {/* Kicker */}
           <span className="inline-block px-4 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase mb-6 text-gold border border-gold/20 rounded-full">
             انطلق الآن

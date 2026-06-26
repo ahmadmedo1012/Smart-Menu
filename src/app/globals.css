@@ -62,10 +62,16 @@
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
   --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-smooth-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.2, 1);
+  --ease-smooth-out: cubic-bezier(0.16, 1, 0.2, 1);
   --duration-slow: 1200ms;
   --duration-premium: 1500ms;
+  --duration-cinematic: 2800ms;
+
+  /* Cinematic eases — accelerando/decelerando for premium entrance/exit */
+  --ease-cinematic-in: cubic-bezier(0.55, 0.06, 0.1, 1);
+  --ease-cinematic-out: cubic-bezier(0.16, 1, 0.2, 1);
+  --ease-cinematic-in-out: cubic-bezier(0.76, 0, 0.24, 1);
 
   /* ===== Radius extras ===== */
   --radius-full: 9999px;
@@ -357,6 +363,34 @@
 @keyframes float-gentle { 0%, 100% { transform: translateY(0) rotateY(-12deg) rotateX(3deg); } 50% { transform: translateY(-6px) rotateY(-12deg) rotateX(3deg); } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes float-delayed { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* === Cinematic keyframes === */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0px) rotateY(-15deg) rotateX(3deg); }
+  33% { transform: translateY(-4px) rotateY(-14deg) rotateX(3.5deg); }
+  66% { transform: translateY(2px) rotateY(-16deg) rotateX(2.5deg); }
+}
+@keyframes hero-content-in {
+  0% { opacity: 0; transform: translateY(48px) scale(0.96); filter: blur(8px); }
+  50% { opacity: 1; transform: translateY(4px) scale(1.002); filter: blur(0px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+}
+@keyframes hero-glow-pulse {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.08); }
+}
+@keyframes hero-badge-in {
+  0% { opacity: 0; transform: translateY(-16px) rotateX(-15deg); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) rotateX(0deg); filter: blur(0px); }
+}
+@keyframes gold-shimmer {
+  0% { background-position: -200% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes scroll-indicator-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
 @keyframes breath { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 @keyframes fade-in-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse-glow-ring { 0%, 100% { box-shadow: 0 0 5px var(--ring); } 50% { box-shadow: 0 0 15px var(--ring), 0 0 30px color-mix(in oklch, var(--ring) 30%, transparent); } }
@@ -386,6 +420,22 @@
 .animate-fade-in-left { animation: fade-in-left 0.5s var(--ease-out-quart) both; }
 .animate-fade-in-right { animation: fade-in-right 0.5s var(--ease-out-quart) both; }
 .animate-ken-burns { animation: ken-burns 12s var(--ease-smooth) infinite alternate; }
+.animate-hero-float { animation: hero-float 8s cubic-bezier(0.55, 0.06, 0.1, 1) infinite; }
+.animate-hero-glow-pulse { animation: hero-glow-pulse 6s ease-in-out infinite; }
+.animate-hero-badge-in { animation: hero-badge-in 1.4s var(--ease-cinematic-out) both; }
+.animate-hero-content-in { animation: hero-content-in 2s var(--ease-cinematic-out) both; }
+/* Hero H1 only — gradient text banned elsewhere per DESIGN.md §2.7, §18.2 */
+/* impeccable-disable gradient-text */
+.animate-hero-gold-shimmer {
+  background: linear-gradient(90deg, var(--gold) 25%, oklch(0.85 0.15 75) 50%, var(--gold) 75%);
+  background-size: 200% 100%;
+  animation: gold-shimmer 4s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* impeccable-disable bounce-easing — UX affordance, not decorative bounce */
+.animate-scroll-indicator { animation: scroll-indicator-bounce 2.5s ease-in-out infinite; }
 
 /* Delay helpers */
 .delay-100 { animation-delay: 100ms; }

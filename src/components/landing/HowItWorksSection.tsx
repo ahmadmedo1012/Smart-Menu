@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { STEPS } from "./landing-data";
+import { fadeUp } from "./animations";
 
 /** How It Works — 3-step visual with gold step numbering, icon boxes, connector lines */
 export default function HowItWorksSection() {
@@ -15,13 +16,7 @@ export default function HowItWorksSection() {
 
       <div className="relative max-w-6xl mx-auto px-4">
         {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] as const }}
-          className="text-center mb-16 md:mb-20"
-        >
+        <motion.div {...fadeUp(0)} className="text-center mb-16 md:mb-20">
           <span className="inline-block px-4 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase mb-5 text-gold border border-gold/20 rounded-full">
             كيف يعمل
           </span>
@@ -42,17 +37,7 @@ export default function HowItWorksSection() {
 
           <div className="grid md:grid-cols-3 gap-8 md:gap-12">
             {STEPS.map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{
-                  duration: 1,
-                  delay: i * 0.25,
-                  ease: [0.19, 1, 0.22, 1] as const,
-                }}
-              >
+              <motion.div {...fadeUp(i * 0.25)}>
                 <div className="text-center">
                   {/* Step number badge */}
                   <div className="relative mb-5 inline-flex">

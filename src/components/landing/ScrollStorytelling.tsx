@@ -8,10 +8,11 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { Smartphone, MessageCircle, BarChart3, Gift } from "lucide-react";
+import { PhoneMockup } from "./PhoneMockup";
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const EASE = [0.16, 1, 0.2, 1] as const;
 
 const STEPS = [
   {
@@ -67,7 +68,7 @@ export default function ScrollStorytelling() {
 
       {/* Sticky viewport container */}
       <div className="absolute inset-0 flex items-center pointer-events-none">
-        <div className="sticky top-0 w-full h-screen flex items-center overflow-hidden">
+        <div className="sticky top-0 w-full h-screen flex items-center overflow-hidden relative">
           <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
             {/* Section intro badge — animates on first appearance */}
             <div className="text-center mb-6 md:mb-10">
@@ -93,6 +94,9 @@ export default function ScrollStorytelling() {
               <TextStage rawStep={rawStep} />
             </div>
           </div>
+
+          {/* Scroll progress indicator */}
+          <ScrollIndicator rawStep={rawStep} />
         </div>
       </div>
     </section>
@@ -101,7 +105,7 @@ export default function ScrollStorytelling() {
 
 /* ─── Visual (Phone) Side ────────────────────────────────────────────────── */
 
-// Smooth 4‑segment interpolation helpers — edit these to adjust the arc per step
+// Smooth 4-segment interpolation helpers — edit these to adjust the arc per step
 const SCALE_IN: [number, number, number, number] = [0, 0.12, 0.88, 1];
 const SCALE_OUT: [number, number, number, number] = [0.82, 1, 1, 0.82];
 
@@ -115,7 +119,7 @@ function VisualStage({
   scrollYProgress: MotionNum;
   rawStep: MotionNum;
 }) {
-  // Step index for content switching (deliberately ends at 0.99 to avoid rounding past last)
+  // Step index for content switching
   const stepIndex = useTransform(
     scrollYProgress,
     [0, 0.99],
@@ -129,62 +133,15 @@ function VisualStage({
 
   return (
     <motion.div
-      className="relative flex items-center justify-center order-first md:order-first"
+      className="relative order-first flex items-center justify-center md:order-first"
       style={{ scale: phoneScale, y: phoneY, opacity: phoneOpacity }}
     >
-      <div className="relative w-[240px] md:w-[260px]">
-        {/* Ambient glow — breathing */}
-        <motion.div
-          className="absolute -inset-14 rounded-full pointer-events-none"
-          animate={{ opacity: [0.3, 0.65, 0.3] }}
-          transition={{ duration: 6, repeat: Infinity, ease: EASE }}
-          style={{
-            background:
-              "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.14 75 / 0.08) 0%, transparent 70%)",
-            filter: "blur(60px)",
-          }}
-        />
+      <div className="relative">
+        <PhoneMockup tilt={false} />
 
-        {/* Outer shell — double-bezel */}
-        <div
-          className="relative w-full rounded-[3rem] p-[3px]"
-          style={{
-            background: "var(--frame-gradient)",
-            boxShadow: "var(--frame-shadow-premium)",
-          }}
-        >
-          {/* Bezel highlight edge */}
-          <div
-            className="absolute inset-0 rounded-[3rem] pointer-events-none z-10"
-            style={{ background: "var(--frame-highlight, transparent)" }}
-          />
-
-          {/* Screen */}
-          <div className="relative w-full aspect-[9/19.5] rounded-[2.8rem] bg-black overflow-hidden">
-            {/* Glass reflection */}
-            <div
-              className="absolute inset-0 z-20 pointer-events-none rounded-[2.8rem]"
-              style={{
-                background:
-                  "linear-gradient(135deg, oklch(1 0 0 / 0.06) 0%, transparent 40%, transparent 60%, oklch(1 0 0 / 0.015) 100%)",
-              }}
-            />
-            <div
-              className="absolute inset-0 z-20 pointer-events-none rounded-[2.8rem]"
-              style={{ boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 0.05)" }}
-            />
-
-            {/* Dynamic Island */}
-            <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-black rounded-full z-30 border border-white/[0.03] shadow-sm">
-              <div className="absolute end-[18px] top-1/2 -translate-y-1/2 size-[7px] rounded-full bg-gold/50" />
-            </div>
-
-            {/* Reactive screen content */}
-            <StepContent stepIndex={stepIndex} rawStep={rawStep} />
-          </div>
-
-          {/* Inner rim */}
-          <div className="absolute inset-[3px] rounded-[2.8rem] ring-1 ring-inset ring-white/[0.06] pointer-events-none z-20" />
+        {/* Step content overlay — positioned over phone screen area */}
+        <div className="absolute inset-[3px] z-10 overflow-hidden rounded-[2.8rem] pointer-events-none">
+          <StepContent stepIndex={stepIndex} rawStep={rawStep} />
         </div>
       </div>
     </motion.div>
@@ -216,7 +173,7 @@ function StepText({
   rawStep: MotionNum;
 }) {
   const dist = useTransform(rawStep, (v) => Math.abs(v - index));
-  const opacity = useTransform(dist, (d) => (d < 0.55 ? 1 - (d / 0.55) : 0));
+  const opacity = useTransform(dist, (d) => (d < 0.55 ? 1 - d / 0.55 : 0));
   const y = useTransform(dist, (d) => d * 48);
   const scale = useTransform(dist, (d) => (d < 0.55 ? 1 - d * 0.06 : 0.97));
 
@@ -259,14 +216,14 @@ function StepContent({
   rawStep: MotionNum;
 }) {
   return (
-    <div className="absolute inset-0 z-10 bg-black overflow-hidden">
+    <div className="relative h-full bg-black overflow-hidden">
       {/* Base gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" />
 
       {/* Status bar */}
       <div className="relative z-10 flex items-center justify-between pt-3 px-5">
         <span className="text-[9px] text-white/40 font-medium">
-          {String.fromCharCode(0x0669) + String.fromCharCode(0x066a) + String.fromCharCode(0x0664) + String.fromCharCode(0x0661)}
+          {String.fromCharCode(0x0669, 0x066a, 0x0664, 0x0661)}
         </span>
         <div className="flex items-center gap-1.5">
           <svg
@@ -435,5 +392,40 @@ function StepPanel({
     >
       {children}
     </motion.div>
+  );
+}
+
+/* ─── Scroll Progress Indicator ──────────────────────────────────────────── */
+
+function StepDot({
+  index,
+  rawStep,
+}: {
+  index: number;
+  rawStep: MotionNum;
+}) {
+  const w = useTransform(rawStep, (v) => (Math.abs(v - index) < 0.4 ? 24 : 6));
+  const bg = useTransform(rawStep, (v) =>
+    Math.abs(v - index) < 0.4
+      ? "oklch(0.72 0.14 75 / 0.8)"
+      : "oklch(1 0 0 / 0.15)",
+  );
+
+  return (
+    <motion.div
+      className="rounded-full"
+      style={{ width: w, height: 4, backgroundColor: bg }}
+      transition={{ duration: 1.2, ease: EASE }}
+    />
+  );
+}
+
+function ScrollIndicator({ rawStep }: { rawStep: MotionNum }) {
+  return (
+    <div className="absolute bottom-6 start-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+      {STEPS.map((_, i) => (
+        <StepDot key={i} index={i} rawStep={rawStep} />
+      ))}
+    </div>
   );
 }

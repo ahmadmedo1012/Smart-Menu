@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { BENEFITS } from "./landing-data";
+import { fadeUp, staggerContainer, staggerItem } from "./animations";
 
 const colSpan = [
   "md:col-span-2 md:row-span-2",
@@ -12,22 +13,6 @@ const colSpan = [
   "md:col-span-1",
   "md:col-span-1",
 ];
-
-const containerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.15 },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] },
-  },
-};
 
 export default function DisplayCards() {
   return (
@@ -59,7 +44,7 @@ export default function DisplayCards() {
         {/* Bento grid */}
         <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6"
-          variants={containerVariants}
+          variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-80px" }}
@@ -68,7 +53,7 @@ export default function DisplayCards() {
             <motion.div
               key={i}
               className={`${colSpan[i] ?? ""}`}
-              variants={itemVariants}
+              variants={staggerItem}
             >
               <BentoCard benefit={benefit} index={i} />
             </motion.div>
@@ -78,10 +63,7 @@ export default function DisplayCards() {
         {/* CTA */}
         <motion.div
           className="flex justify-center mt-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
+          {...fadeUp(0.5)}
         >
           <Link
             href="/demo"

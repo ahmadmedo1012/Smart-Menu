@@ -9,13 +9,12 @@ interface PhoneMockupProps {
   className?: string;
 }
 
-const ease = [0.19, 1, 0.22, 1] as const;
-const easeInOut = [0.16, 1, 0.3, 1] as const;
+const CINEMATIC_EASE = [0.16, 1, 0.2, 1] as const;
 
-/** Premium tilted phone mockup — black frame, gold accents, cinematic video.
+/** Premium tilted phone mockup — black frame, gold accents, cinematc video.
  *  Double-bezel architecture, Dynamic Island, restaurant menu screen.
  *  Static content always base layer, video crossfades on top — no poster flash. */
-export default function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
+export function PhoneMockup({ tilt = false, className }: PhoneMockupProps) {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -29,19 +28,19 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   }, []);
 
   const frame = (
-    <div className={cn("relative mx-auto max-w-[280px] w-[75vw] lg:w-[80vw]", className)}>
-      {/* Ambient glow — breathing opacity behind phone */}
+    <div className={cn("relative mx-auto max-w-[280px] w-[75vw] lg:w-[22vw]", className)}>
+      {/* Ambient glow — breathing */}
       <motion.div
-        className="absolute -inset-16 rounded-full pointer-events-none"
-        animate={{ opacity: [0.3, 0.65, 0.3] }}
-        transition={{ duration: 6, repeat: Infinity, ease: easeInOut }}
+        className="absolute -inset-20 rounded-full pointer-events-none"
+        animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.04, 1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: CINEMATIC_EASE }}
         style={{
           background: "radial-gradient(ellipse at 50% 80%, oklch(0.72 0.14 75 / 0.08) 0%, transparent 70%)",
           filter: "blur(80px)",
         }}
       />
 
-      {/* Outer shell — double-bezel */}
+      {/* Outer shell — double-bezel gold architecture */}
       <div
         className="relative w-full rounded-[3rem] p-[3px]"
         style={{
@@ -72,15 +71,15 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             style={{ boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 0.05)" }}
           />
 
-          {/* Dynamic Island notch — 120x28, camera dot */}
+          {/* Dynamic Island — camera dot */}
           <div className="absolute top-3 start-1/2 -translate-x-1/2 w-[120px] h-[28px] bg-black rounded-full z-30 border border-white/[0.03] shadow-sm">
-            <div className="absolute end-[18px] top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-gold/50" />
+            <div className="absolute end-[18px] top-1/2 -translate-y-1/2 size-[7px] rounded-full bg-gold/50" />
           </div>
 
-          {/* Static screen content — always visible, base layer */}
+          {/* Static screen content — always visible */}
           <ScreenContent />
 
-          {/* Hero video — crossfades over static content once loaded */}
+          {/* Hero video — crossfades over static once loaded */}
           <motion.video
             ref={videoRef}
             src="/hero-intro.mp4"
@@ -95,7 +94,7 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
             style={{ objectFit: "contain" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: videoLoaded ? 1 : 0 }}
-            transition={{ duration: 1.2, ease }}
+            transition={{ duration: 1.2, ease: CINEMATIC_EASE }}
           />
 
           {/* Fallback poster on error */}
@@ -133,30 +132,24 @@ export default function PhoneMockup({ tilt = false, className }: PhoneMockupProp
   );
 }
 
-/** 3D tilt wrapper — ~15deg left rotateY, perspective 1000px, 7s Y-axis float */
+/** 3D tilt wrapper — ~12deg rotateY, 1000px perspective, 8s Y-axis float */
 function TiltWrapper({ children }: { children: ReactNode }) {
   return (
-    <div className="relative" style={{ perspective: "1000px" }}>
+    <div className="relative" style={{ perspective: "1200px" }}>
       <motion.div
-        className="relative"
-        style={{ transformStyle: "preserve-3d" }}
-        initial={{ transform: "perspective(1000px) rotateY(-15deg) rotateX(4deg)" }}
-        animate={{ y: [0, -6, 0] }}
-        transition={{
-          y: { duration: 7, repeat: Infinity, ease: easeInOut },
-        }}
+        className="relative animate-hero-float"
+        style={{ transformStyle: "preserve-3d", transformOrigin: "center center" }}
       >
         {/* Cast shadow under tilted phone */}
         <motion.div
-          className="absolute -bottom-1 left-[10%] right-[25%] h-16 rounded-[50%] pointer-events-none"
+          className="absolute -bottom-1 left-[10%] right-[25%] h-20 rounded-[50%] pointer-events-none"
           style={{
-            background:
-              "radial-gradient(ellipse, oklch(0 0 0 / 0.18) 0%, transparent 70%)",
-            filter: "blur(16px)",
+            background: "radial-gradient(ellipse, oklch(0 0 0 / 0.15) 0%, transparent 70%)",
+            filter: "blur(20px)",
             transform: "translateZ(-40px)",
           }}
-          animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.05, 1] }}
-          transition={{ duration: 7, repeat: Infinity, ease: easeInOut }}
+          animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: CINEMATIC_EASE }}
         />
         {children}
       </motion.div>
@@ -170,17 +163,15 @@ function ScreenContent() {
     <div className="absolute inset-0 z-10 bg-black overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-950 to-black" />
 
-      {/* Status bar — time left, signal/battery right */}
+      {/* Status bar */}
       <div className="relative z-10 flex items-center justify-between pt-3 px-5">
         <span className="text-[9px] text-white/40 font-medium">٩:٤١</span>
         <div className="flex items-center gap-1.5">
-          {/* Signal bars */}
           <svg className="size-2.5 text-white/40" viewBox="0 0 24 24" fill="currentColor">
             <rect x="2" y="10" width="4" height="12" rx="0.5" />
             <rect x="8" y="6" width="4" height="16" rx="0.5" />
             <rect x="14" y="2" width="4" height="20" rx="0.5" />
           </svg>
-          {/* Battery */}
           <svg className="size-2.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 17a4.5 4.5 0 0 1-1-3 4.5 4.5 0 0 1 9 0 4.5 4.5 0 0 1-1 3" />
             <path d="M8 12a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2" />
@@ -191,13 +182,11 @@ function ScreenContent() {
       {/* Restaurant header */}
       <div className="relative z-10 px-5 mt-3">
         <div className="flex items-center gap-3 mb-4">
-          {/* Avatar placeholder */}
           <div className="size-10 rounded-2xl bg-white/10 flex items-center justify-center text-gold text-sm font-bold border border-white/10">
             م
           </div>
           <div>
             <div className="text-xs font-semibold text-white">مطعم مذاق الشام</div>
-            {/* Open indicator with green pulse */}
             <div className="flex items-center gap-1 mt-0.5">
               <span className="size-1.5 rounded-full bg-green-500 animate-pulse" />
               <span className="text-[9px] text-green-400/80">مفتوح الآن</span>
@@ -205,7 +194,7 @@ function ScreenContent() {
           </div>
         </div>
 
-        {/* Featured dish card */}
+        {/* Featured dish */}
         <div className="h-28 rounded-2xl bg-neutral-900 flex items-center justify-center mb-4 overflow-hidden border border-white/5">
           <div className="text-center">
             <svg viewBox="0 0 48 48" className="size-7 mx-auto" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -217,7 +206,7 @@ function ScreenContent() {
           </div>
         </div>
 
-        {/* Category pills — gold active, muted rest */}
+        {/* Category pills */}
         <div className="flex gap-1.5 mb-4">
           {["مشاوي", "مقبلات", "مشروبات", "حلويات"].map((label) => (
             <div
@@ -234,7 +223,7 @@ function ScreenContent() {
           ))}
         </div>
 
-        {/* Menu items — image placeholder, name, desc, price */}
+        {/* Menu items */}
         {[
           { name: "شاورما دجاج", desc: "خبز صاج • ثوم • مخلل", price: "٢٥" },
           { name: "كباب بندورة", desc: "لحم مفروم • بندورة • بصل", price: "٣٠" },
@@ -254,7 +243,7 @@ function ScreenContent() {
         ))}
       </div>
 
-      {/* Bottom CTA — ابدأ الطلب gold button */}
+      {/* Bottom CTA */}
       <div className="absolute bottom-6 left-4 right-4 z-10">
         <div className="h-11 rounded-full bg-gold flex items-center justify-center text-black text-[11px] font-semibold shadow-xl">
           ابدأ الطلب

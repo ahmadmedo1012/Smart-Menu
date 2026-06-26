@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import type { PublicStats } from "./landing-data";
 import { Store, Users } from "lucide-react";
 import CountUp from "./CountUp";
+import { fadeUp } from "./animations";
 
 /** Stats — oversized counter display with gold icon bezels, animated count-up */
 export default function StatsSection({ stats }: { stats: PublicStats }) {
@@ -20,13 +21,7 @@ export default function StatsSection({ stats }: { stats: PublicStats }) {
 
       <div className="relative max-w-6xl mx-auto px-4">
         {/* Section label */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] as const }}
-          className="text-center mb-14"
-        >
+        <motion.div {...fadeUp(0)} className="text-center mb-14">
           <span className="inline-block px-4 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase text-gold border border-gold/20 rounded-full">
             بأرقام
           </span>
@@ -36,14 +31,7 @@ export default function StatsSection({ stats }: { stats: PublicStats }) {
           {items.map((s, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{
-                duration: 1,
-                delay: i * 0.2,
-                ease: [0.19, 1, 0.22, 1] as const,
-              }}
+              {...fadeUp(i * 0.2)}
               className="text-center"
             >
               {/* Double-bezel icon container */}

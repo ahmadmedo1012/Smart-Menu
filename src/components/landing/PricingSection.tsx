@@ -6,13 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PRICING_PLANS } from "./landing-data";
 import { cn } from "@/lib/utils";
-
-const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" as const },
-  transition: { duration: 0.7, delay, ease: [0.19, 1, 0.22, 1] as const },
-});
+import { fadeUp } from "./animations";
 
 /** Pricing — horizontal premium cards, double-bezel for the popular plan. */
 export default function PricingSection() {

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Store } from "lucide-react";
 import { PARTNERS } from "./landing-data";
 import { cn } from "@/lib/utils";
+import { fadeUp, CINEMATIC_EASE } from "./animations";
 
 /** Partners — pill tab switcher with animated card reveal, double-bezel card */
 export default function PartnersSection() {
@@ -19,13 +20,7 @@ export default function PartnersSection() {
 
       <div className="relative max-w-6xl mx-auto px-4">
         {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] as const }}
-          className="text-center mb-12"
-        >
+        <motion.div {...fadeUp(0)} className="text-center mb-12">
           <span className="inline-block px-4 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase mb-5 text-gold border border-gold/20 rounded-full">
             منيو تجريبي
           </span>
@@ -40,12 +35,7 @@ export default function PartnersSection() {
         </motion.div>
 
         {/* Pill tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.1, ease: [0.19, 1, 0.22, 1] as const }}
-        >
+        <motion.div {...fadeUp(0.1)}>
           <div className="flex gap-2 justify-center mb-12 flex-wrap">
             {PARTNERS.map((p, i) => (
               <button
@@ -71,7 +61,7 @@ export default function PartnersSection() {
             initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
-            transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] as const }}
+            transition={{ duration: 0.6, ease: CINEMATIC_EASE }}
           >
             <Link
               href={`/menu/${PARTNERS[activePartner].slug}`}
@@ -102,7 +92,7 @@ export default function PartnersSection() {
                   </p>
 
                   {/* Button-in-button: nested icon */}
-                  <div className="inline-flex items-center gap-2 text-sm text-gold-foreground font-medium bg-gold px-5 py-2.5 rounded-full transition-all duration-300 group-hover:opacity-90 group-hover:shadow-lg group-hover:shadow-gold/20">
+                  <div className="inline-flex items-center gap-2 text-sm text-gold-foreground font-medium bg-gold px-5 py-2.5 rounded-full transition-all duration-300 group group-hover:opacity-90 group-hover:shadow-lg group-hover:shadow-gold/20">
                     <span>عرض المنيو التجريبي</span>
                     <span className="size-6 rounded-full bg-black/10 flex items-center justify-center group-hover:translate-x-0.5 transition-transform duration-300">
                       <ArrowLeft className="size-3.5" />
