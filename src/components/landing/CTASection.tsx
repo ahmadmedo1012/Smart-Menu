@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield } from "lucide-react";
+import { ArrowLeft, Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, Star, ChevronDown, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhoneMockup } from "./PhoneMockup";
 import { cn } from "@/lib/utils";
@@ -142,6 +142,146 @@ export function DisplayCards() {
 							<p className={cn("text-sm leading-relaxed", i % 2 === 0 ? "text-muted-foreground" : "text-muted-foreground")}>{feat.desc}</p>
 						</motion.div>
 					))}
+				</div>
+			</div>
+		</section>
+	);
+}
+
+const FAQ_ITEMS = [
+	{ q: "كيف أعمل منيو إلكتروني؟", a: "ببساطة — سجل مطعمك، أضف أصنافك وفئاتك، ثم شارك الرابط أو اطبع QR code. المنيو جاهز في دقائق." },
+	{ q: "ما فائدة المنيو الإلكتروني؟", a: "استغني عن طباعة المنيو. حدّث أسعارك وأصنافك فوراً. استقبل الطلبات عبر واتساب. حلِّل طلباتك. ووفّر وقتك وجهدك." },
+	{ q: "هل يمكنني التعديل على المنيو دون التأثير على الباركود؟", a: "نعم. أي تعديل يظهر فوراً. الباركود يبقى كما هو — يشير دائماً إلى أحدث نسخة من منيو." },
+	{ q: "هل يدعم المنيو الطلب عبر واتساب؟", a: "نعم. أول منصة عربية تدعم إرسال الطلبات مباشرة إلى واتساب المطعم مع تفاصيل كاملة." },
+	{ q: "هل المنيو الإلكتروني للمطاعم فقط؟", a: "لا. يناسب المقاهي والمخابز والمطاعم السيارة والأسر المنتجة ومراكز التجميل والفنادق." },
+	{ q: "هل أستطيع تصميم QR code خاص بي؟", a: "نعم. نوفر QR code مخصص بألوان وشعار مطعمك. يمكنك طباعته على الطاولات والفواتير والمواد الدعائية." },
+	{ q: "هل يمكن الوصول للمنيو عبر جوجل؟", a: "نعم. المنيو متاح عبر رابط مباشر يمكن فهرسته في محركات البحث." },
+	{ q: "هل يمكنني الحصول على باقة مخصصة؟", a: "نعم. نوفر باقات مخصصة حسب حجم مطعمك واحتياجاتك. تواصل معنا." },
+];
+
+const PARTNER_LOGOS = [
+	{ name: "مقهى الواحة", emoji: "☕" },
+	{ name: "مطعم الأصيل", emoji: "🥘" },
+	{ name: "بيتزا روما", emoji: "🍕" },
+	{ name: "سوشي بار", emoji: "🍣" },
+	{ name: "مشاوي لبنان", emoji: "🥙" },
+	{ name: "حلويات مكة", emoji: "🍰" },
+	{ name: "كافيه رايق", emoji: "🧋" },
+	{ name: "مطعم البحر", emoji: "🐟" },
+	{ name: "فطائر الزعيم", emoji: "🥟" },
+	{ name: "عصائر طازة", emoji: "🧃" },
+	{ name: "مقهى الواحة", emoji: "☕" },
+	{ name: "مطعم الأصيل", emoji: "🥘" },
+];
+
+export function FAQSection() {
+	return (
+		<section className="relative py-20 bg-white" dir="rtl">
+			<div className="max-w-[1220px] mx-auto px-4">
+				<div className="max-w-3xl mx-auto">
+					<div className="text-center mb-12">
+						<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-6">
+							أسئلة شائعة
+						</motion.span>
+						<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-[#1f2124] mb-2">
+							إجابات لكل استفساراتك
+						</motion.h2>
+					</div>
+					<div className="space-y-3">
+						{FAQ_ITEMS.map((faq, i) => (
+							<motion.details
+								key={i}
+								{...fadeUp(i * 0.5)}
+								className="group rounded-[6px] border border-gray-200 bg-white open:border-orange/30 open:shadow-sm transition-all duration-300 overflow-hidden"
+							>
+								<summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none px-5 py-4 text-[#1f2124] hover:text-orange transition-colors [&::-webkit-details-marker]:hidden">
+									{faq.q}
+									<ChevronDown className="size-4 text-orange shrink-0 group-open:rotate-180 transition-transform duration-300" />
+								</summary>
+								<div className="px-5 pb-4">
+									<p className="text-sm text-[#8A8A93] leading-relaxed">{faq.a}</p>
+								</div>
+							</motion.details>
+						))}
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+export function TestimonialsSection() {
+	const testimonials = [
+		{ name: "أحمد المبروك", role: "صاحب مقهى الواحة", content: "منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب. الزبائن صاروا يطلبون مباشرة من المنيو دون الاتصال بنا.", rating: 5 },
+		{ name: "سارة التومي", role: "مديرة مطعم الأصيل", content: "وفرت لنا المنصة وقتاً وجهداً. تحديث المنيو يتم لحظياً والطلبات تصل مرتبة. أنصح بها كل مطعم.", rating: 5 },
+		{ name: "عمر بن عاشور", role: "صاحب بيتزا روما", content: "نظام الولاء والنقاط جعل الزبائن يعودون باستمرار. زيادة واضحة في المبيعات الشهرية.", rating: 5 },
+	];
+
+	return (
+		<section className="relative py-20 bg-[#111013]">
+			<div className="max-w-[1220px] mx-auto px-4">
+				<div className="text-center mb-12">
+					<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-6">
+						ماذا يقول العملاء
+					</motion.span>
+					<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2] text-white mb-2">
+						شكراً لعملائنا
+					</motion.h2>
+				</div>
+				<div className="grid md:grid-cols-3 gap-6">
+					{testimonials.map((t, i) => (
+						<motion.div key={i} {...fadeUp(i + 2)} className="relative rounded-[6px] bg-white/5 border border-white/10 p-8 hover:border-orange/30 transition-all duration-300">
+							<div className="absolute -top-3 -right-3 size-8 rounded-full bg-orange flex items-center justify-center">
+								<Quote className="size-4 text-white" />
+							</div>
+							<div className="flex gap-1 mb-4">
+								{[...Array(t.rating)].map((_, j) => (
+									<Star key={j} className="size-4 fill-orange text-orange" />
+								))}
+							</div>
+							<p className="text-sm text-[#c0c0c0] leading-relaxed mb-6">
+								{t.content}
+							</p>
+							<div className="flex items-center gap-3">
+								<div className="size-10 rounded-full bg-orange/20 flex items-center justify-center text-orange text-sm font-bold">
+									{t.name.charAt(0)}
+								</div>
+								<div>
+									<p className="text-sm font-medium text-white">{t.name}</p>
+									<p className="text-xs text-[#8A8A93]">{t.role}</p>
+								</div>
+							</div>
+						</motion.div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
+}
+
+export function LogosSection() {
+	return (
+		<section className="relative py-16 bg-white overflow-hidden">
+			<div className="max-w-[1220px] mx-auto px-4">
+				<div className="text-center mb-10">
+					<motion.span {...fadeUp(0)} className="inline-block px-3 py-1 text-[10px] font-semibold tracking-[0.2em] uppercase text-orange border border-orange/20 rounded-full mb-4">
+						عملاؤنا
+					</motion.span>
+					<motion.h2 {...fadeUp(1)} className="text-2xl md:text-3xl font-medium text-[#1f2124]">
+						بعض العملاء والمشاريع
+					</motion.h2>
+				</div>
+				<div className="relative">
+					<motion.div className="flex gap-6 overflow-hidden" {...fadeUp(2)}>
+						<div className="flex gap-6 animate-marquee">
+							{PARTNER_LOGOS.map((logo, i) => (
+								<div key={i} className="shrink-0 flex items-center gap-2 px-5 py-3 rounded-[6px] bg-gray-50 border border-gray-100">
+									<span className="text-xl">{logo.emoji}</span>
+									<span className="text-sm font-medium text-[#1f2124]">{logo.name}</span>
+								</div>
+							))}
+						</div>
+					</motion.div>
 				</div>
 			</div>
 		</section>

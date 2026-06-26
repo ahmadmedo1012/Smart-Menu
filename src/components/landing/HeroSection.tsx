@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhoneMockup } from "./PhoneMockup";
 import { PARTNERS, type PublicStats } from "./landing-data";
@@ -12,10 +12,8 @@ const CINEMATIC_EASE = [0.16, 1, 0.2, 1] as const;
 export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 	return (
 		<section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#111013]">
-			{/* Dark cinematic backdrop */}
 			<div className="absolute inset-0 bg-gradient-to-b from-[#111013] via-orange/[0.02] to-[#111013] pointer-events-none" />
 
-			{/* Ambient orange glow — breathing */}
 			<motion.div
 				className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[80vmin] rounded-full pointer-events-none"
 				animate={{ opacity: [0.15, 0.3, 0.15], scale: [1, 1.06, 1] }}
@@ -26,7 +24,6 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 				}}
 			/>
 
-			{/* Secondary orange aura */}
 			<motion.div
 				className="absolute bottom-1/4 right-1/4 size-[50vmin] rounded-full pointer-events-none"
 				animate={{ opacity: [0.08, 0.18, 0.08], scale: [1, 1.04, 1] }}
@@ -39,9 +36,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 
 			<div className="relative z-10 w-full max-w-[1220px] mx-auto px-4 py-20">
 				<div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-					{/* Left: content */}
 					<div className="text-center lg:text-start">
-						{/* Kicker badge */}
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -52,7 +47,6 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 							منيو رقمي • طلب فوري
 						</motion.div>
 
-						{/* Headline — 92px scale */}
 						<motion.h1
 							initial={{ opacity: 0, y: 40 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -64,7 +58,6 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 							إلى <span className="text-orange">تجربة رقمية</span>
 						</motion.h1>
 
-						{/* Subtitle */}
 						<motion.p
 							initial={{ opacity: 0, y: 30 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -74,7 +67,6 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 							منيو رقمي احترافي مع طلب عبر واتساب. يعمل على كل الأجهزة بدون تطبيق.
 						</motion.p>
 
-						{/* CTAs */}
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -82,27 +74,24 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 							className="flex gap-4 justify-center lg:justify-start flex-wrap mt-10"
 						>
 							<Link href="/subscribe">
-								<Button
-									variant="orange"
-									size="lg"
-									className="px-10 h-14 text-base shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30"
-								>
+								<Button variant="orange" size="lg" className="px-10 h-14 text-base shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30">
 									ابدأ مجاناً <ArrowLeft className="ms-2 size-5" />
 								</Button>
 							</Link>
 							<Link href={`/menu/${PARTNERS[0].slug}`}>
-								<Button
-									variant="orange-outline"
-									size="lg"
-									className="px-10 h-14 border-2 text-base"
-								>
+								<Button variant="orange-outline" size="lg" className="px-10 h-14 border-2 text-base">
 									عرض منيو تجريبي
+								</Button>
+							</Link>
+							<Link href="https://wa.me/218911111111" target="_blank" rel="noopener noreferrer">
+								<Button variant="ghost" size="lg" className="px-6 h-14 text-base text-muted-foreground hover:text-orange hover:bg-orange/10">
+									<MessageCircle className="ms-2 size-5" />
+									تواصل عبر واتساب
 								</Button>
 							</Link>
 						</motion.div>
 					</div>
 
-					{/* Right: Phone showcase */}
 					<motion.div
 						initial={{ opacity: 0, x: 60, rotateY: -10 }}
 						animate={{ opacity: 1, x: 0, rotateY: 0 }}
@@ -115,9 +104,8 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 				</div>
 			</div>
 
-			{/* Scroll indicator */}
 			<motion.div
-				className="absolute bottom-8 start-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[var(--muted-foreground)/60]"
+				className="absolute bottom-8 start-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground/60"
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ delay: 2.5, duration: 1.2 }}

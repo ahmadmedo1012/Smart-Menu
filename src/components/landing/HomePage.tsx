@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
+import { ScrollToTopBtn } from "@/components/shared/ScrollToTopBtn";
 import { fetchPublicStats, type PublicStats } from "./landing-data";
 import HeroSection from "./HeroSection";
-import { PhoneShowcaseSection, StatsSection, HowItWorksSection, DisplayCards, CTASection } from "./CTASection";
+import { PhoneShowcaseSection, StatsSection, HowItWorksSection, DisplayCards, TestimonialsSection, FAQSection, LogosSection, CTASection } from "./CTASection";
 
 export default function HomePage() {
   const [stats, setStats] = useState<PublicStats | null>(null);
@@ -21,8 +23,13 @@ export default function HomePage() {
       {stats && <StatsSection stats={stats} />}
       <HowItWorksSection />
       <DisplayCards />
+      <TestimonialsSection />
+      <FAQSection />
+      <LogosSection />
       <CTASection />
       <Footer />
+      <FloatingWhatsApp />
+      <ScrollToTopBtn />
     </div>
   );
 }
