@@ -12,3 +12,12 @@ remotion
 graphify-out
 scripts
 .vscode
+open-design
+.impeccable
+.playwright-mcp
+.gf
+.github
+prisma
+PLAYWRIGHT_HTML_REPORT
+playwright-report
+test-results
