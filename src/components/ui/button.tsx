@@ -4,14 +4,14 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-	"group/button inline-flex shrink-0 items-center justify-center rounded-sm border border-transparent font-display text-sm whitespace-nowrap cursor-pointer transition-all duration-300 outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+	"group/button inline-flex shrink-0 items-center justify-center rounded-sm border border-transparent font-display text-sm font-bold whitespace-nowrap cursor-pointer transition-all duration-300 outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
 				orange:
 					"bg-orange text-orange-foreground hover:bg-[#e05f0a] shadow-lg shadow-orange/20 hover:shadow-lg hover:shadow-orange/25 border-0 active:scale-[0.98] transition-all duration-300",
 				outline:
-					"border-orange/40 bg-transparent text-orange hover:bg-orange/10 hover:border-orange/60 hover:shadow-md hover:shadow-orange/15 active:scale-[0.98] transition-all duration-300",
+					"border-foreground/20 dark:border-white/20 bg-transparent text-foreground dark:text-white hover:bg-foreground/5 dark:hover:bg-white/10 hover:border-foreground/40 dark:hover:border-white/40 active:scale-[0.98] transition-all duration-300",
 				ghost:
 					"bg-transparent text-muted-foreground hover:text-foreground hover:bg-white/10 active:scale-[0.98] transition-all duration-300",
 				destructive:
