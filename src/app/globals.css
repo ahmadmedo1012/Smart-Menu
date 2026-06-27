@@ -419,3 +419,9 @@
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
 }
+
+/* ── Phone video animations ── */
+@keyframes phoneFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
