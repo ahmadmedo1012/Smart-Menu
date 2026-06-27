@@ -98,24 +98,32 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					</Link>
 				</motion.div>
 
-				{/* Phone showcase */}
+				{/* Phone showcase — PlanPOS-style mockup */}
 				<motion.div
 					initial={{ opacity: 0, y: 40 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1.2, delay: 0.55, ease: EASE }}
-					className="mt-16"
+					className="mt-16 flex justify-center"
 				>
-					<div className="relative mx-auto w-full max-w-[800px] aspect-video rounded-xl overflow-hidden bg-gradient-to-b from-white/5 to-transparent border border-white/10 shadow-2xl">
-						<img
-							src="/hero-poster.jpg"
-							alt="Smart Menu showcase"
-							className="w-full h-full object-cover"
-							loading="eager"
-						/>
+					<div className="relative" style={{ perspective: "1000px" }}>
+						<div className="absolute -inset-8 bg-gradient-radial from-orange/10 via-transparent to-transparent rounded-full blur-3xl opacity-60" />
+						<div
+							className="relative mx-auto w-[280px] h-[580px] rounded-[2.5rem] bg-gradient-to-b from-zinc-700 to-zinc-900 p-3 shadow-2xl shadow-black/50 ring-1 ring-white/10"
+							style={{ transform: "rotateY(-8deg) rotateX(4deg)" }}
+						>
+							<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-10" />
+							<div className="w-full h-full rounded-[2rem] overflow-hidden bg-black">
+								<img
+									src="/hero-poster.jpg"
+									alt="Smart Menu showcase"
+									className="w-full h-full object-cover"
+									loading="eager"
+								/>
+							</div>
+						</div>
 					</div>
 				</motion.div>
 			</div>
-
 		</section>
 	);
 }
