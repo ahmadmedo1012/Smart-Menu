@@ -38,6 +38,7 @@
 	--color-orange-foreground: var(--orange-foreground);
 	--color-orange-muted: var(--orange-muted);
 
+		--color-grid-line: var(--grid-line);
 	/* Overlay */
 	--color-overlay: var(--overlay);
 
@@ -104,6 +105,10 @@
 	--surface-overlay: oklch(0.09 0.003 0);
 	--surface-sunken: oklch(0.05 0.002 0);
 
+
+		/* Grid pattern colors */
+		--grid-line: oklch(0.5 0 0);
+
 	/* Gradients */
 	--gradient-orange: linear-gradient(135deg, oklch(0.68 0.19 45 / 0.12), oklch(0.62 0.19 45 / 0.06));
 	--gradient-shine: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
@@ -158,6 +163,7 @@
 	--surface-overlay: oklch(1 0 0);
 	--surface-sunken: oklch(0.97 0.003 0);
 
+		--grid-line: oklch(0.85 0 0);
 	--gradient-orange: linear-gradient(135deg, oklch(0.68 0.19 45 / 0.08), oklch(0.62 0.19 45 / 0.04));
 
 	--glass-bg: oklch(1 0 0 / 0.6);

@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GridPattern } from "@/components/ui/grid-pattern";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -84,6 +85,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <GridPattern
+            className="text-grid-line/20 [mask-image:radial-gradient(800px_circle_at_50%_30%,white,transparent)]"
+            width={40}
+            height={40}
+            strokeDasharray="2 3"
+          />
           <ScrollToTop />
           <ServiceWorkerInit />
           {children}
