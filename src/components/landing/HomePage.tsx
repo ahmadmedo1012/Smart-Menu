@@ -28,15 +28,15 @@ export default function HomePage() {
 			{stats && (
 				<section className="relative py-20 text-center">
 					<div className="max-w-[1220px] mx-auto px-4 grid sm:grid-cols-1 md:grid-cols-3 gap-6">
-						<div className="rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300">
+						<div className="rounded-md bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300">
 							<div className="text-4xl md:text-5xl font-medium text-orange mb-1">{stats.totalRestaurants}+</div>
 							<div className="text-sm text-muted-foreground">مطعم ومقهى</div>
 						</div>
-						<div className="rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300">
+						<div className="rounded-md bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300">
 							<div className="text-4xl md:text-5xl font-medium text-orange mb-1">{stats.totalUsers}+</div>
 							<div className="text-sm text-muted-foreground">مستخدم نشط</div>
 						</div>
-						<div className="rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300">
+						<div className="rounded-md bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300">
 							<div className="text-4xl md:text-5xl font-medium text-orange mb-1">100%</div>
 							<div className="text-sm text-muted-foreground">رضا العملاء</div>
 						</div>

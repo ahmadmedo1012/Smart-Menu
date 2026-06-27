@@ -62,9 +62,9 @@ export default function FeaturesSection() {
 						<motion.div
 							key={i}
 							{...fadeUp(i + 2)}
-							className="rounded-md bg-card border border-border p-8 hover:border-orange/30 hover:-translate-y-1 transition-all duration-300"
+							className="rounded-md bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300"
 						>
-							<div className="size-12 rounded-md bg-orange-muted flex items-center justify-center mb-4">
+							<div className="size-12 rounded-md bg-orange/10 backdrop-blur-sm flex items-center justify-center mb-4">
 								<feat.icon className="size-6 text-orange" />
 							</div>
 							<h3 className="text-lg font-medium mb-2">{feat.title}</h3>

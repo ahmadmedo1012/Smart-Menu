@@ -32,7 +32,7 @@ export default function TestimonialsSection() {
 				</div>
 				<div className="grid md:grid-cols-3 gap-6">
 					{testimonials.map((t, i) => (
-						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300">
+						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300">
 							<span className="inline-flex text-xs font-medium text-orange bg-orange-muted rounded-sm px-2 py-0.5 mb-4">
 								{t.tag}
 							</span>

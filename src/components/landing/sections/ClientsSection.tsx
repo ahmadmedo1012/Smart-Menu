@@ -64,7 +64,7 @@ export default function ClientsSection() {
 					{CLIENTS.map((client, i) => (
 						<div
 							key={i}
-							className="flex items-center gap-2 px-3 py-2 rounded-md bg-card border border-border hover:border-orange/30 transition-all duration-200 hover:scale-105"
+							className="flex items-center gap-2 px-3 py-2 rounded-md bg-card border border-border/50 shadow-sm hover:border-orange/30 hover:shadow-md hover:shadow-orange/5 transition-all duration-200 hover:scale-105"
 						>
 							<Monogram name={client.name} slug={client.slug} />
 							<span className="text-sm font-medium">{client.name}</span>
