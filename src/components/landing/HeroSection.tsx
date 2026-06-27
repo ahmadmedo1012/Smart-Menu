@@ -89,29 +89,33 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 
 				{/* Phone showcase */}
 				<motion.div
-					initial={{ opacity: 0, y: 40 }}
+					initial={{ opacity: 0, y: 60 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 1.2, delay: 0.55, ease: EASE }}
+					transition={{ duration: 1.4, delay: 0.6, ease: EASE }}
 					className="mt-16 flex justify-center"
 				>
-					<div className="relative" style={{ perspective: "1000px" }}>
+					<div className="relative" style={{ perspective: "1200px" }}>
 						{/* Glow */}
 						<div
-							className="absolute -inset-8 rounded-full blur-3xl opacity-60 pointer-events-none"
-							style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)" }}
+							className="absolute -inset-12 rounded-full blur-[100px] opacity-50 pointer-events-none"
+							style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.15), transparent 70%)" }}
 						/>
 						{/* Phone frame */}
-						<div
-							className="relative mx-auto w-[280px] h-[580px] p-3 shadow-2xl shadow-black/50 ring-1 ring-white/10"
-							style={{ borderRadius: "2.5rem", background: "linear-gradient(to bottom, #3f3f46, #18181b)", transform: "rotateY(-8deg) rotateX(4deg)" }}
+						<motion.div
+							animate={{ rotateY: -6, rotateX: 3 }}
+							whileHover={{ rotateY: 0, rotateX: 5, scale: 1.02 }}
+							className="relative mx-auto w-[300px] h-[620px] p-[4px] shadow-2xl shadow-black/50"
+							style={{ borderRadius: "3rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
-							{/* Notch */}
-							<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black z-10" style={{ borderRadius: "0 0 1rem 1rem" }} />
-							{/* Screen */}
-							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2rem" }}>
+							{/* Inner border */}
+							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.7rem" }}>
+								{/* Notch */}
+								<div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-black z-10" style={{ borderRadius: "0 0 1.2rem 1.2rem" }} />
+								<div className="absolute top-1 left-1/2 -translate-x-1/2 w-20 h-1.5 bg-zinc-800 z-10" style={{ borderRadius: "0 0 0.5rem 0.5rem" }} />
+								{/* Screen */}
 								<img src="/menu-screen.svg" alt="Smart Menu app interface" className="w-full h-full object-cover" loading="eager" />
 							</div>
-						</div>
+						</motion.div>
 					</div>
 				</motion.div>
 			</div>
