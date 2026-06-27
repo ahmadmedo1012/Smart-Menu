@@ -31,7 +31,7 @@ export default function CartFloatingButton() {
       href="/cart"
       aria-label={`السلة - ${toArabicNumber(totalItems)} أصناف`}
       className={cn(
-        buttonVariants({ variant: "gradient" }),
+        buttonVariants({ variant: "orange" }),
         "fixed bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] end-6 z-[60]",
         "flex items-center gap-3 rounded-full px-5 py-3 h-auto",
         "shadow-xl shadow-orange/20",

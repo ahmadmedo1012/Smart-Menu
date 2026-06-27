@@ -277,7 +277,7 @@ export default function AdminSubscriptionsPage() {
                 return (
                   <Button
                     key={pn}
-                    variant={pn === page ? "gradient" : "outline"}
+                    variant={pn === page ? "orange" : "outline"}
                     size="icon-sm"
                     onClick={() => setPage(pn)}
                     className="w-9"
@@ -318,7 +318,7 @@ export default function AdminSubscriptionsPage() {
               إلغاء
             </Button>
             <Button
-              variant={actionType === "verified" ? "default" : "destructive"}
+              variant={actionType === "verified" ? "orange" : "destructive"}
               onClick={handleAction}
               disabled={actionLoading}
               className="rounded-xl"

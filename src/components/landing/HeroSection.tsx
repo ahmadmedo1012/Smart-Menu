@@ -4,13 +4,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronDown, ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PARTNERS, type PublicStats } from "./landing-data";
+import { type PublicStats } from "./landing-data";
 
 const EASE = [0.16, 1, 0.2, 1] as const;
 
 export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 	return (
-		<section className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-[#111013]">
+		<section className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden">
 			{/* Orange radial glow */}
 			<motion.div
 				className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[70vmin] rounded-full pointer-events-none"
@@ -23,14 +23,14 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 			/>
 
 			<div className="relative z-10 w-full max-w-[1220px] mx-auto px-4 text-center py-20">
-				{/* Headline — big display like PlanPOS */}
+				{/* Headline */}
 				<motion.div
 					initial="hidden"
 					animate="visible"
 					variants={{
 						visible: { transition: { staggerChildren: 0.15 } },
 					}}
-					className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-medium leading-[1.15] text-white text-balance mb-6 max-w-4xl mx-auto"
+					className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-6 max-w-4xl mx-auto"
 				>
 					<motion.p
 						variants={{
@@ -50,17 +50,17 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					</motion.p>
 				</motion.div>
 
-				{/* Subtitle — problem statement */}
+				{/* Subtitle */}
 				<motion.p
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1, delay: 0.2, ease: EASE }}
-					className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-10"
+					className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10"
 				>
 					هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
 				</motion.p>
 
-				{/* CTAs — stack of 3 like PlanPOS */}
+				{/* CTAs */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -69,7 +69,6 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 				>
 					<Link href="/subscribe">
 						<Button
-							variant="orange"
 							size="lg"
 							className="px-10 h-14 text-base shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30"
 						>
@@ -78,9 +77,9 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					</Link>
 					<Link href="#reviews">
 						<Button
-							variant="white-outline"
+							variant="outline"
 							size="lg"
-							className="px-10 h-14 text-base border-2 border-white text-white hover:bg-white/10"
+							className="px-10 h-14 text-base"
 						>
 							أراء العملاء
 						</Button>
@@ -89,7 +88,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 						<Button
 							variant="ghost"
 							size="lg"
-							className="px-6 h-14 text-base text-white/70 hover:text-orange hover:bg-orange/10"
+							className="px-6 h-14 text-base"
 						>
 							<MessageCircle className="ms-2 size-5" />
 							تواصل عبر واتساب
@@ -122,8 +121,8 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 				transition={{ duration: 1, delay: 1.2, ease: EASE }}
 				className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
 			>
-				<span className="text-[10px] tracking-widest uppercase text-white/30">اسحب لأسفل</span>
-				<ChevronDown className="size-4 text-white/30 animate-scroll-indicator" />
+				<span className="text-[10px] tracking-widest uppercase text-muted-foreground/40">اسحب لأسفل</span>
+				<ChevronDown className="size-4 text-muted-foreground/40 animate-pulse-glow" />
 			</motion.div>
 		</section>
 	);

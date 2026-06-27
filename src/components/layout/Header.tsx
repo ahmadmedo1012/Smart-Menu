@@ -61,7 +61,7 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 		<>
 			<div
 				className={cn(
-					"fixed inset-0 z-40 bg-black/60 backdrop-blur-md transition-all duration-500 ease-smooth-out",
+					"fixed inset-0 z-40 bg-black/60 backdrop-blur-md transition-all duration-500 ease-smooth",
 					open ? "opacity-100" : "opacity-0 pointer-events-none"
 				)}
 				onClick={onClose}
@@ -103,7 +103,7 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 										open && "opacity-100 translate-y-0 blur-0",
 										isActive
 											? "bg-orange-muted text-orange"
-											: "text-foreground/80 hover:bg-orange-muted hover:text-foreground"
+											: "text-muted-foreground hover:bg-orange-muted hover:text-foreground"
 									)}
 									style={{
 										transitionDelay: `${80 + i * 80}ms`,
@@ -147,13 +147,11 @@ export function Header({ className }: HeaderProps) {
 			<header
 				className={cn(
 					"fixed top-4 inset-x-4 z-30 max-w-[1220px] mx-auto",
-					"h-12 rounded-[14px] border border-white/10 glass-strong",
+					"h-12 rounded-xl glass-strong",
 					"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
 					className
 				)}
 			>
-				<div className="absolute bottom-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-orange/15 to-transparent pointer-events-none" />
-
 				<nav className="px-4 h-full flex items-center justify-between" aria-label="الرئيسية">
 					<div className="flex items-center gap-3">
 						<HamburgerButton open={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} />
@@ -173,10 +171,10 @@ export function Header({ className }: HeaderProps) {
 									key={link.href}
 									href={link.href}
 									className={cn(
-										"px-3 py-1.5 rounded-sm text-sm transition-colors duration-200 border-b-2",
+										"px-3 py-1.5 rounded-sm text-sm transition-all duration-200",
 										isActive
-											? "text-orange font-medium border-orange"
-											: "text-muted-foreground hover:text-foreground bg-white/10 hover:bg-white/15 border-transparent"
+											? "text-orange font-medium"
+											: "text-muted-foreground hover:text-foreground hover:opacity-65"
 									)}
 								>
 									{link.label}
@@ -188,7 +186,7 @@ export function Header({ className }: HeaderProps) {
 					<div className="flex items-center gap-2">
 						<ThemeToggle />
 						<Link href="/subscribe">
-							<Button variant="orange" size="sm" className="rounded-sm text-xs h-8 px-3">
+							<Button size="sm" className="rounded-sm text-xs h-8 px-3">
 								ابدأ الآن مجاناً
 							</Button>
 						</Link>

@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         </div>
         <p className="text-lg font-medium">{error}</p>
         <p className="text-sm text-muted-foreground">تحقق من الاتصال وحاول مرة أخرى</p>
-        <Button variant="gradient-outline" onClick={load} className="gap-2 rounded-xl">
+        <Button variant="outline" onClick={load} className="gap-2 rounded-xl">
           <RefreshCw className="size-4" />
           إعادة المحاولة
         </Button>
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
         <BarChart3 className="size-12 text-muted-foreground/50" />
         <p className="text-lg font-medium">لا توجد بيانات</p>
-        <Button variant="gradient-outline" onClick={load} className="gap-2 rounded-xl">
+        <Button variant="outline" onClick={load} className="gap-2 rounded-xl">
           <RefreshCw className="size-4" />
           تحميل
         </Button>
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
               <h3 className="text-sm font-semibold text-muted-foreground">توزيع الخطط</h3>
             </div>
             <Link href="/admin/restaurants">
-              <Button variant="ghost" size="xs" className="text-xs">إدارة</Button>
+              <Button variant="ghost" size="sm" className="text-xs">إدارة</Button>
             </Link>
           </div>
           {chartData.length > 0 && chartData.some(d => d.value > 0) ? (

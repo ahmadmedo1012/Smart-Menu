@@ -357,7 +357,7 @@ export default function AdminSettingsPage() {
                 {tgSaving ? "جارٍ..." : "حفظ الإعدادات"}
               </Button>
               <Button
-                variant="gradient-outline"
+                variant="outline"
                 onClick={testTelegram}
                 disabled={tgTesting || !tgConfig.botToken.trim() || !tgConfig.chatId.trim()}
                 className="rounded-xl gap-1"

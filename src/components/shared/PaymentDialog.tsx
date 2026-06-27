@@ -255,7 +255,7 @@ export default function PaymentDialog({
 
               {/* Submit */}
               <Button
-                variant="gradient"
+                variant="orange"
                 className="w-full h-12 text-base font-semibold rounded-xl"
                 onClick={handleSent}
                 disabled={submitting || !phone.trim()}
@@ -309,7 +309,7 @@ export default function PaymentDialog({
                 سيتم تفعيل اشتراكك بعد التحقق من الدفع
               </p>
               <Button
-                variant="gradient"
+                variant="orange"
                 className="w-full h-12 text-base font-semibold rounded-xl"
                 onClick={handleConfirm}
               >

@@ -161,7 +161,7 @@ function PlanCard({
                 ? "bg-orange text-orange-foreground hover:opacity-90 shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30"
                 : "",
             )}
-            variant={isPopular ? "default" : "outline"}
+            variant={isPopular ? "orange" : "outline"}
           >
             {isFree ? "ابدأ مجاناً" : "اشترك الآن"}
           </Button>

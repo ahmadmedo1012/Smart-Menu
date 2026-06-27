@@ -278,7 +278,7 @@ export default function AdminUsersPage() {
                 return (
                   <Button
                     key={pn}
-                    variant={pn === page ? "gradient" : "outline"}
+                    variant={pn === page ? "orange" : "outline"}
                     size="icon-sm"
                     onClick={() => setPage(pn)}
                     className="w-9"

@@ -470,7 +470,7 @@ export default function AdminRestaurantsPage() {
                 return (
                   <Button
                     key={pageNum}
-                    variant={pageNum === page ? "gradient" : "outline"}
+                    variant={pageNum === page ? "orange" : "outline"}
                     size="icon-sm"
                     onClick={() => setPage(pageNum)}
                     className="w-9"

@@ -272,7 +272,7 @@ export default function AdminTelegramPage() {
                 {saving ? "جارٍ الحفظ..." : "حفظ الإعدادات"}
               </Button>
               <Button
-                variant="gradient-outline"
+                variant="outline"
                 onClick={handleTest}
                 disabled={testing || !config.botToken.trim() || !config.chatId.trim()}
                 className="rounded-xl gap-1"

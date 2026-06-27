@@ -203,7 +203,7 @@ function LoginForm() {
 
             <Button
               type="submit"
-              variant="gradient"
+              variant="orange"
               className="magnetic-btn mt-2 h-10 w-full rounded-xl font-arabic text-base font-semibold"
               disabled={loading}
             >
