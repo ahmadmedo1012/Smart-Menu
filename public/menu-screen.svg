@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" fill="none">
+  <!-- Dark phone screen bg -->
+  <rect width="390" height="844" rx="0" fill="#111013"/>
+  <!-- Status bar -->
+  <rect x="0" y="0" width="390" height="44" fill="#0d0d0f"/>
+  <!-- Time -->
+  <text x="28" y="30" font-family="system-ui" font-size="14" font-weight="600" fill="white">9:41</text>
+  <!-- Notch area -->
+  <rect x="130" y="12" width="130" height="24" rx="12" fill="#111013"/>
+  <!-- Header -->
+  <rect x="16" y="52" width="358" height="48" rx="6" fill="#1a1a1e"/>
+  <text x="40" y="82" font-family="AloaaxB, sans-serif" font-size="16" font-weight="500" fill="white" direction="rtl">المنيو</text>
+  <!-- Orange accent bar -->
+  <rect x="16" y="100" width="358" height="2" fill="#f66d0f" opacity="0.3"/>
+  <!-- Menu category pills -->
+  <rect x="16" y="112" width="80" height="32" rx="16" fill="#f66d0f"/>
+  <text x="36" y="133" font-family="system-ui" font-size="12" font-weight="500" fill="white">كل الأصناف</text>
+  <rect x="102" y="112" width="60" height="32" rx="16" fill="#1a1a1e" stroke="#333" stroke-width="1"/>
+  <text x="112" y="133" font-family="system-ui" font-size="12" fill="#aaa">قهوة</text>
+  <rect x="168" y="112" width="70" height="32" rx="16" fill="#1a1a1e" stroke="#333" stroke-width="1"/>
+  <text x="178" y="133" font-family="system-ui" font-size="12" fill="#aaa">مشروبات</text>
+  <!-- Menu items -->
+  <!-- Item 1 -->
+  <rect x="16" y="162" width="358" height="80" rx="6" fill="#161618"/>
+  <rect x="286" y="174" width="72" height="56" rx="4" fill="#222"/>
+  <text x="232" y="190" font-family="AloaaxB, sans-serif" font-size="14" font-weight="500" fill="white" direction="rtl">اسبريسو مزدوج</text>
+  <text x="248" y="210" font-family="system-ui" font-size="12" fill="#8A8A93" direction="rtl">اسبريسو مركز طبقة مزدوجة</text>
+  <text x="232" y="230" font-family="system-ui" font-size="13" font-weight="600" fill="#f66d0f">12 د.ل</text>
+  <!-- Item 2 -->
+  <rect x="16" y="250" width="358" height="80" rx="6" fill="#161618"/>
+  <rect x="286" y="262" width="72" height="56" rx="4" fill="#222"/>
+  <text x="238" y="278" font-family="AloaaxB, sans-serif" font-size="14" font-weight="500" fill="white" direction="rtl">لاتيه مثلجة</text>
+  <text x="254" y="298" font-family="system-ui" font-size="12" fill="#8A8A93" direction="rtl">مع حليب طازج وثلج</text>
+  <text x="238" y="318" font-family="system-ui" font-size="13" font-weight="600" fill="#f66d0f">15 د.ل</text>
+  <!-- Item 3 -->
+  <rect x="16" y="338" width="358" height="80" rx="6" fill="#161618"/>
+  <rect x="286" y="350" width="72" height="56" rx="4" fill="#222"/>
+  <text x="226" y="366" font-family="AloaaxB, sans-serif" font-size="14" font-weight="500" fill="white" direction="rtl">موكا فرابيه</text>
+  <text x="250" y="386" font-family="system-ui" font-size="12" fill="#8A8A93" direction="rtl">شوكولاتة وقهوة مثلجة</text>
+  <text x="226" y="406" font-family="system-ui" font-size="13" font-weight="600" fill="#f66d0f">18 د.ل</text>
+  <!-- Bottom cart bar -->
+  <rect x="16" y="780" width="358" height="52" rx="6" fill="#f66d0f"/>
+  <text x="140" y="812" font-family="AloaaxB, sans-serif" font-size="16" font-weight="700" fill="white" direction="rtl">عرض السلة (3)</text>
+</svg>

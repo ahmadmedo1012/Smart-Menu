@@ -11,12 +11,45 @@ const fadeUp = (delay: number) => ({
 	transition: { duration: 0.7, delay: delay * 0.1, ease: EASE },
 });
 
-const CLIENTS = [
-	"SOHO", "Telepizza", "The Cheese", "Empire", "Roomeroon",
-	"Kubaba", "Radio City", "Terrace", "Coffee Central", "Dallaterra",
-	"Tisa", "Parsian", "Khanum Tala", "Gardenia", "Mega Wix",
-	"UnPan", "Ocean Blue", "Pizza Roma", "Al Waha", "Golden Fork",
+interface Client {
+	name: string;
+	slug: string;
+}
+
+const CLIENTS: Client[] = [
+	{ name: "SOHO", slug: "soho" },
+	{ name: "Telepizza", slug: "tp" },
+	{ name: "The Cheese", slug: "tc" },
+	{ name: "Empire", slug: "em" },
+	{ name: "Roomeroon", slug: "rm" },
+	{ name: "Kubaba", slug: "kb" },
+	{ name: "Radio City", slug: "rc" },
+	{ name: "Terrace", slug: "tr" },
+	{ name: "Coffee Central", slug: "cc" },
+	{ name: "Dallaterra", slug: "dt" },
+	{ name: "Tisa", slug: "ts" },
+	{ name: "Parsian", slug: "pr" },
+	{ name: "Khanum Tala", slug: "kt" },
+	{ name: "Gardenia", slug: "gd" },
+	{ name: "Mega Wix", slug: "mw" },
+	{ name: "UnPan", slug: "up" },
+	{ name: "Ocean Blue", slug: "ob" },
+	{ name: "Pizza Roma", slug: "pz" },
+	{ name: "Al Waha", slug: "aw" },
+	{ name: "Golden Fork", slug: "gf" },
 ];
+
+// Generate SVG monogram initials
+function Monogram({ name, slug }: { name: string; slug: string }) {
+	const initial = slug.charAt(0).toUpperCase();
+	const hue = (slug.charCodeAt(0) * 37 + slug.charCodeAt(slug.length - 1 || 0) * 13) % 360;
+	return (
+		<svg width="48" height="48" viewBox="0 0 48 48" className="shrink-0" aria-label={name}>
+			<rect width="48" height="48" rx="6" fill={`oklch(0.15 0.02 ${hue})`} />
+			<text x="24" y="30" textAnchor="middle" fontFamily="AloaaxB,sans-serif" fontSize="20" fontWeight="700" fill="white">{initial}</text>
+		</svg>
+	);
+}
 
 export default function ClientsSection() {
 	return (
@@ -28,9 +61,13 @@ export default function ClientsSection() {
 					</motion.h2>
 				</div>
 				<motion.div {...fadeUp(2)} className="flex flex-wrap justify-center gap-3">
-					{CLIENTS.map((name, i) => (
-						<div key={i} className="px-4 py-2.5 rounded-md bg-card border border-border text-sm font-medium hover:border-orange/30 transition-colors">
-							{name}
+					{CLIENTS.map((client, i) => (
+						<div
+							key={i}
+							className="flex items-center gap-2 px-3 py-2 rounded-md bg-card border border-border hover:border-orange/30 transition-all duration-200 hover:scale-105"
+						>
+							<Monogram name={client.name} slug={client.slug} />
+							<span className="text-sm font-medium">{client.name}</span>
 						</div>
 					))}
 				</motion.div>

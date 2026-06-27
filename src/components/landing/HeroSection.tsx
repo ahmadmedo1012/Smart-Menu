@@ -114,8 +114,8 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 							<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-10" />
 							<div className="w-full h-full rounded-[2rem] overflow-hidden bg-black">
 								<img
-									src="/hero-poster.jpg"
-									alt="Smart Menu showcase"
+									src="/menu-screen.svg"
+									alt="Smart Menu app interface"
 									className="w-full h-full object-cover"
 									loading="eager"
 								/>
