@@ -1,5 +1,5 @@
 import { Player } from "@remotion/player"
-import { PhoneMenuVideo } from "../../remotion/PhoneMenu"
+import { PhoneMenuVideo } from "@/remotion/PhoneMenu"
 
 export default function RemotionPlayerInner() {
 	return (
