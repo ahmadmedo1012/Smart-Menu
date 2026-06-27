@@ -20,7 +20,7 @@ const testimonials = [
 
 export default function TestimonialsSection() {
 	return (
-		<section id="reviews" className="relative py-20 border-t border-border/50" dir="rtl">
+		<section id="reviews" className="relative py-20" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-12">
 					<span className="inline-flex text-xs font-medium text-orange bg-orange-muted rounded-sm px-2 py-0.5 mb-4">

@@ -53,7 +53,7 @@ function Monogram({ name, slug }: { name: string; slug: string }) {
 
 export default function ClientsSection() {
 	return (
-		<section className="relative py-20 border-t border-border/50 overflow-hidden" dir="rtl">
+		<section className="relative py-20 overflow-hidden" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-10">
 					<motion.h2 {...fadeUp(1)} className="text-2xl md:text-3xl font-medium">

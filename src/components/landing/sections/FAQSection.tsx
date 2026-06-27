@@ -28,7 +28,7 @@ const FAQ_ITEMS = [
 
 export default function FAQSection() {
 	return (
-		<section className="relative py-20 border-t border-border/50" dir="rtl">
+		<section className="relative py-20" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="max-w-3xl mx-auto">
 					<div className="text-center mb-12">
