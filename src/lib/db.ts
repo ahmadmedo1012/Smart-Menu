@@ -21,6 +21,13 @@ export const prisma =
     }),
   });
 
+export async function getUserById(id: number) {
+  return prisma.user.findUnique({
+    where: { id },
+    select: { id: true, role: true, restaurantId: true },
+  });
+}
+
 export async function dbHealth(): Promise<{ ok: boolean; latencyMs: number }> {
   const start = Date.now();
   try {

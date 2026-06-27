@@ -40,6 +40,14 @@ export function paginated<T>(
 export function handleError(e: unknown) {
   if (e instanceof ZodError) return validationError(e);
   logError("handleError", { error: e instanceof Error ? e.message : String(e) });
+  // Prisma unique constraint violation
+  const msg = e instanceof Error ? e.message : String(e);
+  if (msg.includes("Unique constraint failed")) {
+    return error("بيانات مكررة — هذا الاسم موجود مسبقاً", 409);
+  }
+  if (msg.includes("Foreign key constraint")) {
+    return error("بيانات مرتبطة لا يمكن حذفها", 400);
+  }
   return error(
     e instanceof Error ? e.message : "Internal server error",
     500

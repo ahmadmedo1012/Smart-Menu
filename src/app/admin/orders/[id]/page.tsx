@@ -28,8 +28,8 @@ const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   new: { label: "جديد", icon: Clock, color: "text-orange dark:text-orange", bg: "bg-orange/10" },
   preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange dark:text-orange", bg: "bg-orange/10" },
-  ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
-  completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
+  ready: { label: "جاهز", icon: PackageCheck, color: "text-success", bg: "bg-success/10" },
+  completed: { label: "مكتمل", icon: CheckCircle, color: "text-muted-foreground", bg: "bg-muted" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
 }
 
@@ -84,8 +84,8 @@ ${items}
   if (loading) return (
     <div className="space-y-4 animate-fade-in max-w-3xl mx-auto">
       <div className="h-8 w-32 rounded-xl bg-muted/50 animate-breath" />
-      <div className="h-24 rounded-2xl bg-muted/50 animate-breath" />
-      <div className="h-48 rounded-2xl bg-muted/50 animate-breath" />
+      <div className="h-24 rounded-md bg-muted/50 animate-breath" />
+      <div className="h-48 rounded-md bg-muted/50 animate-breath" />
     </div>
   )
 
@@ -98,7 +98,6 @@ ${items}
   )
 
   const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
-  const StatusIcon = config.icon
   const currentIdx = STATUS_FLOW.indexOf(order.status as typeof STATUS_FLOW[number])
 
   return (
@@ -121,7 +120,7 @@ ${items}
 
       {/* Restaurant info */}
       {order.restaurant && (
-        <div className="rounded-2xl bg-gradient-to-l from-orange-muted/50 to-transparent dark:from-orange-muted border border-orange/20 dark:border-orange/15 p-4 flex items-center gap-3">
+        <div className="rounded-md bg-gradient-to-l from-orange-muted/50 to-transparent dark:from-orange-muted border border-orange/20 dark:border-orange/15 p-4 flex items-center gap-3">
           <Store className="size-5 text-primary" />
           <span className="font-medium">{order.restaurant.name}</span>
           <Link href={`/menu/${order.restaurant.slug}`} target="_blank" className="text-xs text-primary hover:text-orange transition-colors mr-auto">
@@ -131,10 +130,10 @@ ${items}
       )}
 
       {/* Status Timeline */}
-      <div className="rounded-2xl bg-card/50 border border-border/30 p-6">
+      <div className="rounded-md bg-card/50 border border-border/30 p-6">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">حالة الطلب</h3>
         <div className="flex items-center">
-          {STATUS_FLOW.map((s, idx) => { const StatusIcon = STATUS_CONFIG[s].icon
+          {STATUS_FLOW.map((s, idx) => { const StepIcon = STATUS_CONFIG[s].icon
             const isActive = idx <= currentIdx
             const isCurrent = idx === currentIdx
             return (
@@ -146,15 +145,15 @@ ${items}
                   className={cn(
                     "size-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2",
                     isCurrent ? "bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/25 scale-110" :
-                    isActive ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 border-emerald-300 dark:border-emerald-700" :
+                    isActive ? "bg-success/15 text-emerald-600 border-success/30" :
                     "bg-muted/30 text-muted-foreground/30 border-border/20"
                   )}
                 >
-                  <StatusIcon className="size-5" />
+                  <StepIcon className="size-5" />
                 </button>
                 <span className={cn(
                   "text-xs mt-2 font-medium",
-                  isCurrent ? "text-foreground" : isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/40"
+                  isCurrent ? "text-foreground" : isActive ? "text-success" : "text-muted-foreground/40"
                 )}>
                   {STATUS_CONFIG[s].label}
                 </span>
@@ -173,9 +172,9 @@ ${items}
           {order.status !== "cancelled" && order.status !== "completed" && (
             <>
               {currentIdx < STATUS_FLOW.length - 1 && (
-                <Button
+                <Button variant="orange"
                   onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
-                  className="flex-1 rounded-xl h-11 bg-orange hover:opacity-90"
+                  className="flex-1 rounded-md h-11"
                 >
                   ← {STATUS_CONFIG[STATUS_FLOW[currentIdx + 1]]?.label}
                 </Button>
@@ -194,7 +193,7 @@ ${items}
 
       {/* Order info grid */}
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-5">
+        <div className="rounded-md bg-card/50 border border-border/30 p-5">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
             <User className="size-4" /> معلومات العميل
           </h3>
@@ -226,7 +225,7 @@ ${items}
           </div>
         </div>
 
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-5">
+        <div className="rounded-md bg-card/50 border border-border/30 p-5">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
             <ShoppingCart className="size-4" /> ملخص الطلب
           </h3>
@@ -245,14 +244,14 @@ ${items}
       </div>
 
       {/* Items */}
-      <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
           <h3 className="font-semibold flex items-center gap-2">
             <FileText className="size-4 text-muted-foreground" />
             الأصناف ({toArabicNumber(order.items.length)})
           </h3>
           <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="rounded-xl gap-1">
-            {copied ? <Check className="size-3.5 text-green-500" /> : <Copy className="size-3.5" />}
+            {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             نسخ للواتساب
           </Button>
         </div>
@@ -277,7 +276,7 @@ ${items}
       <div className="grid grid-cols-2 gap-3">
         <a
           href={`tel:${order.customerPhone}`}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-border/30 hover:bg-accent transition-all font-medium text-sm"
+          className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-all font-medium text-sm"
         >
           <Phone className="size-4" />
           اتصال بالعميل
@@ -285,7 +284,7 @@ ${items}
         <button
           type="button"
           onClick={copyAsWhatsApp}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20 transition-all font-medium text-sm"
+          className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-green-200/30 text-success hover:bg-success/15 transition-all font-medium text-sm"
         >
           <MessageCircle className="size-4" />
           نسخ للواتساب

@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { csrfFetch } from "@/lib/csrf-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Check, Loader2, Timer, ShieldCheck, Smartphone, Copy } from "lucide-react";
+import { Loader2, Timer, ShieldCheck, Smartphone, Copy } from "lucide-react";
 
 const MADAR_PHONE = "0910089975";
 const LIBYANA_PHONE = "0942119637";
@@ -36,12 +34,10 @@ export default function PaymentDialog({
   open,
   onOpenChange,
   planId,
-  planName,
   planNameAr,
   price,
   onSuccess,
 }: PaymentDialogProps) {
-  const router = useRouter();
   const [provider, setProvider] = useState<Provider>("libyana");
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState(price);
@@ -127,7 +123,7 @@ export default function PaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-sm sm:max-w-md rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto">
+      <DialogContent className="max-w-sm sm:max-w-md rounded-md p-0 gap-0 max-h-[90dvh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-br from-orange to-orange/80 text-primary-foreground p-6 rounded-t-2xl">
           <div className="flex items-center gap-2 mb-2">

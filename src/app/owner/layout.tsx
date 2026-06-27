@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
@@ -66,7 +64,7 @@ function LogoutButton() {
           toast.error("فشل تسجيل الخروج")
         }
       }}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
+      className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
     >
       <LogOut className="size-4" />
       تسجيل الخروج

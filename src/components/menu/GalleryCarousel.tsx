@@ -47,6 +47,11 @@ export default function GalleryCarousel({
   const lightboxPrevRef = useRef<HTMLButtonElement>(null);
   const lightboxNextRef = useRef<HTMLButtonElement>(null);
 
+  const closeLightbox = () => {
+    setLightbox(false);
+    setPaused(false);
+  };
+
   const trapFocus = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") { closeLightbox(); return; }
     if (e.key !== "Tab") return;
@@ -70,11 +75,6 @@ export default function GalleryCarousel({
     setPaused(true);
   };
 
-  const closeLightbox = () => {
-    setLightbox(false);
-    setPaused(false);
-  };
-
   const goTo = (idx: number) => {
     setCurrent(idx);
     setLoaded((s) => new Set(s).add(idx));
@@ -82,7 +82,7 @@ export default function GalleryCarousel({
 
   return (
     <>
-      <div className="group relative rounded-2xl overflow-hidden bg-card/50 border border-border/20 shadow-lg">
+      <div className="group relative rounded-md overflow-hidden bg-card/50 border border-border/20 shadow-lg">
         <div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
           {images.map((img, i) => (
             <div

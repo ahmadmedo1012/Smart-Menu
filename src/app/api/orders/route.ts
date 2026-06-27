@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@/generated/prisma/client";
 import { success, error as apiError, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { createRateLimiter } from "@/lib/rate-limit";

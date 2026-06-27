@@ -2,16 +2,14 @@
 import { toArabicNumber } from "@/lib/format";
 
 import { useEffect, useState, useCallback, useRef } from "react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import {
   Users, Gift, TrendingUp, Award, Star, Medal, Sparkles,
-  AlertCircle, RefreshCw, ChevronUp, ArrowUpRight, Search,
+  AlertCircle, RefreshCw, Search,
   Clock, ArrowRight, Copy, Check, MessageCircle, Share2,
-  Camera, FilterX, Download,
+  FilterX,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -49,10 +47,6 @@ interface StatsData {
     convertedAt: string | null
     referrer: { customerName: string }
   }[]
-}
-
-interface TopReferrer {
-  customerName: string; referralCount: number; rewardsGiven: number
 }
 
 interface ReferralRow {
@@ -112,14 +106,14 @@ function StatCard({
   label: string; value: number; suffix?: string; icon: typeof Users; color: string; bg: string
 }) {
   return (
-    <div className="group card-premium relative overflow-hidden rounded-2xl bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-border/20 shadow-lg shadow-black/5 dark:shadow-black/20">
+    <div className="group card-premium relative overflow-hidden rounded-md bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-border/20 shadow-lg shadow-black/5 dark:shadow-black/20">
       <div className="pointer-events-none absolute -inset-full z-0 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-700 group-hover:inset-0 group-hover:skew-x-0 dark:via-white/5" />
       <div className="relative z-10 flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
           <p className="text-3xl font-bold tracking-tight"><AnimatedCount value={value} suffix={suffix} /></p>
         </div>
-        <div className={cn("rounded-2xl p-3.5 ring-1 ring-white/20 dark:ring-white/10", bg)}>
+        <div className={cn("rounded-md p-3.5 ring-1 ring-white/20 dark:ring-white/10", bg)}>
           <Icon className={cn("size-6", color)} />
         </div>
       </div>
@@ -131,7 +125,7 @@ function StatCard({
 
 function ConversionRate({ rate, total, converted }: { rate: number; total: number; converted: number }) {
   return (
-    <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+    <div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <TrendingUp className="size-4 text-orange dark:text-orange" />
@@ -229,7 +223,7 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
   if (referrals.length === 0) {
     return (
       <div className="flex flex-col items-center py-10 text-center">
-        <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-orange/10">
+        <div className="mb-3 flex size-12 items-center justify-center rounded-md bg-orange/10">
           <Gift className="size-6 text-orange" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">لا توجد إحالات بعد</p>
@@ -317,7 +311,7 @@ function TransactionsTable({ transactions }: { transactions: StatsData["recentTr
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center py-8 text-center">
-        <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-muted/50">
+        <div className="mb-3 flex size-10 items-center justify-center rounded-md bg-muted/50">
           <Clock className="size-5 text-muted-foreground" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">لا توجد معاملات بعد</p>
@@ -373,7 +367,7 @@ function ReferralQR({ url }: { url: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
+      { }
       <img
         src={qrDataUrl}
         alt="Referral QR"
@@ -436,12 +430,12 @@ export default function OwnerLoyaltyPage() {
       <div className="space-y-6 animate-fade-in">
         <div className="grid gap-4 sm:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
+            <div key={i} className="h-28 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
           ))}
         </div>
-        <div className="h-64 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
-        <div className="h-48 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
-        <div className="h-48 animate-pulse rounded-2xl bg-white/10 dark:bg-white/5" />
+        <div className="h-64 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
+        <div className="h-48 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
+        <div className="h-48 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
       </div>
     )
   }
@@ -449,8 +443,8 @@ export default function OwnerLoyaltyPage() {
   /* ---------- Error ---------- */
   if (error) {
     return (
-      <div className="card-premium flex flex-col items-center justify-center rounded-2xl bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
-        <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-destructive/10">
+      <div className="card-premium flex flex-col items-center justify-center rounded-md bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
+        <div className="mb-4 flex size-16 items-center justify-center rounded-md bg-destructive/10">
           <AlertCircle className="size-7 text-destructive" />
         </div>
         <p className="text-lg font-semibold">خطأ في تحميل بيانات الولاء</p>
@@ -548,7 +542,7 @@ export default function OwnerLoyaltyPage() {
         />
 
         {/* Status Breakdown */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+        <div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
             <Award className="size-4 text-muted-foreground" />
             الإحالات حسب الحالة
@@ -571,7 +565,7 @@ export default function OwnerLoyaltyPage() {
         </div>
 
         {/* Share Section */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+        <div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
             <Share2 className="size-4 text-muted-foreground" />
             مشاركة رابط الإحالة
@@ -607,7 +601,7 @@ export default function OwnerLoyaltyPage() {
       {/* ---- Referrals + Transactions ---- */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Referrals Table */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+        <div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <Gift className="size-4 text-muted-foreground" />
@@ -621,7 +615,7 @@ export default function OwnerLoyaltyPage() {
         </div>
 
         {/* Recent Transactions */}
-        <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+        <div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <Clock className="size-4 text-muted-foreground" />
@@ -633,7 +627,7 @@ export default function OwnerLoyaltyPage() {
       </div>
 
       {/* ---- Tier Distribution ---- */}
-      <div className="card-premium relative overflow-hidden rounded-2xl bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+      <div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
           <div className="flex items-center gap-2">
             <Award className="size-4 text-muted-foreground" />

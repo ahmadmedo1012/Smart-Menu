@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { toArabicNumber } from "@/lib/format";
-import { Phone, Award, Star, Sparkles, Medal, UserPlus, Gift } from "lucide-react";
+import { Phone, Award, Star, Sparkles, Medal, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { csrfFetch } from "@/lib/csrf-client";
 import ReferralCard from "./ReferralCard";
@@ -60,7 +60,7 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
 
   return (
     <section className="max-w-4xl mx-auto px-4 mb-4 mt-8">
-      <div className="rounded-2xl bg-gradient-to-br from-orange-muted/80 to-orange-muted/50 dark:from-orange-muted/20 dark:to-orange-muted/10 border border-orange/30 overflow-hidden">
+      <div className="rounded-md bg-gradient-to-br from-orange-muted/80 to-orange-muted/50 dark:from-orange-muted/20 dark:to-orange-muted/10 border border-orange/30 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">

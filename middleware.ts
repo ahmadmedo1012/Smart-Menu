@@ -27,7 +27,7 @@ const publicPrefixes = [
 function setCsrfCookie(resp: NextResponse, req: NextRequest) {
   if (!req.cookies.get(CSRF_COOKIE)?.value) {
     resp.cookies.set(CSRF_COOKIE, generateToken(), {
-      path: "/", httpOnly: false, sameSite: "lax",
+      path: "/", httpOnly: false, sameSite: "strict",
       secure: process.env.NODE_ENV === "production", maxAge: 3600,
     });
   }
@@ -38,7 +38,7 @@ function setHeaders(resp: NextResponse) {
   resp.headers.set("X-Content-Type-Options", "nosniff");
   resp.headers.set("X-Frame-Options", "DENY");
   resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  resp.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
+  resp.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
   resp.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
   resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 }

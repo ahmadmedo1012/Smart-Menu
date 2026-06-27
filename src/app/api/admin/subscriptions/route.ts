@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
+import { notifyEvent } from "@/lib/telegram";
 
 export async function GET(request: NextRequest) {
   try {
@@ -49,6 +50,28 @@ export async function POST(request: NextRequest) {
       where: { id: Number(id) },
       data: { status },
     });
+
+    // Re-check plan limits after verification
+    if (status === "verified") {
+      // Find a restaurant with matching phone
+      const restaurants = await prisma.restaurant.findMany({
+        where: { phone: existing.phone },
+        select: { id: true, name: true, planId: true },
+      });
+      if (restaurants.length > 0) {
+        // Activate plan for all matching restaurants
+        for (const r of restaurants) {
+          await prisma.restaurant.update({
+            where: { id: r.id },
+            data: { planId: existing.planId, planStart: new Date(), planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+          });
+        }
+      }
+      // Notify via Telegram
+      notifyEvent("payment_verified", { phone: existing.phone, amount: String(existing.amount), plan: existing.planName, status: "verified" }).catch(() => {});
+    } else if (status === "cancelled") {
+      notifyEvent("payment_cancelled", { phone: existing.phone, amount: String(existing.amount), plan: existing.planName, status: "cancelled" }).catch(() => {});
+    }
 
     return success(updated);
   } catch (e) {

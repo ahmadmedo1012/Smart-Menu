@@ -152,7 +152,7 @@ export default function AdminSettingsPage() {
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in" aria-live="polite">
-      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />)}
+      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
 
@@ -187,7 +187,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {selected ? (
-          <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+          <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-border/20">
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center" aria-hidden="true">
@@ -253,7 +253,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         ) : restaurants.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-2xl bg-card/50 border border-border/30">
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-md bg-card/50 border border-border/30">
             <Store className="size-10 text-muted-foreground/50" />
             <p>لا توجد مطاعم</p>
           </div>
@@ -270,7 +270,7 @@ export default function AdminSettingsPage() {
           </Badge>
         </div>
 
-        <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
           <div className="p-5 space-y-4">
             <div className="flex items-center justify-between gap-4">
               <Label htmlFor="tg-active" className="flex items-center gap-2 cursor-pointer">

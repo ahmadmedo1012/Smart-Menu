@@ -16,39 +16,40 @@ const features = [
 
 export default function FeaturesSection() {
 	return (
-		<section className="relative py-24 overflow-hidden" dir="rtl">
-			{/* Background image */}
+		<section className="relative py-16 sm:py-24 overflow-hidden">
 			<div className="absolute inset-0 z-0">
-				<img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.04]" loading="lazy" />
+				<img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.03]" loading="lazy" />
 			</div>
 
-			<div className="relative z-10 max-w-[1220px] mx-auto px-4">
-				<div className="text-center mb-14">
+			<div className="relative z-10 max-w-[1220px] mx-auto px-4 sm:px-6">
+				<div className="text-center mb-12 sm:mb-16">
 					<span className="inline-flex text-xs font-medium text-orange bg-orange-muted rounded-sm px-2 py-0.5 mb-4">إليك ما يمكنك تحقيقه معنا</span>
 					<motion.h2
-						initial={{ opacity: 0, y: 30 }}
+						initial={{ opacity: 0, y: 24 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
-						transition={{ duration: 0.7, ease: EASE }}
-						className="text-3xl md:text-4xl font-medium leading-[1.2]"
+						transition={{ duration: 0.6, ease: EASE }}
+						className="text-2xl sm:text-3xl md:text-4xl font-medium leading-[1.2]"
 					>
 						ميزات متكاملة لمطعمك
 					</motion.h2>
+					<div className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-orange/40" />
 				</div>
-				<div className="grid md:grid-cols-3 gap-5">
+
+				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
 					{features.map((feat, i) => (
 						<motion.div
 							key={i}
-							initial={{ opacity: 0, y: i % 2 === 0 ? 30 : 50 }}
+							initial={{ opacity: 0, y: 24 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, margin: "-40px" }}
-							transition={{ duration: 0.6, delay: i * 0.08, ease: EASE }}
-							className="group rounded-md bg-card border border-border/50 p-6 md:p-8 shadow-sm hover:border-orange/30 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange/5 transition-all duration-300"
+							transition={{ duration: 0.5, delay: i * 0.06, ease: EASE }}
+							className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 hover:border-orange/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300"
 						>
-							<div className="size-12 rounded-md bg-orange/10 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:bg-orange/20 transition-colors">
-								<feat.icon className="size-6 text-orange" />
+							<div className="size-10 sm:size-12 rounded-sm bg-orange/10 flex items-center justify-center mb-4 group-hover:bg-orange/20 transition-colors duration-300">
+								<feat.icon className="size-5 sm:size-6 text-orange" />
 							</div>
-							<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
+							<h3 className="text-base sm:text-lg font-medium mb-2">{feat.title}</h3>
 							<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
 						</motion.div>
 					))}

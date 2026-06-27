@@ -49,7 +49,6 @@ export default function MenuPageClient({
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
   const cart = useCart();
-  const setRestaurantDetails = cart.setRestaurantDetails;
 
   const handleQuickAdd = (item: MenuItemProp) => {
     cart.addItem({
@@ -77,7 +76,7 @@ export default function MenuPageClient({
   }, []);
 
   useEffect(() => {
-    if (restaurantId) setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
+    if (restaurantId) cart.setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantId]);
 
@@ -86,7 +85,6 @@ export default function MenuPageClient({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  // Sort & filter
   const filteredItems = useMemo(() => {
     const result = items.filter((item) => {
       const matchesSearch =
@@ -126,30 +124,28 @@ export default function MenuPageClient({
 
   return (
     <>
-      {/* Search + Sort bar — sticky */}
       <div className="relative mb-4 flex gap-2 items-start">
         <div className="flex-1 relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder="ابحث في القائمة..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 pr-11 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
+            className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
           />
           {search && (
             <button
               type="button"
               aria-label="مسح البحث"
               onClick={() => setSearch("")}
-              className="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
             >
               <X className="size-3" />
             </button>
           )}
         </div>
 
-        {/* Sort dropdown */}
         <div className="relative">
           <button
             type="button"
@@ -158,7 +154,7 @@ export default function MenuPageClient({
             aria-expanded={showSort}
             onClick={() => setShowSort(!showSort)}
             onKeyDown={(e) => { if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") { e.preventDefault(); setShowSort(true); } }}
-            className="h-12 px-4 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
+            className="h-11 sm:h-12 px-3 sm:px-4 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
           >
             <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
@@ -167,7 +163,7 @@ export default function MenuPageClient({
           {showSort && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
-              <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-md border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-sm border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
                 role="listbox"
                 aria-label="خيارات الترتيب"
                 onKeyDown={(e) => {
@@ -185,7 +181,7 @@ export default function MenuPageClient({
                     aria-selected={sort === opt.value}
                     onClick={() => { setSort(opt.value); setShowSort(false); }}
                     className={cn(
-                      "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-md last:rounded-b-md hover:bg-accent",
+                      "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-sm last:rounded-b-sm hover:bg-accent",
                       sort === opt.value && "bg-accent font-medium text-primary",
                     )}
                   >
@@ -198,7 +194,6 @@ export default function MenuPageClient({
         </div>
       </div>
 
-      {/* Active filters indicator */}
       {hasActiveFilter && (
         <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
           <Sparkles className="size-3.5 text-primary" />
@@ -220,27 +215,25 @@ export default function MenuPageClient({
       )}
 
       {/* Category tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory">
+      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0">
         <button
           type="button"
           onClick={() => setActiveCategory(null)}
           className={cn(
-            "snap-start shrink-0 px-5 py-2.5 rounded-sm text-sm font-medium transition-all duration-300",
+            "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
             activeCategory === null
-              ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25 scale-105"
-              : "glass-card hover:bg-orange-muted",
+              ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
+              : "hover:bg-orange-muted",
           )}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5 sm:gap-2">
             الكل
-            <span
-              className={cn(
-                "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
-                activeCategory === null
-                  ? "bg-background/20 text-foreground"
-                  : "bg-orange-muted text-orange dark:text-orange",
-              )}
-            >
+            <span className={cn(
+              "inline-flex items-center justify-center size-4 sm:size-5 rounded-full text-[10px] sm:text-[11px] font-bold",
+              activeCategory === null
+                ? "bg-background/20 text-foreground"
+                : "bg-orange-muted text-orange dark:text-orange",
+            )}>
               {toArabicNumber(itemCounts.get(null) ?? 0)}
             </span>
           </span>
@@ -251,22 +244,20 @@ export default function MenuPageClient({
             type="button"
             onClick={() => setActiveCategory(cat.id)}
             className={cn(
-              "snap-start shrink-0 px-5 py-2.5 rounded-sm text-sm font-medium transition-all duration-300",
+              "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
               activeCategory === cat.id
-                ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25 scale-105"
-                : "glass-card hover:bg-orange-muted",
+                ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
+                : "hover:bg-orange-muted",
             )}
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 sm:gap-2">
               {cat.nameAr || cat.name}
-              <span
-                className={cn(
-                  "inline-flex items-center justify-center size-5 rounded-sm text-[11px] font-bold",
-                  activeCategory === cat.id
-                    ? "bg-background/20 text-foreground"
-                    : "bg-orange-muted text-orange dark:text-orange",
-                )}
-              >
+              <span className={cn(
+                "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold",
+                activeCategory === cat.id
+                  ? "bg-background/20 text-foreground"
+                  : "bg-orange-muted text-orange dark:text-orange",
+              )}>
                 {toArabicNumber(itemCounts.get(cat.id) ?? 0)}
               </span>
             </span>
@@ -274,26 +265,25 @@ export default function MenuPageClient({
         ))}
       </div>
 
-      {/* Items grid */}
       {filteredItems.length === 0 ? (
-        <div className="text-center py-20 animate-fade-in">
+        <div className="text-center py-16 sm:py-20 animate-fade-in">
           <div className="empty-state-icon">
             <Search />
           </div>
-          <p className="text-muted-foreground text-lg font-medium mb-1">
+          <p className="text-muted-foreground text-base sm:text-lg font-medium mb-1">
             {search ? "لا توجد أصناف تطابق بحثك" : "لا توجد أصناف في هذه الفئة"}
           </p>
-          <p className="text-sm text-muted-foreground/60">
+          <p className="text-xs sm:text-sm text-muted-foreground/60">
             {search ? "جرب كلمات بحث أخرى" : "اختر فئة أخرى"}
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
           {filteredItems.map((item, index) => (
             <div
               key={item.id}
               className="animate-reveal"
-              style={{ animationDelay: `${(index % 6) * 80}ms` }}
+              style={{ animationDelay: `${(index % 6) * 60}ms` }}
             >
               <MenuItemCard item={item} onOrder={setOrderItem} onAddToCart={handleQuickAdd} />
             </div>
@@ -301,7 +291,6 @@ export default function MenuPageClient({
         </div>
       )}
 
-      {/* Order Dialog */}
       <OrderDialog
         item={orderItem}
         open={orderItem !== null}
@@ -313,21 +302,20 @@ export default function MenuPageClient({
         restaurantSlug={restaurantSlug}
       />
 
-      {/* Floating WhatsApp */}
       {waNumber && (
         <a
           href={`https://wa.me/${waNumber}?text=${encodeURIComponent("مرحباً، أود الاستفسار عن القائمة")}`}
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            "fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] end-6 z-[59] size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
+            "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] sm:bottom-[calc(env(safe-area-inset-bottom)+5rem)] end-4 sm:end-6 z-[59] size-12 sm:size-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-xl shadow-[#25D366]/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-[#25D366]/40 active:scale-95",
             showFloatingWa
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8 pointer-events-none",
           )}
           aria-label="واتساب"
         >
-          <MessageCircle className="size-7" />
+          <MessageCircle className="size-6 sm:size-7" />
         </a>
       )}
     </>

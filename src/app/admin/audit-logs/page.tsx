@@ -1,7 +1,5 @@
 "use client"
 
-import { csrfFetch } from "@/lib/csrf-client";
-
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -40,11 +38,11 @@ interface AuditLogEntry {
 }
 
 const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-  create: { label: "إنشاء", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+  create: { label: "إنشاء", color: "text-success", bg: "bg-success/10" },
   update: { label: "تحديث", color: "text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
   delete: { label: "حذف", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
   login: { label: "دخول", color: "text-orange", bg: "bg-orange/10" },
-  other: { label: "أخرى", color: "text-gray-600", bg: "bg-gray-50 dark:bg-gray-800/30" },
+  other: { label: "أخرى", color: "text-muted-foreground", bg: "bg-muted" },
 }
 
 const ACTION_OPTIONS = [
@@ -110,7 +108,7 @@ export default function AdminAuditLogsPage() {
     return (
       <div className="space-y-4 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
         <div className="h-10 w-48 skeleton rounded-lg" />
-        <div className="h-64 rounded-2xl bg-muted/50 animate-breath" />
+        <div className="h-64 rounded-md bg-muted/50 animate-breath" />
       </div>
     )
   }
@@ -132,7 +130,7 @@ export default function AdminAuditLogsPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="size-11 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg" aria-hidden="true">
+        <div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg" aria-hidden="true">
           <Activity className="size-5 text-white" />
         </div>
         <div>
@@ -144,7 +142,7 @@ export default function AdminAuditLogsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <Select value={actionFilter} onValueChange={(v) => { setActionFilter(v ?? ""); setPage(1) }}>
-          <SelectTrigger className="h-11 w-40 rounded-2xl" aria-label="فلتر الإجراء">
+          <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الإجراء">
             <SelectValue placeholder="كل الإجراءات" />
           </SelectTrigger>
           <SelectContent>
@@ -154,7 +152,7 @@ export default function AdminAuditLogsPage() {
           </SelectContent>
         </Select>
         <Select value={targetType} onValueChange={(v) => { setTargetType(v ?? ""); setPage(1) }}>
-          <SelectTrigger className="h-11 w-40 rounded-2xl" aria-label="فلتر نوع الهدف">
+          <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر نوع الهدف">
             <SelectValue placeholder="كل الأنواع" />
           </SelectTrigger>
           <SelectContent>
@@ -180,7 +178,7 @@ export default function AdminAuditLogsPage() {
         </div>
       ) : (
         <>
-          <div className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden">
+          <div className="rounded-md border border-border/30 bg-card/50 overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -235,7 +233,7 @@ export default function AdminAuditLogsPage() {
             <div className="flex items-center justify-center gap-2 pt-2">
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page <= 1}
                 aria-label="الصفحة السابقة"
@@ -257,7 +255,7 @@ export default function AdminAuditLogsPage() {
                   <Button
                     key={pn}
                     variant={pn === page ? "orange" : "outline"}
-                    size="icon-sm"
+                    size="icon"
                     onClick={() => setPage(pn)}
                     className="w-9"
                     aria-label={`الصفحة ${pn}`}
@@ -269,7 +267,7 @@ export default function AdminAuditLogsPage() {
               })}
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
                 aria-label="الصفحة التالية"

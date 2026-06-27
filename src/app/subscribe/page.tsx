@@ -198,7 +198,7 @@ function SubscribeContent() {
                     type="button"
                     onClick={() => setSelectedPlan(plan.id)}
                     className={cn(
-                      "relative flex flex-col rounded-2xl border-2 p-5 text-start transition-all duration-300 hover:scale-[1.02]",
+                      "relative flex flex-col rounded-md border-2 p-5 text-start transition-all duration-300 hover:scale-[1.02]",
                       isSelected
                         ? "border-orange bg-orange-muted/50 dark:bg-orange-muted shadow-lg shadow-orange/10"
                         : "border-border/30 hover:border-orange/30 bg-card/50"
@@ -256,7 +256,7 @@ function SubscribeContent() {
             {/* Selected plan summary */}
             {currentPlan && (
               <div className={cn(
-                "rounded-2xl p-5 mb-8 border-2 border-orange/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card",
+                "rounded-md p-5 mb-8 border-2 border-orange/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card",
               )}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -390,7 +390,7 @@ function SubscribeContent() {
 
               {/* Summary */}
               {currentPlan && (
-                <div className="rounded-2xl bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mt-6">
+                <div className="rounded-md bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mt-6">
                   <h4 className="font-bold mb-3">ملخص الاشتراك</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">

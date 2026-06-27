@@ -1,6 +1,6 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { success, error, handleError, paginated } from "@/lib/api-helpers";
+import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
@@ -75,6 +75,12 @@ export async function POST(request: NextRequest) {
     // Check slug uniqueness
     const existingSlug = await prisma.restaurant.findUnique({ where: { slug: body.slug } });
     if (existingSlug) return error("الرابط المختصر مستخدم بالفعل", 409);
+
+    // Check username uniqueness before transaction
+    if (body.username && body.password) {
+      const existingUser = await prisma.user.findUnique({ where: { username: body.username } });
+      if (existingUser) return error("اسم المستخدم مستخدم بالفعل", 409);
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       const restaurant = await tx.restaurant.create({

@@ -64,7 +64,7 @@ export default function AdminQRPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
       <div className="flex items-center gap-3">
-        <div className="size-11 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
+        <div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
           <QrCode className="size-5 text-white" />
         </div>
         <div>
@@ -73,7 +73,7 @@ export default function AdminQRPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
         {/* Restaurant selector */}
         <div className="p-5 space-y-4">
           <div>
@@ -109,7 +109,7 @@ export default function AdminQRPage() {
                   style={{ width: qrSize, height: qrSize, maxWidth: "100%" }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="size-10 md:size-14 rounded-2xl bg-card/90 shadow flex items-center justify-center">
+                  <div className="size-10 md:size-14 rounded-md bg-card/90 shadow flex items-center justify-center">
                     <Store className="size-5 md:size-7 text-orange" />
                   </div>
                 </div>

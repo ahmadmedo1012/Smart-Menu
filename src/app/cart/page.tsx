@@ -110,7 +110,7 @@ export default function CartPage() {
       <>
       <Header />
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 px-4 text-center animate-fade-in">
-        <div className="size-24 rounded-2xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
+        <div className="size-16 rounded-md bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
           <ShoppingCart className="size-12 text-muted-foreground" />
         </div>
         <h2 className="text-2xl font-bold">السلة فارغة</h2>
@@ -170,7 +170,7 @@ export default function CartPage() {
             type="button"
             onClick={() => setPickupType(opt.value as typeof pickupType)}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300 border",
+              "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-md text-sm font-medium transition-all duration-300 border",
               pickupType === opt.value
                 ? "bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/20 scale-[1.02]"
                 : "bg-card/50 border-border/30 hover:border-orange/20 hover:shadow-md",
@@ -206,7 +206,7 @@ export default function CartPage() {
           <div
             key={item.id}
             className={cn(
-              "rounded-2xl bg-card/60 border border-border/30 p-4 transition-all duration-500 hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5",
+              "rounded-md bg-card/60 border border-border/30 p-4 transition-all duration-500 hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5",
               animateItems ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
             )}
             style={{ transitionDelay: `${idx * 80}ms` }}
@@ -246,7 +246,7 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
+      <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
         <h2 className="font-bold mb-3 flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
           ملاحظات إضافية
@@ -257,7 +257,7 @@ export default function CartPage() {
       </div>
 
       {/* Customer info */}
-      <div className="rounded-2xl bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-250">
+      <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-250">
         <h2 className="font-bold mb-3 flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
           معلومات الاتصال
@@ -278,11 +278,11 @@ export default function CartPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8 animate-slide-up delay-400">
+      <div className="rounded-md bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8 animate-slide-up delay-400">
         <h3 className="text-sm font-bold mb-4 text-muted-foreground">ملخص الطلب</h3>
         <div className="space-y-2 mb-4">
           {items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm group hover:bg-orange-muted/50 -mx-2 px-2 py-1 rounded-lg transition-colors">
+            <div key={item.id} className="flex justify-between text-sm group hover:bg-orange-muted/50 -mx-2 px-2 py-1 rounded-sm transition-colors">
               <span className="text-muted-foreground truncate ml-2">
                 {item.name}
                 <span className="text-muted-foreground/60 mr-1">×{toArabicNumber(item.quantity)}</span>
@@ -303,14 +303,14 @@ export default function CartPage() {
         </div>
       </div>
 
-      <Button className="w-full h-14 text-base font-semibold rounded-2xl gap-2 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 transition-all duration-300"
+      <Button className="w-full h-14 text-base font-semibold rounded-md gap-2 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 transition-all duration-300"
         onClick={() => setShowPreview(true)} size="lg" disabled={items.length === 0}>
         <MessageCircle className="size-5" />
         مراجعة الطلب وإرساله
       </Button>
 
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="rounded-3xl gap-0 p-0 overflow-hidden sm:max-w-md">
+        <DialogContent className="rounded-md gap-0 p-0 overflow-hidden sm:max-w-md">
           <div className="bg-gradient-to-r from-orange to-orange/80 p-5 text-white">
             <DialogHeader>
               <DialogTitle className="text-white text-xl">مراجعة الطلب</DialogTitle>

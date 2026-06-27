@@ -50,7 +50,7 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
 
   if (error) {
     return (
-      <div className="rounded-2xl p-4 border border-red-200/30 bg-red-50/50 dark:bg-red-950/10">
+      <div className="rounded-md p-4 border border-red-200/30 bg-red-50/50 dark:bg-red-950/10">
         <p className="text-xs text-destructive flex items-center gap-1">
           <AlertTriangle className="size-3" /> {error}
         </p>
@@ -65,7 +65,7 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
   const isAt = usage.current >= usage.max;
 
   return (
-    <div className={cn("rounded-2xl p-4 border transition-all", isAt ? "bg-red-50 dark:bg-red-950/20 border-red-200/30" : isNear ? "bg-orange/[0.06] dark:bg-orange/10 border-orange/20" : "bg-card/50 border-border/30")}>
+    <div className={cn("rounded-md p-4 border transition-all", isAt ? "bg-red-50 dark:bg-red-950/20 border-red-200/30" : isNear ? "bg-orange/[0.06] dark:bg-orange/10 border-orange/20" : "bg-card/50 border-border/30")}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 text-sm">
           <span className="font-medium">{usage.planName}</span>

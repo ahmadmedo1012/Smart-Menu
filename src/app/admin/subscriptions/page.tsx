@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import {
   CreditCard, Check, X, RefreshCw, FilterX,
-  ChevronLeft, ChevronRight, AlertCircle, Smartphone, Clock, Search,
+  ChevronLeft, ChevronRight, AlertCircle, Smartphone, Clock,
 } from "lucide-react";
 
 interface Payment {
@@ -96,12 +96,18 @@ export default function AdminSubscriptionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: actionTarget.id, status: actionType }),
       });
-      if (!res.ok) throw Error();
-      toast.success(actionType === "verified" ? "تم التحقق من الدفع" : "تم إلغاء الدفع");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "فشل تحديث الحالة");
+      }
       setActionTarget(null);
-      fetchPayments();
-    } catch {
-      toast.error("فشل تحديث الحالة");
+      await fetchPayments();
+      toast.success(actionType === "verified" ? "تم التحقق من الدفع ✓\nتم تفعيل الخطة للمطعم ✓" : "تم إلغاء الدفع ✓");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "فشل تحديث الحالة";
+      // Show the error but still close dialog — user can retry
+      toast.error(msg);
+      setActionTarget(null);
     } finally {
       setActionLoading(false);
     }
@@ -117,7 +123,7 @@ export default function AdminSubscriptionsPage() {
     return (
       <div className="space-y-3 animate-fade-in">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />
+          <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />
         ))}
       </div>
     );
@@ -148,19 +154,19 @@ export default function AdminSubscriptionsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-4">
+        <div className="rounded-md bg-card/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground">الإجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-2xl bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
+        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange">قيد الانتظار</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(payments.filter(p => p.status === "pending").length)}</p>
         </div>
-        <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
+        <div className="rounded-md bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
           <p className="text-xs text-emerald-600">تم التحقق</p>
           <p className="text-2xl font-bold mt-1 text-emerald-600">{toArabicNumber(payments.filter(p => p.status === "verified").length)}</p>
         </div>
-        <div className="rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200/30 p-4">
+        <div className="rounded-md bg-red-50 dark:bg-red-950/20 border border-red-200/30 p-4">
           <p className="text-xs text-red-600">ملغى</p>
           <p className="text-2xl font-bold mt-1 text-red-600">{toArabicNumber(payments.filter(p => p.status === "cancelled").length)}</p>
         </div>
@@ -169,7 +175,7 @@ export default function AdminSubscriptionsPage() {
       {/* Filter */}
       <div className="flex items-center gap-3">
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "pending")}>
-          <SelectTrigger className="h-11 w-48 rounded-2xl" aria-label="فلتر الحالة">
+          <SelectTrigger className="h-11 w-48 rounded-md" aria-label="فلتر الحالة">
             <SelectValue placeholder="فلترة حسب الحالة" />
           </SelectTrigger>
           <SelectContent>
@@ -200,7 +206,7 @@ export default function AdminSubscriptionsPage() {
               return (
                 <div
                   key={p.id}
-                  className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all"
+                  className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -262,7 +268,7 @@ export default function AdminSubscriptionsPage() {
             <div className="flex items-center justify-center gap-2 pt-2">
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
               >
@@ -278,7 +284,7 @@ export default function AdminSubscriptionsPage() {
                   <Button
                     key={pn}
                     variant={pn === page ? "orange" : "outline"}
-                    size="icon-sm"
+                    size="icon"
                     onClick={() => setPage(pn)}
                     className="w-9"
                     aria-current={pn === page ? "page" : undefined}
@@ -289,7 +295,7 @@ export default function AdminSubscriptionsPage() {
               })}
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
               >
@@ -302,7 +308,7 @@ export default function AdminSubscriptionsPage() {
 
       {/* Action confirmation dialog */}
       <Dialog open={actionTarget !== null} onOpenChange={(o) => !o && setActionTarget(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-md">
           <DialogHeader>
             <DialogTitle>
               {actionType === "verified" ? "تأكيد الدفع" : "إلغاء الدفع"}

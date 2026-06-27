@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
-  ArrowRight, Copy, Check, AlertCircle, Phone, MessageCircle,
+  Copy, Check, AlertCircle, Phone, MessageCircle,
   ShoppingCart, User, MapPin, FileText, ChevronLeft,
   Clock, ChefHat, PackageCheck, CheckCircle, XCircle,
 } from "lucide-react"
@@ -24,8 +24,8 @@ const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   new: { label: "جديد", icon: Clock, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
   preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
-  ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
-  completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
+  ready: { label: "جاهز", icon: PackageCheck, color: "text-success", bg: "bg-success/10" },
+  completed: { label: "مكتمل", icon: CheckCircle, color: "text-muted-foreground", bg: "bg-muted" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-100 dark:bg-red-900/30" },
 }
 
@@ -89,19 +89,19 @@ ${items}
           <div className="h-3 w-24 rounded bg-muted/30 animate-pulse" />
         </div>
       </div>
-      <div className="h-40 rounded-2xl bg-card/50 border border-border/20 p-6 space-y-3 animate-pulse">
+      <div className="h-40 rounded-md bg-card/50 border border-border/20 p-6 space-y-3 animate-pulse">
         <div className="h-3 w-24 rounded bg-muted/50" />
         <div className="flex justify-between">
           {[1,2,3,4].map(i => <div key={i} className="size-10 rounded-xl bg-muted/40 animate-pulse" />)}
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="h-44 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+        <div className="h-44 rounded-md bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
           <div className="h-3 w-24 rounded bg-muted/50" />
           <div className="h-3 w-32 rounded bg-muted/40" />
           <div className="h-3 w-28 rounded bg-muted/40" />
         </div>
-        <div className="h-44 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+        <div className="h-44 rounded-md bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
           <div className="h-3 w-24 rounded bg-muted/50" />
           <div className="h-3 w-32 rounded bg-muted/40" />
           <div className="h-3 w-28 rounded bg-muted/40" />
@@ -131,7 +131,6 @@ ${items}
   )
 
   const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
-  const StatusIcon = config.icon
   const currentIdx = STATUS_FLOW.indexOf(order.status as typeof STATUS_FLOW[number])
 
   return (
@@ -153,7 +152,7 @@ ${items}
       </div>
 
       {/* Status Timeline */}
-      <div className="rounded-2xl bg-card/50 border border-border/30 p-6">
+      <div className="rounded-md bg-card/50 border border-border/30 p-6">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">حالة الطلب</h3>
         <div className="flex items-center">
           {STATUS_FLOW.map((s, idx) => { const StatusIcon = STATUS_CONFIG[s].icon
@@ -168,7 +167,7 @@ ${items}
                   className={cn(
                     "size-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2",
                     isCurrent ? "bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/25 scale-110" :
-                    isActive ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 border-emerald-300 dark:border-emerald-700" :
+                    isActive ? "bg-success/15 text-emerald-600 border-success/30" :
                     "bg-muted/30 text-muted-foreground/30 border-border/20"
                   )}
                 >
@@ -176,7 +175,7 @@ ${items}
                 </button>
                 <span className={cn(
                   "text-xs mt-2 font-medium",
-                  isCurrent ? "text-foreground" : isActive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/40"
+                  isCurrent ? "text-foreground" : isActive ? "text-success" : "text-muted-foreground/40"
                 )}>
                   {STATUS_CONFIG[s].label}
                 </span>
@@ -195,9 +194,9 @@ ${items}
           {order.status !== "cancelled" && order.status !== "completed" && (
             <>
               {currentIdx < STATUS_FLOW.length - 1 && (
-                <Button
+                <Button variant="orange"
                   onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
-                  className="flex-1 rounded-xl h-11 bg-orange hover:opacity-90"
+                  className="flex-1 rounded-md h-11"
                 >
                   ← {STATUS_CONFIG[STATUS_FLOW[currentIdx + 1]]?.label}
                 </Button>
@@ -217,7 +216,7 @@ ${items}
       {/* Order info grid */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Customer info */}
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-5">
+        <div className="rounded-md bg-card/50 border border-border/30 p-5">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
             <User className="size-4" /> معلومات العميل
           </h3>
@@ -250,7 +249,7 @@ ${items}
         </div>
 
         {/* Order summary */}
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-5">
+        <div className="rounded-md bg-card/50 border border-border/30 p-5">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
             <ShoppingCart className="size-4" /> ملخص الطلب
           </h3>
@@ -269,14 +268,14 @@ ${items}
       </div>
 
       {/* Items */}
-      <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
           <h3 className="font-semibold flex items-center gap-2">
             <FileText className="size-4 text-muted-foreground" />
             الأصناف ({toArabicNumber(order.items.length)})
           </h3>
           <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="rounded-xl gap-1">
-            {copied ? <Check className="size-3.5 text-green-500" /> : <Copy className="size-3.5" />}
+            {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             نسخ للواتساب
           </Button>
         </div>
@@ -301,7 +300,7 @@ ${items}
       <div className="grid grid-cols-2 gap-3">
         <a
           href={`tel:${order.customerPhone}`}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-border/30 hover:bg-accent transition-all font-medium text-sm"
+          className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-all font-medium text-sm"
         >
           <Phone className="size-4" />
           اتصال
@@ -309,7 +308,7 @@ ${items}
         <button
           type="button"
           onClick={copyAsWhatsApp}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20 transition-all font-medium text-sm"
+          className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-green-200/30 text-success hover:bg-success/15 transition-all font-medium text-sm"
         >
           <MessageCircle className="size-4" />
           نسخ نص الطلب

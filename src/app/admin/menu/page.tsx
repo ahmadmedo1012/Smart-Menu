@@ -1,16 +1,12 @@
 "use client"
 
 import { csrfFetch } from "@/lib/csrf-client";
-
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Trash2, Package, Search } from "lucide-react"
+import { Package, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 
@@ -38,9 +34,6 @@ export default function AdminMenuPage() {
   const [search, setSearch] = useState("")
   const [restaurantFilter, setRestaurantFilter] = useState<number | null>(null)
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
-  const [itemDialogOpen, setItemDialogOpen] = useState(false)
-  const [itemEditing, setItemEditing] = useState<Item | null>(null)
-  const [itemForm, setItemForm] = useState({ name: "", nameAr: "", description: "", descriptionAr: "", price: 0, discountedPrice: "", status: "available", categoryId: 0, image: "" })
   const [deleteTarget, setDeleteTarget] = useState<{ type: "category" | "item"; id: number; name: string; parentRestaurant?: string } | null>(null)
 
   const fetchData = useCallback(async () => {
@@ -115,7 +108,7 @@ export default function AdminMenuPage() {
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in">
-      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />)}
+      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
 
@@ -137,13 +130,13 @@ export default function AdminMenuPage() {
             placeholder="ابحث عن صنف..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         {<select
             value={restaurantFilter ?? ""}
             onChange={e => setRestaurantFilter(e.target.value ? Number(e.target.value) : null)}
-            className="h-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-orange"
+            className="h-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-orange"
           >
             <option value="">كل المطاعم</option>
             {restaurants.map(r => (
@@ -154,19 +147,19 @@ export default function AdminMenuPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center">
           <p className="text-2xl font-bold">{toArabicNumber(items.length)}</p>
           <p className="text-xs text-muted-foreground">إجمالي الأصناف</p>
         </div>
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center">
           <p className="text-2xl font-bold text-emerald-600">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
           <p className="text-xs text-muted-foreground">متوفر</p>
         </div>
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center">
           <p className="text-2xl font-bold text-red-500">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
           <p className="text-xs text-muted-foreground">غير متوفر</p>
         </div>
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-4 text-center">
+        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center">
           <p className="text-2xl font-bold">{toArabicNumber(restaurants.length)}</p>
           <p className="text-xs text-muted-foreground">مطاعم</p>
         </div>
@@ -189,7 +182,7 @@ export default function AdminMenuPage() {
                   {toArabicNumber(catItems.length)} صنف
                 </span>
               </div>
-              <div className="rounded-2xl border border-border/30 overflow-hidden divide-y divide-border/10">
+              <div className="rounded-md border border-border/30 overflow-hidden divide-y divide-border/10">
                 {catItems.map(item => (
                   <div key={item.id} className="flex items-center gap-4 px-5 py-3 hover:bg-muted/10 transition-colors group">
                     {/* Status indicator */}
@@ -242,7 +235,7 @@ export default function AdminMenuPage() {
 
       {/* Delete confirmation */}
       <Dialog open={deleteTarget !== null} onOpenChange={o => !o && setDeleteTarget(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-md">
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>

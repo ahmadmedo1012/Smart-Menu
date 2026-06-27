@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 

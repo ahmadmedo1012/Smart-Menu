@@ -26,10 +26,21 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get("categoryId")
       ? Number(searchParams.get("categoryId"))
       : undefined;
+    const restaurantId = searchParams.get("restaurantId")
+      ? Number(searchParams.get("restaurantId"))
+      : undefined;
     const status = searchParams.get("status") || undefined;
 
     const where: Record<string, unknown> = {};
-    if (categoryId) where.categoryId = categoryId;
+    // Require at least restaurantId or categoryId for public access
+    if (restaurantId) {
+      where.category = { restaurantId };
+    } else if (categoryId) {
+      where.categoryId = categoryId;
+    } else {
+      const auth = await requireAuth();
+      if (!auth.authorized) return error("معرف التصنيف أو المطعم مطلوب", 400);
+    }
     if (status) where.status = status;
 
     const [data, total] = await Promise.all([

@@ -122,13 +122,13 @@ model Restaurant {
   users              User[]
   categories         MenuCategory[]
   orders             Order[]
-
-  @@index([planId])
   settings           Setting[]
   loyaltyCards       LoyaltyCard[]
   referrals          Referral[]
   rewardTransactions RewardTransaction[]
   whatsappTemplates  WhatsappTemplate[]
+
+  @@index([planId])
 }
 
 model MenuCategory {

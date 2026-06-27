@@ -90,11 +90,11 @@ export default function OwnerMenuPage() {
     return cat.name.includes(q) || (cat.nameAr?.includes(q)) || cat.items?.some(i => i.name.includes(q) || i.nameAr?.includes(q))
   })
 
-  if (loading) return <div className="space-y-4 animate-fade-in">{[1,2,3].map(i => <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />)}</div>
+  if (loading) return <div className="space-y-4 animate-fade-in">{[1,2,3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}</div>
 
   if (error) return (
     <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-      <div className="size-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
+      <div className="size-16 rounded-md bg-destructive/10 flex items-center justify-center">
         <AlertCircle className="size-8 text-destructive/60" />
       </div>
       <p className="text-lg font-medium">{error}</p>
@@ -110,7 +110,7 @@ export default function OwnerMenuPage() {
           <h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
           <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
         </div>
-        <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-xl gap-2 bg-orange hover:opacity-90 text-white">
+        <Button variant="orange" onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-md gap-2">
           <Plus className="size-4" /> تصنيف جديد
         </Button>
       </div>
@@ -118,24 +118,24 @@ export default function OwnerMenuPage() {
       <div className="relative">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <input type="text" placeholder="ابحث في القائمة..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
+          className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
       </div>
 
       {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}
 
       {filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-          <div className="size-20 rounded-2xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
+          <div className="size-20 rounded-md bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
             <Package className="size-10 text-muted-foreground/50" />
           </div>
           <p className="text-lg font-medium">{searchTerm ? "لا توجد نتائج" : "لا توجد تصنيفات"}</p>
           <p className="text-sm text-muted-foreground/60">{searchTerm ? "جرب كلمات بحث أخرى" : "أضف تصنيفاً جديداً لبدء بناء المنيو"}</p>
-          {!searchTerm && <Button onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="rounded-xl gap-2 bg-orange hover:opacity-90 text-white"><Plus className="size-4" /> إضافة تصنيف</Button>}
+          {!searchTerm && <Button variant="orange" onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="rounded-md gap-2"><Plus className="size-4" /> إضافة تصنيف</Button>}
         </div>
       ) : (
         <div className="space-y-3">
           {filteredCategories.map(cat => (
-            <div key={cat.id} className="rounded-2xl border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-orange/30 hover:shadow-md">
+            <div key={cat.id} className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-orange/30 hover:shadow-md">
               <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20" onClick={() => toggleCat(cat.id)}>
                   <div className="flex items-center gap-3">
                     {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
@@ -180,7 +180,7 @@ export default function OwnerMenuPage() {
                           </div>
                           <div className="flex items-center gap-2">
                             <Switch size="sm" checked={item.status === "available"} onCheckedChange={() => toggleStatus(item)} />
-                            <span className={cn("text-xs w-14", item.status === "available" ? "text-emerald-600" : "text-red-500")}>{item.status === "available" ? "متوفر" : "غير متوفر"}</span>
+                            <span className={cn("text-xs w-14", item.status === "available" ? "text-success" : "text-destructive")}>{item.status === "available" ? "متوفر" : "غير متوفر"}</span>
                           </div>
                           <div className="flex gap-0.5">
                             <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="size-3.5" /></Button>
@@ -204,7 +204,7 @@ export default function OwnerMenuPage() {
 
       {/* Category Dialog */}
       <Dialog open={catDialog} onOpenChange={setCatDialog}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-md">
           <DialogHeader><DialogTitle>{catEditing ? "تعديل تصنيف" : "إضافة تصنيف"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div><label className="text-sm font-medium">الاسم</label><input value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} placeholder="مشروبات ساخنة" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 focus-visible:border-orange" /></div>
@@ -226,7 +226,7 @@ export default function OwnerMenuPage() {
           </div>
           <div className="flex justify-end gap-2 mt-2">
             <Button variant="outline" onClick={() => setCatDialog(false)} className="rounded-xl">إلغاء</Button>
-            <Button onClick={saveCat} className="rounded-xl bg-orange hover:opacity-90 text-white">{catEditing ? "تحديث" : "إضافة"}</Button>
+            <Button variant="orange" onClick={saveCat} className="rounded-md">{catEditing ? "تحديث" : "إضافة"}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -236,7 +236,7 @@ export default function OwnerMenuPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteTarget !== null} onOpenChange={o => !o && setDeleteTarget(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-md">
           <DialogHeader><DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>هل أنت متأكد من حذف &ldquo;{deleteTarget?.name}&rdquo;؟ هذا الإجراء لا يمكن التراجع عنه.</DialogDescription>
           </DialogHeader>

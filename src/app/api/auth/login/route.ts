@@ -7,8 +7,7 @@ import { CSRF_COOKIE, CSRF_HEADER, generateToken, validateToken } from "@/lib/cs
 import { createRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
-// Session model exists in schema for future use but migration hasn't run yet
-// Using cookie-based auth for now (backward compatible)
+import { createSession } from "@/lib/session";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
@@ -57,14 +56,16 @@ export async function POST(request: Request) {
     await notifyEvent("user_login", { username: user.username, name: user.name, role: user.role });
 
     const secure = process.env.NODE_ENV === "production";
-    // Session DB token not yet deployed — using cookie-based auth (see auth.ts)
-    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
-    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
-    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
+    // Create server-side session (primary auth)
+    await createSession(user.id);
+    // Backward-compat cookie-based auth
+    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
+    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
+    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
     if (user.restaurantId) {
-      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 });
+      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
     }
-    cookieStore.set(CSRF_COOKIE, generateToken(), { httpOnly: false, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 });
+    cookieStore.set(CSRF_COOKIE, generateToken(), { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 });
 
     return Response.json({
       success: true,

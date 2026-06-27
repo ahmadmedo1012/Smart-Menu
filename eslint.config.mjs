@@ -11,6 +11,10 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "src/generated/**",
+    ".claude/**",
+    "playwright-report/**",
+    "open-design/**",
+    "public/**",
   ]),
   {
     rules: {

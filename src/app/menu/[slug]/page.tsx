@@ -84,11 +84,11 @@ export default async function PublicMenuPage({
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-16 pb-8 md:pt-14 md:pb-12 text-center animate-page-enter">
           {restaurant.logo ? (
-            <div className="relative mx-auto mb-5 size-24 md:size-28 rounded-2xl overflow-hidden shadow-xl shadow-orange/15 ring-2 ring-orange/20 dark:ring-orange/15 animate-magnetic-float">
+            <div className="relative mx-auto mb-5 size-24 md:size-28 rounded-md overflow-hidden shadow-xl shadow-orange/15 ring-2 ring-orange/20 dark:ring-orange/15 animate-magnetic-float">
               <img src={restaurant.logo} alt={restaurant.name} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ) : (
-            <div className="relative mx-auto mb-5 size-20 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 animate-magnetic-float" aria-hidden="true">
+            <div className="relative mx-auto mb-5 size-20 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 animate-magnetic-float" aria-hidden="true">
               <Store className="size-10 text-white" aria-hidden="true" />
             </div>
           )}
@@ -131,8 +131,8 @@ export default async function PublicMenuPage({
               )}
               {restaurant.whatsapp && (
                 <a href={`https://wa.me/${restaurant.whatsapp.replace(/^\+/, "")}`} target="_blank" rel="noopener noreferrer" dir="ltr"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-green-500/10 transition-all duration-300">
-                  <MessageCircle className="size-3.5 text-green-500" aria-hidden="true" />
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium glass-card hover:bg-success/10 transition-all duration-300">
+                  <MessageCircle className="size-3.5 text-success" aria-hidden="true" />
                   {restaurant.whatsapp}
                 </a>
               )}
@@ -151,7 +151,7 @@ export default async function PublicMenuPage({
       {/* Gallery */}
       {hasGallery && (
         <div className="max-w-4xl mx-auto px-4 -mt-2 relative z-20 mb-6">
-          <Suspense fallback={<div className="h-64 rounded-2xl skeleton" />}>
+          <Suspense fallback={<div className="h-64 rounded-md skeleton" />}>
             <GalleryCarousel images={restaurant.gallery} restaurantName={restaurant.name} />
           </Suspense>
         </div>
@@ -180,7 +180,7 @@ export default async function PublicMenuPage({
       {/* Contact */}
       {hasContact && (
         <section className="max-w-4xl mx-auto px-4 pb-10 mt-6">
-          <div className="rounded-2xl bg-card/40 border border-border/20 overflow-hidden shadow-sm">
+          <div className="rounded-md bg-card/40 border border-border/20 overflow-hidden shadow-sm">
             <div className="p-5 space-y-4">
               <h2 className="text-base font-bold flex items-center gap-2">
                 <MessageCircle className="size-4 text-primary" aria-hidden="true" />
@@ -202,9 +202,9 @@ export default async function PublicMenuPage({
                 )}
                 {restaurant.whatsapp && (
                   <a href={`https://wa.me/${restaurant.whatsapp.replace(/^\+/, "")}`} target="_blank" rel="noopener noreferrer" dir="ltr"
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-green-500/5 hover:border-green-300/20 transition-all duration-300 group">
-                    <div className="size-10 rounded-xl bg-green-50 dark:bg-green-950/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <MessageCircle className="size-4 text-green-500" aria-hidden="true" />
+                    className="flex items-center gap-3 p-3 rounded-xl border border-border/30 hover:bg-success/5 hover:border-success/20 transition-all duration-300 group">
+                    <div className="size-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <MessageCircle className="size-4 text-success" aria-hidden="true" />
                     </div>
                     <div className="text-right flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{restaurant.whatsapp}</p>

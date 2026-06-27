@@ -8,8 +8,6 @@ import { createRateLimiter } from "@/lib/rate-limit";
 
 const loyaltyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
 
-const TIER_ORDER = ["bronze", "silver", "gold", "platinum"] as const;
-
 const TIER_THRESHOLDS: Record<string, { min: number; next: string | null }> = {
   bronze: { min: 0, next: "silver" },
   silver: { min: 50, next: "gold" },
@@ -17,7 +15,7 @@ const TIER_THRESHOLDS: Record<string, { min: number; next: string | null }> = {
   platinum: { min: 400, next: null },
 };
 
-function computeTier(points: number): string {
+function _computeTier(points: number): string {
   if (points >= 400) return "platinum";
   if (points >= 150) return "gold";
   if (points >= 50) return "silver";
@@ -105,8 +103,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const phone = searchParams.get("phone");
     const cookieStore2 = await cookies();
-    const restaurantId = Number(cookieStore2.get("smart-menu-restaurant")?.value) || 1;
-
+    const restaurantId = Number(searchParams.get("restaurantId")) || Number(cookieStore2.get("smart-menu-restaurant")?.value);
+    if (!restaurantId) return error("معرف المطعم مطلوب", 400);
     if (!phone || !PHONE_RE.test(phone)) return error("Invalid phone number", 400);
 
     const card = await prisma.loyaltyCard.findUnique({

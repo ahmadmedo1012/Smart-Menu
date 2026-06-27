@@ -102,7 +102,7 @@ export default function AdminUsersPage() {
   if (loading && users.length === 0) {
     return (
       <div className="space-y-3 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
-        {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-2xl bg-muted/50 animate-breath" />)}
+        {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
       </div>
     )
   }
@@ -131,19 +131,19 @@ export default function AdminUsersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-2xl bg-card/50 border border-border/30 p-4">
+        <div className="rounded-md bg-card/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-2xl bg-purple-50 dark:bg-purple-950/20 border border-purple-200/30 p-4">
+        <div className="rounded-md bg-purple-50 dark:bg-purple-950/20 border border-purple-200/30 p-4">
           <p className="text-xs text-purple-600">مديرون</p>
           <p className="text-2xl font-bold mt-1 text-purple-600">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
-        <div className="rounded-2xl bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
+        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange">أصحاب مطاعم</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
-        <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
+        <div className="rounded-md bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
           <p className="text-xs text-emerald-600">مرتبط بمطعم</p>
           <p className="text-2xl font-bold mt-1 text-emerald-600">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
         </div>
@@ -159,11 +159,11 @@ export default function AdminUsersPage() {
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             aria-label="ابحث عن مستخدم"
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
-          <SelectTrigger className="h-11 w-40 rounded-2xl" aria-label="فلتر الدور">
+          <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الدور">
             <SelectValue placeholder="كل الأدوار" />
           </SelectTrigger>
           <SelectContent>
@@ -191,7 +191,7 @@ export default function AdminUsersPage() {
         <>
           <div className="space-y-3">
             {users.map(user => (
-              <div key={user.id} className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all">
+              <div key={user.id} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
@@ -257,7 +257,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center justify-center gap-2 pt-2">
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page <= 1}
                 aria-label="الصفحة السابقة"
@@ -279,7 +279,7 @@ export default function AdminUsersPage() {
                   <Button
                     key={pn}
                     variant={pn === page ? "orange" : "outline"}
-                    size="icon-sm"
+                    size="icon"
                     onClick={() => setPage(pn)}
                     className="w-9"
                     aria-label={`الصفحة ${pn}`}
@@ -291,7 +291,7 @@ export default function AdminUsersPage() {
               })}
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
                 aria-label="الصفحة التالية"
@@ -308,7 +308,7 @@ export default function AdminUsersPage() {
 
       {/* Reset Password Dialog */}
       <Dialog open={resetTarget !== null} onOpenChange={o => !o && setResetTarget(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-md">
           <DialogHeader>
             <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
             <DialogDescription>أدخل كلمة مرور جديدة للمستخدم {resetTarget?.name}</DialogDescription>
@@ -335,7 +335,7 @@ export default function AdminUsersPage() {
 
       {/* Delete Dialog */}
       <Dialog open={deleteTarget !== null} onOpenChange={o => !o && setDeleteTarget(null)}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-md">
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>

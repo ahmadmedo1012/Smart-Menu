@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
 import { sendTelegramMessage } from "@/lib/telegram";
 
-export async function POST(_request: NextRequest) {
+export async function POST(_: NextRequest) {
   try {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);

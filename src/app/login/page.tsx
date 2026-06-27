@@ -139,7 +139,7 @@ function LoginForm() {
       {/* Decorative top bar */}
       <div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-r from-orange via-orange/80 to-orange/60 dark:from-orange dark:via-orange/80 dark:to-orange/60" />
 
-      <Card className="animate-scale-in relative z-10 w-full max-w-sm border border-orange/20 bg-white/80 shadow-2xl shadow-orange/5 backdrop-blur-2xl backdrop-saturate-150 sm:max-w-md sm:rounded-2xl dark:border-orange/10 dark:bg-zinc-900/80 dark:shadow-2xl dark:shadow-orange/10">
+      <Card className="animate-scale-in relative z-10 w-full max-w-sm border border-orange/20 bg-card/80 shadow-2xl shadow-orange/5 backdrop-blur-2xl backdrop-saturate-150 sm:max-w-md sm:rounded-md dark:border-orange/10 dark:bg-card/80 dark:shadow-2xl dark:shadow-orange/10">
         {/* Logo area */}
         <CardHeader className="pb-2 pt-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">

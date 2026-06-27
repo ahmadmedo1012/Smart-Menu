@@ -169,7 +169,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
                 onChange={(e) => set("loyalty_referral_discount_pct", e.target.value)}
                 className="mt-1"
               />
-              <p className="text-xs text-muted-foreground mt-1">Discount for referred friend's first order</p>
+              <p className="text-xs text-muted-foreground mt-1">Discount for referred friend&apos;s first order</p>
             </div>
             <div>
               <Label>Referrer Reward %</Label>

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { csrfFetch } from "@/lib/csrf-client"
-import { Save, Crown, Store, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
+import { Save, Crown, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -28,9 +28,9 @@ interface RestaurantData {
 }
 
 export default function OwnerSettingsPage() {
-  const router = useRouter()
+  const _router = useRouter()
   const [restaurant, setRestaurant] = useState<RestaurantData | null>(null)
-  const [plans, setPlans] = useState<Plan[]>([])
+  const [, setPlans] = useState<Plan[]>([])
   const [form, setForm] = useState({ name: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "" })
   const [logo, setLogo] = useState("")
   const [gallery, setGallery] = useState<string[]>([])
@@ -146,8 +146,8 @@ export default function OwnerSettingsPage() {
 
   if (loading) return (
     <div className="space-y-5 animate-fade-in">
-      <div className="h-36 skeleton rounded-2xl" />
-      <div className="h-80 skeleton rounded-2xl" />
+      <div className="h-36 skeleton rounded-md" />
+      <div className="h-80 skeleton rounded-md" />
     </div>
   )
 
@@ -157,12 +157,12 @@ export default function OwnerSettingsPage() {
       <BackButton href="/owner" />
 
       {/* Plan card */}
-      <div className="rounded-2xl bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
+      <div className="rounded-md bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className={cn(
-                "size-12 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0",
+                "size-12 rounded-md bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0",
                 currentPlan?.name === "Pro" ? "from-orange to-orange/80" :
                 currentPlan?.name === "Enterprise" ? "from-orange to-orange/80" :
                 "from-orange to-orange/80"
@@ -196,10 +196,10 @@ export default function OwnerSettingsPage() {
       </div>
 
       {/* Logo section */}
-      <div className="rounded-2xl bg-card/40 border border-border/20 p-5">
+      <div className="rounded-md bg-card/40 border border-border/20 p-5">
         <h2 className="text-sm font-bold mb-4">الشعار</h2>
         <div className="flex items-center gap-5">
-          <div className="size-24 rounded-2xl overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
+          <div className="size-24 rounded-md overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
             {logo ? (
               <>
                 <img src={logo} alt="Logo" className="w-full h-full object-cover" loading="lazy" />
@@ -225,7 +225,7 @@ export default function OwnerSettingsPage() {
       </div>
 
       {/* Gallery section */}
-      <div className="rounded-2xl bg-card/40 border border-border/20 p-5">
+      <div className="rounded-md bg-card/40 border border-border/20 p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold">معرض الصور</h2>
           <input ref={galleryInputRef} type="file" multiple accept="image/*" onChange={handleGalleryUpload} className="hidden" />
@@ -265,7 +265,7 @@ export default function OwnerSettingsPage() {
       </div>
 
       {/* Settings form */}
-      <div className="rounded-2xl bg-card/40 border border-border/20 p-5">
+      <div className="rounded-md bg-card/40 border border-border/20 p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold">بيانات المطعم</h2>
           <Button onClick={save} disabled={saving} className="rounded-xl gap-1.5 text-xs h-8">
@@ -316,19 +316,19 @@ export default function OwnerSettingsPage() {
       {/* Stats */}
       {restaurant && (
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-card/40 border border-border/20 p-4">
+          <div className="rounded-md bg-card/40 border border-border/20 p-4">
             <div className="flex items-center gap-2 mb-1.5">
               <ShoppingCart className="size-3.5 text-primary" />
               <span className="text-[11px] text-muted-foreground">إجمالي الطلبات</span>
             </div>
-            <p className="text-xl font-bold">{toArabicNumber(restaurant._count.orders)}</p>
+            <p className="text-xl font-bold">{toArabicNumber(restaurant._count?.orders ?? 0)}</p>
           </div>
-          <div className="rounded-2xl bg-card/40 border border-border/20 p-4">
+          <div className="rounded-md bg-card/40 border border-border/20 p-4">
             <div className="flex items-center gap-2 mb-1.5">
               <Package className="size-3.5 text-orange" />
               <span className="text-[11px] text-muted-foreground">الأقسام</span>
             </div>
-            <p className="text-xl font-bold">{toArabicNumber(restaurant._count.categories)}</p>
+            <p className="text-xl font-bold">{toArabicNumber(restaurant._count?.categories ?? 0)}</p>
           </div>
         </div>
       )}

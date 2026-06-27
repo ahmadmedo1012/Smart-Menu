@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
 
-export async function GET(_request: NextRequest) {
+export async function GET(_: NextRequest) {
   try {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);

@@ -72,7 +72,7 @@ export async function PUT(
       const parsed = adminUpdateSchema.parse(body);
       data = await prisma.restaurant.update({
         where: { id: Number(id) },
-        data: Object.fromEntries(Object.entries(parsed).filter(([_, v]) => v !== undefined)),
+        data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
       });
     } else if (auth.role === "owner") {
       // Owner can only update their own restaurant's basic info
@@ -82,7 +82,7 @@ export async function PUT(
       const parsed = updateSchema.parse(body);
       data = await prisma.restaurant.update({
         where: { id: Number(id) },
-        data: Object.fromEntries(Object.entries(parsed).filter(([_, v]) => v !== undefined)),
+        data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
       });
     } else {
       return apiError("غير مصرح", 401);

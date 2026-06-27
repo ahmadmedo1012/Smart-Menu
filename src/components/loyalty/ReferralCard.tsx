@@ -76,19 +76,19 @@ export default function ReferralCard({
   }, [restaurantName, discountText, referralUrl, whatsapp, handleCopyLink]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange to-orange/80 p-0.5 shadow-xl shadow-orange/30">
+    <div className="relative overflow-hidden rounded-md bg-gradient-to-br from-orange to-orange/80 p-0.5 shadow-xl shadow-orange/30">
       {/* Decorative glowing orbs */}
       <div className="absolute -top-20 -end-20 size-40 rounded-full bg-orange/20 blur-3xl" />
       <div className="absolute -bottom-20 -start-20 size-40 rounded-full bg-orange/15 blur-3xl" />
 
-      <div className="relative rounded-2xl bg-gradient-to-br from-orange-muted to-orange-muted dark:from-orange-muted/80 dark:to-orange-muted/80 p-6 overflow-hidden">
+      <div className="relative rounded-md bg-gradient-to-br from-orange-muted to-orange-muted dark:from-orange-muted/80 dark:to-orange-muted/80 p-6 overflow-hidden">
         {/* Inner decorative dots */}
         <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-10" />
 
         <div className="relative z-10 space-y-5">
           {/* ===== Header ===== */}
           <div className="text-center">
-            <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25 animate-float">
+            <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25 animate-float">
               <Gift className="size-7 text-white" />
             </div>
             <h3 className="text-lg font-bold text-orange dark:text-orange">

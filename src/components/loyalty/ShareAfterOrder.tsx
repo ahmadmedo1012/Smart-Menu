@@ -147,7 +147,7 @@ ${referralUrl}
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-2xl">
+      <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-md">
         {/* Confetti header */}
         <div className="relative h-36 bg-gradient-to-br from-orange via-orange to-orange/80 overflow-hidden">
           <Confetti active variant="rects" count={20} loop className="absolute inset-0 pointer-events-none overflow-hidden" />
@@ -189,7 +189,7 @@ ${referralUrl}
             <>
               {/* CTA */}
               <div className="text-center">
-                <div className="mx-auto mb-3 size-14 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
+                <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
                   <Gift className="size-7 text-white" />
                 </div>
                 <p className="text-base font-semibold mb-1">

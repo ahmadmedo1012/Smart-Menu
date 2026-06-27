@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
     if (!auth.authorized)
       return apiError("غير مصرح", 401);
     const restaurantId =
-      auth.restaurantId ||
-      Number(request.cookies.get("smart-menu-restaurant")?.value) ||
-      1;
+      auth.restaurantId || Number(request.cookies.get("smart-menu-restaurant")?.value);
+
+    if (!restaurantId) return apiError("معرف المطعم مطلوب", 400);
 
     const [totalLoyaltyCards, tierDistribution, cards] = await Promise.all([
       prisma.loyaltyCard.count({ where: { restaurantId } }),

@@ -36,7 +36,7 @@ const SEVERITY_STYLES: Record<string, { label: string; color: string; bg: string
   error: { label: "خطأ", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
   warning: { label: "تحذير", color: "text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
   info: { label: "معلومة", color: "text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
-  success: { label: "نجاح", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+  success: { label: "نجاح", color: "text-success", bg: "bg-success/10" },
 }
 
 export default function AdminDashboard() {
@@ -86,16 +86,16 @@ export default function AdminDashboard() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-28 rounded-2xl skeleton" />
+            <div key={i} className="h-28 rounded-md skeleton" />
           ))}
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="h-[300px] rounded-2xl skeleton" />
-          <div className="h-[300px] rounded-2xl skeleton" />
+          <div className="h-[300px] rounded-md skeleton" />
+          <div className="h-[300px] rounded-md skeleton" />
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-[260px] rounded-2xl skeleton" />
+            <div key={i} className="h-[260px] rounded-md skeleton" />
           ))}
         </div>
       </div>
@@ -145,11 +145,11 @@ export default function AdminDashboard() {
           <p className="text-sm text-muted-foreground mt-0.5">نظرة عامة على شبكة المطاعم</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon-sm" onClick={load} aria-label="تحديث">
+          <Button variant="ghost" size="icon" onClick={load} aria-label="تحديث">
             <RefreshCw className="size-4" />
           </Button>
           <Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20">
-            <Activity className="size-3.5 text-emerald-500" />
+            <Activity className="size-3.5 text-success" />
             مباشر
           </Badge>
         </div>
@@ -160,12 +160,12 @@ export default function AdminDashboard() {
         {[
           { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, bg: "bg-orange-muted dark:bg-orange-muted", iconColor: "text-orange dark:text-orange" },
           { label: "إجمالي المستخدمين", value: stats.totalUsers, icon: Users, bg: "bg-purple-50/80 dark:bg-purple-950/20", iconColor: "text-purple-600 dark:text-purple-400" },
-          { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, bg: "bg-emerald-50/80 dark:bg-emerald-950/20", iconColor: "text-emerald-600 dark:text-emerald-400", suffix: " د.ل" },
+          { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, bg: "bg-success/10", iconColor: "text-success", suffix: " د.ل" },
           { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-orange-muted/80 dark:bg-orange-muted", iconColor: "text-orange dark:text-orange" },
         ].map((card, i) => {
           const Icon = card.icon
           return (
-            <div key={i} className={cn("rounded-2xl p-5 shadow-sm border", card.bg, "border-border/30 dark:border-white/10")}>
+            <div key={i} className={cn("rounded-md p-5 shadow-sm border", card.bg, "border-border/30 dark:border-white/10")}>
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
@@ -184,23 +184,23 @@ export default function AdminDashboard() {
 
       {/* Sub-stats row */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-        <div className="rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
-          <p className="text-xs text-emerald-600 dark:text-emerald-400">مدفوع</p>
-          <p className="text-2xl font-bold mt-1 text-emerald-700 dark:text-emerald-300">
+        <div className="rounded-md bg-emerald-50/50 dark:bg-emerald-950/20 border border-success/20 p-4">
+          <p className="text-xs text-success">مدفوع</p>
+          <p className="text-2xl font-bold mt-1 text-success">
             {toArabicNumber(stats.paidPlanCount)}
           </p>
         </div>
-        <div className="rounded-2xl bg-gray-50 dark:bg-gray-800/20 border border-gray-200/30 p-4">
+        <div className="rounded-md bg-gray-50 dark:bg-gray-800/20 border border-gray-200/30 p-4">
           <p className="text-xs text-muted-foreground">مجاني</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.freePlanCount)}</p>
         </div>
-        <div className="rounded-2xl bg-orange-muted dark:bg-orange-muted border border-orange/30 p-4">
+        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/30 p-4">
           <p className="text-xs text-orange dark:text-orange">مرتبط</p>
           <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
             {toArabicNumber(stats.linkedRestaurants)}
           </p>
         </div>
-        <div className="rounded-2xl bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
+        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange dark:text-orange">طلبات اليوم</p>
           <p className="text-2xl font-bold mt-1 text-orange/80 dark:text-orange">
             {toArabicNumber(stats.ordersToday.count)}
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Plan distribution chart */}
-        <div className="rounded-2xl bg-card/70 border border-border/30 p-6 shadow-sm">
+        <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
             </Link>
           </div>
           {chartData.length > 0 && chartData.some(d => d.value > 0) ? (
-            <Suspense fallback={<div className="h-[180px] rounded-2xl skeleton" />}>
+            <Suspense fallback={<div className="h-[180px] rounded-md skeleton" />}>
               <BarChart data={chartData} height={180} />
             </Suspense>
           ) : (
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* System alerts */}
-        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+        <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <Bell className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -278,7 +278,7 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent signups */}
-        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+        <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <UserPlus className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -318,7 +318,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent logins */}
-        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+        <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <LogIn className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Active restaurants */}
-        <div className="rounded-2xl bg-card/70 border border-border/30 shadow-sm">
+        <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
               <MapPin className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -391,14 +391,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick actions */}
-      <div className="rounded-2xl bg-card/70 border border-border/30 p-5 shadow-sm">
+      <div className="rounded-md bg-card/70 border border-border/30 p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: "إضافة مطعم", href: "/admin/restaurants", icon: Store, color: "text-orange" },
             { label: "الطلبات", href: "/admin/orders", icon: ShoppingCart, color: "text-orange" },
             { label: "المستخدمين", href: "/admin/users", icon: Users, color: "text-purple-600" },
-            { label: "سجل التدقيق", href: "/admin/audit-logs", icon: Activity, color: "text-emerald-600" },
+            { label: "سجل التدقيق", href: "/admin/audit-logs", icon: Activity, color: "text-success" },
           ].map((item, i) => {
             const Icon = item.icon
             return (
@@ -418,7 +418,7 @@ export default function AdminDashboard() {
 
       {/* Live indicator */}
       <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/50 pb-4">
-        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+        <span className="size-1.5 rounded-full bg-success animate-pulse" aria-hidden="true" />
         يتم التحديث تلقائياً كل 30 ثانية
       </div>
     </div>

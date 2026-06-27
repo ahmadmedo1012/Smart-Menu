@@ -1,4 +1,4 @@
-import { Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, Store, ShoppingCart, Users, Star, UserPlus, UtensilsCrossed, Share2, LayoutDashboard, Monitor, TrendingUp, Globe, type LucideIcon } from "lucide-react";
+import { Smartphone, MessageCircle, QrCode, BarChart3, Gift, Shield, UserPlus, UtensilsCrossed, Share2, LayoutDashboard, Monitor, type LucideIcon } from "lucide-react";
 
 export type Benefit = { icon: LucideIcon; title: string; desc: string; gradient: string };
 export type Partner = { name: string; slug: string; desc: string };

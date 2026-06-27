@@ -17,12 +17,11 @@ interface Order {
   items: { quantity: number }[]
 }
 
-const STATUS_FLOW = ["new", "preparing", "ready", "completed"] as const;
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string; next: string | null }> = {
   new: { label: "جديد", icon: Clock, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted", next: "preparing" },
   preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted", next: "ready" },
-  ready: { label: "جاهز", icon: PackageCheck, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/30", next: "completed" },
-  completed: { label: "مكتمل", icon: CheckCircle, color: "text-gray-500 dark:text-gray-400", bg: "bg-gray-50 dark:bg-gray-800/30", next: null },
+  ready: { label: "جاهز", icon: PackageCheck, color: "text-success", bg: "bg-success/10", next: "completed" },
+  completed: { label: "مكتمل", icon: CheckCircle, color: "text-muted-foreground", bg: "bg-muted", next: null },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30", next: null },
 };
 
@@ -45,7 +44,6 @@ export default function OwnerOrdersPage() {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [lastOrderCount, setLastOrderCount] = useState(0)
   const router = useRouter()
   const eventSourceRef = useRef<EventSource | null>(null)
 
@@ -74,7 +72,6 @@ export default function OwnerOrdersPage() {
       }
       setHasMore(newOrders.length === 20)
       setPage(pageNum)
-      setLastOrderCount(newOrders.length > 0 ? newOrders[0].id : 0)
     } catch { setError("فشل تحميل الطلبات"); toast.error("فشل تحميل الطلبات") }
     finally { if (pageNum === 1) setLoading(false); else setLoadingMore(false) }
   }, [dateFrom, dateTo])
@@ -125,18 +122,18 @@ export default function OwnerOrdersPage() {
   if (loading) return (
     <div className="space-y-4 animate-fade-in">
       {/* Back button skeleton */}
-      <div className="h-8 w-24 rounded-2xl bg-muted/40 animate-pulse" />
+      <div className="h-8 w-24 rounded-md bg-muted/40 animate-pulse" />
       {/* Title skeleton */}
       <div className="h-8 w-32 rounded-lg bg-muted/50 animate-pulse" />
       {/* Search skeleton */}
-      <div className="h-11 rounded-2xl bg-muted/40 animate-pulse" />
+      <div className="h-11 rounded-md bg-muted/40 animate-pulse" />
       {/* Tabs skeleton */}
       <div className="flex gap-2">
-        {[1,2,3,4,5].map(i => <div key={i} className="h-9 w-20 rounded-full bg-muted/40 animate-pulse" />)}
+        {[1,2,3,4,5].map(i => <div key={i} className="h-9 w-20 rounded-md bg-muted/40 animate-pulse" />)}
       </div>
       {/* Orders skeleton */}
       {[1, 2, 3].map(i => (
-        <div key={i} className="h-32 rounded-2xl bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
+        <div key={i} className="h-32 rounded-md bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse">
           <div className="h-4 w-40 rounded bg-muted/60" />
           <div className="h-3 w-24 rounded bg-muted/40" />
           <div className="h-3 w-full rounded bg-muted/30" />
@@ -147,12 +144,12 @@ export default function OwnerOrdersPage() {
 
   if (error) return (
     <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-      <div className="size-20 rounded-2xl bg-destructive/10 flex items-center justify-center">
+      <div className="size-20 rounded-md bg-destructive/10 flex items-center justify-center">
         <AlertCircle className="size-10 text-destructive/60" />
       </div>
       <p className="text-lg font-medium">حدث خطأ</p>
       <p className="text-sm text-muted-foreground">{error}</p>
-      <Button variant="outline" size="sm" onClick={() => fetchOrders(filter, 1, false)} className="rounded-xl gap-1.5">
+      <Button variant="outline" size="sm" onClick={() => fetchOrders(filter, 1, false)} className="rounded-md gap-1.5">
         إعادة المحاولة
       </Button>
     </div>
@@ -184,7 +181,7 @@ export default function OwnerOrdersPage() {
             link.click()
           }}
           disabled={orders.length === 0}
-          className="h-11 px-5 rounded-2xl border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-40 flex items-center gap-2"
+          className="h-11 px-5 rounded-md border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-40 flex items-center gap-2"
         >
           <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -202,28 +199,28 @@ export default function OwnerOrdersPage() {
             placeholder="ابحث برقم الطلب أو اسم العميل..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-2xl border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
           />
         </div>
         <input
           type="date"
           value={dateFrom}
           onChange={e => { const v = e.target.value; setDateFrom(v); fetchOrders(filter, 1, false, v, dateTo) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
+          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
           title="من تاريخ"
         />
         <input
           type="date"
           value={dateTo}
           onChange={e => { const v = e.target.value; setDateTo(v); fetchOrders(filter, 1, false, dateFrom, v) }}
-          className="h-11 rounded-2xl border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
+          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
           title="إلى تاريخ"
         />
         {(dateFrom || dateTo) && (
           <button
             type="button"
             onClick={() => { setDateFrom(""); setDateTo(""); fetchOrders(filter, 1, false, "", "") }}
-            className="h-11 px-4 rounded-2xl border border-border/30 text-sm hover:bg-accent transition-all"
+            className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-all"
           >
             إلغاء
           </button>
@@ -268,7 +265,7 @@ export default function OwnerOrdersPage() {
             type="button"
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-8 py-3 rounded-2xl border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-50"
+            className="px-8 py-3 rounded-md border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-50"
           >
             {loadingMore ? "جاري التحميل..." : "تحميل المزيد ↓"}
           </button>
@@ -332,7 +329,7 @@ export default function OwnerOrdersPage() {
                       className={cn(
                         "flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
                         nextStatus === "preparing" && "border-orange/30 text-orange hover:bg-orange-muted dark:hover:bg-orange-muted",
-                        nextStatus === "ready" && "border-green-200/30 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/20",
+                        nextStatus === "ready" && "border-green-200/30 text-success hover:bg-success/15",
                         nextStatus === "completed" && "border-orange/30 text-orange hover:bg-orange-muted dark:hover:bg-orange-muted",
                       )}
                     >

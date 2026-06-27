@@ -155,7 +155,7 @@ export default function AdminTelegramPage() {
           </Badge>
         </div>
 
-        <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
           <div className="p-5 space-y-4">
             {/* Active toggle */}
             <div className="flex items-center justify-between gap-4">
@@ -310,7 +310,7 @@ export default function AdminTelegramPage() {
             <h3 className="text-lg font-semibold">نتيجة التشخيص</h3>
           </div>
 
-          <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+          <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
             <div className="p-5 space-y-3">
               {/* Config exists */}
               <div className="flex items-center justify-between">
@@ -381,9 +381,9 @@ export default function AdminTelegramPage() {
 
               {/* No API error */}
               {!diagnose.telegramApiError && diagnose.exists && (
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/20">
+                  <CheckCircle2 className="size-4 shrink-0 text-success" />
+                  <p className="text-sm text-success">
                     اتصال API سليم — البوت يعمل بشكل صحيح
                   </p>
                 </div>
@@ -395,7 +395,7 @@ export default function AdminTelegramPage() {
 
       {/* ─── Help ─── */}
       <section>
-        <div className="rounded-2xl bg-muted/30 border border-border/20 p-5">
+        <div className="rounded-md bg-muted/30 border border-border/20 p-5">
           <h3 className="text-sm font-semibold mb-2">كيفية الإعداد</h3>
           <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
             <li>

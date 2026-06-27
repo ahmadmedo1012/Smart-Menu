@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
                 encoder.encode(`data: ${JSON.stringify({ count: currentCount, newOrders })}\n\n`)
               );
             }
-          } catch (e) {
+          } catch {
             controller.enqueue(encoder.encode(`event: error\ndata: ${JSON.stringify({ message: "خطأ في التحقق من الطلبات" })}\n\n`));
             clearInterval(interval);
           }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     return new Response(stream, {
       headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
     });
-  } catch (e) {
+  } catch {
     return error("حدث خطأ في الخادم", 500);
   }
 }

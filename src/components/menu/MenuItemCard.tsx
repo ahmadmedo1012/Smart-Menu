@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, createElement } from "react";
 import { toArabicNumber } from "@/lib/format";
-import { Coffee, Pizza, Beef, UtensilsCrossed, Fish, Apple, Wine, CupSoda, Milk, IceCream, Plus } from "lucide-react";
+import { Coffee, Pizza, Beef, UtensilsCrossed, Fish, Apple, CupSoda, Milk, IceCream, Plus } from "lucide-react";
 
 export type MenuItemProp = {
   id: number;
@@ -19,14 +19,14 @@ export type MenuItemProp = {
 const COLORS = [
   "from-red-400 to-red-600",
   "from-orange to-orange/80",
-  "from-green-400 to-green-600",
+  "from-amber-500 to-amber-700",
   "from-orange to-orange/80",
-  "from-purple-400 to-purple-600",
-  "from-teal-400 to-teal-600",
-  "from-pink-400 to-pink-600",
-  "from-indigo-400 to-indigo-600",
-  "from-sky-400 to-sky-600",
-  "from-cyan-400 to-cyan-600",
+  "from-rose-500 to-rose-700",
+  "from-amber-600 to-amber-800",
+  "from-red-500 to-red-700",
+  "from-orange/80 to-orange/60",
+  "from-yellow-500 to-yellow-700",
+  "from-stone-500 to-stone-700",
 ];
 
 const BGS = [
@@ -87,11 +87,10 @@ function getFoodIcon(name: string): IconComponent {
 function Placeholder({ name }: { name: string }) {
   const idx = name.charCodeAt(0) % COLORS.length;
   const Icon = getFoodIcon(name);
-  return (
-    <div className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]}`}>
-      <Icon className="size-8 md:size-10 text-white/80 drop-shadow-sm" />
-    </div>
-  );
+  const el = <div className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]}`}>
+    {createElement(Icon, { className: "size-8 md:size-10 text-white/80 drop-shadow-sm" })}
+  </div>;
+  return el;
 }
 
 const MenuItemCard = memo(function MenuItemCard({
@@ -184,9 +183,9 @@ const MenuItemCard = memo(function MenuItemCard({
               onAddToCart(item);
             }}
             aria-label={`إضافة ${displayName} إلى السلة`}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm text-xs font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 active:scale-95"
           >
-            <Plus className="size-3.5" />
+            <Plus className="size-3" />
             أضف
           </button>
         </div>

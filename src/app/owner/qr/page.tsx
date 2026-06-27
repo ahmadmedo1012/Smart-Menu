@@ -62,7 +62,7 @@ export default function OwnerQRPage() {
       </Button>
 
       <div className="flex items-center gap-3">
-        <div className="size-11 rounded-2xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
+        <div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
           <QrCode className="size-5 text-white" />
         </div>
         <div>
@@ -72,7 +72,7 @@ export default function OwnerQRPage() {
       </div>
 
       {/* QR Card */}
-      <div className="rounded-2xl bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
         {/* Restaurant info */}
         <div className="flex items-center gap-3 p-5 border-b border-border/20 bg-gradient-to-l from-orange-muted/30 to-transparent dark:from-orange-muted">
           <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
@@ -103,7 +103,7 @@ export default function OwnerQRPage() {
               />
               {/* Overlay with store icon */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="size-12 md:size-16 rounded-2xl bg-white/90 dark:bg-gray-900/90 shadow-lg flex items-center justify-center backdrop-blur-sm">
+                <div className="size-12 md:size-16 rounded-md bg-white/90 dark:bg-gray-900/90 shadow-lg flex items-center justify-center backdrop-blur-sm">
                   <Store className="size-6 md:size-8 text-orange" />
                 </div>
               </div>
