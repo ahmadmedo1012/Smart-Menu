@@ -10,7 +10,7 @@ const EASE = [0.16, 1, 0.2, 1] as const
 
 export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 	return (
-		<section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[#111013]">
+		<section className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-[#111013]">
 			{/* Background restaurant image */}
 			<div className="absolute inset-0 z-0">
 				<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-15" loading="eager" />
@@ -28,7 +28,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 				}}
 			/>
 
-			<div className="relative z-10 w-full max-w-[1220px] mx-auto px-4 text-center py-20">
+			<div className="relative z-10 w-full max-w-[1220px] mx-auto px-4 text-center pt-10 pb-8">
 				{/* Headline */}
 				<motion.h1
 					initial="hidden"
@@ -85,7 +85,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					initial={{ opacity: 0, y: 60 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1.4, delay: 0.6, ease: EASE }}
-					className="mt-16 flex justify-center gap-8 items-end"
+					className="mt-8 flex justify-center gap-6 items-end"
 				>
 					{/* Big phone */}
 					<div className="relative" style={{ perspective: "1200px" }}>
@@ -93,7 +93,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 						<motion.div
 							animate={{ rotateY: -5, rotateX: 3 }}
 							whileHover={{ rotateY: 0, rotateX: 6, scale: 1.03 }}
-							className="relative w-[280px] h-[590px] p-[4px] shadow-2xl shadow-black/60"
+							className="relative w-[220px] h-[460px] p-[4px] shadow-2xl shadow-black/60"
 							style={{ borderRadius: "3rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
 							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.7rem" }}>
@@ -106,7 +106,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					<div className="relative hidden md:block" style={{ perspective: "1200px" }}>
 						<motion.div
 							animate={{ rotateY: 5, rotateX: 2 }}
-							className="relative w-[200px] h-[420px] p-[3px] shadow-xl shadow-black/50"
+							className="relative w-[160px] h-[340px] p-[3px] shadow-xl shadow-black/50"
 							style={{ borderRadius: "2rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
 							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "1.7rem" }}>
