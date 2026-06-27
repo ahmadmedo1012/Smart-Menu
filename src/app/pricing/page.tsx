@@ -156,7 +156,7 @@ function PlanCard({
         <Link href={isFree ? "/subscribe" : `/subscribe?plan=${plan.id}`}>
           <Button
             className={cn(
-              "w-full h-12 rounded-sm text-base font-semibold transition-all duration-300",
+              "w-full h-12 rounded-sm transition-all duration-300",
               isPopular
                 ? "bg-orange text-orange-foreground hover:opacity-90 shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30"
                 : "",
