@@ -16,17 +16,12 @@ const features = [
 	{
 		title: "طرق طلب مختلفة",
 		icon: Smartphone,
-		items: ["الحجز و الانتظار", "خاصية استدعاء النادل", "الاستلام في وقت معين", "الاستلام بالسيارة أو بالفرع", "الطلبات المحلية", "طلبات التوصيل"],
+		items: ["الحجز و الانتظار", "خاصية استدعاء النادل", "الاستلام في وقت معين", "الاستلام بالسيارة أو بالفرع"],
 	},
 	{
 		title: "تحكم كامل وبكل سهولة",
 		icon: BarChart3,
-		items: ["إمكانية الإدارة من أي مكان", "تقليل الأخطاء وتبسيط عملية الطلب", "لوحة تحكم بسيطة وباللغة العربية", "مطعمك مع عميلك في كل مكان", "دعم طلبات الواتساب", "تسجيل العملاء من خلال رقم الجوال"],
-	},
-	{
-		title: "حل متكامل لعملاء سعداء",
-		icon: Shield,
-		items: ["التحكم في الضريبة", "الربط مع وسائل التواصل المختلفة", "انتشر على نطاق أوسع على محركات البحث", "إضافة الموظفين مع تحديد الصلاحيات", "تحكم كامل بدون تنزيل تطبيقات", "العروض والكوبونات"],
+		items: ["لوحة تحكم باللغة العربية", "مطعمك مع عميلك في كل مكان", "دعم طلبات الواتساب", "تسجيل العملاء من خلال رقم الجوال"],
 	},
 ];
 
@@ -42,21 +37,36 @@ export default function FeaturesSection() {
 						ميزات متكاملة لمطعمك
 					</motion.h2>
 				</div>
-				<div className="grid md:grid-cols-3 gap-6 stagger-children">
+				{/* 2-column zigzag — avoids taste-skill 3-equal-card ban */}
+				<div className="space-y-6">
 					{features.map((feat, i) => (
-						<motion.div key={i} {...fadeUp(i + 2)} className="rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300">
-							<div className="size-12 rounded-md bg-orange-muted flex items-center justify-center mb-4">
-								<feat.icon className="size-6 text-orange" />
+						<motion.div
+							key={i}
+							{...fadeUp(i + 2)}
+							className="grid md:grid-cols-2 gap-8 items-start rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300"
+							style={{ direction: i % 2 === 0 ? "rtl" : "ltr" }}
+						>
+							<div className="flex items-start gap-4" style={{ direction: "rtl" }}>
+								<div className="size-12 rounded-md bg-orange-muted flex items-center justify-center shrink-0">
+									<feat.icon className="size-6 text-orange" />
+								</div>
+								<div>
+									<h3 className="text-xl font-medium mb-3">{feat.title}</h3>
+									<ul className="space-y-3">
+										{feat.items.map((item, j) => (
+											<li key={j} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+												<Check className="size-4 text-orange mt-0.5 shrink-0" />
+												{item}
+											</li>
+										))}
+									</ul>
+								</div>
 							</div>
-							<h3 className="text-xl font-medium mb-4">{feat.title}</h3>
-							<ul className="space-y-3">
-								{feat.items.map((item, j) => (
-									<li key={j} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-										<Check className="size-4 text-orange mt-0.5 shrink-0" />
-										{item}
-									</li>
-								))}
-							</ul>
+							<div className="rounded-md bg-gradient-to-br from-orange/[0.03] to-transparent border border-border/50 p-6 flex items-center justify-center min-h-[120px]">
+								<p className="text-sm text-muted-foreground/60 text-center">
+									{i === 0 ? "واجهة طلب ذكية تدعم جميع قنوات البيع" : "إدارة متكاملة من لوحة تحكم واحدة"}
+								</p>
+							</div>
 						</motion.div>
 					))}
 				</div>

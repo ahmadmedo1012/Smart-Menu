@@ -147,7 +147,7 @@ export function Header({ className }: HeaderProps) {
 			<header
 				className={cn(
 					"fixed top-4 inset-x-4 z-30 max-w-[1220px] mx-auto",
-					"h-12 rounded-xl glass-strong",
+					"h-14 rounded-xl glass-strong",
 					"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
 					className
 				)}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronDown, ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type PublicStats } from "./landing-data";
 
@@ -114,16 +114,6 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 				</motion.div>
 			</div>
 
-			{/* Scroll indicator */}
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ duration: 1, delay: 1.2, ease: EASE }}
-				className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-			>
-				<span className="text-[10px] tracking-widest uppercase text-muted-foreground/40">اسحب لأسفل</span>
-				<ChevronDown className="size-4 text-muted-foreground/40 animate-pulse-glow" />
-			</motion.div>
 		</section>
 	);
 }

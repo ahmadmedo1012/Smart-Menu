@@ -50,7 +50,7 @@ export default function FinalCTASection() {
 						</Link>
 					</div>
 					<p className="text-xs text-muted-foreground/60 mt-6">
-						مجاناً بدون بطاقة ائتمان • إلغاء في أي وقت • دعم فني متكامل
+						مجاناً بدون بطاقة ائتمان - إلغاء في أي وقت - دعم فني متكامل
 					</p>
 				</motion.div>
 			</div>

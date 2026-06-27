@@ -32,9 +32,6 @@ export default function FAQSection() {
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="max-w-3xl mx-auto">
 					<div className="text-center mb-12">
-						<span className="inline-flex text-xs font-medium text-orange bg-orange-muted rounded-sm px-2 py-0.5 mb-4">
-							أسئلة واجوبة
-						</span>
 						<motion.h2 {...fadeUp(1)} className="text-3xl md:text-4xl font-medium leading-[1.2]">
 							الأسئلة المتكررة
 						</motion.h2>

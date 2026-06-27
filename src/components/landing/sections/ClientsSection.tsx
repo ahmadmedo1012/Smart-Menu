@@ -23,9 +23,6 @@ export default function ClientsSection() {
 		<section className="relative py-20 border-t border-border/50 overflow-hidden" dir="rtl">
 			<div className="max-w-[1220px] mx-auto px-4">
 				<div className="text-center mb-10">
-					<span className="inline-flex text-xs font-medium text-orange bg-orange-muted rounded-sm px-2 py-0.5 mb-4">
-						بعض العملاء و المشاريع القائمة
-					</span>
 					<motion.h2 {...fadeUp(1)} className="text-2xl md:text-3xl font-medium">
 						عملاؤنا
 					</motion.h2>
