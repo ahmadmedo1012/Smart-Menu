@@ -111,10 +111,9 @@ function SubscribeContent() {
   const handlePaymentSuccess = () => {
     setPaymentOpen(false);
     setSubmitted(true);
-    toast.success("تم إرسال طلب الاشتراك. سيتم تفعيل حسابك بعد التحقق من الدفع من قبل الإدارة.");
+    toast.success("تم إرسال طلب الدفع. سيتم التواصل معك بعد التحقق.");
     // For paid plans: DON'T create account here. Admin approves via /admin/subscriptions
-    // and can create account from there, OR user waits for manual activation
-    router.push("/order-confirmed");
+    router.push("/order-confirmed?type=subscription");
   };
 
   const createAccount = async () => {

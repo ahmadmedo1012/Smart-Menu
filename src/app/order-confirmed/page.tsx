@@ -15,27 +15,30 @@ function OrderContent() {
   const searchParams = useSearchParams();
   const orderNo = searchParams.get("orderNo") ?? "";
   const waNumber = searchParams.get("wa") ?? "";
+  const type = searchParams.get("type") ?? "order";
   const displayOrderNo = orderNo && orderNo !== "undefined" && orderNo !== "null" ? orderNo : null;
   const clearCart = useCart((s) => s.clearCart);
   const [cleared, setCleared] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const isSubscription = type === "subscription";
 
   useEffect(() => {
-    if (!cleared) {
+    if (!cleared && !isSubscription) {
       clearCart();
       setCleared(true);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
     }
-  }, [clearCart, cleared]);
+    if (isSubscription) setCleared(true);
+  }, [clearCart, cleared, isSubscription]);
 
   useEffect(() => {
-    if (cleared && orderNo) {
+    if (cleared && orderNo && !isSubscription) {
       const timer = setTimeout(() => setShowShare(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, [cleared, orderNo]);
+  }, [cleared, orderNo, isSubscription]);
 
   const handleWhatsApp = () => {
     const text = encodeURIComponent(
@@ -44,6 +47,38 @@ function OrderContent() {
     const phone = waNumber ? `https://wa.me/${waNumber}?text=${text}` : `https://wa.me/?text=${text}`;
     window.open(phone, "_blank");
   };
+
+  if (isSubscription) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
+          <div className="size-20 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center animate-scale-in">
+            <CheckCircle className="size-10 text-orange" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">تم إرسال طلب الاشتراك!</h1>
+            <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
+              شكراً لاشتراكك في <strong>الربط الذكي</strong>.
+              <br /><br />
+              تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من الدفع وتفعيل حسابك
+              خلال 24 ساعة. سيتم إشعارك عند اكتمال التفعيل.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 w-full max-w-xs">
+            <Link href="/login">
+              <Button className="w-full">تسجيل الدخول</Button>
+            </Link>
+            <Link href="/">
+              <Button variant="outline" className="w-full">
+                <ArrowLeft className="ms-2 size-4" />
+                العودة للرئيسية
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
