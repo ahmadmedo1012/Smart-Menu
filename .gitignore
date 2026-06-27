@@ -66,3 +66,4 @@ claude.md
 .vercel
 remotion/node_modules
 .env*
+open-design/
