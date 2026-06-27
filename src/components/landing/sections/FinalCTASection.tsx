@@ -16,7 +16,7 @@ const fadeUp = (delay: number) => ({
 
 export default function FinalCTASection() {
 	return (
-		<section className="relative overflow-hidden py-20 border-t border-border/50" dir="rtl">
+		<section className="relative overflow-hidden py-20" dir="rtl">
 			<div className="absolute top-0 start-0 size-96 -translate-x-1/4 -translate-y-1/4 rounded-full bg-orange/15 blur-[120px] pointer-events-none" />
 			<div className="absolute bottom-0 end-0 size-96 translate-x-1/4 translate-y-1/4 rounded-full bg-orange/10 blur-[120px] pointer-events-none" />
 

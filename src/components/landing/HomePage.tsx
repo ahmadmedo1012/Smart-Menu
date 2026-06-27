@@ -37,7 +37,7 @@ export default function HomePage() {
 							<div className="text-sm text-muted-foreground">مستخدم نشط</div>
 						</div>
 						<div className="rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300">
-							<div className="text-4xl md:text-5xl font-medium text-orange mb-1">%100</div>
+							<div className="text-4xl md:text-5xl font-medium text-orange mb-1">100%</div>
 							<div className="text-sm text-muted-foreground">رضا العملاء</div>
 						</div>
 					</div>
