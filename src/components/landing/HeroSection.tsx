@@ -86,7 +86,7 @@ export default function HeroSection() {
 							className="relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
 							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
-							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.3rem" }}>
+							<div className="relative w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.3rem" }}>
 								<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black z-10" style={{ borderRadius: "0 0 1rem 1rem" }} />
 								<PhoneVideo />
 							</div>

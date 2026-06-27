@@ -9,7 +9,7 @@ const RemotionPlayer = dynamic(
 
 function LoadingFallback() {
 	return (
-		<div className="absolute inset-0 bg-background flex items-center justify-center animate-pulse" style={{ borderRadius: "2.3rem" }}>
+		<div className="flex items-center justify-center size-full bg-background animate-pulse" style={{ borderRadius: "2.3rem", minHeight: 200 }}>
 			<div className="size-4 rounded-full border-2 border-border border-t-orange animate-spin" />
 		</div>
 	)
@@ -17,7 +17,7 @@ function LoadingFallback() {
 
 export function PhoneVideo() {
 	return (
-		<div className="absolute inset-0" style={{ borderRadius: "2.3rem", overflow: "hidden" }}>
+		<div className="size-full relative" style={{ borderRadius: "2.3rem", overflow: "hidden" }}>
 			<RemotionPlayer />
 		</div>
 	)
