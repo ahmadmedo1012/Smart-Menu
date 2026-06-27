@@ -22,17 +22,17 @@ const landingLinks = [
 interface HamburgerProps { open: boolean; onClick: () => void }
 
 function HamburgerButton({ open, onClick }: HamburgerProps) {
-	const line = "absolute inset-x-0 h-[2px] rounded-full bg-foreground transition-all duration-500"
 	return (
 		<button
 			onClick={onClick}
-			className="lg:hidden relative size-9 rounded-sm border border-border/20 flex items-center justify-center hover:bg-orange-muted transition-colors"
+			className="lg:hidden relative size-10 rounded-sm border border-white/20 flex items-center justify-center hover:bg-orange/20 transition-all duration-200"
 			aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
 		>
 			<span className="relative size-4">
-				<span className={cn(line, "top-[7px]", open && "rotate-45")} />
-				<span className={cn(line, "top-[7px]", open && "opacity-0 scale-x-0")} />
-				<span className={cn(line, "top-[7px]", open && "-rotate-45")} />
+				<span className={cn("absolute inset-x-0 top-[3px] h-[2px] rounded-full bg-white transition-all duration-300", open && "opacity-0")} />
+				<span className={cn("absolute inset-x-0 top-[7px] h-[2px] rounded-full bg-white transition-all duration-300", open && "rotate-45 !top-[7px]")} />
+				<span className={cn("absolute inset-x-0 top-[7px] h-[2px] rounded-full bg-white transition-all duration-300", open && "-rotate-45")} />
+				<span className={cn("absolute inset-x-0 bottom-[3px] h-[2px] rounded-full bg-white transition-all duration-300", open && "opacity-0")} />
 			</span>
 		</button>
 	)
@@ -44,14 +44,8 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 	const [mounted, setMounted] = useState(false)
 
 	useEffect(() => {
-		if (open) {
-			setMounted(true)
-			document.body.style.overflow = "hidden"
-		} else {
-			const timer = setTimeout(() => setMounted(false), 500)
-			document.body.style.overflow = ""
-			return () => clearTimeout(timer)
-		}
+		if (open) { setMounted(true); document.body.style.overflow = "hidden" }
+		else { const t = setTimeout(() => setMounted(false), 500); document.body.style.overflow = ""; return () => clearTimeout(t) }
 		return () => { document.body.style.overflow = "" }
 	}, [open])
 
@@ -59,73 +53,30 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 
 	return (
 		<>
-			<div
-				className={cn(
-					"fixed inset-0 z-40 bg-black/60 backdrop-blur-md transition-all duration-500 ease-smooth",
-					open ? "opacity-100" : "opacity-0 pointer-events-none"
-				)}
-				onClick={onClose}
-				aria-hidden="true"
-			/>
-
-			<div
-				className={cn(
-					"fixed top-4 inset-x-4 z-50 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
-					open
-						? "opacity-100 translate-y-0"
-						: "opacity-0 -translate-y-6 pointer-events-none"
-				)}
-			>
-				<div className="rounded-md glass-strong overflow-hidden shadow-2xl">
-					<div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
-						<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-7 w-auto" priority />
-						<button
-							onClick={onClose}
-							className="size-8 rounded-sm border border-border/30 flex items-center justify-center hover:bg-orange-muted transition-colors"
-							aria-label="إغلاق القائمة"
-						>
-							<X className="size-4" />
-						</button>
+			<div className={cn("fixed inset-0 z-40 bg-black/70 backdrop-blur-md transition-all duration-500", open ? "opacity-100" : "opacity-0 pointer-events-none")} onClick={onClose} aria-hidden="true" />
+			<div className={cn("fixed top-0 left-0 right-0 z-50 max-w-md mx-auto px-4 pt-4 transition-all duration-500", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6 pointer-events-none")}>
+				<div className="rounded-md bg-[#111013] border border-white/10 shadow-2xl overflow-hidden">
+					<div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+						<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
+						<button onClick={onClose} className="size-8 rounded-sm border border-white/10 flex items-center justify-center hover:bg-orange/20 transition-colors" aria-label="إغلاق"><X className="size-4 text-white" /></button>
 					</div>
-
-					<nav className="px-3 py-4 space-y-1">
+					<nav className="px-4 py-5 space-y-1">
 						{landingLinks.map((link, i) => {
 							const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href)
 							const Icon = link.icon
 							return (
-								<Link
-									key={link.href}
-									href={link.href}
-									onClick={onClose}
-									className={cn(
-										"flex items-center gap-3 px-4 py-3.5 rounded-sm text-sm font-medium transition-all duration-500",
-										"opacity-0 translate-y-8 blur-[4px]",
-										open && "opacity-100 translate-y-0 blur-0",
-										isActive
-											? "bg-orange-muted text-orange"
-											: "text-muted-foreground hover:bg-orange-muted hover:text-foreground"
-									)}
-									style={{
-										transitionDelay: `${80 + i * 80}ms`,
-										transitionProperty: "opacity, transform, filter, background-color, color",
-									}}
+								<Link key={link.href} href={link.href} onClick={onClose}
+									className={cn("flex items-center gap-3 px-4 py-3.5 rounded-sm text-base font-medium transition-all duration-500 opacity-0 translate-y-6", open && "opacity-100 translate-y-0", isActive ? "bg-orange/15 text-orange" : "text-white/70 hover:bg-orange/10 hover:text-white")}
+									style={{ transitionDelay: `${80 + i * 60}ms` }}
 								>
-									<Icon className="size-4 text-orange shrink-0" />
-									<span>{link.label}</span>
+									<Icon className="size-5 text-orange shrink-0" />
+									{link.label}
 								</Link>
 							)
 						})}
-						<div
-							className="pt-2 px-4 opacity-0 translate-y-8 blur-[4px] transition-all duration-500"
-							style={{
-								transitionDelay: "320ms",
-								...(open ? { opacity: 1, transform: "translateY(0px)", filter: "blur(0px)" } : {}),
-							}}
-						>
+						<div className="pt-4 px-4">
 							<Link href="/subscribe" onClick={onClose}>
-								<Button variant="orange" size="lg" className="w-full rounded-sm text-sm">
-									ابدأ الآن مجاناً
-								</Button>
+								<Button variant="orange" size="lg" className="w-full text-base font-bold">ابدأ الآن مجاناً</Button>
 							</Link>
 						</div>
 					</nav>
@@ -135,60 +86,48 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 	)
 }
 
-
 export function Header({ className }: HeaderProps) {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 	const pathname = usePathname()
-
 	const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), [])
 
 	return (
 		<>
-			<header
-				className={cn(
-					"fixed top-4 inset-x-4 z-30 max-w-[1220px] mx-auto",
-					"h-14 rounded-xl glass-strong",
-					"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
-					className
-				)}
-			>
-				<nav className="px-4 h-full flex items-center justify-between" aria-label="الرئيسية">
-					<div className="flex items-center gap-3">
+			<header className={cn(
+				"fixed top-0 inset-x-0 z-30",
+				"h-[12vh] min-h-[64px] max-h-[88px] bg-[#111013] border-b border-white/5",
+				"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
+				className
+			)}>
+				<nav className="max-w-[1220px] mx-auto px-10 h-full flex items-center justify-between" aria-label="الرئيسية">
+					<div className="flex items-center gap-4">
 						<HamburgerButton open={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} />
 						<Link href="/" className="flex items-center gap-2 shrink-0">
-							<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-7 w-auto" priority />
+							<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
 						</Link>
 					</div>
 
-					<div className="hidden lg:flex items-center gap-1">
+					<div className="hidden lg:flex items-center gap-2">
 						{landingLinks.map((link) => {
-							const isActive =
-								link.href === "/login"
-									? pathname === "/login"
-									: pathname.startsWith(link.href.replace(/:.*/, ""))
+							const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href.replace(/:.*/, ""))
 							return (
-								<Link
-									key={link.href}
-									href={link.href}
-									className={cn(
-										"px-3 py-1.5 rounded-sm text-sm transition-all duration-200",
-										isActive
-											? "text-orange font-medium"
-											: "text-muted-foreground hover:text-foreground hover:opacity-65"
-									)}
-								>
+								<Link key={link.href} href={link.href} className={cn(
+									"px-4 py-2 rounded-sm text-base font-medium transition-all duration-200",
+									isActive ? "text-orange underline underline-offset-4 decoration-orange" : "text-white/80 hover:text-white hover:opacity-65"
+								)}>
 									{link.label}
 								</Link>
 							)
 						})}
 					</div>
 
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-3">
 						<ThemeToggle />
+						<Link href="/login">
+							<Button variant="outline" size="sm" className="text-sm font-bold px-4 h-8">تسجيل الدخول</Button>
+						</Link>
 						<Link href="/subscribe">
-							<Button size="sm" className="rounded-sm text-xs h-8 px-3">
-								ابدأ الآن مجاناً
-							</Button>
+							<Button variant="orange" size="sm" className="text-sm font-bold px-4 h-8">ابدأ الآن مجاناً</Button>
 						</Link>
 					</div>
 				</nav>

@@ -11,7 +11,7 @@ const buttonVariants = cva(
 				orange:
 					"bg-orange text-orange-foreground hover:bg-[#e05f0a] shadow-lg shadow-orange/20 hover:shadow-lg hover:shadow-orange/25 border-0 active:scale-[0.98] transition-all duration-300",
 				outline:
-					"border-foreground/20 dark:border-white/20 bg-transparent text-foreground dark:text-white hover:bg-foreground/5 dark:hover:bg-white/10 hover:border-foreground/40 dark:hover:border-white/40 active:scale-[0.98] transition-all duration-300",
+					"border-foreground/20 dark:border-white/30 bg-transparent text-foreground dark:text-white hover:bg-foreground/5 dark:hover:bg-white/10 hover:border-foreground/40 dark:hover:border-white/60 active:scale-[0.98] transition-all duration-300",
 				ghost:
 					"bg-transparent text-muted-foreground hover:text-foreground hover:bg-white/10 active:scale-[0.98] transition-all duration-300",
 				destructive:
