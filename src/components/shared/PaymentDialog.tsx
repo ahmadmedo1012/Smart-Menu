@@ -101,9 +101,10 @@ export default function PaymentDialog({
   const handleConfirm = async () => {
     try {
       await onSuccess();
+      toast.success("تم إرسال طلبك للإدارة. سيتم تفعيل حسابك بعد الموافقة.");
       onOpenChange(false);
-    } catch {
-      // if createAccount fails, stay open so user can retry
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "تعذر إنشاء الحساب، يرجى المحاولة لاحقاً");
     }
   };
 
@@ -262,7 +263,7 @@ export default function PaymentDialog({
                     جاري الإرسال...
                   </span>
                 ) : (
-                  "تم الإرسال"
+                  "إرسال طلب الدفع"
                 )}
               </Button>
             </>

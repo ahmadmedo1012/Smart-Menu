@@ -6,12 +6,12 @@ import { requireAuth } from "@/lib/auth";
 import { ItemStatus } from "@/generated/prisma/enums";
 
 const createSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, "الاسم مطلوب"),
   nameAr: z.string().nullable().optional(),
   description: z.string().optional(),
   descriptionAr: z.string().optional(),
-  price: z.number().positive(),
-  discountedPrice: z.number().positive().nullable().optional(),
+  price: z.number().min(0, "السعر يجب أن يكون 0 أو أكثر"),
+  discountedPrice: z.number().min(0).nullable().optional(),
   image: z.string().optional(),
   status: z.string().optional(),
   sortOrder: z.number().int().optional(),

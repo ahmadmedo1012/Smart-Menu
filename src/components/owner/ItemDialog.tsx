@@ -14,7 +14,7 @@ interface Item { id: number; name: string; nameAr?: string; description: string;
 
 const initForm = (catId: number) => ({ name: "", nameAr: "", description: "", descriptionAr: "", price: 0, discountedPrice: "", status: "available", categoryId: catId, image: "" });
 
-const IMAGE_URL_RE = /^https?:\/\//i;
+const IMAGE_URL_RE = /^(https?:\/\/|data:image\/)/i;
 
 export default function ItemDialog({ open, onOpenChange, editing, categoryId, onSaved }: {
   open: boolean; onOpenChange: (o: boolean) => void;
@@ -40,10 +40,14 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
       const res = editing
         ? await csrfFetch(`/api/items/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         : await csrfFetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        let errMsg = "فشل الحفظ";
+        try { const e = await res.json(); errMsg = e?.error || errMsg; } catch {}
+        throw new Error(errMsg);
+      }
       toast.success(editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
       onOpenChange(false); onSaved();
-    } catch { toast.error("فشل الحفظ"); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "فشل الحفظ"); }
   };
 
   return (

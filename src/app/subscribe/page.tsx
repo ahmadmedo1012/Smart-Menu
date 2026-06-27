@@ -98,7 +98,7 @@ function SubscribeContent() {
     setSubmitted(true);
     if (!selectedPlan || !isFormValid) return;
 
-    // Paid plan → show payment dialog
+    // Paid plan → show payment dialog (account NOT created until admin approves)
     if (currentPlan && Number(currentPlan.price) > 0) {
       setPaymentOpen(true);
       return;
@@ -106,6 +106,15 @@ function SubscribeContent() {
 
     // Free plan → create account immediately
     await createAccount();
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentOpen(false);
+    setSubmitted(true);
+    toast.success("تم إرسال طلب الاشتراك. سيتم تفعيل حسابك بعد التحقق من الدفع من قبل الإدارة.");
+    // For paid plans: DON'T create account here. Admin approves via /admin/subscriptions
+    // and can create account from there, OR user waits for manual activation
+    router.push("/order-confirmed");
   };
 
   const createAccount = async () => {
@@ -450,7 +459,7 @@ function SubscribeContent() {
           planName={currentPlan.name}
           planNameAr={currentPlan.nameAr}
           price={Number(currentPlan.price)}
-          onSuccess={createAccount}
+          onSuccess={handlePaymentSuccess}
         />
       )}
     </div>

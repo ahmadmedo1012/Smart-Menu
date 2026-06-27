@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
-import { notifyEvent } from "@/lib/telegram";
+import { sendTelegramNotification, notifyEvent } from "@/lib/telegram";
 
 export async function GET(request: NextRequest) {
   try {
@@ -67,10 +67,12 @@ export async function POST(request: NextRequest) {
           });
         }
       }
-      // Notify via Telegram
-      notifyEvent("payment_verified", { phone: existing.phone, amount: String(existing.amount), plan: existing.planName, status: "verified" }).catch(() => {});
+      // Notify via Telegram — bypass event filter for critical payment events
+      const msg = `✅ *تم تأكيد الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
+      sendTelegramNotification(msg, { parseMode: "Markdown" });
     } else if (status === "cancelled") {
-      notifyEvent("payment_cancelled", { phone: existing.phone, amount: String(existing.amount), plan: existing.planName, status: "cancelled" }).catch(() => {});
+      const msg = `❌ *تم إلغاء الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
+      sendTelegramNotification(msg, { parseMode: "Markdown" });
     }
 
     return success(updated);

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 
-const MAX_SIZE = 10 * 1024 * 1024;
+const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
 const fileSchema = z
