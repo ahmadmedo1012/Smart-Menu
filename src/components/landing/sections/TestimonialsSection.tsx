@@ -13,7 +13,7 @@ const testimonials = [
 
 export default function TestimonialsSection() {
 	return (
-		<section id="reviews" className="relative py-16 sm:py-24 overflow-hidden">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} id="reviews" className="relative py-16 sm:py-24 overflow-hidden">
 			<div className="absolute inset-0 z-0">
 				<img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.025]" loading="lazy" />
 			</div>

@@ -28,7 +28,7 @@ const FAQ_ITEMS = [
 
 export default function FAQSection() {
 	return (
-		<section className="relative py-16 sm:py-20">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-16 sm:py-20">
 			<div className="max-w-[1220px] mx-auto px-4 sm:px-6">
 				<div className="max-w-3xl mx-auto">
 					<div className="text-center mb-10 sm:mb-12">

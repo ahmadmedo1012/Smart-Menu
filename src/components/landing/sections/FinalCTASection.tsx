@@ -9,7 +9,7 @@ const EASE = [0.16, 1, 0.2, 1] as const;
 
 export default function FinalCTASection() {
 	return (
-		<section className="relative overflow-hidden py-16 sm:py-24">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative overflow-hidden py-16 sm:py-24">
 			<div className="absolute inset-0 z-0">
 				<img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.03]" loading="lazy" />
 				<div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />

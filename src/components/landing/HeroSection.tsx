@@ -9,7 +9,7 @@ const EASE = [0.16, 1, 0.2, 1] as const
 
 export default function HeroSection() {
 	return (
-		<section className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0">
 				<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.08] sm:opacity-15" loading="eager" />
 				<div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
@@ -83,7 +83,7 @@ export default function HeroSection() {
 						<motion.div
 							animate={{ rotateY: -3, rotateX: 2 }}
 							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02 }}
-							className="relative w-[200px] h-[420px] sm:w-[220px] sm:h-[460px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
+							className="relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
 							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
 							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.3rem" }}>
@@ -95,7 +95,7 @@ export default function HeroSection() {
 					<div className="relative hidden md:block" style={{ perspective: "1000px" }}>
 						<motion.div
 							animate={{ rotateY: 3, rotateX: 1 }}
-							className="relative w-[140px] h-[300px] sm:w-[160px] sm:h-[340px] p-[2px] sm:p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
+							className="relative w-[180px] h-[380px] sm:w-[200px] sm:h-[420px] p-[2px] sm:p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
 							style={{ borderRadius: "1.8rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
 							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "1.5rem" }}>

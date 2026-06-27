@@ -40,7 +40,7 @@ function Monogram({ name, slug }: { name: string; slug: string }) {
 
 export default function ClientsSection() {
 	return (
-		<section className="relative py-16 sm:py-20 overflow-hidden">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-16 sm:py-20 overflow-hidden">
 			<div className="max-w-[1220px] mx-auto px-4 sm:px-6">
 				<div className="text-center mb-10 sm:mb-12">
 					<motion.h2

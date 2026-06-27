@@ -9,8 +9,8 @@ export const RemotionRoot: React.FC = () => {
 				component={PhoneMenuVideo}
 				durationInFrames={150}
 				fps={30}
-				width={220}
-				height={460}
+				width={390}
+				height={844}
 			/>
 		</>
 	)

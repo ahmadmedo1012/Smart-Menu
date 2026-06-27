@@ -25,7 +25,7 @@ export default function ContactSection() {
 	const handleSubmit = (e: React.FormEvent) => e.preventDefault();
 
 	return (
-		<section className="relative py-16 sm:py-20">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-16 sm:py-20">
 			<div className="max-w-[1220px] mx-auto px-4 sm:px-6">
 				<div className="max-w-xl mx-auto">
 					<div className="text-center mb-10 sm:mb-12">

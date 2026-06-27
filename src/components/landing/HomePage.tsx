@@ -7,10 +7,8 @@ import { fetchPublicStats, type PublicStats } from "./landing-data"
 import HeroSection from "./HeroSection"
 import FeaturesSection from "./sections/FeaturesSection"
 import TestimonialsSection from "./sections/TestimonialsSection"
-import FAQSection from "./sections/FAQSection"
 import ClientsSection from "./sections/ClientsSection"
 import FinalCTASection from "./sections/FinalCTASection"
-import ContactSection from "./sections/ContactSection"
 
 export default function HomePage() {
 	const [stats, setStats] = useState<PublicStats | null>(null)
@@ -43,10 +41,8 @@ export default function HomePage() {
 				</section>
 			)}
 			<TestimonialsSection />
-			<FAQSection />
 			<ClientsSection />
 			<FinalCTASection />
-			<ContactSection />
 			<Footer />
 			<FloatingWhatsApp />
 		</div>
