@@ -23,8 +23,8 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 			/>
 
 			<div className="relative z-10 w-full max-w-[1220px] mx-auto px-4 text-center py-20">
-				{/* Headline */}
-				<motion.div
+				{/* Headline — using h1 for semantic/SEO, styled as display */}
+				<motion.h1
 					initial="hidden"
 					animate="visible"
 					variants={{
@@ -32,23 +32,25 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					}}
 					className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-6 max-w-4xl mx-auto"
 				>
-					<motion.p
+					<motion.span
 						variants={{
 							hidden: { opacity: 0, y: 30 },
 							visible: { opacity: 1, y: 0, transition: { duration: 1, ease: EASE } },
 						}}
+						className="block"
 					>
 						اللي يواكب التطور
-					</motion.p>
-					<motion.p
+					</motion.span>
+					<motion.span
 						variants={{
 							hidden: { opacity: 0, y: 30 },
 							visible: { opacity: 1, y: 0, transition: { duration: 1, ease: EASE } },
 						}}
+						className="block"
 					>
 						<span className="text-orange font-bold">يسبق الجميع</span>
-					</motion.p>
-				</motion.div>
+					</motion.span>
+				</motion.h1>
 
 				{/* Subtitle */}
 				<motion.p

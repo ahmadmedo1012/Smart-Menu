@@ -20,7 +20,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label={isDark ? "الوضع النهاري" : "الوضع الليلي"}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className={cn(
         "relative size-9 rounded-sm",
         "bg-card border border-border/30",
