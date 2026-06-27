@@ -48,7 +48,7 @@ export default function TestimonialsSection() {
 								{t.content}
 							</p>
 							<div className="flex items-center gap-3">
-								<div className="size-10 rounded-full bg-gradient-to-br from-orange to-amber-500 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+								<div className="size-10 rounded-full bg-orange flex items-center justify-center text-white text-sm font-bold shadow-sm">
 									{t.name.charAt(0)}
 								</div>
 								<div>

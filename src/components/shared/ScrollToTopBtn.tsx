@@ -21,7 +21,7 @@ export function ScrollToTopBtn() {
 				"size-14 rounded-full bg-orange text-white",
 				"flex items-center justify-center",
 				"shadow-xl shadow-orange/30",
-				"hover:bg-[#e05f0a] hover:scale-105",
+				"hover:bg-[#e05f0a]",
 				"transition-all duration-300",
 				visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
 			)}

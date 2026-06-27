@@ -135,14 +135,14 @@ export default function MenuPageClient({
             placeholder="ابحث في القائمة..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-12 pr-11 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
+            className="w-full h-12 pr-11 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
           />
           {search && (
             <button
               type="button"
               aria-label="مسح البحث"
               onClick={() => setSearch("")}
-              className="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-full bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 size-6 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
             >
               <X className="size-3" />
             </button>
@@ -158,7 +158,7 @@ export default function MenuPageClient({
             aria-expanded={showSort}
             onClick={() => setShowSort(!showSort)}
             onKeyDown={(e) => { if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") { e.preventDefault(); setShowSort(true); } }}
-            className="h-12 px-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
+            className="h-12 px-4 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
           >
             <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
@@ -167,7 +167,7 @@ export default function MenuPageClient({
           {showSort && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
-              <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-2xl border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
+              <div className="absolute right-0 top-full mt-2 z-50 w-52 rounded-md border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
                 role="listbox"
                 aria-label="خيارات الترتيب"
                 onKeyDown={(e) => {
@@ -185,7 +185,7 @@ export default function MenuPageClient({
                     aria-selected={sort === opt.value}
                     onClick={() => { setSort(opt.value); setShowSort(false); }}
                     className={cn(
-                      "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent",
+                      "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-md last:rounded-b-md hover:bg-accent",
                       sort === opt.value && "bg-accent font-medium text-primary",
                     )}
                   >
@@ -211,7 +211,7 @@ export default function MenuPageClient({
             <button
               type="button"
               onClick={() => setActiveCategory(null)}
-              className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              className="text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
             >
               إعادة تعيين
             </button>
@@ -225,7 +225,7 @@ export default function MenuPageClient({
           type="button"
           onClick={() => setActiveCategory(null)}
           className={cn(
-            "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
+            "snap-start shrink-0 px-5 py-2.5 rounded-sm text-sm font-medium transition-all duration-300",
             activeCategory === null
               ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25 scale-105"
               : "glass-card hover:bg-orange-muted",
@@ -251,7 +251,7 @@ export default function MenuPageClient({
             type="button"
             onClick={() => setActiveCategory(cat.id)}
             className={cn(
-              "snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
+              "snap-start shrink-0 px-5 py-2.5 rounded-sm text-sm font-medium transition-all duration-300",
               activeCategory === cat.id
                 ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25 scale-105"
                 : "glass-card hover:bg-orange-muted",
@@ -261,7 +261,7 @@ export default function MenuPageClient({
               {cat.nameAr || cat.name}
               <span
                 className={cn(
-                  "inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold",
+                  "inline-flex items-center justify-center size-5 rounded-sm text-[11px] font-bold",
                   activeCategory === cat.id
                     ? "bg-background/20 text-foreground"
                     : "bg-orange-muted text-orange dark:text-orange",
@@ -320,7 +320,7 @@ export default function MenuPageClient({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            "fixed bottom-[calc(env(safe-area-inset-bottom)+6rem)] end-6 z-[59] size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
+            "fixed bottom-[calc(env(safe-area-inset-bottom)+5rem)] end-6 z-[59] size-14 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white flex items-center justify-center shadow-xl shadow-green-500/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-green-500/40 active:scale-95",
             showFloatingWa
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8 pointer-events-none",

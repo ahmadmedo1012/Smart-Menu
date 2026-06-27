@@ -25,14 +25,14 @@ function HamburgerButton({ open, onClick }: HamburgerProps) {
 	return (
 		<button
 			onClick={onClick}
-			className="lg:hidden relative size-10 rounded-sm border border-white/20 flex items-center justify-center hover:bg-orange/20 transition-all duration-200"
+			className="lg:hidden relative size-10 rounded-sm border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200"
 			aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
 		>
 			<span className="relative size-4">
-				<span className={cn("absolute inset-x-0 top-[3px] h-[2px] rounded-full bg-white transition-all duration-300", open && "opacity-0")} />
-				<span className={cn("absolute inset-x-0 top-[7px] h-[2px] rounded-full bg-white transition-all duration-300", open && "rotate-45 !top-[7px]")} />
-				<span className={cn("absolute inset-x-0 top-[7px] h-[2px] rounded-full bg-white transition-all duration-300", open && "-rotate-45")} />
-				<span className={cn("absolute inset-x-0 bottom-[3px] h-[2px] rounded-full bg-white transition-all duration-300", open && "opacity-0")} />
+				<span className={cn("absolute inset-x-0 top-[3px] h-[2px] rounded-full bg-foreground transition-all duration-300", open && "opacity-0")} />
+				<span className={cn("absolute inset-x-0 top-[7px] h-[2px] rounded-full bg-foreground transition-all duration-300", open && "rotate-45 !top-[7px]")} />
+				<span className={cn("absolute inset-x-0 top-[7px] h-[2px] rounded-full bg-foreground transition-all duration-300", open && "-rotate-45")} />
+				<span className={cn("absolute inset-x-0 bottom-[3px] h-[2px] rounded-full bg-foreground transition-all duration-300", open && "opacity-0")} />
 			</span>
 		</button>
 	)
@@ -55,10 +55,10 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 		<>
 			<div className={cn("fixed inset-0 z-40 bg-black/70 backdrop-blur-md transition-all duration-500", open ? "opacity-100" : "opacity-0 pointer-events-none")} onClick={onClose} aria-hidden="true" />
 			<div className={cn("fixed top-0 left-0 right-0 z-50 max-w-md mx-auto px-4 pt-4 transition-all duration-500", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6 pointer-events-none")}>
-				<div className="rounded-md bg-[#111013] border border-white/10 shadow-2xl overflow-hidden">
-					<div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+				<div className="rounded-md bg-background border border-border/10 shadow-2xl overflow-hidden">
+					<div className="flex items-center justify-between px-6 py-5 border-b border-border/50">
 						<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto" priority />
-						<button onClick={onClose} className="size-8 rounded-sm border border-white/10 flex items-center justify-center hover:bg-orange/20 transition-colors" aria-label="إغلاق"><X className="size-4 text-white" /></button>
+						<button onClick={onClose} className="size-8 rounded-sm border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors" aria-label="إغلاق"><X className="size-4 text-foreground" /></button>
 					</div>
 					<nav className="px-4 py-5 space-y-1">
 						{landingLinks.map((link, i) => {
@@ -66,7 +66,7 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 							const Icon = link.icon
 							return (
 								<Link key={link.href} href={link.href} onClick={onClose}
-									className={cn("flex items-center gap-3 px-4 py-3.5 rounded-sm text-base font-medium transition-all duration-500 opacity-0 translate-y-6", open && "opacity-100 translate-y-0", isActive ? "bg-orange/15 text-orange" : "text-white/70 hover:bg-orange/10 hover:text-white")}
+									className={cn("flex items-center gap-3 px-4 py-3.5 rounded-sm text-base font-medium transition-all duration-500 opacity-0 translate-y-6", open && "opacity-100 translate-y-0", isActive ? "bg-orange/15 text-orange" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground")}
 									style={{ transitionDelay: `${80 + i * 60}ms` }}
 								>
 									<Icon className="size-5 text-orange shrink-0" />
@@ -76,7 +76,7 @@ function MobileMenu({ open, onClose, pathname }: MobileMenuProps) {
 						})}
 						<div className="pt-4 px-4">
 							<Link href="/subscribe" onClick={onClose}>
-								<Button variant="orange" size="lg" className="w-full text-base font-bold">ابدأ الآن مجاناً</Button>
+								<Button variant="orange" size="lg" className="w-full text-base">ابدأ الآن مجاناً</Button>
 							</Link>
 						</div>
 					</nav>
@@ -95,7 +95,7 @@ export function Header({ className }: HeaderProps) {
 		<>
 			<header className={cn(
 				"fixed top-0 inset-x-0 z-30",
-				"h-[12vh] min-h-[64px] max-h-[88px] bg-[#111013] border-b border-white/5",
+				"h-[12vh] min-h-[64px] max-h-[88px] bg-background/80 backdrop-blur-xl border-b border-border/50",
 				"opacity-0 animate-fade-in [animation-delay:100ms] [animation-fill-mode:forwards]",
 				className
 			)}>
@@ -113,7 +113,7 @@ export function Header({ className }: HeaderProps) {
 							return (
 								<Link key={link.href} href={link.href} className={cn(
 									"px-4 py-2 rounded-sm text-base font-medium transition-all duration-200",
-									isActive ? "text-orange underline underline-offset-4 decoration-orange" : "text-white/80 hover:text-white hover:opacity-65"
+									isActive ? "text-orange underline underline-offset-4 decoration-orange" : "text-foreground/80 hover:text-foreground hover:opacity-65"
 								)}>
 									{link.label}
 								</Link>
@@ -124,10 +124,10 @@ export function Header({ className }: HeaderProps) {
 					<div className="flex items-center gap-3">
 						<ThemeToggle />
 						<Link href="/login">
-							<Button variant="outline" size="sm" className="text-sm font-bold px-4 h-8">تسجيل الدخول</Button>
+							<Button variant="outline" size="sm">تسجيل الدخول</Button>
 						</Link>
 						<Link href="/subscribe">
-							<Button variant="orange" size="sm" className="text-sm font-bold px-4 h-8">ابدأ الآن مجاناً</Button>
+							<Button variant="orange" size="sm">ابدأ الآن مجاناً</Button>
 						</Link>
 					</div>
 				</nav>

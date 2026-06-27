@@ -113,15 +113,15 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-2xl bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98] border border-border/30 hover:border-orange/30 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-md bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98] border border-border/30 hover:border-orange/30 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
-      <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
+      <div className={`absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
 
-      <div className="relative shrink-0 size-24 md:size-28 rounded-xl overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
+      <div className="relative shrink-0 size-24 md:size-28 rounded-md overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
         {item.image && !imageError ? (
           <>
             {!imageLoaded && <div className="absolute inset-0 skeleton" />}
@@ -141,7 +141,7 @@ const MenuItemCard = memo(function MenuItemCard({
         )}
 
         {hasDiscount && (
-          <div className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg">
+          <div className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-lg">
             -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
           </div>
         )}
@@ -184,7 +184,7 @@ const MenuItemCard = memo(function MenuItemCard({
               onAddToCart(item);
             }}
             aria-label={`إضافة ${displayName} إلى السلة`}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 hover:scale-105 active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm text-xs font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 active:scale-95"
           >
             <Plus className="size-3.5" />
             أضف

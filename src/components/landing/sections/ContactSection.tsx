@@ -55,7 +55,7 @@ export default function ContactSection() {
 								className="w-full rounded-sm bg-card border border-border/50 px-4 py-3 text-sm outline-none focus:border-orange focus:ring-2 focus:ring-orange/30 transition-all resize-none"
 							/>
 						</div>
-						<Button type="submit" size="lg" className="w-full h-12 text-base">
+						<Button type="submit" size="lg" className="w-full">
 							إرسال رسالتك
 						</Button>
 					</motion.form>

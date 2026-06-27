@@ -36,7 +36,7 @@ export function Footer({ className, partnerSlug = "al-waha-cafe" }: FooterProps)
 				<div className="grid md:grid-cols-4 md:gap-6 lg:gap-8 mb-12">
 					{/* Brand */}
 					<div>
-						<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto mb-4 brightness-0 invert" loading="lazy" />
+						<Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-8 w-auto mb-4 dark:brightness-0 dark:invert" loading="lazy" />
 						<p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-4">
 							منصة رقمية لإدارة منيو المطاعم والمقاهي واستقبال الطلبات عبر واتساب
 						</p>

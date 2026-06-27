@@ -46,7 +46,7 @@ function Monogram({ name, slug }: { name: string; slug: string }) {
 	return (
 		<svg width="48" height="48" viewBox="0 0 48 48" className="shrink-0" aria-label={name}>
 			<rect width="48" height="48" rx="6" fill={`oklch(0.15 0.02 ${hue})`} />
-			<text x="24" y="30" textAnchor="middle" fontFamily="AloaaxB,sans-serif" fontSize="20" fontWeight="700" fill="white">{initial}</text>
+			<text x="24" y="30" textAnchor="middle" fontFamily="AloaaxB,sans-serif" fontSize="20" fontWeight="700" fill="currentColor">{initial}</text>
 		</svg>
 	);
 }

@@ -26,7 +26,7 @@ const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
 const PLAN_GRADIENTS = [
   "from-gray-400 to-gray-500",
   "from-orange to-orange/80",
-  "from-orange via-yellow-500 to-orange/80",
+  "from-orange to-orange/80",
   "from-gray-600 to-gray-800",
 ];
 const PLAN_GLOWS = [
@@ -40,7 +40,7 @@ const PLAN_BADGE_COLORS = [
   "",
   "bg-orange text-orange-foreground",
   "bg-gradient-to-r from-orange to-orange/80 text-orange-foreground",
-  "bg-gradient-to-r from-gray-600 to-gray-800 text-white",
+  "bg-gradient-to-r from-gray-600 to-gray-800 text-white dark:text-white",
 ];
 
 function PlanCard({
@@ -62,7 +62,7 @@ function PlanCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-3xl border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
+        "group relative flex flex-col rounded-md border p-8 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1",
         isPopular
           ? "border-orange/40 bg-gradient-to-b from-orange-muted/60 to-white shadow-2xl shadow-orange/20 dark:from-orange-muted/20 dark:to-card dark:border-orange/30 hover:shadow-[0_0_30px_var(--shadow-glow)]"
           : "border-border/50 bg-card/50 hover:border-orange-muted/60 hover:shadow-xl hover:shadow-orange/10 hover:bg-card/80",
@@ -72,7 +72,7 @@ function PlanCard({
       {PLAN_BADGES[index] && (
         <div
           className={cn(
-            "absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold shadow-lg animate-fade-in-down",
+            "absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-sm text-xs font-bold shadow-lg animate-fade-in-down",
             PLAN_BADGE_COLORS[index],
             isPopular && "animate-pulse-glow-ring",
           )}
@@ -82,13 +82,13 @@ function PlanCard({
       )}
 
       {/* Shine effect on hover */}
-      <div className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
         <div className="absolute -inset-full z-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:inset-0 transition-all duration-700 dark:via-white/10" />
       </div>
 
       {/* Subtle bottom gradient glow for popular card */}
       {isPopular && (
-        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-3xl bg-gradient-to-t from-orange/5 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-md bg-gradient-to-t from-orange/5 to-transparent pointer-events-none" />
       )}
 
       <div className="relative z-10 flex flex-col flex-1">
@@ -96,12 +96,12 @@ function PlanCard({
         <div className="flex items-center gap-3 mb-4">
           <div
             className={cn(
-              "size-11 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg",
+              "size-11 rounded-md bg-gradient-to-br flex items-center justify-center shadow-lg",
               PLAN_GRADIENTS[index],
               PLAN_GLOWS[index],
             )}
           >
-            <Icon className="size-5 text-white" />
+            <Icon className="size-5 text-white dark:text-white" />
           </div>
           <div>
             <h3 className="text-lg font-bold">{plan.nameAr}</h3>
@@ -156,7 +156,7 @@ function PlanCard({
         <Link href={isFree ? "/subscribe" : `/subscribe?plan=${plan.id}`}>
           <Button
             className={cn(
-              "w-full h-12 rounded-xl text-base font-semibold transition-all duration-300",
+              "w-full h-12 rounded-sm text-base font-semibold transition-all duration-300",
               isPopular
                 ? "bg-orange text-orange-foreground hover:opacity-90 shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30"
                 : "",
@@ -200,7 +200,7 @@ export default function PricingPage() {
         <div className="absolute bottom-20 right-10 size-80 rounded-full bg-orange/5 blur-3xl" />
 
         <div className="relative z-10 max-w-3xl mx-auto px-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-muted text-orange text-sm mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-orange-muted text-orange text-sm mb-6">
             <Sparkles className="size-4" />
             خطط تناسب جميع الأحجام
           </div>
@@ -212,24 +212,24 @@ export default function PricingPage() {
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center mt-8 bg-muted/60 rounded-full p-1 relative">
+          <div className="inline-flex items-center mt-8 bg-muted/60 rounded-sm p-1 relative">
             <div
               className={cn(
-                "absolute inset-y-1 w-1/2 rounded-full bg-white dark:bg-card shadow-sm transition-all duration-300 ease-[var(--ease-out-quart)]",
+                "absolute inset-y-1 w-1/2 rounded-sm bg-white dark:bg-card shadow-sm transition-all duration-300 ease-[var(--ease-out-quart)]",
                 yearly ? "translate-x-full" : "translate-x-0",
               )}
             />
             <button
               type="button"
               onClick={() => setYearly(false)}
-              className="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
+              className="relative z-10 px-6 py-2 rounded-sm text-sm font-medium transition-colors duration-200"
             >
               شهري
             </button>
             <button
               type="button"
               onClick={() => setYearly(true)}
-              className="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
+              className="relative z-10 px-6 py-2 rounded-sm text-sm font-medium transition-colors duration-200"
             >
               سنوي
               <span className="mr-1.5 text-xs text-orange font-bold">وفر شهرين</span>
@@ -277,7 +277,7 @@ export default function PricingPage() {
               { q: "هل يمكنني إلغاء الاشتراك؟", a: "نعم، يمكنك إلغاء الاشتراك في أي وقت. يظل المنيو نشطاً حتى نهاية الفترة المدفوعة." },
               { q: "هل تدعمون جميع أنواع المطاعم؟", a: "نعم، المنصة تدير المطاعم والمقاهي والمخابز والمطاعم السيارة وجميع أنواع الخدمات الغذائية." },
             ].map((faq, i) => (
-              <details key={i} className="group rounded-2xl border border-border/40 bg-card/50 open:bg-card/80 open:border-border/60 open:shadow-md transition-all duration-[500ms] ease-[var(--ease-out-quart)] overflow-hidden">
+              <details key={i} className="group rounded-md border border-border/40 bg-card/50 open:bg-card/80 open:border-border/60 open:shadow-md transition-all duration-[500ms] ease-[var(--ease-out-quart)] overflow-hidden">
                 <summary className="flex items-center justify-between cursor-pointer text-base font-medium list-none px-5 py-4">
                   {faq.q}
                   <span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300">▼</span>
@@ -296,7 +296,7 @@ export default function PricingPage() {
       {/* CTA */}
       <section className="pb-24">
         <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="glass-strong rounded-3xl p-12 relative overflow-hidden transition-all duration-[500ms] ease-[var(--ease-out-quart)] hover:-translate-y-0.5 hover:shadow-xl">
+          <div className="glass-strong rounded-md p-8 md:p-12 relative overflow-hidden transition-all duration-[500ms] ease-[var(--ease-out-quart)] hover:-translate-y-0.5 hover:shadow-xl">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-orange to-transparent rounded-full" />
             <div className="absolute -top-8 -right-8 size-32 rounded-full bg-gradient-to-br from-orange/10 to-transparent blur-2xl pointer-events-none" />
             <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-gradient-to-tr from-orange/10 to-transparent blur-2xl pointer-events-none" />
@@ -308,12 +308,12 @@ export default function PricingPage() {
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/subscribe">
-                <Button size="lg" className="text-lg px-10 h-14 bg-orange text-orange-foreground shadow-lg shadow-orange/20 hover:opacity-90">
+                <Button size="lg">
                   ابدأ الآن مجاناً
                 </Button>
               </Link>
               <Link href="/demo">
-                <Button size="lg" variant="outline" className="text-lg px-10 h-14 border-2">
+                <Button size="lg" variant="outline">
                   جرب لوحة التحكم
                 </Button>
               </Link>

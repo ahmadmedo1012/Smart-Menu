@@ -43,7 +43,7 @@ export default function FeaturesSection() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, margin: "-40px" }}
 							transition={{ duration: 0.6, delay: i * 0.08, ease: EASE }}
-							className="group rounded-md bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange/5 transition-all duration-300"
+							className="group rounded-md bg-card border border-border/50 p-6 md:p-8 shadow-sm hover:border-orange/30 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange/5 transition-all duration-300"
 						>
 							<div className="size-12 rounded-md bg-orange/10 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:bg-orange/20 transition-colors">
 								<feat.icon className="size-6 text-orange" />
