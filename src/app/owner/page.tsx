@@ -208,7 +208,7 @@ export default function OwnerDashboard() {
               <Sparkles className="size-6 text-white" />
             </div>
             <div className="flex-1 min-w-[200px]">
-              <h3 className="text-base font-bold mb-1">مرحباً بك في الربط الذكي! 👋</h3>
+              <h3 className="text-base font-bold mb-1">مرحباً بك في الربط الذكي!</h3>
               <p className="text-xs text-muted-foreground mb-3 max-w-md leading-relaxed">
                 ابدأ بإضافة أصنافك في المنيو، ثم شارك الرابط مع زبائنك. أول طلب سيصل هنا مباشرة!
               </p>

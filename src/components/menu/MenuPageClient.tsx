@@ -132,7 +132,7 @@ export default function MenuPageClient({
             placeholder="ابحث في القائمة..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
+            className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
           />
           {search && (
             <button
@@ -154,7 +154,7 @@ export default function MenuPageClient({
             aria-expanded={showSort}
             onClick={() => setShowSort(!showSort)}
             onKeyDown={(e) => { if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") { e.preventDefault(); setShowSort(true); } }}
-            className="h-11 sm:h-12 px-3 sm:px-4 rounded-sm border border-border/30 bg-card/70 backdrop-blur-xl text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
+            className="h-11 sm:h-12 px-3 sm:px-4 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
           >
             <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
@@ -220,49 +220,49 @@ export default function MenuPageClient({
           type="button"
           onClick={() => setActiveCategory(null)}
           className={cn(
-            "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
-            activeCategory === null
-              ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
-              : "hover:bg-orange-muted",
-          )}
-        >
-          <span className="flex items-center gap-1.5 sm:gap-2">
-            الكل
-            <span className={cn(
-              "inline-flex items-center justify-center size-4 sm:size-5 rounded-full text-[10px] sm:text-[11px] font-bold",
-              activeCategory === null
-                ? "bg-background/20 text-foreground"
-                : "bg-orange-muted text-orange dark:text-orange",
-            )}>
-              {toArabicNumber(itemCounts.get(null) ?? 0)}
-            </span>
-          </span>
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => setActiveCategory(cat.id)}
-            className={cn(
               "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
-              activeCategory === cat.id
+              activeCategory === null
                 ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
-                : "hover:bg-orange-muted",
+                : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
             )}
           >
             <span className="flex items-center gap-1.5 sm:gap-2">
-              {cat.nameAr || cat.name}
+              الكل
               <span className={cn(
                 "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold",
-                activeCategory === cat.id
+                activeCategory === null
                   ? "bg-background/20 text-foreground"
                   : "bg-orange-muted text-orange dark:text-orange",
               )}>
-                {toArabicNumber(itemCounts.get(cat.id) ?? 0)}
+                {toArabicNumber(itemCounts.get(null) ?? 0)}
               </span>
             </span>
           </button>
-        ))}
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setActiveCategory(cat.id)}
+              className={cn(
+                "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
+                activeCategory === cat.id
+                  ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
+                  : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
+              )}
+            >
+              <span className="flex items-center gap-1.5 sm:gap-2">
+                {cat.nameAr || cat.name}
+                <span className={cn(
+                  "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold",
+                  activeCategory === cat.id
+                    ? "bg-background/20 text-foreground"
+                    : "bg-orange-muted text-orange dark:text-orange",
+                )}>
+                  {toArabicNumber(itemCounts.get(cat.id) ?? 0)}
+                </span>
+              </span>
+            </button>
+          ))}
       </div>
 
       {filteredItems.length === 0 ? (

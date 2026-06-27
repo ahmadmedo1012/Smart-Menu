@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const EASE = [0.16, 1, 0.2, 1] as const;
 
@@ -39,11 +40,11 @@ export default function ContactSection() {
 						{fields.map((f) => (
 							<div key={f.id}>
 								<label htmlFor={f.id} className="block text-sm font-medium mb-1.5">{f.label}</label>
-								<input
+								<Input
 									id={f.id}
 									type={f.type}
 									placeholder={f.placeholder}
-									className="w-full h-12 rounded-sm bg-card border border-border/50 px-4 text-sm outline-none focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/30 transition-all"
+									className="h-12"
 								/>
 							</div>
 						))}
@@ -53,7 +54,7 @@ export default function ContactSection() {
 								id="contact-message"
 								placeholder="اكتب رسالتك هنا..."
 								rows={5}
-								className="w-full rounded-sm bg-card border border-border/50 px-4 py-3 text-sm outline-none focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/30 transition-all resize-none"
+								className="w-full rounded-[4px] bg-card border border-border/50 px-4 py-3 text-sm outline-none focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/30 transition-all resize-none"
 							/>
 						</div>
 						<Button type="submit" size="lg" className="w-full">

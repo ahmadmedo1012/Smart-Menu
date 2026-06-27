@@ -54,8 +54,9 @@ export default function AdminOrdersPage() {
       if (dateTo) params.set("dateTo", dateTo)
       const url = `/api/orders?${params.toString()}`
       const res = await fetch(url)
+      if (!res.ok) throw new Error("Fell to fetch orders")
       const data = await res.json()
-      setOrders(data.data ?? data ?? [])
+      setOrders(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []))
     } catch { toast.error("فشل تحميل الطلبات") }
     finally { setLoading(false) }
 // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -39,8 +39,8 @@ export default function FAQSection() {
 					</div>
 					<div className="space-y-2 sm:space-y-3">
 						{FAQ_ITEMS.map((faq, i) => (
-							<motion.details key={i} {...fadeUp(i * 0.4)} className="group rounded-sm bg-card border border-border open:border-orange/20 open:shadow-sm transition-all duration-300 overflow-hidden">
-								<summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 hover:text-orange transition-colors [&::-webkit-details-marker]:hidden">
+							<motion.details key={i} {...fadeUp(Math.min(i * 0.3, 2))} className="group rounded-sm bg-card border border-border open:border-orange/20 open:shadow-md transition-all duration-300 overflow-hidden">
+								<summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-5 py-3.5 hover:text-orange transition-colors [&::-webkit-details-marker]:hidden select-none">
 									{faq.q}
 									<ChevronDown className="size-4 text-orange shrink-0 group-open:rotate-180 transition-transform duration-300" />
 								</summary>

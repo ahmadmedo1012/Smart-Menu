@@ -10,6 +10,7 @@ import TestimonialsSection from "./sections/TestimonialsSection"
 import FAQSection from "./sections/FAQSection"
 import ClientsSection from "./sections/ClientsSection"
 import FinalCTASection from "./sections/FinalCTASection"
+import ContactSection from "./sections/ContactSection"
 
 export default function HomePage() {
 	const [stats, setStats] = useState<PublicStats | null>(null)
@@ -45,6 +46,7 @@ export default function HomePage() {
 			<FAQSection />
 			<ClientsSection />
 			<FinalCTASection />
+			<ContactSection />
 			<Footer />
 			<FloatingWhatsApp />
 		</div>

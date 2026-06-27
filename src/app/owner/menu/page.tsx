@@ -98,7 +98,7 @@ export default function OwnerMenuPage() {
         <AlertCircle className="size-8 text-destructive/60" />
       </div>
       <p className="text-lg font-medium">{error}</p>
-      <Button variant="outline" size="sm" onClick={() => fetchCats()} className="rounded-xl gap-1.5">إعادة المحاولة</Button>
+      <Button variant="outline" size="sm" onClick={() => fetchCats()} className="rounded-sm gap-1.5">إعادة المحاولة</Button>
     </div>
   )
 
@@ -118,7 +118,7 @@ export default function OwnerMenuPage() {
       <div className="relative">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <input type="text" placeholder="ابحث في القائمة..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
+          className="          w-full h-11 pr-11 rounded-[4px] border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
       </div>
 
       {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}
@@ -151,10 +151,10 @@ export default function OwnerMenuPage() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="size-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="size-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="size-4" /></Button>
+                  <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-sm" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-sm" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-sm text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="size-4" /></Button>
                   <ChevronDown className={cn("size-5 text-muted-foreground transition-transform duration-300 mr-1", expandedCat === cat.id && "rotate-180")} />
                 </div>
               </div>
@@ -207,8 +207,8 @@ export default function OwnerMenuPage() {
         <DialogContent className="rounded-md">
           <DialogHeader><DialogTitle>{catEditing ? "تعديل تصنيف" : "إضافة تصنيف"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div><label className="text-sm font-medium">الاسم</label><input value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} placeholder="مشروبات ساخنة" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 focus-visible:border-orange" /></div>
-            <div><label className="text-sm font-medium">الاسم بالإنجليزية</label><input value={catForm.nameAr} onChange={e => setCatForm({...catForm, nameAr: e.target.value})} placeholder="Hot Drinks" className="w-full h-11 rounded-xl border border-border/30 px-4 text-sm outline-none mt-1.5 text-left" dir="ltr" /></div>
+            <div><label className="text-sm font-medium">الاسم</label><input value={catForm.name} onChange={e => setCatForm({...catForm, name: e.target.value})} placeholder="مشروبات ساخنة" className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 focus-visible:border-orange" /></div>
+            <div><label className="text-sm font-medium">الاسم بالإنجليزية</label><input value={catForm.nameAr} onChange={e => setCatForm({...catForm, nameAr: e.target.value})} placeholder="Hot Drinks" className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 text-left" dir="ltr" /></div>
             <div><label className="text-sm font-medium">أيقونة</label>
               <div className="flex flex-wrap gap-2 mt-1.5">
                 {CATEGORY_ICONS.map(iconName => {
@@ -216,7 +216,7 @@ export default function OwnerMenuPage() {
                   if (!IconComp) return null;
                   return (
                     <button key={iconName} type="button" onClick={() => setCatForm({...catForm, icon: iconName})}
-                      className={cn("size-10 rounded-xl flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-orange bg-orange-muted dark:bg-orange-muted scale-110" : "border-border/30 hover:border-orange/30")}>
+                      className={cn("size-10 rounded-[4px] flex items-center justify-center border transition-all", catForm.icon === iconName ? "border-orange bg-orange-muted dark:bg-orange-muted scale-110" : "border-border/30 hover:border-orange/30")}>
                       <IconComp className="size-5" />
                     </button>
                   );
@@ -225,8 +225,8 @@ export default function OwnerMenuPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-2">
-            <Button variant="outline" onClick={() => setCatDialog(false)} className="rounded-xl">إلغاء</Button>
-            <Button variant="orange" onClick={saveCat} className="rounded-md">{catEditing ? "تحديث" : "إضافة"}</Button>
+            <Button variant="outline" onClick={() => setCatDialog(false)} className="rounded-sm">إلغاء</Button>
+            <Button variant="orange" onClick={saveCat} className="rounded-sm">{catEditing ? "تحديث" : "إضافة"}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -241,8 +241,8 @@ export default function OwnerMenuPage() {
             <DialogDescription>هل أنت متأكد من حذف &ldquo;{deleteTarget?.name}&rdquo;؟ هذا الإجراء لا يمكن التراجع عنه.</DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-xl">إلغاء</Button>
-            <Button variant="destructive" onClick={delTarget} className="rounded-xl">حذف</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-sm">إلغاء</Button>
+            <Button variant="destructive" onClick={delTarget} className="rounded-sm">حذف</Button>
           </div>
         </DialogContent>
       </Dialog>

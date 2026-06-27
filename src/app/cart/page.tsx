@@ -110,13 +110,13 @@ export default function CartPage() {
       <>
       <Header />
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 px-4 text-center animate-fade-in">
-        <div className="size-16 rounded-md bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
+        <div className="size-16 rounded-[4px] bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
           <ShoppingCart className="size-12 text-muted-foreground" />
         </div>
         <h2 className="text-2xl font-bold">السلة فارغة</h2>
         <p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
         <Link href="/menu">
-          <Button size="lg" className="rounded-xl px-8 gap-2">
+          <Button size="lg" className="rounded-md px-8 gap-2">
             <ArrowLeft className="size-4" />
             العودة إلى القائمة
           </Button>
@@ -225,23 +225,23 @@ export default function CartPage() {
               </div>
               <div className="flex items-center gap-1.5">
                 <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
+                  className="size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
                   <Minus className="size-3.5" />
                 </button>
                 <span className="w-10 text-center font-bold tabular-nums text-lg">{toArabicNumber(item.quantity)}</span>
                 <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
+                  className="size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
                   <Plus className="size-3.5" />
                 </button>
                 <button type="button" onClick={() => removeItem(item.id)}
-                  className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all mr-1 active:scale-90">
+                  className="size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all mr-1 active:scale-90">
                   <Trash2 className="size-3.5" />
                 </button>
               </div>
             </div>
             <input type="text" placeholder="ملاحظات للصنف..." value={item.notes}
               onChange={(e) => updateNotes(item.id, e.target.value)}
-              className="w-full h-9 rounded-xl border border-input bg-transparent px-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
+              className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
           </div>
         ))}
       </div>
@@ -253,7 +253,7 @@ export default function CartPage() {
         </h2>
         <textarea placeholder="أي ملاحظات للطلب..." value={notes}
           onChange={(e) => setOrderNotes(e.target.value)} rows={2}
-          className="w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 resize-none" />
+          className="w-full rounded-[4px] border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 resize-none" />
       </div>
 
       {/* Customer info */}
@@ -267,13 +267,13 @@ export default function CartPage() {
             <label htmlFor="cart-name" className="block text-xs text-muted-foreground mb-1.5">الاسم</label>
             <input id="cart-name" type="text" dir="auto" placeholder="الاسم (اختياري)" maxLength={30}
               value={customerName} onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full h-11 rounded-xl border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
+              className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
           </div>
           <div>
             <label htmlFor="cart-phone" className="block text-xs text-muted-foreground mb-1.5">رقم الهاتف</label>
             <input id="cart-phone" type="tel" dir="auto" placeholder="رقم الهاتف (اختياري)" maxLength={15}
               value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)}
-              className="w-full h-11 rounded-xl border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
+              className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
           </div>
         </div>
       </div>
@@ -372,8 +372,8 @@ export default function CartPage() {
             )}
           </div>
           <div className="flex gap-2 p-5 pt-0">
-            <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowPreview(false)}>تعديل</Button>
-            <Button className="flex-1 rounded-xl gap-2" onClick={handleCheckout} disabled={isSubmitting}>
+            <Button variant="outline" className="flex-1 rounded-sm" onClick={() => setShowPreview(false)}>تعديل</Button>
+            <Button className="flex-1 rounded-sm gap-2" onClick={handleCheckout} disabled={isSubmitting}>
               {isSubmitting ? <><Loader2 className="size-4 animate-spin" /> جاري...</> : <><MessageCircle className="size-4" /> تأكيد وإرسال</>}
             </Button>
           </div>

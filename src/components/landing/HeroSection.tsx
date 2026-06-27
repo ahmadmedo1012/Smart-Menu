@@ -61,12 +61,12 @@ export default function HeroSection() {
 				>
 					<Link href="/subscribe">
 						<Button size="lg" className="text-sm sm:text-base">
-							إنشى قائمتك مجانا <ArrowLeft className="me-1.5 size-4 sm:size-5" />
+							إنشى قائمتك مجانا <ArrowLeft className="size-4 sm:size-5" />
 						</Button>
 					</Link>
 					<Link href="https://wa.me/218911111111" target="_blank" rel="noopener noreferrer">
 						<Button variant="outline" size="lg" className="text-sm sm:text-base">
-							<MessageCircle className="me-1.5 size-4 sm:size-5" />
+							<MessageCircle className="size-4 sm:size-5" />
 							تواصل عبر واتساب
 						</Button>
 					</Link>

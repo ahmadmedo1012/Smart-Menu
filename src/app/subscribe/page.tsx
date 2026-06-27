@@ -218,7 +218,7 @@ function SubscribeContent() {
                       </div>
                     )}
                     <div className={cn(
-                      "size-10 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg",
+                      "size-10 rounded-sm bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg",
                       PLAN_GRADIENTS[i]
                     )}>
                       <Icon className="size-5 text-white" />
@@ -247,7 +247,7 @@ function SubscribeContent() {
             <div className="text-center">
               <Button
                 size="lg"
-                className="px-10 h-14 text-lg rounded-xl"
+                className="px-10 h-14 text-lg rounded-sm"
                 disabled={!selectedPlan}
                 onClick={() => setStep("form")}
               >
@@ -269,7 +269,7 @@ function SubscribeContent() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "size-10 rounded-xl bg-gradient-to-br flex items-center justify-center",
+                      "size-10 rounded-[4px] bg-gradient-to-br flex items-center justify-center",
                       PLAN_GRADIENTS[plans.findIndex(p => p.id === currentPlan.id)]
                     )}>
                       {(() => { const Icon = PLAN_ICONS[plans.findIndex(p => p.id === currentPlan.id)] || Sparkles; return <Icon className="size-5 text-white" />; })()}
@@ -299,7 +299,7 @@ function SubscribeContent() {
                     value={form.name}
                     onChange={(e) => { setForm({ ...form, name: e.target.value }); setSubmitted(false); }}
                     placeholder="مقهى الواحة"
-                    className={cn("h-11 rounded-xl mt-1.5", fieldError("name") && "border-destructive ring-1 ring-destructive/30")}
+                    className={cn("h-11 mt-1.5", fieldError("name") && "border-destructive ring-1 ring-destructive/30")}
                     aria-invalid={fieldError("name") || undefined}
                   />
                   {fieldError("name") && <p className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>}
@@ -307,14 +307,14 @@ function SubscribeContent() {
                 <div>
                   <Label>الرابط المختصر *</Label>
                   <div className="flex items-center mt-1.5">
-                    <span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-e-xl border border-s-0 border-input flex items-center shrink-0">
+                    <span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
                       /menu/
                     </span>
                     <Input
                       value={form.slug}
                       onChange={(e) => { setForm({ ...form, slug: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase() }); setSubmitted(false); }}
                       placeholder="al-waha-cafe"
-                      className={cn("h-11 rounded-s-none rounded-e-xl text-left", fieldError("slug") && "border-destructive ring-1 ring-destructive/30")}
+                      className={cn("h-11 rounded-[4px] -me-[2px] text-left", fieldError("slug") && "border-destructive ring-1 ring-destructive/30")}
                       dir="ltr"
                       aria-invalid={fieldError("slug") || undefined}
                     />
@@ -330,7 +330,7 @@ function SubscribeContent() {
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="مقهى ومطعم يقدم أشهى المشروبات..."
-                  className="h-11 rounded-xl mt-1.5"
+                  className="h-11 mt-1.5"
                 />
               </div>
 
@@ -342,7 +342,7 @@ function SubscribeContent() {
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     placeholder="218911111111"
-                    className="h-11 rounded-xl mt-1.5 text-left"
+                    className="h-11 mt-1.5 text-left"
                     dir="ltr"
                   />
                 </div>
@@ -350,9 +350,9 @@ function SubscribeContent() {
                   <Label>رقم واتساب</Label>
                   <Input
                     value={form.whatsapp}
-                    onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+                    onChange={(e) => { setForm({ ...form, whatsapp: e.target.value }) }}
                     placeholder="218911111111"
-                    className="h-11 rounded-xl mt-1.5 text-left"
+                    className="h-11 mt-1.5 text-left"
                     dir="ltr"
                   />
                 </div>
@@ -376,7 +376,7 @@ function SubscribeContent() {
                     value={form.username}
                     onChange={(e) => { setForm({ ...form, username: e.target.value }); setSubmitted(false); }}
                     placeholder="admin"
-                    className={cn("h-11 rounded-xl mt-1.5 text-left", fieldError("username") && "border-destructive ring-1 ring-destructive/30")}
+                    className={cn("h-11 mt-1.5 text-left", fieldError("username") && "border-destructive ring-1 ring-destructive/30")}
                     dir="ltr"
                     aria-invalid={fieldError("username") || undefined}
                   />
@@ -389,7 +389,7 @@ function SubscribeContent() {
                     value={form.password}
                     onChange={(e) => { setForm({ ...form, password: e.target.value }); setSubmitted(false); }}
                     placeholder="أدخل كلمة المرور"
-                    className={cn("h-11 rounded-xl mt-1.5", fieldError("password") && "border-destructive ring-1 ring-destructive/30")}
+                    className={cn("h-11 mt-1.5", fieldError("password") && "border-destructive ring-1 ring-destructive/30")}
                     aria-invalid={fieldError("password") || undefined}
                   />
                   {fieldError("password") && <p className="text-xs text-destructive mt-1">كلمة المرور مطلوبة (4 أحرف على الأقل)</p>}
@@ -422,7 +422,7 @@ function SubscribeContent() {
               )}
 
               <Button
-                className="w-full h-14 text-base font-semibold rounded-xl mt-4"
+                className="w-full h-14 text-base font-semibold rounded-sm mt-4"
                 size="lg"
                 onClick={handleSubmit}
                 disabled={!isFormValid || submitting}

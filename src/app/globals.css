@@ -281,7 +281,7 @@
 :focus:not(:focus-visible) { outline: none; }
 
 /* ── Glass utilities ── */
-.glass {
+.glass-card, .glass {
 	background: var(--glass-bg);
 	backdrop-filter: blur(16px) saturate(1.2);
 	-webkit-backdrop-filter: blur(16px) saturate(1.2);
@@ -336,6 +336,18 @@
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
+
+/* ── Marquee (ClientsSection) ── */
+@keyframes marquee {
+	0% { transform: translateX(0); }
+	100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+	animation: marquee 30s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee { animation: none; }
+}
 
 /* ── Card premium ── */
 .card-premium {

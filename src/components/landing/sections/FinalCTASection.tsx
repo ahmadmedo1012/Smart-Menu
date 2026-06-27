@@ -36,7 +36,7 @@ export default function FinalCTASection() {
 					<div className="flex gap-4 justify-center flex-wrap">
 						<Link href="/subscribe">
 							<Button size="lg">
-								ابدأ مجاناً <ArrowLeft className="ms-2 size-4 sm:size-5" />
+								ابدأ مجاناً <ArrowLeft className="size-4 sm:size-5" />
 							</Button>
 						</Link>
 						<Link href="/pricing">
