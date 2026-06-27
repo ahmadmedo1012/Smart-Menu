@@ -2,7 +2,10 @@
 
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+
+const springIcon = { type: "spring" as const, stiffness: 250, damping: 18, mass: 0.9 }
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { setTheme, resolvedTheme } = useTheme()
@@ -17,54 +20,63 @@ export function ThemeToggle({ className }: { className?: string }) {
   }
 
   return (
-    <button
+    <motion.button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "الوضع النهاري" : "الوضع الليلي"}
       className={cn(
         "relative size-8 rounded-full",
         "bg-card border border-border",
-        "transition-all duration-200",
         "hover:bg-orange-muted hover:border-orange/30",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
-        "active:scale-95",
         "cursor-pointer",
         "flex items-center justify-center",
+        "overflow-hidden",
         className
       )}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       <div className="relative size-4">
-        {/* Sun */}
-        <svg
-          className={cn(
-            "absolute inset-0 size-4 transition-all duration-300",
-            isDark ? "opacity-0 rotate-90 scale-0" : "opacity-100 rotate-0 scale-100"
+        <AnimatePresence mode="wait" initial={false}>
+          {isDark ? (
+            <motion.svg
+              key="moon"
+              viewBox="0 0 24 24"
+              className="absolute inset-0 size-4 text-foreground"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ rotate: -90, scale: 0, opacity: 0 }}
+              animate={{ rotate: 0, scale: 1, opacity: 1 }}
+              exit={{ rotate: 90, scale: 0, opacity: 0 }}
+              transition={springIcon}
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </motion.svg>
+          ) : (
+            <motion.svg
+              key="sun"
+              viewBox="0 0 24 24"
+              className="absolute inset-0 size-4 text-foreground"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ rotate: 90, scale: 0, opacity: 0 }}
+              animate={{ rotate: 0, scale: 1, opacity: 1 }}
+              exit={{ rotate: -90, scale: 0, opacity: 0 }}
+              transition={springIcon}
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </motion.svg>
           )}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-        {/* Moon */}
-        <svg
-          className={cn(
-            "absolute inset-0 size-4 transition-all duration-300",
-            isDark ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-0"
-          )}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
+        </AnimatePresence>
       </div>
-    </button>
+    </motion.button>
   )
 }
