@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Smartphone, BarChart3, Shield, Check } from "lucide-react";
+import { Smartphone, BarChart3, Shield, QrCode, Gift, MessageCircle, Check } from "lucide-react";
 
 const EASE = [0.16, 1, 0.2, 1] as const;
 
@@ -14,14 +14,34 @@ const fadeUp = (delay: number) => ({
 
 const features = [
 	{
-		title: "طرق طلب مختلفة",
+		title: "سرعة و سلاسة",
 		icon: Smartphone,
-		items: ["الحجز و الانتظار", "خاصية استدعاء النادل", "الاستلام في وقت معين", "الاستلام بالسيارة أو بالفرع"],
+		desc: "تجربة تصفح سريعة وسلسة على جميع الأجهزة",
 	},
 	{
-		title: "تحكم كامل وبكل سهولة",
+		title: "طرق طلب متعددة",
+		icon: MessageCircle,
+		desc: "واتساب - استلام - توصيل - حجز وانتظار",
+	},
+	{
+		title: "تسجيل العملاء",
+		icon: QrCode,
+		desc: "تسجيل دخول العملاء برقم الجوال بخطوة واحدة",
+	},
+	{
+		title: "تحكم كامل",
 		icon: BarChart3,
-		items: ["لوحة تحكم باللغة العربية", "مطعمك مع عميلك في كل مكان", "دعم طلبات الواتساب", "تسجيل العملاء من خلال رقم الجوال"],
+		desc: "لوحة تحكم باللغة العربية — تعديل وإدارة بسهولة",
+	},
+	{
+		title: "QR كود مخصص",
+		icon: QrCode,
+		desc: "QR مخصص بألوان وشعار مطعمك",
+	},
+	{
+		title: "برنامج ولاء",
+		icon: Gift,
+		desc: "برنامج ولاء ومكافآت لعملائك الأوفياء",
 	},
 ];
 
@@ -37,36 +57,18 @@ export default function FeaturesSection() {
 						ميزات متكاملة لمطعمك
 					</motion.h2>
 				</div>
-				{/* 2-column zigzag — avoids taste-skill 3-equal-card ban */}
-				<div className="space-y-6">
+				<div className="grid md:grid-cols-3 gap-6 stagger-children">
 					{features.map((feat, i) => (
 						<motion.div
 							key={i}
 							{...fadeUp(i + 2)}
-							className="grid md:grid-cols-2 gap-8 items-start rounded-md bg-card border border-border p-8 hover:border-orange/30 transition-all duration-300"
-							style={{ direction: i % 2 === 0 ? "rtl" : "ltr" }}
+							className="rounded-md bg-card border border-border p-8 hover:border-orange/30 hover:-translate-y-1 transition-all duration-300"
 						>
-							<div className="flex items-start gap-4" style={{ direction: "rtl" }}>
-								<div className="size-12 rounded-md bg-orange-muted flex items-center justify-center shrink-0">
-									<feat.icon className="size-6 text-orange" />
-								</div>
-								<div>
-									<h3 className="text-xl font-medium mb-3">{feat.title}</h3>
-									<ul className="space-y-3">
-										{feat.items.map((item, j) => (
-											<li key={j} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-												<Check className="size-4 text-orange mt-0.5 shrink-0" />
-												{item}
-											</li>
-										))}
-									</ul>
-								</div>
+							<div className="size-12 rounded-md bg-orange-muted flex items-center justify-center mb-4">
+								<feat.icon className="size-6 text-orange" />
 							</div>
-							<div className="rounded-md bg-gradient-to-br from-orange/[0.03] to-transparent border border-border/50 p-6 flex items-center justify-center min-h-[120px]">
-								<p className="text-sm text-muted-foreground/60 text-center">
-									{i === 0 ? "واجهة طلب ذكية تدعم جميع قنوات البيع" : "إدارة متكاملة من لوحة تحكم واحدة"}
-								</p>
-							</div>
+							<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
+							<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
 						</motion.div>
 					))}
 				</div>
