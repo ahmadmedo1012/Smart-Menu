@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Building2 } from "lucide-react";
 import CircularTestimonials from "@/components/ui/circular-testimonials";
 
-const EASE = [0.16, 1, 0.2, 1] as const;
+/* ── Premium tokens ── */
+const VELVET = [0.32, 0.72, 0, 1] as const;
 
-/** Real restaurants/cafes using the platform — testimonials with authentic data */
+/** Real restaurants/cafes using the platform */
 const CLIENT_TESTIMONIALS = [
   {
     quote:
@@ -46,36 +48,80 @@ const CLIENT_TESTIMONIALS = [
 
 export default function ClientsSection() {
   return (
-    <section className="relative py-16 sm:py-20 overflow-hidden">
-      <div className="max-w-[1220px] mx-auto px-4 sm:px-6">
-        <div className="text-center mb-10 sm:mb-12">
+    <section className="relative py-28 sm:py-36 overflow-hidden">
+      {/* ── Ambient glow ── */}
+      <div
+        className="pointer-events-none absolute top-1/2 right-1/4 -translate-y-1/2 size-[50vmin] rounded-full"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, oklch(0.68 0.19 45 / 0.06) 0%, transparent 70%)",
+          filter: "blur(100px)",
+        }}
+      />
+
+      <div className="relative z-10 max-w-[1220px] mx-auto px-4 sm:px-6">
+        {/* ── Heading block ── */}
+        <div className="text-center mb-16 sm:mb-20">
+          {/* Eyebrow badge */}
+          <motion.span
+            initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: VELVET }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-5"
+          >
+            <Building2 className="size-3" />
+            منصتنا
+          </motion.span>
+
           <motion.h2
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="text-xl sm:text-2xl md:text-3xl font-medium"
+            transition={{ duration: 0.7, delay: 0.08, ease: VELVET }}
+            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-[520] leading-[1.2] tracking-[-0.02em]"
           >
             عملاؤنا
           </motion.h2>
-          <div className="mx-auto mt-3 w-12 h-0.5 rounded-full bg-orange/40" />
-          <p className="text-sm text-muted-foreground mt-4 max-w-xl mx-auto">
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2, ease: VELVET }}
+            className="mx-auto mt-5 w-12 h-[2px] rounded-full bg-orange/50 origin-center"
+          />
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.25, ease: VELVET }}
+            className="text-sm text-muted-foreground/70 mt-5 max-w-lg mx-auto leading-relaxed"
+          >
             آلاف المطاعم والمقاهي تثق في منصتنا الرقمية
-          </p>
+          </motion.p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
-        >
-          <CircularTestimonials
-            testimonials={CLIENT_TESTIMONIALS}
-            autoplay={true}
-            autoplayInterval={4500}
-          />
-        </motion.div>
+        {/* ── Edge-fade masks ── */}
+        <div className="relative">
+          {/* left fade */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-24 z-10 bg-gradient-to-r from-background to-transparent" />
+          {/* right fade */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-24 z-10 bg-gradient-to-l from-background to-transparent" />
+
+          <motion.div
+            initial={{ opacity: 0, y: 32, filter: "blur(6px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 1, delay: 0.15, ease: VELVET }}
+          >
+            <CircularTestimonials
+              testimonials={CLIENT_TESTIMONIALS}
+              autoplay={true}
+              autoplayInterval={4500}
+            />
+          </motion.div>
+        </div>
       </div>
     </section>
   );
