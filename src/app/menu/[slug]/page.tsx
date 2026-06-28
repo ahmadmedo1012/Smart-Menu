@@ -50,7 +50,12 @@ export default async function PublicMenuPage({
   const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
   if (!restaurant) notFound();
 
-  const [categories, items] = await Promise.all([
+  /* eslint-disable react-hooks/purity */
+  const SEVEN_DAYS_MS = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const SEVEN_DAYS_AGO = new Date(SEVEN_DAYS_MS);
+  /* eslint-enable react-hooks/purity */
+
+  const [categories, items, popularData] = await Promise.all([
     prisma.menuCategory.findMany({
       where: { isActive: true, restaurantId: restaurant.id },
       orderBy: { sortOrder: "asc" },
@@ -60,9 +65,30 @@ export default async function PublicMenuPage({
       include: { category: true },
       orderBy: { sortOrder: "asc" },
     }),
+    prisma.orderItem.groupBy({
+      by: ["itemId"],
+      _sum: { quantity: true },
+      where: {
+        order: {
+          restaurantId: restaurant.id,
+          createdAt: { gte: SEVEN_DAYS_AGO },
+          status: { not: "cancelled" },
+        },
+      },
+      orderBy: { _sum: { quantity: "desc" } },
+      take: 10,
+    }),
   ]);
+
+  const popularIds = new Set(popularData.map((o) => o.itemId));
+
   const serializedItems = items.map(({ price, discountedPrice, ...rest }) => ({
-    ...rest, price: Number(price), discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
+    ...rest,
+    price: Number(price),
+    discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
+    isPopular: popularIds.has(rest.id),
+    isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
+    createdAt: rest.createdAt.toISOString(),
   }));
 
   const hasContact = restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address;

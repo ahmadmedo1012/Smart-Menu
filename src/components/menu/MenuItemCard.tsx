@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, memo, createElement } from "react";
+import { useState, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toArabicNumber } from "@/lib/format";
-import { Coffee, Pizza, Beef, UtensilsCrossed, Fish, Apple, CupSoda, Milk, IceCream, Plus } from "lucide-react";
+import { Plus, Minus, UtensilsCrossed, Star } from "lucide-react";
 
 export type MenuItemProp = {
   id: number;
@@ -14,93 +15,23 @@ export type MenuItemProp = {
   discountedPrice: number | null;
   image: string;
   categoryId: number;
+  isPopular?: boolean;
+  isNew?: boolean;
+  createdAt?: string;
 };
-
-const COLORS = [
-  "from-red-400 to-red-600",
-  "from-orange to-orange/80",
-  "from-amber-500 to-amber-700",
-  "from-orange to-orange/80",
-  "from-rose-500 to-rose-700",
-  "from-amber-600 to-amber-800",
-  "from-red-500 to-red-700",
-  "from-orange/80 to-orange/60",
-  "from-yellow-500 to-yellow-700",
-  "from-stone-500 to-stone-700",
-];
-
-const BGS = [
-  "bg-red-50 dark:bg-red-950/20",
-  "bg-orange/10 dark:bg-orange/10",
-  "bg-green-50 dark:bg-green-950/20",
-  "bg-orange/10 dark:bg-orange/10",
-  "bg-purple-50 dark:bg-purple-950/20",
-  "bg-teal-50 dark:bg-teal-950/20",
-  "bg-pink-50 dark:bg-pink-950/20",
-  "bg-indigo-50 dark:bg-indigo-950/20",
-  "bg-sky-50 dark:bg-sky-950/20",
-  "bg-cyan-50 dark:bg-cyan-950/20",
-];
-
-type IconComponent = typeof import("lucide-react").Coffee;
-
-const FOOD_ICON_MAP: [RegExp, IconComponent][] = [
-  [/قهوة|coffee|إسبريسو|espresso|كابتشينو|cappuccino|نسكافيه| latte/, Coffee],
-  [/شاي|tea|lipton/, CupSoda],
-  [/عصير|juice|ليموناضة|lemonade|سموثي|smoothie|موهيتو|mojito/, CupSoda],
-  [/مشروب|drink|كولا|cola|بيبسي|pepsi|آيس|ice/, CupSoda],
-  [/بيتزا|pizza/, Pizza],
-  [/برجر|burger|ساندويتش|sandwich/, Beef],
-  [/بطاطس|fries|potato/, UtensilsCrossed],
-  [/سلطة|salad/, Apple],
-  [/تشيز|cheese|كيك|cake|حلو|dessert/, IceCream],
-  [/كنافة|kunafa/, IceCream],
-  [/كريب|crepe/, IceCream],
-  [/بسبوسة|basbousa/, IceCream],
-  [/شربة|soup/, UtensilsCrossed],
-  [/بازين|bazeen/, UtensilsCrossed],
-  [/مبكبكة|mbakbaka/, UtensilsCrossed],
-  [/كُسكُسي|couscous/, UtensilsCrossed],
-  [/بريك|brik/, UtensilsCrossed],
-  [/سوشي|sushi/, Fish],
-  [/فطائر|pastry/, UtensilsCrossed],
-  [/لحم|meat|steak/, Beef],
-  [/دجاج|chicken/, Beef],
-  [/سمك|fish/, Fish],
-  [/فواكه|fruit/, Apple],
-  [/مثلجات|ice cream|آيس كريم/, IceCream],
-  [/خبز|bread/, UtensilsCrossed],
-  [/جبن|cheese/, Milk],
-  [/بيض|egg/, UtensilsCrossed],
-  [/مقبلات|appetizer/, UtensilsCrossed],
-  [/وجبة|meal|plate/, UtensilsCrossed],
-];
-
-function getFoodIcon(name: string): IconComponent {
-  const lower = name.toLowerCase();
-  for (const [pattern, icon] of FOOD_ICON_MAP) {
-    if (pattern.test(lower)) return icon;
-  }
-  return UtensilsCrossed;
-}
-
-function Placeholder({ name }: { name: string }) {
-  const idx = name.charCodeAt(0) % COLORS.length;
-  const Icon = getFoodIcon(name);
-  const el = <div className={`flex size-full items-center justify-center bg-gradient-to-br ${COLORS[idx]}`}>
-    {createElement(Icon, { className: "size-8 md:size-10 text-white/80 drop-shadow-sm" })}
-  </div>;
-  return el;
-}
 
 const MenuItemCard = memo(function MenuItemCard({
   item,
   onOrder,
   onAddToCart,
+  onDecrementCart,
+  cartQty = 0,
 }: {
   item: MenuItemProp;
   onOrder: (item: MenuItemProp) => void;
   onAddToCart: (item: MenuItemProp) => void;
+  onDecrementCart?: (item: MenuItemProp) => void;
+  cartQty?: number;
 }) {
   const displayName = item.nameAr || item.name;
   const displayDesc = item.descriptionAr || item.description;
@@ -108,18 +39,16 @@ const MenuItemCard = memo(function MenuItemCard({
   const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const colorIdx = displayName.charCodeAt(0) % COLORS.length;
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98] border border-border/30 hover:border-orange/30 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
-      <div className={`absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${BGS[colorIdx]}`} />
-
+      {/* Image container */}
       <div className="relative shrink-0 size-24 md:size-28 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
         {item.image && !imageError ? (
           <>
@@ -136,9 +65,43 @@ const MenuItemCard = memo(function MenuItemCard({
             />
           </>
         ) : (
-          <Placeholder name={displayName} />
+          <div className="flex size-full items-center justify-center bg-muted">
+            <UtensilsCrossed className="size-7 md:size-8 text-muted-foreground/30" />
+          </div>
         )}
 
+        {/* Badges — top end (left in RTL) */}
+        <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
+          <AnimatePresence>
+            {item.isPopular && (
+              <motion.span
+                key="popular"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-amber-500 text-white shadow-lg flex items-center gap-0.5"
+              >
+                <Star className="size-2.5 fill-current" />
+                الأكثر طلباً
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {item.isNew && !item.isPopular && (
+              <motion.span
+                key="new"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 25, delay: 0.1 }}
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-emerald-500 text-white shadow-lg"
+              >
+                🆕 جديد
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Discount badge — top start (right in RTL) */}
         {hasDiscount && (
           <div className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-lg">
             -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
@@ -146,6 +109,7 @@ const MenuItemCard = memo(function MenuItemCard({
         )}
       </div>
 
+      {/* Content */}
       <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-between gap-1">
         <div>
           <div className="flex items-start justify-between gap-2 mb-0.5">
@@ -177,17 +141,62 @@ const MenuItemCard = memo(function MenuItemCard({
             <span className="text-[11px] text-muted-foreground">د.ل</span>
           </div>
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(item);
-            }}
-            aria-label={`إضافة ${displayName} إلى السلة`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-medium bg-primary/5 text-primary border border-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-lg hover:shadow-primary/25 active:scale-95"
-          >
-            <Plus className="size-3" />
-            أضف
-          </button>
+          {/* Animated CTA / Quantity counter */}
+          <div className="min-w-[88px]">
+            <AnimatePresence mode="wait">
+              {cartQty === 0 ? (
+                <motion.button
+                  key="cta"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToCart(item);
+                  }}
+                  aria-label={`إضافة ${displayName} إلى السلة`}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange-500 text-white border border-orange-500 transition-all duration-300 hover:bg-orange-600 hover:border-orange-600 hover:shadow-lg hover:shadow-orange/25 active:scale-95"
+                >
+                  <Plus className="size-3.5" />
+                  أضف
+                </motion.button>
+              ) : (
+                <motion.div
+                  key="counter"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center gap-0 rounded-sm overflow-hidden border border-orange-500 bg-orange-500"
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDecrementCart?.(item);
+                    }}
+                    aria-label={`إنقاص كمية ${displayName}`}
+                    className="flex items-center justify-center size-7 md:size-8 text-white hover:bg-orange-600 transition-colors active:bg-orange-700"
+                  >
+                    <Minus className="size-3" />
+                  </button>
+                  <span className="flex-1 min-w-[2ch] text-center text-xs md:text-sm font-bold text-white bg-orange-500 tabular-nums leading-none py-1.5">
+                    {toArabicNumber(cartQty)}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddToCart(item);
+                    }}
+                    aria-label={`زيادة كمية ${displayName}`}
+                    className="flex items-center justify-center size-7 md:size-8 text-white hover:bg-orange-600 transition-colors active:bg-orange-700"
+                  >
+                    <Plus className="size-3" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>

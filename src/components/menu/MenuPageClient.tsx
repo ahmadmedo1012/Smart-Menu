@@ -71,6 +71,17 @@ export default function MenuPageClient({
     );
   };
 
+  const handleDecrement = (item: MenuItemProp) => {
+    const existing = cart.items.find((i) => i.itemId === item.id);
+    if (existing) {
+      cart.updateQuantity(existing.id, existing.quantity - 1);
+    }
+  };
+
+  const getCartQty = (itemId: number) => {
+    return cart.items.find((i) => i.itemId === itemId)?.quantity ?? 0;
+  };
+
   const handleScroll = useCallback(() => {
     setShowFloatingWa(window.scrollY > 300);
   }, []);
@@ -285,7 +296,7 @@ export default function MenuPageClient({
               className="animate-reveal"
               style={{ animationDelay: `${(index % 6) * 60}ms` }}
             >
-              <MenuItemCard item={item} onOrder={setOrderItem} onAddToCart={handleQuickAdd} />
+              <MenuItemCard item={item} onOrder={setOrderItem} onAddToCart={handleQuickAdd} onDecrementCart={handleDecrement} cartQty={getCartQty(item.id)} />
             </div>
           ))}
         </div>
