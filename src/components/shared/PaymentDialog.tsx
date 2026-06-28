@@ -90,17 +90,31 @@ export default function PaymentDialog({
     }
   };
 
-  // Countdown timer + poll for admin approval
+  // Countdown tick every 1s + poll for admin approval every 5s
   useEffect(() => {
     if (step !== "waiting") return;
 
-    // Poll for status change every 5s
+    // Decrement countdown every second
+    const tick = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(tick);
+          if (pollRef.current) clearInterval(pollRef.current);
+          setStep("success");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Poll for admin approval every 5s
     if (paymentId) {
       pollRef.current = setInterval(async () => {
         try {
           const res = await fetch(`/api/subscriptions/status?id=${paymentId}`);
           const json = await res.json();
           if (json.data?.status === "verified") {
+            clearInterval(tick);
             if (pollRef.current) clearInterval(pollRef.current);
             toast.success("✅ تم تأكيد الدفع! جاري تحويلك...");
             onOpenChange(false);
@@ -110,13 +124,8 @@ export default function PaymentDialog({
       }, 5000);
     }
 
-    // Countdown
-    const t = setTimeout(() => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      setStep("success");
-    }, 30000);
     return () => {
-      clearTimeout(t);
+      clearInterval(tick);
       if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [step, paymentId, onOpenChange, onSuccess]);
@@ -305,23 +314,46 @@ export default function PaymentDialog({
             </>
           )}
 
-          {/* Waiting step */}
+          {/* Waiting step — professional animated countdown */}
           {step === "waiting" && (
-            <div className="text-center py-6 space-y-4">
-              <div className="flex items-center justify-center">
-                <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
-                  <Timer className="size-8 text-orange animate-pulse" />
+            <div className="text-center py-6 space-y-5">
+              {/* Circular countdown */}
+              <div className="relative size-24 mx-auto">
+                <svg className="size-full -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50" cy="50" r="42"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="5"
+                    className="text-muted/30"
+                  />
+                  <circle
+                    cx="50" cy="50" r="42"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="5"
+                    strokeDasharray={`${2 * Math.PI * 42}`}
+                    strokeDashoffset={`${2 * Math.PI * 42 * (1 - countdown / 30)}`}
+                    strokeLinecap="round"
+                    className="text-orange transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-bold tabular-nums text-orange">{countdown}</span>
                 </div>
               </div>
-              <div className="text-lg font-bold tabular-nums">{countdown}</div>
               <p className="text-sm text-muted-foreground">
                 في انتظار تأكيد الدفع من الإدارة...
-                <br />
-                {provider === "libyana" ? "سيتم تأكيد اشتراكك تلقائياً" : "بعد التأكيد سيتم تحويلك تلقائياً"}
               </p>
-              <div className="w-full bg-muted rounded-full h-2">
+              {provider === "madar" && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  بعد التحويل، انتظر الموافقة من الإدارة
+                </p>
+              )}
+              {/* Pulse bar beneath */}
+              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="h-2 rounded-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-1000"
+                  className="h-full rounded-full bg-gradient-to-r from-orange to-orange/60 animate-pulse"
                   style={{ width: `${((30 - countdown) / 30) * 100}%` }}
                 />
               </div>

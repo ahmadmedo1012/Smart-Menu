@@ -1,7 +1,0 @@
-- generic [active] [ref=e1]:
-  - img
-  - button "العودة للأعلى":
-    - img
-  - paragraph [ref=e9]: جاري التحميل...
-  - region "Notifications alt+T"
-  - alert [ref=e10]
