@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ import {
 import { csrfFetch } from "@/lib/csrf-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Loader2, ShieldCheck, Smartphone, Copy, Phone } from "lucide-react";
+import { Loader2, ShieldCheck, Smartphone, Copy, Phone, Timer } from "lucide-react";
 
 const MADAR_PHONE = "0910089975";
 const LIBYANA_PHONE = "0942119637";
@@ -41,8 +41,11 @@ export default function PaymentDialog({
   const [provider, setProvider] = useState<Provider>("libyana");
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState(price);
-  const [step, setStep] = useState<"form" | "waiting">("form");
+  const [step, setStep] = useState<"form" | "waiting" | "success">("form");
+  const [countdown, setCountdown] = useState(30);
   const [submitting, setSubmitting] = useState(false);
+  const [paymentId, setPaymentId] = useState<number | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const providerPhone = provider === "libyana" ? LIBYANA_PHONE : MADAR_PHONE;
   const providerName = provider === "libyana" ? "ليبيانا" : "مدار";
@@ -77,7 +80,9 @@ export default function PaymentDialog({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "فشل إرسال طلب الدفع");
+      setPaymentId(json.data.id);
       setStep("waiting");
+      setCountdown(30);
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -85,31 +90,47 @@ export default function PaymentDialog({
     }
   };
 
-  // Libyana: auto-confirm after 5 seconds
+  // Countdown timer + poll for admin approval
   useEffect(() => {
-    if (step !== "waiting" || provider !== "libyana") return;
+    if (step !== "waiting") return;
+
+    // Poll for status change every 5s
+    if (paymentId) {
+      pollRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/subscriptions/status?id=${paymentId}`);
+          const json = await res.json();
+          if (json.data?.status === "verified") {
+            if (pollRef.current) clearInterval(pollRef.current);
+            toast.success("✅ تم تأكيد الدفع! جاري تحويلك...");
+            onOpenChange(false);
+            onSuccess();
+          }
+        } catch {}
+      }, 5000);
+    }
+
+    // Countdown
     const t = setTimeout(() => {
-      toast.success("تم تفعيل اشتراكك بنجاح");
-      onOpenChange(false);
-      onSuccess();
-    }, 5000);
-    return () => clearTimeout(t);
-  }, [step, provider, onOpenChange, onSuccess]);
+      if (pollRef.current) clearInterval(pollRef.current);
+      setStep("success");
+    }, 30000);
+    return () => {
+      clearTimeout(t);
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [step, paymentId, onOpenChange, onSuccess]);
 
-  // Madar: manual confirm
-  const handleConfirm = () => {
-    toast.success("تم تفعيل اشتراكك بنجاح");
-    onOpenChange(false);
-    onSuccess();
-  };
-
-  // reset on close
+  // Reset on close
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
         setStep("form");
+        setCountdown(30);
         setPhone("");
         setAmount(price);
+        setPaymentId(null);
+        if (pollRef.current) clearInterval(pollRef.current);
       }
       onOpenChange(open);
     },
@@ -284,31 +305,44 @@ export default function PaymentDialog({
             </>
           )}
 
-          {/* Waiting step — Libyana auto-confirm */}
-          {step === "waiting" && provider === "libyana" && (
+          {/* Waiting step */}
+          {step === "waiting" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
                 <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
-                  <Loader2 className="size-8 text-orange animate-spin" />
+                  <Timer className="size-8 text-orange animate-pulse" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">جاري تأكيد الدفع...</p>
+              <div className="text-lg font-bold tabular-nums">{countdown}</div>
+              <p className="text-sm text-muted-foreground">
+                في انتظار تأكيد الدفع من الإدارة...
+                <br />
+                {provider === "libyana" ? "سيتم تأكيد اشتراكك تلقائياً" : "بعد التأكيد سيتم تحويلك تلقائياً"}
+              </p>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div
+                  className="h-2 rounded-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-1000"
+                  style={{ width: `${((30 - countdown) / 30) * 100}%` }}
+                />
+              </div>
             </div>
           )}
 
-          {/* Waiting step — Madar manual confirm */}
-          {step === "waiting" && provider === "madar" && (
+          {/* Success step */}
+          {step === "success" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
                 <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
                   <ShieldCheck className="size-8 text-orange" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">تم الإرسال</p>
+              <p className="text-sm text-muted-foreground">
+                سيتم تفعيل اشتراكك بعد التحقق من الدفع
+              </p>
               <Button
                 variant="orange"
                 className="w-full h-12 text-base font-semibold rounded-xl"
-                onClick={handleConfirm}
+                onClick={() => { onOpenChange(false); onSuccess(); }}
               >
                 تم
               </Button>
