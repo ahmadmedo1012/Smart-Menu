@@ -191,7 +191,7 @@ export default function OwnerDashboard() {
     <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
       <div className="empty-state-icon"><AlertCircle className="size-6 text-destructive/60" /></div>
       <p className="text-base font-semibold">{error}</p>
-      <Button variant="outline" size="sm" onClick={() => load()} className="rounded-md">إعادة المحاولة</Button>
+      <Button variant="outline" size="sm" onClick={() => load()}>إعادة المحاولة</Button>
     </div>
   )
 
@@ -214,9 +214,9 @@ export default function OwnerDashboard() {
                 ابدأ بإضافة أصنافك في المنيو، ثم شارك الرابط مع زبائنك. أول طلب سيصل هنا مباشرة!
               </p>
               <div className="flex gap-2 flex-wrap">
-                <Link href="/owner/menu"><Button size="sm" className="rounded-md gap-1.5 text-xs bg-gradient-to-r from-orange to-orange/80"><ClipboardList className="size-3.5" /> أضف أصنافك</Button></Link>
-                <Link href="/owner/qr"><Button size="sm" variant="outline" className="rounded-md gap-1.5 text-xs"><QrCode className="size-3.5" /> احصل على QR</Button></Link>
-                <Link href={`/menu/${restaurant.slug}`} target="_blank"><Button size="sm" variant="outline" className="rounded-md gap-1.5 text-xs"><ExternalLink className="size-3.5" /> عرض المنيو</Button></Link>
+                <Link href="/owner/menu"><Button size="sm" className="gap-1.5 text-xs bg-gradient-to-r from-orange to-orange/80"><ClipboardList className="size-3.5" /> أضف أصنافك</Button></Link>
+                <Link href="/owner/qr"><Button size="sm" variant="outline" className="gap-1.5 text-xs"><QrCode className="size-3.5" /> احصل على QR</Button></Link>
+                <Link href={`/menu/${restaurant.slug}`} target="_blank"><Button size="sm" variant="outline" className="gap-1.5 text-xs"><ExternalLink className="size-3.5" /> عرض المنيو</Button></Link>
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <Link href={`/menu/${restaurant.slug}`} target="_blank">
-              <Button variant="outline" size="sm" className="gap-1.5 rounded-md text-xs">
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
                 <ExternalLink className="size-3.5" /> عرض المنيو
               </Button>
             </Link>
@@ -416,7 +416,7 @@ export default function OwnerDashboard() {
                     dir="ltr" style={{ direction: "ltr" }}>
                     {typeof window !== "undefined" ? `${window.location.origin}/menu/${restaurant.slug}` : `.../menu/${restaurant.slug}`}
                   </span>
-                  <Button size="sm" variant="outline" className="rounded-md h-8 text-xs gap-1.5" onClick={() => {
+                  <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => {
                     const url = `${window.location.origin}/menu/${restaurant.slug}`
                     navigator.clipboard.writeText(url).then(() => toast.success("تم نسخ الرابط"))
                   }}>
@@ -427,7 +427,7 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <Link href="/owner/qr">
-              <Button size="sm" className="rounded-md h-8 text-xs gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white">
+              <Button size="sm" className="h-8 text-xs gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white">
                 <QrCode className="size-3.5" />
                 عرض QR
               </Button>
@@ -445,7 +445,7 @@ export default function OwnerDashboard() {
               <h3 className="text-xs font-semibold">برنامج الولاء والإحالات</h3>
             </div>
             <Link href="/owner/loyalty">
-              <Button size="sm" className="gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white rounded-md text-xs shadow-sm h-8">
+              <Button size="sm" className="gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white text-xs shadow-sm h-8">
                 إدارة <ArrowLeft className="size-3" />
               </Button>
             </Link>

@@ -48,7 +48,7 @@ export default function NotFound() {
             const Icon = s.icon
             return (
               <Link key={s.href} href={s.href}>
-                <Button variant="outline" size="sm" className="rounded-full gap-2 h-10">
+                <Button variant="outline" size="sm" className="gap-2 h-10">
                   <Icon className="size-4" />
                   {s.label}
                 </Button>

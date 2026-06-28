@@ -99,7 +99,7 @@ export default function OwnerMenuPage() {
         <AlertCircle className="size-8 text-destructive/60" />
       </div>
       <p className="text-lg font-medium">{error}</p>
-      <Button variant="outline" size="sm" onClick={() => fetchCats()} className="rounded-sm gap-1.5">إعادة المحاولة</Button>
+      <Button variant="outline" size="sm" onClick={() => fetchCats()} className="gap-1.5">إعادة المحاولة</Button>
     </div>
   )
 
@@ -111,7 +111,7 @@ export default function OwnerMenuPage() {
           <h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
           <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
         </div>
-        <Button variant="orange" onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="rounded-md gap-2">
+        <Button variant="orange" onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)] }); setCatDialog(true) }} className="gap-2">
           <Plus className="size-4" /> تصنيف جديد
         </Button>
       </div>
@@ -129,7 +129,7 @@ export default function OwnerMenuPage() {
           </div>
           <p className="text-lg font-medium">{searchTerm ? "لا توجد نتائج" : "لا توجد تصنيفات"}</p>
           <p className="text-sm text-muted-foreground/60">{searchTerm ? "جرب كلمات بحث أخرى" : "أضف تصنيفاً جديداً لبدء بناء المنيو"}</p>
-          {!searchTerm && <Button variant="orange" onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="rounded-md gap-2"><Plus className="size-4" /> إضافة تصنيف</Button>}
+          {!searchTerm && <Button variant="orange" onClick={() => { setCatEditing(null); setCatForm({ name: "", nameAr: "", icon: "Package" }); setCatDialog(true) }} className="gap-2"><Plus className="size-4" /> إضافة تصنيف</Button>}
         </div>
       ) : (
         <div className="space-y-3">
@@ -151,9 +151,9 @@ export default function OwnerMenuPage() {
                   </div>
                 </div>
                   <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-sm" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="size-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-sm" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="size-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-sm text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10" onClick={e => { e.stopPropagation(); setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} title="إضافة صنف"><Plus className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10" onClick={e => { e.stopPropagation(); setCatEditing(cat); setCatForm({ name: cat.name, nameAr: cat.nameAr || "", icon: cat.icon }); setCatDialog(true) }} title="تعديل"><Pencil className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive" onClick={e => { e.stopPropagation(); setDeleteTarget({ type: "category", id: cat.id, name: cat.name }) }} title="حذف"><Trash2 className="size-4" /></Button>
                   <ChevronDown className={cn("size-5 text-muted-foreground transition-transform duration-300 mr-1", expandedCat === cat.id && "rotate-180")} />
                 </div>
               </div>
@@ -182,8 +182,8 @@ export default function OwnerMenuPage() {
                             <span className={cn("text-xs w-14", item.status === "available" ? "text-success" : "text-destructive")}>{item.status === "available" ? "متوفر" : "غير متوفر"}</span>
                           </div>
                           <div className="flex gap-0.5">
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="size-3.5" /></Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg text-destructive" onClick={() => setDeleteTarget({ type: "item", id: item.id, name: item.name })} title="حذف"><Trash2 className="size-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => { setItemEditing(item); setItemDialogOpen(true) }} title="تعديل"><Pencil className="size-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive" onClick={() => setDeleteTarget({ type: "item", id: item.id, name: item.name })} title="حذف"><Trash2 className="size-3.5" /></Button>
                           </div>
                         </div>
                       ))}
@@ -191,7 +191,7 @@ export default function OwnerMenuPage() {
                   ) : (
                     <div className="py-8 text-center">
                       <p className="text-sm text-muted-foreground mb-3">لا توجد أصناف في هذا التصنيف</p>
-                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="rounded-xl gap-1 border-orange/30 text-orange hover:bg-orange-muted"><Plus className="size-3.5" /> إضافة صنف</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setItemCatId(cat.id); setItemEditing(null); setItemDialogOpen(true) }} className="gap-1 border-orange/30 text-orange hover:bg-orange-muted"><Plus className="size-3.5" /> إضافة صنف</Button>
                     </div>
                   )}
                 </div>
@@ -224,8 +224,8 @@ export default function OwnerMenuPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-2">
-            <Button variant="outline" onClick={() => setCatDialog(false)} className="rounded-sm">إلغاء</Button>
-            <Button variant="orange" onClick={saveCat} className="rounded-sm">{catEditing ? "تحديث" : "إضافة"}</Button>
+            <Button variant="outline" onClick={() => setCatDialog(false)}>إلغاء</Button>
+            <Button variant="orange" onClick={saveCat}>{catEditing ? "تحديث" : "إضافة"}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -240,8 +240,8 @@ export default function OwnerMenuPage() {
             <DialogDescription>هل أنت متأكد من حذف &ldquo;{deleteTarget?.name}&rdquo;؟ هذا الإجراء لا يمكن التراجع عنه.</DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-sm">إلغاء</Button>
-            <Button variant="destructive" onClick={delTarget} className="rounded-sm">حذف</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>إلغاء</Button>
+            <Button variant="destructive" onClick={delTarget}>حذف</Button>
           </div>
         </DialogContent>
       </Dialog>

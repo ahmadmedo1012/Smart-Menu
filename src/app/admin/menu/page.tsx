@@ -240,8 +240,8 @@ export default function AdminMenuPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-xl">إلغاء</Button>
-            <Button variant="destructive" onClick={deleteItem} className="rounded-xl">حذف</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>إلغاء</Button>
+            <Button variant="destructive" onClick={deleteItem}>حذف</Button>
           </div>
         </DialogContent>
       </Dialog>

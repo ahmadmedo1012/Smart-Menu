@@ -95,8 +95,8 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-md">إلغاء</Button>
-          <Button variant="orange" onClick={save} className="rounded-md">{editing ? "تحديث" : "إضافة"}</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
+          <Button variant="orange" onClick={save}>{editing ? "تحديث" : "إضافة"}</Button>
         </div>
       </DialogContent>
     </Dialog>

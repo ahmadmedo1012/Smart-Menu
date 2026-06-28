@@ -27,10 +27,10 @@ export default function AdminOrderDetailError({
         تعذر تحميل تفاصيل الطلب. حاول مرة أخرى.
       </p>
       <div className="flex gap-3">
-        <Button onClick={() => reset()} className="rounded-xl">
+        <Button onClick={() => reset()}>
           إعادة المحاولة
         </Button>
-        <Button variant="outline" onClick={() => window.location.href = "/admin/orders"} className="rounded-xl">
+        <Button variant="outline" onClick={() => window.location.href = "/admin/orders"}>
           العودة للطلبات
         </Button>
       </div>

@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
         <AlertCircle className="size-10 text-destructive" />
         <p className="text-lg font-medium">{error}</p>
-        <Button variant="outline" onClick={fetchUsers} className="gap-2 rounded-xl">
+        <Button variant="outline" onClick={fetchUsers} className="gap-2">
           <RefreshCw className="size-4" /> إعادة المحاولة
         </Button>
       </div>
@@ -178,7 +178,7 @@ export default function AdminUsersPage() {
           </div>
           <p className="text-lg font-medium">{search || roleFilter !== "all" ? "لا توجد نتائج" : "لا يوجد مستخدمين"}</p>
           {(search || roleFilter !== "all") && (
-            <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setRoleFilter("all") }} className="gap-2 rounded-xl">
+            <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setRoleFilter("all") }} className="gap-2">
               <FilterX className="size-4" /> إزالة الفلتر
             </Button>
           )}
@@ -323,8 +323,8 @@ export default function AdminUsersPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setResetTarget(null)} className="rounded-xl">إلغاء</Button>
-            <Button onClick={resetPassword} disabled={newPassword.length < 4} className="rounded-xl">حفظ</Button>
+            <Button variant="outline" onClick={() => setResetTarget(null)}>إلغاء</Button>
+            <Button onClick={resetPassword} disabled={newPassword.length < 4}>حفظ</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -339,8 +339,8 @@ export default function AdminUsersPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-xl">إلغاء</Button>
-            <Button variant="destructive" onClick={deleteUser} className="rounded-xl">حذف</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>إلغاء</Button>
+            <Button variant="destructive" onClick={deleteUser}>حذف</Button>
           </div>
         </DialogContent>
       </Dialog>

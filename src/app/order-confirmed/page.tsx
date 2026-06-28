@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, MessageCircle, ArrowLeft } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import ShareAfterOrder from "@/components/loyalty/ShareAfterOrder";
@@ -51,6 +52,7 @@ function OrderContent() {
   if (isSubscription) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
+        <Header />
         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
           <div className="size-20 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center animate-scale-in">
             <CheckCircle className="size-10 text-orange" />
@@ -82,6 +84,7 @@ function OrderContent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Header />
       <Suspense fallback={null}><Confetti active={showConfetti} /></Suspense>
       <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
         <div className="size-20 rounded-full bg-green-500/10 flex items-center justify-center animate-scale-in">

@@ -119,7 +119,7 @@ export default function AdminAuditLogsPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
         <AlertCircle className="size-10 text-destructive" />
         <p className="text-lg font-medium">{error}</p>
-        <Button variant="outline" onClick={fetchLogs} className="gap-2 rounded-xl">
+        <Button variant="outline" onClick={fetchLogs} className="gap-2">
           <RefreshCw className="size-4" /> إعادة المحاولة
         </Button>
       </div>
@@ -162,7 +162,7 @@ export default function AdminAuditLogsPage() {
           </SelectContent>
         </Select>
         {(actionFilter || targetType) && (
-          <Button variant="ghost" onClick={() => { setActionFilter(""); setTargetType(""); setPage(1) }} className="gap-2 rounded-xl">
+          <Button variant="ghost" onClick={() => { setActionFilter(""); setTargetType(""); setPage(1) }} className="gap-2">
             <FilterX className="size-4" /> إزالة الفلتر
           </Button>
         )}

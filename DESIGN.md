@@ -39,20 +39,24 @@ Dark mode is the default theme. Light mode is a .light override on the same toke
 | `--card-foreground` | `oklch(0.93 0.005 0)` | `oklch(0.11 0 0)` | Text on card |
 | `--popover` | `oklch(0.09 0.003 0)` | `oklch(1 0 0)` | Dropdowns, popovers |
 | `--popover-foreground` | `oklch(0.93 0.005 0)` | `oklch(0.11 0 0)` | Text on popover |
-| `--primary` | `oklch(0.68 0.19 45)` | `oklch(0.68 0.19 45)` | Key CTA, brand accent |
+| `--primary` | `oklch(0.55 0.19 45)` | `oklch(0.55 0.19 45)` | Key CTA, brand accent (AA-compliant) |
 | `--primary-foreground` | `oklch(0.98 0 0)` | `oklch(0.98 0 0)` | Text on primary |
-| `--secondary` | `oklch(0.12 0.005 0)` | `oklch(0.92 0.005 0)` | Muted surfaces |
+| `--secondary` | `oklch(0.14 0.005 0)` | `oklch(0.92 0.005 0)` | Muted surfaces |
 | `--secondary-foreground` | `oklch(0.72 0.005 0)` | `oklch(0.2 0 0)` | Text on secondary |
-| `--muted` | `oklch(0.12 0.005 0)` | `oklch(0.94 0.003 0)` | Low-emphasis surfaces |
+| `--muted` | `oklch(0.14 0.005 0)` | `oklch(0.94 0.003 0)` | Low-emphasis surfaces |
 | `--muted-foreground` | `oklch(0.5 0.01 0)` | `oklch(0.52 0.01 0)` | Secondary text |
-| `--accent` | `oklch(0.68 0.19 45 / 0.15)` | `oklch(0.68 0.19 45 / 0.12)` | Subtle highlight |
-| `--accent-foreground` | `oklch(0.68 0.19 45)` | `oklch(0.68 0.19 45)` | Text on accent |
+| `--accent` | `oklch(0.55 0.19 45 / 0.15)` | `oklch(0.55 0.19 45 / 0.12)` | Subtle highlight |
+| `--accent-foreground` | `oklch(0.55 0.19 45)` | `oklch(0.55 0.19 45)` | Text on accent |
 | `--destructive` | `oklch(0.6 0.22 25)` | `oklch(0.58 0.2 25)` | Errors, deletion |
-| `--success` | `oklch(0.7 0.15 145)` | `oklch(0.62 0.15 145)` | Success states |
-| `--success-foreground` | `oklch(0.11 0 0)` | `oklch(0.98 0 0)` | Text on success |
-| `--border` | `oklch(0.22 0.008 0)` | `oklch(0.85 0.005 0)` | Borders, dividers |
-| `--input` | `oklch(0.22 0.008 0)` | `oklch(0.85 0.005 0)` | Form input borders |
-| `--ring` | `oklch(0.68 0.19 45)` | `oklch(0.68 0.19 45)` | Focus rings |
+| `--success` | `oklch(0.62 0.18 145)` | `oklch(0.62 0.18 145)` | Success states |
+| `--success-foreground` | `oklch(0.98 0 0)` | `oklch(0.98 0 0)` | Text on success |
+| `--warning` | `oklch(0.7 0.16 80)` | `oklch(0.7 0.16 80)` | Warning states |
+| `--warning-foreground` | `oklch(0.1 0 0)` | `oklch(0.1 0 0)` | Text on warning |
+| `--info` | `oklch(0.55 0.14 240)` | `oklch(0.55 0.14 240)` | Info states |
+| `--info-foreground` | `oklch(0.98 0 0)` | `oklch(0.98 0 0)` | Text on info |
+| `--border` | `oklch(0.22 0.005 0)` | `oklch(0.85 0.005 0)` | Borders, dividers |
+| `--input` | `oklch(0.22 0.005 0)` | `oklch(0.85 0.005 0)` | Form input borders |
+| `--ring` | `oklch(0.55 0.19 45)` | `oklch(0.55 0.19 45)` | Focus rings |
 | `--radius` | `0.5rem` | `0.5rem` | Base radius |
 
 ### 2.2 Orange Palette (OKLCH)
@@ -112,7 +116,7 @@ Dark mode is the default theme. Light mode is a .light override on the same toke
 |------|------|--------|----------|
 | Display/Heading | **AloaaxB** | 500 | Readex Pro, Noto Sans Arabic, system-ui, sans-serif |
 | Body/Sans | **Aloaax** | 500 | Noto Sans Arabic, system-ui, sans-serif |
-| Arabic/Serif | **Noto Naskh Arabic** | 400, 700 | Traditional Arabic, serif |
+| Arabic | **Noto Naskh Arabic** | 400, 700 | Noto Sans Arabic, Readex Pro, system-ui, sans-serif |
 
 ### 3.2 Font Variables
 
@@ -121,7 +125,7 @@ Dark mode is the default theme. Light mode is a .light override on the same toke
 --font-display: "AloaaxB", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
 --font-heading: "AloaaxB", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
 --font-body:    "Aloaax", "Noto Sans Arabic", system-ui, sans-serif;
---font-arabic:  "Noto Naskh Arabic", "Traditional Arabic", serif;
+--font-arabic:  "Noto Naskh Arabic", "Noto Sans Arabic", "Readex Pro", system-ui, sans-serif;
 ```
 
 ### 3.3 Scale
@@ -179,7 +183,7 @@ For RTL: `letter-spacing: 0` on headings.
 ### 5.2 Radius System
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--radius-sm` | 2px | Buttons, inputs |
+| `--radius-sm` | 12px | Buttons, inputs, pill elements |
 | `--radius-md` | 6px | Cards, containers |
 | `--radius-lg` | 12px | Large containers, hero image wells |
 | `--radius-xl` | 14px | Header glass nav |
@@ -196,6 +200,60 @@ For RTL: `letter-spacing: 0` on headings.
 - Desktop: inline links; Mobile: hamburger dropdown
 - Active state: `text-orange font-medium`
 - Hover state: `opacity-65` (PlanPOS spec)
+
+### 5.5 Menu Item Card
+Core product card for displaying menu items in public menu view.
+
+**Location:** `src/components/menu/MenuItemCard.tsx`
+
+**Props:**
+| Prop | Type | Description |
+|------|------|-------------|
+| `item.id` | `number` | Unique item ID |
+| `item.name` | `string` | Item name (fallback) |
+| `item.nameAr` | `string \| null` | Arabic name (preferred) |
+| `item.description` | `string` | English description |
+| `item.descriptionAr` | `string` | Arabic description |
+| `item.price` | `number` | Base price |
+| `item.discountedPrice` | `number \| null` | Discounted price (optional) |
+| `item.image` | `string` | Image URL |
+| `item.isPopular` | `boolean` | Show "Most Popular" badge |
+| `item.isNew` | `boolean` | Show "New" badge |
+
+**States:**
+- **Default** — image, name (Arabic priority), description, price, CTA
+- **Out of stock** — fallback icon (`UtensilsCrossed`) when image fails to load
+- **In cart** — quantity counter replaces CTA button (`+` / `-` controls)
+- **Has discount** — original price shows line-through; badge `-{N}%`
+- **Loading** — skeleton shimmer on image before it loads
+- **Empty image** — muted placeholder with utensil icon
+
+**Layout:**
+- Horizontal card: image (96px square) + content column
+- RTL-aware: badges positioned with `start`/`end` logical properties
+- Hover: lift -1.5px, shadow-xl, orange-muted shadow, border-orange/30
+
+**Interactive elements:**
+- Entire card clickable → opens OrderDialog (keyboard: Enter/Space)
+- "Add to Cart" button → `onAddToCart`, spring animation
+- Quantity stepper → `onDecrementCart` / `onAddToCart`
+- `aria-label` on all buttons with Arabic item name
+
+### 5.6 Badge System
+In-menu badges for status indicators on MenuItemCard images.
+
+**Types:**
+| Badge | Color | Condition | Text |
+|-------|-------|-----------|------|
+| Most Popular | `bg-amber-500 text-white` | `item.isPopular === true` | الأكثر طلباً |
+| New | `bg-emerald-500 text-white` | `item.isNew === true && !isPopular` | 🆕 جديد |
+| Discount | `bg-destructive text-destructive-foreground` | `item.discountedPrice < item.price` | `-{N}%` |
+
+**Behavior:**
+- Most Popular and New: spring animation (stiffness: 500, damping: 25)
+- New badge hidden when item is also Popular (priority: Popular wins)
+- Discount badge shows calculated percentage one-time
+- RTL-aware positioning: badges at `start`, discount at `end`
 
 ---
 

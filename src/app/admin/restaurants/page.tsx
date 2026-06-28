@@ -235,7 +235,7 @@ export default function AdminRestaurantsPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
         <AlertCircle className="size-10 text-destructive" />
         <p className="text-lg font-medium">{error}</p>
-        <Button variant="outline" onClick={fetchData} className="gap-2 rounded-xl">
+        <Button variant="outline" onClick={fetchData} className="gap-2">
           <RefreshCw className="size-4" /> إعادة المحاولة
         </Button>
       </div>
@@ -252,7 +252,7 @@ export default function AdminRestaurantsPage() {
             {toArabicNumber(total)} مطعم
           </p>
         </div>
-        <Button onClick={openAdd} className="rounded-xl gap-2 bg-orange hover:opacity-90 text-white">
+        <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-white">
           <Plus className="size-4" />
           إضافة مطعم
         </Button>
@@ -312,11 +312,11 @@ export default function AdminRestaurantsPage() {
           <span className="text-sm text-muted-foreground">
             تم اختيار {toArabicNumber(selectedIds.size)} مطعم
           </span>
-          <Button variant="destructive" size="sm" onClick={bulkDelete} className="rounded-xl mr-auto">
+          <Button variant="destructive" size="sm" onClick={bulkDelete} className="mr-auto">
             <Trash2 className="size-3.5 ml-1" aria-hidden="true" />
             حذف
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())} className="rounded-xl">
+          <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
             إلغاء التحديد
           </Button>
         </div>
@@ -328,11 +328,11 @@ export default function AdminRestaurantsPage() {
           <Store className="size-12 text-muted-foreground/50" />
           <p className="text-lg font-medium">{search || planFilter !== "all" ? "لا توجد نتائج" : "لا يوجد مطاعم مسجلة"}</p>
           {(search || planFilter !== "all") ? (
-            <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setPlanFilter("all") }} className="gap-2 rounded-xl">
+            <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setPlanFilter("all") }} className="gap-2">
               <FilterX className="size-4" /> إزالة الفلتر
             </Button>
           ) : (
-            <Button variant="orange" onClick={openAdd} className="rounded-md gap-2">
+            <Button variant="orange" onClick={openAdd} className="gap-2">
               <Plus className="size-4" /> إضافة مطعم
             </Button>
           )}
@@ -555,8 +555,8 @@ export default function AdminRestaurantsPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">إلغاء</Button>
-            <Button variant="orange" onClick={save} disabled={saving} className="rounded-md">{saving ? "جارٍ..." : editing ? "تحديث" : "إضافة"}</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>إلغاء</Button>
+            <Button variant="orange" onClick={save} disabled={saving}>{saving ? "جارٍ..." : editing ? "تحديث" : "إضافة"}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -571,8 +571,8 @@ export default function AdminRestaurantsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="rounded-xl">إلغاء</Button>
-            <Button variant="destructive" onClick={deleteRestaurant} className="rounded-xl">حذف</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>إلغاء</Button>
+            <Button variant="destructive" onClick={deleteRestaurant}>حذف</Button>
           </div>
         </DialogContent>
       </Dialog>

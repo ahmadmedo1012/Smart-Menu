@@ -116,7 +116,7 @@ export default function CartPage() {
         <h2 className="text-2xl font-bold">السلة فارغة</h2>
         <p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
         <Link href="/menu">
-          <Button size="lg" className="rounded-md px-8 gap-2">
+          <Button size="lg" className="px-8 gap-2">
             <ArrowLeft className="size-4" />
             العودة إلى القائمة
           </Button>
@@ -303,7 +303,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <Button className="w-full h-14 text-base font-semibold rounded-md gap-2 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 transition-all duration-300"
+      <Button className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 transition-all duration-300"
         onClick={() => setShowPreview(true)} size="lg" disabled={items.length === 0}>
         <MessageCircle className="size-5" />
         مراجعة الطلب وإرساله
@@ -372,8 +372,8 @@ export default function CartPage() {
             )}
           </div>
           <div className="flex gap-2 p-5 pt-0">
-            <Button variant="outline" className="flex-1 rounded-sm" onClick={() => setShowPreview(false)}>تعديل</Button>
-            <Button className="flex-1 rounded-sm gap-2" onClick={handleCheckout} disabled={isSubmitting}>
+            <Button variant="outline" className="flex-1" onClick={() => setShowPreview(false)}>تعديل</Button>
+            <Button className="flex-1 gap-2" onClick={handleCheckout} disabled={isSubmitting}>
               {isSubmitting ? <><Loader2 className="size-4 animate-spin" /> جاري...</> : <><MessageCircle className="size-4" /> تأكيد وإرسال</>}
             </Button>
           </div>

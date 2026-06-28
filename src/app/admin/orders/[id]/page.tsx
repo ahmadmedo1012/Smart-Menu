@@ -250,7 +250,7 @@ ${items}
             <FileText className="size-4 text-muted-foreground" />
             الأصناف ({toArabicNumber(order.items.length)})
           </h3>
-          <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="rounded-xl gap-1">
+          <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="gap-1">
             {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             نسخ للواتساب
           </Button>

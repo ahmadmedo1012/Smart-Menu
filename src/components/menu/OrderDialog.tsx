@@ -239,7 +239,7 @@ export default function OrderDialog({
                   {toArabicNumber(totalPrice.toFixed(1))} <span className="text-sm font-normal text-muted-foreground">د.ل</span>
                 </span>
               </div>
-              <Button className="w-full h-12 gap-2 text-base rounded-sm bg-[#25D366] hover:bg-[#20bd5a] shadow-lg shadow-[#25D366]/20 text-white"
+              <Button className="w-full h-12 gap-2 text-base bg-[#25D366] hover:bg-[#20bd5a] shadow-lg shadow-[#25D366]/20 text-white"
                 onClick={handleConfirm} disabled={submitting || !restaurantWhatsapp}>
                 {submitting ? (
                   <span className="flex items-center gap-2">

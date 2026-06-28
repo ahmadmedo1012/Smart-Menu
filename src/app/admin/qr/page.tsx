@@ -144,18 +144,18 @@ export default function AdminQRPage() {
             <Label className="text-xs text-muted-foreground">الرابط</Label>
             <div className="flex gap-2 mt-1.5">
               <Input value={menuUrl} readOnly dir="ltr" className="text-sm h-11 rounded-xl" />
-              <Button variant="outline" size="icon" aria-label="نسخ الرابط" onClick={copyLink} className="size-11 rounded-xl shrink-0">
+              <Button variant="outline" size="icon" aria-label="نسخ الرابط" onClick={copyLink} className="size-11 shrink-0">
                 {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4" />}
               </Button>
               <a href={menuUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="icon" aria-label="فتح الرابط" className="size-11 rounded-xl shrink-0">
+                <Button variant="outline" size="icon" aria-label="فتح الرابط" className="size-11 shrink-0">
                   <ExternalLink className="size-4" />
                 </Button>
               </a>
             </div>
           </div>
 
-          <Button onClick={downloadQR} className="w-full h-12 rounded-xl gap-2">
+          <Button onClick={downloadQR} className="w-full h-12 gap-2">
             <Download className="size-4" />
             تحميل رمز QR ({qrSize}x{qrSize})
           </Button>

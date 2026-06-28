@@ -27,10 +27,10 @@ export default function AdminError({
         تعذر تحميل هذه الصفحة. قد يكون هناك خلل مؤقت في الاتصال.
       </p>
       <div className="flex gap-3">
-        <Button onClick={() => reset()} className="rounded-xl">
+        <Button onClick={() => reset()}>
           إعادة المحاولة
         </Button>
-        <Button variant="outline" onClick={() => window.location.href = "/admin"} className="rounded-xl">
+        <Button variant="outline" onClick={() => window.location.href = "/admin"}>
           العودة للوحة التحكم
         </Button>
       </div>

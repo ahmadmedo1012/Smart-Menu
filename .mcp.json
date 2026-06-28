@@ -3,6 +3,10 @@
     "lottiefiles-creator": {
       "command": "npx",
       "args": ["-y", "@lottiefiles/creator-mcp@latest"]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
     }
   }
 }

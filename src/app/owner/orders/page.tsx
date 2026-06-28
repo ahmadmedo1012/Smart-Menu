@@ -150,7 +150,7 @@ export default function OwnerOrdersPage() {
       </div>
       <p className="text-lg font-medium">حدث خطأ</p>
       <p className="text-sm text-muted-foreground">{error}</p>
-      <Button variant="outline" size="sm" onClick={() => fetchOrders(filter, 1, false)} className="rounded-md gap-1.5">
+      <Button variant="outline" size="sm" onClick={() => fetchOrders(filter, 1, false)} className="gap-1.5">
         إعادة المحاولة
       </Button>
     </div>

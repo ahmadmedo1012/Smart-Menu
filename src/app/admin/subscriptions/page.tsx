@@ -134,7 +134,7 @@ export default function AdminSubscriptionsPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in">
         <AlertCircle className="size-10 text-destructive" />
         <p className="text-lg font-medium">{error}</p>
-        <Button variant="outline" onClick={fetchPayments} className="gap-2 rounded-xl">
+        <Button variant="outline" onClick={fetchPayments} className="gap-2">
           <RefreshCw className="size-4" /> إعادة المحاولة
         </Button>
       </div>
@@ -193,7 +193,7 @@ export default function AdminSubscriptionsPage() {
           <CreditCard className="size-12 text-muted-foreground/50" />
           <p className="text-lg font-medium">لا توجد اشتراكات</p>
           {statusFilter !== "all" && (
-            <Button variant="ghost" onClick={() => setStatusFilter("all")} className="gap-2 rounded-xl">
+            <Button variant="ghost" onClick={() => setStatusFilter("all")} className="gap-2">
               <FilterX className="size-4" /> عرض الكل
             </Button>
           )}
@@ -320,14 +320,13 @@ export default function AdminSubscriptionsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setActionTarget(null)} className="rounded-xl">
+            <Button variant="outline" onClick={() => setActionTarget(null)}>
               إلغاء
             </Button>
             <Button
               variant={actionType === "verified" ? "orange" : "destructive"}
               onClick={handleAction}
               disabled={actionLoading}
-              className="rounded-xl"
             >
               {actionLoading ? (
                 <span className="flex items-center gap-2">

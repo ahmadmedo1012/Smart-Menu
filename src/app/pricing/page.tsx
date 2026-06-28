@@ -132,7 +132,7 @@ function PlanCard({
         </div>
 
         <Link href={isFree ? "/subscribe" : `/subscribe?plan=${plan.id}`}>
-          <Button className={cn("w-full h-12 rounded-sm", isPopular ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25" : "")} variant={isPopular ? "orange" : "outline"}>
+          <Button className={cn("w-full h-12", isPopular ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25" : "")} variant={isPopular ? "orange" : "outline"}>
             {isFree ? "ابدأ مجاناً" : "اشترك الآن"}
           </Button>
         </Link>

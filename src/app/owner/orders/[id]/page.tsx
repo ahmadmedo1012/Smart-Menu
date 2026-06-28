@@ -116,8 +116,8 @@ ${items}
       <p className="text-lg font-semibold">خطأ في التحميل</p>
       <p className="text-sm text-muted-foreground">{error}</p>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={() => router.push("/owner/orders")} className="rounded-xl">العودة للطلبات</Button>
-        <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl">إعادة المحاولة</Button>
+        <Button variant="outline" onClick={() => router.push("/owner/orders")}>العودة للطلبات</Button>
+        <Button variant="outline" onClick={() => window.location.reload()}>إعادة المحاولة</Button>
       </div>
     </div>
   )
@@ -126,7 +126,7 @@ ${items}
     <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
       <AlertCircle className="size-12 text-destructive/60" />
       <p className="text-lg font-semibold">الطلب غير موجود</p>
-      <Button variant="outline" onClick={() => router.push("/owner/orders")} className="rounded-xl">العودة للطلبات</Button>
+      <Button variant="outline" onClick={() => router.push("/owner/orders")}>العودة للطلبات</Button>
     </div>
   )
 
@@ -274,7 +274,7 @@ ${items}
             <FileText className="size-4 text-muted-foreground" />
             الأصناف ({toArabicNumber(order.items.length)})
           </h3>
-          <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="rounded-xl gap-1">
+          <Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="gap-1">
             {copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
             نسخ للواتساب
           </Button>

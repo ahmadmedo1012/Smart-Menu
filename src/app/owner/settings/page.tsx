@@ -176,7 +176,7 @@ export default function OwnerSettingsPage() {
               </div>
             </div>
             <Link href="/pricing">
-              <Button size="sm" variant="outline" className="rounded-xl gap-1 text-xs h-8">
+              <Button size="sm" variant="outline" className="gap-1 text-xs h-8">
                 <Sparkles className="size-3" /> ترقية
               </Button>
             </Link>
@@ -215,7 +215,7 @@ export default function OwnerSettingsPage() {
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-2">يظهر في رأس صفحة المنيو. يفضل صورة مربعة 512×512</p>
             <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-            <Button type="button" variant="outline" size="sm" className="rounded-xl gap-1.5 text-xs h-8"
+            <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs h-8"
               onClick={() => logoInputRef.current?.click()} disabled={uploading.logo}>
               {uploading.logo ? <Loader2 className="size-3 animate-spin" /> : <Upload className="size-3" />}
               {uploading.logo ? "جاري الرفع..." : "اختيار صورة"}
@@ -229,7 +229,7 @@ export default function OwnerSettingsPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold">معرض الصور</h2>
           <input ref={galleryInputRef} type="file" multiple accept="image/*" onChange={handleGalleryUpload} className="hidden" />
-          <Button type="button" variant="outline" size="sm" className="rounded-xl gap-1.5 text-xs h-8"
+          <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs h-8"
             onClick={() => galleryInputRef.current?.click()} disabled={uploading.gallery}>
             {uploading.gallery ? <Loader2 className="size-3 animate-spin" /> : <Upload className="size-3" />}
             إضافة صور
@@ -268,7 +268,7 @@ export default function OwnerSettingsPage() {
       <div className="rounded-md bg-card/40 border border-border/20 p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-bold">بيانات المطعم</h2>
-          <Button onClick={save} disabled={saving} className="rounded-xl gap-1.5 text-xs h-8">
+          <Button onClick={save} disabled={saving} className="gap-1.5 text-xs h-8">
             <Save className="size-3.5" />
             {saving ? "جارٍ الحفظ..." : "حفظ"}
           </Button>

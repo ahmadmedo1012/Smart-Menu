@@ -245,7 +245,7 @@ export default function AdminSettingsPage() {
                 </div>
               )}
               <div className="flex justify-end pt-2">
-                <Button onClick={saveRestaurant} disabled={saving} className="rounded-xl gap-1">
+                <Button onClick={saveRestaurant} disabled={saving} className="gap-1">
                   <Save className="size-4" aria-hidden="true" />
                   {saving ? "جارٍ..." : "حفظ"}
                 </Button>
@@ -352,7 +352,7 @@ export default function AdminSettingsPage() {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <Button onClick={saveTelegram} disabled={tgSaving} className="rounded-xl gap-1">
+              <Button onClick={saveTelegram} disabled={tgSaving} className="gap-1">
                 <Save className="size-4" aria-hidden="true" />
                 {tgSaving ? "جارٍ..." : "حفظ الإعدادات"}
               </Button>
@@ -360,7 +360,7 @@ export default function AdminSettingsPage() {
                 variant="outline"
                 onClick={testTelegram}
                 disabled={tgTesting || !tgConfig.botToken.trim() || !tgConfig.chatId.trim()}
-                className="rounded-xl gap-1"
+                className="gap-1"
               >
                 <Send className="size-4" aria-hidden="true" />
                 {tgTesting ? "جارٍ..." : "اختبار الإرسال"}

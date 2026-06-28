@@ -1,0 +1,321 @@
+- generic [active] [ref=e1]:
+  - img
+  - button "العودة للأعلى":
+    - img
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - navigation "الرئيسية" [ref=e7]:
+        - link "الربط الذكي Smart Menu" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - img "الربط الذكي" [ref=e10]
+          - generic [ref=e11]: Smart Menu
+        - generic [ref=e13]:
+          - link "الخطط والأسعار" [ref=e15] [cursor=pointer]:
+            - /url: /pricing
+          - link "منيو تجريبي" [ref=e18] [cursor=pointer]:
+            - /url: /menu/al-waha-cafe
+          - link "لوحة التحكم" [ref=e21] [cursor=pointer]:
+            - /url: /login
+        - generic [ref=e22]:
+          - link "تسجيل الدخول" [ref=e24] [cursor=pointer]:
+            - /url: /login
+            - button "تسجيل الدخول" [ref=e25]
+          - link "ابدأ الآن" [ref=e26] [cursor=pointer]:
+            - /url: /subscribe
+            - button "ابدأ الآن" [ref=e27]
+    - generic [ref=e31]:
+      - heading "اللي يواكب التطور يسبق الجميع" [level=1] [ref=e32]:
+        - generic [ref=e33]: اللي يواكب التطور
+        - generic [ref=e34]: يسبق الجميع
+      - paragraph [ref=e35]: هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
+      - generic [ref=e36]:
+        - link "إنشى قائمتك مجانا" [ref=e37] [cursor=pointer]:
+          - /url: /subscribe
+          - button "إنشى قائمتك مجانا" [ref=e38]:
+            - text: إنشى قائمتك مجانا
+            - img
+        - link "تواصل عبر واتساب" [ref=e39] [cursor=pointer]:
+          - /url: https://wa.me/218911111111
+          - button "تواصل عبر واتساب" [ref=e40]:
+            - img
+            - text: تواصل عبر واتساب
+      - generic [ref=e41]:
+        - generic [ref=e49]:
+          - generic [ref=e51]: 9:41
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - img [ref=e58]
+              - generic [ref=e60]: Smart Menu
+            - generic [ref=e61]: مفتوح الآن
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: كابتشينو
+                  - generic: إسبريسو مع حليب
+                - generic: 12 د.ل
+              - generic:
+                - generic:
+                  - generic: لاتيه
+                  - generic: حليب كثيف مع إسبريسو
+                - generic: 14 د.ل
+              - generic:
+                - generic:
+                  - generic: إسبريسو
+                  - generic: قهوة إيطالية مركزة
+                - generic: 8 د.ل
+              - generic:
+                - generic:
+                  - generic: موكا
+                  - generic: شوكولاتة مع إسبريسو
+                - generic: 15 د.ل
+            - generic: اطلب الآن ←
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: برجر دجاج
+                  - generic: دجاج مقرمش مع خضار
+                - generic: 18 د.ل
+              - generic:
+                - generic:
+                  - generic: بطاطس مقلية
+                  - generic: بطاطس ذهبية مقرمشة
+                - generic: 6 د.ل
+              - generic:
+                - generic:
+                  - generic: ساندويتش
+                  - generic: خضار مشكل
+                - generic: 14 د.ل
+              - generic:
+                - generic:
+                  - generic: ناجتس
+                  - generic: قطع دجاج مقلية
+                - generic: 12 د.ل
+            - generic: اطلب الآن ←
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: كنافة
+                  - generic: نابلسية بالفستق
+                - generic: 15 د.ل
+              - generic:
+                - generic:
+                  - generic: تشيز كيك
+                  - generic: نيويورك مع توت
+                - generic: 16 د.ل
+              - generic:
+                - generic:
+                  - generic: أم علي
+                  - generic: حلى شرقي بالقشطة
+                - generic: 12 د.ل
+              - generic:
+                - generic:
+                  - generic: بسبوسة
+                  - generic: سميد بجوز الهند
+                - generic: 10 د.ل
+            - generic: اطلب الآن ←
+        - img "Menu preview" [ref=e69]
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]: إليك ما يمكنك تحقيقه معنا
+        - heading "ميزات متكاملة لمطعمك" [level=2] [ref=e75]
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - img [ref=e80]
+          - heading "سرعة و سلاسة" [level=3] [ref=e82]
+          - paragraph [ref=e83]: تجربة تصفح سريعة وسلسة على جميع الأجهزة
+        - generic [ref=e84]:
+          - img [ref=e86]
+          - heading "طرق طلب متعددة" [level=3] [ref=e88]
+          - paragraph [ref=e89]: واتساب - استلام - توصيل - حجز وانتظار
+        - generic [ref=e90]:
+          - img [ref=e92]
+          - heading "تسجيل العملاء" [level=3] [ref=e95]
+          - paragraph [ref=e96]: تسجيل دخول العملاء برقم الجوال بخطوة واحدة
+        - generic [ref=e97]:
+          - img [ref=e99]
+          - heading "تحكم كامل" [level=3] [ref=e101]
+          - paragraph [ref=e102]: لوحة تحكم باللغة العربية - تعديل وإدارة بسهولة
+        - generic [ref=e103]:
+          - img [ref=e105]
+          - heading "QR كود مخصص" [level=3] [ref=e111]
+          - paragraph [ref=e112]: QR مخصص بألوان وشعار مطعمك
+        - generic [ref=e113]:
+          - img [ref=e115]
+          - heading "برنامج ولاء" [level=3] [ref=e119]
+          - paragraph [ref=e120]: برنامج ولاء ومكافآت لعملائك الأوفياء
+    - generic [ref=e124]: تجربة المطعم
+    - generic [ref=e130]:
+      - generic [ref=e131]:
+        - generic [ref=e132]: خطوات بسيطة
+        - heading "ابدأ في ٣ خطوات فقط" [level=2] [ref=e133]
+        - paragraph [ref=e134]: من التسجيل إلى استقبال الطلبات في دقائق
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - img [ref=e140]
+            - generic [ref=e143]: "1"
+          - heading "أنشئ حسابك" [level=3] [ref=e145]
+          - paragraph [ref=e146]: أدخل بيانات مطعمك وأنشئ حساباً مجاناً بدون بطاقة ائتمان
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - img [ref=e151]
+            - generic [ref=e156]: "2"
+          - heading "صمم المنيو الخاص بك" [level=3] [ref=e158]
+          - paragraph [ref=e159]: أضف الأصناف والفئات والأسعار والصور بسهولة عبر لوحة التحكم
+        - generic [ref=e160]:
+          - generic [ref=e161]:
+            - img [ref=e164]
+            - generic [ref=e170]: "3"
+          - heading "استقبل طلباتك" [level=3] [ref=e172]
+          - paragraph [ref=e173]: شارك رابط المنيو مع زبائنك واستقبل الطلبات مباشرة على واتساب
+    - generic [ref=e175]:
+      - generic [ref=e176]:
+        - generic [ref=e177]:
+          - img [ref=e178]
+          - text: تجارب حقيقية
+        - heading "ماذا يقول عملاؤنا" [level=2] [ref=e181]
+        - paragraph [ref=e182]: آلاف المطاعم والمقاهي تثق في منصتنا
+      - generic [ref=e184]:
+        - generic [ref=e185]:
+          - img [ref=e187]
+          - generic [ref=e190]:
+            - img [ref=e191]
+            - img [ref=e193]
+            - img [ref=e195]
+            - img [ref=e197]
+            - img [ref=e199]
+          - blockquote [ref=e201]: “منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب. الزبائن صاروا يطلبون مباشرة من المنيو دون الاتصال بنا.”
+          - generic [ref=e202]:
+            - img "أحمد المبروك" [ref=e204]
+            - generic [ref=e205]:
+              - paragraph [ref=e206]: أحمد المبروك
+              - paragraph [ref=e207]: صاحب مقهى الواحة · طرابلس
+        - generic [ref=e208]:
+          - button "السابق" [ref=e209]:
+            - img [ref=e210]
+          - generic [ref=e212]:
+            - button "التقييم 1" [ref=e213]
+            - button "التقييم 2" [ref=e214]
+            - button "التقييم 3" [ref=e215]
+            - button "التقييم 4" [ref=e216]
+            - button "التقييم 5" [ref=e217]
+          - button "التالي" [ref=e218]:
+            - img [ref=e219]
+    - generic [ref=e222]:
+      - generic [ref=e223]:
+        - generic [ref=e224]:
+          - img [ref=e225]
+          - text: منصتنا
+        - heading "عملاؤنا" [level=2] [ref=e229]
+        - paragraph [ref=e231]: آلاف المطاعم والمقاهي تثق في منصتنا الرقمية
+      - generic [ref=e235]:
+        - generic [ref=e237]:
+          - button "عرض تقييم SOHO" [ref=e239]:
+            - img "SOHO" [ref=e242]
+          - button "عرض تقييم Telepizza" [ref=e243]:
+            - img "Telepizza" [ref=e246]
+          - button "عرض تقييم The Cheese" [ref=e247]:
+            - img "The Cheese" [ref=e250]
+          - button "عرض تقييم Empire" [ref=e251]:
+            - img "Empire" [ref=e254]
+          - button "عرض تقييم Kubaba" [ref=e255]:
+            - img "Kubaba" [ref=e258]
+        - generic [ref=e260]:
+          - generic [ref=e261]:
+            - img [ref=e262]
+            - img [ref=e264]
+            - img [ref=e266]
+            - img [ref=e268]
+            - img [ref=e270]
+          - blockquote [ref=e272]: “المنصة سهلت علينا عملية الطلب بشكل كبير. عملاؤنا صاروا يطلبون بضغطة زر والطلبات تصلنا منظمة بدون أخطاء.”
+          - generic [ref=e273]:
+            - img "SOHO" [ref=e275]
+            - generic [ref=e276]:
+              - paragraph [ref=e277]: SOHO
+              - paragraph [ref=e278]: مقهى — طرابلس
+        - generic [ref=e279]:
+          - button "السابق" [ref=e280]:
+            - img [ref=e282]
+          - generic [ref=e284]:
+            - button "الانتقال إلى التقييم 1" [ref=e285]
+            - button "الانتقال إلى التقييم 2" [ref=e286]
+            - button "الانتقال إلى التقييم 3" [ref=e287]
+            - button "الانتقال إلى التقييم 4" [ref=e288]
+            - button "الانتقال إلى التقييم 5" [ref=e289]
+          - button "التالي" [ref=e290]:
+            - img [ref=e292]
+    - generic [ref=e298]:
+      - generic [ref=e299]:
+        - img [ref=e300]
+        - text: انطلق الآن
+      - heading "جهّز مطعمك للانطلاق الرقمي" [level=2] [ref=e303]
+      - paragraph [ref=e304]: انضم إلى عشرات المطاعم والمقاهي. استقبل الطلبات عبر واتساب وابدأ في دقائق.
+      - generic [ref=e305]:
+        - link "ابدأ مجاناً" [ref=e306] [cursor=pointer]:
+          - /url: /subscribe
+          - button "ابدأ مجاناً" [ref=e307]:
+            - text: ابدأ مجاناً
+            - img
+        - link "عرض الخطط" [ref=e308] [cursor=pointer]:
+          - /url: /pricing
+          - button "عرض الخطط" [ref=e309]
+      - paragraph [ref=e310]: مجاناً بدون بطاقة ائتمان · إلغاء في أي وقت · دعم فني متكامل
+    - contentinfo [ref=e311]:
+      - generic [ref=e312]:
+        - generic [ref=e313]:
+          - generic [ref=e314]:
+            - img "الربط الذكي" [ref=e315]
+            - paragraph [ref=e316]: منصة رقمية لإدارة منيو المطاعم والمقاهي واستقبال الطلبات عبر واتساب
+            - generic [ref=e317]:
+              - link "فيسبوك" [ref=e318] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e319]
+              - link "انستغرام" [ref=e321] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e322]
+              - link "يوتيوب" [ref=e324] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e325]
+              - link "واتساب" [ref=e327] [cursor=pointer]:
+                - /url: https://wa.me/218911111111
+                - img [ref=e328]
+          - generic [ref=e330]:
+            - heading "روابط سريعة" [level=4] [ref=e331]
+            - generic [ref=e332]:
+              - link "الخطط" [ref=e333] [cursor=pointer]:
+                - /url: /pricing
+              - link "منيو تجريبي" [ref=e334] [cursor=pointer]:
+                - /url: /menu/al-waha-cafe
+              - link "تسجيل الدخول" [ref=e335] [cursor=pointer]:
+                - /url: /login
+              - link "اشترك الآن" [ref=e336] [cursor=pointer]:
+                - /url: /subscribe
+          - generic [ref=e337]:
+            - heading "الخدمات" [level=4] [ref=e338]
+            - generic [ref=e339]:
+              - generic [ref=e340]: منيو إلكتروني
+              - generic [ref=e341]: طلب عبر واتساب
+              - generic [ref=e342]: برنامج ولاء
+              - generic [ref=e343]: إحصائيات وتحليلات
+              - generic [ref=e344]: QR كود مخصص
+          - generic [ref=e345]:
+            - heading "تواصل معنا" [level=4] [ref=e346]
+            - generic [ref=e347]:
+              - link "واتساب" [ref=e348] [cursor=pointer]:
+                - /url: https://wa.me/218911111111
+              - generic [ref=e349]: دعم فني 24/7
+        - generic [ref=e350]:
+          - paragraph [ref=e351]: © 2026 الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
+          - generic [ref=e352]:
+            - link "شروط الاستخدام" [ref=e353] [cursor=pointer]:
+              - /url: /terms
+            - link "سياسة الخصوصية" [ref=e354] [cursor=pointer]:
+              - /url: /privacy
+    - link "تواصل عبر واتساب" [ref=e355] [cursor=pointer]:
+      - /url: https://wa.me/218911111111
+      - img [ref=e356]
+  - region "Notifications alt+T"
+  - alert [ref=e358]

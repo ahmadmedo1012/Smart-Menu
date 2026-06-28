@@ -1,0 +1,7 @@
+- generic [active] [ref=e1]:
+  - img
+  - button "العودة للأعلى":
+    - img
+  - img [ref=e5]
+  - region "Notifications alt+T"
+  - alert [ref=e7]
