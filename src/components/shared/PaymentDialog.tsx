@@ -13,7 +13,7 @@ import {
 import { csrfFetch } from "@/lib/csrf-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Loader2, Timer, ShieldCheck, Smartphone, Copy } from "lucide-react";
+import { Loader2, ShieldCheck, Smartphone, Copy, Phone } from "lucide-react";
 
 const MADAR_PHONE = "0910089975";
 const LIBYANA_PHONE = "0942119637";
@@ -41,8 +41,7 @@ export default function PaymentDialog({
   const [provider, setProvider] = useState<Provider>("libyana");
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState(price);
-  const [step, setStep] = useState<"form" | "waiting" | "success">("form");
-  const [countdown, setCountdown] = useState(30);
+  const [step, setStep] = useState<"form" | "waiting">("form");
   const [submitting, setSubmitting] = useState(false);
 
   const providerPhone = provider === "libyana" ? LIBYANA_PHONE : MADAR_PHONE;
@@ -50,10 +49,10 @@ export default function PaymentDialog({
 
   const quickTransferCode =
     provider === "libyana"
-      ? `*122*21894211963${amount}#`
-      : provider === "madar"
-      ? `*140*4*1*${amount}#`
-      : "";
+      ? `*122*218942119637*${amount * 1000}*1#`
+      : `*140*4*1*${amount}*0910089975#`;
+
+  const encodedUSSD = quickTransferCode.replace(/#/g, "%23");
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -79,7 +78,6 @@ export default function PaymentDialog({
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "فشل إرسال طلب الدفع");
       setStep("waiting");
-      setCountdown(30);
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -87,25 +85,22 @@ export default function PaymentDialog({
     }
   };
 
-  // countdown timer
+  // Libyana: auto-confirm after 5 seconds
   useEffect(() => {
-    if (step !== "waiting") return;
-    if (countdown <= 0) {
-      setStep("success");
-      return;
-    }
-    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [step, countdown]);
-
-  const handleConfirm = async () => {
-    try {
-      await onSuccess();
-      toast.success("تم إرسال طلبك للإدارة. سيتم تفعيل حسابك بعد الموافقة.");
+    if (step !== "waiting" || provider !== "libyana") return;
+    const t = setTimeout(() => {
+      toast.success("تم تفعيل اشتراكك بنجاح");
       onOpenChange(false);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "تعذر إنشاء الحساب، يرجى المحاولة لاحقاً");
-    }
+      onSuccess();
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [step, provider, onOpenChange, onSuccess]);
+
+  // Madar: manual confirm
+  const handleConfirm = () => {
+    toast.success("تم تفعيل اشتراكك بنجاح");
+    onOpenChange(false);
+    onSuccess();
   };
 
   // reset on close
@@ -113,7 +108,6 @@ export default function PaymentDialog({
     (open: boolean) => {
       if (!open) {
         setStep("form");
-        setCountdown(30);
         setPhone("");
         setAmount(price);
       }
@@ -121,6 +115,11 @@ export default function PaymentDialog({
     },
     [onOpenChange, price]
   );
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setAmount(val > 99 ? 99 : val);
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -207,17 +206,29 @@ export default function PaymentDialog({
                   رمز التحويل السريع
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm font-bold text-orange dark:text-orange" dir="ltr">
+                  <span
+                    className="font-mono text-sm font-bold text-orange dark:text-orange"
+                    dir="ltr"
+                  >
                     {quickTransferCode}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(quickTransferCode)}
-                    className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2"
-                    title="نسخ الرمز"
-                  >
-                    <Copy className="size-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <a
+                      href={`tel:${encodedUSSD}`}
+                      className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30"
+                      title="اتصال"
+                    >
+                      <Phone className="size-3.5" />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(quickTransferCode)}
+                      className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange focus-visible:ring-offset-2"
+                      title="نسخ الرمز"
+                    >
+                      <Copy className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
                 {provider === "madar" && (
                   <p className="text-[10px] text-green-600 dark:text-green-500 mt-1">
@@ -232,7 +243,7 @@ export default function PaymentDialog({
                 <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="218911111111"
+                  placeholder="0910089975"
                   className="h-11 rounded-xl mt-1.5 text-left"
                   dir="ltr"
                 />
@@ -244,10 +255,14 @@ export default function PaymentDialog({
                 <Input
                   type="number"
                   value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
+                  onChange={handleAmountChange}
                   className="h-11 rounded-xl mt-1.5"
                   min={1}
+                  max={99}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  خانتين فقط (الحد الأقصى 99)
+                </p>
               </div>
 
               {/* Submit */}
@@ -269,42 +284,27 @@ export default function PaymentDialog({
             </>
           )}
 
-          {/* Waiting step */}
-          {step === "waiting" && (
+          {/* Waiting step — Libyana auto-confirm */}
+          {step === "waiting" && provider === "libyana" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
                 <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
-                  <Timer className="size-8 text-orange animate-pulse" />
+                  <Loader2 className="size-8 text-orange animate-spin" />
                 </div>
               </div>
-              <div className="text-lg font-bold">
-                {countdown}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                تم استلام طلب الدفع. جاري التحقق من قبل الإدارة.
-                <br />
-                سيتم تأكيد اشتراكك خلال 30 ثانية
-              </p>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-1000"
-                  style={{ width: `${((30 - countdown) / 30) * 100}%` }}
-                />
-              </div>
+              <p className="text-sm text-muted-foreground">جاري تأكيد الدفع...</p>
             </div>
           )}
 
-          {/* Success step */}
-          {step === "success" && (
+          {/* Waiting step — Madar manual confirm */}
+          {step === "waiting" && provider === "madar" && (
             <div className="text-center py-6 space-y-4">
               <div className="flex items-center justify-center">
                 <div className="size-16 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center">
                   <ShieldCheck className="size-8 text-orange" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">
-                سيتم تفعيل اشتراكك بعد التحقق من الدفع
-              </p>
+              <p className="text-sm text-muted-foreground">تم الإرسال</p>
               <Button
                 variant="orange"
                 className="w-full h-12 text-base font-semibold rounded-xl"

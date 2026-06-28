@@ -1,0 +1,117 @@
+- generic [active] [ref=e1]:
+  - img
+  - button "العودة للأعلى":
+    - img
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - navigation "الرئيسية" [ref=e7]:
+        - link "الربط الذكي Smart Menu" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - img "الربط الذكي" [ref=e10]
+          - generic [ref=e11]: Smart Menu
+        - generic [ref=e13]:
+          - link "الخطط والأسعار" [ref=e15] [cursor=pointer]:
+            - /url: /pricing
+            - text: الخطط والأسعار
+          - link "منيو تجريبي" [ref=e19] [cursor=pointer]:
+            - /url: /menu/al-waha-cafe
+          - link "لوحة التحكم" [ref=e22] [cursor=pointer]:
+            - /url: /login
+        - generic [ref=e23]:
+          - button "الوضع الليلي" [ref=e24] [cursor=pointer]:
+            - img [ref=e26]
+          - link "تسجيل الدخول" [ref=e29] [cursor=pointer]:
+            - /url: /login
+            - button "تسجيل الدخول" [ref=e30]
+          - link "ابدأ الآن" [ref=e31] [cursor=pointer]:
+            - /url: /subscribe
+            - button "ابدأ الآن" [ref=e32]
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - img [ref=e39]
+        - text: خطط تناسب جميع الأحجام
+      - heading "اختر خطتك" [level=1] [ref=e42]
+      - paragraph [ref=e43]: ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
+      - generic [ref=e44]:
+        - button "شهري" [ref=e46]
+        - button "سنوي —وفر شهرين" [ref=e47]
+    - img [ref=e51]
+    - generic [ref=e54]:
+      - heading "أسئلة شائعة" [level=2] [ref=e55]
+      - generic [ref=e56]:
+        - group [ref=e57]:
+          - generic "هل يمكنني الترقية لاحقاً؟ ▼" [ref=e58] [cursor=pointer]:
+            - text: هل يمكنني الترقية لاحقاً؟
+            - generic [ref=e59]: ▼
+        - group [ref=e60]:
+          - generic "هل يوجد فترة تجريبية؟ ▼" [ref=e61] [cursor=pointer]:
+            - text: هل يوجد فترة تجريبية؟
+            - generic [ref=e62]: ▼
+        - group [ref=e63]:
+          - generic "هل يمكنني إلغاء الاشتراك؟ ▼" [ref=e64] [cursor=pointer]:
+            - text: هل يمكنني إلغاء الاشتراك؟
+            - generic [ref=e65]: ▼
+        - group [ref=e66]:
+          - generic "هل تدعمون جميع أنواع المطاعم؟ ▼" [ref=e67] [cursor=pointer]:
+            - text: هل تدعمون جميع أنواع المطاعم؟
+            - generic [ref=e68]: ▼
+    - generic [ref=e71]:
+      - heading "مستعد لانطلاق مطعمك الرقمي؟" [level=2] [ref=e73]
+      - paragraph [ref=e74]: ابدأ الآن مجاناً بدون بطاقة ائتمان
+      - generic [ref=e75]:
+        - link "ابدأ الآن مجاناً" [ref=e76] [cursor=pointer]:
+          - /url: /subscribe
+          - button "ابدأ الآن مجاناً" [ref=e77]
+        - link "جرب لوحة التحكم" [ref=e78] [cursor=pointer]:
+          - /url: /demo
+          - button "جرب لوحة التحكم" [ref=e79]
+    - contentinfo [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - img "الربط الذكي" [ref=e84]
+            - paragraph [ref=e85]: منصة رقمية لإدارة منيو المطاعم والمقاهي واستقبال الطلبات عبر واتساب
+            - generic [ref=e86]:
+              - generic "قريباً" [ref=e87]:
+                - img [ref=e88]
+              - generic "قريباً" [ref=e90]:
+                - img [ref=e91]
+              - generic "قريباً" [ref=e93]:
+                - img [ref=e94]
+              - link "واتساب" [ref=e96] [cursor=pointer]:
+                - /url: https://wa.me/218911111111
+                - img [ref=e97]
+          - generic [ref=e99]:
+            - heading "روابط سريعة" [level=4] [ref=e100]
+            - generic [ref=e101]:
+              - link "الخطط" [ref=e102] [cursor=pointer]:
+                - /url: /pricing
+              - link "منيو تجريبي" [ref=e103] [cursor=pointer]:
+                - /url: /menu/al-waha-cafe
+              - link "تسجيل الدخول" [ref=e104] [cursor=pointer]:
+                - /url: /login
+              - link "اشترك الآن" [ref=e105] [cursor=pointer]:
+                - /url: /subscribe
+          - generic [ref=e106]:
+            - heading "الخدمات" [level=4] [ref=e107]
+            - generic [ref=e108]:
+              - generic [ref=e109]: منيو إلكتروني
+              - generic [ref=e110]: طلب عبر واتساب
+              - generic [ref=e111]: برنامج ولاء
+              - generic [ref=e112]: إحصائيات وتحليلات
+              - generic [ref=e113]: QR كود مخصص
+          - generic [ref=e114]:
+            - heading "تواصل معنا" [level=4] [ref=e115]
+            - generic [ref=e116]:
+              - link "واتساب" [ref=e117] [cursor=pointer]:
+                - /url: https://wa.me/218911111111
+              - generic [ref=e118]: دعم فني 24/7
+        - generic [ref=e119]:
+          - paragraph [ref=e120]: © 2026 الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
+          - generic [ref=e121]:
+            - link "شروط الاستخدام" [ref=e122] [cursor=pointer]:
+              - /url: /terms
+            - link "سياسة الخصوصية" [ref=e123] [cursor=pointer]:
+              - /url: /privacy
+  - region "Notifications alt+T"
+  - alert [ref=e124]

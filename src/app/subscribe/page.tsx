@@ -341,7 +341,7 @@ function SubscribeContent() {
                   <Input
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="218911111111"
+                    placeholder="0910089975"
                     className="h-11 mt-1.5 text-left"
                     dir="ltr"
                   />
@@ -351,7 +351,7 @@ function SubscribeContent() {
                   <Input
                     value={form.whatsapp}
                     onChange={(e) => { setForm({ ...form, whatsapp: e.target.value }) }}
-                    placeholder="218911111111"
+                    placeholder="0910089975"
                     className="h-11 mt-1.5 text-left"
                     dir="ltr"
                   />
