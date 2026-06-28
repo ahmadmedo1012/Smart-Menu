@@ -442,7 +442,7 @@ function SubscribeContent() {
 
               <p className="text-xs text-center text-muted-foreground/60">
                 بالضغط على إنشاء الحساب، أنت توافق على{" "}
-                <Link href="/" className="text-primary underline">شروط الخدمة</Link>
+                <Link href="/terms" className="text-primary underline">شروط الخدمة</Link>
               </p>
             </div>
           </div>

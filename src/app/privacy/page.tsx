@@ -1,4 +1,7 @@
 import type { Metadata } from "next"
+import { Header } from "@/components/layout/Header"
+import { Footer } from "@/components/layout/Footer"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 export const metadata: Metadata = {
 	title: "سياسة الخصوصية",
@@ -7,9 +10,13 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
 	return (
 		<div className="min-h-screen bg-background">
+			<Header />
+			<div className="fixed right-4 top-4 z-50">
+				<ThemeToggle />
+			</div>
 			<div className="max-w-3xl mx-auto px-4 py-20">
 				<h1 className="text-3xl font-bold mb-8">سياسة الخصوصية</h1>
-				<div className="space-y-6 text-muted-foreground">
+				<div className="space-y-6 text-foreground/80">
 					<p>نحن في الربط الذكي | Smart Menu نلتزم بحماية خصوصيتك. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p>
 					<h2 className="text-foreground text-xl font-semibold mt-8">المعلومات التي نجمعها</h2>
 					<ul className="list-disc pr-5 space-y-2">
@@ -34,6 +41,7 @@ export default function PrivacyPage() {
 					<p className="text-sm mt-12">آخر تحديث: يونيو 2026</p>
 				</div>
 			</div>
+			<Footer />
 		</div>
 	)
 }

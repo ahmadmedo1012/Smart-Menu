@@ -36,12 +36,12 @@ export default function HomePage() {
 								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">ينضمون إلينا شهرياً</div>
 							</div>
 							<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">+١٠,٠٠٠</div>
+								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">+10,000</div>
 								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">طلب يومياً</div>
 								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">يتم إدارتها عبر المنصة</div>
 							</div>
 							<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">٩٨٪</div>
+								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">98%</div>
 								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">رضا العملاء</div>
 								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">بناءً على آلاف التقييمات</div>
 							</div>

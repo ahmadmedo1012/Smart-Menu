@@ -2,6 +2,8 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { FileQuestion, Store, Star, LayoutDashboard, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Header } from "@/components/layout/Header"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 export const metadata: Metadata = {
   title: "404 - الصفحة غير موجودة",
@@ -18,6 +20,10 @@ const SUGGESTIONS = [
 export default function NotFound() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+      <Header />
+      <div className="fixed right-4 top-20 z-50">
+        <ThemeToggle />
+      </div>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-orange/5" />
       <div className="absolute top-10 left-10 size-56 rounded-full bg-primary/5 blur-3xl animate-float" />
       <div className="absolute bottom-10 right-10 size-64 rounded-full bg-orange/5 blur-3xl animate-float-delayed" />

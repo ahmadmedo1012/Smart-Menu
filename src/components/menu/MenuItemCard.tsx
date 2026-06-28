@@ -70,8 +70,8 @@ const MenuItemCard = memo(function MenuItemCard({
           </div>
         )}
 
-        {/* Badges — top end (left in RTL) */}
-        <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
+        {/* Badges — start (RTL-aware) */}
+        <div className="absolute top-1.5 start-1.5 flex flex-col gap-1">
           <AnimatePresence>
             {item.isPopular && (
               <motion.span
@@ -101,9 +101,9 @@ const MenuItemCard = memo(function MenuItemCard({
           </AnimatePresence>
         </div>
 
-        {/* Discount badge — top start (right in RTL) */}
+        {/* Discount badge — end (RTL-aware) */}
         {hasDiscount && (
-          <div className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-lg">
+          <div className="absolute top-1.5 end-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-lg">
             -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
           </div>
         )}

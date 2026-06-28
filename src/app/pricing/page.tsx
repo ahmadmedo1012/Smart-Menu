@@ -186,7 +186,7 @@ export default function PricingPage() {
               شهري
             </button>
             <button type="button" onClick={() => setYearly(true)} className="relative z-10 px-5 sm:px-6 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors">
-              سنوي
+              سنوي —
               <span className="mr-1 text-xs text-orange font-bold">وفر شهرين</span>
             </button>
           </div>
