@@ -16,7 +16,7 @@ const features = [
 
 export default function FeaturesSection() {
 	return (
-		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-16 sm:py-24 overflow-hidden">
+		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-12 sm:py-16 overflow-hidden">
 			<div className="absolute inset-0 z-0">
 				<img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.03]" loading="lazy" />
 			</div>

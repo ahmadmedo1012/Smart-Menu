@@ -8,6 +8,7 @@ import HeroSection from "./HeroSection"
 import FeaturesSection from "./sections/FeaturesSection"
 import TestimonialsSection from "./sections/TestimonialsSection"
 import ClientsSection from "./sections/ClientsSection"
+import ShowcaseSection from "./sections/ShowcaseSection"
 import FinalCTASection from "./sections/FinalCTASection"
 
 export default function HomePage() {
@@ -22,9 +23,10 @@ export default function HomePage() {
 			<Header />
 			<HeroSection />
 			<FeaturesSection />
+			<ShowcaseSection />
 			{stats && (
-				<section className="relative py-20 text-center">
-					<div className="max-w-[1220px] mx-auto px-4 grid sm:grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+				<section className="relative py-14 sm:py-16 text-center">
+					<div className="max-w-[1220px] mx-auto px-4 grid sm:grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
 						<div className="gpu-layer rounded-sm bg-card border border-border/50 p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300 text-right">
 							<div className="text-4xl md:text-5xl font-medium text-orange mb-1">{stats.totalRestaurants}+</div>
 							<div className="text-sm text-muted-foreground">مطعم ومقهى</div>

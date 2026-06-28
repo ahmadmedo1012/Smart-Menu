@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "vercel.app" },
       { protocol: "https", hostname: "*.vercel.app" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 1080, 1200, 1920],
