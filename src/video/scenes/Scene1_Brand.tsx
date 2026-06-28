@@ -1,8 +1,6 @@
 import { interpolate, AbsoluteFill, Easing, useCurrentFrame, Sequence } from "remotion"
 import { loadFont } from "@remotion/google-fonts/Outfit"
 import { Audio } from "@remotion/media"
-import { Lottie } from "@remotion/lottie"
-import foodIcon from "../food-icon.json"
 
 const { fontFamily } = loadFont("normal", { weights: ["300", "400", "600", "700", "800"], subsets: ["latin"] })
 
@@ -11,95 +9,79 @@ const TXT = "#ffffff"
 const TXT_MUTED = "rgba(255,255,255,0.4)"
 const EZ = Easing.bezier(0.16, 1, 0.3, 1)
 
+const HERO_IMG = "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=1080&h=1920&fit=crop"
+
 export const Scene1_Brand: React.FC = () => {
 	const f = useCurrentFrame()
-	const op = interpolate(f, [0, 15], [0.8, 1], { extrapolateRight: "clamp" })
-	const logoScale = interpolate(f, [0, 25], [0.85, 1], { extrapolateRight: "clamp", easing: EZ })
-	const subOp = interpolate(f, [20, 40], [0, 1], { extrapolateRight: "clamp" })
-	const subY = interpolate(f, [20, 40], [16, 0], { extrapolateRight: "clamp", easing: EZ })
-	const lineW = interpolate(f, [35, 55], [0, 1], { extrapolateRight: "clamp", easing: EZ })
-	const bottomOp = interpolate(f, [50, 70], [0, 0.6], { extrapolateRight: "clamp" })
-	const fadeOut = interpolate(f, [130, 150], [0, 1], { extrapolateLeft: "clamp" })
+	const imgScale = interpolate(f, [0, 120], [1.0, 1.06], { extrapolateRight: "clamp" })
+	const overlayOp = interpolate(f, [0, 20], [0.6, 0.3], { extrapolateRight: "clamp" })
+	const contentOp = interpolate(f, [15, 40], [0, 1], { extrapolateRight: "clamp" })
+	const logoY = interpolate(f, [15, 40], [20, 0], { extrapolateRight: "clamp", easing: EZ })
+	const lineS = interpolate(f, [45, 65], [0, 1], { extrapolateRight: "clamp", easing: EZ })
+	const tagOp = interpolate(f, [50, 75], [0, 0.6], { extrapolateRight: "clamp" })
+	const fadeOut = interpolate(f, [105, 120], [0, 1], { extrapolateLeft: "clamp" })
 
 	return (
-		<AbsoluteFill style={{ background: "#050505", fontFamily }}>
-			{/* Vignette */}
+		<AbsoluteFill style={{ background: "#000", fontFamily }}>
+			{/* Hero image */}
 			<div style={{
 				position: "absolute", inset: 0,
-				background: "radial-gradient(ellipse at 50% 42%, oklch(0.17 0.025 45 / 0.5), #050505 70%)",
+				background: `url(${HERO_IMG}) center/cover`,
+				transform: `scale(${imgScale})`,
+				filter: "brightness(0.85) contrast(1.05)",
 			}} />
-			{/* Particles */}
-			{Array.from({length: 20}).map((_, i) => {
-				const seed = i * 31
-				return (
-					<div key={i} style={{
-						position: "absolute", width: i % 3 === 0 ? 3 : 2, height: i % 3 === 0 ? 3 : 2,
-						borderRadius: "50%", background: i % 4 === 0 ? O : "rgba(255,255,255,0.3)",
-						left: `${5 + ((seed * 13) % 90)}%`, top: `${5 + ((seed * 7) % 90)}%`,
-						opacity: interpolate((f + seed * 2) % 160, [0, 80, 160], [0, 0.35, 0]),
-						transform: `translateY(${interpolate((f + seed) % 200, [0, 200], [0, 25 - (seed % 50)])}px)`,
-						filter: i % 3 === 0 ? "blur(1px)" : "none",
-					}} />
-				)
-			})}
-			{/* Center glow */}
-			<div style={{
-				position: "absolute", width: 500, height: 500, borderRadius: "50%",
-				background: `radial-gradient(circle, ${O}33, transparent 70%)`,
-				filter: "blur(60px)", top: "50%", left: "50%", translate: "-50% -55%",
-				opacity: interpolate(f, [0, 40], [0.3, 0.7], { extrapolateRight: "clamp" }),
-			}} />
-			{/* Content */}
-			<div style={{
-				position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-				alignItems: "center", justifyContent: "center", opacity: op * (1 - fadeOut),
-			}}>
-				{/* Lottie animation above logo */}
-				<Sequence from={0} durationInFrames={150}>
-					<div style={{
-						position: "absolute", top: "30%", left: "50%", translate: "-50% 0",
-						width: 120, height: 120, opacity: interpolate(f, [0, 20], [0, 0.5]),
-					}}>
-						<Lottie
-							animationData={foodIcon}
-							loop
-						/>
-					</div>
-				</Sequence>
 
+			{/* Dark overlay — deep vignette */}
+			<div style={{
+				position: "absolute", inset: 0,
+				background: `
+					linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 30%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.3) 100%)
+				`,
+				opacity: overlayOp,
+			}} />
+
+			{/* Warm glow from bottom */}
+			<div style={{
+				position: "absolute", bottom: 0, left: 0, right: 0,
+				height: "50%",
+				background: `linear-gradient(0deg, ${O}22, transparent)`,
+			}} />
+
+			{/* Brand content */}
+			<div style={{
+				position: "absolute", inset: 0,
+				display: "flex", flexDirection: "column",
+				alignItems: "center", justifyContent: "center",
+				opacity: contentOp * (1 - fadeOut),
+			}}>
 				<div style={{
-					width: 88, height: 88, borderRadius: 22,
+					width: 80, height: 80, borderRadius: 20,
 					background: `linear-gradient(145deg, ${O}, #fb923c)`,
 					display: "flex", alignItems: "center", justifyContent: "center",
-					marginBottom: 20, scale: String(logoScale),
-					boxShadow: `0 0 70px ${O}44, 0 0 140px ${O}22`,
+					marginBottom: 18, transform: `translateY(${logoY}px)`,
+					boxShadow: `0 0 50px ${O}44`,
 				}}>
-					<svg width={40} height={40} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} strokeLinecap="round">
+					<svg width={36} height={36} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5}>
 						<path d="M3 12h2M21 12h-2M12 3v2M12 21v-2" /><circle cx="12" cy="12" r="8" /><path d="M8 12l2 2 4-4" />
 					</svg>
 				</div>
-				<div style={{ fontSize: 64, fontWeight: 800, color: TXT, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 4 }}>
+				<div style={{
+					fontSize: 56, fontWeight: 700, color: TXT,
+					letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 4,
+				}}>
 					Smart Menu
 				</div>
+				<div style={{ width: `${lineS * 40}px`, height: 3, borderRadius: 2, background: O, marginTop: 6 }} />
 				<div style={{
-					fontSize: 15, fontWeight: 400, color: TXT_MUTED,
-					opacity: subOp, transform: `translateY(${subY}px)`, letterSpacing: "0.35em",
+					fontSize: 13, fontWeight: 300, color: TXT_MUTED,
+					marginTop: 10, letterSpacing: "0.3em", opacity: tagOp,
 				}}>
 					منيو رقمي احترافي
 				</div>
-				<div style={{
-					width: `${lineW * 50}px`, height: 3, borderRadius: 2, background: O,
-					marginTop: 18, boxShadow: `0 0 20px ${O}66`,
-				}} />
-				<div style={{
-					position: "absolute", bottom: 80, fontSize: 11, color: TXT_MUTED,
-					textAlign: "center", letterSpacing: "0.2em", opacity: bottomOp,
-				}}>
-					حلول رقمية للمطاعم
-				</div>
 			</div>
-			<Sequence from={25}>
-				<Audio src="https://remotion.media/whoosh.wav" volume={0.35} />
+
+			<Sequence from={18}>
+				<Audio src="https://remotion.media/whoosh.wav" volume={0.3} />
 			</Sequence>
 		</AbsoluteFill>
 	)
