@@ -110,9 +110,6 @@ function SubscribeContent() {
 
   const handlePaymentSuccess = () => {
     setPaymentOpen(false);
-    setSubmitted(true);
-    toast.success("تم إرسال طلب الدفع. سيتم التواصل معك بعد التحقق.");
-    // For paid plans: DON'T create account here. Admin approves via /admin/subscriptions
     router.push("/order-confirmed?type=subscription");
   };
 

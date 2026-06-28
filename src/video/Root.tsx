@@ -1,16 +1,16 @@
 import { Composition } from "remotion"
-import { PhoneMenuVideo } from "./PhoneMenu"
+import { PromoVideo } from "./PromoVideo"
 
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Composition
-				id="PhoneMenu"
-				component={PhoneMenuVideo}
-				durationInFrames={720}
+				id="SmartMenuPromo"
+				component={PromoVideo}
+				durationInFrames={770}
 				fps={30}
-				width={390}
-				height={844}
+				width={1080}
+				height={1920}
 			/>
 		</>
 	)
