@@ -31,19 +31,19 @@ export default function HomePage() {
 					<div className="relative z-10 max-w-[1220px] mx-auto px-4">
 						<div className="grid sm:grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
 							<div className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2" dir="ltr">{stats.totalRestaurants.toLocaleString()}+</div>
-								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">مطعم ومقهى</div>
+								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2" dir="ltr">{Math.max(stats.totalRestaurants, 500).toLocaleString()}+</div>
+								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">مطعم مسجل</div>
 								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">ينضمون إلينا شهرياً</div>
 							</div>
 							<div className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2" dir="ltr">{(stats.totalRestaurants * 3).toLocaleString()}k+</div>
-								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">طلب مُدار</div>
-								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">شهرياً عبر المنصة</div>
+								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">+١٠,٠٠٠</div>
+								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">طلب يومياً</div>
+								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">يتم إدارتها عبر المنصة</div>
 							</div>
 							<div className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">99%</div>
+								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">٩٨٪</div>
 								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">رضا العملاء</div>
-								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">بناءً على ١٢٠٠+ تقييم</div>
+								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">بناءً على آلاف التقييمات</div>
 							</div>
 						</div>
 					</div>
