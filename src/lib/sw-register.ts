@@ -30,6 +30,11 @@ export function useServiceWorker() {
                   detail: { registration },
                 }),
               );
+              window.dispatchEvent(
+                new CustomEvent("sw-update-available", {
+                  detail: { version: "new" },
+                }),
+              );
             }
           });
         });
@@ -39,9 +44,7 @@ export function useServiceWorker() {
     })();
 
     return () => {
-      if (registration) {
-        registration.unregister().catch(() => {});
-      }
+      // don't unregister — would destroy SW cache mid-session
     };
   }, []);
 }

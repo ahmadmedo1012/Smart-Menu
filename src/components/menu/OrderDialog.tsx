@@ -12,6 +12,7 @@ import type { MenuItemProp } from "./MenuItemCard";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { buildReceiptMessage } from "@/lib/receipt";
+import { useCart } from "@/store/cart";
 
 type OrderDialogProps = {
   item: MenuItemProp | null;
@@ -41,14 +42,15 @@ export default function OrderDialog({
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [orderType, setOrderType] = useState<"delivery" | "takeaway">("delivery");
+  const [orderType, setOrderType] = useState<"inside" | "delivery" | "takeaway">("inside");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const cartPickupType = useCart((s) => s.pickupType);
 
   useEffect(() => {
-    if (open) { setNotes(""); setQuantity(1); setSubmitting(false); setConfirmed(false); setOrderType("delivery"); setCustomerName(""); setCustomerPhone(""); }
-  }, [open, item?.id]);
+    if (open) { setNotes(""); setQuantity(1); setSubmitting(false); setConfirmed(false); setOrderType(cartPickupType ?? "inside"); setCustomerName(""); setCustomerPhone(""); }
+  }, [open, item?.id, cartPickupType]);
 
   if (!item) return null;
 
@@ -200,13 +202,13 @@ export default function OrderDialog({
 
             {/* Order type */}
             <div className="flex gap-2">
-              {(["delivery", "takeaway"] as const).map(type => (
+              {(["inside", "delivery", "takeaway"] as const).map(type => (
                 <button key={type} type="button" onClick={() => setOrderType(type)}
                   className={cn("flex-1 py-2.5 rounded-sm text-sm font-medium border transition-all",
                     orderType === type
                       ? "bg-orange-muted border-orange/30 text-orange"
                       : "border-border/30 text-muted-foreground hover:border-orange/30")}>
-                  {type === "delivery" ? "توصيل" : "استلام"}
+                  {type === "delivery" ? "توصيل" : type === "inside" ? "داخلي" : "استلام"}
                 </button>
               ))}
             </div>

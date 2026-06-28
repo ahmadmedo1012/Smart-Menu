@@ -4,8 +4,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-const EASE: [number, number, number, number] = [0.16, 1, 0.2, 1]
+import { springGentle, springDefault, springSnappy } from "@/lib/motion"
 
 export default function FinalCTASection() {
   return (
@@ -33,14 +32,14 @@ export default function FinalCTASection() {
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: EASE }}
+          transition={springGentle}
         >
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+            transition={{ ...springDefault, delay: 0.1 }}
             className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-6"
           >
             <Sparkles className="size-3" />
@@ -51,7 +50,7 @@ export default function FinalCTASection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
+            transition={{ ...springDefault, delay: 0.2 }}
             className="text-2xl sm:text-3xl md:text-4xl lg:text-[3.5rem] font-medium leading-[1.1] mb-4 sm:mb-5 text-balance"
           >
             جهّز مطعمك <span className="text-orange">للانطلاق الرقمي</span>
@@ -61,7 +60,7 @@ export default function FinalCTASection() {
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3, ease: EASE }}
+            transition={{ ...springDefault, delay: 0.3 }}
             className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed mb-10 sm:mb-12 max-w-xl mx-auto"
           >
             انضم إلى <span className="font-bold text-foreground">عشرات المطاعم والمقاهي</span>.
@@ -72,7 +71,7 @@ export default function FinalCTASection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4, ease: EASE }}
+            transition={{ ...springSnappy, delay: 0.4 }}
             className="flex gap-4 justify-center flex-wrap"
           >
             <Link href="/subscribe">
@@ -91,7 +90,7 @@ export default function FinalCTASection() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5, ease: EASE }}
+            transition={{ ...springDefault, delay: 0.5 }}
             className="text-xs text-muted-foreground/60 mt-6"
           >
             مجاناً بدون بطاقة ائتمان · إلغاء في أي وقت · دعم فني متكامل

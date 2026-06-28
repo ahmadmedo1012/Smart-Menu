@@ -1,5 +1,6 @@
 "use client"
 import { motion } from "framer-motion"
+import { springGentle, springSnappy } from "@/lib/motion"
 import { useEffect, useState } from "react"
 import { Footer } from "@/components/layout/Footer"
 import { Header } from "@/components/layout/Header"
@@ -31,7 +32,7 @@ export default function HomePage() {
 					initial={{ opacity: 0, y: 40 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, amount: 0.3 }}
-					transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+					transition={springGentle}
 				>
 					<section className="relative py-12 sm:py-16 text-center overflow-hidden">
 						<div className="absolute -top-20 left-1/2 -translate-x-1/2 size-72 rounded-full bg-orange/5 blur-[100px] pointer-events-none" />
@@ -41,7 +42,7 @@ export default function HomePage() {
 									initial={{ opacity: 0, y: 30 }}
 									whileInView={{ opacity: 1, y: 0 }}
 									viewport={{ once: true }}
-									transition={{ duration: 0.5, delay: 0 * 0.1, ease: [0.16, 1, 0.3, 1] }}
+									transition={{ ...springSnappy, delay: 0 }}
 								>
 									<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
 										<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2" dir="ltr">{Math.max(stats.totalRestaurants, 500).toLocaleString()}+</div>
@@ -53,7 +54,7 @@ export default function HomePage() {
 									initial={{ opacity: 0, y: 30 }}
 									whileInView={{ opacity: 1, y: 0 }}
 									viewport={{ once: true }}
-									transition={{ duration: 0.5, delay: 1 * 0.1, ease: [0.16, 1, 0.3, 1] }}
+									transition={{ ...springSnappy, delay: 0.1 }}
 								>
 									<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
 										<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">+10,000</div>
@@ -65,7 +66,7 @@ export default function HomePage() {
 									initial={{ opacity: 0, y: 30 }}
 									whileInView={{ opacity: 1, y: 0 }}
 									viewport={{ once: true }}
-									transition={{ duration: 0.5, delay: 2 * 0.1, ease: [0.16, 1, 0.3, 1] }}
+									transition={{ ...springSnappy, delay: 0.2 }}
 								>
 									<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
 										<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">98%</div>

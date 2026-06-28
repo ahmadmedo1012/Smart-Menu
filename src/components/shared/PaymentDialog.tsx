@@ -18,7 +18,6 @@ import { Smartphone, Copy, Phone, CheckCircle2 } from "lucide-react";
 const MADAR_PHONE = "0910089975";
 const LIBYANA_PHONE = "0942119637";
 
-const R = 40;
 
 type Provider = "libyana" | "madar";
 

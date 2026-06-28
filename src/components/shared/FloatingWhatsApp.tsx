@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export function FloatingWhatsApp({ phone = "218911111111" }: { phone?: string }) {
 	return (
 		<a
-			href={`https://wa.me/${phone}`}
+			href={`https://wa.me/${phone.replace(/^\+/, "")}`}
 			target="_blank"
 			rel="noopener noreferrer"
 			className={cn(

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import Link from "next/link"
 import { error as logError } from "@/lib/logger"
 import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -29,6 +30,7 @@ export default function CartError({
           <Button size="lg" className="text-base px-8 h-12" onClick={() => reset()}>
             إعادة المحاولة
           </Button>
+          <Link href="/" className="text-sm text-muted-foreground underline self-center">العودة إلى القائمة الرئيسية</Link>
         </div>
       </div>
     </div>

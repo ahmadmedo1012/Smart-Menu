@@ -33,7 +33,7 @@ export default function AdminMenuPage() {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [restaurantFilter, setRestaurantFilter] = useState<number | null>(null)
+  // ponytail: restaurant filter removed — not yet supported by items API
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [deleteTarget, setDeleteTarget] = useState<{ type: "category" | "item"; id: number; name: string; parentRestaurant?: string } | null>(null)
 
@@ -57,7 +57,7 @@ export default function AdminMenuPage() {
       const catResults = await Promise.all(catPromises)
       const allCats = catResults.flatMap(j => j.data ?? j ?? [])
       setCategories(allCats)
-    } catch { toast.error("فشل تحميل البيانات") }
+    } catch { setLoading(false); toast.error("فشل تحميل البيانات") }
     finally { setLoading(false) }
   }, [])
 
@@ -122,23 +122,13 @@ export default function AdminMenuPage() {
         </div>
       </div>
 
-      {/* Search + filter */}
+      {/* Search */}
       <div className="flex gap-2">
         <SearchInput
           value={search}
           onChange={setSearch}
           placeholder="ابحث عن صنف..."
         />
-        {<select
-            value={restaurantFilter ?? ""}
-            onChange={e => setRestaurantFilter(e.target.value ? Number(e.target.value) : null)}
-            className="h-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-orange"
-          >
-            <option value="">كل المطاعم</option>
-            {restaurants.map(r => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>}
       </div>
 
       {/* Stats */}

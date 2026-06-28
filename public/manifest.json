@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf7f2",
-  "theme_color": "#d97706",
+  "theme_color": "#000000",
   "dir": "rtl",
   "lang": "ar",
   "orientation": "portrait",
@@ -36,9 +36,15 @@
     }
   ],
   "categories": ["food", "restaurant", "business"],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "prefer_related_applications": false,
   "related_applications": [],
-  "scope": "/",
-  "precache_manifest": "/sw.js"
+  "scope": "/"
 }

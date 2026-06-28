@@ -47,6 +47,18 @@ export default function OwnerOrdersPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const eventSourceRef = useRef<EventSource | null>(null)
+  const sseErrorCountRef = useRef(0)
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const fetchOrdersRef = useRef<typeof fetchOrders>(null as any)
+
+  const startPolling = useCallback((status: string) => {
+    if (pollingRef.current) return
+    pollingRef.current = setInterval(() => fetchOrdersRef.current?.(status, 1, false), 15000)
+  }, [])
+
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null }
+  }, [])
 
   const fetchOrders = useCallback(async (status: string, pageNum = 1, append = false, dateF?: string, dateT?: string) => {
     try {
@@ -76,6 +88,7 @@ export default function OwnerOrdersPage() {
     } catch { setError("فشل تحميل الطلبات"); toast.error("فشل تحميل الطلبات") }
     finally { if (pageNum === 1) setLoading(false); else setLoadingMore(false) }
   }, [dateFrom, dateTo])
+  useEffect(() => { fetchOrdersRef.current = fetchOrders }, [fetchOrders])
 
   const loadMore = () => fetchOrders(filter, page + 1, true)
 
@@ -85,6 +98,7 @@ export default function OwnerOrdersPage() {
   useEffect(() => {
     const es = new EventSource("/api/orders/stream")
     eventSourceRef.current = es
+    sseErrorCountRef.current = 0
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
@@ -94,8 +108,17 @@ export default function OwnerOrdersPage() {
         }
       } catch {}
     }
-    return () => { es.close() }
-  }, [filter, fetchOrders])
+    es.onerror = () => {
+      sseErrorCountRef.current += 1
+      console.error("SSE connection error — count:", sseErrorCountRef.current)
+      if (sseErrorCountRef.current >= 3) {
+        es.close()
+        toast.error("فقدان الاتصال المباشر. جاري التحديث الدوري...")
+        startPolling(filter)
+      }
+    }
+    return () => { es.close(); stopPolling() }
+  }, [filter, fetchOrders, startPolling, stopPolling])
 
   const updateStatus = async (orderId: number, newStatus: string) => {
     try {

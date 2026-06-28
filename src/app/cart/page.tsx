@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { csrfFetch } from "@/lib/csrf-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2 } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { toArabicNumber } from "@/lib/format";
@@ -75,7 +76,7 @@ export default function CartPage() {
       customerPhone: customerPhone.trim() || undefined,
       pickupType,
     });
-    const waNumber = restaurantWhatsapp.replace(/^\+/, "");
+    const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
     if (waNumber) {
       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, "_blank");
     }
@@ -96,7 +97,10 @@ export default function CartPage() {
           restaurantId: restaurantId || undefined,
         }),
       });
-    } catch {}
+    } catch {
+      toast.error("فشل تقديم الطلب. يرجى المحاولة مرة أخرى");
+      setIsSubmitting(false);
+      return;}
 
     setConfirmed(true);
     setIsSubmitting(false);
@@ -199,6 +203,18 @@ export default function CartPage() {
           </button>
         ))}
       </div>
+
+      {/* Delivery address */}
+      {pickupType === "delivery" && (
+        <div className="mb-6 animate-slide-up delay-150">
+          <label className="text-sm font-medium mb-2 block">عنوان التوصيل</label>
+          <textarea
+            placeholder="أدخل عنوان التوصيل بالتفصيل"
+            className="w-full rounded-lg border border-border/30 bg-card/50 p-3 text-sm outline-none focus-visible:border-orange resize-none"
+            rows={2}
+          />
+        </div>
+      )}
 
       {/* Cart items */}
       <div className="space-y-4 mb-8">

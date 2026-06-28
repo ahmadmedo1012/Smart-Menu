@@ -10,7 +10,7 @@ export function MotionProvider({ children }: { children: ReactNode }) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="sync" initial={false}>
         <motion.div
           key={pathname}
           variants={pageVariants}
