@@ -3,27 +3,24 @@
 import { motion } from "framer-motion"
 import { STEPS } from "@/components/landing/landing-data"
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.2, 1]
+const EASE: [number, number, number, number] = [0.32, 0.72, 0, 1]
 
 export default function HowItWorksSection() {
   return (
-    <section className="relative py-16 sm:py-20 overflow-hidden">
-      <div
-        className="pointer-events-none absolute top-1/3 right-1/4 -translate-y-1/2 size-[50vmin] rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center, oklch(0.68 0.19 45 / 0.05) 0%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-      />
+    <section className="relative py-20 sm:py-28 overflow-hidden">
+      {/* Ambient */}
+      <div className="pointer-events-none absolute top-1/3 right-1/4 size-[50vmin] rounded-full bg-orange/4 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-1/3 left-1/4 size-[30vmin] rounded-full bg-orange/3 blur-[80px]" />
 
       <div className="relative z-10 max-w-[1220px] mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14 sm:mb-16">
+        {/* Header */}
+        <div className="text-center mb-16 sm:mb-20">
           <motion.span
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, ease: EASE }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-5"
+            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-5"
           >
             خطوات بسيطة
           </motion.span>
@@ -33,7 +30,7 @@ export default function HowItWorksSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.06, ease: EASE }}
-            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-[520] leading-[1.2] tracking-[-0.02em]"
+            className="text-[1.8rem] sm:text-3xl md:text-[2.75rem] font-[520] leading-[1.2] tracking-[-0.02em]"
           >
             ابدأ في ٣ خطوات فقط
           </motion.h2>
@@ -43,39 +40,63 @@ export default function HowItWorksSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.15, ease: EASE }}
-            className="text-sm text-muted-foreground/70 mt-4 max-w-lg mx-auto"
+            className="text-sm text-muted-foreground/70 mt-3 max-w-lg mx-auto"
           >
             من التسجيل إلى استقبال الطلبات في دقائق
           </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+        {/* Steps grid */}
+        <div className="grid md:grid-cols-3 gap-8 sm:gap-12 md:gap-16">
           {STEPS.map((step, i) => (
             <motion.div
               key={step.title}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.6, delay: i * 0.12, ease: EASE }}
-              className="relative flex flex-col items-center text-center"
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, delay: i * 0.15, ease: EASE }}
+              className="relative flex flex-col items-center text-center group"
             >
-              {/* Step number circle */}
-              <div className="relative mb-6">
-                <div className="size-16 sm:size-20 rounded-full bg-orange/10 border border-orange/20 flex items-center justify-center">
+              {/* Icon container with depth */}
+              <div className="relative mb-7">
+                <div className="absolute inset-0 size-16 sm:size-20 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-all duration-500" />
+                <div className="relative size-16 sm:size-20 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-all duration-500">
                   <step.icon className="size-7 sm:size-8 text-orange" />
                 </div>
-                {/* Connector line */}
+
+                {/* Step badge */}
+                <div className="absolute -top-1 -right-1 size-6 rounded-full bg-orange text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/30">
+                  {i + 1}
+                </div>
+
+                {/* Connector line (desktop only) */}
                 {i < STEPS.length - 1 && (
-                  <div className="hidden md:block absolute top-1/2 left-full w-[calc(100%+1.5rem)] h-[1px] -translate-y-1/2 bg-gradient-to-r from-orange/30 to-transparent" />
+                  <div className="hidden md:block absolute top-1/2 left-[calc(50%+3rem)] w-[calc(100%-6rem)] h-[1px]">
+                    {/* Static gradient line */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange/40 to-transparent" />
+                    {/* Animated dash */}
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: 0.8 + i * 0.15, ease: EASE }}
+                      className="absolute inset-0 bg-gradient-to-r from-orange/60 to-orange/10 origin-left"
+                      style={{ transformOrigin: "left center" }}
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Step label */}
-              <span className="inline-flex items-center justify-center size-6 rounded-full bg-orange text-white text-[0.65rem] font-bold mb-3">
-                {i + 1}
-              </span>
+              {/* Diamond divider */}
+              <motion.div
+                initial={{ opacity: 0, rotate: 45 }}
+                whileInView={{ opacity: 1, rotate: 45 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.25 + i * 0.15, ease: EASE }}
+                className="size-2 bg-orange/40 rounded-sm mb-4"
+              />
 
-              <h3 className="text-lg sm:text-xl font-medium mb-2">{step.title}</h3>
+              <h3 className="text-lg sm:text-xl font-medium mb-2 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
               <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-[30ch]">{step.desc}</p>
             </motion.div>
           ))}

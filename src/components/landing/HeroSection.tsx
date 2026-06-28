@@ -83,7 +83,7 @@ export default function HeroSection() {
 						<div className="absolute -inset-8 rounded-full blur-[80px] opacity-40 pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)", willChange: "filter" }} />
 						<motion.div
 							className="gpu-layer phone-mask relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
-							animate={{ rotateY: -3, rotateX: 2 }}
+							animate={{ rotateY: -3, rotateX: 2, y: [0, -6, 0] }}
 							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02 }}
 							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>

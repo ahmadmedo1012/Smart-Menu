@@ -23,10 +23,10 @@ export default function FeaturesSection() {
 
 			<div className="relative z-10 max-w-[1220px] mx-auto px-4 sm:px-6">
 				<div className="text-center mb-12 sm:mb-16">
-					<span className="inline-flex text-xs font-medium text-orange bg-orange-muted rounded-sm px-2 py-0.5 mb-4">إليك ما يمكنك تحقيقه معنا</span>
+					<span className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-5">إليك ما يمكنك تحقيقه معنا</span>
 					<motion.h2
-						initial={{ opacity: 0, y: 24 }}
-						whileInView={{ opacity: 1, y: 0 }}
+						initial={{ opacity: 0, y: 24, scale: 0.96 }}
+						whileInView={{ opacity: 1, y: 0, scale: 1 }}
 						viewport={{ once: true }}
 						transition={{ duration: 0.6, ease: EASE }}
 						className="text-2xl sm:text-3xl md:text-4xl font-medium leading-[1.2]"
