@@ -11,6 +11,7 @@ interface GridPatternProps {
   squares?: [number, number][];
   className?: string;
   strokeDasharray?: string;
+  style?: React.CSSProperties;
 }
 
 export function GridPattern({
@@ -21,6 +22,7 @@ export function GridPattern({
   squares = [],
   strokeDasharray,
   className,
+  style,
 }: GridPatternProps) {
   const id = useId();
 
@@ -28,9 +30,10 @@ export function GridPattern({
     <svg
       aria-hidden="true"
       className={cn(
-        "pointer-events-none fixed inset-0 -z-10 size-full",
+        "pointer-events-none fixed inset-0 -z-10 size-full text-foreground",
         className,
       )}
+      style={{ opacity: 0.25, ...style }}
     >
       <defs>
         <pattern

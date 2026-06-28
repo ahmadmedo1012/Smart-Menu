@@ -87,7 +87,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GridPattern
-            className="[color:var(--grid-line)] [mask-image:radial-gradient(1200px_circle_at_50%_25%,white_20%,transparent)]"
             width={60}
             height={60}
           />
