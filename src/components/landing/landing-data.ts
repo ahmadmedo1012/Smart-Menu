@@ -39,9 +39,9 @@ export const PARTNERS: Partner[] = [
 ];
 
 export const STEPS: Step[] = [
-  { title: "1. سجل مطعمك", desc: "أدخل بيانات مطعمك في دقائق وأنشئ حساباً مجاناً", icon: UserPlus },
-  { title: "2. أضف المنيو", desc: "أضف الأصناف والفئات والأسعار والصور بسهولة", icon: UtensilsCrossed },
-  { title: "3. شارك الرابط", desc: "شارك رابط المنيو مع زبائنك وابدأ باستقبال الطلبات", icon: Share2 },
+  { title: "أنشئ حسابك", desc: "أدخل بيانات مطعمك وأنشئ حساباً مجاناً بدون بطاقة ائتمان", icon: UserPlus },
+  { title: "صمم المنيو الخاص بك", desc: "أضف الأصناف والفئات والأسعار والصور بسهولة عبر لوحة التحكم", icon: UtensilsCrossed },
+  { title: "استقبل طلباتك", desc: "شارك رابط المنيو مع زبائنك واستقبل الطلبات مباشرة على واتساب", icon: Share2 },
 ];
 
 export const PRICING_PLANS: PricingPlan[] = [

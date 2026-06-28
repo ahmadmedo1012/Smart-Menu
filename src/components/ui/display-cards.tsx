@@ -20,27 +20,17 @@ function DisplayCard({
   title = "Featured",
   description = "Discover amazing content",
   date = "Just now",
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  iconClassName = "text-blue-500",
+  iconClassName: _iconClassName,
   titleClassName = "text-blue-500",
 }: DisplayCardProps) {
-  const isRtl =
-    typeof document !== "undefined" &&
-    document.documentElement.dir === "rtl";
-
   return (
     <div
       className={cn(
-        "relative flex min-h-[8rem] w-full max-w-[22rem] -skew-y-[8deg] select-none flex-col justify-between rounded-xl border-2 bg-muted/70 backdrop-blur-sm px-5 py-4 transition-all duration-700",
-        "hover:border-white/20 hover:bg-muted",
+        "relative flex min-h-[8rem] w-full max-w-[22rem] select-none flex-col justify-between rounded-xl border-2 border-border/40 bg-card/90 px-5 py-4 transition-all duration-700",
+        "hover:border-white/20 hover:bg-card",
         "[&>*]:flex [&>*]:items-center [&>*]:gap-2",
-        /* LTR gradient mask */
-        "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[20rem] after:bg-gradient-to-l after:from-background after:to-transparent after:content-['']",
-        /* RTL override: flip gradient direction + position */
-        "rtl:after:-left-1 rtl:after:bg-gradient-to-r",
         className,
       )}
-      style={{ transformOrigin: isRtl ? "right center" : "left center" }}
     >
       <div>
         <span className="relative inline-block rounded-full bg-blue-800 p-1">
@@ -48,8 +38,8 @@ function DisplayCard({
         </span>
         <p className={cn("text-lg font-medium", titleClassName)}>{title}</p>
       </div>
-      <p className="w-full text-lg leading-snug break-words">{description}</p>
-      <p className="text-muted-foreground">{date}</p>
+      <p className="w-full text-base leading-relaxed tracking-normal">{description}</p>
+      <p className="text-sm text-muted-foreground/80">{date}</p>
     </div>
   );
 }

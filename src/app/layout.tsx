@@ -79,7 +79,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col antialiased overflow-x-hidden">
+      <body className="min-h-screen flex flex-col antialiased overflow-x-hidden" style={{ background: 'var(--background-radial), var(--background)' }}>
+        <div className="grain-overlay" />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

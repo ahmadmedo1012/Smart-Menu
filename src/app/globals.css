@@ -70,6 +70,7 @@
 
 	/* ── Dark theme (default) ── */
 	--background: oklch(0.07 0.002 0);
+	--background-radial: radial-gradient(circle at top right, oklch(0.68 0.19 45 / 0.04), transparent 60%);
 	--foreground: oklch(0.93 0.005 0);
 	--card: oklch(0.09 0.003 0);
 	--card-foreground: oklch(0.93 0.005 0);
@@ -426,6 +427,24 @@
 .gpu-layer {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
+}
+
+/* ── Grain texture (ambient depth) ── */
+@keyframes grain-anim { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-2%, -2%); } 20% { transform: translate(1%, -1%); } 30% { transform: translate(-1%, 2%); } 40% { transform: translate(2%, 1%); } 50% { transform: translate(-2%, 0); } 60% { transform: translate(0, -2%); } 70% { transform: translate(1%, 1%); } 80% { transform: translate(-1%, -1%); } 90% { transform: translate(2%, -2%); } }
+.grain-overlay::before {
+	content: ''; position: fixed; inset: 0; z-index: 60;
+	pointer-events: none; opacity: 0.035;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	background-size: 256px 256px;
+	animation: grain-anim 8s steps(10) infinite;
+}
+@media (prefers-reduced-motion: reduce) { .grain-overlay::before { animation: none; } }
+@media (prefers-color-scheme: light) { .grain-overlay::before { opacity: 0.018; } }
+
+/* ── Phone mockup bottom fade mask ── */
+.phone-mask {
+	-webkit-mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
+	mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
 }
 
 /* ── Phone video animations ── */
