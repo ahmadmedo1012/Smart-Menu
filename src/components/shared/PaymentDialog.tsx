@@ -18,8 +18,7 @@ import { Smartphone, Copy, Phone, CheckCircle2 } from "lucide-react";
 const MADAR_PHONE = "0910089975";
 const LIBYANA_PHONE = "0942119637";
 
-const RADIUS = 40;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const R = 40;
 
 type Provider = "libyana" | "madar";
 
@@ -106,21 +105,22 @@ export default function PaymentDialog({
     onSuccess();
   }, [cleanup, onOpenChange, onSuccess]);
 
-  // Countdown tick + poll for admin approval
+  const deadlineRef = useRef(0);
+
+  // Smooth countdown tick + poll for admin approval
   useEffect(() => {
     if (step !== "waiting") return;
 
+    deadlineRef.current = Date.now() + 30000;
     const tick = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(tick);
-          cleanup();
-          setStep("success");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+      setCountdown(remaining);
+      if (remaining <= 0) {
+        clearInterval(tick);
+        cleanup();
+        setStep("success");
+      }
+    }, 100);
 
     if (paymentId) {
       pollRef.current = setInterval(async () => {
@@ -161,8 +161,6 @@ export default function PaymentDialog({
     const val = Number(e.target.value);
     setAmount(val > 99 ? 99 : val);
   };
-
-  const offset = CIRCUMFERENCE * (1 - countdown / 30);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -302,57 +300,61 @@ export default function PaymentDialog({
             </>
           )}
 
-          {/* Waiting screen — premium circular countdown */}
+          {/* Waiting screen — smooth CSS ring */}
           {step === "waiting" && (
-            <div className="flex flex-col items-center py-8 space-y-6">
-              {/* Ring countdown */}
-              <div className="relative size-28">
+            <div className="flex flex-col items-center py-8 space-y-5">
+              <div className="relative size-24">
+                {/* Ring */}
                 <svg className="size-full -rotate-90" viewBox="0 0 100 100">
                   <circle
-                    cx="50" cy="50" r={RADIUS}
+                    cx="50" cy="50" r="40"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="5"
-                    className="text-muted/20"
+                    strokeWidth="4"
+                    className="text-muted/15"
                   />
                   <circle
-                    cx="50" cy="50" r={RADIUS}
+                    cx="50" cy="50" r="40"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="5"
-                    strokeDasharray={CIRCUMFERENCE}
-                    strokeDashoffset={offset}
+                    strokeWidth="4"
                     strokeLinecap="round"
-                    className="text-orange transition-all duration-1000 ease-linear"
+                    strokeDasharray="251.327"
+                    strokeDashoffset="0"
+                    className="text-orange animate-ring-drain"
+                    style={{ filter: "drop-shadow(0 0 6px oklch(0.55 0.19 45 / 0.35))" }}
                   />
                 </svg>
+                {/* Counter */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-foreground tabular-nums">{countdown}</span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">ثانية</span>
+                  <span className="text-xl font-bold text-foreground tabular-nums">{countdown}</span>
+                  <span className="text-[9px] text-muted-foreground">ثانية</span>
                 </div>
               </div>
 
-              {/* Status message */}
               <div className="text-center space-y-1">
-                <p className="text-sm font-medium text-foreground">في انتظار تأكيد الدفع</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm font-medium">في انتظار تأكيد الدفع</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
                   {provider === "libyana"
                     ? "سيتم تأكيد اشتراكك تلقائياً بعد التحويل"
                     : "بعد التحويل، انتظر موافقة الإدارة"}
                 </p>
               </div>
 
-              {/* Progress bar */}
-              <div className="w-full h-1 bg-muted/30 rounded-full overflow-hidden">
+              {/* Minimal bar */}
+              <div className="w-32 h-[2px] bg-muted/20 rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-orange to-orange/50"
-                  style={{ width: `${((30 - countdown) / 30) * 100}%` }}
+                  className="h-full rounded-full bg-orange"
+                  style={{ width: `${((30 - countdown) / 30) * 100}%`, transition: "width 0.3s linear" }}
                 />
               </div>
 
-              <p className="text-[10px] text-muted-foreground/50">
-                قد يتم تحويلك تلقائياً فور الموافقة
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
+                <span className="text-[10px] text-muted-foreground">
+                  {provider === "libyana" ? "تحويل تلقائي" : "في الانتظار"}
+                </span>
+              </div>
             </div>
           )}
 
