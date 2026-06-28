@@ -260,6 +260,5 @@ For RTL: `letter-spacing: 0` on headings.
 ## 9. Reference
 
 Based on PlanPOS design system analysis:
-- https://planpos.com/ — live reference
-- `DESIGN-planpos-com.md` — full extracted spec
+- https://planpos.com/ — live reference (full extracted spec)
 - globals.css — canonical token definitions

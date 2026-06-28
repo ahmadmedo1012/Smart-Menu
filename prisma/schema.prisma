@@ -76,6 +76,8 @@ model User {
 
   @@index([restaurantId])
   @@index([planId])
+  @@index([role])
+  @@index([lastLoginAt])
 }
 
 model SubscriptionPlan {
@@ -127,6 +129,7 @@ model Restaurant {
   referrals          Referral[]
   rewardTransactions RewardTransaction[]
   whatsappTemplates  WhatsappTemplate[]
+  @@index([isActive])
 
   @@index([planId])
 }
@@ -188,6 +191,7 @@ model Order {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
+  @@index([status, createdAt])
   @@index([restaurantId, status])
   @@index([customerPhone])
   @@index([createdAt])

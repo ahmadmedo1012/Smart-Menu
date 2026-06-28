@@ -56,7 +56,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
   return (
     <>
       <div className={cn("fixed inset-0 z-40 transition-all duration-300", open ? "opacity-100" : "opacity-0 pointer-events-none")} style={{ backgroundColor: "var(--overlay)" }} onClick={onClose} aria-hidden="true" />
-      <div className={cn("fixed top-0 left-0 right-0 z-50 transition-[transform,opacity] duration-500", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")} style={{ transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}>
+      <div className={cn("fixed inset-x-0 top-0 z-50 transition-[transform,opacity] duration-500", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")} style={{ transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}>
         <div className="mx-4 mt-4 rounded-2xl bg-background border border-border/10 shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
             <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-7 w-auto" priority />

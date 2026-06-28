@@ -96,5 +96,12 @@ public/uploads/*
 *.swp
 *.swo
 
+# Tool artifacts
+.impeccable/
+
+# Cruft
+*.bak
+.vsh/
+
 # OS
 Thumbs.db

@@ -140,6 +140,11 @@ npx playwright test  # E2E tests
 
 ---
 
+## Design System
+- **Single source of truth**: `DESIGN.md` — brand identity, color tokens (OKLCH), typography, spacing, motion, components
+- Based on PlanPOS spec: live at https://planpos.com/
+- Tokens defined in `globals.css` (CSS custom properties)
+
 ## Architecture Notes
 - **Multi-tenant**: Restaurant isolation via `restaurantId` on all models
 - **Auth**: JWT in httpOnly cookies, middleware protects `/owner/*` and `/admin/*`
