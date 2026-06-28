@@ -336,6 +336,8 @@
 	box-shadow: var(--glass-shadow-lg);
 }
 
+.glass-card-solid { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(12px); box-shadow: var(--shadow-sm); }
+
 /* ── Keyframes ── */
 @keyframes fade-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
@@ -483,3 +485,14 @@
   from { opacity: 0; transform: translateY(10px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ── Reveal / scroll-triggered animations ── */
+@keyframes reveal-up { from { opacity: 0; transform: translateY(40px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes reveal-left { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes reveal-right { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes scale-pop { 0% { opacity: 0; transform: scale(0.85); } 70% { transform: scale(1.03); } 100% { opacity: 1; transform: scale(1); } }
+
+.animate-reveal-up { animation: reveal-up 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-reveal-left { animation: reveal-left 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-reveal-right { animation: reveal-right 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-scale-pop { animation: scale-pop 0.5s cubic-bezier(0.16,1,0.3,1) both; }

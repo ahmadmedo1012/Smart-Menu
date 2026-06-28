@@ -1,0 +1,74 @@
+- generic [active] [ref=e1]:
+  - img
+  - button "العودة للأعلى":
+    - img
+  - generic [ref=e5]:
+    - generic:
+      - generic: ■
+      - generic: ♦
+      - generic: ♦
+      - generic: ▲
+      - generic: ♦
+      - generic: ▲
+      - generic: ■
+      - generic: ★
+      - generic: ★
+      - generic: ▲
+      - generic: ■
+      - generic: ■
+      - generic: ■
+      - generic: ★
+      - generic: ▲
+      - generic: ●
+      - generic: ★
+      - generic: ★
+      - generic: ●
+      - generic: ★
+      - generic: ▲
+      - generic: ■
+      - generic: ♦
+      - generic: ▲
+      - generic: ■
+      - generic: ★
+      - generic: ★
+      - generic: ●
+      - generic: ♦
+      - generic: ■
+      - generic: ●
+      - generic: ★
+      - generic: ▲
+      - generic: ♦
+      - generic: ▲
+      - generic: ■
+      - generic: ▲
+      - generic: ■
+      - generic: ★
+      - generic: ♦
+      - generic: ★
+      - generic: ▲
+      - generic: ▲
+      - generic: ★
+      - generic: ★
+      - generic: ▲
+      - generic: ▲
+      - generic: ♦
+      - generic: ▲
+      - generic: ●
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e11]:
+        - heading "تم تأكيد الطلب!" [level=1] [ref=e12]
+        - paragraph [ref=e13]: رقم الطلب
+        - paragraph [ref=e14]: "---"
+      - paragraph [ref=e15]: سيتم تجهيز طلبك وإرسال إشعار عند الاستلام.
+      - generic [ref=e16]:
+        - button "إرسال عبر واتساب" [ref=e17] [cursor=pointer]:
+          - img
+          - text: إرسال عبر واتساب
+        - link "العودة إلى القائمة" [ref=e18] [cursor=pointer]:
+          - /url: /menu
+          - button "العودة إلى القائمة" [ref=e19]:
+            - img
+            - text: العودة إلى القائمة
+  - region "Notifications alt+T"
+  - alert [ref=e20]

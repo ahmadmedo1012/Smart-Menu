@@ -1,4 +1,5 @@
 "use client"
+import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { Footer } from "@/components/layout/Footer"
 import { Header } from "@/components/layout/Header"
@@ -26,28 +27,56 @@ export default function HomePage() {
 			<FeaturesSection />
 			<ShowcaseSection />
 			{stats && (
-				<section className="relative py-12 sm:py-16 text-center overflow-hidden">
-					<div className="absolute -top-20 left-1/2 -translate-x-1/2 size-72 rounded-full bg-orange/5 blur-[100px] pointer-events-none" />
-					<div className="relative z-10 max-w-[1220px] mx-auto px-4">
-						<div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-							<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2" dir="ltr">{Math.max(stats.totalRestaurants, 500).toLocaleString()}+</div>
-								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">مطعم مسجل</div>
-								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">ينضمون إلينا شهرياً</div>
-							</div>
-							<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">+10,000</div>
-								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">طلب يومياً</div>
-								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">يتم إدارتها عبر المنصة</div>
-							</div>
-							<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-								<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">98%</div>
-								<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">رضا العملاء</div>
-								<div className="mt-3 text-[0.6rem] text-muted-foreground/40">بناءً على آلاف التقييمات</div>
+				<motion.div
+					initial={{ opacity: 0, y: 40 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true, amount: 0.3 }}
+					transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+				>
+					<section className="relative py-12 sm:py-16 text-center overflow-hidden">
+						<div className="absolute -top-20 left-1/2 -translate-x-1/2 size-72 rounded-full bg-orange/5 blur-[100px] pointer-events-none" />
+						<div className="relative z-10 max-w-[1220px] mx-auto px-4">
+							<div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+								<motion.div
+									initial={{ opacity: 0, y: 30 }}
+									whileInView={{ opacity: 1, y: 0 }}
+									viewport={{ once: true }}
+									transition={{ duration: 0.5, delay: 0 * 0.1, ease: [0.16, 1, 0.3, 1] }}
+								>
+									<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
+										<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2" dir="ltr">{Math.max(stats.totalRestaurants, 500).toLocaleString()}+</div>
+										<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">مطعم مسجل</div>
+										<div className="mt-3 text-[0.6rem] text-muted-foreground/40">ينضمون إلينا شهرياً</div>
+									</div>
+								</motion.div>
+								<motion.div
+									initial={{ opacity: 0, y: 30 }}
+									whileInView={{ opacity: 1, y: 0 }}
+									viewport={{ once: true }}
+									transition={{ duration: 0.5, delay: 1 * 0.1, ease: [0.16, 1, 0.3, 1] }}
+								>
+									<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
+										<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">+10,000</div>
+										<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">طلب يومياً</div>
+										<div className="mt-3 text-[0.6rem] text-muted-foreground/40">يتم إدارتها عبر المنصة</div>
+									</div>
+								</motion.div>
+								<motion.div
+									initial={{ opacity: 0, y: 30 }}
+									whileInView={{ opacity: 1, y: 0 }}
+									viewport={{ once: true }}
+									transition={{ duration: 0.5, delay: 2 * 0.1, ease: [0.16, 1, 0.3, 1] }}
+								>
+									<div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
+										<div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] text-orange leading-none mb-2">98%</div>
+										<div className="text-xs sm:text-sm font-medium text-muted-foreground/80">رضا العملاء</div>
+										<div className="mt-3 text-[0.6rem] text-muted-foreground/40">بناءً على آلاف التقييمات</div>
+									</div>
+								</motion.div>
 							</div>
 						</div>
-					</div>
-				</section>
+					</section>
+				</motion.div>
 			)}
 			<HowItWorksSection />
 				<TestimonialsSection />

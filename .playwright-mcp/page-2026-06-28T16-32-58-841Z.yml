@@ -1,0 +1,50 @@
+- generic [ref=e1]:
+  - img
+  - button "العودة للأعلى":
+    - img
+  - generic [ref=e5]:
+    - generic:
+      - generic:
+        - img
+      - generic:
+        - img
+      - generic:
+        - img
+      - generic:
+        - img
+      - generic:
+        - img
+      - generic:
+        - img
+      - generic:
+        - img
+      - generic:
+        - img
+    - link "العودة للرئيسية" [ref=e8] [cursor=pointer]:
+      - /url: /
+      - button "العودة للرئيسية" [ref=e9]:
+        - img
+        - text: العودة للرئيسية
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - img "الربط الذكي" [ref=e15]
+        - generic [ref=e16]: الربط الذكي
+        - generic [ref=e17]: لوحة تحكم المطاعم
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: اسم المستخدم
+            - textbox "اسم المستخدم" [active] [ref=e23]
+          - generic [ref=e24]:
+            - generic [ref=e25]: كلمة المرور
+            - generic [ref=e26]:
+              - textbox "كلمة المرور" [ref=e27]
+              - button "إظهار كلمة المرور" [ref=e28]:
+                - img [ref=e29]
+          - button "تسجيل الدخول" [ref=e32] [cursor=pointer]:
+            - generic [ref=e33]:
+              - img
+              - text: تسجيل الدخول
+        - paragraph [ref=e34]: نظام إدارة المطاعم — الربط الذكي
+  - region "Notifications alt+T"
+  - alert [ref=e35]

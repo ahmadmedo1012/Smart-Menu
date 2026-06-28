@@ -13,47 +13,11 @@ import Image from "next/image"
 import Link from "next/link";
 import {
   LogIn,
-  UtensilsCrossed,
-  Pizza,
-  Coffee,
-  ChefHat,
   Eye,
   EyeOff,
   ArrowRight,
 } from "lucide-react";
 
-const foodIcons = [
-  { Icon: UtensilsCrossed, x: "10%", y: "15%", size: 28, delay: "0s", duration: "6s" },
-  { Icon: Pizza, x: "85%", y: "20%", size: 36, delay: "1s", duration: "7s" },
-  { Icon: Coffee, x: "15%", y: "75%", size: 24, delay: "2s", duration: "5s" },
-  { Icon: ChefHat, x: "80%", y: "80%", size: 32, delay: "0.5s", duration: "8s" },
-  { Icon: UtensilsCrossed, x: "50%", y: "10%", size: 20, delay: "3s", duration: "6.5s" },
-  { Icon: Pizza, x: "20%", y: "50%", size: 22, delay: "1.5s", duration: "7.5s" },
-  { Icon: Coffee, x: "75%", y: "45%", size: 18, delay: "2.5s", duration: "5.5s" },
-  { Icon: ChefHat, x: "45%", y: "85%", size: 26, delay: "0.8s", duration: "6.8s" },
-];
-
-function FloatingIcons() {
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      {foodIcons.map(({ Icon, x, y, size, delay, duration }, i) => (
-        <div
-          key={i}
-          className="absolute animate-float text-orange/15 dark:text-orange/10"
-          style={{
-            left: x,
-            top: y,
-            fontSize: size,
-            animationDelay: delay,
-            animationDuration: duration,
-          }}
-        >
-          <Icon size={size} />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function FloatingShapes() {
   return (
@@ -123,7 +87,6 @@ function LoginForm() {
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-orange-muted/20 to-background dark:from-zinc-900 dark:via-zinc-900 dark:to-background" />
 
       <FloatingShapes />
-      <FloatingIcons />
 
       {/* Back to home + ThemeToggle */}
       <div className="fixed right-4 top-4 z-50 flex items-center gap-2">
