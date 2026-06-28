@@ -5,7 +5,6 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { SearchInput } from "@/components/ui/search-input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import {
   Users, Gift, TrendingUp, Award, Star, Medal, Sparkles,
   AlertCircle, RefreshCw,

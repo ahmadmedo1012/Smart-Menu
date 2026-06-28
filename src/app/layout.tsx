@@ -89,6 +89,8 @@ export default function RootLayout({
           <GridPattern
             width={60}
             height={60}
+            className="[color:var(--grid-line)] [mask-image:radial-gradient(1200px_circle_at_50%_25%,white_20%,transparent)]"
+            style={{ '--grid-fill': 'var(--grid-fill)', '--grid-square': 'var(--grid-square)' } as React.CSSProperties}
           />
           <ScrollToTop />
           <ServiceWorkerInit />

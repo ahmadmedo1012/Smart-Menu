@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowLeft, MessageCircle } from "lucide-react"
@@ -11,7 +12,7 @@ export default function HeroSection() {
 	return (
 		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0">
-				<img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.08] sm:opacity-15" loading="eager" />
+				<Image src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80" alt="" fill className="object-cover opacity-[0.08] sm:opacity-15" sizes="100vw" priority />
 				<div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
 			</div>
 
@@ -28,7 +29,7 @@ export default function HeroSection() {
 					initial="hidden"
 					animate="visible"
 					variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-					className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
+					className="gpu-layer text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
 				>
 					<motion.span
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } } }}
@@ -48,7 +49,7 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
-					className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
+					className="gpu-layer text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
 				>
 					هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
 				</motion.p>
@@ -57,7 +58,7 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
-					className="flex gap-3 sm:gap-4 justify-center flex-wrap"
+					className="gpu-layer flex gap-3 sm:gap-4 justify-center flex-wrap"
 				>
 					<Link href="/subscribe">
 						<Button size="lg" className="text-sm sm:text-base">
@@ -76,14 +77,14 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 40 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1, delay: 0.4, ease: EASE }}
-					className="mt-8 flex justify-center gap-4 sm:gap-6 items-end"
+					className="gpu-layer mt-8 flex justify-center gap-4 sm:gap-6 items-end"
 				>
-					<div className="relative" style={{ perspective: "1000px" }}>
-						<div className="absolute -inset-8 rounded-full blur-[80px] opacity-40 pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)" }} />
+					<div className="relative overflow-hidden" style={{ perspective: "1000px" }}>
+						<div className="absolute -inset-8 rounded-full blur-[80px] opacity-40 pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)", willChange: "filter" }} />
 						<motion.div
+							className="gpu-layer relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
 							animate={{ rotateY: -3, rotateX: 2 }}
 							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02 }}
-							className="relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
 							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
 							<div className="relative w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.3rem" }}>
@@ -92,10 +93,10 @@ export default function HeroSection() {
 							</div>
 						</motion.div>
 					</div>
-					<div className="relative hidden md:block" style={{ perspective: "1000px" }}>
+					<div className="relative hidden md:block overflow-hidden" style={{ perspective: "1000px" }}>
 						<motion.div
+							className="gpu-layer relative w-[180px] h-[380px] sm:w-[200px] sm:h-[420px] p-[2px] sm:p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
 							animate={{ rotateY: 3, rotateX: 1 }}
-							className="relative w-[180px] h-[380px] sm:w-[200px] sm:h-[420px] p-[2px] sm:p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
 							style={{ borderRadius: "1.8rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
 							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "1.5rem" }}>

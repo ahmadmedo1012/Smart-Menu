@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
 
 const ITEMS = [
 	[
@@ -61,7 +62,7 @@ function MenuPage({ items, active }: { items: typeof ITEMS[number]; active: bool
 					background: "linear-gradient(135deg, #f66d0f, #ff8833)",
 					color: "white",
 					animation: active ? "phoneItemIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.45s both" : "none",
-					boxShadow: "0 4px 16px oklch(0.68 0.19 45 / 0.3)",
+					boxShadow: "0 4px 16px var(--orange-muted)",
 				}}
 			>
 				اطلب الآن ←
@@ -81,9 +82,12 @@ export function PhoneVideo() {
 	}, [])
 
 	return (
-		<div
+		<motion.div
+			initial={{ scale: 0.95, opacity: 0 }}
+			animate={{ scale: 1, opacity: 1 }}
+			transition={{ type: "spring", stiffness: 80, damping: 15 }}
 			className="size-full relative overflow-hidden"
-			style={{ borderRadius: "2.3rem", background: BG }}
+			style={{ borderRadius: "2.3rem", background: BG, minWidth: 0 }}
 		>
 			{/* Mesh gradient background */}
 			<div style={{
@@ -135,7 +139,7 @@ export function PhoneVideo() {
 					))}
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	)
 }
 

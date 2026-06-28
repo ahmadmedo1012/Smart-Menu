@@ -1,4 +1,4 @@
-import { useCurrentFrame, interpolate, Easing, AbsoluteFill, Sequence } from "remotion"
+import { useCurrentFrame, interpolate, spring, Easing, AbsoluteFill, Sequence } from "remotion"
 
 const O = "#f66d0f"
 const BG = "#070708"
@@ -79,7 +79,6 @@ function PhoneFrame({ children, show }: { children: React.ReactNode; show: numbe
 function Scene2_Phone({ f, catIdx, catP }: { f: number; catIdx: number; catP: number }) {
 	const items = MENUS[catIdx]
 	const entryOp = interpolate(f, [0, 12], [0, 1], { extrapolateRight: "clamp" })
-	const _entryY = interpolate(f, [0, 12], [30, 0], { extrapolateRight: "clamp", easing: EZ })
 
 	return (
 		<div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -98,8 +97,8 @@ function Scene2_Phone({ f, catIdx, catP }: { f: number; catIdx: number; catP: nu
 							<div style={{ width: 4, height: 4, borderRadius: "50%", background: MUT }} />
 						</div>
 					</div>
-					{/* Header */}
-					<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+					{/* Header with gradient bottom border */}
+					<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, paddingBottom: 8, background: `linear-gradient(180deg, transparent 70%, ${O}33 100%)` }}>
 						<div style={{ display: "flex", alignItems: "center", gap: 5 }}>
 							<div style={{ width: 22, height: 22, borderRadius: 4, background: O, display: "flex", alignItems: "center", justifyContent: "center" }}>
 								<svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
@@ -115,15 +114,17 @@ function Scene2_Phone({ f, catIdx, catP }: { f: number; catIdx: number; catP: nu
 						{items.map((item, i) => {
 							const d = i * 0.12
 							const p = Math.max(0, (catP - d) / (1 - d))
-							const iO = interpolate(p, [0, 0.3], [0, 1], { extrapolateLeft: "clamp" })
-							const iY = interpolate(p, [0, 0.4], [12, 0], { extrapolateLeft: "clamp", easing: EZ })
-							const iS = interpolate(p, [0, 0.4], [0.92, 1], { extrapolateLeft: "clamp", easing: EZ })
+							const sv = spring({ frame: p * 20, fps: 30, config: { damping: 13, stiffness: 100 } })
+							const iO = sv
+							const iY = (1 - sv) * 12
+							const iS = 0.92 + sv * 0.08
 							return (
 								<div key={item.name} style={{
 									opacity: iO, transform: `translateY(${iY}px) scale(${iS})`,
 									display: "flex", justifyContent: "space-between",
 									padding: "7px 10px", borderRadius: 5,
-									background: SURF, fontSize: 11,
+									background: `oklch(0.16 0.005 0 / ${0.75 + 0.25 * Math.sin(f * 0.06 + i * 1.5)})`,
+									fontSize: 11,
 								}}>
 									<span style={{ fontWeight: 600, color: TXT }}>{item.name}</span>
 									<span style={{ fontWeight: 700, color: O }}>{item.price}</span>
@@ -138,8 +139,8 @@ function Scene2_Phone({ f, catIdx, catP }: { f: number; catIdx: number; catP: nu
 							<div style={{
 								marginTop: 8, padding: "6px 16px", borderRadius: 4, background: O,
 								textAlign: "center", fontSize: 10, fontWeight: 700, color: "white",
-								opacity: interpolate(ctaP, [0, 0.3], [0, 1]),
-								transform: `scale(${interpolate(ctaP, [0, 0.3], [0.9, 1])})`,
+								opacity: interpolate(ctaP, [0, 0.2], [0, 1]),
+								transform: `scale(${interpolate(ctaP, [0, 0.2], [0.9, 1])})`,
 							}}>
 								اطلب الآن ←
 							</div>

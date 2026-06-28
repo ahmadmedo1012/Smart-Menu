@@ -40,9 +40,15 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (open) { setMounted(true); document.body.style.overflow = "hidden" }
-    else { const t = setTimeout(() => setMounted(false), 400); document.body.style.overflow = ""; return () => clearTimeout(t) }
-    return () => { document.body.style.overflow = "" }
+    if (open) {
+      setMounted(true)
+      document.body.style.overflow = "hidden"
+      return () => { document.body.style.overflow = "" }
+    } else {
+      const t = setTimeout(() => setMounted(false), 400)
+      document.body.style.overflow = ""
+      return () => clearTimeout(t)
+    }
   }, [open])
 
   if (!mounted) return null
@@ -50,7 +56,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
   return (
     <>
       <div className={cn("fixed inset-0 z-40 transition-all duration-300", open ? "opacity-100" : "opacity-0 pointer-events-none")} style={{ backgroundColor: "var(--overlay)" }} onClick={onClose} aria-hidden="true" />
-      <div className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
+      <div className={cn("fixed top-0 left-0 right-0 z-50 transition-[transform,opacity] duration-500", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")} style={{ transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}>
         <div className="mx-4 mt-4 rounded-2xl bg-background border border-border/10 shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
             <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-7 w-auto" priority />
@@ -61,8 +67,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
               const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href)
               return (
                 <Link key={link.href} href={link.href} onClick={onClose}
-                  className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 opacity-0 translate-y-4", open && "opacity-100 translate-y-0", isActive ? "bg-orange/15 text-orange" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground")}
-                  style={{ transitionDelay: `${60 + i * 50}ms` }}
+                  className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 opacity-0 translate-y-4", open && "opacity-100 translate-y-0", isActive ? "bg-orange/15 text-orange" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground", i === 0 ? "delay-[60ms]" : i === 1 ? "delay-[110ms]" : "delay-[160ms]")}
                 >
                   {link.label}
                 </Link>
@@ -109,7 +114,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <>
       <header className={cn(
-        "fixed top-0 inset-x-0 z-30 h-16 transition-all duration-500 will-change-transform",
+        "fixed top-0 inset-x-0 z-30 h-16 transition-all duration-500 will-change-transform backface-hidden",
         visible ? "translate-y-0" : "-translate-y-full",
         scrolled ? "bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-sm" : "bg-background/0",
         className
@@ -144,6 +149,7 @@ export function Header({ className }: HeaderProps) {
                         className="absolute inset-0 -z-10 rounded-full bg-orange shadow-lg"
                         style={{
                           boxShadow: "0 0 18px 3px rgba(251,146,60,0.35), 0 0 6px rgba(251,146,60,0.15)",
+                          willChange: "transform, opacity",
                         }}
                         transition={{ type: "spring", stiffness: 420, damping: 28 }}
                       />

@@ -20,6 +20,7 @@ function DisplayCard({
   title = "Featured",
   description = "Discover amazing content",
   date = "Just now",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   iconClassName = "text-blue-500",
   titleClassName = "text-blue-500",
 }: DisplayCardProps) {

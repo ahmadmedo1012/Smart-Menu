@@ -2,14 +2,17 @@
 
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 const springIcon = { type: "spring" as const, stiffness: 250, damping: 18, mass: 0.9 }
+const instant = { duration: 0 }
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+  const t = prefersReducedMotion ? instant : springIcon
 
   useEffect(() => setMounted(true), [])
 
@@ -49,12 +52,18 @@ export function ThemeToggle({ className }: { className?: string }) {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              initial={{ rotate: -90, scale: 0, opacity: 0 }}
-              animate={{ rotate: 0, scale: 1, opacity: 1 }}
-              exit={{ rotate: 90, scale: 0, opacity: 0 }}
-              transition={springIcon}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={t}
             >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              <motion.path
+                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                exit={{ pathLength: 0 }}
+                transition={t}
+              />
             </motion.svg>
           ) : (
             <motion.svg
@@ -66,13 +75,25 @@ export function ThemeToggle({ className }: { className?: string }) {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              initial={{ rotate: 90, scale: 0, opacity: 0 }}
-              animate={{ rotate: 0, scale: 1, opacity: 1 }}
-              exit={{ rotate: -90, scale: 0, opacity: 0 }}
-              transition={springIcon}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={t}
             >
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              <motion.circle
+                cx="12" cy="12" r="4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                exit={{ pathLength: 0 }}
+                transition={t}
+              />
+              <motion.path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                exit={{ pathLength: 0 }}
+                transition={t}
+              />
             </motion.svg>
           )}
         </AnimatePresence>
