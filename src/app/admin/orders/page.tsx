@@ -4,9 +4,10 @@ import { csrfFetch } from "@/lib/csrf-client";
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
+import { SearchInput } from "@/components/ui/search-input"
 import { toast } from "sonner"
 import {
-  ClipboardList, Search, Store, Clock, ChefHat,
+  ClipboardList, Store, Clock, ChefHat,
   CheckCircle, XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -133,16 +134,11 @@ export default function AdminOrdersPage() {
 
       {/* Search + filter */}
       <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <input
-            type="text"
-            placeholder="ابحث برقم الطلب أو العميل أو المطعم..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث برقم الطلب أو العميل أو المطعم..."
+        />
         <input
           type="date"
           value={dateFrom}

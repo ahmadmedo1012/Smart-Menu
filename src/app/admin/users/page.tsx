@@ -15,9 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { SearchInput } from "@/components/ui/search-input"
 import { toast } from "sonner"
 import {
-  Users, Trash2, Key, AlertCircle, UserPlus, Store, Shield, Search,
+  Users, Trash2, Key, AlertCircle, UserPlus, Store, Shield,
   ChevronLeft, ChevronRight, RefreshCw, FilterX,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -151,17 +152,12 @@ export default function AdminUsersPage() {
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
-          <input
-            type="text"
-            placeholder="ابحث باسم المستخدم أو المطعم..."
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            aria-label="ابحث عن مستخدم"
-            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-          />
-        </div>
+        <SearchInput
+          value={searchInput}
+          onChange={setSearchInput}
+          placeholder="ابحث باسم المستخدم أو المطعم..."
+          aria-label="ابحث عن مستخدم"
+        />
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
           <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الدور">
             <SelectValue placeholder="كل الأدوار" />

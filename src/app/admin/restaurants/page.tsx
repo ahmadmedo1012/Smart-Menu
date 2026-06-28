@@ -20,9 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchInput } from "@/components/ui/search-input";
 import { toast } from "sonner";
 import {
-  Store, Plus, Pencil, Trash2, ExternalLink, Search,
+  Store, Plus, Pencil, Trash2, ExternalLink,
   Crown, Star, Sparkles, Building2, ShoppingCart,
   ChevronLeft, ChevronRight, RefreshCw, AlertCircle, FilterX,
 } from "lucide-react";
@@ -259,17 +260,12 @@ export default function AdminRestaurantsPage() {
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
-          <input
-            type="text"
-            placeholder="ابحث باسم أو رابط أو هاتف..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            aria-label="ابحث عن مطعم"
-            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-          />
-        </div>
+        <SearchInput
+          value={searchInput}
+          onChange={setSearchInput}
+          placeholder="ابحث باسم أو رابط أو هاتف..."
+          aria-label="ابحث عن مطعم"
+        />
         <Select value={planFilter} onValueChange={(v) => setPlanFilter(v ?? "all")}>
           <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الخطة">
             <SelectValue placeholder="كل الخطط" />

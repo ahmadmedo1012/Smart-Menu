@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, ChevronDown, Package, Search, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon } from "lucide-react"
+import { SearchInput } from "@/components/ui/search-input"
+import { Plus, Pencil, Trash2, ChevronDown, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
@@ -116,9 +117,7 @@ export default function OwnerMenuPage() {
       </div>
 
       <div className="relative">
-        <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-        <input type="text" placeholder="ابحث في القائمة..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          className="          w-full h-11 pr-11 rounded-[4px] border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20" />
+        <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="ابحث في القائمة..." />
       </div>
 
       {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}

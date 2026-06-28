@@ -2,12 +2,13 @@
 import { toArabicNumber } from "@/lib/format";
 
 import { useEffect, useState, useCallback, useRef } from "react"
+import { SearchInput } from "@/components/ui/search-input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
   Users, Gift, TrendingUp, Award, Star, Medal, Sparkles,
-  AlertCircle, RefreshCw, Search,
+  AlertCircle, RefreshCw,
   Clock, ArrowRight, Copy, Check, MessageCircle, Share2,
   FilterX,
 } from "lucide-react"
@@ -236,15 +237,11 @@ function ReferralsTable({ referrals }: { referrals: ReferralRow[] }) {
     <div>
       {/* Filters */}
       <div className="flex items-center gap-2 px-5 pb-3 border-b border-border/20">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <Input
-            placeholder="ابحث بالاسم أو الهاتف..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-9 pr-9 text-sm rounded-xl"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث بالاسم أو الهاتف..."
+        />
         <div className="flex gap-1">
           {["all", "pending", "converted", "expired"].map((s) => (
             <button

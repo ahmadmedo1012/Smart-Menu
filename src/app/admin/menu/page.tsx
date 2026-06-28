@@ -5,8 +5,9 @@ import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
+import { SearchInput } from "@/components/ui/search-input"
 import { toast } from "sonner"
-import { Package, Search } from "lucide-react"
+import { Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 
@@ -123,16 +124,11 @@ export default function AdminMenuPage() {
 
       {/* Search + filter */}
       <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <input
-            type="text"
-            placeholder="ابحث عن صنف..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث عن صنف..."
+        />
         {<select
             value={restaurantFilter ?? ""}
             onChange={e => setRestaurantFilter(e.target.value ? Number(e.target.value) : null)}

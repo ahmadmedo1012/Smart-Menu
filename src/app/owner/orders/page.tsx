@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { csrfFetch } from "@/lib/csrf-client"
-import { ClipboardList, Search, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
+import { SearchInput } from "@/components/ui/search-input"
+import { ClipboardList, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
 
@@ -192,16 +193,11 @@ export default function OwnerOrdersPage() {
 
       {/* Search + Date filter */}
       <div className="flex gap-2 items-start">
-        <div className="relative flex-1">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <input
-            type="text"
-            placeholder="ابحث برقم الطلب أو اسم العميل..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pr-11 rounded-md border border-border/30 bg-card/50 px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="ابحث برقم الطلب أو اسم العميل..."
+        />
         <input
           type="date"
           value={dateFrom}
