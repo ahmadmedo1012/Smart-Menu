@@ -67,3 +67,34 @@ claude.md
 remotion/node_modules
 .env*
 open-design/
+
+# Vercel
+.vercel
+.vscode
+
+# Environment local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+
+# Uploads (runtime)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Screenshots / debug
+*.png
+*.svg
+!public/**/*.png
+!public/**/*.svg
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db

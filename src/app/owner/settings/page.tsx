@@ -28,7 +28,7 @@ interface RestaurantData {
 }
 
 export default function OwnerSettingsPage() {
-  const _router = useRouter()
+  const __router = useRouter()
   const [restaurant, setRestaurant] = useState<RestaurantData | null>(null)
   const [, setPlans] = useState<Plan[]>([])
   const [form, setForm] = useState({ name: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "" })
