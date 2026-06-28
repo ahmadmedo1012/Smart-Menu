@@ -9,30 +9,28 @@ interface GridPatternProps {
   x?: number;
   y?: number;
   squares?: [number, number][];
-  strokeDasharray?: string;
   className?: string;
+  strokeDasharray?: string;
 }
 
 export function GridPattern({
-  width = 30,
-  height = 30,
+  width = 60,
+  height = 60,
   x = -1,
   y = -1,
   squares = [],
-  strokeDasharray = "0",
+  strokeDasharray,
   className,
-  ...props
-}: GridPatternProps & React.SVGProps<SVGSVGElement>) {
+}: GridPatternProps) {
   const id = useId();
 
   return (
     <svg
       aria-hidden="true"
       className={cn(
-        "pointer-events-none fixed inset-0 z-[-1] size-full",
-        className
+        "pointer-events-none fixed inset-0 -z-10 size-full",
+        className,
       )}
-      {...props}
     >
       <defs>
         <pattern
@@ -47,25 +45,27 @@ export function GridPattern({
             d={`M ${height} 0 L 0 0 0 ${width}`}
             fill="none"
             stroke="currentColor"
-            strokeWidth="1"
-            strokeDasharray={strokeDasharray}
+            strokeWidth="0.5"
+            {...(strokeDasharray ? { strokeDasharray } : {})}
           />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#${id})`} />
-      <svg x={x} y={y} className="overflow-visible">
-        {squares.map(([sqX, sqY], index) => (
-          <rect
-            key={index}
-            width={width - 1}
-            height={height - 1}
-            x={sqX * width + 1}
-            y={sqY * height + 1}
-            fill="currentColor"
-            strokeWidth="0"
-          />
-        ))}
-      </svg>
+      {squares.length > 0 && (
+        <svg x={x} y={y} className="overflow-visible">
+          {squares.map(([sqX, sqY], i) => (
+            <rect
+              key={i}
+              width={width - 1}
+              height={height - 1}
+              x={sqX * width + 1}
+              y={sqY * height + 1}
+              fill="currentColor"
+              strokeWidth="0"
+            />
+          ))}
+        </svg>
+      )}
     </svg>
   );
 }

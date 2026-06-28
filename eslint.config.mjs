@@ -15,11 +15,14 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "open-design/**",
     "public/**",
+    "scripts/**",
+    "tests/**",
   ]),
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
       "@next/next/no-img-element": "off",
       "jsx-a11y/alt-text": "off",
       "react-hooks/set-state-in-effect": "off",

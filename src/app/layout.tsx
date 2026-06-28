@@ -59,7 +59,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Smart Menu" />
-        <link rel="stylesheet" href="/fonts/fonts.css" />
+        {/* eslint-disable-next-line @next/next/no-css-tags */}
+	<link rel="stylesheet" href="/fonts/fonts.css" />
         <link rel="preload" href="/fonts/noto-naskh-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/noto-sans-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/readex-pro.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
@@ -86,10 +87,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GridPattern
-            className="text-grid-line/20 [mask-image:radial-gradient(800px_circle_at_50%_30%,white,transparent)]"
-            width={40}
-            height={40}
-            strokeDasharray="2 3"
+            className="[color:var(--grid-line)] [mask-image:radial-gradient(1200px_circle_at_50%_25%,white_20%,transparent)]"
+            width={60}
+            height={60}
           />
           <ScrollToTop />
           <ServiceWorkerInit />

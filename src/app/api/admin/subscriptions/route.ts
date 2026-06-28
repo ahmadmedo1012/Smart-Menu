@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
-import { sendTelegramNotification, notifyEvent } from "@/lib/telegram";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 export async function GET(request: NextRequest) {
   try {

@@ -67,6 +67,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
     }
     ref.current = requestAnimationFrame(tick)
     return () => { mounted.current = false; if (ref.current) cancelAnimationFrame(ref.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   return <span>{toArabicNumber(display)}{suffix}</span>

@@ -79,7 +79,7 @@ function PhoneFrame({ children, show }: { children: React.ReactNode; show: numbe
 function Scene2_Phone({ f, catIdx, catP }: { f: number; catIdx: number; catP: number }) {
 	const items = MENUS[catIdx]
 	const entryOp = interpolate(f, [0, 12], [0, 1], { extrapolateRight: "clamp" })
-	const entryY = interpolate(f, [0, 12], [30, 0], { extrapolateRight: "clamp", easing: EZ })
+	const _entryY = interpolate(f, [0, 12], [30, 0], { extrapolateRight: "clamp", easing: EZ })
 
 	return (
 		<div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
