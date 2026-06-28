@@ -30,8 +30,7 @@ export function SearchInput({
         value={value}
         onChange={e => onChange(e.target.value)}
         aria-label={ariaLabel}
-        className="h-11 w-full rounded-md border border-border/30 bg-card/50 pr-11 pl-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-        dir="auto"
+        className="h-11 w-full rounded-md border border-border/30 bg-card/50 pr-11 pl-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:ring-offset-0"
       />
     </div>
   )

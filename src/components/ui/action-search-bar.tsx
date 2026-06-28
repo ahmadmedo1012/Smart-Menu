@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Search, LayoutDashboard, Store, Users, UtensilsCrossed, ScrollText, QrCode, Settings, Activity, DollarSign, MessageCircle, ClipboardList, Gift, Package } from "lucide-react"
 
@@ -62,7 +62,7 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
       })
     : actions
 
-  // Keyboard shortcut
+  // Keyboard shortcut — guard against hydrated Noop
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -73,6 +73,14 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
   }, [])
+
+  // Auto-focus input when palette opens
+  useEffect(() => {
+    if (open && inputRef.current) {
+      // Small RAF delay to ensure the DOM has rendered
+      requestAnimationFrame(() => inputRef.current?.focus())
+    }
+  }, [open])
 
   const navigate = useCallback((href: string) => {
     setOpen(false)
@@ -110,25 +118,29 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
 
   return (
     <>
-      {/* Trigger button */}
+      {/* ── Trigger button ── */}
       <button
         type="button"
         onClick={() => { setOpen(true); setQuery("") }}
         className={cn(
-          "group flex h-9 w-full max-w-xs items-center gap-2 rounded-md border border-border/30 bg-card/40 px-3 text-sm text-muted-foreground/60 transition-all hover:border-orange/30 hover:text-muted-foreground hover:bg-card/60",
+          "group flex h-9 w-full items-center gap-2 rounded-md border border-border/30 bg-card/40 px-3 text-sm text-muted-foreground/60 transition-all",
+          "hover:border-orange/30 hover:text-muted-foreground hover:bg-card/60",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/20",
+          "rtl:flex-row-reverse",
           className,
         )}
         aria-label="بحث سريع (⌘K)"
       >
-        <Search className="size-4 shrink-0" aria-hidden="true" />
-        <span className="flex-1 text-right">بحث سريع...</span>
-        <kbd className="hidden shrink-0 items-center gap-0.5 rounded border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
+        {/* Icon anchored right (RTL) via order */}
+        <Search className="size-4 shrink-0 order-1" aria-hidden="true" />
+        <span className="flex-1 text-right truncate order-2">بحث سريع...</span>
+        {/* KBD anchored left */}
+        <kbd className="order-3 hidden shrink-0 items-center gap-0.5 rounded border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
           <span>⌘</span>K
         </kbd>
       </button>
 
-      {/* Overlay + Panel */}
+      {/* ── Overlay + Panel ── */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -141,18 +153,17 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setOpen(false); setQuery("") }} />
 
-            {/* Panel */}
+            {/* Panel — origin-top-right for RTL */}
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: -20 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="relative z-10 w-full max-w-lg rounded-xl border border-border/40 bg-background/95 shadow-2xl shadow-black/20 backdrop-blur-xl overflow-hidden"
+              className="relative z-10 w-full max-w-lg rounded-xl border border-border/40 bg-background/95 shadow-2xl shadow-black/20 backdrop-blur-xl overflow-hidden origin-top-right"
               dir="rtl"
             >
-              {/* Search input */}
-              <div className="flex items-center gap-3 border-b border-border/20 px-4">
-                <Search className="size-5 shrink-0 text-muted-foreground/60" aria-hidden="true" />
+              {/* ── Search input ── */}
+              <div className="relative flex items-center border-b border-border/20">
                 <input
                   ref={inputRef}
                   type="text"
@@ -160,17 +171,22 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   onKeyDown={onKeyDown}
-                  className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
-                  autoFocus
-                  dir="rtl"
+                  // RTL: padding on right for icon + text
+                  className="h-12 w-full bg-transparent pr-12 pl-4 text-sm outline-none placeholder:text-muted-foreground/40"
                 />
-                <kbd className="hidden shrink-0 items-center gap-0.5 rounded border border-border/30 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
+                {/* Icon pinned right inside input */}
+                <Search
+                  className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/40"
+                  aria-hidden="true"
+                />
+                {/* ESC badge pinned left */}
+                <kbd className="absolute left-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border/30 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
                   ESC
                 </kbd>
               </div>
 
-              {/* Results */}
-              <div ref={listRef} className="max-h-72 overflow-y-auto p-2 space-y-0.5 scrollbar-thin">
+              {/* ── Results with LayoutGroup for smooth highlight ── */}
+              <div ref={listRef} className="max-h-72 overflow-y-auto p-2 space-y-0.5 scrollbar-thin" role="listbox" aria-label="نتائج البحث">
                 {filtered.length === 0 ? (
                   <div className="flex flex-col items-center py-10 text-muted-foreground/60">
                     <Search className="size-8 mb-2 opacity-30" />
@@ -178,31 +194,56 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
                     <p className="text-xs">جرب كلمات بحث أخرى</p>
                   </div>
                 ) : (
-                  filtered.map((action, i) => (
-                    <button
-                      key={action.id}
-                      type="button"
-                      onClick={() => navigate(action.href)}
-                      onMouseEnter={() => setSelectedIdx(i)}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all text-right",
-                        i === selectedIdx
-                          ? "bg-orange/15 text-orange dark:bg-orange/15 dark:text-orange"
-                          : "text-foreground/80 hover:bg-muted/50",
-                      )}
-                    >
-                      <span className={cn(
-                        "flex size-8 shrink-0 items-center justify-center rounded-md",
-                        i === selectedIdx ? "bg-orange/20" : "bg-muted/50",
-                      )}>
-                        {action.icon}
-                      </span>
-                      <span className="font-medium">{action.label}</span>
-                      {pathname === action.href && (
-                        <span className="mr-auto text-[10px] text-muted-foreground/40">الحالية</span>
-                      )}
-                    </button>
-                  ))
+                  <LayoutGroup>
+                    {filtered.map((action, i) => {
+                      const isSelected = i === selectedIdx
+                      const isActive = pathname === action.href
+                      return (
+                        <button
+                          key={action.id}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => navigate(action.href)}
+                          onMouseEnter={() => setSelectedIdx(i)}
+                          className={cn(
+                            "relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-right",
+                            isSelected && "text-orange dark:text-orange",
+                            !isSelected && "text-foreground/80 hover:bg-muted/50",
+                          )}
+                        >
+                          {/* layoutId highlight background — fluid bounding box */}
+                          {isSelected && (
+                            <motion.span
+                              layoutId="search-highlight"
+                              className="absolute inset-0 rounded-lg bg-gradient-to-l from-orange/15 to-transparent dark:from-orange/15"
+                              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            />
+                          )}
+
+                          {/* Icon */}
+                          <span
+                            className={cn(
+                              "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-md",
+                              isSelected ? "bg-orange/20" : "bg-muted/50",
+                            )}
+                          >
+                            {action.icon}
+                          </span>
+
+                          {/* Label */}
+                          <span className="relative z-10 font-medium">{action.label}</span>
+
+                          {/* Active page badge */}
+                          {isActive && (
+                            <span className="relative z-10 mr-auto text-[10px] text-muted-foreground/40">
+                              الحالية
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </LayoutGroup>
                 )}
               </div>
             </motion.div>
