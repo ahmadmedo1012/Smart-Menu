@@ -1,4 +1,4 @@
-import { interpolate, AbsoluteFill, Easing, spring } from "remotion"
+import { interpolate, AbsoluteFill, Easing, spring, useCurrentFrame } from "remotion"
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans"
 import { Audio } from "@remotion/media"
 
@@ -41,7 +41,8 @@ function FeatureCard({ icon, title, desc, frame, delay }: { icon: string; title:
 	)
 }
 
-export const Scene4_Features: React.FC<{ frame: number }> = ({ frame: f }) => {
+export const Scene4_Features: React.FC = () => {
+	const f = useCurrentFrame()
 	const durationInFrames = 150
 	const fadeOut = interpolate(f, [durationInFrames - 20, durationInFrames], [0, 1], { extrapolateLeft: "clamp" })
 

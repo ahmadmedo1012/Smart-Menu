@@ -1,4 +1,4 @@
-import { interpolate, AbsoluteFill, Easing, Sequence } from "remotion"
+import { interpolate, AbsoluteFill, Easing, Sequence, useCurrentFrame } from "remotion"
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans"
 import { Audio } from "@remotion/media"
 
@@ -52,8 +52,9 @@ function GlowOrb({ f, delay = 0 }: { f: number; delay?: number }) {
 	)
 }
 
-export const Scene1_Brand: React.FC<{ frame: number }> = ({ frame: f }) => {
-	const { durationInFrames } = { durationInFrames: 150 }
+export const Scene1_Brand: React.FC = () => {
+	const f = useCurrentFrame()
+	const durationInFrames = 150
 
 	const op = interpolate(f, [0, 20], [0, 1], { extrapolateRight: "clamp" })
 	const scale = interpolate(f, [0, 30], [0.6, 1], { extrapolateRight: "clamp", easing: EZ })

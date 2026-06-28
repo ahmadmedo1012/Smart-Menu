@@ -1,4 +1,4 @@
-import { interpolate, AbsoluteFill, Easing, spring } from "remotion"
+import { interpolate, AbsoluteFill, Easing, spring, useCurrentFrame } from "remotion"
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans"
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "600", "700", "800"], subsets: ["latin"] })
@@ -36,7 +36,8 @@ function StatCard({ value, label, suffix, frame, delay }: { value: string; label
 	)
 }
 
-export const Scene5_Stats: React.FC<{ frame: number }> = ({ frame: f }) => {
+export const Scene5_Stats: React.FC = () => {
+	const f = useCurrentFrame()
 	const durationInFrames = 120
 	const fadeOut = interpolate(f, [durationInFrames - 20, durationInFrames], [0, 1], { extrapolateLeft: "clamp" })
 	const titleOp = interpolate(f, [0, 15], [0, 1], { extrapolateRight: "clamp" })

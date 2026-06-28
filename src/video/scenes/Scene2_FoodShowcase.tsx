@@ -1,4 +1,4 @@
-import { interpolate, AbsoluteFill, Easing, spring, Img } from "remotion"
+import { interpolate, AbsoluteFill, Easing, spring, Img, useCurrentFrame } from "remotion"
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans"
 import { loadFont as loadPlayfair } from "@remotion/google-fonts/PlayfairDisplay"
 import { Audio } from "@remotion/media"
@@ -132,7 +132,8 @@ function FoodCard({
 	)
 }
 
-export const Scene2_FoodShowcase: React.FC<{ frame: number }> = ({ frame: f }) => {
+export const Scene2_FoodShowcase: React.FC = () => {
+	const f = useCurrentFrame()
 	const durationInFrames = 150
 	const fadeOut = interpolate(f, [durationInFrames - 20, durationInFrames], [0, 1], { extrapolateLeft: "clamp" })
 

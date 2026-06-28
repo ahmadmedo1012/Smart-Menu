@@ -1,4 +1,4 @@
-import { interpolate, AbsoluteFill, Easing, spring } from "remotion"
+import { interpolate, AbsoluteFill, Easing, spring, useCurrentFrame } from "remotion"
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans"
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "600", "700", "800"], subsets: ["latin"] })
@@ -76,7 +76,8 @@ function CategorySection({ cat, frame, catStart }: { cat: typeof CATEGORIES[0]; 
 	)
 }
 
-export const Scene3_PhoneDemo: React.FC<{ frame: number }> = ({ frame: f }) => {
+export const Scene3_PhoneDemo: React.FC = () => {
+	const f = useCurrentFrame()
 	const durationInFrames = 180
 	const fadeOut = interpolate(f, [durationInFrames - 20, durationInFrames], [0, 1], { extrapolateLeft: "clamp" })
 

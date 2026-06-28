@@ -1,4 +1,4 @@
-import { interpolate, AbsoluteFill, Easing } from "remotion"
+import { interpolate, AbsoluteFill, Easing, useCurrentFrame } from "remotion"
 import { loadFont } from "@remotion/google-fonts/PlusJakartaSans"
 import { Audio } from "@remotion/media"
 
@@ -9,7 +9,8 @@ const TXT = "#ffffff"
 const MUT = "rgba(255,255,255,0.5)"
 const EZ = Easing.bezier(0.16, 1, 0.3, 1)
 
-export const Scene6_CTA: React.FC<{ frame: number }> = ({ frame: f }) => {
+export const Scene6_CTA: React.FC = () => {
+	const f = useCurrentFrame()
 	const op = interpolate(f, [0, 18], [0, 1], { extrapolateRight: "clamp" })
 	const scale = interpolate(f, [0, 20], [0.7, 1], { extrapolateRight: "clamp", easing: EZ })
 	const subOp = interpolate(f, [20, 40], [0, 0.7], { extrapolateRight: "clamp" })
