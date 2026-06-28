@@ -36,7 +36,7 @@ const testimonials = [
     role: "صاحبة كوفي أرت",
     location: "الزاوية",
     content: "بعد استخدام منيو الربط الذكي، صار عندي وقت أهتم بالجودة والإبداع بدل استلام الطلبات بالتلفون.",
-    rating: 4,
+    rating: 5,
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80",
   },
   {

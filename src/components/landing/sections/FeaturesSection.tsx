@@ -17,8 +17,9 @@ const features = [
 export default function FeaturesSection() {
 	return (
 		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-12 sm:py-16 overflow-hidden">
-			<div className="absolute inset-0 z-0">
-				<img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80" alt="" className="w-full h-full object-cover opacity-[0.03]" loading="lazy" />
+			{/* Clean monochromatic dark surface with subtle radial mask */}
+			<div className="absolute inset-0 z-0 bg-gradient-to-b from-neutral-950/50 via-transparent to-neutral-950/30 dark:from-neutral-950/60 dark:to-neutral-950/40">
+				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,var(--color-background)_100%)] pointer-events-none" />
 			</div>
 
 			<div className="relative z-10 max-w-[1220px] mx-auto px-4 sm:px-6">
@@ -44,7 +45,8 @@ export default function FeaturesSection() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, margin: "-40px" }}
 							transition={{ duration: 0.5, delay: i * 0.06, ease: EASE }}
-							className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 hover:border-orange/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-orange/5 transition-all duration-300"
+							whileHover={{ y: -4, boxShadow: "0 20px 40px -12px rgba(251,146,60,0.15), 0 8px 24px -8px rgba(0,0,0,0.08)" }}
+							className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 hover:border-orange/30 transition-all duration-300"
 						>
 							<div className="size-10 sm:size-12 rounded-sm bg-orange/10 flex items-center justify-center mb-4 group-hover:bg-orange/20 transition-colors duration-300">
 								<feat.icon className="size-5 sm:size-6 text-orange" />

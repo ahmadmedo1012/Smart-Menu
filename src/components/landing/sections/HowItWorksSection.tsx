@@ -57,24 +57,22 @@ export default function HowItWorksSection() {
               transition={{ duration: 0.7, delay: i * 0.15, ease: EASE }}
               className="relative flex flex-col items-center text-center group"
             >
-              {/* Icon container with depth */}
-              <div className="relative mb-7">
-                <div className="absolute inset-0 size-16 sm:size-20 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-all duration-500" />
-                <div className="relative size-16 sm:size-20 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-all duration-500">
-                  <step.icon className="size-7 sm:size-8 text-orange" />
+              {/* Icon container — compressed spacing */}
+              <div className="relative mb-4">
+                <div className="absolute inset-0 size-14 sm:size-16 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-all duration-500" />
+                <div className="relative size-14 sm:size-16 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-all duration-500">
+                  <step.icon className="size-6 sm:size-7 text-orange" />
                 </div>
 
                 {/* Step badge */}
-                <div className="absolute -top-1 -right-1 size-6 rounded-full bg-orange text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/30">
+                <div className="absolute -top-1 -right-1 size-5 rounded-full bg-orange text-white text-[0.55rem] font-bold flex items-center justify-center shadow-md shadow-orange/30">
                   {i + 1}
                 </div>
 
                 {/* Connector line (desktop only) */}
                 {i < STEPS.length - 1 && (
-                  <div className="hidden md:block absolute top-1/2 left-[calc(50%+3rem)] w-[calc(100%-6rem)] h-[1px]">
-                    {/* Static gradient line */}
+                  <div className="hidden md:block absolute top-1/2 left-[calc(50%+2.5rem)] w-[calc(100%-5rem)] h-[1px]">
                     <div className="absolute inset-0 bg-gradient-to-r from-orange/40 to-transparent" />
-                    {/* Animated dash */}
                     <motion.div
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
@@ -87,16 +85,16 @@ export default function HowItWorksSection() {
                 )}
               </div>
 
-              {/* Diamond divider */}
+              {/* Diamond divider — tighter */}
               <motion.div
                 initial={{ opacity: 0, rotate: 45 }}
                 whileInView={{ opacity: 1, rotate: 45 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.25 + i * 0.15, ease: EASE }}
-                className="size-2 bg-orange/40 rounded-sm mb-4"
+                className="size-1.5 bg-orange/40 rounded-sm mb-3"
               />
 
-              <h3 className="text-lg sm:text-xl font-medium mb-2 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
+              <h3 className="text-base sm:text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
               <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-[30ch]">{step.desc}</p>
             </motion.div>
           ))}

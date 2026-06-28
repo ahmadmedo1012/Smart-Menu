@@ -93,9 +93,9 @@ export default function HeroSection() {
 							</div>
 						</motion.div>
 					</div>
-					<div className="relative hidden md:block overflow-hidden" style={{ perspective: "1000px" }}>
+					<div className="relative hidden md:block overflow-hidden mb-6" style={{ perspective: "1000px" }}>
 						<motion.div
-							className="gpu-layer relative w-[180px] h-[380px] sm:w-[200px] sm:h-[420px] p-[2px] sm:p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
+							className="gpu-layer relative w-[230px] h-[480px] sm:w-[250px] sm:h-[520px] p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
 							animate={{ rotateY: 3, rotateX: 1 }}
 							style={{ borderRadius: "1.8rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
 						>
