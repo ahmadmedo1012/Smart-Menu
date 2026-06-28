@@ -4,11 +4,12 @@ import { useRef, useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
+import { springDefault } from "@/lib/motion"
 
 interface HeaderProps { className?: string }
 
@@ -24,7 +25,7 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
   return (
     <button
       onClick={onClick}
-      className="lg:hidden relative size-9 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200"
+      className="lg:hidden relative size-9 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200 active:scale-90"
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
     >
       <span className="relative size-3.5">
@@ -36,53 +37,82 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
   )
 }
 
+const mobileLinkVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { ...springDefault, delay: 0.06 + i * 0.06 },
+  }),
+  exit: { opacity: 0, y: -4, transition: { duration: 0.12 } },
+}
+
 function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () => void; pathname: string }) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    if (open) {
-      setMounted(true)
-      document.body.style.overflow = "hidden"
-      return () => { document.body.style.overflow = "" }
-    } else {
-      const t = setTimeout(() => setMounted(false), 400)
-      document.body.style.overflow = ""
-      return () => clearTimeout(t)
-    }
-  }, [open])
-
-  if (!mounted) return null
-
   return (
-    <>
-      <div className={cn("fixed inset-0 z-40 transition-all duration-300", open ? "opacity-100" : "opacity-0 pointer-events-none")} style={{ backgroundColor: "var(--overlay)" }} onClick={onClose} aria-hidden="true" />
-      <div className={cn("fixed inset-x-0 top-0 z-50 transition-[transform,opacity] duration-500", open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")} style={{ transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}>
-        <div className="mx-4 mt-4 rounded-2xl bg-background border border-border/10 shadow-2xl overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-            <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-            <span className="text-sm font-medium tracking-tight text-foreground/80">Smart Menu</span>
-            <button onClick={onClose} className="size-8 rounded-lg border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors" aria-label="إغلاق"><X className="size-4" /></button>
-          </div>
-          <nav className="px-4 py-4 space-y-1">
-            {landingLinks.map((link, i) => {
-              const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href)
-              return (
-                <Link key={link.href} href={link.href} onClick={onClose}
-                  className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 opacity-0 translate-y-4", open && "opacity-100 translate-y-0", isActive ? "bg-orange/15 text-orange" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground", i === 0 ? "delay-[60ms]" : i === 1 ? "delay-[110ms]" : "delay-[160ms]")}
-                >
-                  {link.label}
-                </Link>
-              )
-            })}
-            <div className="pt-3 px-4">
-              <Link href="/subscribe" onClick={onClose}>
-                <Button variant="orange" size="lg" className="w-full text-sm">ابدأ الآن مجاناً</Button>
-              </Link>
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          <motion.div
+            key="menu"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={springDefault}
+            className="fixed inset-x-0 top-0 z-50 mx-4 mt-4 rounded-2xl bg-background border border-border/10 shadow-2xl overflow-hidden"
+            style={{ transformOrigin: "top center" }}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+              <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
+              <span className="text-sm font-medium tracking-tight text-foreground/80">Smart Menu</span>
+              <button onClick={onClose} className="size-8 rounded-lg border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors active:scale-90" aria-label="إغلاق"><X className="size-4" /></button>
             </div>
-          </nav>
-        </div>
-      </div>
-    </>
+            <nav className="px-4 py-4 space-y-1">
+              {landingLinks.map((link, i) => {
+                const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href)
+                return (
+                  <motion.div
+                    key={link.href}
+                    custom={i}
+                    variants={mobileLinkVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <Link href={link.href} onClick={onClose}
+                      className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200", isActive ? "bg-orange/15 text-orange" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground")}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                )
+              })}
+              <motion.div
+                custom={landingLinks.length}
+                variants={mobileLinkVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="pt-3 px-4"
+              >
+                <Link href="/subscribe" onClick={onClose}>
+                  <Button variant="orange" size="lg" className="w-full text-sm">ابدأ الآن مجاناً</Button>
+                </Link>
+              </motion.div>
+            </nav>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -117,7 +147,7 @@ export function Header({ className }: HeaderProps) {
       <header className={cn(
         "fixed top-0 inset-x-0 z-30 h-16 transition-all duration-500 will-change-transform backface-hidden",
         visible ? "translate-y-0" : "-translate-y-full",
-        scrolled ? "bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-sm" : "bg-background/0",
+        scrolled ? "bg-background/80 backdrop-blur-2xl border-b border-border/30 shadow-md" : "bg-background/0",
         className
       )}>
         <nav className="max-w-[1220px] mx-auto px-4 sm:px-6 lg:px-10 h-full flex items-center justify-between" aria-label="الرئيسية">

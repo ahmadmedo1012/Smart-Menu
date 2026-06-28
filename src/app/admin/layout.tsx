@@ -10,8 +10,8 @@ import { Store } from "lucide-react"
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
     <>
-      <div className="flex items-center gap-3 border-b border-white/10 px-4 pb-4 pt-5">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange to-orange/80 shadow-lg shadow-orange/25 dark:from-orange dark:to-orange/80" aria-hidden="true">
+      <div className="flex items-center gap-3 border-b border-border px-4 pb-4 pt-5">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange to-orange/80 shadow-lg shadow-orange/25" aria-hidden="true">
           <Store className="size-5 text-white" aria-hidden="true" />
         </div>
         <div>
@@ -40,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           side="right"
-          className="w-60 border-0 bg-card dark:bg-card"
+          className="w-60 border-0 bg-card"
         >
           <MobileNav onNavClick={() => setSheetOpen(false)} />
         </SheetContent>

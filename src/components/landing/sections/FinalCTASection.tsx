@@ -9,7 +9,7 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.2, 1]
 
 export default function FinalCTASection() {
   return (
-    <section className="relative overflow-hidden py-20 sm:py-28">
+    <section className="relative overflow-hidden py-12 sm:py-16">
       {/* Background image — subtle */}
       <div className="absolute inset-0 z-0">
         <img

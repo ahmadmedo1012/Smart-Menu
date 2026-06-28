@@ -44,7 +44,7 @@ function MenuPage({ items, active }: { items: typeof ITEMS[number]; active: bool
 						style={{
 							background: "linear-gradient(135deg, oklch(0.15 0.005 0), oklch(0.18 0.005 0))",
 							padding: "8px 12px",
-							borderLeft: `2px solid ${item.accent}`,
+							borderInlineStart: `2px solid ${item.accent}`,
 							animation: active ? `phoneItemIn 0.45s cubic-bezier(0.16,1,0.3,1) ${0.08 * i}s both` : "none",
 						}}
 					>

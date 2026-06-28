@@ -3,8 +3,7 @@
 import { useRef } from "react"
 import Image from "next/image"
 import { motion, useScroll, useTransform } from "framer-motion"
-
-const EASE: [number, number, number, number] = [0.16, 1, 0.2, 1]
+import { springGentle, springSnappy } from "@/lib/motion"
 
 export default function ShowcaseSection() {
 	const ref = useRef<HTMLDivElement>(null)
@@ -28,7 +27,7 @@ export default function ShowcaseSection() {
 					initial={{ opacity: 0, y: 12 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
-					transition={{ duration: 0.5, ease: EASE }}
+					transition={springSnappy}
 					className="text-center mb-6 sm:mb-8"
 				>
 					<span className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase">
@@ -40,7 +39,7 @@ export default function ShowcaseSection() {
 					initial={{ opacity: 0, y: 40 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true, margin: "-60px" }}
-					transition={{ duration: 0.8, ease: EASE }}
+					transition={springGentle}
 				>
 					{/* Double-Bezel outer shell */}
 					<div className="relative bg-black/5 dark:bg-white/5 p-1.5 sm:p-2 rounded-[2rem] ring-1 ring-black/5 dark:ring-white/10">
@@ -58,13 +57,13 @@ export default function ShowcaseSection() {
 								/>
 							</motion.div>
 
-							{/* Multi-layer gradient blend — edges fade into Grid Pattern bg */}
+							{/* Multi-layer gradient blend */}
 							<div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
 							<div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/60 pointer-events-none" />
 							<div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none" />
 							<div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background/30 via-transparent to-transparent pointer-events-none" />
 
-							{/* Radial vignette hides hard edges */}
+							{/* Radial vignette */}
 							<div
 								className="absolute inset-0 pointer-events-none"
 								style={{

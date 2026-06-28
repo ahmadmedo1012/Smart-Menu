@@ -46,7 +46,7 @@ const CLIENT_TESTIMONIALS = [
 
 export default function ClientsSection() {
   return (
-    <section className="relative py-16 sm:py-20 overflow-hidden">
+    <section className="relative py-12 sm:py-16 overflow-hidden">
       {/* Ambient glow */}
       <div
         className="pointer-events-none absolute top-1/2 right-1/4 -translate-y-1/2 size-[50vmin] rounded-full"

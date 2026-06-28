@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 
@@ -32,7 +33,11 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       )}
     >
       {isActive && (
-        <span className="absolute end-0 top-1/2 -translate-y-1/2 w-0.5 h-7 rounded-full bg-gradient-to-b from-orange to-orange/80 shadow-sm shadow-orange/20 dark:from-orange dark:to-orange/80 animate-scale-in" />
+        <motion.span
+          layoutId="activeNavIndicator"
+          className="absolute end-0 top-1/2 -translate-y-1/2 w-0.5 h-7 rounded-full bg-gradient-to-b from-orange to-orange/80 shadow-sm shadow-orange/20 dark:from-orange dark:to-orange/80"
+          transition={{ type: "spring", stiffness: 400, damping: 28 }}
+        />
       )}
       {isActive && <span className="sr-only">(الصفحة الحالية)</span>}
       <Icon

@@ -29,7 +29,7 @@ export const navItems: NavItem[] = [
 
 export function AdminSidebar() {
   return (
-    <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/40 bg-card/95 backdrop-blur-xl lg:flex lg:flex-col shadow-sm">
+    <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/20 bg-card/80 backdrop-blur-2xl lg:flex lg:flex-col shadow-md">
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">
         <div className="size-8 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-sm">
@@ -54,7 +54,7 @@ export function AdminSidebar() {
           href="/"
           className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 group"
         >
-          <ChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          <ChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180" />
           العودة للموقع
         </Link>
       </div>

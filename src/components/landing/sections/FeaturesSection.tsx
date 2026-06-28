@@ -1,9 +1,8 @@
-"use client";
+"use client"
 
-import { motion } from "framer-motion";
-import { Smartphone, BarChart3, QrCode, Gift, MessageCircle, CheckCircle } from "lucide-react";
-
-const EASE = [0.16, 1, 0.2, 1] as const;
+import { motion } from "framer-motion"
+import { Smartphone, BarChart3, QrCode, Gift, MessageCircle, CheckCircle } from "lucide-react"
+import { springGentle, springDefault, springSnappy } from "@/lib/motion"
 
 const features = [
 	{ title: "سرعة و سلاسة", icon: Smartphone, desc: "تجربة تصفح سريعة وسلسة على جميع الأجهزة" },
@@ -12,12 +11,11 @@ const features = [
 	{ title: "تحكم كامل", icon: BarChart3, desc: "لوحة تحكم باللغة العربية - تعديل وإدارة بسهولة" },
 	{ title: "QR كود مخصص", icon: QrCode, desc: "QR مخصص بألوان وشعار مطعمك" },
 	{ title: "برنامج ولاء", icon: Gift, desc: "برنامج ولاء ومكافآت لعملائك الأوفياء" },
-];
+]
 
 export default function FeaturesSection() {
 	return (
 		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-12 sm:py-16 overflow-hidden">
-			{/* Clean monochromatic dark surface with subtle radial mask */}
 			<div className="absolute inset-0 z-0 bg-gradient-to-b from-neutral-950/50 via-transparent to-neutral-950/30 dark:from-neutral-950/60 dark:to-neutral-950/40">
 				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,var(--color-background)_100%)] pointer-events-none" />
 			</div>
@@ -29,7 +27,7 @@ export default function FeaturesSection() {
 						initial={{ opacity: 0, y: 24, scale: 0.96 }}
 						whileInView={{ opacity: 1, y: 0, scale: 1 }}
 						viewport={{ once: true }}
-						transition={{ duration: 0.6, ease: EASE }}
+						transition={springGentle}
 						className="text-2xl sm:text-3xl md:text-4xl font-medium leading-[1.2]"
 					>
 						ميزات متكاملة لمطعمك
@@ -44,9 +42,9 @@ export default function FeaturesSection() {
 							initial={{ opacity: 0, y: 24 }}
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, margin: "-40px" }}
-							transition={{ duration: 0.5, delay: i * 0.06, ease: EASE }}
-							whileHover={{ y: -4, boxShadow: "0 20px 40px -12px rgba(251,146,60,0.15), 0 8px 24px -8px rgba(0,0,0,0.08)" }}
-							className="group rounded-sm bg-card border border-border/50 p-6 sm:p-8 hover:border-orange/30 transition-all duration-300"
+							transition={{ ...springDefault, delay: i * 0.06 }}
+							whileHover={{ y: -5, transition: springSnappy }}
+							className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 hover:border-orange/30 transition-colors duration-300"
 						>
 							<div className="size-10 sm:size-12 rounded-sm bg-orange/10 flex items-center justify-center mb-4 group-hover:bg-orange/20 transition-colors duration-300">
 								<feat.icon className="size-5 sm:size-6 text-orange" />
@@ -58,5 +56,5 @@ export default function FeaturesSection() {
 				</div>
 			</div>
 		</section>
-	);
+	)
 }

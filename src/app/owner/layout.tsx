@@ -81,9 +81,8 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       <aside
         className={cn(
           "relative hidden w-60 shrink-0 flex-col lg:flex",
-          "border-s border-border/20 bg-card/80 backdrop-blur-lg",
-          "dark:border-white/5",
-          "shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.3)]",
+          "border-s border-border/20 bg-card/80 backdrop-blur-xl",
+          "shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] rtl:shadow-[-4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.3)] dark:rtl:shadow-[-4px_0_24px_-8px_rgba(0,0,0,0.3)]",
         )}
       >
         <SidebarContent />
@@ -105,7 +104,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
         />
         <SheetContent
           side="right"
-          className="w-60 border-0 bg-card dark:bg-card"
+          className="w-60 border-0 bg-card"
         >
           <SidebarContent onNavClick={() => setSheetOpen(false)} />
         </SheetContent>

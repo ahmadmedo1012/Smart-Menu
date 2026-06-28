@@ -6,6 +6,7 @@ import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GridPattern } from "@/components/ui/grid-pattern";
+import { MotionProvider } from "@/components/shared/MotionProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -79,13 +80,12 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col antialiased overflow-x-hidden" style={{ background: 'var(--background-radial), var(--background)' }}>
+      <body className="min-h-screen flex flex-col antialiased overflow-x-hidden bg-[var(--background-radial),var(--background)]">
         <div className="grain-overlay" />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
         >
           <GridPattern
             width={60}
@@ -95,7 +95,9 @@ export default function RootLayout({
           />
           <ScrollToTop />
           <ServiceWorkerInit />
-          {children}
+          <MotionProvider>
+            {children}
+          </MotionProvider>
           <Toaster position="top-center" richColors />
           <Analytics />
           <SpeedInsights />

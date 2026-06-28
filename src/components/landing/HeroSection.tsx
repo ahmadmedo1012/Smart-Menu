@@ -2,13 +2,19 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, MessageCircle } from "lucide-react"
+import { ArrowRight, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PhoneVideo } from "./PhoneVideo"
-const EASE = [0.16, 1, 0.2, 1] as const
+import { springGentle, springDefault, springSnappy } from "@/lib/motion"
 
 export default function HeroSection() {
+	const [isRtl, setIsRtl] = useState(false)
+
+	useEffect(() => {
+		setIsRtl(document.documentElement.dir === "rtl")
+	}, [])
 	return (
 		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0">
@@ -32,13 +38,13 @@ export default function HeroSection() {
 					className="gpu-layer text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
 				>
 					<motion.span
-						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } } }}
+						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
 						className="block"
 					>
 						اللي يواكب التطور
 					</motion.span>
 					<motion.span
-						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } } }}
+						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
 						className="block"
 					>
 						<span className="text-orange">يسبق الجميع</span>
@@ -48,7 +54,7 @@ export default function HeroSection() {
 				<motion.p
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+					transition={{ ...springDefault, delay: 0.15 }}
 					className="gpu-layer text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
 				>
 					هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
@@ -57,12 +63,12 @@ export default function HeroSection() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
+					transition={{ ...springDefault, delay: 0.25 }}
 					className="gpu-layer flex gap-3 sm:gap-4 justify-center flex-wrap"
 				>
 					<Link href="/subscribe">
 						<Button size="lg" className="text-sm sm:text-base">
-							إنشى قائمتك مجانا <ArrowLeft className="size-4 sm:size-5" />
+							إنشى قائمتك مجانا <ArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
 						</Button>
 					</Link>
 					<Link href="https://wa.me/218911111111" target="_blank" rel="noopener noreferrer">
@@ -76,16 +82,16 @@ export default function HeroSection() {
 				<motion.div
 					initial={{ opacity: 0, y: 40 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 1, delay: 0.4, ease: EASE }}
+					transition={{ ...springGentle, delay: 0.4 }}
 					className="gpu-layer mt-8 flex justify-center gap-4 sm:gap-6 items-end"
 				>
 					<div className="relative overflow-hidden" style={{ perspective: "1000px" }}>
 						<div className="absolute -inset-8 rounded-full blur-[80px] opacity-40 pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)", willChange: "filter" }} />
 						<motion.div
 							className="gpu-layer phone-mask relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
-							animate={{ rotateY: -3, rotateX: 2, y: [0, -6, 0] }}
-							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02 }}
-							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
+							animate={{ rotateY: isRtl ? 3 : -3, rotateX: 2, y: [0, -6, 0] }}
+							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02, transition: springSnappy }}
+							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, oklch(0.37 0.01 264), oklch(0.12 0.003 0) 30%, oklch(0.05 0.002 0) 70%, oklch(0.19 0.005 0))" }}
 						>
 							<div className="relative w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.3rem" }}>
 								<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black z-10" style={{ borderRadius: "0 0 1rem 1rem" }} />
@@ -96,8 +102,8 @@ export default function HeroSection() {
 					<div className="relative hidden md:block overflow-hidden mb-6" style={{ perspective: "1000px" }}>
 						<motion.div
 							className="gpu-layer relative w-[250px] h-[520px] sm:w-[270px] sm:h-[560px] p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
-							animate={{ rotateY: 3, rotateX: 1 }}
-							style={{ borderRadius: "1.8rem", background: "linear-gradient(160deg, #52525b, #18181b 30%, #09090b 70%, #27272a)" }}
+							animate={{ rotateY: isRtl ? -3 : 3, rotateX: 1 }}
+							style={{ borderRadius: "1.8rem", background: "linear-gradient(160deg, oklch(0.37 0.01 264), oklch(0.12 0.003 0) 30%, oklch(0.05 0.002 0) 70%, oklch(0.19 0.005 0))" }}
 						>
 							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "1.5rem" }}>
 								<img
