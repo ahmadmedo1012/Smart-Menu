@@ -1,7 +1,8 @@
-import { interpolate, AbsoluteFill, Easing, useCurrentFrame, Sequence, staticFile } from "remotion"
+import { interpolate, AbsoluteFill, Easing, useCurrentFrame, Sequence } from "remotion"
 import { loadFont } from "@remotion/google-fonts/Outfit"
 import { Audio } from "@remotion/media"
 import { Lottie } from "@remotion/lottie"
+import foodIcon from "../food-icon.json"
 
 const { fontFamily } = loadFont("normal", { weights: ["300", "400", "600", "700", "800"], subsets: ["latin"] })
 
@@ -53,6 +54,19 @@ export const Scene1_Brand: React.FC = () => {
 				position: "absolute", inset: 0, display: "flex", flexDirection: "column",
 				alignItems: "center", justifyContent: "center", opacity: op * (1 - fadeOut),
 			}}>
+				{/* Lottie animation above logo */}
+				<Sequence from={0} durationInFrames={150}>
+					<div style={{
+						position: "absolute", top: "30%", left: "50%", translate: "-50% 0",
+						width: 120, height: 120, opacity: interpolate(f, [0, 20], [0, 0.5]),
+					}}>
+						<Lottie
+							animationData={foodIcon}
+							loop
+						/>
+					</div>
+				</Sequence>
+
 				<div style={{
 					width: 88, height: 88, borderRadius: 22,
 					background: `linear-gradient(145deg, ${O}, #fb923c)`,
