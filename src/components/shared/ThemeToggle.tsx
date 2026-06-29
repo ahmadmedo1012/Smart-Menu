@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-const springIcon = { type: "spring" as const, stiffness: 250, damping: 18, mass: 0.9 }
+const springIcon = { type: "spring" as const, stiffness: 300, damping: 22, mass: 0.8 }
 const instant = { duration: 0 }
 
 export function ThemeToggle({ className }: { className?: string }) {

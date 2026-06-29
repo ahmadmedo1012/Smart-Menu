@@ -3,6 +3,7 @@ import ScrollToTop from "@/components/shared/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
+import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GridPattern } from "@/components/ui/grid-pattern";
@@ -98,6 +99,7 @@ export default function RootLayout({
           <MotionProvider>
             {children}
           </MotionProvider>
+          <FloatingWhatsApp />
           <Toaster position="top-center" richColors />
           <Analytics />
           <SpeedInsights />

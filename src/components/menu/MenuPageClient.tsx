@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Search, MessageCircle, Sparkles, X } from "lucide-react";
+import { Search, Sparkles, X } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { toast } from "sonner";
 import MenuItemCard, { type MenuItemProp } from "./MenuItemCard";
@@ -49,7 +49,6 @@ export default function MenuPageClient({
   const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
   const [reviewItem, setReviewItem] = useState<MenuItemProp | null>(null);
   const [toastAnim, setToastAnim] = useState(0);
-  const [showFloatingWa, setShowFloatingWa] = useState(false);
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
   const cart = useCart();
@@ -88,7 +87,7 @@ export default function MenuPageClient({
   };
 
   const handleScroll = useCallback(() => {
-    setShowFloatingWa(window.scrollY > 300);
+    // reserved for future scroll effects
   }, []);
 
   useEffect(() => {
@@ -135,7 +134,6 @@ export default function MenuPageClient({
     return counts;
   }, [items, categories]);
 
-  const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
   const hasActiveFilter = search !== "" || activeCategory !== null;
 
   return (
@@ -325,22 +323,7 @@ export default function MenuPageClient({
         onOpenChange={(open) => { if (!open) setReviewItem(null); }}
       />
 
-      {waNumber && (
-        <a
-          href={`https://wa.me/${waNumber}?text=${encodeURIComponent("مرحباً، أود الاستفسار عن القائمة")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] sm:bottom-[calc(env(safe-area-inset-bottom)+5rem)] end-4 sm:end-6 z-[59] size-12 sm:size-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-xl shadow-[#25D366]/30 transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-[#25D366]/40 active:scale-95",
-            showFloatingWa
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-8 pointer-events-none",
-          )}
-          aria-label="واتساب"
-        >
-          <MessageCircle className="size-6 sm:size-7" />
-        </a>
-      )}
+      {/* ponytail: FloatingWhatsApp moved to root layout */}
     </>
   );
 }

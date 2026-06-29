@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +39,6 @@ function FloatingShapes() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/admin";
 
@@ -68,12 +67,10 @@ function LoginForm() {
 
       toast.success("تم تسجيل الدخول بنجاح");
 
-      if (data.user?.role === "owner") {
-        router.push("/owner");
-      } else {
-        router.push(redirect);
-      }
-      router.refresh();
+      // ponytail: window.location.replace avoids router.push + router.refresh race
+      // that causes blank screen in Next.js 16 App Router (rehydration mismatch)
+      const target = data.user?.role === "owner" ? "/owner" : redirect;
+      setTimeout(() => window.location.replace(target), 150);
     } catch {
       toast.error("خطأ في الاتصال بالخادم");
     } finally {
