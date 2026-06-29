@@ -2,8 +2,10 @@
 
 import { useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Plus, Minus, Star } from "lucide-react";
+import ReviewSheet from "./ReviewSheet";
 
 export type MenuItemProp = {
   id: number;
@@ -27,14 +29,12 @@ const MenuItemCard = memo(function MenuItemCard({
   onOrder,
   onAddToCart,
   onDecrementCart,
-  onReview,
   cartQty = 0,
 }: {
   item: MenuItemProp;
   onOrder: (item: MenuItemProp) => void;
   onAddToCart: (item: MenuItemProp) => void;
   onDecrementCart?: (item: MenuItemProp) => void;
-  onReview: (item: MenuItemProp) => void;
   cartQty?: number;
 }) {
   const displayName = item.nameAr || item.name;
@@ -44,6 +44,8 @@ const MenuItemCard = memo(function MenuItemCard({
   const hasRating = item.avgRating != null && item.ratingCount != null && item.ratingCount > 0;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
+  const [reviewSheetItem, setReviewSheetItem] = useState<{id: number; name: string} | null>(null);
 
   return (
     <div
@@ -145,28 +147,20 @@ const MenuItemCard = memo(function MenuItemCard({
             <h3 className="font-bold text-sm md:text-base leading-snug line-clamp-1">
               {displayName}
             </h3>
-            {hasRating && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onReview(item); }}
-                aria-label={`تقييم ${displayName}`}
-                className="shrink-0 flex items-center gap-0.5 text-xs font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-sm border border-amber-200/50 dark:border-amber-700/30 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
-              >
-                <Star className="size-2.5 fill-current" aria-hidden="true" />
-                {item.avgRating!.toFixed(1)}
-              </button>
-            )}
-            {!hasRating && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onReview(item); }}
-                aria-label={`تقييم ${displayName}`}
-                className="shrink-0 flex items-center gap-0.5 text-[10px] text-muted-foreground/50 hover:text-amber-500 px-1 py-0.5 rounded-sm hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors"
-              >
-                <Star className="size-2.5" aria-hidden="true" />
-                قيّم
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setReviewSheetItem({ id: item.id, name: displayName }); setReviewSheetOpen(true); }}
+              aria-label={`تقييم ${displayName}`}
+              className={cn(
+                "shrink-0 flex items-center gap-1 text-xs font-bold rounded-sm border transition-all duration-300",
+                hasRating
+                  ? "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 border-amber-200/50 dark:border-amber-700/30 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                  : "text-muted-foreground/50 hover:text-amber-500 px-1.5 py-0.5 border-transparent hover:bg-amber-50 dark:hover:bg-amber-900/10",
+              )}
+            >
+              <Star className={cn("size-2.5", hasRating && "fill-current")} aria-hidden="true" />
+              {hasRating ? item.avgRating!.toFixed(1) : "قيّم"}
+            </button>
           </div>
 
           {displayDesc ? (
@@ -250,6 +244,12 @@ const MenuItemCard = memo(function MenuItemCard({
           </div>
         </div>
       </div>
+      <ReviewSheet
+        menuItemId={reviewSheetItem?.id ?? 0}
+        menuItemName={reviewSheetItem?.name ?? ""}
+        open={reviewSheetOpen}
+        onOpenChange={(o) => { if (!o) { setReviewSheetOpen(false); setReviewSheetItem(null); } }}
+      />
     </div>
   );
 });

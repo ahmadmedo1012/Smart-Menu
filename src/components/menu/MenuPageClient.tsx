@@ -7,7 +7,6 @@ import { useCart } from "@/store/cart";
 import { premiumToast } from "@/lib/premium-toast";
 import MenuItemCard, { type MenuItemProp } from "./MenuItemCard";
 import OrderDialog from "./OrderDialog";
-import ReviewDialog from "./ReviewDialog";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +46,6 @@ export default function MenuPageClient({
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
-  const [reviewItem, setReviewItem] = useState<MenuItemProp | null>(null);
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
   const cart = useCart();
@@ -294,7 +292,7 @@ export default function MenuPageClient({
               className="animate-reveal"
               style={{ animationDelay: `${(index % 6) * 60}ms` }}
             >
-              <MenuItemCard item={item} onOrder={setOrderItem} onAddToCart={handleQuickAdd} onDecrementCart={handleDecrement} onReview={setReviewItem} cartQty={getCartQty(item.id)} />
+              <MenuItemCard item={item} onOrder={setOrderItem} onAddToCart={handleQuickAdd} onDecrementCart={handleDecrement} cartQty={getCartQty(item.id)} />
             </div>
           ))}
         </div>
@@ -311,14 +309,7 @@ export default function MenuPageClient({
         restaurantSlug={restaurantSlug}
       />
 
-      <ReviewDialog
-        menuItemId={reviewItem?.id ?? 0}
-        menuItemName={reviewItem ? (reviewItem.nameAr || reviewItem.name) : ""}
-        open={reviewItem !== null}
-        onOpenChange={(open) => { if (!open) setReviewItem(null); }}
-      />
-
-      {/* ponytail: FloatingWhatsApp moved to root layout */}
+      {/* ponytail: Reviews now handled via ReviewSheet in MenuItemCard */}
     </>
   );
 }

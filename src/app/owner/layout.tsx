@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
-import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, QrCode, Gift } from "lucide-react"
+import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, QrCode, Gift, Star } from "lucide-react"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
 import { premiumToast } from "@/lib/premium-toast"
@@ -19,6 +19,7 @@ const navItems = [
   { href: "/owner/menu", label: "المنيو", icon: Store },
   { href: "/owner/qr", label: "رمز QR", icon: QrCode },
   { href: "/owner/loyalty", label: "الولاء", icon: Gift },
+  { href: "/owner/reviews", label: "التقييمات", icon: Star },
   { href: "/owner/settings", label: "الإعدادات", icon: Settings },
 ]
 
@@ -112,7 +113,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       </Sheet>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col animate-fade-in">
+      <div className="flex flex-1 flex-col animate-fade-in overflow-x-hidden">
         <LayoutHeader onMenuClick={() => setSheetOpen(true)} role="owner" />
         <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8"><PageFade>{children}</PageFade></main>
       </div>

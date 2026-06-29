@@ -319,6 +319,23 @@ export default function CartPage() {
         </div>
       </div>
 
+      {/* Loyalty — earn points */}
+      {restaurantId && (
+        <div className="rounded-lg bg-gradient-to-br from-orange-muted/50 to-orange-muted/20 dark:from-orange-muted/10 border border-orange/20 p-3.5 mt-4">
+          <div className="flex items-center gap-2.5">
+            <div className="size-8 rounded-lg bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-sm shrink-0">
+              <Sparkles className="size-4 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold">اكسب نقاط ولاء مع هذا الطلب!</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                كل طلب يمنحك نقاطاً يمكن استبدالها بمكافآت
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Button className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 transition-all duration-300"
         onClick={() => setShowPreview(true)} size="lg" disabled={items.length === 0}>
         <MessageCircle className="size-5" />
