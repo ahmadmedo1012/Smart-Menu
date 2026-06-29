@@ -68,22 +68,22 @@ export async function GET() {
 
     const revenueTrend = await prisma.$queryRaw<{ date: string; revenue: number }[]>`
       SELECT
-        DATE(created_at) as date,
+        DATE("createdAt") as date,
         COALESCE(SUM(total), 0) as revenue
       FROM "Order"
-      WHERE created_at >= ${thirtyDaysAgo}
-      GROUP BY DATE(created_at)
+      WHERE "createdAt" >= ${thirtyDaysAgo}
+      GROUP BY DATE("createdAt")
       ORDER BY date ASC
     `;
 
     // Order volume trend (last 30 days)
     const orderVolumeTrend = await prisma.$queryRaw<{ date: string; count: bigint }[]>`
       SELECT
-        DATE(created_at) as date,
+        DATE("createdAt") as date,
         COUNT(*) as count
       FROM "Order"
-      WHERE created_at >= ${thirtyDaysAgo}
-      GROUP BY DATE(created_at)
+      WHERE "createdAt" >= ${thirtyDaysAgo}
+      GROUP BY DATE("createdAt")
       ORDER BY date ASC
     `;
 

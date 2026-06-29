@@ -25,18 +25,18 @@ export async function GET(request: NextRequest) {
 
     // Revenue last 7 days
     const revenue7d = await prisma.$queryRaw<{ date: string; revenue: number }[]>`
-      SELECT DATE(created_at) as date, COALESCE(SUM(total), 0) as revenue
+      SELECT DATE("createdAt") as date, COALESCE(SUM(total), 0) as revenue
       FROM "Order"
-      WHERE restaurant_id = ${restaurantId} AND created_at >= ${sevenDaysAgo}
-      GROUP BY DATE(created_at) ORDER BY date ASC
+      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+      GROUP BY DATE("createdAt") ORDER BY date ASC
     `;
 
     // Orders last 7 days
     const orders7d = await prisma.$queryRaw<{ date: string; count: bigint }[]>`
-      SELECT DATE(created_at) as date, COUNT(*) as count
+      SELECT DATE("createdAt") as date, COUNT(*) as count
       FROM "Order"
-      WHERE restaurant_id = ${restaurantId} AND created_at >= ${sevenDaysAgo}
-      GROUP BY DATE(created_at) ORDER BY date ASC
+      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+      GROUP BY DATE("createdAt") ORDER BY date ASC
     `;
 
     // Top items with growth
@@ -76,18 +76,18 @@ export async function GET(request: NextRequest) {
 
     // Hourly distribution
     const hourlyDistribution = await prisma.$queryRaw<{ hour: number; count: bigint }[]>`
-      SELECT EXTRACT(HOUR FROM created_at)::int as hour, COUNT(*)::int as count
+      SELECT EXTRACT(HOUR FROM "createdAt")::int as hour, COUNT(*)::int as count
       FROM "Order"
-      WHERE restaurant_id = ${restaurantId} AND created_at >= ${sevenDaysAgo}
+      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
       GROUP BY hour ORDER BY hour ASC
     `;
 
     // AOV trend
     const aovTrend = await prisma.$queryRaw<{ date: string; aov: number }[]>`
-      SELECT DATE(created_at) as date, AVG(total)::decimal(10,2) as aov
+      SELECT DATE("createdAt") as date, AVG(total)::decimal(10,2) as aov
       FROM "Order"
-      WHERE restaurant_id = ${restaurantId} AND created_at >= ${sevenDaysAgo}
-      GROUP BY DATE(created_at) ORDER BY date ASC
+      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+      GROUP BY DATE("createdAt") ORDER BY date ASC
     `;
 
     // Growth vs prev period
