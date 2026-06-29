@@ -16,7 +16,6 @@ import { toast } from "sonner"
 import { useOrderNotifier } from "@/components/layout/OrderNotifier"
 import AreaChart from "@/components/shared/AreaChart"
 import HorizontalBar from "@/components/shared/HorizontalBar"
-import MiniSparkline from "@/components/shared/MiniSparkline"
 import KpiCard from "@/components/admin/KpiCard"
 
 /* ---------- Types ---------- */

@@ -21,7 +21,6 @@ export default function HorizontalBar({
   data,
   maxItems = 10,
   className,
-  barHeight = 28,
 }: HorizontalBarProps) {
   const sorted = [...data].sort((a, b) => b.value - a.value).slice(0, maxItems)
   const maxVal = Math.max(...sorted.map((d) => d.value), 1)

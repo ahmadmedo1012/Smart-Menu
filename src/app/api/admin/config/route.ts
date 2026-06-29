@@ -3,9 +3,11 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
 import { revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
 import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
+import { encryptValue } from "@/lib/config";
 
 const upsertSchema = z.object({
   key: z.string().min(1).max(100),
@@ -42,10 +44,15 @@ export async function PUT(request: NextRequest) {
 
     const body = upsertSchema.parse(await request.json());
 
+    // Encrypt secret values at rest
+    const value = body.isSecret && typeof body.value === "string"
+      ? await encryptValue(body.value)
+      : body.value;
+
     const config = await prisma.systemConfig.upsert({
       where: { key: body.key },
       update: {
-        value: body.value,
+        value,
         category: body.category,
         isSecret: body.isSecret,
         description: body.description,
@@ -53,7 +60,7 @@ export async function PUT(request: NextRequest) {
       },
       create: {
         key: body.key,
-        value: body.value,
+        value,
         category: body.category,
         isSecret: body.isSecret,
         description: body.description,
@@ -61,7 +68,7 @@ export async function PUT(request: NextRequest) {
       },
     });
 
-    revalidateTag("system-config");
+    revalidateTag("system-config", { expire: 60 });
 
     await logAudit({
       action: AuditAction.update,
@@ -71,7 +78,7 @@ export async function PUT(request: NextRequest) {
       metadata: { key: body.key, category: body.category },
     });
 
-    return success(config);
+    return success({ ...config, value: "••••••••" });
   } catch (e) {
     return handleError(e);
   }
@@ -87,7 +94,7 @@ export async function DELETE(request: NextRequest) {
     if (!key) return error("key is required", 400);
 
     await prisma.systemConfig.delete({ where: { key } });
-    revalidateTag("system-config");
+    revalidateTag("system-config", { expire: 60 });
 
     await logAudit({
       action: AuditAction.delete,

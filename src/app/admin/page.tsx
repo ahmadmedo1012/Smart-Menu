@@ -10,11 +10,10 @@ import KpiCard from "@/components/admin/KpiCard"
 import AreaChart from "@/components/shared/AreaChart"
 import HorizontalBar from "@/components/shared/HorizontalBar"
 
-
 import {
   Store, ShoppingCart, TrendingUp, AlertCircle,
   Users, ArrowUpRight, BarChart3,
-  RefreshCw, UserPlus, LogIn, Bell, ShieldAlert,
+  RefreshCw, UserPlus, LogIn,
   Activity, DollarSign, MapPin,
 } from "lucide-react"
 
@@ -37,13 +36,6 @@ interface StatsData {
   restaurantGrowthPct: number
   avgOrderValue: number
   avgOrderValuePrev: number
-}
-
-const SEVERITY_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-  error: { label: "خطأ", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
-  warning: { label: "تحذير", color: "text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
-  info: { label: "معلومة", color: "text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
-  success: { label: "نجاح", color: "text-success", bg: "bg-success/10" },
 }
 
 export default function AdminDashboard() {
@@ -73,13 +65,6 @@ export default function AdminDashboard() {
     const interval = setInterval(load, 30000)
     return () => clearInterval(interval)
   }, [load, error])
-
-  const chartData = stats
-    ? [
-        { label: "مجاني", value: stats.freePlanCount, color: "var(--color-chart-2, hsl(215 14% 34%))" },
-        { label: "مدفوع", value: stats.paidPlanCount, color: "var(--color-chart-1, hsl(38 92% 50%))" },
-      ]
-    : []
 
   // ---------- Loading skeleton ----------
   if (loading) {
