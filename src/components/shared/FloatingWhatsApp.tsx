@@ -3,10 +3,11 @@
 import { MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function FloatingWhatsApp({ phone = "218911111111" }: { phone?: string }) {
+export function FloatingWhatsApp({ phone }: { phone?: string }) {
+	const adminPhone = phone || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "218911111111";
 	return (
 		<a
-			href={`https://wa.me/${phone.replace(/^\+/, "")}`}
+			href={`https://wa.me/${adminPhone.replace(/^\+/, "")}`}
 			target="_blank"
 			rel="noopener noreferrer"
 			className={cn(
