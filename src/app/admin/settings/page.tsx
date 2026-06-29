@@ -13,8 +13,9 @@ import { toast } from "sonner"
 import {
   Save, Store, Phone, Mail, MapPin, Clock, Image,
   Bot, Eye, EyeOff, Send, MessageSquare,
-  UserPlus, Store as StoreIcon, AlertTriangle,
+  UserPlus, Store as StoreIcon, AlertTriangle, Settings,
 } from "lucide-react"
+import ConfigEditor from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
 
 interface Restaurant {
@@ -37,7 +38,14 @@ const EVENT_OPTIONS = [
   { value: "system_alert", label: "تنبيه النظام", icon: AlertTriangle },
 ]
 
+const SETTINGS_TABS = [
+  { id: "restaurants", label: "المطاعم", icon: Store },
+  { id: "telegram", label: "تليجرام", icon: Bot },
+  { id: "config", label: "إعدادات النظام", icon: Settings },
+]
+
 export default function AdminSettingsPage() {
+  const [activeTab, setActiveTab] = useState("restaurants")
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [form, setForm] = useState({
@@ -160,8 +168,31 @@ export default function AdminSettingsPage() {
     <div className="space-y-8 animate-fade-in max-w-3xl">
       <h2 className="text-2xl font-bold tracking-tight">الإعدادات</h2>
 
+      {/* Tab navigation */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {SETTINGS_TABS.map((tab) => {
+          const Icon = tab.icon
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all flex items-center gap-2",
+                activeTab === tab.id
+                  ? "bg-orange-muted border-orange/30 text-orange/80 dark:text-orange"
+                  : "border-border/30 hover:border-orange/20"
+              )}
+            >
+              <Icon className="size-4" />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
       {/* === Restaurant Settings === */}
-      <section>
+      {activeTab === "restaurants" && <section>
         <div className="flex items-center gap-2 mb-4">
           <Store className="size-5 text-muted-foreground" />
           <h3 className="text-lg font-semibold">إعدادات المطاعم</h3>
@@ -258,10 +289,9 @@ export default function AdminSettingsPage() {
             <p>لا توجد مطاعم</p>
           </div>
         ) : null}
-      </section>
+      </section>}
 
-      {/* === Telegram Config === */}
-      <section>
+      {activeTab === "telegram" && <section>
         <div className="flex items-center gap-2 mb-4">
           <Bot className="size-5 text-muted-foreground" />
           <h3 className="text-lg font-semibold">إعدادات تليجرام</h3>
@@ -368,7 +398,17 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section>}
+
+      {activeTab === "config" && (
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Settings className="size-5 text-muted-foreground" />
+            <h3 className="text-lg font-semibold">إعدادات النظام</h3>
+          </div>
+          <ConfigEditor />
+        </section>
+      )}
     </div>
   )
 }

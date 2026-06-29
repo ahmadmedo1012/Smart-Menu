@@ -186,6 +186,28 @@ async function main() {
     { cardId: card1.id, type: "earn", points: 5, description: "مكافأة طلب رقم 1", restaurantId: r1.id },
   ]});
 
+  // ─── Default system configs ──────────────────────────
+  const defaultConfigs = [
+    { key: "max_free_restaurants", value: 5, category: "limits", description: "الحد الأقصى للمطاعم المجانية" },
+    { key: "max_menu_items_free", value: 50, category: "limits", description: "الحد الأقصى للأصناف للخطة المجانية" },
+    { key: "max_menu_items_paid", value: 999, category: "limits", description: "الحد الأقصى للأصناف للخطة المدفوعة" },
+    { key: "order_polling_interval", value: 30000, category: "general", description: "فترة تحديث الطلبات (مللي)" },
+    { key: "maintenance_mode", value: false, category: "features", description: "وضع الصيانة" },
+    { key: "new_signups_enabled", value: true, category: "features", description: "السماح بالتسجيلات الجديدة" },
+    { key: "commission_percent", value: 0, category: "payments", description: "نسبة العمولة" },
+    { key: "min_order_amount", value: 0, category: "limits", description: "الحد الأدنى للطلب" },
+    { key: "loyalty_points_per_lyd", value: 10, category: "general", description: "نقاط الولاء لكل دينار" },
+  ];
+
+  for (const cfg of defaultConfigs) {
+    await prisma.systemConfig.upsert({
+      where: { key: cfg.key },
+      update: {},
+      create: cfg,
+    });
+  }
+  console.log("  Default system configs created");
+
   console.log("\nSeeding complete!");
 }
 
