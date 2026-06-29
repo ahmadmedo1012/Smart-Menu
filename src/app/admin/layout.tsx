@@ -6,6 +6,7 @@ import { AdminSidebar, navItems } from "@/components/layout/AdminSidebar"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
 import { Store } from "lucide-react"
+import PageFade from "@/components/shared/PageFade"
 
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
@@ -49,8 +50,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main */}
       <div className="flex flex-1 flex-col animate-fade-in">
         <LayoutHeader onMenuClick={() => setSheetOpen(true)} role="admin" />
-        <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8 animate-page-enter">
-          {children}
+        <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8">
+          <PageFade>{children}</PageFade>
         </main>
       </div>
     </div>

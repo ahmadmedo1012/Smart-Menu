@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { NavLink } from "@/components/shared/NavLink"
+import PageFade from "@/components/shared/PageFade"
 
 const navItems = [
   { href: "/owner", label: "لوحة التحكم", icon: LayoutDashboard },
@@ -113,7 +114,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       {/* Main content */}
       <div className="flex flex-1 flex-col animate-fade-in">
         <LayoutHeader onMenuClick={() => setSheetOpen(true)} role="owner" />
-        <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8 animate-page-enter">{children}</main>
+        <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8"><PageFade>{children}</PageFade></main>
       </div>
     </div>
   )

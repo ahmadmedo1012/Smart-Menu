@@ -36,9 +36,9 @@ export function ThemeToggle({ className }: { className?: string }) {
         "overflow-hidden",
         className
       )}
-      whileHover={{ scale: 1.08 }}
+      whileHover={{ scale: 1.08, rotate: isDark ? -15 : 15 }}
       whileTap={{ scale: 0.92 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      transition={{ type: "spring", stiffness: 350, damping: 22 }}
     >
       <div className="relative size-4">
         <AnimatePresence mode="wait" initial={false}>
@@ -52,9 +52,9 @@ export function ThemeToggle({ className }: { className?: string }) {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
               transition={t}
             >
               <motion.path
@@ -75,9 +75,9 @@ export function ThemeToggle({ className }: { className?: string }) {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, rotate: 90, scale: 0.5 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: -90, scale: 0.5 }}
               transition={t}
             >
               <motion.circle

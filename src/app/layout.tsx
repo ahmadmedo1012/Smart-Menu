@@ -100,7 +100,13 @@ export default function RootLayout({
             {children}
           </MotionProvider>
           <FloatingWhatsApp />
-          <Toaster position="top-center" richColors />
+          <Toaster position="top-center" richColors
+            toastOptions={{
+              style: {
+                animation: "slide-up 0.35s cubic-bezier(0.16, 1, 0.2, 1)",
+              },
+            }}
+          />
           <Analytics />
           <SpeedInsights />
         </ThemeProvider>
