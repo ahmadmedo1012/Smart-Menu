@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import {
   ClipboardList, Store, Clock, ChefHat,
   CheckCircle, XCircle,
@@ -58,7 +58,7 @@ export default function AdminOrdersPage() {
       if (!res.ok) throw new Error("Fell to fetch orders")
       const data = await res.json()
       setOrders(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []))
-    } catch { toast.error("فشل تحميل الطلبات") }
+    } catch { premiumToast("error", "فشل تحميل الطلبات") }
     finally { setLoading(false) }
 // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -73,10 +73,10 @@ export default function AdminOrdersPage() {
         body: JSON.stringify({ status }),
       })
       if (res.ok) {
-        toast.success(`تم تغيير الحالة`)
+        premiumToast("refresh", `تم تغيير الحالة`)
         fetchOrders(filter)
       }
-    } catch { toast.error("فشل التحديث") }
+    } catch { premiumToast("error", "فشل التحديث") }
   }
 
   const nextStatus: Record<string, string> = {

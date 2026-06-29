@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import Link from "next/link"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { useOrderNotifier } from "@/components/layout/OrderNotifier"
 import AreaChart from "@/components/shared/AreaChart"
 import HorizontalBar from "@/components/shared/HorizontalBar"
@@ -584,7 +584,7 @@ export default function OwnerDashboard() {
                   </span>
                   <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => {
                     const url = `${window.location.origin}/menu/${restaurant.slug}`
-                    navigator.clipboard.writeText(url).then(() => toast.success("تم نسخ الرابط"))
+                    navigator.clipboard.writeText(url).then(() => premiumToast("copy", "تم نسخ الرابط"))
                   }}>
                     <Copy className="size-3" />
                     نسخ

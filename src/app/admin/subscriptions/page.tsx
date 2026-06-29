@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { csrfFetch } from "@/lib/csrf-client";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import {
@@ -102,11 +102,11 @@ export default function AdminSubscriptionsPage() {
       }
       setActionTarget(null);
       await fetchPayments();
-      toast.success(actionType === "verified" ? "تم التحقق من الدفع ✓\nتم تفعيل الخطة للمطعم ✓" : "تم إلغاء الدفع ✓");
+      premiumToast(actionType === "verified" ? "success" : "trash", actionType === "verified" ? "تم التحقق من الدفع" : "تم إلغاء الدفع", actionType === "verified" ? "تم تفعيل الخطة للمطعم" : undefined);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "فشل تحديث الحالة";
       // Show the error but still close dialog — user can retry
-      toast.error(msg);
+      premiumToast("error", msg);
       setActionTarget(null);
     } finally {
       setActionLoading(false);

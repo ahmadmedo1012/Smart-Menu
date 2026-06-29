@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { csrfFetch } from "@/lib/csrf-client";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Suspense } from "react";
@@ -73,7 +73,7 @@ function SubscribeContent() {
           if (found) setSelectedPlan(found.id);
         }
       })
-      .catch(() => toast.error("فشل تحميل الخطط"))
+      .catch(() => premiumToast("error", "فشل تحميل الخطط"))
       .finally(() => setLoading(false));
   }, [preselectedPlan]);
 
@@ -133,10 +133,10 @@ function SubscribeContent() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "فشل إنشاء الحساب");
-      toast.success("تم إنشاء الحساب! يمكنك تسجيل الدخول الآن");
+      premiumToast("success", "تم إنشاء الحساب! يمكنك تسجيل الدخول الآن");
       router.push("/login");
     } catch (e: any) {
-      toast.error(e.message);
+      premiumToast("error", e.message);
     } finally {
       setSubmitting(false);
     }

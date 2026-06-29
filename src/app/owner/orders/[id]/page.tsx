@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import {
   Copy, Check, AlertCircle, Phone, MessageCircle,
   ShoppingCart, User, MapPin, FileText, ChevronLeft,
@@ -57,8 +57,8 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
       if (!res.ok) throw Error()
       const d = await res.json()
       setOrder(d.data ?? d)
-      toast.success(`تم تغيير الحالة إلى ${STATUS_CONFIG[status]?.label}`)
-    } catch { toast.error("فشل تحديث الحالة") }
+      premiumToast("success", `تم تغيير الحالة إلى ${STATUS_CONFIG[status]?.label}`)
+    } catch { premiumToast("error", "فشل تحديث الحالة") }
   }
 
   const copyAsWhatsApp = () => {
@@ -75,7 +75,7 @@ ${items}
 ━━━━━━━━━━━━━
 💰 الإجمالي: ${toArabicNumber(order.total.toFixed(1))} د.ل`
     navigator.clipboard.writeText(text).then(() => {
-      setCopied(true); toast.success("تم نسخ نص الطلب"); setTimeout(() => setCopied(false), 2000)
+      setCopied(true); premiumToast("copy", "تم نسخ نص الطلب"); setTimeout(() => setCopied(false), 2000)
     })
   }
 

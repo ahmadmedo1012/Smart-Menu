@@ -8,7 +8,7 @@ import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, QrCode, Gift } from "lucide-react"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { cn } from "@/lib/utils"
 import { NavLink } from "@/components/shared/NavLink"
 import PageFade from "@/components/shared/PageFade"
@@ -57,12 +57,12 @@ function LogoutButton() {
         try {
           const res = await csrfFetch("/api/auth/logout", { method: "POST" })
           if (res.ok) {
-            toast.success("تم تسجيل الخروج")
+            premiumToast("logout", "تم تسجيل الخروج")
             router.push("/login")
             router.refresh()
           }
         } catch {
-          toast.error("فشل تسجيل الخروج")
+          premiumToast("error", "فشل تسجيل الخروج")
         }
       }}
       className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"

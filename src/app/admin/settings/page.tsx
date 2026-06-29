@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import {
   Save, Store, Phone, Mail, MapPin, Clock, Image,
   Bot, Eye, EyeOff, Send, MessageSquare,
@@ -83,7 +83,7 @@ export default function AdminSettingsPage() {
           })
         }
       })
-      .catch(() => toast.error("فشل تحميل البيانات"))
+      .catch(() => premiumToast("error", "فشل تحميل البيانات"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -100,7 +100,7 @@ export default function AdminSettingsPage() {
 
   const saveRestaurant = async () => {
     if (!selectedId || !form.name.trim()) {
-      toast.error("يرجى اختيار مطعم وإدخال الاسم"); return
+      premiumToast("error", "يرجى اختيار مطعم وإدخال الاسم"); return
     }
     setSaving(true)
     try {
@@ -110,17 +110,17 @@ export default function AdminSettingsPage() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw Error()
-      toast.success("تم حفظ إعدادات المطعم")
+      premiumToast("save", "تم حفظ إعدادات المطعم")
       const r = await fetch("/api/restaurants")
       const d = await r.json()
       setRestaurants(d.data?.restaurants ?? d.data ?? [])
-    } catch { toast.error("فشل الحفظ") }
+    } catch { premiumToast("error", "فشل الحفظ") }
     finally { setSaving(false) }
   }
 
   const saveTelegram = async () => {
     if (!tgConfig.botToken.trim() || !tgConfig.chatId.trim()) {
-      toast.error("يرجى إدخال رمز البوت ومعرف المحادثة"); return
+      premiumToast("error", "يرجى إدخال رمز البوت ومعرف المحادثة"); return
     }
     setTgSaving(true)
     try {
@@ -130,8 +130,8 @@ export default function AdminSettingsPage() {
         body: JSON.stringify(tgConfig),
       })
       if (!res.ok) throw Error()
-      toast.success("تم حفظ إعدادات تليجرام")
-    } catch { toast.error("فشل حفظ إعدادات تليجرام") }
+      premiumToast("save", "تم حفظ إعدادات تليجرام")
+    } catch { premiumToast("error", "فشل حفظ إعدادات تليجرام") }
     finally { setTgSaving(false) }
   }
 
@@ -141,9 +141,9 @@ export default function AdminSettingsPage() {
       const res = await csrfFetch("/api/telegram/test", { method: "POST" })
       const json = await res.json()
       if (!json.success) throw new Error(json.error || "فشل الإرسال")
-      toast.success("تم إرسال رسالة الاختبار بنجاح!")
+      premiumToast("success", "تم إرسال رسالة الاختبار بنجاح!")
     } catch (e: any) {
-      toast.error(e.message || "فشل إرسال رسالة الاختبار")
+      premiumToast("error", e.message || "فشل إرسال رسالة الاختبار")
     } finally {
       setTgTesting(false)
     }

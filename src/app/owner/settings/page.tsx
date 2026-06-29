@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { csrfFetch } from "@/lib/csrf-client"
 import { Save, Crown, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
@@ -58,7 +58,7 @@ export default function OwnerSettingsPage() {
         setGallery(r.gallery ?? [])
       }
       setPlans(plansData.data ?? [])
-    }).catch(() => toast.error("فشل تحميل الإعدادات"))
+    }).catch(() => premiumToast("error", "فشل تحميل الإعدادات"))
     .finally(() => setLoading(false))
   }, [])
 
@@ -72,7 +72,7 @@ export default function OwnerSettingsPage() {
       const data = await res.json()
       return data.data?.url ?? data.url
     } catch {
-      toast.error("فشل رفع الصورة")
+      premiumToast("error", "فشل رفع الصورة")
       return null
     } finally {
       setUploading((prev) => ({ ...prev, [type]: false }))
@@ -113,7 +113,7 @@ export default function OwnerSettingsPage() {
 
   const save = async () => {
     setSubmitted(true)
-    if (!form.name.trim()) { toast.error("يرجى إدخال اسم المطعم"); return }
+    if (!form.name.trim()) { premiumToast("error", "يرجى إدخال اسم المطعم"); return }
     setSaving(true)
     try {
       const items = [
@@ -127,13 +127,13 @@ export default function OwnerSettingsPage() {
         body: JSON.stringify(items),
       })
       if (!res.ok) { const err = await res.json(); throw new Error(err.error ?? "فشل الحفظ") }
-      toast.success("تم حفظ الإعدادات")
+      premiumToast("save", "تم حفظ الإعدادات")
       const settingsRes = await fetch("/api/settings")
       const settingsData = await settingsRes.json()
       const r = settingsData.data?.restaurant
       if (r) setRestaurant(r)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "فشل الحفظ")
+      premiumToast("error", e instanceof Error ? e.message : "فشل الحفظ")
     } finally {
       setSaving(false)
     }

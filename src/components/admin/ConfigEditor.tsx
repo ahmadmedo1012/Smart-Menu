@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { Settings, Eye, EyeOff, Trash2, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -41,7 +41,7 @@ export default function ConfigEditor() {
       const json = await res.json()
       if (json.success) setConfigs(json.data)
     } catch {
-      toast.error("فشل تحميل الإعدادات")
+      premiumToast("error", "فشل تحميل الإعدادات")
     } finally {
       setLoading(false)
     }
@@ -66,10 +66,10 @@ export default function ConfigEditor() {
       })
       const json = await res.json()
       if (!json.success) throw new Error()
-      toast.success("تم الحفظ")
+      premiumToast("save", "تم الحفظ")
       load()
     } catch {
-      toast.error("فشل الحفظ")
+      premiumToast("error", "فشل الحفظ")
     }
   }
 
@@ -78,10 +78,10 @@ export default function ConfigEditor() {
       const res = await fetch(`/api/admin/config?key=${encodeURIComponent(key)}`, { method: "DELETE" })
       const json = await res.json()
       if (!json.success) throw new Error()
-      toast.success("تم الحذف")
+      premiumToast("trash", "تم الحذف")
       load()
     } catch {
-      toast.error("فشل الحذف")
+      premiumToast("error", "فشل الحذف")
     }
   }
 

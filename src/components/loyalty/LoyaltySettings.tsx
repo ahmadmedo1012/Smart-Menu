@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { Save, Award, Gift, RefreshCw } from "lucide-react"
 
 /* ---------- Types ---------- */
@@ -68,7 +68,7 @@ export default function LoyaltySettings({ onSaved }: Props) {
         loyalty_tier_platinum: s.loyalty_tier_platinum ?? DEFAULTS.loyalty_tier_platinum,
       })
     } catch {
-      toast.error("Failed to load settings")
+      premiumToast("error", "Failed to load settings")
     } finally {
       setLoading(false)
     }
@@ -89,10 +89,10 @@ export default function LoyaltySettings({ onSaved }: Props) {
         body: JSON.stringify(body),
       })
       if (!res.ok) throw new Error("Save failed")
-      toast.success("Loyalty settings saved")
+      premiumToast("save", "Loyalty settings saved")
       onSaved?.()
     } catch {
-      toast.error("Failed to save settings")
+      premiumToast("error", "Failed to save settings")
     } finally {
       setSaving(false)
     }

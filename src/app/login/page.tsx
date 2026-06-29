@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,18 +61,18 @@ function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.message || "فشل تسجيل الدخول");
+        premiumToast("error", data.message || "فشل تسجيل الدخول");
         return;
       }
 
-      toast.success("تم تسجيل الدخول بنجاح");
+      premiumToast("success", "تم تسجيل الدخول بنجاح");
 
       // ponytail: window.location.replace avoids router.push + router.refresh race
       // that causes blank screen in Next.js 16 App Router (rehydration mismatch)
       const target = data.user?.role === "owner" ? "/owner" : redirect;
       setTimeout(() => window.location.replace(target), 150);
     } catch {
-      toast.error("خطأ في الاتصال بالخادم");
+      premiumToast("error", "خطأ في الاتصال بالخادم");
     } finally {
       setLoading(false);
     }

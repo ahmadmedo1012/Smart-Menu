@@ -5,7 +5,7 @@ import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { csrfFetch } from "@/lib/csrf-client"
 import { SearchInput } from "@/components/ui/search-input"
 import { ClipboardList, Clock, CheckCircle, XCircle, ChefHat, PackageCheck, AlertCircle } from "lucide-react"
@@ -85,7 +85,7 @@ export default function OwnerOrdersPage() {
       }
       setHasMore(newOrders.length === 20)
       setPage(pageNum)
-    } catch { setError("فشل تحميل الطلبات"); toast.error("فشل تحميل الطلبات") }
+    } catch { setError("فشل تحميل الطلبات"); premiumToast("error", "فشل تحميل الطلبات") }
     finally { if (pageNum === 1) setLoading(false); else setLoadingMore(false) }
   }, [dateFrom, dateTo])
   useEffect(() => { fetchOrdersRef.current = fetchOrders }, [fetchOrders])
@@ -104,7 +104,7 @@ export default function OwnerOrdersPage() {
         const data = JSON.parse(event.data)
         if (data.newOrders && data.newOrders > 0) {
           fetchOrders(filter, 1, false)
-          toast.success(`📦 ${data.newOrders} طلب جديد!`, { duration: 5000 })
+          premiumToast("success", `📦 ${data.newOrders} طلب جديد!`, undefined, { duration: 5000 })
         }
       } catch {}
     }
@@ -113,7 +113,7 @@ export default function OwnerOrdersPage() {
       console.error("SSE connection error — count:", sseErrorCountRef.current)
       if (sseErrorCountRef.current >= 3) {
         es.close()
-        toast.error("فقدان الاتصال المباشر. جاري التحديث الدوري...")
+        premiumToast("refresh", "فقدان الاتصال المباشر. جاري التحديث الدوري...")
         startPolling(filter)
       }
     }
@@ -129,9 +129,9 @@ export default function OwnerOrdersPage() {
       })
       if (res.ok) {
         setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
-        toast.success(`تم تغيير الحالة إلى ${STATUS_CONFIG[newStatus]?.label}`)
+        premiumToast("save", `تم تغيير الحالة إلى ${STATUS_CONFIG[newStatus]?.label}`)
       }
-    } catch { toast.error("فشل تحديث الحالة") }
+    } catch { premiumToast("error", "فشل تحديث الحالة") }
   }
 
   const filtered = orders.filter(o =>

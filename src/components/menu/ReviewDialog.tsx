@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Star, Send, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
 import { StarRating } from "./StarRating";
 import { Button } from "@/components/ui/button";
 import { submitReview } from "@/actions/review";
+import { LottieAnimation } from "@/components/shared/LottieAnimation";
 
 type ReviewDialogProps = {
   menuItemId: number;
@@ -87,11 +89,25 @@ export default function ReviewDialog({
 
         {submitted ? (
           <div className="p-10 text-center animate-scale-in">
-            <div className="size-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-4">
-              <Check className="size-8 text-amber-500" />
+            <div className="size-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-4 relative">
+              <LottieAnimation src="/animations/restaurant-loading.lottie" autoplay loop={false} speed={2} className="absolute inset-0 size-full" />
             </div>
-            <p className="text-lg font-bold mb-1">شكراً لتقييمك!</p>
-            <p className="text-sm text-muted-foreground">تم حفظ تقييمك بنجاح</p>
+            <motion.p
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
+              className="text-lg font-bold mb-1"
+            >
+              شكراً لتقييمك!
+            </motion.p>
+            <motion.p
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-sm text-muted-foreground"
+            >
+              تم حفظ تقييمك بنجاح
+            </motion.p>
           </div>
         ) : (
           <div className="p-6 space-y-5">

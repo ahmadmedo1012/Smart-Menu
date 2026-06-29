@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import dynamic from "next/dynamic"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import QRCode from "qrcode"
 
 const LoyaltySettings = dynamic(
@@ -413,10 +413,10 @@ export default function OwnerLoyaltyPage() {
     try {
       await navigator.clipboard.writeText(ownerRefUrl)
       setCopied(true)
-      toast.success("تم نسخ رابط الإحالة")
+      premiumToast("copy", "تم نسخ رابط الإحالة")
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error("فشل نسخ الرابط")
+      premiumToast("error", "فشل نسخ الرابط")
     }
   }, [ownerRefUrl])
 

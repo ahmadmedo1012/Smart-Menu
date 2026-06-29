@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import {
   Bot,
   Save,
@@ -69,13 +69,13 @@ export default function AdminTelegramPage() {
           setEventsInput((d.events ?? []).join(", "))
         }
       })
-      .catch(() => toast.error("فشل تحميل الإعدادات"))
+      .catch(() => premiumToast("error", "فشل تحميل الإعدادات"))
       .finally(() => setLoading(false))
   }, [])
 
   const handleSave = async () => {
     if (!config.botToken.trim() || !config.chatId.trim()) {
-      toast.error("يرجى إدخال رمز البوت ومعرف المحادثة")
+      premiumToast("error", "يرجى إدخال رمز البوت ومعرف المحادثة")
       return
     }
     setSaving(true)
@@ -93,9 +93,9 @@ export default function AdminTelegramPage() {
       })
       const json = await res.json()
       if (!json.success) throw new Error(json.error || "فشل الحفظ")
-      toast.success("تم حفظ إعدادات تليجرام")
+      premiumToast("save", "تم حفظ إعدادات تليجرام")
     } catch (e: any) {
-      toast.error(e.message || "فشل حفظ الإعدادات")
+      premiumToast("error", e.message || "فشل حفظ الإعدادات")
     } finally {
       setSaving(false)
     }
@@ -107,9 +107,9 @@ export default function AdminTelegramPage() {
       const res = await csrfFetch("/api/telegram/test", { method: "POST" })
       const json = await res.json()
       if (!json.success) throw new Error(json.error || "فشل الإرسال")
-      toast.success("تم إرسال رسالة الاختبار بنجاح!")
+      premiumToast("success", "تم إرسال رسالة الاختبار بنجاح!")
     } catch (e: any) {
-      toast.error(e.message || "فشل إرسال رسالة الاختبار")
+      premiumToast("error", e.message || "فشل إرسال رسالة الاختبار")
     } finally {
       setTesting(false)
     }
@@ -124,7 +124,7 @@ export default function AdminTelegramPage() {
       if (!json.success) throw new Error(json.error || "فشل التشخيص")
       setDiagnose(json.data)
     } catch (e: any) {
-      toast.error(e.message || "فشل التشخيص")
+      premiumToast("error", e.message || "فشل التشخيص")
     } finally {
       setDiagnosing(false)
     }

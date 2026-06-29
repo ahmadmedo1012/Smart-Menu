@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SearchInput } from "@/components/ui/search-input"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import {
   Users, Trash2, Key, AlertCircle, UserPlus, Store, Shield,
   ChevronLeft, ChevronRight, RefreshCw, FilterX,
@@ -78,14 +78,14 @@ export default function AdminUsersPage() {
     if (!deleteTarget) return
     try {
       await csrfFetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
-      toast.success("تم حذف المستخدم")
+      premiumToast("success", "تم حذف المستخدم")
       setDeleteTarget(null); fetchUsers()
-    } catch { toast.error("فشل الحذف") }
+    } catch { premiumToast("error", "فشل الحذف") }
   }
 
   const resetPassword = async () => {
     if (!resetTarget || !newPassword.trim() || newPassword.length < 4) {
-      toast.error("كلمة المرور يجب أن تكون 4 أحرف على الأقل"); return
+      premiumToast("error", "كلمة المرور يجب أن تكون 4 أحرف على الأقل"); return
     }
     try {
       const res = await csrfFetch("/api/admin/reset-password", {
@@ -94,9 +94,9 @@ export default function AdminUsersPage() {
         body: JSON.stringify({ userId: resetTarget.id, newPassword }),
       })
       if (!res.ok) throw Error()
-      toast.success("تم إعادة تعيين كلمة المرور")
+      premiumToast("refresh", "تم إعادة تعيين كلمة المرور")
       setResetTarget(null); setNewPassword("")
-    } catch { toast.error("فشل إعادة التعيين") }
+    } catch { premiumToast("error", "فشل إعادة التعيين") }
   }
 
   // ---------- Loading ----------

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { QrCode, Copy, Check, Store, ArrowRight, Download, ExternalLink, Smartphone, Printer } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -33,7 +33,7 @@ export default function OwnerQRPage() {
   }, [])
 
   const copy = () => {
-    navigator.clipboard.writeText(url).then(() => { setCopied(true); toast.success("تم نسخ الرابط"); setTimeout(() => setCopied(false), 2000) })
+    navigator.clipboard.writeText(url).then(() => { setCopied(true); premiumToast("copy", "تم نسخ الرابط"); setTimeout(() => setCopied(false), 2000) })
   }
 
   const downloadQR = () => {
@@ -43,7 +43,7 @@ export default function OwnerQRPage() {
     link.download = `qr-${slug || "menu"}-${qrSize}.png`
     link.target = "_blank"
     link.click()
-    toast.success("جاري تحميل رمز QR")
+    premiumToast("save", "جاري تحميل رمز QR")
   }
 
   const shareLink = () => {

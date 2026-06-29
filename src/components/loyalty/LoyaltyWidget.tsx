@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { toArabicNumber } from "@/lib/format";
-import { Phone, Award, Star, Sparkles, Medal, Gift } from "lucide-react";
-import { toast } from "sonner";
+import { Phone, Award, Star, Sparkles, Medal, Gift, Stamp } from "lucide-react";
 import { csrfFetch } from "@/lib/csrf-client";
+import { premiumToast } from "@/lib/premium-toast";
 import ReferralCard from "./ReferralCard";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,11 @@ const TIER_CONFIG: Record<string, { labelAr: string; gradient: string; icon: typ
   gold:     { labelAr: "ذهبي",   gradient: "from-orange via-orange to-orange/80", icon: Star, minPoints: 150, color: "text-orange" },
   platinum: { labelAr: "بلاتيني", gradient: "from-orange to-orange/80", icon: Sparkles, minPoints: 400, color: "text-orange" },
 };
+
+// ponytail: tier thresholds duplicated inline in progress calc, keep until extracted
+// Reward stamps config — "اطلب 5 مرات واحصل على وجبة مجانية"
+const STAMP_GOAL = 5;
+const REWARD_LABEL = "وجبة مجانية";
 
 type LoyaltyWidgetProps = {
   restaurantId?: number;
@@ -36,14 +42,14 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
 
   const handleCheck = useCallback(async () => {
     const cleaned = phone.trim();
-    if (!cleaned) { toast.error("يرجى إدخال رقم الهاتف"); return; }
+    if (!cleaned) { premiumToast("error", "يرجى إدخال رقم الهاتف"); return; }
     setLoading(true); setNotFound(false); setData(null);
     try {
       const res = await fetch(`/api/loyalty?phone=${encodeURIComponent(cleaned)}&restaurantId=${restaurantId ?? 1}`);
       const json = await res.json();
       if (json.success && json.data) {
         setData(json.data);
-        toast.success("تم العثور على بطاقة الولاء!");
+        premiumToast("gift", "تم العثور على بطاقة الولاء!");
       } else {
         setNotFound(true);
         const cr = await csrfFetch("/api/loyalty", {
@@ -51,10 +57,10 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
           body: JSON.stringify({ customerPhone: cleaned, customerName: "", restaurantId: restaurantId ?? 1 }),
         });
         const cj = await cr.json();
-        if (cj.success && cj.data) { setData(cj.data); toast.success("تم إنشاء بطاقة ولاء جديدة!"); }
-        else toast.error("تعذر إنشاء بطاقة الولاء");
+        if (cj.success && cj.data) { setData(cj.data); premiumToast("gift", "تم إنشاء بطاقة ولاء جديدة!"); }
+        else premiumToast("error", "تعذر إنشاء بطاقة الولاء");
       }
-    } catch { toast.error("حدث خطأ في الاتصال"); }
+    } catch { premiumToast("error", "حدث خطأ في الاتصال"); }
     finally { setLoading(false); }
   }, [phone, restaurantId]);
 
@@ -102,13 +108,91 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
         ) : (
           /* Loyalty card data */
           <div className="px-4 pb-4 space-y-3 animate-fade-in">
+            {/* Points + Orders summary */}
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-bold">{toArabicNumber(data.card.points)}</span>
+              <span className="font-bold tabular-nums">{toArabicNumber(data.card.points)}</span>
               <span className="text-muted-foreground">نقطة ولاء</span>
               {data.card.totalOrders > 0 && (
                 <span className="text-muted-foreground">· {toArabicNumber(data.card.totalOrders)} طلب</span>
               )}
             </div>
+
+            {/* Stamp Card — order stamps progress */}
+            {(() => {
+              const stamps = data.card.totalOrders % STAMP_GOAL || (data.card.totalOrders > 0 ? STAMP_GOAL : 0);
+              return (
+                <div className="rounded-lg bg-card/60 p-3 border border-border/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold flex items-center gap-1.5">
+                      <Stamp className="size-3.5 text-orange" />
+                      بطاقة الطلبات
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {toArabicNumber(stamps)}/{toArabicNumber(STAMP_GOAL)} ← {REWARD_LABEL}
+                    </span>
+                  </div>
+                  <div className="flex gap-1.5 justify-center">
+                    {Array.from({ length: STAMP_GOAL }, (_, i) => {
+                      const isFilled = i < stamps;
+                      return (
+                        <motion.div
+                          key={i}
+                          initial={{ scale: 0, rotate: -90 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ delay: i * 0.06, type: "spring", stiffness: 200, damping: 15 }}
+                          className={cn(
+                            "size-9 rounded-lg flex items-center justify-center text-xs font-bold border transition-all",
+                            isFilled
+                              ? "bg-orange text-white border-orange shadow-sm shadow-orange/25"
+                              : "bg-muted/30 text-muted-foreground/30 border-border/20",
+                          )}
+                        >
+                          {isFilled ? <Stamp className="size-4" /> : toArabicNumber(i + 1)}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Points progress to next tier */}
+            {(() => {
+              const tiers = ["silver", "gold", "platinum"] as const;
+              const tierKeys = { silver: 50, gold: 150, platinum: 400 } as const;
+              const nextTier = tiers.find(t => data.card.points < tierKeys[t]);
+              if (nextTier) {
+                const current = data.card.points;
+                const next = tierKeys[nextTier];
+                // Find previous threshold
+                const prevIdx = Math.max(0, tiers.indexOf(nextTier) - 1);
+                const prev = prevIdx === 0 ? 0 : tierKeys[tiers[prevIdx] as keyof typeof tierKeys];
+                const pct = Math.min(100, ((current - prev) / (next - prev)) * 100);
+                const TIcon = TIER_CONFIG[nextTier].icon;
+                return (
+                  <div className="rounded-lg bg-card/60 p-3 border border-border/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold flex items-center gap-1.5">
+                        <TIcon className="size-3.5 text-muted-foreground" />
+                        التقدم نحو المستوى {TIER_CONFIG[nextTier].labelAr}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                        {toArabicNumber(current)}/{toArabicNumber(next)}
+                      </span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-muted/50 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className={cn("h-full rounded-full", TIER_CONFIG[nextTier].gradient)}
+                      />
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* Referral */}
             {data.card.referralCode && (

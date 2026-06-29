@@ -1,7 +1,7 @@
 "use client";
 
 import { Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 
 export default function ShareButton({ url, title }: { url: string; title: string }) {
   const handleShare = async () => {
@@ -12,9 +12,9 @@ export default function ShareButton({ url, title }: { url: string; title: string
     } else {
       try {
         await navigator.clipboard.writeText(url);
-        toast.success("تم نسخ الرابط");
+        premiumToast("success", "تم نسخ الرابط");
       } catch {
-        toast.error("فشل النسخ");
+        premiumToast("error", "فشل النسخ");
       }
     }
   };

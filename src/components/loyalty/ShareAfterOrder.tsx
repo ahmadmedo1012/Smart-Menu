@@ -12,7 +12,7 @@ import {
   Gift,
   Sparkles,
 } from "lucide-react";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import {
   Dialog,
   DialogContent,
@@ -64,7 +64,7 @@ export default function ShareAfterOrder({
   const handleGetReferralLink = useCallback(async () => {
     const cleaned = phone.trim();
     if (!cleaned) {
-      toast.error("يرجى إدخال رقم الهاتف");
+      premiumToast("error", "يرجى إدخال رقم الهاتف");
       return;
     }
 
@@ -80,7 +80,7 @@ export default function ShareAfterOrder({
       if (json.success && json.data?.card?.referralCode) {
         setReferralCode(json.data.card.referralCode);
         setStep("referral");
-        toast.success("تم تفعيل برنامج الولاء!");
+        premiumToast("gift", "تم تفعيل برنامج الولاء!");
 
         // Also register this order as a referral action
         fetch("/api/loyalty/referral", {
@@ -95,10 +95,10 @@ export default function ShareAfterOrder({
           // Silent — referral record is best-effort here
         });
       } else {
-        toast.error(json.error || "تعذر تفعيل برنامج الولاء");
+        premiumToast("error", json.error || "تعذر تفعيل برنامج الولاء");
       }
     } catch {
-      toast.error("حدث خطأ في الاتصال");
+      premiumToast("error", "حدث خطأ في الاتصال");
     } finally {
       setLoading(false);
     }
@@ -111,10 +111,10 @@ export default function ShareAfterOrder({
     try {
       await navigator.clipboard.writeText(referralUrl);
       setCopied(true);
-      toast.success("تم نسخ رابط الإحالة");
+      premiumToast("copy", "تم نسخ رابط الإحالة");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("فشل نسخ الرابط");
+      premiumToast("error", "فشل نسخ الرابط");
     }
   }, [referralUrl, referralCode]);
 
@@ -140,7 +140,7 @@ ${referralUrl}
     if (!referralCode) return;
     const text = `ادعوك لتجربة الطلب عبر المنيو الذكي واستمتع بخصم 10٪ 🎉\n${referralUrl}`;
     navigator.clipboard.writeText(text);
-    toast.success("تم نسخ النص — شاركه الآن في قصتك على إنستغرام");
+    premiumToast("copy", "تم نسخ النص — شاركه الآن في قصتك على إنستغرام");
   }, [referralUrl, referralCode]);
 
   // ─── Render ────────────────────────────────────────────────────────

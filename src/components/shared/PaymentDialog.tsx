@@ -11,7 +11,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { csrfFetch } from "@/lib/csrf-client";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { Smartphone, Copy, Phone, CheckCircle2 } from "lucide-react";
 
@@ -61,9 +61,9 @@ export default function PaymentDialog({
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("تم النسخ");
+      premiumToast("copy", "تم النسخ");
     } catch {
-      toast.error("فشل النسخ");
+      premiumToast("error", "فشل النسخ");
     }
   };
 
@@ -76,7 +76,7 @@ export default function PaymentDialog({
 
   const handleSent = async () => {
     if (!phone.trim()) {
-      toast.error("يرجى إدخال رقم هاتفك");
+      premiumToast("error", "يرجى إدخال رقم هاتفك");
       return;
     }
     setSubmitting(true);
@@ -92,7 +92,7 @@ export default function PaymentDialog({
       setStep("waiting");
       setCountdown(30);
     } catch (e: any) {
-      toast.error(e.message);
+      premiumToast("error", e.message);
     } finally {
       setSubmitting(false);
     }

@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SearchInput } from "@/components/ui/search-input";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import {
   Store, Plus, Pencil, Trash2, ExternalLink,
   Crown, Star, Sparkles, Building2, ShoppingCart,
@@ -128,7 +128,7 @@ export default function AdminRestaurantsPage() {
 
   const save = async () => {
     if (!form.name.trim() || !form.slug.trim()) {
-      toast.error("يرجى إدخال الاسم والرابط المختصر");
+      premiumToast("error", "يرجى إدخال الاسم والرابط المختصر");
       return;
     }
     setSaving(true);
@@ -153,7 +153,7 @@ export default function AdminRestaurantsPage() {
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? "فشل تحديث المطعم");
-        toast.success("تم تحديث المطعم");
+        premiumToast("save", "تم تحديث المطعم");
       } else {
         const res = await csrfFetch("/api/restaurants", {
           method: "POST",
@@ -162,12 +162,12 @@ export default function AdminRestaurantsPage() {
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? "فشل إنشاء المطعم");
-        toast.success("تمت إضافة المطعم");
+        premiumToast("save", "تمت إضافة المطعم");
       }
       setDialogOpen(false);
       fetchData();
     } catch {
-      toast.error("فشل الحفظ");
+      premiumToast("error", "فشل الحفظ");
     } finally {
       setSaving(false);
     }
@@ -177,11 +177,11 @@ export default function AdminRestaurantsPage() {
     if (!deleteTarget) return;
     try {
       await csrfFetch(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
-      toast.success("تم حذف المطعم");
+      premiumToast("trash", "تم حذف المطعم");
       setDeleteTarget(null);
       fetchData();
     } catch {
-      toast.error("فشل الحذف");
+      premiumToast("error", "فشل الحذف");
     }
   };
 
@@ -207,11 +207,11 @@ export default function AdminRestaurantsPage() {
     if (!confirm(`حذف ${toArabicNumber(count)} مطعم${count > 1 ? "اً" : ""}؟`)) return;
     try {
       await Promise.all([...selectedIds].map(id => csrfFetch(`/api/restaurants/${id}`, { method: "DELETE" })));
-      toast.success(`تم حذف ${toArabicNumber(count)} مطعم`);
+      premiumToast("trash", `تم حذف ${toArabicNumber(count)} مطعم`);
       setSelectedIds(new Set());
       fetchData();
     } catch {
-      toast.error("فشل الحذف الجماعي");
+      premiumToast("error", "فشل الحذف الجماعي");
     }
   };
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { SearchInput } from "@/components/ui/search-input"
-import { toast } from "sonner"
+import { premiumToast } from "@/lib/premium-toast"
 import { Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -57,7 +57,7 @@ export default function AdminMenuPage() {
       const catResults = await Promise.all(catPromises)
       const allCats = catResults.flatMap(j => j.data ?? j ?? [])
       setCategories(allCats)
-    } catch { setLoading(false); toast.error("فشل تحميل البيانات") }
+    } catch { setLoading(false); premiumToast("error", "فشل تحميل البيانات") }
     finally { setLoading(false) }
   }, [])
 
@@ -93,18 +93,18 @@ export default function AdminMenuPage() {
         body: JSON.stringify({ status: ns }),
       })
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: ns } : i))
-      toast.success(ns === "available" ? "متوفر" : "غير متوفر")
-    } catch { toast.error("فشل التحديث") }
+      premiumToast(ns === "available" ? "success" : "error", ns === "available" ? "متوفر" : "غير متوفر")
+    } catch { premiumToast("error", "فشل التحديث") }
   }
 
   const deleteItem = async () => {
     if (!deleteTarget || deleteTarget.type !== "item") return
     try {
       await csrfFetch(`/api/items/${deleteTarget.id}`, { method: "DELETE" })
-      toast.success("تم حذف الصنف")
+      premiumToast("success", "تم حذف الصنف")
       setDeleteTarget(null)
       fetchData()
-    } catch { toast.error("فشل الحذف") }
+    } catch { premiumToast("error", "فشل الحذف") }
   }
 
   if (loading) return (

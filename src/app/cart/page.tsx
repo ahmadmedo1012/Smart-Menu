@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { csrfFetch } from "@/lib/csrf-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2 } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { toArabicNumber } from "@/lib/format";
@@ -98,7 +98,7 @@ export default function CartPage() {
         }),
       });
     } catch {
-      toast.error("فشل تقديم الطلب. يرجى المحاولة مرة أخرى");
+      premiumToast("error", "فشل تقديم الطلب. يرجى المحاولة مرة أخرى");
       setIsSubmitting(false);
       return;}
 

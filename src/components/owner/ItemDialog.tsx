@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { csrfFetch } from "@/lib/csrf-client";
 
@@ -33,8 +33,8 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
   };
 
   const save = async () => {
-    if (!form.name.trim() || !form.price) { toast.error("يرجى إدخال الاسم والسعر"); return; }
-    if (form.image && !IMAGE_URL_RE.test(form.image)) { toast.error("رابط الصورة غير صالح"); return; }
+    if (!form.name.trim() || !form.price) { premiumToast("error", "يرجى إدخال الاسم والسعر"); return; }
+    if (form.image && !IMAGE_URL_RE.test(form.image)) { premiumToast("error", "رابط الصورة غير صالح"); return; }
     try {
       const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, image: form.image || undefined, status: form.status, categoryId };
       const res = editing
@@ -45,9 +45,9 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
         try { const e = await res.json(); errMsg = e?.error || errMsg; } catch {}
         throw new Error(errMsg);
       }
-      toast.success(editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
+      premiumToast("save", editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
       onOpenChange(false); onSaved();
-    } catch (e) { toast.error(e instanceof Error ? e.message : "فشل الحفظ"); }
+    } catch (e) { premiumToast("error", e instanceof Error ? e.message : "فشل الحفظ"); }
   };
 
   return (
@@ -74,7 +74,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
               <label className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0">
                 <input type="file" accept="image/*" className="hidden" onChange={async e => {
                   const file = e.target.files?.[0]; if (!file) return; const fd = new FormData(); fd.append("file", file);
-                  try { const r = await csrfFetch("/api/upload", { method: "POST", body: fd }); const d = await r.json(); if (d.data?.url) setForm({...form, image: d.data.url}); else toast.error("فشل رفع الصورة"); } catch { toast.error("فشل رفع الصورة"); }
+                  try { const r = await csrfFetch("/api/upload", { method: "POST", body: fd }); const d = await r.json(); if (d.data?.url) setForm({...form, image: d.data.url}); else premiumToast("error", "فشل رفع الصورة"); } catch { premiumToast("error", "فشل رفع الصورة"); }
                 }} />
                 <Upload className="size-4 text-muted-foreground" />
               </label>

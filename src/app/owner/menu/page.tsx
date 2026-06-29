@@ -3,7 +3,6 @@ import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
-import { toast } from "sonner"
 import { SearchInput } from "@/components/ui/search-input"
 import { Plus, Pencil, Trash2, ChevronDown, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
@@ -13,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import PlanUsageBadge from "@/components/owner/PlanUsageBadge"
 import ItemDialog from "@/components/owner/ItemDialog"
+import { premiumToast } from "@/lib/premium-toast"
 
 interface Category { id: number; name: string; nameAr?: string; icon: string; sortOrder: number; isActive: boolean; items: Item[]; _count?: { items: number } }
 interface Item { id: number; name: string; nameAr?: string; description: string; descriptionAr?: string; price: number; discountedPrice: number | null; image: string; status: string; sortOrder: number; categoryId: number }
@@ -49,7 +49,7 @@ export default function OwnerMenuPage() {
   const fetchCats = useCallback(async () => {
     if (!restaurantId) return
     try { setLoading(true); setError(null); const r = await fetch(`/api/categories?restaurantId=${restaurantId}`); const j = await r.json(); setCategories(Array.isArray(j.data ?? j) ? j.data ?? j : []) }
-    catch { setError("فشل تحميل التصنيفات"); toast.error("فشل تحميل التصنيفات") } finally { setLoading(false) }
+    catch { setError("فشل تحميل التصنيفات"); premiumToast("error", "فشل تحميل التصنيفات") } finally { setLoading(false) }
   }, [restaurantId])
 
   useEffect(() => { if (restaurantId) fetchCats() }, [restaurantId, fetchCats])
@@ -61,28 +61,28 @@ export default function OwnerMenuPage() {
   const toggleCat = (id: number) => { setExpandedCat(p => p === id ? null : id); if (expandedCat !== id) fetchItems(id) }
 
   const saveCat = async () => {
-    if (!catForm.name.trim()) { toast.error("يرجى إدخال الاسم"); return }
+    if (!catForm.name.trim()) { premiumToast("error", "يرجى إدخال الاسم"); return }
     try {
       const body = { name: catForm.name.trim(), nameAr: catForm.nameAr.trim() || undefined, icon: catForm.icon.trim(), restaurantId }
       if (catEditing) await csrfFetch(`/api/categories/${catEditing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       else await csrfFetch("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-      toast.success(catEditing ? "تم التحديث" : "تمت الإضافة"); setCatDialog(false); fetchCats(); setUsageKey(k => k + 1)
-    } catch { toast.error("فشل الحفظ") }
+      premiumToast("save", catEditing ? "تم التحديث" : "تمت الإضافة"); setCatDialog(false); fetchCats(); setUsageKey(k => k + 1)
+    } catch { premiumToast("error", "فشل الحفظ") }
   }
 
   const delTarget = async () => {
     if (!deleteTarget) return
     try {
       await csrfFetch(`/api/${deleteTarget.type === "category" ? "categories" : "items"}/${deleteTarget.id}`, { method: "DELETE" })
-      toast.success("تم الحذف"); setDeleteTarget(null)
+      premiumToast("trash", "تم الحذف"); setDeleteTarget(null)
       if (deleteTarget.type === "category") fetchCats(); else if (expandedCat) fetchItems(expandedCat); setUsageKey(k => k + 1)
-    } catch { toast.error("فشل الحذف") }
+    } catch { premiumToast("error", "فشل الحذف") }
   }
 
   const toggleStatus = async (item: Item) => {
     const ns = item.status === "available" ? "unavailable" : "available"
-    try { await csrfFetch(`/api/items/${item.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: ns }) }); toast.success(ns === "available" ? "متوفر" : "غير متوفر"); if (expandedCat) fetchItems(expandedCat) }
-    catch { toast.error("فشل التحديث") }
+    try { await csrfFetch(`/api/items/${item.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: ns }) }); premiumToast("save", ns === "available" ? "متوفر" : "غير متوفر"); if (expandedCat) fetchItems(expandedCat) }
+    catch { premiumToast("error", "فشل التحديث") }
   }
 
   const filteredCategories = categories.filter(cat => {

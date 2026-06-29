@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { premiumToast } from "@/lib/premium-toast";
 import { QrCode, Copy, Check, Download, Store, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export default function AdminQRPage() {
           setSelectedName(list[0].name);
         }
       })
-      .catch(() => toast.error("فشل تحميل المطاعم"));
+      .catch(() => premiumToast("error", "فشل تحميل المطاعم"));
   }, []);
 
   const menuUrl = selectedSlug
@@ -47,7 +47,7 @@ export default function AdminQRPage() {
   const copyLink = () => {
     navigator.clipboard.writeText(menuUrl).then(() => {
       setCopied(true);
-      toast.success("تم نسخ الرابط");
+      premiumToast("copy", "تم نسخ الرابط");
       setTimeout(() => setCopied(false), 2000);
     });
   };
@@ -58,7 +58,7 @@ export default function AdminQRPage() {
     link.download = `qr-${selectedSlug}-${qrSize}.png`;
     link.target = "_blank";
     link.click();
-    toast.success("جاري تحميل رمز QR");
+    premiumToast("save", "جاري تحميل رمز QR");
   };
 
   return (
