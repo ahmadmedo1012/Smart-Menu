@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </Sheet>
 
       {/* Main */}
-      <div className="flex flex-1 flex-col animate-fade-in">
+      <div className="flex flex-1 flex-col animate-fade-in overflow-x-hidden">
         <LayoutHeader onMenuClick={() => setSheetOpen(true)} role="admin" />
         <main aria-live="polite" aria-label="محتوى الصفحة" className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8">
           <PageFade>{children}</PageFade>

@@ -227,6 +227,8 @@
 
 	body {
 		@apply bg-background text-foreground;
+		overflow-x: hidden;
+		max-width: 100vw;
 		transition: background-color 0.3s ease, color 0.3s ease;
 		font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1;
 		font-variant-numeric: lining-nums tabular-nums;
@@ -237,9 +239,11 @@
 	}
 
 	html {
-	@apply scroll-smooth;
-	transition: background-color 0.3s ease, color 0.3s ease;
-}
+		overflow-x: hidden;
+		max-width: 100vw;
+		@apply scroll-smooth;
+		transition: background-color 0.3s ease, color 0.3s ease;
+	}
 
 	@view-transition { navigation: auto; }
 
@@ -394,6 +398,7 @@
 
 /* ── Card premium ── */
 .card-premium {
+	min-width: 0;
 	background: var(--card);
 	border: 1px solid var(--border);
 	border-radius: var(--radius-md);
@@ -474,16 +479,6 @@
 .phone-mask {
 	-webkit-mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
 	mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
-}
-
-/* ── Phone video animations ── */
-@keyframes phoneFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes phoneItemIn {
-  from { opacity: 0; transform: translateY(10px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── Payment countdown ring ── */

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, X, MessageCircle } from "lucide-react";
+import { Star, X, MessageCircle, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
+import { premiumToast } from "@/lib/premium-toast";
 
 type Review = {
   id: number;
@@ -27,6 +28,13 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
   const [stats, setStats] = useState<{ avgRating: number | null; totalCount: number }>({ avgRating: null, totalCount: 0 });
   const [filterStar, setFilterStar] = useState<number | null>(null);
 
+  // Submit form state
+  const [formRating, setFormRating] = useState(0);
+  const [formComment, setFormComment] = useState("");
+  const [formName, setFormName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
   useEffect(() => {
     if (!open || !menuItemId) return;
     setLoading(true);
@@ -41,6 +49,38 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
       })
       .finally(() => setLoading(false));
   }, [open, menuItemId, filterStar]);
+
+  async function handleSubmit() {
+    if (formRating < 1) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch(`/api/items/${menuItemId}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: formRating, comment: formComment, customerName: formName }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "فشل إرسال التقييم");
+
+      // Optimistic: prepend review & update stats
+      setReviews((prev) => [json.data, ...prev]);
+      setStats((prev) => ({
+        avgRating: prev.avgRating
+          ? (prev.avgRating * prev.totalCount + formRating) / (prev.totalCount + 1)
+          : formRating,
+        totalCount: prev.totalCount + 1,
+      }));
+      setFormRating(0);
+      setFormComment("");
+      setFormName("");
+      premiumToast("star", "شكراً لتقييمك!", "تم إضافة تقييمك بنجاح");
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : "فشل إرسال التقييم");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <AnimatePresence>
@@ -104,6 +144,66 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                   {star ? `${star} ⭐` : "الكل"}
                 </button>
               ))}
+            </div>
+
+            {/* Submit form */}
+            <div className="border-b border-border/10 px-5 py-4 space-y-3">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">أضف تقييمك</h4>
+              {/* Star picker */}
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <motion.button
+                    key={s}
+                    whileTap={{ scale: 1.3 }}
+                    animate={formRating >= s ? { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                    onClick={() => { setFormRating(s); setSubmitError(""); }}
+                    className={cn(
+                      "transition-colors cursor-pointer",
+                      s <= formRating ? "text-amber-400" : "text-muted-foreground/20 hover:text-amber-300/50",
+                    )}
+                  >
+                    <Star className={cn("size-6", s <= formRating && "fill-amber-400")} />
+                  </motion.button>
+                ))}
+              </div>
+              {/* Comment */}
+              <textarea
+                placeholder="اكتب تعليقك (اختياري)"
+                value={formComment}
+                onChange={(e) => setFormComment(e.target.value)}
+                rows={2}
+                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus:border-orange/50 transition-colors"
+              />
+              {/* Name */}
+              <input
+                placeholder="الاسم (اختياري)"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus:border-orange/50 transition-colors"
+              />
+              {/* Error */}
+              {submitError && <p className="text-xs text-red-500">{submitError}</p>}
+              {/* Submit */}
+              <button
+                onClick={handleSubmit}
+                disabled={formRating < 1 || submitting}
+                className={cn(
+                  "w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all",
+                  formRating < 1
+                    ? "bg-muted/40 text-muted-foreground/40 cursor-not-allowed"
+                    : "bg-orange text-white shadow-sm hover:shadow-md active:scale-[0.97]",
+                )}
+              >
+                {submitting ? (
+                  <div className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                ) : (
+                  <>
+                    <Send className="size-3.5" />
+                    إرسال التقييم
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Reviews list */}
