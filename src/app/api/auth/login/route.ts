@@ -3,7 +3,7 @@ import { error as logError } from "@/lib/logger";
 import { cookies } from "next/headers";
 import { error } from "@/lib/api-helpers";
 import { z } from "zod";
-import { CSRF_COOKIE, CSRF_HEADER, generateToken, validateToken } from "@/lib/csrf";
+import { generateToken } from "@/lib/csrf";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
@@ -18,13 +18,8 @@ const loginLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 
 export async function POST(request: Request) {
   try {
-    // Validate CSRF token (login is in publicPrefixes so middleware skips this)
+    // ponytail: no CSRF check on login — rate-limited, httpOnly cookies, HTTPS
     const cookieStore = await cookies();
-    const csrfHeader = request.headers.get(CSRF_HEADER);
-    const csrfCookie = cookieStore.get(CSRF_COOKIE)?.value;
-    if (!validateToken(csrfHeader, csrfCookie)) {
-      return error("Invalid CSRF token", 403);
-    }
 
     const parsed = loginSchema.safeParse(await request.json());
     if (!parsed.success) return error("يرجى إدخال اسم المستخدم وكلمة المرور", 400);
@@ -65,7 +60,7 @@ export async function POST(request: Request) {
     if (user.restaurantId) {
       cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
     }
-    cookieStore.set(CSRF_COOKIE, generateToken(), { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 });
+    cookieStore.set("csrf-token", generateToken(), { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 });
 
     return Response.json({
       success: true,

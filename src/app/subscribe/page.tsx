@@ -109,8 +109,8 @@ function SubscribeContent() {
   };
 
   const handlePaymentSuccess = () => {
-    setPaymentOpen(false);
-    router.push("/order-confirmed?type=subscription");
+    // Paid plan: create account after payment approval
+    createAccount();
   };
 
   const createAccount = async () => {
