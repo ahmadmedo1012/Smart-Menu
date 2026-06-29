@@ -11,6 +11,7 @@ import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
 import { LottieAnimation } from "@/components/shared/LottieAnimation";
+import { FluidBackground } from "@/components/shared/FluidBackground";
 
 const GalleryCarousel = dynamicNext(() => import("@/components/menu/GalleryCarousel"));
 
@@ -100,6 +101,7 @@ export default async function PublicMenuPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <FluidBackground />
       <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
       {/* Hero */}

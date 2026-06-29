@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { MotionProvider } from "@/components/shared/MotionProvider";
+import { FluidBackground } from "@/components/shared/FluidBackground";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -88,6 +89,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
         >
+          <FluidBackground />
           <GridPattern
             width={60}
             height={60}

@@ -32,7 +32,7 @@ export default function CartFloatingButton() {
       aria-label={`السلة - ${toArabicNumber(totalItems)} أصناف`}
       className={cn(
         buttonVariants({ variant: "orange" }),
-        "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-[62]",
+        "fixed bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] end-4 sm:end-6 z-[63]",
         "flex items-center gap-3 rounded-md px-4 sm:px-5 py-3 h-auto",
         "shadow-xl shadow-orange/20",
         "hover:shadow-2xl hover:shadow-orange/30",

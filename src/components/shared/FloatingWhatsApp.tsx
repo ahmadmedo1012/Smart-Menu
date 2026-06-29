@@ -11,7 +11,7 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
 			target="_blank"
 			rel="noopener noreferrer"
 			className={cn(
-				"fixed bottom-6 end-6 z-[60]",
+				"fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-[60]",
 				"size-14 rounded-full bg-orange text-white",
 				"flex items-center justify-center",
 				"shadow-xl shadow-orange/30",
