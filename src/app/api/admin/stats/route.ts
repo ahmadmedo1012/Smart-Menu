@@ -62,6 +62,91 @@ export async function GET() {
       prisma.restaurant.count({ where: { planId: { not: null } } }),
     ]);
 
+    // Revenue trend (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const revenueTrend = await prisma.$queryRaw<{ date: string; revenue: number }[]>`
+      SELECT
+        DATE(created_at) as date,
+        COALESCE(SUM(total), 0) as revenue
+      FROM "Order"
+      WHERE created_at >= ${thirtyDaysAgo}
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+
+    // Order volume trend (last 30 days)
+    const orderVolumeTrend = await prisma.$queryRaw<{ date: string; count: bigint }[]>`
+      SELECT
+        DATE(created_at) as date,
+        COUNT(*) as count
+      FROM "Order"
+      WHERE created_at >= ${thirtyDaysAgo}
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+
+    // Top items across all restaurants
+    const topItems = await prisma.orderItem.groupBy({
+      by: ["itemId"],
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: "desc" } },
+      take: 15,
+    });
+
+    const topItemIds = topItems.map((t) => t.itemId);
+    const topItemDetails = topItemIds.length > 0
+      ? await prisma.menuItem.findMany({
+          where: { id: { in: topItemIds } },
+          select: { id: true, name: true, nameAr: true },
+        })
+      : [];
+    const topItemMap = new Map(topItemDetails.map((i) => [i.id, i.nameAr || i.name]));
+
+    const topItemsFormatted = topItems.map((t) => ({
+      itemId: t.itemId,
+      name: topItemMap.get(t.itemId) ?? "Unknown",
+      totalSold: t._sum.quantity ?? 0,
+    }));
+
+    // Growth rates (MoM)
+    const thirtyDaysBefore = new Date();
+    thirtyDaysBefore.setDate(thirtyDaysBefore.getDate() - 60);
+
+    const [currentMonthUsers, prevMonthUsers] = await Promise.all([
+      prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+      prisma.user.count({
+        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
+      }),
+    ]);
+
+    const [currentMonthRestaurants, prevMonthRestaurants] = await Promise.all([
+      prisma.restaurant.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+      prisma.restaurant.count({
+        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
+      }),
+    ]);
+
+    // AOV
+    const aovData = await prisma.order.aggregate({
+      _avg: { total: true },
+      where: { createdAt: { gte: thirtyDaysAgo } },
+    });
+
+    const aovPrevData = await prisma.order.aggregate({
+      _avg: { total: true },
+      where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
+    });
+
+    const userGrowthPct = prevMonthUsers > 0
+      ? Math.round(((currentMonthUsers - prevMonthUsers) / prevMonthUsers) * 100)
+      : 0;
+
+    const restaurantGrowthPct = prevMonthRestaurants > 0
+      ? Math.round(((currentMonthRestaurants - prevMonthRestaurants) / prevMonthRestaurants) * 100)
+      : 0;
+
     const noPlanCount = totalRestaurants - linkedRestaurants;
     const restaurantsOnFreePlans = plans
       .filter((p) => Number(p.price) === 0)
@@ -98,6 +183,13 @@ export async function GET() {
       systemEvents,
       onlineCount: 0,
       linkedRestaurants,
+      revenueTrend: revenueTrend.map((r) => ({ date: r.date, revenue: Number(r.revenue) })),
+      orderVolumeTrend: orderVolumeTrend.map((r) => ({ date: r.date, count: Number(r.count) })),
+      topItems: topItemsFormatted,
+      userGrowthPct,
+      restaurantGrowthPct,
+      avgOrderValue: Number(aovData._avg.total ?? 0),
+      avgOrderValuePrev: Number(aovPrevData._avg.total ?? 0),
     });
   } catch (e) {
     return handleError(e);
