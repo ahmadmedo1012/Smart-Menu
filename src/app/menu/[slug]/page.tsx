@@ -99,7 +99,8 @@ export default async function PublicMenuPage({
   const hasGallery = restaurant.gallery && restaurant.gallery.length > 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen relative">
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.08),transparent_70%)] pointer-events-none" />
       <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
       {/* Hero */}

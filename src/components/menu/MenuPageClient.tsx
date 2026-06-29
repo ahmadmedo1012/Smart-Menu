@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Search, Sparkles, X } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { toast } from "sonner";
@@ -229,54 +230,62 @@ export default function MenuPageClient({
       )}
 
       {/* Category tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0">
+      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0 relative">
         <button
           type="button"
           onClick={() => setActiveCategory(null)}
           className={cn(
-              "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
-              activeCategory === null
-                ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
-                : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
+            "relative snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-colors duration-200",
+            activeCategory === null ? "text-orange-foreground" : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
+          )}
+        >
+          {activeCategory === null && (
+            <motion.div
+              layoutId="active-tab"
+              className="absolute inset-0 rounded-sm bg-orange"
+              style={{ boxShadow: "0 4px 14px rgba(246,109,15,0.35)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            />
+          )}
+          <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
+            الكل
+            <span className={cn(
+              "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold",
+              activeCategory === null ? "bg-background/20 text-foreground" : "bg-orange-muted text-orange dark:text-orange",
+            )}>
+              {toArabicNumber(itemCounts.get(null) ?? 0)}
+            </span>
+          </span>
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => setActiveCategory(cat.id)}
+            className={cn(
+              "relative snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-colors duration-200",
+              activeCategory === cat.id ? "text-orange-foreground" : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
             )}
           >
-            <span className="flex items-center gap-1.5 sm:gap-2">
-              الكل
+            {activeCategory === cat.id && (
+              <motion.div
+                layoutId="active-tab"
+                className="absolute inset-0 rounded-sm bg-orange"
+                style={{ boxShadow: "0 4px 14px rgba(246,109,15,0.35)" }}
+                transition={{ type: "spring", stiffness: 300, damping: 28 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
+              {cat.nameAr || cat.name}
               <span className={cn(
                 "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold",
-                activeCategory === null
-                  ? "bg-background/20 text-foreground"
-                  : "bg-orange-muted text-orange dark:text-orange",
+                activeCategory === cat.id ? "bg-background/20 text-foreground" : "bg-orange-muted text-orange dark:text-orange",
               )}>
-                {toArabicNumber(itemCounts.get(null) ?? 0)}
+                {toArabicNumber(itemCounts.get(cat.id) ?? 0)}
               </span>
             </span>
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setActiveCategory(cat.id)}
-              className={cn(
-                "snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-all duration-300",
-                activeCategory === cat.id
-                  ? "bg-orange text-orange-foreground shadow-lg shadow-orange/25"
-                  : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
-              )}
-            >
-              <span className="flex items-center gap-1.5 sm:gap-2">
-                {cat.nameAr || cat.name}
-                <span className={cn(
-                  "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold",
-                  activeCategory === cat.id
-                    ? "bg-background/20 text-foreground"
-                    : "bg-orange-muted text-orange dark:text-orange",
-                )}>
-                  {toArabicNumber(itemCounts.get(cat.id) ?? 0)}
-                </span>
-              </span>
-            </button>
-          ))}
+        ))}
       </div>
 
       {filteredItems.length === 0 ? (

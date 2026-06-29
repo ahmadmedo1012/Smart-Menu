@@ -3,7 +3,7 @@
 import { useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toArabicNumber } from "@/lib/format";
-import { Plus, Minus, UtensilsCrossed, Star } from "lucide-react";
+import { Plus, Minus, Star } from "lucide-react";
 
 export type MenuItemProp = {
   id: number;
@@ -47,7 +47,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted hover:shadow-glow active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
@@ -70,8 +70,32 @@ const MenuItemCard = memo(function MenuItemCard({
             />
           </>
         ) : (
-          <div className="flex size-full items-center justify-center bg-muted">
-            <UtensilsCrossed className="size-7 md:size-8 text-muted-foreground/30" />
+          <div className="flex size-full items-center justify-center bg-gradient-to-br from-orange-muted/40 to-transparent overflow-hidden">
+            {/* Static circle fallback for reduced motion */}
+            <div className="size-8 rounded-full border-2 border-orange/20 motion-reduce:flex hidden" />
+            <motion.div
+              className="relative size-12 md:size-14 motion-reduce:hidden"
+              aria-hidden="true"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >
+              <motion.div
+                className="absolute inset-0 rounded-full border border-orange/20"
+                animate={{ scale: [1, 1.08, 1], opacity: [0.4, 0.7, 0.4] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute inset-2 rounded-full border border-orange/15"
+                style={{ rotate: "45deg" }}
+                animate={{ scale: [1, 0.92, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              />
+              <motion.div
+                className="absolute inset-4 rounded-full bg-orange/20"
+                animate={{ scale: [0.8, 1.1, 0.8], boxShadow: ["0 0 0px rgba(246,109,15,0)", "0 0 8px rgba(246,109,15,0.25)", "0 0 0px rgba(246,109,15,0)"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </motion.div>
           </div>
         )}
 
