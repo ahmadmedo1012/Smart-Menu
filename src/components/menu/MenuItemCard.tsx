@@ -18,6 +18,8 @@ export type MenuItemProp = {
   isPopular?: boolean;
   isNew?: boolean;
   createdAt?: string;
+  avgRating?: number | null;
+  ratingCount?: number;
 };
 
 const MenuItemCard = memo(function MenuItemCard({
@@ -25,18 +27,21 @@ const MenuItemCard = memo(function MenuItemCard({
   onOrder,
   onAddToCart,
   onDecrementCart,
+  onReview,
   cartQty = 0,
 }: {
   item: MenuItemProp;
   onOrder: (item: MenuItemProp) => void;
   onAddToCart: (item: MenuItemProp) => void;
   onDecrementCart?: (item: MenuItemProp) => void;
+  onReview: (item: MenuItemProp) => void;
   cartQty?: number;
 }) {
   const displayName = item.nameAr || item.name;
   const displayDesc = item.descriptionAr || item.description;
   const currentPrice = item.discountedPrice ?? item.price;
   const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
+  const hasRating = item.avgRating != null && item.ratingCount != null && item.ratingCount > 0;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -116,6 +121,28 @@ const MenuItemCard = memo(function MenuItemCard({
             <h3 className="font-bold text-sm md:text-base leading-snug line-clamp-1">
               {displayName}
             </h3>
+            {hasRating && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onReview(item); }}
+                aria-label={`تقييم ${displayName}`}
+                className="shrink-0 flex items-center gap-0.5 text-xs font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-sm border border-amber-200/50 dark:border-amber-700/30 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+              >
+                <Star className="size-2.5 fill-current" aria-hidden="true" />
+                {item.avgRating!.toFixed(1)}
+              </button>
+            )}
+            {!hasRating && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onReview(item); }}
+                aria-label={`تقييم ${displayName}`}
+                className="shrink-0 flex items-center gap-0.5 text-[10px] text-muted-foreground/50 hover:text-amber-500 px-1 py-0.5 rounded-sm hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors"
+              >
+                <Star className="size-2.5" aria-hidden="true" />
+                قيّم
+              </button>
+            )}
           </div>
 
           {displayDesc ? (

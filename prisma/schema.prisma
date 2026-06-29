@@ -160,10 +160,13 @@ model MenuItem {
   discountedPrice Decimal?     @db.Decimal(10, 2)
   image           String       @default("")
   status          ItemStatus   @default(available)
+  avgRating       Decimal?     @db.Decimal(3, 2)
+  ratingCount     Int          @default(0)
   sortOrder       Int          @default(0)
   categoryId      Int
   category        MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems      OrderItem[]
+  reviews         Review[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
@@ -354,6 +357,20 @@ model SubscriptionPayment {
 
   @@index([status])
   @@index([createdAt])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  comment    String   @default("")
+  customerName String @default("")
+  customerPhone String @default("")
+  menuItemId Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([menuItemId])
+  @@index([menuItemId, createdAt])
 }
 
 model SystemEvent {

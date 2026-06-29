@@ -82,10 +82,12 @@ export default async function PublicMenuPage({
 
   const popularIds = new Set(popularData.map((o) => o.itemId));
 
-  const serializedItems = items.map(({ price, discountedPrice, ...rest }) => ({
+  const serializedItems = items.map(({ price, discountedPrice, avgRating, ratingCount, ...rest }) => ({
     ...rest,
     price: Number(price),
     discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
+    avgRating: avgRating !== null ? Number(avgRating) : null,
+    ratingCount,
     isPopular: popularIds.has(rest.id),
     isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
     createdAt: rest.createdAt.toISOString(),
