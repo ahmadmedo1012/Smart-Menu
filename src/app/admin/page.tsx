@@ -1,15 +1,15 @@
 "use client"
 
-import { useEffect, useState, useCallback, Suspense } from "react"
-import dynamic from "next/dynamic"
+import { useEffect, useState, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
-import CountUp from "@/components/landing/CountUp"
+import KpiCard from "@/components/admin/KpiCard"
+import AreaChart from "@/components/shared/AreaChart"
+import HorizontalBar from "@/components/shared/HorizontalBar"
 
-const BarChart = dynamic(() => import("@/components/shared/BarChart"), { ssr: false })
 
 import {
   Store, ShoppingCart, TrendingUp, AlertCircle,
@@ -30,6 +30,13 @@ interface StatsData {
   ordersToday: { count: number; revenue: number }
   systemEvents: { id: number; eventType: string; title: string; message: string; severity: string; createdAt: string; read: boolean }[]
   linkedRestaurants: number
+  revenueTrend: { date: string; revenue: number }[]
+  orderVolumeTrend: { date: string; count: number }[]
+  topItems: { itemId: number; name: string; totalSold: number }[]
+  userGrowthPct: number
+  restaurantGrowthPct: number
+  avgOrderValue: number
+  avgOrderValuePrev: number
 }
 
 const SEVERITY_STYLES: Record<string, { label: string; color: string; bg: string }> = {
@@ -157,122 +164,132 @@ export default function AdminDashboard() {
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "إجمالي المطاعم", value: stats.totalRestaurants, icon: Store, bg: "bg-orange-muted dark:bg-orange-muted", iconColor: "text-orange dark:text-orange" },
-          { label: "إجمالي المستخدمين", value: stats.totalUsers, icon: Users, bg: "bg-purple-50/80 dark:bg-purple-950/20", iconColor: "text-purple-600 dark:text-purple-400" },
-          { label: "الإيراد الشهري", value: stats.monthlyRevenue, icon: DollarSign, bg: "bg-success/10", iconColor: "text-success", suffix: " د.ل" },
-          { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, bg: "bg-orange-muted/80 dark:bg-orange-muted", iconColor: "text-orange dark:text-orange" },
-        ].map((card, i) => {
-          const Icon = card.icon
-          return (
-            <div key={i} className={cn("rounded-md p-5 shadow-sm border", card.bg, "border-border/30 dark:border-white/10")}>
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
-                  <p className="text-3xl font-bold tracking-tight">
-                    <CountUp value={card.value} suffix={card.suffix || ""} />
-                  </p>
-                </div>
-                <div className={cn("rounded-xl p-3", card.bg)} aria-hidden="true">
-                  <Icon className={cn("size-5", card.iconColor)} aria-hidden="true" />
-                </div>
-              </div>
-            </div>
-          )
-        })}
+        <KpiCard
+          label="إجمالي المطاعم"
+          value={stats.totalRestaurants}
+          icon={Store}
+          iconBg="bg-orange-muted"
+          iconColor="text-orange"
+          trend={stats.restaurantGrowthPct}
+        />
+        <KpiCard
+          label="إجمالي المستخدمين"
+          value={stats.totalUsers}
+          icon={Users}
+          iconBg="bg-purple-50/80 dark:bg-purple-950/20"
+          iconColor="text-purple-600 dark:text-purple-400"
+          trend={stats.userGrowthPct}
+        />
+        <KpiCard
+          label="الإيراد الشهري"
+          value={stats.monthlyRevenue}
+          icon={DollarSign}
+          iconBg="bg-success/10"
+          iconColor="text-success"
+          suffix=" د.ل"
+        />
+        <KpiCard
+          label="إجمالي الطلبات"
+          value={stats.totalOrders}
+          icon={ShoppingCart}
+          iconBg="bg-orange-muted/80"
+          iconColor="text-orange"
+          sparklineData={stats.orderVolumeTrend.slice(-7).map((d) => d.count)}
+        />
       </div>
 
-      {/* Sub-stats row */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-        <div className="rounded-md bg-emerald-50/50 dark:bg-emerald-950/20 border border-success/20 p-4">
-          <p className="text-xs text-success">مدفوع</p>
-          <p className="text-2xl font-bold mt-1 text-success">
-            {toArabicNumber(stats.paidPlanCount)}
-          </p>
-        </div>
-        <div className="rounded-md bg-gray-50 dark:bg-gray-800/20 border border-gray-200/30 p-4">
-          <p className="text-xs text-muted-foreground">مجاني</p>
-          <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.freePlanCount)}</p>
-        </div>
-        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/30 p-4">
-          <p className="text-xs text-orange dark:text-orange">مرتبط</p>
-          <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
-            {toArabicNumber(stats.linkedRestaurants)}
-          </p>
-        </div>
-        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
-          <p className="text-xs text-orange dark:text-orange">طلبات اليوم</p>
-          <p className="text-2xl font-bold mt-1 text-orange/80 dark:text-orange">
-            {toArabicNumber(stats.ordersToday.count)}
-          </p>
-        </div>
-      </div>
-
+      {/* Charts: Revenue + Order Volume */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Plan distribution chart */}
+        {/* Revenue trend */}
         <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-muted-foreground">توزيع الخطط</h3>
+              <TrendingUp className="size-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">اتجاه الإيرادات (30 يوم)</h3>
             </div>
-            <Link href="/admin/restaurants">
-              <Button variant="ghost" size="sm" className="text-xs">إدارة</Button>
-            </Link>
           </div>
-          {chartData.length > 0 && chartData.some(d => d.value > 0) ? (
-            <Suspense fallback={<div className="h-[180px] rounded-md skeleton" />}>
-              <BarChart data={chartData} height={180} />
-            </Suspense>
+          {stats.revenueTrend.length > 0 ? (
+            <AreaChart data={stats.revenueTrend.map(d => ({ label: d.date.slice(5), value: Number(d.revenue) }))} height={220} />
           ) : (
-            <div className="flex flex-col items-center justify-center h-[180px] gap-2 text-muted-foreground/50">
-              <TrendingUp className="size-8" aria-hidden="true" />
-              <p className="text-sm">لا توجد بيانات للخطط</p>
+            <div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">
+              <TrendingUp className="size-8" />
+              <p className="text-sm">لا توجد بيانات</p>
             </div>
           )}
         </div>
 
-        {/* System alerts */}
-        <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
-          <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
+        {/* Order volume trend */}
+        <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Bell className="size-4 text-muted-foreground" aria-hidden="true" />
-              <h3 className="text-sm font-semibold">تنبيهات النظام</h3>
+              <ShoppingCart className="size-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">حجم الطلبات (30 يوم)</h3>
             </div>
           </div>
-          {stats.systemEvents.length > 0 ? (
-            <div className="divide-y divide-border/20 max-h-[300px] overflow-y-auto">
-              {stats.systemEvents.map((ev) => {
-                const sev = SEVERITY_STYLES[ev.severity] || SEVERITY_STYLES.info
-                return (
-                  <div key={ev.id} className="flex items-start gap-3 px-5 py-3 hover:bg-muted/20 transition-colors">
-                    <div className={cn("size-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5", sev.bg)} aria-hidden="true">
-                      <ShieldAlert className={cn("size-4", sev.color)} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium truncate">{ev.title}</p>
-                        <Badge className={cn("text-[10px] px-1.5 py-0", sev.bg, sev.color)}>
-                          {sev.label}
-                        </Badge>
-                      </div>
-                      {ev.message && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{ev.message}</p>
-                      )}
-                      <p className="text-[10px] text-muted-foreground/50 mt-1">
-                        {formatDate(new Date(ev.createdAt))}
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+          {stats.orderVolumeTrend.length > 0 ? (
+            <AreaChart
+              data={stats.orderVolumeTrend.map(d => ({ label: d.date.slice(5), value: d.count }))}
+              height={220}
+              color="#22c55e"
+              gradientId="order-gradient"
+            />
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-              <Bell className="size-10 text-muted-foreground/40" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">لا توجد تنبيهات</p>
+            <div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">
+              <ShoppingCart className="size-8" />
+              <p className="text-sm">لا توجد بيانات</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Charts: Top items + Quick metrics */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Top items */}
+        <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="size-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold">الأصناف الأكثر طلباً</h3>
+          </div>
+          {stats.topItems.length > 0 ? (
+            <HorizontalBar data={stats.topItems.map(i => ({ label: i.name, value: i.totalSold }))} />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[200px] gap-2 text-muted-foreground/50">
+              <BarChart3 className="size-8" />
+              <p className="text-sm">لا توجد بيانات</p>
+            </div>
+          )}
+        </div>
+
+        {/* Quick metrics */}
+        <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="size-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold">مؤشرات سريعة</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-md bg-orange-muted/50 p-4">
+              <p className="text-xs text-muted-foreground">معدل الطلب</p>
+              <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.avgOrderValue)} د.ل</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
+            </div>
+            <div className="rounded-md bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
+              <p className="text-xs text-success">مدفوع</p>
+              <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(stats.paidPlanCount)}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">اشتراك مدفوع</p>
+            </div>
+            <div className="rounded-md bg-orange-muted/50 p-4">
+              <p className="text-xs text-orange">مرتبط</p>
+              <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.linkedRestaurants)}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">مطعم مرتبط</p>
+            </div>
+            <div className="rounded-md bg-orange-muted/50 p-4">
+              <p className="text-xs text-orange">طلبات اليوم</p>
+              <p className="text-2xl font-bold mt-1">{toArabicNumber(stats.ordersToday.count)}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {toArabicNumber(Number(stats.ordersToday.revenue))} د.ل إيراد
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
