@@ -359,6 +359,17 @@ model SubscriptionPayment {
   @@index([createdAt])
 }
 
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       Json
+  category    String   @default("general")
+  isSecret    Boolean  @default(false)
+  description String   @default("")
+  updatedAt   DateTime @updatedAt
+  updatedBy   Int?
+}
+
 model Review {
   id         Int      @id @default(autoincrement())
   rating     Int

@@ -10,6 +10,7 @@ import MenuPageClient from "@/components/menu/MenuPageClient";
 import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
+import { LottieAnimation } from "@/components/shared/LottieAnimation";
 
 const GalleryCarousel = dynamicNext(() => import("@/components/menu/GalleryCarousel"));
 
@@ -107,6 +108,13 @@ export default async function PublicMenuPage({
           <div className="blob" style={{ width: "500px", height: "500px", top: "-20%", left: "-10%", animationDuration: "22s" }} />
           <div className="blob" style={{ width: "400px", height: "400px", bottom: "-30%", right: "-15%", animationDuration: "26s" }} />
           <div className="blob" style={{ width: "350px", height: "350px", top: "40%", left: "60%", animationDuration: "19s" }} />
+        </div>
+        {/* Decorative Lottie — floating food */}
+        <div className="absolute top-8 end-8 size-24 md:size-32 opacity-30 dark:opacity-20 pointer-events-none select-none">
+          <LottieAnimation src="/animations/food-choice.lottie" loop autoplay speed={0.6} />
+        </div>
+        <div className="absolute bottom-4 start-4 size-20 md:size-28 opacity-25 dark:opacity-15 pointer-events-none select-none">
+          <LottieAnimation src="/animations/cooking.lottie" loop autoplay speed={0.5} />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/0 to-background/40 pointer-events-none" />
 

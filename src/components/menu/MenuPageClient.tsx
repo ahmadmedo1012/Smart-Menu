@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Search, MessageCircle, Sparkles, X, ShoppingCart } from "lucide-react";
+import { Search, MessageCircle, Sparkles, X } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { toast } from "sonner";
 import MenuItemCard, { type MenuItemProp } from "./MenuItemCard";
 import OrderDialog from "./OrderDialog";
 import ReviewDialog from "./ReviewDialog";
+import { LottieAnimation } from "@/components/shared/LottieAnimation";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,7 @@ export default function MenuPageClient({
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
   const [reviewItem, setReviewItem] = useState<MenuItemProp | null>(null);
+  const [toastAnim, setToastAnim] = useState(0);
   const [showFloatingWa, setShowFloatingWa] = useState(false);
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
@@ -59,10 +61,11 @@ export default function MenuPageClient({
       price: item.discountedPrice ?? item.price,
       image: item.image || undefined,
     });
+    setToastAnim((n) => n + 1);
     toast.success(
       <div className="flex items-center gap-3">
-        <div className="size-8 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shrink-0">
-          <ShoppingCart className="size-4 text-white" />
+        <div className="size-12 -my-2 -mx-1">
+          <LottieAnimation key={toastAnim} src="/animations/restaurant-loading.lottie" autoplay loop={false} speed={1.5} />
         </div>
         <div>
           <p className="font-semibold text-sm">تمت الإضافة!</p>
