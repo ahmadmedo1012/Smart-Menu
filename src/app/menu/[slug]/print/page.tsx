@@ -15,7 +15,7 @@ export default async function PrintMenuPage({
 }) {
   const { slug } = await params;
 
-  const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
+  const restaurant = await prisma.restaurant.findUnique({ where: { slug }, select: { id: true, name: true, logo: true, description: true, phone: true, workingHours: true } });
   if (!restaurant) notFound();
 
   const categories = await prisma.menuCategory.findMany({

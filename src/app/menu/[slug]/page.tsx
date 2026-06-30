@@ -17,11 +17,10 @@ const GalleryCarousel = dynamicNext(() => import("@/components/menu/GalleryCarou
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
-  const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
+  const restaurant = await prisma.restaurant.findUnique({ where: { slug }, select: { id: true, name: true, description: true, logo: true, phone: true, whatsapp: true, slug: true, address: true, workingHours: true, gallery: true, email: true } });
   if (!restaurant) notFound();
   return {
     title: restaurant.name,
-    description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
     openGraph: {
       title: restaurant.name,
       description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
@@ -48,9 +47,8 @@ export default async function PublicMenuPage({
   const { slug } = await params;
   const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
 
-  const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
+  const restaurant = await prisma.restaurant.findUnique({ where: { slug }, select: { id: true, name: true, description: true, logo: true, phone: true, whatsapp: true, slug: true, address: true, workingHours: true, gallery: true, email: true } });
   if (!restaurant) notFound();
-
   /* eslint-disable react-hooks/purity */
   const SEVEN_DAYS_MS = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const SEVEN_DAYS_AGO = new Date(SEVEN_DAYS_MS);
