@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { premiumToast } from "@/lib/premium-toast";
 
+const starAnimate = { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] };
+
 type Review = {
   id: number;
   rating: number;
@@ -161,7 +163,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                   <motion.button
                     key={s}
                     whileTap={{ scale: 1.3 }}
-                    animate={formRating >= s ? { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] } : {}}
+                    animate={formRating >= s ? starAnimate : {}}
                     transition={{ duration: 0.3 }}
                     onClick={() => { setFormRating(s); setSubmitError(""); }}
                     className={cn(

@@ -57,11 +57,12 @@ export async function POST(request: Request) {
     // Create server-side session (primary auth)
     await createSession(user.id);
     // Backward-compat cookie-based auth
-    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
-    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
-    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
+    const SEVEN_DAYS = 60 * 60 * 24 * 7;
+    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
+    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
+    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
     if (user.restaurantId) {
-      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 * 24 });
+      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
     }
     cookieStore.set("csrf-token", generateToken(), { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 });
 

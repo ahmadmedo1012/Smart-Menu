@@ -9,7 +9,6 @@ import { premiumToast } from "@/lib/premium-toast"
 import { csrfFetch } from "@/lib/csrf-client"
 import { Save, Crown, ShoppingCart, Package, Sparkles, Upload, X, ImageIcon, Loader2 } from "lucide-react"
 import BackButton from "@/components/shared/BackButton"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -24,16 +23,17 @@ interface RestaurantData {
   whatsapp: string; email: string; address: string; workingHours: string;
   logo: string; gallery: string[];
   plan: Plan | null; planId: number | null; maxItems: number; maxOrders: number;
+  pickupTypes: string;
   _count: { orders: number; categories: number };
 }
 
 export default function OwnerSettingsPage() {
-  const __router = useRouter()
   const [restaurant, setRestaurant] = useState<RestaurantData | null>(null)
   const [, setPlans] = useState<Plan[]>([])
   const [form, setForm] = useState({ name: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "" })
   const [logo, setLogo] = useState("")
   const [gallery, setGallery] = useState<string[]>([])
+  const [pickupTypes, setPickupTypes] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -56,6 +56,7 @@ export default function OwnerSettingsPage() {
         })
         setLogo(r.logo ?? "")
         setGallery(r.gallery ?? [])
+        setPickupTypes(r.pickupTypes ? r.pickupTypes.split(",") : ["inside", "takeaway", "delivery"])
       }
       setPlans(plansData.data ?? [])
     }).catch(() => premiumToast("error", "فشل تحميل الإعدادات"))
@@ -114,12 +115,14 @@ export default function OwnerSettingsPage() {
   const save = async () => {
     setSubmitted(true)
     if (!form.name.trim()) { premiumToast("error", "يرجى إدخال اسم المطعم"); return }
+    if (pickupTypes.length === 0) { premiumToast("error", "يرجى اختيار نوع طلب واحد على الأقل"); return }
     setSaving(true)
     try {
       const items = [
         ...Object.entries(form).map(([key, value]) => ({ key: "restaurant_" + key, value })),
         { key: "restaurant_logo", value: logo },
         { key: "restaurant_gallery", value: JSON.stringify(gallery) },
+        { key: "restaurant_pickupTypes", value: pickupTypes.join(",") },
       ]
       const res = await csrfFetch("/api/settings", {
         method: "PUT",
@@ -175,7 +178,7 @@ export default function OwnerSettingsPage() {
                 {currentPlan?.price ? <p className="text-xs text-muted-foreground">{currentPlan.price} د.ل/شهر</p> : null}
               </div>
             </div>
-            <Link href="/pricing">
+            <Link href="/subscribe" target="_self">
               <Button size="sm" variant="outline" className="gap-1 text-xs h-8">
                 <Sparkles className="size-3" /> ترقية
               </Button>
@@ -262,6 +265,29 @@ export default function OwnerSettingsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Pickup types */}
+      <div className="rounded-md bg-card/40 border border-border/20 p-5">
+        <h2 className="text-sm font-bold mb-4">أنواع الطلبات المدعومة</h2>
+        <div className="space-y-2.5">
+          {[
+            { value: "inside", label: "داخل المكان", desc: "الطلبات داخل المطعم" },
+            { value: "takeaway", label: "سفري", desc: "الطلبات الجاهزة للاستلام" },
+            { value: "delivery", label: "توصيل", desc: "طلبات التوصيل للمنزل" },
+          ].map((opt) => (
+            <label key={opt.value} className="flex items-center gap-3 p-3 rounded-md border border-border/20 cursor-pointer hover:bg-orange-muted/30 transition-colors">
+              <input type="checkbox" checked={pickupTypes.includes(opt.value)}
+                onChange={(e) => setPickupTypes(e.target.checked ? [...pickupTypes, opt.value] : pickupTypes.filter(v => v !== opt.value))}
+                className="size-4 accent-orange" />
+              <div>
+                <p className="text-sm font-medium">{opt.label}</p>
+                <p className="text-xs text-muted-foreground">{opt.desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+        {pickupTypes.length === 0 && <p className="text-xs text-destructive mt-2">يجب اختيار نوع طلب واحد على الأقل</p>}
       </div>
 
       {/* Settings form */}

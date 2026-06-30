@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, LayoutGroup } from "framer-motion";
 import { Search, Sparkles, X } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { premiumToast } from "@/lib/premium-toast";
@@ -214,6 +214,7 @@ export default function MenuPageClient({
       )}
 
       {/* Category tabs */}
+      <LayoutGroup>
       <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0 relative">
         <button
           type="button"
@@ -271,6 +272,7 @@ export default function MenuPageClient({
           </button>
         ))}
       </div>
+      </LayoutGroup>
 
       {filteredItems.length === 0 ? (
         <div className="text-center py-16 sm:py-20 animate-fade-in">

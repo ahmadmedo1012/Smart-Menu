@@ -99,21 +99,6 @@ export default function HeroSection() {
 							</div>
 						</motion.div>
 					</div>
-					<div className="relative hidden md:block overflow-hidden mb-6" style={{ perspective: "1000px" }}>
-						<motion.div
-							className="gpu-layer relative w-[250px] h-[520px] sm:w-[270px] sm:h-[560px] p-[3px] shadow-xl shadow-foreground/15 dark:shadow-black/50"
-							animate={{ rotateY: isRtl ? -3 : 3, rotateX: 1 }}
-							style={{ borderRadius: "1.8rem", background: "linear-gradient(160deg, oklch(0.37 0.01 264), oklch(0.12 0.003 0) 30%, oklch(0.05 0.002 0) 70%, oklch(0.19 0.005 0))" }}
-						>
-							<div className="w-full h-full overflow-hidden bg-black" style={{ borderRadius: "1.5rem" }}>
-								<img
-									src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80"
-									alt="Menu preview"
-									className="w-full h-full object-cover"
-								/>
-							</div>
-						</motion.div>
-					</div>
 				</motion.div>
 			</div>
 		</section>

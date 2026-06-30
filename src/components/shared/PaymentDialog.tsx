@@ -13,6 +13,7 @@ import {
 import { csrfFetch } from "@/lib/csrf-client";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { Smartphone, Copy, Phone, CheckCircle2 } from "lucide-react";
 
 const MADAR_PHONE = "0910089975";
@@ -299,60 +300,54 @@ export default function PaymentDialog({
             </>
           )}
 
-          {/* Waiting screen — smooth CSS ring */}
           {step === "waiting" && (
-            <div className="flex flex-col items-center py-8 space-y-5">
-              <div className="relative size-24">
-                {/* Ring */}
-                <svg className="size-full -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50" cy="50" r="40"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    className="text-muted/15"
-                  />
-                  <circle
-                    cx="50" cy="50" r="40"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeDasharray="251.327"
-                    strokeDashoffset="0"
-                    className="text-orange animate-ring-drain"
-                    style={{ filter: "drop-shadow(0 0 6px oklch(0.55 0.19 45 / 0.35))" }}
-                  />
-                </svg>
-                {/* Counter */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold text-foreground tabular-nums">{countdown}</span>
-                  <span className="text-[9px] text-muted-foreground">ثانية</span>
+            <div className="flex flex-col items-center py-10 space-y-6">
+              {/* Animated payment indicator */}
+              <div className="relative size-28">
+                {/* Outer pulsing ring */}
+                <div className="absolute inset-0 rounded-full border-2 border-orange/20 animate-ping opacity-75" style={{ animationDuration: '2s' }} />
+                {/* Middle ring */}
+                <div className="absolute inset-2 rounded-full border border-orange/30" />
+                {/* Inner icon */}
+                <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
+                  <Smartphone className="size-8 text-white" />
                 </div>
               </div>
 
-              <div className="text-center space-y-1">
-                <p className="text-sm font-medium">في انتظار تأكيد الدفع</p>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {/* Title */}
+              <div className="text-center space-y-1.5">
+                <p className="text-base font-bold">في انتظار تأكيد الدفع</p>
+                <p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
                   {provider === "libyana"
                     ? "سيتم تأكيد اشتراكك تلقائياً بعد التحويل"
                     : "بعد التحويل، انتظر موافقة الإدارة"}
                 </p>
               </div>
 
-              {/* Minimal bar */}
-              <div className="w-32 h-[2px] bg-muted/20 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-orange"
-                  style={{ width: `${((30 - countdown) / 30) * 100}%`, transition: "width 0.3s linear" }}
-                />
+              {/* Live status indicator */}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 border border-border/20">
+                <span className="relative flex size-2">
+                  <span className="absolute inset-0 rounded-full bg-orange animate-ping opacity-75" />
+                  <span className="relative rounded-full size-2 bg-orange" />
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  {provider === "libyana" ? "بانتظار تأكيد التحويل" : "بانتظار موافقة الإدارة"}
+                </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
-                <span className="text-[10px] text-muted-foreground">
-                  {provider === "libyana" ? "تحويل تلقائي" : "في الانتظار"}
-                </span>
+              {/* Progress bar — scaleX avoids layout thrash */}
+              <div className="w-48 space-y-1.5">
+                <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: ((30 - countdown) / 30) }}
+                    className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 origin-left"
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center">
+                  الإشتراك سينتهي خلال {countdown} ثانية
+                </p>
               </div>
             </div>
           )}

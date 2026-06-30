@@ -57,6 +57,25 @@ export default function CartPage() {
   const [confirmed, setConfirmed] = useState(false);
   const [animateItems, setAnimateItems] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [supportedPickupTypes, setSupportedPickupTypes] = useState<string[]>([]);
+
+  // Fetch restaurant's supported pickup types
+  useEffect(() => {
+    if (!restaurantId) return;
+    fetch(`/api/restaurants/${restaurantId}`)
+      .then(r => r.json())
+      .then(d => {
+        const types = d.data?.pickupTypes || "";
+        const all = ["inside", "takeaway", "delivery"] as const;
+        const arr = (types ? types.split(",") : [...all]).filter((t: string): t is "inside" | "takeaway" | "delivery" => all.includes(t as any));
+        setSupportedPickupTypes(arr);
+        // Reset pickupType if current selection isn't supported
+        if (!arr.includes(pickupType)) setPickupType(arr[0] || "takeaway");
+      })
+      .catch(() => setSupportedPickupTypes(["inside", "takeaway", "delivery"]));
+  }, [restaurantId, pickupType, setPickupType]);
+
+  const filteredPickupOptions = PICKUP_OPTIONS.filter(o => supportedPickupTypes.length === 0 || supportedPickupTypes.includes(o.value));
 
   useEffect(() => {
     const id = setTimeout(() => setAnimateItems(true), 50);
@@ -170,7 +189,7 @@ export default function CartPage() {
 
       {/* Pickup type selector */}
       <div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up delay-100">
-        {PICKUP_OPTIONS.map((opt) => (
+        {filteredPickupOptions.map((opt) => (
           <button
             key={opt.value}
             type="button"

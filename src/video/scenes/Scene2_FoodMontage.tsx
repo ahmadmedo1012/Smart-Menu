@@ -84,11 +84,11 @@ export const Scene2_FoodMontage: React.FC = () => {
 			{DISHES.map((_, i) => {
 				if (i === 0) return null
 				const transitionFrame = f - (i * segDuration - 15)
-				if (transitionFrame < 0 || transitionFrame > 15) return null
+				if (transitionFrame < 0 || transitionFrame > 30) return null
 				return (
 					<div key={`x-${i}`} style={{
 						position: "absolute", inset: 0, background: "#000",
-						opacity: interpolate(transitionFrame, [0, 15], [0, 1]),
+						opacity: interpolate(transitionFrame, [0, 15, 30], [0, 1, 0]),
 					}} />
 				)
 			})}

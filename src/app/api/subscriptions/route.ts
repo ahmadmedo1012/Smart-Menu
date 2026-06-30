@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { notifyEvent } from "@/lib/telegram";
+import { sendTelegramNotification } from "@/lib/telegram";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 
@@ -39,13 +39,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Notify via Telegram
-    notifyEvent("new_subscription", {
-      plan: plan?.nameAr ?? "غير معروف",
-      phone: String(phone),
-      amount: String(amount),
-      provider: String(provider),
-    }).catch(() => {});
+    // Notify admin directly (bypasses event filter config)
+    sendTelegramNotification(
+      `*طلب اشتراك جديد*\n` +
+      `• الباقة: ${plan?.nameAr ?? "غير معروف"}\n` +
+      `• الهاتف: ${String(phone)}\n` +
+      `• المبلغ: ${String(amount)} د.ل\n` +
+      `• مزود: ${String(provider)}\n` +
+      `• الحالة: قيد الانتظار`,
+      { parseMode: "Markdown" }
+    ).catch(() => {});
 
     return success({ id: payment.id }, 201);
   } catch (e) {

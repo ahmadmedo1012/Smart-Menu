@@ -36,7 +36,7 @@ export const Scene3_CTA: React.FC = () => {
 				background: "linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.2) 100%)",
 			}} />
 			<div style={{
-				position: "absolute", bottom: "30%", left: "50%", translate: "-50% 0",
+				position: "absolute", bottom: "30%", left: "50%", transform: "translateX(-50%)",
 				width: 400, height: 400, borderRadius: "50%",
 				background: `radial-gradient(circle, ${O}33, transparent 70%)`,
 				filter: "blur(60px)", scale: String(orbS),

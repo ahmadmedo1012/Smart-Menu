@@ -507,6 +507,19 @@
   animation: ring-drain 30s linear forwards;
 }
 
+/* ── Confetti ── */
+@keyframes confetti {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.animate-confetti {
+  animation: confetti ease-in forwards;
+}
+
 /* ── Subtle pulse dot ── */
 @keyframes pulse-dot {
   0%, 100% { opacity: 0.3; transform: scale(1); }

@@ -11,7 +11,7 @@ const singleSchema = z.object({
 
 const batchSchema = z.array(singleSchema);
 
-const RESTAURANT_FIELDS = ["name", "slug", "description", "logo", "gallery", "phone", "whatsapp", "email", "address", "workingHours", "themeColor"];
+const RESTAURANT_FIELDS = ["name", "slug", "description", "logo", "gallery", "phone", "whatsapp", "email", "address", "workingHours", "themeColor", "pickupTypes"];
 
 export async function GET(request: NextRequest) {
 	try {
