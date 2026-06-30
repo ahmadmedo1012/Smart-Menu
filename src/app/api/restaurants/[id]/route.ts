@@ -41,8 +41,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const rId = Number(id);
+    if (Number.isNaN(rId)) return apiError("Invalid ID", 400);
     const data = await prisma.restaurant.findUnique({
-      where: { id: Number(id) },
+      where: { id: rId },
       include: {
         _count: { select: { orders: true, categories: true } },
         categories: { include: { _count: { select: { items: true } } }, orderBy: { sortOrder: "asc" } },
@@ -64,6 +66,9 @@ export async function PUT(
     if (!auth.authorized) return apiError("غير مصرح", 401);
 
     const { id } = await params;
+    const rId = Number(id);
+    if (Number.isNaN(rId)) return apiError("Invalid ID", 400);
+
     const body = await request.json();
 
     let data;
@@ -71,17 +76,17 @@ export async function PUT(
       // Admin can update everything
       const parsed = adminUpdateSchema.parse(body);
       data = await prisma.restaurant.update({
-        where: { id: Number(id) },
+        where: { id: rId },
         data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
       });
     } else if (auth.role === "owner") {
       // Owner can only update their own restaurant's basic info
-      if (auth.restaurantId !== Number(id)) {
+      if (auth.restaurantId !== rId) {
         return apiError("غير مصرح", 401);
       }
       const parsed = updateSchema.parse(body);
       data = await prisma.restaurant.update({
-        where: { id: Number(id) },
+        where: { id: rId },
         data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
       });
     } else {
@@ -104,7 +109,9 @@ export async function DELETE(
       return apiError("غير مصرح", 401);
     }
     const { id } = await params;
-    await prisma.restaurant.delete({ where: { id: Number(id) } });
+    const rId = Number(id);
+    if (Number.isNaN(rId)) return apiError("Invalid ID", 400);
+    await prisma.restaurant.delete({ where: { id: rId } });
     return success({ deleted: true });
   } catch (e) {
     return handleError(e);

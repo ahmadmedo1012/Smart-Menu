@@ -26,10 +26,13 @@ export async function PUT(
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
     const { id } = await params;
+    const itemId = Number(id);
+    if (Number.isNaN(itemId)) return error("Invalid ID", 400);
+
     const body = updateSchema.parse(await request.json());
 
     const existing = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id: itemId },
       include: { category: { select: { restaurantId: true } } },
     });
     if (!existing) return notFound("Item");
@@ -40,7 +43,7 @@ export async function PUT(
     }
 
     const data = await prisma.menuItem.update({
-      where: { id: Number(id) },
+      where: { id: itemId },
       data: { ...body, status: body.status as ItemStatus },
       include: { category: { select: { id: true, name: true, nameAr: true } } },
     });
@@ -58,8 +61,10 @@ export async function DELETE(
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
     const { id } = await params;
+    const delId = Number(id);
+    if (Number.isNaN(delId)) return error("Invalid ID", 400);
     const existing = await prisma.menuItem.findUnique({
-      where: { id: Number(id) },
+      where: { id: delId },
       include: { category: { select: { restaurantId: true } } },
     });
     if (!existing) return notFound("Item");
@@ -69,8 +74,8 @@ export async function DELETE(
       return error("غير مصرح", 401);
     }
 
-    await prisma.menuItem.delete({ where: { id: Number(id) } });
-    return success({ id: Number(id) });
+    await prisma.menuItem.delete({ where: { id: delId } });
+    return success({ id: delId });
   } catch (e) {
     return handleError(e);
   }

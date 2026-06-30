@@ -10,6 +10,7 @@ export type CartItem = {
   quantity: number;
   notes: string;
   image?: string;
+  restaurantId?: number;
 };
 
 interface CartStore {
@@ -60,10 +61,10 @@ export const useCart = create<CartStore>()(
   addItem: (item) =>
     set((s) => {
       // Prevent mixing items from different restaurants — clear cart and start fresh
-      if (s.items.length > 0 && s.restaurantId && s.restaurantId !== (item as any).restaurantId && (item as any).restaurantId) {
+      if (s.items.length > 0 && s.restaurantId && item.restaurantId && s.restaurantId !== item.restaurantId) {
         return {
-          restaurantId: (item as any).restaurantId,
-          items: [{ ...(item as any), id: genId(), quantity: 1, notes: "" } as CartItem].filter(i => i.itemId),
+          restaurantId: item.restaurantId,
+          items: [{ ...item, id: genId(), quantity: 1, notes: "" } as CartItem].filter(i => i.itemId),
           customerName: "", customerPhone: "", notes: "",
         };
       }

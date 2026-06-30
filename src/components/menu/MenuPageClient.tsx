@@ -56,6 +56,7 @@ export default function MenuPageClient({
       name: item.nameAr || item.name,
       price: item.discountedPrice ?? item.price,
       image: item.image || undefined,
+      restaurantId,
     });
     premiumToast("cart", "تمت الإضافة!", item.nameAr || item.name, { duration: 2000, anim: true });
   };

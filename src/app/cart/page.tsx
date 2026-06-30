@@ -103,8 +103,9 @@ export default function CartPage() {
     }
 
     // 2. Save order to DB (best-effort)
+    let orderNo = "";
     try {
-      await csrfFetch("/api/orders", {
+      const res = await csrfFetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,6 +119,10 @@ export default function CartPage() {
           restaurantId: restaurantId || undefined,
         }),
       });
+      if (res.ok) {
+        const json = await res.json();
+        orderNo = json.data?.orderNo ?? "";
+      }
     } catch {
       premiumToast("error", "فشل تقديم الطلب. يرجى المحاولة مرة أخرى");
       setIsSubmitting(false);
@@ -126,7 +131,7 @@ export default function CartPage() {
     setConfirmed(true);
     setIsSubmitting(false);
     setTimeout(() => {
-      router.push(`/order-confirmed?wa=${encodeURIComponent(waNumber ?? "")}`);
+      router.push(`/order-confirmed?orderNo=${encodeURIComponent(orderNo)}&wa=${encodeURIComponent(waNumber ?? "")}`);
     }, 1500);
   };
 

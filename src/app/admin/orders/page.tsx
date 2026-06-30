@@ -46,13 +46,13 @@ export default function AdminOrdersPage() {
   const [dateTo, setDateTo] = useState("")
   const router = useRouter()
 
-  const fetchOrders = useCallback(async (status: string) => {
+  const fetchOrders = useCallback(async (status: string, df?: string, dt?: string) => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
       if (status) params.set("status", status)
-      if (dateFrom) params.set("dateFrom", dateFrom)
-      if (dateTo) params.set("dateTo", dateTo)
+      if (df) params.set("dateFrom", df)
+      if (dt) params.set("dateTo", dt)
       const url = `/api/orders?${params.toString()}`
       const res = await fetch(url)
       if (!res.ok) throw new Error("Fell to fetch orders")
@@ -60,10 +60,9 @@ export default function AdminOrdersPage() {
       setOrders(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []))
     } catch { premiumToast("error", "فشل تحميل الطلبات") }
     finally { setLoading(false) }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [dateFrom, dateTo])
 
-  useEffect(() => { fetchOrders(filter) }, [filter, fetchOrders])
+  useEffect(() => { fetchOrders(filter, dateFrom, dateTo) }, [filter, dateFrom, dateTo])
 
   const updateStatus = async (id: number, status: string) => {
     try {
@@ -142,7 +141,7 @@ export default function AdminOrdersPage() {
         <input
           type="date"
           value={dateFrom}
-          onChange={e => { setDateFrom(e.target.value); fetchOrders(filter) }}
+          onChange={e => { setDateFrom(e.target.value) }}
           className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
           title="من تاريخ"
           aria-label="من تاريخ"
@@ -150,7 +149,7 @@ export default function AdminOrdersPage() {
         <input
           type="date"
           value={dateTo}
-          onChange={e => { setDateTo(e.target.value); fetchOrders(filter) }}
+          onChange={e => { setDateTo(e.target.value) }}
           className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
           title="إلى تاريخ"
           aria-label="إلى تاريخ"
@@ -158,7 +157,7 @@ export default function AdminOrdersPage() {
         {(dateFrom || dateTo) && (
           <button
             type="button"
-            onClick={() => { setDateFrom(""); setDateTo(""); fetchOrders(filter) }}
+            onClick={() => { setDateFrom(""); setDateTo("") }}
             className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-all shrink-0"
           >
             إلغاء

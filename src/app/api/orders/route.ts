@@ -99,17 +99,17 @@ export async function POST(request: NextRequest) {
     // Recalc totals server-side to prevent price tampering
     const dbItems = await prisma.menuItem.findMany({
       where: { id: { in: body.items.map(i => i.itemId) } },
-      select: { id: true, price: true },
+      select: { id: true, price: true, discountedPrice: true },
     });
-    const priceMap = new Map(dbItems.map(i => [i.id, i.price]));
-
+    const priceMap = new Map(dbItems.map(i => [i.id, i]));
     let recalcSubtotal = 0;
     for (const item of body.items) {
-      const dbPrice = priceMap.get(item.itemId);
-      if (!dbPrice) {
+      const db = priceMap.get(item.itemId);
+      if (!db) {
         return apiError(`الصنف ${item.itemId} غير موجود`, 400);
       }
-      recalcSubtotal += Number(dbPrice) * item.quantity;
+      const eff = db.discountedPrice ? Number(db.discountedPrice) : Number(db.price);
+      recalcSubtotal += eff * item.quantity;
     }
 
     const orderNo = `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
@@ -140,12 +140,15 @@ export async function POST(request: NextRequest) {
         total: recalcSubtotal - discount,
         restaurantId: body.restaurantId,
         items: {
-          create: body.items.map((i) => ({
-            itemId: i.itemId,
-            quantity: i.quantity,
-            notes: i.notes ?? "",
-            price: priceMap.get(i.itemId)!,
-          })),
+          create: body.items.map((i) => {
+            const db = priceMap.get(i.itemId)!;
+            return {
+              itemId: i.itemId,
+              quantity: i.quantity,
+              notes: i.notes ?? "",
+              price: db.discountedPrice ? Number(db.discountedPrice) : Number(db.price),
+            };
+          }),
         },
       },
       include: {

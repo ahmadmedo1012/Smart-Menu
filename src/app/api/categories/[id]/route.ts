@@ -21,8 +21,10 @@ export async function PUT(
     if (!auth.authorized) return error("غير مصرح", 401);
 
     const { id } = await params;
+    const catId = Number(id);
+    if (Number.isNaN(catId)) return error("Invalid ID", 400);
     const body = updateSchema.parse(await request.json());
-    const existing = await prisma.menuCategory.findUnique({ where: { id: Number(id) } });
+    const existing = await prisma.menuCategory.findUnique({ where: { id: catId } });
     if (!existing) return notFound("Category");
 
     // Owners can only update their own restaurant's categories
@@ -30,7 +32,7 @@ export async function PUT(
       return error("غير مصرح", 401);
     }
 
-    const data = await prisma.menuCategory.update({ where: { id: Number(id) }, data: body });
+    const data = await prisma.menuCategory.update({ where: { id: catId }, data: body });
     return success(data);
   } catch (e) {
     return handleError(e);
@@ -46,7 +48,9 @@ export async function DELETE(
     if (!auth.authorized) return error("غير مصرح", 401);
 
     const { id } = await params;
-    const existing = await prisma.menuCategory.findUnique({ where: { id: Number(id) } });
+    const catId = Number(id);
+    if (Number.isNaN(catId)) return error("Invalid ID", 400);
+    const existing = await prisma.menuCategory.findUnique({ where: { id: catId } });
     if (!existing) return notFound("Category");
 
     // Owners can only delete their own restaurant's categories
@@ -54,8 +58,8 @@ export async function DELETE(
       return error("غير مصرح", 401);
     }
 
-    await prisma.menuCategory.delete({ where: { id: Number(id) } });
-    return success({ id: Number(id) });
+    await prisma.menuCategory.delete({ where: { id: catId } });
+    return success({ id: catId });
   } catch (e) {
     return handleError(e);
   }

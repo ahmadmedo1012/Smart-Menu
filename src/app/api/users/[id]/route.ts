@@ -19,11 +19,13 @@ export async function PATCH(
     const auth = await requireAuth();
     if (!auth.authorized || auth.role !== "admin") return apiError("غير مصرح", 401);
     const { id } = await params;
+    const uid = Number(id);
+    if (Number.isNaN(uid)) return apiError("Invalid ID", 400);
     const body = await request.json();
     const parsed = updateUserSchema.safeParse(body);
     if (!parsed.success) return apiError("بيانات غير صالحة", 400);
     const updated = await prisma.user.update({
-      where: { id: Number(id) },
+      where: { id: uid },
       data: parsed.data,
       select: { id: true, username: true, name: true, role: true, restaurantId: true },
     });
@@ -41,7 +43,9 @@ export async function DELETE(
     const auth = await requireAuth();
     if (!auth.authorized || auth.role !== "admin") return apiError("غير مصرح", 401);
     const { id } = await params;
-    await prisma.user.delete({ where: { id: Number(id) } });
+    const uid = Number(id);
+    if (Number.isNaN(uid)) return apiError("Invalid ID", 400);
+    await prisma.user.delete({ where: { id: uid } });
     return success({ deleted: true });
   } catch (e) {
     return handleError(e);

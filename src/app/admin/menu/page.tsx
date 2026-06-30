@@ -46,7 +46,7 @@ export default function AdminMenuPage() {
       ])
       const itemJson = await itemRes.json()
       const restJson = await restRes.json()
-      setItems(itemJson.data ?? itemJson ?? [])
+      setItems(Array.isArray(itemJson.data) ? itemJson.data : [])
       const restaurantList = restJson.data?.restaurants ?? restJson.data ?? []
       setRestaurants(restaurantList)
 

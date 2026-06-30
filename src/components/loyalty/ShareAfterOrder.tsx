@@ -31,7 +31,8 @@ export default function ShareAfterOrder({
   orderNo,
   open,
   onOpenChange,
-}: ShareAfterOrderProps) {
+  restaurantSlug,
+}: ShareAfterOrderProps & { restaurantSlug?: string }) {
   const [step, setStep] = useState<"phone" | "referral">("phone");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,7 @@ export default function ShareAfterOrder({
     typeof window !== "undefined" ? window.location.origin : "";
 
   const referralUrl = referralCode
-    ? `${origin}/menu?ref=${referralCode}`
+    ? `${origin}/menu/${restaurantSlug || ""}?ref=${referralCode}`
     : "";
 
   // ─── Register loyalty & get referral link ─────────────────────────
@@ -73,7 +74,7 @@ export default function ShareAfterOrder({
       const res = await fetch("/api/loyalty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerPhone: cleaned, customerName: "" }),
+        body: JSON.stringify({ customerPhone: cleaned, customerName: "", restaurantId: undefined }),
       });
       const json = await res.json();
 
@@ -81,19 +82,6 @@ export default function ShareAfterOrder({
         setReferralCode(json.data.card.referralCode);
         setStep("referral");
         premiumToast("gift", "تم تفعيل برنامج الولاء!");
-
-        // Also register this order as a referral action
-        fetch("/api/loyalty/referral", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            referralCode: json.data.card.referralCode,
-            referredPhone: cleaned,
-            referredName: "",
-          }),
-        }).catch(() => {
-          // Silent — referral record is best-effort here
-        });
       } else {
         premiumToast("error", json.error || "تعذر تفعيل برنامج الولاء");
       }

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { premiumToast } from "@/lib/premium-toast"
 import { Settings, Eye, EyeOff, Trash2, Save } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { csrfFetch } from "@/lib/csrf-client"
 
 interface ConfigItem {
   id: number
@@ -53,7 +54,7 @@ export default function ConfigEditor() {
 
   const saveConfig = async (item: ConfigItem) => {
     try {
-      const res = await fetch("/api/admin/config", {
+      const res = await csrfFetch("/api/admin/config", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -149,7 +150,7 @@ export default function ConfigEditor() {
                 <div className="relative">
                   <Input
                     type={item.isSecret && !showSecrets[item.key] ? "password" : "text"}
-                    value={String(editing[item.key] ?? JSON.stringify(item.value) ?? "")}
+                    value={String(editing[item.key] ?? (typeof item.value === 'string' ? item.value : JSON.stringify(item.value)) ?? "")}
                     onChange={(e) => setEditing((prev) => ({ ...prev, [item.key]: e.target.value }))}
                     className={cn("h-10 rounded-xl font-mono text-sm", item.isSecret && "pl-10")}
                     dir="ltr"

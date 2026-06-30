@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
         const interval = setInterval(async () => {
           try {
             const currentCount = await prisma.order.count({ where: { restaurantId } });
+            controller.enqueue(encoder.encode(": heartbeat\n\n"));
             if (currentCount !== lastCount) {
               const newOrders = currentCount - lastCount;
               lastCount = currentCount;
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     });
 
     return new Response(stream, {
-      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no" },
     });
   } catch {
     return error("حدث خطأ في الخادم", 500);
