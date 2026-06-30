@@ -29,41 +29,65 @@ function playOrderSound() {
  */
 export function useOrderNotifier(restaurantId?: number) {
   const hasNotified = useRef(false);
+  const retryCount = useRef(0);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     if (!restaurantId) return;
 
-    const eventSource = new EventSource(`/api/orders/stream?restaurantId=${restaurantId}`);
+    function connect() {
+      esRef.current?.close();
 
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.newOrders && data.newOrders > 0 && !hasNotified.current) {
-          playOrderSound();
-          toast(
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
-                <ShoppingCart className="size-5 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-sm">طلب جديد!</p>
-                <p className="text-xs text-muted-foreground">لديك {data.newOrders} طلب جديد</p>
-              </div>
-            </div>,
-            { duration: 5000, position: "top-center" }
-          );
-          hasNotified.current = true;
-          setTimeout(() => { hasNotified.current = false; }, 30000);
+      const url = `/api/orders/stream?restaurantId=${restaurantId}`;
+      const eventSource = new EventSource(url);
+      esRef.current = eventSource;
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.newOrders && data.newOrders > 0 && !hasNotified.current) {
+            playOrderSound();
+            toast(
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
+                  <ShoppingCart className="size-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">طلب جديد!</p>
+                  <p className="text-xs text-muted-foreground">لديك {data.newOrders} طلب جديد</p>
+                </div>
+              </div>,
+              { duration: 5000, position: "top-center" }
+            );
+            hasNotified.current = true;
+            setTimeout(() => { hasNotified.current = false; }, 30000);
+          }
+        } catch {}
+      };
+
+      eventSource.onopen = () => {
+        retryCount.current = 0;
+      };
+
+      eventSource.onerror = () => {
+        eventSource.close();
+        if (retryCount.current < 5) {
+          const delay = Math.min(1000 * Math.pow(2, retryCount.current), 60000);
+          retryCount.current += 1;
+          if (retryCount.current === 1) {
+            toast.warning("انقطع الاتصال بالطلبات الجديدة، جار إعادة الاتصال...", { duration: 4000 });
+          }
+          retryTimer.current = setTimeout(connect, delay);
         }
-      } catch {}
-    };
+      };
+    }
 
-    eventSource.onerror = () => {
-      // SSE connection error — will auto-reconnect
-    };
+    connect();
 
     return () => {
-      eventSource.close();
+      esRef.current?.close();
+      if (retryTimer.current) clearTimeout(retryTimer.current);
     };
   }, [restaurantId]);
 }

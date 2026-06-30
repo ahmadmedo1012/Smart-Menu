@@ -8,7 +8,14 @@ export default function ShareButton({ url, title }: { url: string; title: string
     if (navigator.share) {
       try {
         await navigator.share({ title, url });
-      } catch { /* user cancelled */ }
+      } catch {
+        try {
+          await navigator.clipboard.writeText(url);
+          premiumToast("success", "تم نسخ الرابط");
+        } catch {
+          premiumToast("error", "فشل النسخ");
+        }
+      }
     } else {
       try {
         await navigator.clipboard.writeText(url);

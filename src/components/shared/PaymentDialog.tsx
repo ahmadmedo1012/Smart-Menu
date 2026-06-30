@@ -123,16 +123,25 @@ export default function PaymentDialog({
     }, 100);
 
     if (paymentId) {
+      let pollFailures = 0;
+      const warnedRef = { current: false };
       pollRef.current = setInterval(async () => {
         try {
           const res = await fetch(`/api/subscriptions/status?id=${paymentId}`);
           const json = await res.json();
+          pollFailures = 0;
           if (json.data?.status === "verified") {
             clearInterval(tick);
             cleanup();
             finishFlow();
           }
-        } catch {}
+        } catch {
+          pollFailures++;
+          if (pollFailures >= 3 && !warnedRef.current) {
+            warnedRef.current = true;
+            premiumToast("error", "تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت");
+          }
+        }
       }, 5000);
     }
 

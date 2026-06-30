@@ -159,14 +159,12 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
             {/* Points progress to next tier */}
             {(() => {
               const tiers = ["silver", "gold", "platinum"] as const;
-              const tierKeys = { silver: 50, gold: 150, platinum: 400 } as const;
-              const nextTier = tiers.find(t => data.card.points < tierKeys[t]);
+              const nextTier = tiers.find(t => data.card.points < TIER_CONFIG[t].minPoints);
               if (nextTier) {
                 const current = data.card.points;
-                const next = tierKeys[nextTier];
-                // Find previous threshold
+                const next = TIER_CONFIG[nextTier].minPoints;
                 const prevIdx = Math.max(0, tiers.indexOf(nextTier) - 1);
-                const prev = prevIdx === 0 ? 0 : tierKeys[tiers[prevIdx] as keyof typeof tierKeys];
+                const prev = prevIdx === 0 ? 0 : TIER_CONFIG[tiers[prevIdx]].minPoints;
                 const pct = Math.min(100, ((current - prev) / (next - prev)) * 100);
                 const TIcon = TIER_CONFIG[nextTier].icon;
                 return (

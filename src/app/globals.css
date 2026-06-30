@@ -324,23 +324,6 @@
 }
 :focus:not(:focus-visible) { outline: none; }
 
-/* ── Grid mask utility — radial fade from transparent to bg on grid patterns ── */
-.bg-grid-mask {
-  position: relative;
-}
-.bg-grid-mask::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 30%, var(--background) 70%);
-  pointer-events: none;
-  z-index: 1;
-}
-.bg-grid-mask > * {
-  position: relative;
-  z-index: 2;
-}
-
 /* ── Glass utilities ── */
 .glass-card, .glass {
 	background: var(--glass-bg);
@@ -357,7 +340,6 @@
 	box-shadow: var(--glass-shadow-lg);
 }
 
-.glass-card-solid { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(12px); box-shadow: var(--shadow-sm); }
 
 /* ── Keyframes ── */
 @keyframes fade-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -365,11 +347,9 @@
 @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes scale-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 3px rgba(246, 109, 15, 0.3); } 50% { box-shadow: 0 0 10px rgba(246, 109, 15, 0.4), 0 0 18px rgba(246, 109, 15, 0.15); } }
 
 /* ── Animation classes ── */
 .animate-shimmer { background: linear-gradient(90deg, transparent 25%, var(--muted) 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 2.5s infinite; }
-.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-scale-in { animation: scale-in 0.5s var(--ease-out-quart) both; }
 .animate-fade-in { animation: fade-in 0.5s var(--ease-out-quart) both; }
 .animate-slide-up { animation: slide-up 0.6s var(--ease-out-quart) both; }
@@ -429,18 +409,6 @@
 	box-shadow: var(--shadow-lg), var(--shadow-glow);
 	border-color: var(--orange);
 }
-
-/* ── Staggered children ── */
-.stagger-children > * {
-	opacity: 0;
-	animation: slide-up 0.6s var(--ease-out-quart) forwards;
-}
-.stagger-children > *:nth-child(1) { animation-delay: 60ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 120ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 180ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 300ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 360ms; }
 
 /* ── Hide scrollbar ── */
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
@@ -529,13 +497,4 @@
   animation: pulse-dot 1.4s ease-in-out infinite;
 }
 
-/* ── Reveal / scroll-triggered animations ── */
-@keyframes reveal-up { from { opacity: 0; transform: translateY(40px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes reveal-left { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes reveal-right { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes scale-pop { 0% { opacity: 0; transform: scale(0.85); } 70% { transform: scale(1.03); } 100% { opacity: 1; transform: scale(1); } }
 
-.animate-reveal-up { animation: reveal-up 0.7s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-reveal-left { animation: reveal-left 0.7s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-reveal-right { animation: reveal-right 0.7s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-scale-pop { animation: scale-pop 0.5s cubic-bezier(0.16,1,0.3,1) both; }

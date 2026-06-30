@@ -9,8 +9,6 @@ interface DisplayCardProps {
   title?: string;
   description?: string;
   date?: string;
-  /** @deprecated unused */
-  iconClassName?: string;
   titleClassName?: string;
 }
 
@@ -20,7 +18,6 @@ function DisplayCard({
   title = "Featured",
   description = "Discover amazing content",
   date = "Just now",
-  iconClassName: _iconClassName,
   titleClassName = "text-blue-500",
 }: DisplayCardProps) {
   return (

@@ -215,7 +215,7 @@ export default function OwnerOrdersPage() {
       </div>
 
       {/* Search + Date filter */}
-      <div className="flex gap-2 items-start">
+      <div className="flex gap-2 items-start flex-wrap">
         <SearchInput
           value={search}
           onChange={setSearch}
@@ -278,7 +278,7 @@ export default function OwnerOrdersPage() {
         </div>
       )}
 
-      {hasMore && orders.length >= 20 && filtered.length >= 20 && (
+      {hasMore && (
         <div className="flex justify-center pt-2">
           <button
             type="button"

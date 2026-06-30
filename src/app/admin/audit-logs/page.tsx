@@ -178,7 +178,7 @@ export default function AdminAuditLogsPage() {
         </div>
       ) : (
         <>
-          <div className="rounded-md border border-border/30 bg-card/50 overflow-hidden">
+          <div className="rounded-md border border-border/30 bg-card/50 overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>

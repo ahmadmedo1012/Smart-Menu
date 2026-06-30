@@ -18,7 +18,7 @@ function ProgressBar() {
   }, [pathname, searchParams]);
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[100] h-0.5">
+    <div className="fixed top-0 inset-x-0 z-[90] h-0.5">
       <div
         className={cn(
           "h-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-500 ease-out",

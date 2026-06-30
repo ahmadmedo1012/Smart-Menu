@@ -157,7 +157,7 @@ ${referralUrl}
           <div className="absolute -bottom-10 -start-10 size-32 rounded-full bg-white/5 blur-3xl" />
 
           {/* Sparkle decoration */}
-          <div className="absolute top-1/2 start-1/2 -translate-x-1-2 -translate-y-1/2">
+          <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
             <Sparkles className="size-12 text-white/20 animate-spin-slow" />
           </div>
 

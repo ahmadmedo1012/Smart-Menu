@@ -35,4 +35,4 @@ export function validateEnv() {
   return parsed.data;
 }
 
-export const env: Record<string, string | undefined> = process.env;
+const _env: Record<string, string | undefined> = process.env;

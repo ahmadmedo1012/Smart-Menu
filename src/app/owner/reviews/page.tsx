@@ -105,6 +105,7 @@ export default function OwnerReviewsPage() {
             onClick={() => setFilterStar(star)}
             className={cn(
               "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange",
               filterStar === star
                 ? "bg-orange text-white border-orange shadow-sm"
                 : "bg-card/50 text-muted-foreground border-border/20 hover:bg-muted/50",

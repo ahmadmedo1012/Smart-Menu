@@ -29,6 +29,8 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<{ avgRating: number | null; totalCount: number }>({ avgRating: null, totalCount: 0 });
   const [filterStar, setFilterStar] = useState<number | null>(null);
+  const [fetchError, setFetchError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   // Submit form state
   const [formRating, setFormRating] = useState(0);
@@ -40,6 +42,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
   useEffect(() => {
     if (!open || !menuItemId) return;
     const abort = new AbortController();
+    setFetchError(false);
     setLoading(true);
     const params = filterStar ? `?minRating=${filterStar}` : "";
     fetch(`/api/items/${menuItemId}/reviews${params}`, { signal: abort.signal })
@@ -51,12 +54,13 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
         }
       })
       .catch(() => {
+        setFetchError(true);
         premiumToast("error", "فشل تحميل التقييمات", "تأكد من اتصالك بالإنترنت وحاول مرة أخرى");
       })
       .finally(() => setLoading(false));
 
     return () => abort.abort();
-  }, [open, menuItemId, filterStar]);
+  }, [open, menuItemId, filterStar, retryKey]);
 
   async function handleSubmit() {
     if (formRating < 1) return;
@@ -221,6 +225,17 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
               {loading ? (
                 <div className="flex justify-center py-8">
                   <div className="size-6 rounded-full border-2 border-border border-t-orange animate-spin" />
+                </div>
+              ) : fetchError ? (
+                <div className="text-center py-10">
+                  <MessageCircle className="size-8 text-destructive/50 mx-auto mb-3" />
+                  <p className="text-sm text-destructive mb-3">فشل تحميل التقييمات. تحقق من اتصالك بالإنترنت.</p>
+                  <button
+                    onClick={() => setRetryKey((k) => k + 1)}
+                    className="text-xs text-orange underline underline-offset-2 hover:no-underline"
+                  >
+                    إعادة المحاولة
+                  </button>
                 </div>
               ) : reviews.length === 0 ? (
                 <div className="text-center py-10">

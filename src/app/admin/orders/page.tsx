@@ -133,7 +133,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Search + filter */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <SearchInput
           value={search}
           onChange={setSearch}

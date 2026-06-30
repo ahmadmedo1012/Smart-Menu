@@ -8,12 +8,14 @@ import { toArabicNumber } from "@/lib/format";
 export default function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
   const [usage, setUsage] = useState<{ current: number; max: number; planName: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!restaurantId) return;
     let cancelled = false;
 
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [restData, statsData] = await Promise.all([
           fetch(`/api/restaurants/${restaurantId}`).then((r) => {
@@ -41,12 +43,18 @@ export default function PlanUsageBadge({ restaurantId }: { restaurantId: number 
         if (!cancelled) {
           setError("تعذر تحميل بيانات الاستخدام");
         }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchData();
     return () => { cancelled = true; };
   }, [restaurantId]);
+
+  if (loading) {
+    return <div className="h-4 w-24 rounded skeleton" />;
+  }
 
   if (error) {
     return (
