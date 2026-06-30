@@ -64,7 +64,7 @@ export default function ClientsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={springGentle}
-            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-5"
+            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium text-orange mb-5"
           >
             <Building2 className="size-3" />
             منصتنا
@@ -75,7 +75,7 @@ export default function ClientsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ ...springGentle, delay: 0.06 }}
-            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-[520] leading-[1.2] tracking-[-0.02em]"
+            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-[520] leading-[1.2]"
           >
             عملاؤنا
           </motion.h2>

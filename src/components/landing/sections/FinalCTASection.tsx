@@ -40,7 +40,7 @@ export default function FinalCTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ ...springDefault, delay: 0.1 }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase mb-6"
+            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium text-orange mb-6"
           >
             <Sparkles className="size-3" />
             انطلق الآن

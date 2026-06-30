@@ -30,7 +30,7 @@ export default function ShowcaseSection() {
 					transition={springSnappy}
 					className="text-center mb-6 sm:mb-8"
 				>
-					<span className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium tracking-[0.15em] text-orange uppercase">
+					<span className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium text-orange">
 						تجربة المطعم
 					</span>
 				</motion.div>

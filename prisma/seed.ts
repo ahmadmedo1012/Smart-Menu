@@ -27,7 +27,7 @@ async function main() {
   // ─── 4 Subscription Plans ─────────────────────────────
   const plans = [
     { name: "Free",    nameAr: "مجاني",     price: 0,   maxMenus: 1,  maxItems: 10,   maxOrders: 100,  sortOrder: 1, features: JSON.stringify(["منيو رقمي واحد", "10 أصناف كحد أقصى", "طلبات واتساب", "إحصائيات أساسية"]) },
-    { name: "Basic",   nameAr: "أساسي",     price: 19,  maxMenus: 1,  maxItems: 50,   maxOrders: 500,  sortOrder: 2, features: JSON.stringify(["منيو رقمي", "50 صنف", "طلقات غير محدودة", "برنامج ولاء", "تقرير شهري", "دعم فني"]) },
+    { name: "Basic",   nameAr: "أساسي",     price: 19,  maxMenus: 1,  maxItems: 50,   maxOrders: 500,  sortOrder: 2, features: JSON.stringify(["منيو رقمي", "50 صنف", "طلبات غير محدودة", "برنامج ولاء", "تقرير شهري", "دعم فني"]) },
     { name: "Pro",     nameAr: "احترافي",   price: 129, maxMenus: 3,  maxItems: 200,  maxOrders: 2000, sortOrder: 3, features: JSON.stringify(["حتى 3 منيوهات", "200 صنف", "طلبات غير محدودة", "ولاء متقدم", "إحصائيات متقدمة", "QR كود مخصص", "دعم فوري", "تخصيص كامل"]) },
     { name: "Enterprise", nameAr: "شركات",   price: 299, maxMenus: 10, maxItems: 9999, maxOrders: 99999, sortOrder: 4, features: JSON.stringify(["منيوهات غير محدودة", "أصناف غير محدودة", "طلبات غير محدودة", "ولاء كامل", "API مخصص", "دعم 24/7"]) },
   ];

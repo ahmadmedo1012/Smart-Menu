@@ -160,7 +160,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
 
             {/* Submit form */}
             <div className="border-b border-border/10 px-5 py-4 space-y-3">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">أضف تقييمك</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase">أضف تقييمك</h4>
               {/* Star picker */}
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((s) => (
