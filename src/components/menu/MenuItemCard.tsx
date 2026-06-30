@@ -135,7 +135,7 @@ const MenuItemCard = memo(function MenuItemCard({
         {/* Discount badge — end (RTL-aware) */}
         {hasDiscount && (
           <div className="absolute top-1.5 end-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-lg">
-            -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
+            -{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
           </div>
         )}
       </div>
@@ -159,7 +159,7 @@ const MenuItemCard = memo(function MenuItemCard({
               )}
             >
               <Star className={cn("size-2.5", hasRating && "fill-current")} aria-hidden="true" />
-              {hasRating ? item.avgRating!.toFixed(1) : "قيّم"}
+              {hasRating ? toArabicNumber(item.avgRating!.toFixed(1)) : "قيّم"}
             </button>
           </div>
 

@@ -56,9 +56,11 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [animateItems, setAnimateItems] = useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState("");
 
   useEffect(() => {
-    setTimeout(() => setAnimateItems(true), 50);
+    const id = setTimeout(() => setAnimateItems(true), 50);
+    return () => clearTimeout(id);
   }, []);
 
   const cartSubtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
@@ -71,7 +73,7 @@ export default function CartPage() {
       restaurantName: restaurantName || "المطعم",
       items: items.map(i => ({ name: i.name, qty: i.quantity, price: i.price, notes: i.notes || undefined })),
       totalPrice: cartSubtotal,
-      notes: notes || undefined,
+      notes: pickupType === "delivery" ? `${notes || ""}\nالعنوان: ${deliveryAddress}`.trim() : (notes || undefined),
       customerName: customerName.trim() || undefined,
       customerPhone: customerPhone.trim() || undefined,
       pickupType,
@@ -90,7 +92,7 @@ export default function CartPage() {
           items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, price: i.price })),
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
-          notes,
+          notes: [notes, pickupType === "delivery" ? `العنوان: ${deliveryAddress}` : ""].filter(Boolean).join("\n"),
           pickupType,
           subtotal: cartSubtotal,
           total: cartSubtotal,
@@ -105,7 +107,7 @@ export default function CartPage() {
     setConfirmed(true);
     setIsSubmitting(false);
     setTimeout(() => {
-      router.push(`/order-confirmed?wa=${encodeURIComponent(waNumber)}`);
+      router.push(`/order-confirmed?wa=${encodeURIComponent(waNumber ?? "")}`);
     }, 1500);
   };
 
@@ -151,7 +153,7 @@ export default function CartPage() {
   return (
     <>
       <Header />
-      <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20">
+      <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20 overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8 animate-slide-down">
         <Link href="/menu" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -160,7 +162,7 @@ export default function CartPage() {
         <h1 className="text-2xl font-bold">سلة الطلب</h1>
         <div className="relative">
           <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border/30">
-            {toArabicNumber(items.length)} {items.length > 10 ? "صنف" : "أصناف"}
+            {toArabicNumber(items.length)} {items.length === 1 ? "صنف" : "أصناف"}
           </span>
           <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary animate-breath" />
         </div>
@@ -210,8 +212,11 @@ export default function CartPage() {
           <label className="text-sm font-medium mb-2 block">عنوان التوصيل</label>
           <textarea
             placeholder="أدخل عنوان التوصيل بالتفصيل"
+            value={deliveryAddress}
+            onChange={(e) => setDeliveryAddress(e.target.value)}
             className="w-full rounded-lg border border-border/30 bg-card/50 p-3 text-sm outline-none focus-visible:border-orange resize-none"
             rows={2}
+            maxLength={500}
           />
         </div>
       )}
@@ -250,7 +255,7 @@ export default function CartPage() {
                   <Plus className="size-3" />
                 </button>
                 <button type="button" onClick={() => removeItem(item.id)}
-                  className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all mr-1 active:scale-90">
+                  className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all ms-1 active:scale-90">
                   <Trash2 className="size-3" />
                 </button>
               </div>
@@ -273,7 +278,7 @@ export default function CartPage() {
       </div>
 
       {/* Customer info */}
-      <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-250">
+      <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
         <h2 className="font-bold mb-3 flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
           معلومات الاتصال
@@ -299,9 +304,9 @@ export default function CartPage() {
         <div className="space-y-2 mb-4">
           {items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm group hover:bg-orange-muted/50 -mx-2 px-2 py-1 rounded-sm transition-colors">
-              <span className="text-muted-foreground truncate ml-2">
+              <span className="text-muted-foreground truncate me-2">
                 {item.name}
-                <span className="text-muted-foreground/60 mr-1">×{toArabicNumber(item.quantity)}</span>
+                <span className="text-muted-foreground/60 ms-1">×{toArabicNumber(item.quantity)}</span>
               </span>
               <span className="font-medium tabular-nums shrink-0">
                 {toArabicNumber((item.price * item.quantity).toFixed(1))} د.ل
@@ -383,7 +388,7 @@ export default function CartPage() {
                 <div key={item.id} className="flex justify-between gap-2 py-2 text-sm">
                   <div className="flex-1 min-w-0">
                     <span className="font-medium">{item.name}</span>
-                    <span className="text-muted-foreground mr-1">× {toArabicNumber(item.quantity)}</span>
+                    <span className="text-muted-foreground ms-1">× {toArabicNumber(item.quantity)}</span>
                     {item.notes && <p className="text-xs text-muted-foreground/70 mt-0.5 flex items-center gap-1"><svg className="size-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> {item.notes}</p>}
                   </div>
                   <span className="tabular-nums shrink-0 font-medium">

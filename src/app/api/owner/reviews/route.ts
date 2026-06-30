@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
+import { error as _error } from "@/lib/api-helpers";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth({ requireRestaurant: true });
+  if (!auth.authorized || !auth.restaurantId) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const minRating = searchParams.get("minRating");
 
-  const where: any = {};
+  const where: any = { menuItem: { restaurantId: auth.restaurantId } };
   if (minRating) {
     const min = Number(minRating);
     if (!Number.isNaN(min) && min >= 1 && min <= 5) {

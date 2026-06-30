@@ -180,7 +180,7 @@ export default function OwnerOrdersPage() {
   )
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in overflow-x-hidden">
       <BackButton href="/owner" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

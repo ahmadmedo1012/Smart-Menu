@@ -160,7 +160,7 @@ export default function PricingPage() {
   useEffect(() => { loadPlans(); }, [loadPlans]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Header />
 
       <section className="relative pt-20 sm:pt-24 pb-12 sm:pb-16 text-center overflow-hidden">

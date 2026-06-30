@@ -37,9 +37,10 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
 
   useEffect(() => {
     if (!open || !menuItemId) return;
+    const abort = new AbortController();
     setLoading(true);
     const params = filterStar ? `?minRating=${filterStar}` : "";
-    fetch(`/api/items/${menuItemId}/reviews${params}`)
+    fetch(`/api/items/${menuItemId}/reviews${params}`, { signal: abort.signal })
       .then((r) => r.json())
       .then((json) => {
         if (json.success) {
@@ -47,7 +48,12 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
           if (!filterStar) setStats(json.stats);
         }
       })
+      .catch(() => {
+        premiumToast("error", "فشل تحميل التقييمات", "تأكد من اتصالك بالإنترنت وحاول مرة أخرى");
+      })
       .finally(() => setLoading(false));
+
+    return () => abort.abort();
   }, [open, menuItemId, filterStar]);
 
   async function handleSubmit() {
@@ -115,7 +121,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 <h3 className="text-base font-bold">تقييمات {menuItemName}</h3>
                 {stats.totalCount > 0 && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    <span className="text-amber-500 font-bold">{stats.avgRating?.toFixed(1)}</span> ⭐ · {toArabicNumber(stats.totalCount)} تقييم
+                    <span className="text-amber-500 font-bold">{toArabicNumber(stats.avgRating?.toFixed(1) ?? "0")}</span> ⭐ · {toArabicNumber(stats.totalCount)} تقييم
                   </p>
                 )}
               </div>
@@ -173,6 +179,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 value={formComment}
                 onChange={(e) => setFormComment(e.target.value)}
                 rows={2}
+                maxLength={500}
                 className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus:border-orange/50 transition-colors"
               />
               {/* Name */}
@@ -180,6 +187,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 placeholder="الاسم (اختياري)"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
+                maxLength={50}
                 className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus:border-orange/50 transition-colors"
               />
               {/* Error */}
