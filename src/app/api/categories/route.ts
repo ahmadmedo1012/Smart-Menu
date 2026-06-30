@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: rid },
-      include: { plan: { select: { id: true, name: true, nameAr: true, maxMenus: true } } },
+      select: { plan: { select: { maxMenus: true } } },
     });
     if (!restaurant) return error("المطعم غير موجود", 404);
 

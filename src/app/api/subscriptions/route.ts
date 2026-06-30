@@ -3,8 +3,16 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { notifyEvent } from "@/lib/telegram";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { z } from "zod";
 
 const subscriptionLimiter = createRateLimiter({ windowMs: 60_000, max: 5 });
+
+const createPaymentSchema = z.object({
+  phone: z.string().min(1),
+  amount: z.number().positive(),
+  provider: z.string().min(1),
+  planId: z.number().int().positive(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,25 +20,20 @@ export async function POST(request: NextRequest) {
     const { success: allowed } = subscriptionLimiter.check(`sub:${ip}`);
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 
-    const body = await request.json();
-    const { phone, amount, provider, planId } = body;
-
-    if (!phone || !amount || !provider || !planId) {
-      return error("جميع الحقول مطلوبة: phone, amount, provider, planId", 400);
-    }
+    const { phone, amount, provider, planId } = createPaymentSchema.parse(await request.json());
 
     // Fetch plan name for record
     const plan = await prisma.subscriptionPlan.findUnique({
-      where: { id: Number(planId) },
+      where: { id: planId },
       select: { nameAr: true },
     });
 
     const payment = await prisma.subscriptionPayment.create({
       data: {
         phone: String(phone),
-        amount: Number(amount),
+        amount,
         provider: String(provider),
-        planId: Number(planId),
+        planId,
         planName: plan?.nameAr ?? "",
         status: "pending",
       },

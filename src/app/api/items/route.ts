@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Check plan limits: get category -> restaurant -> plan
     const category = await prisma.menuCategory.findUnique({
       where: { id: body.categoryId },
-      include: { restaurant: { select: { id: true, name: true, maxItems: true, planId: true, plan: { select: { name: true, nameAr: true, maxItems: true } } } } },
+      select: { restaurant: { select: { id: true, name: true, maxItems: true } } },
     });
     if (!category) return error("التصنيف غير موجود", 404);
 

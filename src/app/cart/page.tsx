@@ -167,14 +167,14 @@ export default function CartPage() {
       </div>
 
       {/* Pickup type selector */}
-      <div className="flex gap-2 mb-8 animate-slide-up delay-100">
+      <div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up delay-100">
         {PICKUP_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             type="button"
             onClick={() => setPickupType(opt.value as typeof pickupType)}
             className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-md text-sm font-medium transition-all duration-300 border",
+              "flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-all duration-300 border overflow-hidden",
               pickupType === opt.value
                 ? "bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/20 scale-[1.02]"
                 : "bg-card/50 border-border/30 hover:border-orange/20 hover:shadow-md",
@@ -239,19 +239,19 @@ export default function CartPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  className="size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
-                  <Minus className="size-3.5" />
+                  className="size-8 sm:size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
+                  <Minus className="size-3" />
                 </button>
-                <span className="w-10 text-center font-bold tabular-nums text-lg">{toArabicNumber(item.quantity)}</span>
+                <span className="w-8 sm:w-10 text-center font-bold tabular-nums text-sm sm:text-lg">{toArabicNumber(item.quantity)}</span>
                 <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  className="size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
-                  <Plus className="size-3.5" />
+                  className="size-8 sm:size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90">
+                  <Plus className="size-3" />
                 </button>
                 <button type="button" onClick={() => removeItem(item.id)}
-                  className="size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all mr-1 active:scale-90">
-                  <Trash2 className="size-3.5" />
+                  className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all mr-1 active:scale-90">
+                  <Trash2 className="size-3" />
                 </button>
               </div>
             </div>

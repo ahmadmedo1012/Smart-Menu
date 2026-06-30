@@ -18,9 +18,18 @@ export async function POST(request: NextRequest) {
 
     const order = await prisma.order.findUnique({
       where: { id: body.orderId },
-      include: {
+      select: {
+        id: true,
+        orderNo: true,
+        customerName: true,
+        customerPhone: true,
+        pickupType: true,
+        total: true,
+        discount: true,
+        createdAt: true,
+        restaurantId: true,
         restaurant: { select: { name: true, whatsapp: true } },
-        items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
+        items: { select: { id: true, quantity: true, price: true, notes: true, item: { select: { id: true, name: true, nameAr: true } } } },
       },
     });
     if (!order) return notFound("Order");

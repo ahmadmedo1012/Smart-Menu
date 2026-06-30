@@ -2,7 +2,13 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
+import { z } from "zod";
 import { sendTelegramNotification } from "@/lib/telegram";
+
+const verifySchema = z.object({
+  id: z.number().int().positive(),
+  status: z.enum(["verified", "cancelled"]),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,6 +28,7 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        select: { id: true, phone: true, amount: true, provider: true, planId: true, planName: true, status: true, createdAt: true },
       }),
       prisma.subscriptionPayment.count({ where }),
     ]);
@@ -37,18 +44,15 @@ export async function POST(request: NextRequest) {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);
 
-    const body = await request.json();
-    const { id, status } = body;
+    const { id, status } = verifySchema.parse(await request.json());
 
-    if (!id || !status) return error("id and status are required", 400);
-    if (!["verified", "cancelled"].includes(status)) return error("status must be verified or cancelled", 400);
-
-    const existing = await prisma.subscriptionPayment.findUnique({ where: { id: Number(id) } });
+    const existing = await prisma.subscriptionPayment.findUnique({ where: { id } });
     if (!existing) return notFound("SubscriptionPayment");
 
     const updated = await prisma.subscriptionPayment.update({
-      where: { id: Number(id) },
+      where: { id },
       data: { status },
+      select: { id: true, phone: true, status: true, createdAt: true },
     });
 
     // Re-check plan limits after verification

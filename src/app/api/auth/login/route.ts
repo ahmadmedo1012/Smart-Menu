@@ -31,7 +31,10 @@ export async function POST(request: Request) {
       return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     }
 
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true, username: true, password: true, name: true, role: true, restaurantId: true },
+    });
     if (!user) {
       return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);
     }

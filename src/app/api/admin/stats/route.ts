@@ -58,6 +58,7 @@ export async function GET() {
       prisma.systemEvent.findMany({
         take: 10,
         orderBy: { createdAt: "desc" },
+        select: { id: true, eventType: true, title: true, severity: true, createdAt: true },
       }),
       prisma.restaurant.count({ where: { planId: { not: null } } }),
     ]);

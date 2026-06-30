@@ -3,7 +3,6 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
 import { revalidateTag } from "next/cache";
-import { unstable_cache } from "next/cache";
 import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
@@ -24,6 +23,7 @@ export async function GET() {
 
     const configs = await prisma.systemConfig.findMany({
       orderBy: [{ category: "asc" }, { key: "asc" }],
+      select: { id: true, key: true, value: true, category: true, isSecret: true, description: true, updatedAt: true, updatedBy: true },
     });
 
     const masked = configs.map((c) => ({
@@ -66,6 +66,7 @@ export async function PUT(request: NextRequest) {
         description: body.description,
         updatedBy: auth.userId ?? undefined,
       },
+      select: { id: true, key: true, category: true, isSecret: true, description: true, updatedAt: true },
     });
 
     revalidateTag("system-config", { expire: 60 });

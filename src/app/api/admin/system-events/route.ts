@@ -2,6 +2,25 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
+import { z } from "zod";
+
+const createEventSchema = z.object({
+  eventType: z.string().min(1).max(50).optional().default("info"),
+  title: z.string().max(200).optional().default(""),
+  message: z.string().max(1000).optional().default(""),
+  severity: z.enum(["info", "warning", "error", "critical"]).optional().default("info"),
+  metadata: z.record(z.string(), z.unknown()).optional().default({}),
+});
+
+const updateEventSchema = z.object({
+  id: z.number().int().positive(),
+  eventType: z.string().min(1).max(50).optional(),
+  title: z.string().max(200).optional(),
+  message: z.string().max(1000).optional(),
+  severity: z.enum(["info", "warning", "error", "critical"]).optional(),
+  read: z.boolean().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +36,7 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        select: { id: true, eventType: true, title: true, message: true, severity: true, metadata: true, read: true, createdAt: true },
       }),
       prisma.systemEvent.count(),
     ]);
@@ -32,16 +52,9 @@ export async function POST(request: NextRequest) {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);
 
-    const body = await request.json();
+    const body = createEventSchema.parse(await request.json());
     const event = await prisma.systemEvent.create({
-      data: {
-        eventType: body.eventType ?? "info",
-        title: body.title ?? "",
-        message: body.message ?? "",
-        severity: body.severity ?? "info",
-        metadata: (body.metadata ?? {}) as object,
-        read: false,
-      },
+      data: { ...body, read: false } as any,
     });
     return success(event, 201);
   } catch (e) {
@@ -54,22 +67,15 @@ export async function PUT(request: NextRequest) {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);
 
-    const body = await request.json();
-    if (!body.id) return error("id is required", 400);
+    const body = updateEventSchema.parse(await request.json());
 
     const existing = await prisma.systemEvent.findUnique({ where: { id: body.id } });
     if (!existing) return notFound("SystemEvent");
 
+    const { id, ...data } = body;
     const event = await prisma.systemEvent.update({
-      where: { id: body.id },
-      data: {
-        ...(body.eventType !== undefined ? { eventType: body.eventType } : {}),
-        ...(body.title !== undefined ? { title: body.title } : {}),
-        ...(body.message !== undefined ? { message: body.message } : {}),
-        ...(body.severity !== undefined ? { severity: body.severity } : {}),
-        ...(body.read !== undefined ? { read: body.read } : {}),
-        ...(body.metadata !== undefined ? { metadata: body.metadata as object } : {}),
-      },
+      where: { id },
+      data: data as any,
     });
     return success(event);
   } catch (e) {

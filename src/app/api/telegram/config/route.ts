@@ -15,7 +15,9 @@ export async function GET() {
   try {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);
-    const config = await prisma.telegramConfig.findFirst();
+    const config = await prisma.telegramConfig.findFirst({
+      select: { id: true, botToken: true, chatId: true, events: true, isActive: true },
+    });
     return success(config ?? {});
   } catch (e) {
     return handleError(e);

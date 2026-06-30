@@ -23,11 +23,16 @@ export async function GET(
     }
   }
 
+  const page = Math.max(1, Number(searchParams.get("page")) || 1);
+  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
+
   const [reviews, stats] = await Promise.all([
     prisma.review.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      take: 50,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      select: { id: true, rating: true, comment: true, customerName: true, customerPhone: true, menuItemId: true, createdAt: true },
     }),
     prisma.review.aggregate({
       where: { menuItemId: itemId },
@@ -64,7 +69,7 @@ export async function POST(
       return error("التقييم يجب أن يكون بين 1 و 5", 400);
     }
 
-    const item = await prisma.menuItem.findUnique({ where: { id: itemId } });
+    const item = await prisma.menuItem.findUnique({ where: { id: itemId }, select: { id: true } });
     if (!item) {
       return error("الصنف غير موجود", 404);
     }

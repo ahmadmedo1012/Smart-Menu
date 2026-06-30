@@ -27,7 +27,7 @@ export default function KpiCard({
       onClick={onClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className={cn(
         "group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-all duration-300",
         onClick && "cursor-pointer hover:border-orange/30 hover:shadow-lg hover:-translate-y-0.5"

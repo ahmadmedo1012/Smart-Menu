@@ -324,6 +324,23 @@
 }
 :focus:not(:focus-visible) { outline: none; }
 
+/* ── Grid mask utility — radial fade from transparent to bg on grid patterns ── */
+.bg-grid-mask {
+  position: relative;
+}
+.bg-grid-mask::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, var(--background) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+.bg-grid-mask > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* ── Glass utilities ── */
 .glass-card, .glass {
 	background: var(--glass-bg);

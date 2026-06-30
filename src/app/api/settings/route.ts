@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 		if (!restaurantId) return apiError("معرف المطعم مطلوب", 400);
 
 		const [settings, restaurant] = await Promise.all([
-			prisma.setting.findMany({ where: { restaurantId } }),
+			prisma.setting.findMany({ where: { restaurantId }, select: { key: true, value: true } }),
 			prisma.restaurant.findUnique({
 				where: { id: restaurantId },
 				include: { _count: { select: { orders: true, categories: true } } },
