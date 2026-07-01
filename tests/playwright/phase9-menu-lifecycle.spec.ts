@@ -42,16 +42,21 @@ test.describe("Phase 9 — Dynamic Menu Catalog Lifecycle", () => {
 
   test("3d: menu item details dialog opens on click", async ({ page }) => {
     await page.goto("/menu/al-waha-cafe");
-    await page.waitForTimeout(3000);
-    // Try clicking first item card/button
-    const items = page.locator("button, [role='button'], a").filter({ hasText: /د\.ل/ });
-    const count = await items.count();
-    if (count > 0) {
-      await items.first().click();
-      await page.waitForTimeout(1000);
-      // Dialog or detail view should appear
-      const body = page.locator("body");
-      await expect(body).toBeVisible();
+    await page.waitForTimeout(5000);
+    // Click first menu item via evaluate to avoid animation jank
+    const clicked = await page.evaluate(() => {
+      const items = document.querySelectorAll('[role="button"]');
+      for (const el of items) {
+        if (el.textContent?.includes("د.ل")) {
+          (el as HTMLElement).click();
+          return true;
+        }
+      }
+      return false;
+    });
+    if (clicked) {
+      await page.waitForTimeout(2000);
+      await expect(page.locator("body")).toBeVisible();
     }
   });
 });

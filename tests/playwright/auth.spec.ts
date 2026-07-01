@@ -35,7 +35,7 @@ test.describe("Authentication — Login Page", () => {
 
   test("theme toggle button is present", async ({ page }) => {
     await page.goto("/login");
-    const themeToggle = page.getByLabel(/Switch to (dark|light) mode/);
+    const themeToggle = page.getByLabel(/الوضع الليلي|Switch to (dark|light) mode/);
     await expect(themeToggle).toBeVisible();
   });
 

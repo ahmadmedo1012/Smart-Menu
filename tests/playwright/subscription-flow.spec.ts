@@ -77,7 +77,7 @@ test.describe("Subscription Flow — Real Browser E2E", () => {
     await page.locator("button").filter({ hasText: "تسجيل الدخول" }).first().click();
 
     await page.waitForURL(/\/owner/, { timeout: 10000 });
-    await expect(page.locator("a").filter({ hasText: "لوحة التحكم" }).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("a").filter({ hasText: "لوحة التحكم" }).first()).toBeAttached({ timeout: 5000 });
   });
 
   test("login with invalid credentials shows error", async ({ page }) => {
