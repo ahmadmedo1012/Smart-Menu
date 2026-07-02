@@ -17,8 +17,7 @@ function validateToken(h: string | null | undefined, c: string | null | undefine
 const publicPrefixes = [
   "/_next", "/favicon.ico", "/sitemap.xml", "/robots.txt",
   "/uploads", "/fonts", "/sw.js", "/manifest.json",
-  "/icon-192.svg", "/icon-512.svg", "/logo.png", "/brand-icon.png",
-  "/icon-192.png", "/icon-512.png",
+  "/brand-icon.png", "/icon-192.png", "/icon-512.png",
   "/api/auth", "/api/loyalty", "/api/subscriptions", "/api/plans",
   "/login", "/menu", "/cart", "/order-confirmed",
   "/pricing", "/subscribe", "/demo",
@@ -46,10 +45,9 @@ function setHeaders(resp: NextResponse) {
 const SAFE = new Set(["GET", "HEAD", "OPTIONS"]);
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const method = request.method;
-
   try {
+    const { pathname } = request.nextUrl;
+    const method = request.method;
     // Static/public — headers + CSRF cookie only
     if (publicPrefixes.some(p => pathname.startsWith(p)) || pathname === "/") {
       const resp = NextResponse.next();
