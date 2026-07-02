@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
     "public/**",
     "scripts/**",
     "tests/**",
+    "facebook-workspace/**",
   ]),
   {
     rules: {
