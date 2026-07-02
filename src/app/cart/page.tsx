@@ -129,7 +129,6 @@ export default function CartPage() {
           subtotal: cartSubtotal,
           total: cartSubtotal,
           restaurantId: restaurantId || undefined,
-          idempotencyKey: `cart-${restaurantId}-${Date.now()}`,
         }),
       });
       if (res.ok) {

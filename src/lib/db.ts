@@ -11,8 +11,10 @@ function createPool(): pg.Pool {
   const url = process.env.DATABASE_URL!;
   return new pg.Pool({
     connectionString: url,
-    max: 5,
+    max: 10,
     connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 30_000,
+    maxUses: 1000,
   });
 }
 
@@ -23,6 +25,21 @@ export const prisma =
       schema: process.env.DATABASE_SCHEMA ?? "public",
     }),
   });
+
+// ponytail: simple retry wrapper for transient DB errors, use exponential backoff if needed
+export async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const isTransient = msg.includes("connection") || msg.includes("timeout") || msg.includes("deadlock") || msg.includes("500");
+      if (i === retries || !isTransient) throw e;
+      await new Promise(r => setTimeout(r, 100 * (i + 1)));
+    }
+  }
+  throw new Error("unreachable");
+}
 
 export async function getUserById(id: number) {
   return prisma.user.findUnique({
