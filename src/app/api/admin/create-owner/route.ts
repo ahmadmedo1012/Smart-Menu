@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
-import { requireAuth } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 
 const schema = z.object({
   username: z.string().min(3),
@@ -13,10 +13,8 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") {
-      return error("غير مصرح", 401);
-    }
+    const auth = await requirePermission("MANAGE_RESTAURANTS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const body = schema.parse(await request.json());
     const existing = await prisma.user.findUnique({ where: { username: body.username } });

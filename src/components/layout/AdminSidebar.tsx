@@ -4,7 +4,7 @@ import Link from "next/link"
 import {
   LayoutDashboard, UtensilsCrossed, ScrollText,
   Settings, QrCode, Store, Users, ChevronRight,
-  Activity, DollarSign, MessageCircle,
+  Activity, DollarSign, MessageCircle, Shield,
 } from "lucide-react"
 import { NavLink } from "@/components/shared/NavLink"
 
@@ -18,6 +18,7 @@ export const navItems: NavItem[] = [
   { href: "/admin", label: "لوحة التحكم", icon: LayoutDashboard },
   { href: "/admin/restaurants", label: "المطاعم", icon: Store },
   { href: "/admin/users", label: "المستخدمون", icon: Users },
+  { href: "/admin/admins", label: "المسؤولون", icon: Shield },
   { href: "/admin/menu", label: "المينيو", icon: UtensilsCrossed },
   { href: "/admin/orders", label: "الطلبات", icon: ScrollText },
   { href: "/admin/qr", label: "رمز QR", icon: QrCode },

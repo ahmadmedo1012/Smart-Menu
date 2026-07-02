@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { logAudit } from "@/lib/audit";
@@ -18,8 +18,8 @@ const upsertSchema = z.object({
 
 export async function GET() {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const configs = await prisma.systemConfig.findMany({
       orderBy: [{ category: "asc" }, { key: "asc" }],
@@ -39,8 +39,8 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const body = upsertSchema.parse(await request.json());
 
@@ -87,8 +87,8 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key");

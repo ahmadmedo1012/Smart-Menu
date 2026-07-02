@@ -27,7 +27,7 @@ interface ConfigItem {
   updatedAt: string
 }
 
-const CATEGORIES = ["general", "features", "limits", "payments", "notifications"]
+const CATEGORIES = ["general", "features", "limits", "payments", "notifications", "balance", "payment_config", "fees"]
 
 const CATEGORY_LABELS: Record<string, string> = {
   general: "عام",
@@ -35,6 +35,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   limits: "الحدود",
   payments: "المدفوعات",
   notifications: "الإشعارات",
+  balance: "أرقام التحويل",
+  payment_config: "إعدادات الدفع",
+  fees: "الرسوم",
 }
 
 export default function ConfigEditor() {

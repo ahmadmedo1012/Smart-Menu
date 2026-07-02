@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error as apiError, notFound, handleError } from "@/lib/api-helpers";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, requirePermission } from "@/lib/auth";
 
 const updateSchema = z.object({
   customerName: z.string().optional(),
@@ -61,9 +61,15 @@ export async function PUT(
     const existing = await prisma.order.findUnique({ where: { id: oid } });
     if (!existing) return notFound("Order");
 
-    // Owners can only modify their own restaurant's orders
+    // Owner can only modify their own restaurant's orders
     if (auth.role === "owner" && auth.restaurantId !== existing.restaurantId) {
       return apiError("غير مصرح", 401);
+    }
+
+    // Admin/sub_admin needs APPROVE_ORDERS permission to change status
+    if (auth.role !== "owner" && body.status && body.status !== existing.status) {
+      const perm = await requirePermission("APPROVE_ORDERS");
+      if (!perm.authorized) return apiError(perm.error, perm.status);
     }
 
     const data = await prisma.order.update({

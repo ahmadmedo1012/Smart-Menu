@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("VIEW_ANALYTICS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

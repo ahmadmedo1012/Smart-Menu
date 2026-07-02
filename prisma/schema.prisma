@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
   role         Role              @default(owner)
+  permissions  Permission[]      @default([])
   lastLoginAt  DateTime?
   auditLogs    AuditLog[]
   sessions     Session[]
@@ -349,8 +350,19 @@ model SystemEvent {
 }
 
 enum Role {
+  super_admin
+  sub_admin
   admin
   owner
+}
+
+enum Permission {
+  APPROVE_ORDERS
+  MANAGE_SUBSCRIPTIONS
+  EDIT_SETTINGS
+  VIEW_ANALYTICS
+  MANAGE_RESTAURANTS
+  MANAGE_USERS
 }
 
 enum ItemStatus {

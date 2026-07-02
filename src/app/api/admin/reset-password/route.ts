@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
@@ -12,8 +12,8 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("MANAGE_USERS");
+    if (!auth.authorized) return error(auth.error, auth.status);
     const { hashPassword } = await import("@/lib/hash");
     const body = schema.parse(await request.json());
     await prisma.user.update({

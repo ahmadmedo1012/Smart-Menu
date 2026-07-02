@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAuth } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { success, error as apiError, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
 
@@ -16,8 +16,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") return apiError("غير مصرح", 401);
+    const auth = await requirePermission("MANAGE_USERS");
+    if (!auth.authorized) return apiError(auth.error, auth.status);
     const { id } = await params;
     const uid = Number(id);
     if (Number.isNaN(uid)) return apiError("Invalid ID", 400);
@@ -40,8 +40,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") return apiError("غير مصرح", 401);
+    const auth = await requirePermission("MANAGE_USERS");
+    if (!auth.authorized) return apiError(auth.error, auth.status);
     const { id } = await params;
     const uid = Number(id);
     if (Number.isNaN(uid)) return apiError("Invalid ID", 400);

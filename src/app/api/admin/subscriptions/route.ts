@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 import { sendTelegramNotification } from "@/lib/telegram";
 
@@ -12,8 +12,8 @@ const verifySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("MANAGE_SUBSCRIPTIONS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") || "pending";
@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("MANAGE_SUBSCRIPTIONS");
+    if (!auth.authorized) return error(auth.error, auth.status);
 
     const { id, status } = verifySchema.parse(await request.json());
 
