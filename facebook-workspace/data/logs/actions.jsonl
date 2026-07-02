@@ -1,0 +1,24 @@
+{"type":"campaign_create","target":"mr3q5hjh","status":"draft","timestamp":"2026-07-02T16:34:17.741Z","id":"mr3q5hjhqmd6"}
+{"type":"command","target":"Create a PUBG UC campaign with 50 LYD budget","status":"parsed","action":"create_campaign","timestamp":"2026-07-02T16:34:17.748Z","id":"mr3q5hjoc4wa"}
+{"type":"command","target":"Create a post for Smart Link","status":"parsed","action":"publish_post","timestamp":"2026-07-02T16:57:26.562Z","id":"mr3qz95uogke"}
+{"type":"command","target":"Create a post for Smart Link","status":"parsed","action":"publish_post","timestamp":"2026-07-02T16:57:26.566Z","id":"mr3qz95yjdm5"}
+{"type":"publish_post","target":"smart","status":"completed","timestamp":"2026-07-02T16:57:57.675Z","id":"mr3qzx63vpqw"}
+{"type":"task_update","target":"mr3qz95t","status":"completed","timestamp":"2026-07-02T16:57:57.678Z","id":"mr3qzx66t6ao"}
+{"type":"command","target":"Create a post for Smart Link","status":"parsed","action":"publish_post","timestamp":"2026-07-02T19:33:21.231Z","id":"mr3wjr9rikjn"}
+{"type":"command","target":"Create a post for Smart Link","status":"parsed","timestamp":"2026-07-02T19:33:21.237Z","id":"mr3wjr9xj92q"}
+{"type":"command","target":"hi","status":"parsed","action":null,"timestamp":"2026-07-02T21:40:51.982Z","id":"mr413qmmqxmj"}
+{"type":"command","target":"hi","status":"parsed","timestamp":"2026-07-02T21:40:51.985Z","id":"mr413qmpl7fz"}
+{"type":"command","target":"Create a post for Smart Link","status":"parsed","action":"publish_post","timestamp":"2026-07-02T22:57:14.960Z","id":"mr43tyvkjmqc"}
+{"type":"command","target":"huo","status":"parsed","action":null,"timestamp":"2026-07-02T23:02:53.500Z","id":"mr44183g85sq"}
+{"type":"command","target":"write a post","status":"parsed","action":"publish_post","timestamp":"2026-07-02T23:03:06.436Z","id":"mr441i2spd6v"}
+{"type":"command","target":"Create a campaign","status":"parsed","action":"create_campaign","timestamp":"2026-07-02T23:07:11.644Z","id":"mr446ra4ej63"}
+{"type":"command","target":"Create a story","status":"parsed","action":"publish_story","timestamp":"2026-07-02T23:11:27.452Z","id":"mr44c8nw4jtd"}
+{"type":"command","target":"Publish a post","status":"parsed","action":"publish_post","timestamp":"2026-07-02T23:11:57.350Z","id":"mr44cvqe1mfq"}
+{"type":"command","target":"Create a campaign","status":"parsed","action":"create_campaign","timestamp":"2026-07-02T23:21:08.715Z","id":"mr44op63u4er"}
+{"type":"command","target":"Create a post for Smart Link","status":"parsed","action":"publish_post","timestamp":"2026-07-02T23:26:43.271Z","id":"mr44vvbbu6r8"}
+{"type":"command","target":"Create a campaign","status":"parsed","action":"create_campaign","timestamp":"2026-07-02T23:32:40.070Z","id":"mr453imehmc9"}
+{"type":"command","target":"Create a campaign","status":"parsed","action":"create_campaign","timestamp":"2026-07-02T23:41:19.653Z","id":"mr45enj941yc"}
+{"type":"command","target":"اه","status":"parsed","action":null,"timestamp":"2026-07-02T23:42:30.283Z","id":"mr45g6173dab"}
+{"type":"command","target":"؟","status":"parsed","action":null,"timestamp":"2026-07-02T23:42:33.281Z","id":"mr45g8chyfr4"}
+{"type":"command","target":"Publish a post","status":"parsed","action":"publish_post","timestamp":"2026-07-02T23:42:44.102Z","id":"mr45ggp2qilt"}
+{"type":"command","target":"Create a campaign","status":"parsed","action":"create_campaign","timestamp":"2026-07-02T23:47:42.896Z","id":"mr45mv8wbf7f"}

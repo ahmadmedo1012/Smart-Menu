@@ -48,10 +48,10 @@
 	--color-overlay: var(--overlay);
 
 	/* ── Radius scale ── */
-	--radius-sm: 12px;
-	--radius-md: 6px;
-	--radius-lg: 12px;
-	--radius-xl: 14px;
+	--radius-sm: 16px;
+	--radius-md: 12px;
+	--radius-lg: 24px;
+	--radius-xl: 28px;
 }
 
 :root {
@@ -75,8 +75,8 @@
 	--duration-slow: 0.7s;
 
 	/* ── Dark theme (default) — deeper, richer ── */
-	--background: oklch(0.05 0.002 0);
-	--background-radial: radial-gradient(circle at 30% 0%, oklch(0.68 0.19 45 / 0.07), transparent 65%);
+	--background: oklch(0.035 0.003 30);
+	--background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.68 0.19 45 / 0.08), transparent 70%);
 	--foreground: oklch(0.93 0.005 0);
 	--card: oklch(0.11 0.003 0);
 	--card-foreground: oklch(0.93 0.005 0);
@@ -133,11 +133,11 @@
 	--gradient-shine: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
 
 	/* Glass — dark, with oxide-tinted edge */
-	--glass-bg: oklch(0.11 0.003 0 / 0.55);
-	--glass-bg-strong: oklch(0.14 0.005 0 / 0.7);
-	--glass-border: oklch(0.55 0.19 45 / 0.1);
-	--glass-shadow: 0 4px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
-	--glass-shadow-lg: 0 8px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+	--glass-bg: oklch(0.10 0.003 0 / 0.4);
+	--glass-bg-strong: oklch(0.13 0.004 0 / 0.55);
+	--glass-border: oklch(0.55 0.19 45 / 0.06);
+	--glass-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+	--glass-shadow-lg: 0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
 
 	/* 4-tier shadow system — dark, cross-browser */
 	--shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.22);
@@ -327,8 +327,8 @@
 /* ── Glass utilities ── */
 .glass-card, .glass {
 	background: var(--glass-bg);
-	backdrop-filter: blur(20px) saturate(1.4);
-	-webkit-backdrop-filter: blur(20px) saturate(1.4);
+	backdrop-filter: blur(32px) saturate(1.4);
+	-webkit-backdrop-filter: blur(32px) saturate(1.4);
 	border: 1px solid var(--glass-border);
 	box-shadow: var(--glass-shadow);
 }

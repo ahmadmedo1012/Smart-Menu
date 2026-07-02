@@ -1,0 +1,10 @@
+{
+  "title": "Create a story",
+  "type": "publish_story",
+  "target": "smart",
+  "status": "pending",
+  "needs_confirmation": true,
+  "id": "mr44c8nw",
+  "created": "2026-07-02T23:11:27.452Z",
+  "updated": "2026-07-02T23:11:27.452Z"
+}

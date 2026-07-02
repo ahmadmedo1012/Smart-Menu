@@ -1,0 +1,65 @@
+{
+  "page": {
+    "name": "Smart Link-الربط الذكي",
+    "username": "61591502614404",
+    "bio": "Smart-Link | الربط الذكي - منصة لبناء حلول رقمية ذكية ومترابطة.",
+    "category": "Business Center",
+    "website": "smart-menu-sigma.vercel.app",
+    "email": "",
+    "phone": "",
+    "location": "Tripoli, Libya",
+    "profile_pic": "",
+    "cover": "",
+    "likes": 0,
+    "followers": 0,
+    "is_published": true,
+    "instagram_linked": false,
+    "whatsapp_linked": false
+  },
+  "gaming_page": {
+    "name": "GameBox / جيم بوكس",
+    "username": "GameBoxLibya",
+    "bio": "🎮 GameBox - كل ما يخص الألعاب والاشتراكات",
+    "category": "Video Game Store",
+    "website": "subnation.free.nf",
+    "phone": [
+      "094-2119637",
+      "+218 91-0089975"
+    ],
+    "likes": 17000,
+    "followers": 17600,
+    "ad_account": "659787046865664",
+    "messages_unread": 2
+  },
+  "user": {
+    "name": "Markaz Ahmed",
+    "profile": "rh20112000",
+    "total_pages": 39
+  },
+  "analytics": {
+    "reach_7d": 0,
+    "impressions_7d": 0,
+    "engagement_7d": 0,
+    "followers_growth_7d": 0,
+    "best_posts": [],
+    "last_updated": "2026-07-02T14:00:00Z"
+  },
+  "campaigns": [
+    {
+      "name": "Test Campaign",
+      "objective": "engagement",
+      "budget": 30,
+      "id": "mr3q5hjh",
+      "status": "draft",
+      "created": "2026-07-02T16:34:17.741Z"
+    }
+  ],
+  "messages_unread": 2,
+  "pending_approvals": [],
+  "connected_accounts": {
+    "facebook": true,
+    "instagram": false,
+    "whatsapp": false,
+    "google": false
+  }
+}

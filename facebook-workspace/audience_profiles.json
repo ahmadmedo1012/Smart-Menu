@@ -1,0 +1,32 @@
+{
+  "primary_audience": {
+    "location": "Libya",
+    "age_range": "15-35",
+    "gender": "All (skewed male for gaming)",
+    "interests": ["PUBG Mobile", "Free Fire", "Gaming", "Esports", "Online shopping"],
+    "language": "Arabic (Libyan dialect)",
+    "device": "Mobile-first",
+    "behavior": "Night active (evening posts get engagement, 'مساء الخير' greeting used)"
+  },
+  "secondary_audiences": [
+    {
+      "segment": "PUBG Players",
+      "need": "UC/top-ups, cheap rates, fast delivery",
+      "price_sensitivity": "High — compare prices"
+    },
+    {
+      "segment": "Free Fire Players",
+      "need": "Diamonds, bundles, events",
+      "price_sensitivity": "Medium-High"
+    },
+    {
+      "segment": "Streaming Subscribers",
+      "need": "Netflix, Shahid, YouTube Premium subscriptions"
+    }
+  ],
+  "engagement_patterns": {
+    "best_posting_time": "Evening (9 PM - 12 AM Libyan time)",
+    "post_type_preference": "Image + text offers, price lists",
+    "response_expected": "Fast (same-day)"
+  }
+}

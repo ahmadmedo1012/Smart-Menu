@@ -1,0 +1,10 @@
+{
+  "title": "Create a campaign",
+  "type": "create_campaign",
+  "target": "smart",
+  "status": "pending",
+  "needs_confirmation": false,
+  "id": "mr453ime",
+  "created": "2026-07-02T23:32:40.070Z",
+  "updated": "2026-07-02T23:32:40.070Z"
+}

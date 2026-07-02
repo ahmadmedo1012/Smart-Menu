@@ -1,0 +1,10 @@
+{
+  "title": "Publish a post",
+  "type": "publish_post",
+  "target": "smart",
+  "status": "pending",
+  "needs_confirmation": true,
+  "id": "mr44cvqe",
+  "created": "2026-07-02T23:11:57.350Z",
+  "updated": "2026-07-02T23:11:57.350Z"
+}

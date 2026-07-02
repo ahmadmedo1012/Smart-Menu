@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { createHmac } from "crypto";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
