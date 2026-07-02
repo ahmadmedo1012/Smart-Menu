@@ -18,8 +18,14 @@ model User {
   updatedAt    DateTime          @updatedAt
   role         Role              @default(owner)
   permissions  Permission[]      @default([])
-  lastLoginAt  DateTime?
-  auditLogs    AuditLog[]
+  lastLoginAt           DateTime?
+  telegramChatId        String?
+  telegramUsername      String?
+  telegramLinkedAt      DateTime?
+  telegramNotifyOrders   Boolean   @default(true)
+  telegramNotifyPayments Boolean   @default(true)
+  telegramNotifySettings Boolean   @default(false)
+  auditLogs             AuditLog[]
   sessions     Session[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id])

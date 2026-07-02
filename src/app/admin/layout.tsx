@@ -7,6 +7,7 @@ import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
 import { Store } from "lucide-react"
 import PageFade from "@/components/shared/PageFade"
+import { AdminEventNotifier } from "@/components/admin/AdminEventNotifier"
 
 function MobileNav({ onNavClick }: { onNavClick: () => void }) {
   return (
@@ -34,6 +35,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex min-h-screen">
+      <AdminEventNotifier />
+
       {/* Desktop sidebar */}
       <AdminSidebar />
 
