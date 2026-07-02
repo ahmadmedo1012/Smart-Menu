@@ -127,7 +127,7 @@ export default function AdminAdminsPage() {
 
   const handleRevokeSessions = async (admin: AdminUser) => {
     try {
-      const res = await csrfFetch(`/api/admin/admins/${admin.id}/revoke-sessions`, { method: "POST" })
+      const res = await csrfFetch(`/api/admin/admins/${admin.id}`, { method: "POST" })
       if (!res.ok) throw Error()
       premiumToast("refresh", "تم إلغاء جميع الجلسات")
       fetchAdmins()
