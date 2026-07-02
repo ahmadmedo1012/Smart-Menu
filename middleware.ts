@@ -1,21 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const CSRF_COOKIE = "csrf-token";
-const CSRF_HEADER = "x-csrf-token";
-
-function generateToken(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function validateToken(h: string | null | undefined, c: string | null | undefined): boolean {
-  return !!h && !!c && h === c;
-}
+import { CSRF_COOKIE, CSRF_HEADER, generateToken, validateToken } from "@/lib/csrf";
 
 const publicPrefixes = [
-  "/_next", "/favicon.ico", "/sitemap.xml", "/robots.txt",
+  "/_next", "/favicon.png",
   "/uploads", "/fonts", "/sw.js", "/manifest.json",
   "/brand-icon.png", "/icon-192.png", "/icon-512.png",
   "/api/auth", "/api/loyalty", "/api/subscriptions", "/api/plans",
@@ -51,10 +40,7 @@ export function middleware(request: NextRequest) {
     // Static/public — headers + CSRF cookie only
     if (publicPrefixes.some(p => pathname.startsWith(p)) || pathname === "/") {
       const resp = NextResponse.next();
-      resp.headers.set("X-Content-Type-Options", "nosniff");
-      resp.headers.set("X-Frame-Options", "DENY");
-      resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-      resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+      setHeaders(resp);
       setCsrfCookie(resp, request);
       return resp;
     }
@@ -93,13 +79,14 @@ export function middleware(request: NextRequest) {
     }
 
     return response;
-  } catch {
-    return NextResponse.next();
+  } catch (e) {
+    console.error("[middleware] Unhandled error:", (e as Error).message);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.json|icon-192\\.svg|icon-512\\.svg|\\.png|\\.jpg|\\.jpeg|\\.webp|\\.avif).*)",
+    "/((?!_next/static|_next/image|favicon\\.png|sitemap\\.xml|robots\\.txt|manifest\\.json|order-confirmed|demo|\\.png|\\.jpg|\\.jpeg|\\.webp|\\.avif).*)",
   ],
 };
