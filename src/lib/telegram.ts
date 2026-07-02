@@ -24,14 +24,10 @@ export async function sendTelegramNotification(
     );
     if (!res.ok) {
       const errBody = await res.text();
-      console.error(
-        `Telegram API error (${res.status}): ${errBody.slice(0, 500)}`,
-        "| Check: bot is a member of the group chat? chatId type? (Number vs String)"
-      );
+      console.error("Telegram API error:", res.status, errBody.slice(0, 500));
     }
     return res.ok;
-  } catch (e) {
-    console.error("Telegram error:", e);
+  } catch {
     return false;
   }
 }

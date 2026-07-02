@@ -110,7 +110,7 @@ export default function OwnerOrdersPage() {
     }
     es.onerror = () => {
       sseErrorCountRef.current += 1
-      console.error("SSE connection error — count:", sseErrorCountRef.current)
+      // ponytail: count is implicitly visible via reconnect behavior
       if (sseErrorCountRef.current >= 3) {
         es.close()
         premiumToast("refresh", "فقدان الاتصال المباشر. جاري التحديث الدوري...")
@@ -357,7 +357,7 @@ export default function OwnerOrdersPage() {
                     {order.status === "new" && (
                       <button
                         type="button"
-                        onClick={e => { e.stopPropagation(); updateStatus(order.id, "cancelled") }}
+                        onClick={e => { e.stopPropagation(); if (window.confirm("هل أنت متأكد من إلغاء هذا الطلب؟")) updateStatus(order.id, "cancelled") }}
                         className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
                       >
                         إلغاء

@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { premiumToast } from "@/lib/premium-toast"
 import { Settings, Eye, EyeOff, Trash2, Save } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { csrfFetch } from "@/lib/csrf-client"
 
@@ -35,6 +43,7 @@ export default function ConfigEditor() {
   const [activeCategory, setActiveCategory] = useState("general")
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({})
   const [editing, setEditing] = useState<Record<string, unknown>>({})
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   const load = async () => {
     try {
@@ -80,6 +89,7 @@ export default function ConfigEditor() {
       const json = await res.json()
       if (!json.success) throw new Error()
       premiumToast("trash", "تم الحذف")
+      setDeleteTarget(null)
       load()
     } catch {
       premiumToast("error", "فشل الحذف")
@@ -140,7 +150,7 @@ export default function ConfigEditor() {
                   <Button variant="ghost" size="icon" className="size-8" onClick={() => saveConfig(item)}>
                     <Save className="size-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="size-8 text-destructive" onClick={() => deleteConfig(item.key)}>
+                  <Button variant="ghost" size="icon" className="size-8 text-destructive" onClick={() => setDeleteTarget(item.key)}>
                     <Trash2 className="size-3.5" />
                   </Button>
                 </div>
@@ -170,6 +180,21 @@ export default function ConfigEditor() {
           ))}
         </div>
       )}
+
+      <Dialog open={deleteTarget !== null} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد من حذف الإعداد <strong>{deleteTarget}</strong>؟ هذا الإجراء لا يمكن التراجع عنه.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>إلغاء</Button>
+            <Button variant="destructive" onClick={() => deleteTarget && deleteConfig(deleteTarget)}>حذف</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
-  JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters").optional().default("default-dev-key-1234567890"),
+  JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
   NEXT_PUBLIC_DOMAIN: z.string().url().optional().default("http://localhost:3000"),
   NEXT_PUBLIC_WHATSAPP_NUMBER: z.string().optional().default(""),
   TELEGRAM_BOT_TOKEN: z.string().optional().default(""),
@@ -35,4 +35,3 @@ export function validateEnv() {
   return parsed.data;
 }
 
-const _env: Record<string, string | undefined> = process.env;

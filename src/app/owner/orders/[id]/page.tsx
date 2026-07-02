@@ -36,6 +36,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -48,6 +49,8 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
   }, [id])
 
   const updateStatus = async (status: string) => {
+    if (updating) return;
+    setUpdating(true);
     try {
       const res = await fetch(`/api/orders/${id}`, {
         method: "PUT",
@@ -59,6 +62,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
       setOrder(d.data ?? d)
       premiumToast("success", `تم تغيير الحالة إلى ${STATUS_CONFIG[status]?.label}`)
     } catch { premiumToast("error", "فشل تحديث الحالة") }
+    finally { setUpdating(false) }
   }
 
   const copyAsWhatsApp = () => {
@@ -203,7 +207,7 @@ ${items}
               )}
               <Button
                 variant="outline"
-                onClick={() => updateStatus("cancelled")}
+                onClick={() => { if (window.confirm("هل أنت متأكد من إلغاء هذا الطلب؟")) updateStatus("cancelled"); }}
                 className="rounded-xl h-11 border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
               >
                 إلغاء الطلب

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { premiumToast } from "@/lib/premium-toast";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2 } from "lucide-react";
 import { useCart } from "@/store/cart";
+import { useRef } from "react";
 import { toArabicNumber } from "@/lib/format";
 import { buildReceiptMessage } from "@/lib/receipt";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,15 @@ export default function CartPage() {
   const [animateItems, setAnimateItems] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [supportedPickupTypes, setSupportedPickupTypes] = useState<string[]>([]);
+  const submittingRef = useRef(false);
+
+  // Warn on accidental navigation if cart has items
+  useEffect(() => {
+    if (items.length === 0 || confirmed) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [items.length, confirmed]);
 
   // Fetch restaurant's supported pickup types
   useEffect(() => {
@@ -85,6 +95,8 @@ export default function CartPage() {
   const cartSubtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
 
   const handleCheckout = async () => {
+    if (submittingRef.current) return; // double-click guard
+    submittingRef.current = true;
     setIsSubmitting(true);
 
     // 1. Send WhatsApp receipt to restaurant FIRST
@@ -117,6 +129,7 @@ export default function CartPage() {
           subtotal: cartSubtotal,
           total: cartSubtotal,
           restaurantId: restaurantId || undefined,
+          idempotencyKey: `cart-${restaurantId}-${Date.now()}`,
         }),
       });
       if (res.ok) {

@@ -22,6 +22,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
   onSaved: () => void;
 }) {
   const [form, setForm] = useState(initForm(0));
+  const [saving, setSaving] = useState(false);
 
   const openDialog = () => {
     setForm(editing ? {
@@ -33,8 +34,10 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
   };
 
   const save = async () => {
+    if (saving) return;
     if (!form.name.trim() || !form.price) { premiumToast("error", "يرجى إدخال الاسم والسعر"); return; }
     if (form.image && !IMAGE_URL_RE.test(form.image)) { premiumToast("error", "رابط الصورة غير صالح"); return; }
+    setSaving(true);
     try {
       const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, image: form.image || undefined, status: form.status, categoryId: form.categoryId };
       const res = editing
@@ -48,6 +51,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
       premiumToast("save", editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
       onOpenChange(false); onSaved();
     } catch (e) { premiumToast("error", e instanceof Error ? e.message : "فشل الحفظ"); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -96,7 +100,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
         </div>
         <div className="flex justify-end gap-2 mt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button variant="orange" onClick={save}>{editing ? "تحديث" : "إضافة"}</Button>
+          <Button variant="orange" onClick={save} disabled={saving}>{editing ? "تحديث" : "إضافة"}</Button>
         </div>
       </DialogContent>
     </Dialog>

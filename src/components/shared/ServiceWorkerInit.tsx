@@ -1,8 +1,12 @@
 "use client";
 
-import { useServiceWorker } from "@/lib/sw-register";
+import { useEffect } from "react";
 
 export default function ServiceWorkerInit() {
-  useServiceWorker();
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
   return null;
 }

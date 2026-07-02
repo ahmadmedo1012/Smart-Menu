@@ -38,6 +38,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
   const router = useRouter()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -49,6 +50,8 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
   }, [id])
 
   const updateStatus = async (status: string) => {
+    if (updating) return;
+    setUpdating(true);
     try {
       const res = await csrfFetch(`/api/orders/${id}`, {
         method: "PUT",
@@ -60,6 +63,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
       setOrder(d.data ?? d)
       premiumToast("success", "تم تغيير الحالة", STATUS_CONFIG[status]?.label)
     } catch { premiumToast("error", "فشل تحديث الحالة") }
+    finally { setUpdating(false) }
   }
 
   const copyAsWhatsApp = () => {
@@ -181,7 +185,7 @@ ${items}
               )}
               <Button
                 variant="outline"
-                onClick={() => updateStatus("cancelled")}
+                onClick={() => { if (window.confirm("هل أنت متأكد من إلغاء هذا الطلب؟")) updateStatus("cancelled"); }}
                 className="rounded-xl h-11 border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
               >
                 إلغاء الطلب

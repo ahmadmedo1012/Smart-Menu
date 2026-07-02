@@ -8,19 +8,11 @@
 claude.md
 /coverage
 # Cruft
-# ── Database ──────────────────────────────
-*.db
-*.db-journal
-# debug
-# dependencies
-.DS_Store
-.env
-.env*
-.env.development
-.env.development.local
 # ── Environment ───────────────────────────
-# Environment local
+.env
+.env.*
 .env.local
+.env.development*
 .env.production
 .env.production.local
 .env.staging

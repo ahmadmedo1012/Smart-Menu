@@ -16,6 +16,7 @@ const orderItemSchema = z.object({
 });
 
 const createSchema = z.object({
+  idempotencyKey: z.string().optional(),
   customerName: z.string().optional(),
   customerPhone: z.string().optional(),
   notes: z.string().optional(),
@@ -112,7 +113,9 @@ export async function POST(request: NextRequest) {
       recalcSubtotal += eff * item.quantity;
     }
 
-    const orderNo = `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    const orderNo = body.idempotencyKey
+      ? `ORD-${body.idempotencyKey.toUpperCase().slice(0, 40)}`
+      : `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 
     const restaurant = await prisma.restaurant.findUnique({ where: { id: body.restaurantId } });
     if (!restaurant) {

@@ -1,7 +1,7 @@
 {
-  "name": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي",
+  "name": "\u0627\u0644\u0631\u0628\u0637 \u0627\u0644\u0630\u0643\u064a | Smart Menu \u2014 \u0645\u0646\u064a\u0648 \u0631\u0642\u0645\u064a \u0644\u0644\u0645\u0637\u0627\u0639\u0645 \u0648\u0627\u0644\u0645\u0642\u0627\u0647\u064a",
   "short_name": "Smart Menu",
-  "description": "منيو رقمي ذكي للمطاعم والمقاهي مع إدارة الطلبات عبر واتساب، برنامج ولاء العملاء، وإحصائيات متقدمة",
+  "description": "\u0645\u0646\u064a\u0648 \u0631\u0642\u0645\u064a \u0630\u0643\u064a \u0644\u0644\u0645\u0637\u0627\u0639\u0645 \u0648\u0627\u0644\u0645\u0642\u0627\u0647\u064a \u0645\u0639 \u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u0637\u0644\u0628\u0627\u062a \u0639\u0628\u0631 \u0648\u0627\u062a\u0633\u0627\u0628\u060c \u0628\u0631\u0646\u0627\u0645\u062c \u0648\u0644\u0627\u0621 \u0627\u0644\u0639\u0645\u0644\u0627\u0621\u060c \u0648\u0625\u062d\u0635\u0627\u0626\u064a\u0627\u062a \u0645\u062a\u0642\u062f\u0645\u0629",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf7f2",
@@ -35,15 +35,12 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["food", "restaurant", "business"],
-  "screenshots": [
-    {
-      "src": "/screenshot.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
+  "categories": [
+    "food",
+    "restaurant",
+    "business"
   ],
+  "screenshots": [],
   "prefer_related_applications": false,
   "related_applications": [],
   "scope": "/"

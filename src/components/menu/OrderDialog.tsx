@@ -79,8 +79,8 @@ export default function OrderDialog({
           restaurantId,
         }),
       });
-      if (!orderRes.ok) console.warn("Order DB save failed:", await orderRes.text());
-    } catch (e) { console.warn("Order DB save error:", e); }
+      if (!orderRes.ok) await orderRes.text();
+    } catch { /* silent */ }
 
     const origin = window.location.origin;
     const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
