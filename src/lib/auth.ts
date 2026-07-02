@@ -51,7 +51,8 @@ export async function requirePermission(
 > {
   const auth = await requireAuth(opts);
   if (!auth.authorized) return { authorized: false, error: "غير مصرح", status: 401 };
-  if (auth.role === "super_admin") return auth as any;
+  // backward compat: treat legacy "admin" as super_admin
+  if (auth.role === "super_admin" || auth.role === "admin") return auth as any;
   if (auth.role === "sub_admin" && auth.permissions?.includes(permission)) {
     return auth as any;
   }

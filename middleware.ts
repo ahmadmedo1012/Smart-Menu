@@ -66,7 +66,7 @@ export function middleware(request: NextRequest) {
     const hasAuth = authCookie === "true";
     const roleCookie = request.cookies.get("smart-menu-role")?.value;
 
-    if (pathname.startsWith("/admin") && (!hasAuth || roleCookie !== "admin")) {
+    if (pathname.startsWith("/admin") && (!hasAuth || (roleCookie !== "admin" && roleCookie !== "super_admin" && roleCookie !== "sub_admin"))) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
