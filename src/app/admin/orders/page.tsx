@@ -2,7 +2,7 @@
 
 import { csrfFetch } from "@/lib/csrf-client";
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
@@ -46,13 +46,13 @@ export default function AdminOrdersPage() {
   const [dateTo, setDateTo] = useState("")
   const router = useRouter()
 
-  const fetchOrders = useCallback(async (status: string, df?: string, dt?: string) => {
+  const fetchOrders = async (statusFilter?: string) => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
-      if (status) params.set("status", status)
-      if (df) params.set("dateFrom", df)
-      if (dt) params.set("dateTo", dt)
+      if (statusFilter ?? filter) params.set("status", statusFilter ?? filter)
+      if (dateFrom) params.set("dateFrom", dateFrom)
+      if (dateTo) params.set("dateTo", dateTo)
       const url = `/api/orders?${params.toString()}`
       const res = await fetch(url)
       if (!res.ok) throw new Error("Fell to fetch orders")
@@ -60,9 +60,9 @@ export default function AdminOrdersPage() {
       setOrders(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []))
     } catch { premiumToast("error", "فشل تحميل الطلبات") }
     finally { setLoading(false) }
-  }, [dateFrom, dateTo])
+  }
 
-  useEffect(() => { fetchOrders(filter, dateFrom, dateTo) }, [filter, dateFrom, dateTo])
+  useEffect(() => { fetchOrders() }, [filter, dateFrom, dateTo]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateStatus = async (id: number, status: string) => {
     try {
