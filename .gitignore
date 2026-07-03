@@ -76,3 +76,14 @@ yarn-error.log*
 !.yarn/releases
 !.yarn/versions
 .env*
+
+# ── Obsidian vault ──────────────────────────
+obsidian-vault/.trash/
+obsidian-vault/.obsidian/workspace
+obsidian-vault/.obsidian/cache
+obsidian-vault/.obsidian/graph.json
+obsidian-vault/.obsidian/plugins/obsidian-git/data.json
+
+# ── Obsidian project config (not vault) ────
+smart-menu/.obsidian/
+smart-menu/Welcome.md
