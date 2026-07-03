@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     "scripts/**",
     "tests/**",
     "facebook-workspace/**",
+    "obsidian-vault/**",
+    "smart-menu/**",
   ]),
   {
     rules: {
