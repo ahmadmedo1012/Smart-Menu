@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const BASE = 'https://smart-menu-uz6w.onrender.com';
+const BASE = 'https://smart-menu-sigma.vercel.app';
 const RESULTS = { passed: 0, failed: 0, errors: [] };
 
 async function test(name, fn) {

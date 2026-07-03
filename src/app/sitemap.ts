@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || "https://smart-menu-uz6w.onrender.com"
+const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || "https://smart-menu-sigma.vercel.app"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

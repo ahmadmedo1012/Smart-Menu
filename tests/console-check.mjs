@@ -2,7 +2,6 @@ import { chromium } from "@playwright/test";
 
 async function main() {
   const browser = await chromium.launch({
-    executablePath: "/home/ahmed/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome",
     headless: true,
   });
   const pages = ["/", "/pricing", "/login", "/subscribe", "/menu/al-waha-cafe"];

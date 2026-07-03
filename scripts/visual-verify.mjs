@@ -1,6 +1,8 @@
 // Run via npx playwright
+import { mkdirSync } from "fs";
 import { chromium } from "playwright";
 
+mkdirSync("./screenshots", { recursive: true });
 const browser = await chromium.launch();
 const BASE = "http://localhost:3000";
 
@@ -11,7 +13,7 @@ async function capture(label, path, opts = {}) {
     await page.goto(BASE + opts.path || "/", { waitUntil: "networkidle", timeout: 15000 });
   } catch { await page.goto(BASE + opts.path || "/", { timeout: 15000 }); }
   await page.waitForTimeout(2000);
-  await page.screenshot({ path: "/home/ahmed/UTILITIES/smart-menu/" + path, fullPage: opts.fullPage || false });
+  await page.screenshot({ path: "./screenshots/" + path, fullPage: opts.fullPage || false });
   console.log(`${label} → ${path}`);
   await page.close();
   return page;

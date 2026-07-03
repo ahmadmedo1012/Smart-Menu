@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const BASE = 'https://smart-menu-uz6w.onrender.com';
+const BASE = 'https://smart-menu-sigma.vercel.app';
 
 const pages = [
   { path: '/', name: 'Homepage', wait: 'load' },

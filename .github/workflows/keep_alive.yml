@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Server
-        run: curl -I https://smart-menu-uz6w.onrender.com
+        run: curl -I https://smart-menu-sigma.vercel.app
