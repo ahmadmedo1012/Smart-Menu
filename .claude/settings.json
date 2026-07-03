@@ -4,6 +4,8 @@
     "CLAUDE_FLOW_V3_ENABLED": "true",
     "CLAUDE_FLOW_HOOKS_ENABLED": "true"
   },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["lottiefiles-creator", "halai", "puppeteer"],
   "permissions": {
     "allow": [
       "Bash(npx @claude-flow*)",
