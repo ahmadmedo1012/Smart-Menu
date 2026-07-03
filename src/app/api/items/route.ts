@@ -12,7 +12,7 @@ const createSchema = z.object({
   descriptionAr: z.string().optional(),
   price: z.number().min(0, "السعر يجب أن يكون 0 أو أكثر"),
   discountedPrice: z.number().min(0).nullable().optional(),
-  image: z.string().optional(),
+  image: z.string().max(7000000).optional(),
   status: z.string().optional(),
   sortOrder: z.number().int().optional(),
   categoryId: z.number().int().positive(),

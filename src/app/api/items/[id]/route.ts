@@ -12,7 +12,7 @@ const updateSchema = z.object({
   descriptionAr: z.string().optional(),
   price: z.number().positive().optional(),
   discountedPrice: z.number().positive().nullable().optional(),
-  image: z.string().optional(),
+  image: z.string().max(7000000).optional(),
   status: z.string().optional(),
   sortOrder: z.number().int().optional(),
   categoryId: z.number().int().positive().optional(),
