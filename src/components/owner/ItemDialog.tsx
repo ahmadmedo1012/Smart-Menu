@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,26 @@ const initForm = (catId: number) => ({ name: "", nameAr: "", description: "", de
 
 const IMAGE_URL_RE = /^(https?:\/\/|data:image\/)/i;
 
+/** Compress image to max 1200px, quality 0.7 — keeps payload under Vercel 4.5MB limit */
+function compressImage(file: File, maxDim = 1200, quality = 0.7): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(img.src);
+      const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('فشل ضغط الصورة')), 'image/jpeg', quality);
+    };
+    img.onerror = () => reject(new Error('فشل قراءة الصورة'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export default function ItemDialog({ open, onOpenChange, editing, categoryId, onSaved }: {
   open: boolean; onOpenChange: (o: boolean) => void;
   editing: Item | null; categoryId: number;
@@ -24,6 +44,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
 }) {
   const [form, setForm] = useState(initForm(0));
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const openDialog = () => {
     setForm(editing ? {
@@ -46,7 +67,11 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
         : await csrfFetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) {
         let errMsg = "فشل الحفظ";
-        try { const e = await res.json(); errMsg = e?.error || errMsg; } catch {}
+        try {
+          const e = await res.json();
+          errMsg = e?.error || errMsg;
+          if (e?.details?.length) errMsg += ' — ' + e.details.join('; ');
+        } catch {}
         throw new Error(errMsg);
       }
       premiumToast("save", editing ? "تم تحديث الصنف" : "تمت إضافة الصنف");
@@ -75,13 +100,30 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
           <div>
             <Label>الصورة</Label>
             <div className="flex gap-2 mt-1.5">
-              <Input value={form.image} onChange={e => setForm({...form, image: e.target.value})} className="h-11 rounded-md text-left flex-1" dir="ltr" placeholder="https://..." />
-              <label className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0">
+              <Input value={form.image} onChange={e => setForm({...form, image: e.target.value})} className="h-11 rounded-md text-left flex-1" dir="ltr" placeholder="https://..." disabled={uploading} />
+              <label className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0" style={{opacity: uploading ? 0.5 : 1, pointerEvents: uploading ? 'none' : 'auto'}}>
                 <input type="file" accept="image/*" className="hidden" onChange={async e => {
-                  const file = e.target.files?.[0]; if (!file) return; const fd = new FormData(); fd.append("file", file);
-                  try { const r = await csrfFetch("/api/upload", { method: "POST", body: fd }); const d = await r.json(); if (d.data?.url) setForm({...form, image: d.data.url}); else premiumToast("error", "فشل رفع الصورة"); } catch { premiumToast("error", "فشل رفع الصورة"); }
-                }} />
-                <Upload className="size-4 text-muted-foreground" />
+                  const file = e.target.files?.[0]; if (!file) return;
+                  setUploading(true);
+                  premiumToast("info", "جاري رفع ومعالجة الصورة...");
+                  try {
+                    const compressed = await compressImage(file);
+                    const fd = new FormData();
+                    fd.append("file", compressed, file.name.replace(/\.[^.]+$/, '.jpg'));
+                    const r = await csrfFetch("/api/upload", { method: "POST", body: fd });
+                    const d = await r.json();
+                    if (!r.ok) {
+                      const detail = d?.details?.length ? ` — ${d.details.join('; ')}` : '';
+                      premiumToast("error", `${d?.error || 'فشل رفع الصورة'}${detail}`);
+                      return;
+                    }
+                    if (d.data?.url) setForm({...form, image: d.data.url});
+                    else premiumToast("error", "فشل رفع الصورة");
+                  } catch (e) {
+                    premiumToast("error", e instanceof Error ? e.message : "فشل رفع الصورة");
+                  } finally { setUploading(false); }
+                }} disabled={uploading} />
+                {uploading ? <Loader2 className="size-4 text-muted-foreground animate-spin" /> : <Upload className="size-4 text-muted-foreground" />}
               </label>
             </div>
             {form.image && <div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30"><OptimizedImage src={form.image} alt="" className="size-full" skeleton={false} /></div>}
@@ -101,7 +143,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
         </div>
         <div className="flex justify-end gap-2 mt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button variant="orange" onClick={save} disabled={saving}>{editing ? "تحديث" : "إضافة"}</Button>
+          <Button variant="orange" onClick={save} disabled={saving || uploading}>{editing ? "تحديث" : "إضافة"}</Button>
         </div>
       </DialogContent>
     </Dialog>
