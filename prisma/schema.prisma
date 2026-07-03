@@ -197,6 +197,15 @@ model TelegramConfig {
   updatedAt DateTime @updatedAt
 }
 
+model TelegramBroadcastTarget {
+  id        Int      @id @default(autoincrement())
+  label     String   @default("")
+  chatId    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model WhatsappTemplate {
   id           Int        @id @default(autoincrement())
   name         String
