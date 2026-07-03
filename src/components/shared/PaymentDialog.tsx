@@ -15,9 +15,7 @@ import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Smartphone, Copy, Phone, CheckCircle2 } from "lucide-react";
-
-const MADAR_PHONE = "0910089975";
-const LIBYANA_PHONE = "0942119637";
+import { useConfig } from "@/hooks/useConfig";
 
 
 type Provider = "libyana" | "madar";
@@ -41,6 +39,10 @@ export default function PaymentDialog({
   onSuccess,
 }: PaymentDialogProps) {
   const [provider, setProvider] = useState<Provider>("libyana");
+  const { config } = useConfig();
+  const MADAR_PHONE = (config?.balance_transfer_phone_1 as string) || "0910089975";
+  const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || "0942119637";
+
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState(price);
   const [step, setStep] = useState<"form" | "waiting" | "success">("form");
@@ -54,8 +56,8 @@ export default function PaymentDialog({
 
   const quickTransferCode =
     provider === "libyana"
-      ? `*122*218942119637*${amount * 1000}*1#`
-      : `*140*4*1*${amount}*0910089975#`;
+      ? `*122*218${LIBYANA_PHONE.slice(1)}*${amount * 1000}*1#`
+      : `*140*4*1*${amount}*${MADAR_PHONE}#`;
 
   const encodedUSSD = quickTransferCode.replace(/#/g, "%23");
 
