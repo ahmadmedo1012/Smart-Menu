@@ -3,6 +3,32 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
 
+async function testChatId(
+  botToken: string,
+  chatId: string,
+): Promise<{ ok: boolean; error: string | null }> {
+  try {
+    const parsed = chatId.match(/^-?\d+$/) ? Number(chatId) : chatId;
+    const res = await fetch(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: parsed,
+          text: "🔍 Diagnostic Test — if you see this, the target works.",
+          parse_mode: "Markdown",
+        }),
+      },
+    );
+    if (res.ok) return { ok: true, error: null };
+    const err = await res.text();
+    return { ok: false, error: err.slice(0, 300) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Network error" };
+  }
+}
+
 export async function GET(_: NextRequest) {
   try {
     const auth = await requireAdmin();
@@ -12,91 +38,37 @@ export async function GET(_: NextRequest) {
 
     if (!config) {
       return success({
-        exists: false,
-        diagnostics: {
-          configExists: false,
-          isActive: false,
-          botTokenPreview: null,
-          chatId: null,
-          events: [],
-        },
+        configExists: false,
+        isActive: false,
+        botTokenPreview: null,
+        events: [],
+        broadcastTargets: [],
+        linkedAdmins: 0,
       });
     }
 
-    const testResults: { format: "number" | "string"; ok: boolean; error: string | null }[] = [];
-    let workingFormat: "number" | "string" | null = null;
+    // Test each broadcast target
+    const broadcastTargets = await prisma.telegramBroadcastTarget.findMany();
+    const targetResults = await Promise.allSettled(
+      broadcastTargets.map(async (t) => {
+        const test = config.botToken && config.isActive
+          ? await testChatId(config.botToken, t.chatId)
+          : { ok: false, error: "Bot inactive" };
+        return { id: t.id, label: t.label || t.chatId, chatId: t.chatId, isActive: t.isActive, ...test };
+      }),
+    );
 
-    if (config.botToken && config.chatId && config.isActive) {
-      const chatIdNum = Number(config.chatId);
-      const chatIdStr = String(config.chatId);
-      const botUrl = `https://api.telegram.org/bot${config.botToken}/sendMessage`;
-
-      const testPayload = (chatId: number | string): Record<string, unknown> => ({
-        chat_id: chatId,
-        text: `\u{1F50D} Diagnostic Test (${typeof chatId})\n\nIf you see this, ${typeof chatId} format works.`,
-        parse_mode: "Markdown",
-      });
-
-      // Try Number first
-      try {
-        const r1 = await fetch(botUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(testPayload(chatIdNum)),
-        });
-        if (r1.ok) {
-          testResults.push({ format: "number", ok: true, error: null });
-          workingFormat = "number";
-        } else {
-          const err = await r1.text();
-          testResults.push({ format: "number", ok: false, error: err.slice(0, 300) });
-          // Try String fallback
-          try {
-            const r2 = await fetch(botUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(testPayload(chatIdStr)),
-            });
-            if (r2.ok) {
-              testResults.push({ format: "string", ok: true, error: null });
-              workingFormat = "string";
-            } else {
-              const err2 = await r2.text();
-              testResults.push({ format: "string", ok: false, error: err2.slice(0, 300) });
-            }
-          } catch (e2) {
-            testResults.push({
-              format: "string",
-              ok: false,
-              error: e2 instanceof Error ? e2.message : "Network error",
-            });
-          }
-        }
-      } catch (e) {
-        testResults.push({
-          format: "number",
-          ok: false,
-          error: e instanceof Error ? e.message : "Network error",
-        });
-      }
-    }
+    const linkedAdmins = await prisma.user.count({
+      where: { telegramChatId: { not: null } },
+    });
 
     return success({
-      exists: true,
-      diagnostics: {
-        configExists: true,
-        isActive: config.isActive,
-        botTokenPreview: config.botToken
-          ? config.botToken.slice(0, 4) + "..."
-          : null,
-        chatId: config.chatId || null,
-        events: (config.events as string[]) ?? [],
-      },
-      testResults,
-      workingFormat,
-      note: workingFormat === null
-        ? "Neither format worked. Ensure the bot is added as a member of the Telegram group/supergroup."
-        : `chat_id as ${workingFormat} works.`,
+      configExists: true,
+      isActive: config.isActive,
+      botTokenPreview: config.botToken ? config.botToken.slice(0, 4) + "..." : null,
+      events: (config.events as string[]) ?? [],
+      broadcastTargets: targetResults.map((r) => (r.status === "fulfilled" ? r.value : { error: "Test failed" })),
+      linkedAdmins,
     });
   } catch (e) {
     return handleError(e);
