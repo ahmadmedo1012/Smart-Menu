@@ -12,6 +12,8 @@ model User {
   username     String            @unique
   password     String
   name         String
+  email        String   @default("")
+  phone        String   @default("")
   restaurantId Int?
   planId       Int?
   createdAt    DateTime          @default(now())
@@ -25,6 +27,7 @@ model User {
   telegramNotifyOrders   Boolean   @default(true)
   telegramNotifyPayments Boolean   @default(true)
   telegramNotifySettings Boolean   @default(false)
+  notificationPrefs      Json      @default("{}")
   auditLogs             AuditLog[]
   sessions     Session[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])

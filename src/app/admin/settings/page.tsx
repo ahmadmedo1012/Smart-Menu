@@ -36,6 +36,8 @@ interface AdminProfile {
   name: string
   username: string
   role: string
+  email: string
+  phone: string
   telegramLinked: boolean
   telegramUsername: string | null
 }
@@ -88,6 +90,8 @@ export default function AdminSettingsPage() {
   // Profile
   const [profile, setProfile] = useState<AdminProfile | null>(null)
   const [profileName, setProfileName] = useState("")
+  const [profileEmail, setProfileEmail] = useState("")
+  const [profilePhone, setProfilePhone] = useState("")
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [profileSaving, setProfileSaving] = useState(false)
@@ -139,6 +143,8 @@ export default function AdminSettingsPage() {
         if (profileData.data) {
           setProfile(profileData.data)
           setProfileName(profileData.data.name ?? "")
+          setProfileEmail(profileData.data.email ?? "")
+          setProfilePhone(profileData.data.phone ?? "")
         }
         if (notifData.data) {
           setNotifPrefs({
@@ -228,6 +234,8 @@ export default function AdminSettingsPage() {
   const saveProfile = async () => {
     const body: Record<string, string> = {}
     if (profileName !== profile?.name) body.name = profileName
+    if (profileEmail !== profile?.email) body.email = profileEmail
+    if (profilePhone !== profile?.phone) body.phone = profilePhone
     if (currentPassword && newPassword) {
       body.currentPassword = currentPassword
       body.newPassword = newPassword
@@ -250,7 +258,7 @@ export default function AdminSettingsPage() {
       setCurrentPassword(""); setNewPassword("")
       const p = await fetch("/api/admin/profile")
       const pj = await p.json()
-      if (pj.data) { setProfile(pj.data); setProfileName(pj.data.name) }
+      if (pj.data) { setProfile(pj.data); setProfileName(pj.data.name); setProfileEmail(pj.data.email ?? ""); setProfilePhone(pj.data.phone ?? "") }
     } catch (e: any) {
       premiumToast("error", e.message || "فشل حفظ الملف الشخصي")
     } finally { setProfileSaving(false) }
@@ -656,6 +664,17 @@ export default function AdminSettingsPage() {
             <div>
               <Label htmlFor="p-name">الاسم</Label>
               <Input id="p-name" value={profileName} onChange={e => setProfileName(e.target.value)} className="h-11 rounded-xl mt-1.5" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="p-email" className="flex items-center gap-1"><Mail className="size-3" aria-hidden="true" /> البريد الإلكتروني</Label>
+                <Input id="p-email" type="email" value={profileEmail} onChange={e => setProfileEmail(e.target.value)} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+              </div>
+              <div>
+                <Label htmlFor="p-phone" className="flex items-center gap-1"><Phone className="size-3" aria-hidden="true" /> رقم الهاتف</Label>
+                <Input id="p-phone" type="tel" value={profilePhone} onChange={e => setProfilePhone(e.target.value)} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

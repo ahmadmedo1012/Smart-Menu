@@ -52,6 +52,18 @@
 	--radius-md: 12px;
 	--radius-lg: 24px;
 	--radius-xl: 28px;
+	/* ── Easing tokens ── */
+	--ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+	--ease-smooth: cubic-bezier(0.16, 1, 0.2, 1);
+
+	/* ── Glass tokens ── */
+	--color-glass-bg: var(--glass-bg);
+	--color-glass-border: var(--glass-border);
+
+	/* ── Shadow tokens ── */
+	--shadow-glass: var(--glass-shadow);
+	--shadow-glass-lg: var(--glass-shadow-lg);
+	--shadow-glow: 0 0 25px rgba(246, 109, 15, 0.3);
 }
 
 :root {

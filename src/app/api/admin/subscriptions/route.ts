@@ -4,6 +4,7 @@ import { success, error, handleError, notFound } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 import { sendTelegramNotification } from "@/lib/telegram";
+import { eventEmitter } from "@/lib/events";
 
 const verifySchema = z.object({
   id: z.number().int().positive(),
@@ -74,6 +75,16 @@ export async function POST(request: NextRequest) {
       // Notify via Telegram — bypass event filter for critical payment events
       const msg = `✅ *تم تأكيد الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
       sendTelegramNotification(msg, { parseMode: "Markdown" });
+
+      eventEmitter.emit("admin-event", {
+        type: "payment",
+        title: "اشتراك جديد",
+        message: `تم تأكيد دفع الاشتراك ${existing.planName}`,
+        amount: existing.amount,
+        planName: existing.planName,
+        phone: existing.phone,
+        timestamp: new Date().toISOString(),
+      });
     } else if (status === "cancelled") {
       const msg = `❌ *تم إلغاء الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
       sendTelegramNotification(msg, { parseMode: "Markdown" });

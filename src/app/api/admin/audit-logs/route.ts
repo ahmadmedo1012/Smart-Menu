@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
+import type { Prisma } from "@/generated/prisma/client";
+import { AuditAction } from "@/generated/prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,11 +16,18 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get("action");
     const targetType = searchParams.get("targetType");
     const actorId = searchParams.get("actorId") ? Number(searchParams.get("actorId")) : undefined;
+    const search = searchParams.get("search");
 
-    const where: Record<string, unknown> = {};
-    if (action) where.action = action;
+    const where: Prisma.AuditLogWhereInput = {};
+    if (action) where.action = action as AuditAction;
     if (targetType) where.targetType = targetType;
     if (actorId) where.actorId = actorId;
+    if (search?.trim()) {
+      where.OR = [
+        { targetType: { contains: search.trim(), mode: "insensitive" } },
+        { ip: { contains: search.trim(), mode: "insensitive" } },
+      ];
+    }
 
     const [data, total] = await Promise.all([
       prisma.auditLog.findMany({
