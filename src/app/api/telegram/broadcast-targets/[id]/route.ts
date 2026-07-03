@@ -6,7 +6,7 @@ import { z } from "zod";
 
 const updateSchema = z.object({
   label: z.string().optional(),
-  chatId: z.string().optional(),
+  chatId: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
 });
 

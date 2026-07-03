@@ -29,10 +29,12 @@ async function testChatId(
   }
 }
 
-export async function GET(_: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const auth = await requireAdmin();
     if (!auth.authorized) return error("غير مصرح", 401);
+    const { searchParams } = new URL(request.url);
+    const dryRun = searchParams.get("dryRun") === "true";
 
     const config = await prisma.telegramConfig.findFirst();
 
@@ -47,13 +49,14 @@ export async function GET(_: NextRequest) {
       });
     }
 
-    // Test each broadcast target
     const broadcastTargets = await prisma.telegramBroadcastTarget.findMany();
     const targetResults = await Promise.allSettled(
       broadcastTargets.map(async (t) => {
         const test = config.botToken && config.isActive
-          ? await testChatId(config.botToken, t.chatId)
-          : { ok: false, error: "Bot inactive" };
+          ? dryRun
+            ? { ok: null as boolean | null, error: null as string | null }
+            : await testChatId(config.botToken, t.chatId)
+          : { ok: false as boolean | null, error: "Bot inactive" };
         return { id: t.id, label: t.label || t.chatId, chatId: t.chatId, isActive: t.isActive, ...test };
       }),
     );

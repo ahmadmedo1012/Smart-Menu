@@ -9,14 +9,14 @@ interface BroadcastOpts {
   parseMode?: "Markdown" | "HTML";
 }
 
-async function sendToChat(
+export async function sendToChat(
   botToken: string,
   chatId: string,
   message: string,
   opts?: BroadcastOpts,
 ): Promise<void> {
   const body: Record<string, string | number> = {
-    chat_id: chatId.startsWith("-") ? Number(chatId) : chatId,
+    chat_id: /^-?\d+$/.test(chatId) ? Number(chatId) : chatId,
     text: message,
   };
   if (opts?.parseMode) body.parse_mode = opts.parseMode;
@@ -59,8 +59,9 @@ async function gatherTargets(): Promise<Set<string>> {
 export async function broadcastToAll(
   message: string,
   opts?: BroadcastOpts,
+  existingConfig?: { botToken: string; isActive: boolean },
 ): Promise<BroadcastResult> {
-  const config = await prisma.telegramConfig.findFirst();
+  const config = existingConfig ?? await prisma.telegramConfig.findFirst();
   if (!config || !config.isActive || !config.botToken) {
     return { sent: 0, failed: [] };
   }

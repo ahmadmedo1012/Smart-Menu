@@ -36,6 +36,14 @@ interface DiagnoseResult {
   botTokenPreview: string | null
   events: string[]
   linkedAdmins: number
+  broadcastTargets?: {
+    id: number
+    label: string
+    chatId: string
+    isActive: boolean
+    ok: boolean | null
+    error: string | null
+  }[]
 }
 
 interface BroadcastTarget {
@@ -96,11 +104,13 @@ export default function AdminTelegramPage() {
       })
       .catch(() => {})
 
-    fetch("/api/telegram/diagnose")
+    fetch("/api/telegram/diagnose?dryRun=true")
       .then((r) => r.json())
       .then((json) => {
-        if (json.success && json.data)
+        if (json.success && json.data) {
           setLinkedAdmins(json.data.linkedAdmins ?? 0)
+          setDiagnose(json.data)
+        }
       })
       .catch(() => {})
   }, [])
@@ -580,6 +590,23 @@ export default function AdminTelegramPage() {
                   <p className="text-sm text-success">
                     اتصال API سليم — البوت يعمل بشكل صحيح
                   </p>
+                </div>
+              )}
+
+              {/* Per-target broadcast results */}
+              {diagnose.broadcastTargets && diagnose.broadcastTargets.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">نتائج جهات الإرسال</h4>
+                  <div className="space-y-2">
+                    {diagnose.broadcastTargets.map(t => (
+                      <div key={t.id} className="flex items-center justify-between p-2 rounded-lg bg-background/50 border border-border/20">
+                        <span className="text-sm truncate">{t.label || t.chatId}</span>
+                        {t.ok === true && <Badge variant="default">✅</Badge>}
+                        {t.ok === false && <Badge variant="destructive">❌ {t.error}</Badge>}
+                        {t.ok === null && <Badge variant="secondary">⏳ لم يُختبر</Badge>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

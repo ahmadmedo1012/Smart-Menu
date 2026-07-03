@@ -24,7 +24,7 @@ export async function notifyEvent(
   for (const [k, v] of Object.entries(data)) {
     lines.push(`• ${k}: ${v}`);
   }
-  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown" });
+  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown" }, config);
 }
 
 /** Alias for backward compatibility */
