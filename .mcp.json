@@ -4,6 +4,9 @@
       "command": "npx",
       "args": ["-y", "@lottiefiles/creator-mcp@latest"]
     },
+    "halai": {
+      "url": "https://mcp.hallah.ai/mcp"
+    },
     "puppeteer": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
