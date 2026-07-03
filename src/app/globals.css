@@ -442,12 +442,40 @@
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
-/* ── Skeleton (theme-aware) ── */
+/* ── Skeleton / Shimmer (theme-aware) ── */
 .skeleton {
 	background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
 	background-size: 200% 100%;
 	border-radius: var(--radius);
 	animation: shimmer 1.8s ease-in-out infinite;
+}
+.shimmer {
+	background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
+	background-size: 200% 100%;
+	border-radius: var(--radius);
+	animation: shimmer 2s ease-in-out infinite;
+}
+.light .shimmer {
+	background: linear-gradient(90deg, transparent 0%, oklch(0 0 0 / 0.04) 50%, transparent 100%);
+	background-size: 200% 100%;
+}
+
+/* ── Pulse glow (orange ring) ── */
+@keyframes pulse-glow {
+	0%, 100% { box-shadow: 0 0 8px oklch(0.55 0.19 45 / 0.15); }
+	50%      { box-shadow: 0 0 25px oklch(0.55 0.19 45 / 0.35); }
+}
+.animate-pulse-glow {
+	animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* ── Hero glow pulse (radial) ── */
+@keyframes hero-glow-pulse {
+	0%, 100% { opacity: 0.6; transform: scale(1); }
+	50%      { opacity: 1;   transform: scale(1.05); }
+}
+.animate-hero-glow-pulse {
+	animation: hero-glow-pulse 4s var(--ease-smooth) infinite;
 }
 
 /* ── Empty state ── */

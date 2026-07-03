@@ -93,7 +93,7 @@ export default function HeroSection() {
 							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02, transition: springSnappy }}
 							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, oklch(0.37 0.01 264), oklch(0.12 0.003 0) 30%, oklch(0.05 0.002 0) 70%, oklch(0.19 0.005 0))" }}
 						>
-							<div className="relative w-full h-full overflow-hidden bg-black" style={{ borderRadius: "2.3rem" }}>
+							<div className="relative w-full h-full overflow-hidden bg-black animate-pulse-glow" style={{ borderRadius: "2.3rem" }}>
 								<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black z-10" style={{ borderRadius: "0 0 1rem 1rem" }} />
 								<PhoneVideo />
 							</div>
