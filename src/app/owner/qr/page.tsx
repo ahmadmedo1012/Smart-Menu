@@ -95,6 +95,7 @@ export default function OwnerQRPage() {
         <div ref={qrRef} className="flex justify-center py-8 bg-white/30 dark:bg-white/5">
           {url ? (
             <div className="relative group">
+              {/* ponytail: raw <img> — external QR API URL. next/image remotePatterns doesn't support query-param-variant URLs (size changes per render). layout needs precise pixel dimensions (not fill+cover). */}
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=d97706`}
                 alt={`QR Code - ${name}`}

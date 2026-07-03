@@ -12,6 +12,7 @@ import BackButton from "@/components/shared/BackButton"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 interface Plan {
   id: number; name: string; nameAr: string; price: number;
@@ -205,7 +206,7 @@ export default function OwnerSettingsPage() {
           <div className="size-24 rounded-md overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
             {logo ? (
               <>
-                <img src={logo} alt="Logo" className="w-full h-full object-cover" loading="lazy" />
+                <OptimizedImage src={logo} alt="الشعار" className="size-full" priority={false} />
                 <button type="button" onClick={() => setLogo("")}
                   className="absolute top-1.5 right-1.5 size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X className="size-3" />
@@ -248,7 +249,7 @@ export default function OwnerSettingsPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
             {gallery.map((url, i) => (
               <div key={i} className="group relative aspect-square rounded-xl overflow-hidden bg-muted/20 border border-border/20">
-                <img src={url} alt={`صورة ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                <OptimizedImage src={url} alt={`صورة ${i + 1}`} className="size-full" />
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button type="button" onClick={() => removeGalleryImage(i)}
                     className="size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center hover:bg-destructive transition-colors">

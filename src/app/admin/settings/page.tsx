@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import ConfigEditor from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
+import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 interface Restaurant {
   id: number; name: string; slug: string; description: string
@@ -446,7 +447,7 @@ export default function AdminSettingsPage() {
               </div>
               {form.logo && (
                 <div className="size-20 rounded-xl overflow-hidden border">
-                  <img src={form.logo} alt="شعار المطعم" className="size-full object-cover" loading="lazy" />
+                  <OptimizedImage src={form.logo} alt="شعار المطعم" className="size-full" />
                 </div>
               )}
               <div className="flex justify-end pt-2">

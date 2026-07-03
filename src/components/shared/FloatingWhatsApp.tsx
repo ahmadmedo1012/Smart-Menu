@@ -15,7 +15,7 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
 				"size-14 rounded-full bg-orange text-white",
 				"flex items-center justify-center",
 				"shadow-xl shadow-orange/30",
-				"hover:bg-[#e05f0a] hover:scale-105 hover:shadow-2xl hover:shadow-orange/40",
+				"hover:bg-orange/90 hover:scale-105 hover:shadow-2xl hover:shadow-orange/40",
 				"transition-all duration-300",
 				"animate-fade-in"
 			)}

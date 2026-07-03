@@ -363,7 +363,7 @@ function ReferralQR({ url }: { url: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      { }
+      {/* ponytail: raw <img> — data: URL from qrcode.toDataURL(). next/image doesn't support data: URLs. */}
       <img
         src={qrDataUrl}
         alt="Referral QR"

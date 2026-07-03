@@ -102,6 +102,7 @@ export default function AdminQRPage() {
           {menuUrl && (
             <div className="flex justify-center py-6 bg-white/30 dark:bg-white/5 rounded-xl">
               <div className="relative group">
+                {/* ponytail: raw <img> — external QR API URL. next/image remotePatterns can't handle query-param-variant URLs. Needs precise pixel dimensions per size selection. */}
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=d97706`}
                   alt={`QR - ${selectedName}`}

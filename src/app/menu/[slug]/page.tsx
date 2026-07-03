@@ -11,6 +11,7 @@ import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
 import { LottieAnimation } from "@/components/shared/LottieAnimation";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 const GalleryCarousel = dynamicNext(() => import("@/components/menu/GalleryCarousel"));
 
@@ -120,7 +121,7 @@ export default async function PublicMenuPage({
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-16 pb-8 md:pt-14 md:pb-12 text-center animate-page-enter">
           {restaurant.logo ? (
             <div className="relative mx-auto mb-5 size-24 md:size-28 rounded-md overflow-hidden shadow-xl shadow-orange/15 ring-2 ring-orange/20 dark:ring-orange/15 animate-magnetic-float">
-              <img src={restaurant.logo} alt={restaurant.name} className="w-full h-full object-cover" loading="lazy" />
+              <OptimizedImage src={restaurant.logo} alt={restaurant.name} className="size-full" />
             </div>
           ) : (
             <div className="relative mx-auto mb-5 size-20 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 animate-magnetic-float" aria-hidden="true">

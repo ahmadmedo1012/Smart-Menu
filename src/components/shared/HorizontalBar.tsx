@@ -52,7 +52,8 @@ export default function HorizontalBar({
               <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: item.color || "#f66d0f" }}
+                  /* ponytail: CSS var not usable in JS `background` style prop in framer-motion. Inline oklch matches DESIGN.md orange. */
+                  style={{ background: item.color || "oklch(0.55 0.19 45)" }}
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }}

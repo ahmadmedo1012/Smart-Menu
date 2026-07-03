@@ -158,6 +158,7 @@ export default function GalleryCarousel({
 
           <div className="relative max-w-5xl max-h-[92vh] mx-4 w-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}>
+            {/* ponytail: raw <img> because OptimizedImage uses fill+object-cover. Lightbox needs object-contain with max-height constraint. next/image doesn't support this layout without hardcoding dimensions. */}
             <img src={images[lightboxIdx]} alt={`${restaurantName || "صورة"} ${lightboxIdx + 1}`}
               className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-scale-in"
               loading="lazy" />
