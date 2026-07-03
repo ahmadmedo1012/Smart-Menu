@@ -53,7 +53,8 @@ export async function POST(request: NextRequest) {
     const { customerPhone, customerName } = body;
     const cookieStore = await cookies();
     const cookieId = cookieStore.get("smart-menu-restaurant")?.value;
-    const restaurantId = body.restaurantId ?? (Number(cookieId) || 1);
+    const restaurantId = body.restaurantId ?? (cookieId ? Number(cookieId) : null);
+    if (!restaurantId) return error("معرف المطعم مطلوب. Restaurant ID is required.", 400);
 
     // Verify restaurant exists
     const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
