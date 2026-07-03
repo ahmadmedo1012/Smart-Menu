@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import type { MenuItemProp } from "./MenuItemCard";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { buildReceiptMessage } from "@/lib/receipt";
 import { useCart } from "@/store/cart";
 
@@ -120,7 +121,7 @@ export default function OrderDialog({
         {/* Image preview */}
         {item.image && (
           <div className="relative h-36 sm:h-44 bg-muted overflow-hidden">
-            <img src={item.image} alt={displayName} className="w-full h-full object-cover" loading="lazy" />
+            <OptimizedImage src={item.image} alt={displayName} className="size-full" aspectRatio="video" skeleton />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
             <button type="button" onClick={() => onOpenChange(false)}
               className="absolute top-3 start-3 size-8 rounded-sm bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center">
@@ -152,7 +153,7 @@ export default function OrderDialog({
             <div className="flex items-center gap-3 rounded-md bg-muted/40 p-3">
               <div className="size-12 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shrink-0 shadow-md">
                 {restaurantLogo ? (
-                  <img src={restaurantLogo} alt="" className="size-full object-cover rounded-md" loading="lazy" />
+                  <OptimizedImage src={restaurantLogo} alt="" className="size-full" skeleton={false} />
                 ) : (
                   <Store className="size-6 text-white" />
                 )}

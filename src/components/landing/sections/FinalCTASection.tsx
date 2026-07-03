@@ -5,17 +5,19 @@ import { motion } from "framer-motion"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { springGentle, springDefault, springSnappy } from "@/lib/motion"
+import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 export default function FinalCTASection() {
   return (
     <section className="relative overflow-hidden py-12 sm:py-16">
       {/* Background image — subtle */}
       <div className="absolute inset-0 z-0">
-        <img
+        <OptimizedImage
           src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1600&q=80"
           alt=""
-          className="w-full h-full object-cover opacity-[0.03]"
-          loading="lazy"
+          className="absolute inset-0"
+          imageClassName="object-cover opacity-[0.03]"
+          skeleton={false}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
       </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react"
 import { springGentle, springSnappy, slideVariants } from "@/lib/motion"
+import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 const testimonials = [
 	{
@@ -148,7 +149,7 @@ export default function TestimonialsSection() {
 								{/* Attribution */}
 								<div className="flex items-center gap-4">
 									<div className="size-11 sm:size-12 rounded-full overflow-hidden ring-2 ring-orange/20 ring-offset-2 ring-offset-card shrink-0">
-										<img src={t.avatar} alt={t.name} className="w-full h-full object-cover" />
+										<OptimizedImage src={t.avatar} alt={t.name} className="size-full" skeleton={false} />
 									</div>
 									<div>
 										<p className="text-sm font-medium text-foreground">{t.name}</p>

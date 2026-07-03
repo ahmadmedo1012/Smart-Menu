@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Plus, Minus, Star } from "lucide-react";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import ReviewSheet from "./ReviewSheet";
 
 export type MenuItemProp = {
@@ -42,7 +43,6 @@ const MenuItemCard = memo(function MenuItemCard({
   const currentPrice = item.discountedPrice ?? item.price;
   const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
   const hasRating = item.avgRating != null && item.ratingCount != null && item.ratingCount > 0;
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const [reviewSheetItem, setReviewSheetItem] = useState<{id: number; name: string} | null>(null);
@@ -58,19 +58,14 @@ const MenuItemCard = memo(function MenuItemCard({
       {/* Image container */}
       <div className="relative shrink-0 size-24 md:size-28 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
         {item.image && !imageError ? (
-          <>
-            {!imageLoaded && <div className="absolute inset-0 skeleton" />}
-            <img
-              src={item.image}
-              alt={displayName}
-              loading="lazy"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-              className={`h-full w-full object-cover transition-all duration-500 group-hover:scale-105 ${
-                imageLoaded ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          </>
+          <OptimizedImage
+            src={item.image}
+            alt={displayName}
+            aspectRatio="square"
+            skeleton
+            fallback={<span className="text-2xl text-orange/40">🍽️</span>}
+            onError={() => setImageError(true)}
+          />
         ) : (
           <div className="flex size-full items-center justify-center bg-gradient-to-br from-orange-muted/40 to-transparent">
             <span className="text-2xl text-orange/40">🍽️</span>

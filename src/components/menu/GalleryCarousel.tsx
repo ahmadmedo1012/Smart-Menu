@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight, X, Maximize2, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 
 export default function GalleryCarousel({
   images,
@@ -94,11 +95,12 @@ export default function GalleryCarousel({
               onClick={() => openLightbox(i)}
             >
               {loaded.has(i) && (
-                <img
+                <OptimizedImage
                   src={img}
                   alt={`${restaurantName || "صورة"} ${i + 1}`}
-                  className="size-full object-cover"
-                  loading="lazy"
+                  className="size-full"
+                  skeleton={false}
+                  priority={i === 0}
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />

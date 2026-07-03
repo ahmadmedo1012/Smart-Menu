@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { csrfFetch } from "@/lib/csrf-client";
 
 interface Item { id: number; name: string; nameAr?: string; description: string; descriptionAr?: string; price: number; discountedPrice: number | null; image: string; status: string; categoryId: number }
@@ -83,7 +84,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
                 <Upload className="size-4 text-muted-foreground" />
               </label>
             </div>
-            {form.image && <div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30"><img src={form.image} alt="" className="size-full object-cover" loading="lazy" /></div>}
+            {form.image && <div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30"><OptimizedImage src={form.image} alt="" className="size-full" skeleton={false} /></div>}
           </div>
           <div>
             <Label>الحالة</Label>

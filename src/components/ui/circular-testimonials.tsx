@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 /* ── Premium tokens ── */
@@ -67,11 +68,11 @@ function OrbitalThumb({
     >
       <div className="size-full p-[2px]">
         <div className="size-full rounded-full overflow-hidden bg-background">
-          <img
+          <OptimizedImage
             src={t.src}
             alt={t.name}
-            className="size-full object-cover"
-            loading="lazy"
+            className="size-full"
+            skeleton={false}
           />
         </div>
       </div>
@@ -225,10 +226,11 @@ export default function CircularTestimonials({
 
                 <div className="flex items-center justify-center gap-3">
                   <div className="size-10 rounded-full overflow-hidden ring-1 ring-border/30 shrink-0">
-                    <img
+                    <OptimizedImage
                       src={activeT.src}
                       alt={activeT.name}
-                      className="size-full object-cover"
+                      className="size-full"
+                      skeleton={false}
                     />
                   </div>
                   <div className="text-right rtl:text-left">
