@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       `• مزود: ${String(provider)}\n` +
       `• الحالة: قيد الانتظار`,
       { parseMode: "Markdown" }
-    ).catch(() => {});
+    );
 
     return success({ id: payment.id }, 201);
   } catch (e) {

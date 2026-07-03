@@ -1,54 +1,30 @@
 import { prisma } from "@/lib/db";
+import { broadcastToAll } from "@/lib/telegram-broadcast";
+
+type BroadcastResult = { sent: number; failed: { chatId: string; reason: string }[] };
 
 export async function sendTelegramNotification(
   message: string,
   opts?: { parseMode?: "Markdown" | "HTML" }
-): Promise<boolean> {
-  try {
-    const config = await prisma.telegramConfig.findFirst();
-    if (!config || !config.isActive || !config.botToken || !config.chatId) {
-      return false;
-    }
-    const body: Record<string, number | string> = {
-      chat_id: Number(config.chatId),
-      text: message,
-    };
-    if (opts?.parseMode) body.parse_mode = opts.parseMode;
-    const res = await fetch(
-      `https://api.telegram.org/bot${config.botToken}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }
-    );
-    if (!res.ok) {
-      const errBody = await res.text();
-      console.error("Telegram API error:", res.status, errBody.slice(0, 500));
-    }
-    return res.ok;
-  } catch {
-    return false;
-  }
+): Promise<BroadcastResult> {
+  return broadcastToAll(message, opts);
 }
 
 export async function notifyEvent(
   eventType: string,
   data: Record<string, unknown>
-): Promise<boolean> {
+): Promise<BroadcastResult> {
   const config = await prisma.telegramConfig.findFirst();
-  if (!config || !config.isActive) return false;
+  if (!config || !config.isActive) return { sent: 0, failed: [] };
   const activeEvents = (config.events as string[]) ?? [];
   if (activeEvents.length > 0 && !activeEvents.includes(eventType)) {
-    return false;
+    return { sent: 0, failed: [] };
   }
   const lines = [`*${eventType}*`];
   for (const [k, v] of Object.entries(data)) {
     lines.push(`• ${k}: ${v}`);
   }
-  return sendTelegramNotification(lines.join("\n"), {
-    parseMode: "Markdown",
-  });
+  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown" });
 }
 
 /** Alias for backward compatibility */
