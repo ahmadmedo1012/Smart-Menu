@@ -1,4 +1,4 @@
-import { chromium } from "@playwright/test";
+import { chromium } from "playwright";
 
 async function main() {
   const browser = await chromium.launch({
@@ -10,8 +10,8 @@ async function main() {
   for (const p of pages) {
     const context = await browser.newContext();
     const page = await context.newPage();
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const errors = [];
+    const warnings = [];
 
     page.on("console", (msg) => {
       if (msg.type() === "error") errors.push(msg.text());
@@ -27,7 +27,7 @@ async function main() {
       else console.log("  Console errors: NONE");
       if (warnings.length) console.log(`  Warnings (${warnings.length}):`, warnings.slice(0,3).join("\n    "));
       console.log(`  Title: ${await page.title()}`);
-    } catch (e: any) {
+    } catch (e) {
       console.log(`  FAILED: ${e.message.slice(0, 100)}`);
     }
     await context.close();
