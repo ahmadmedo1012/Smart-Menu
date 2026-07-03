@@ -18,6 +18,9 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
+  Plus,
+  Trash2,
+  Users,
 } from "lucide-react"
 
 interface TelegramConfig {
@@ -28,15 +31,24 @@ interface TelegramConfig {
 }
 
 interface DiagnoseResult {
-  exists: boolean
-  diagnostics: {
-    configExists: boolean
-    isActive: boolean
-    botTokenPreview: string | null
-    chatId: string | null
-    events: string[]
-  }
-  telegramApiError: string | null
+  configExists: boolean
+  isActive: boolean
+  botTokenPreview: string | null
+  events: string[]
+  linkedAdmins: number
+}
+
+interface BroadcastTarget {
+  id: number
+  label: string
+  chatId: string
+  isActive: boolean
+  createdAt: string
+}
+
+function maskChatId(id: string): string {
+  if (id.length <= 4) return id
+  return id.slice(0, 4) + "..." + id.slice(-3)
 }
 
 export default function AdminTelegramPage() {
@@ -53,6 +65,11 @@ export default function AdminTelegramPage() {
   const [diagnose, setDiagnose] = useState<DiagnoseResult | null>(null)
   const [showToken, setShowToken] = useState(false)
   const [eventsInput, setEventsInput] = useState("")
+  const [targets, setTargets] = useState<BroadcastTarget[]>([])
+  const [newLabel, setNewLabel] = useState("")
+  const [newChatId, setNewChatId] = useState("")
+  const [adding, setAdding] = useState(false)
+  const [linkedAdmins, setLinkedAdmins] = useState(0)
 
   useEffect(() => {
     fetch("/api/telegram/config")
@@ -71,6 +88,21 @@ export default function AdminTelegramPage() {
       })
       .catch(() => premiumToast("error", "فشل تحميل الإعدادات"))
       .finally(() => setLoading(false))
+
+    fetch("/api/telegram/broadcast-targets")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data) setTargets(json.data)
+      })
+      .catch(() => {})
+
+    fetch("/api/telegram/diagnose")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data)
+          setLinkedAdmins(json.data.linkedAdmins ?? 0)
+      })
+      .catch(() => {})
   }, [])
 
   const handleSave = async () => {
@@ -123,10 +155,74 @@ export default function AdminTelegramPage() {
       const json = await res.json()
       if (!json.success) throw new Error(json.error || "فشل التشخيص")
       setDiagnose(json.data)
+      setLinkedAdmins(json.data.linkedAdmins ?? 0)
     } catch (e: any) {
       premiumToast("error", e.message || "فشل التشخيص")
     } finally {
       setDiagnosing(false)
+    }
+  }
+
+  const handleAddTarget = async () => {
+    if (!newChatId.trim()) {
+      premiumToast("error", "يرجى إدخال معرف المحادثة")
+      return
+    }
+    setAdding(true)
+    try {
+      const res = await csrfFetch("/api/telegram/broadcast-targets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          label: newLabel.trim(),
+          chatId: newChatId.trim(),
+        }),
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || "فشل الإضافة")
+      setTargets((prev) => [json.data, ...prev])
+      setNewLabel("")
+      setNewChatId("")
+      premiumToast("success", "تمت إضافة جهة الإرسال")
+    } catch (e: any) {
+      premiumToast("error", e.message || "فشل إضافة جهة الإرسال")
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const handleToggle = async (id: number, isActive: boolean) => {
+    try {
+      const res = await csrfFetch(
+        `/api/telegram/broadcast-targets/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive }),
+        },
+      )
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || "فشل التحديث")
+      setTargets((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, isActive } : t)),
+      )
+    } catch (e: any) {
+      premiumToast("error", e.message || "فشل تحديث الحالة")
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await csrfFetch(
+        `/api/telegram/broadcast-targets/${id}`,
+        { method: "DELETE" },
+      )
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || "فشل الحذف")
+      setTargets((prev) => prev.filter((t) => t.id !== id))
+      premiumToast("success", "تم حذف جهة الإرسال")
+    } catch (e: any) {
+      premiumToast("error", e.message || "فشل حذف جهة الإرسال")
     }
   }
 
@@ -302,6 +398,124 @@ export default function AdminTelegramPage() {
         </div>
       </section>
 
+      {/* ─── Broadcast Targets ─── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Send className="size-5 text-muted-foreground" />
+          <h3 className="text-lg font-semibold">
+            جهات الإرسال (Broadcast Targets)
+          </h3>
+        </div>
+
+        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+          <div className="p-5 space-y-4">
+            {/* Add form */}
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Label htmlFor="tg-new-label">تسمية</Label>
+                <Input
+                  id="tg-new-label"
+                  value={newLabel}
+                  onChange={(e) => setNewLabel(e.target.value)}
+                  placeholder="مثال: قناة الإشعارات"
+                  className="h-11 rounded-xl mt-1.5"
+                />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="tg-new-chatid">معرف المحادثة</Label>
+                <Input
+                  id="tg-new-chatid"
+                  value={newChatId}
+                  onChange={(e) => setNewChatId(e.target.value)}
+                  placeholder="-100xxxx"
+                  className="h-11 rounded-xl mt-1.5 text-left"
+                  dir="ltr"
+                />
+              </div>
+              <Button
+                onClick={handleAddTarget}
+                disabled={adding || !newChatId.trim()}
+                className="rounded-xl gap-1 shrink-0"
+              >
+                {adding ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-4" />
+                )}
+                إضافة
+              </Button>
+            </div>
+
+            {/* Targets list */}
+            {targets.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                لا توجد جهات إرسال مضافة
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {targets.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/20"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {t.label || t.chatId}
+                      </p>
+                      <p
+                        className="text-xs font-mono text-muted-foreground"
+                        dir="ltr"
+                      >
+                        {maskChatId(t.chatId)}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={t.isActive}
+                      onCheckedChange={(v) => handleToggle(t.id, v)}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(t.id)}
+                      className="rounded-xl"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Linked admins */}
+            <p className="text-sm text-muted-foreground">
+              <Users className="size-4 inline-block align-text-bottom ml-1" />
+              عدد المشرفين المرتبطين: {linkedAdmins}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Broadcast Guide ─── */}
+      <section>
+        <div className="rounded-md bg-muted/30 border border-border/20 p-5">
+          <h3 className="text-sm font-semibold mb-2">
+            💡 خطوات التفعيل
+          </h3>
+          <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+            <li>
+              قم بإضافة البوت الخاص بالمنصة كمشرف (Admin) داخل قناتك أو
+              مجموعتك الخاصة.
+            </li>
+            <li>
+              تأكد من تفعيل صلاحية &quot;نشر الرسائل&quot; (Post Messages).
+            </li>
+            <li>
+              الصق معرف القناة (تبدأ بـ -100) هنا لحفظ الإعدادات.
+            </li>
+          </ol>
+        </div>
+      </section>
+
       {/* ─── Diagnose Results ─── */}
       {diagnose && (
         <section>
@@ -315,7 +529,7 @@ export default function AdminTelegramPage() {
               {/* Config exists */}
               <div className="flex items-center justify-between">
                 <span className="text-sm">الإعدادات موجودة</span>
-                {diagnose.diagnostics.configExists ? (
+                {diagnose.configExists ? (
                   <Badge variant="default" className="gap-1">
                     <CheckCircle2 className="size-3" /> نعم
                   </Badge>
@@ -329,7 +543,7 @@ export default function AdminTelegramPage() {
               {/* Is active */}
               <div className="flex items-center justify-between">
                 <span className="text-sm">البوت نشط</span>
-                {diagnose.diagnostics.isActive ? (
+                {diagnose.isActive ? (
                   <Badge variant="default" className="gap-1">
                     <CheckCircle2 className="size-3" /> نعم
                   </Badge>
@@ -343,16 +557,11 @@ export default function AdminTelegramPage() {
               {/* Bot token preview */}
               <div className="flex items-center justify-between">
                 <span className="text-sm">رمز البوت</span>
-                <span className="text-sm font-mono text-muted-foreground" dir="ltr">
-                  {diagnose.diagnostics.botTokenPreview ?? "—"}
-                </span>
-              </div>
-
-              {/* Chat ID */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm">معرف المحادثة</span>
-                <span className="text-sm font-mono text-muted-foreground" dir="ltr">
-                  {diagnose.diagnostics.chatId ?? "—"}
+                <span
+                  className="text-sm font-mono text-muted-foreground"
+                  dir="ltr"
+                >
+                  {diagnose.botTokenPreview ?? "—"}
                 </span>
               </div>
 
@@ -360,27 +569,12 @@ export default function AdminTelegramPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm">الأحداث</span>
                 <span className="text-sm text-muted-foreground">
-                  {(diagnose.diagnostics.events ?? []).join(", ") || "—"}
+                  {(diagnose.events ?? []).join(", ") || "—"}
                 </span>
               </div>
 
-              {/* API error */}
-              {diagnose.telegramApiError && (
-                <div className="flex items-start gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
-                  <XCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
-                  <div>
-                    <p className="text-sm font-medium text-destructive">
-                      خطأ في API تليجرام
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 break-all" dir="ltr">
-                      {diagnose.telegramApiError}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* No API error */}
-              {!diagnose.telegramApiError && diagnose.exists && (
+              {/* Config exists → healthy */}
+              {diagnose.configExists && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/20">
                   <CheckCircle2 className="size-4 shrink-0 text-success" />
                   <p className="text-sm text-success">
