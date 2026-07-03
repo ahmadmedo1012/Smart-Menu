@@ -10,23 +10,23 @@ import { cn } from "@/lib/utils";
 
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 
-function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
-  const iconMap: Record<ToastIcon, { icon: typeof CheckCircle; color: string }> = {
-    success: { icon: CheckCircle, color: "text-emerald-500" },
-    error: { icon: AlertCircle, color: "text-red-500" },
-    info: { icon: Info, color: "text-orange" },
-    cart: { icon: ShoppingCart, color: "text-orange" },
-    login: { icon: LogIn, color: "text-emerald-500" },
-    logout: { icon: LogOut, color: "text-muted-foreground" },
-    star: { icon: Star, color: "text-amber-400" },
-    gift: { icon: Gift, color: "text-orange" },
-    refresh: { icon: RefreshCw, color: "text-orange" },
-    save: { icon: Save, color: "text-emerald-500" },
-    trash: { icon: Trash2, color: "text-red-500" },
-    copy: { icon: Copy, color: "text-orange" },
-  };
+const iconConfig = {
+  success: { icon: CheckCircle, bg: "bg-emerald-500/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  error: { icon: AlertCircle, bg: "bg-destructive/12", color: "var(--destructive, oklch(0.6 0.22 25))" },
+  info: { icon: Info, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
+  cart: { icon: ShoppingCart, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
+  login: { icon: LogIn, bg: "bg-emerald-500/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  logout: { icon: LogOut, bg: "bg-muted", color: "var(--muted-foreground)" },
+  star: { icon: Star, bg: "bg-amber-500/12", color: "var(--warning, oklch(0.7 0.16 80))" },
+  gift: { icon: Gift, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
+  refresh: { icon: RefreshCw, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
+  save: { icon: Save, bg: "bg-emerald-500/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  trash: { icon: Trash2, bg: "bg-destructive/12", color: "var(--destructive, oklch(0.6 0.22 25))" },
+  copy: { icon: Copy, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
+} as const;
 
-  const m = iconMap[icon];
+function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
+  const cfg = iconConfig[icon];
 
   if (anim) {
     return (
@@ -36,10 +36,10 @@ function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
     );
   }
 
-  const Icon = m.icon;
+  const Icon = cfg.icon;
   return (
-    <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", icon === "error" || icon === "trash" ? "bg-red-500/10" : icon === "success" ? "bg-emerald-500/10" : "bg-orange-muted")}>
-      <Icon className={cn("size-4.5", m.color)} />
+    <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
+      <Icon className="size-[18px]" style={{ color: cfg.color }} />
     </div>
   );
 }
@@ -60,11 +60,11 @@ export function premiumToast(
         <ToastIcon icon={icon} anim={opts?.anim ?? icon === "cart"} />
         <div className="min-w-0 flex-1 pt-0.5">
           <p className="text-sm font-semibold leading-tight">{title}</p>
-          {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
+          {description && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); toast.dismiss(t); }}
-          className="shrink-0 size-6 rounded-md flex items-center justify-center hover:bg-muted transition-colors"
+          className="shrink-0 size-6 rounded-md flex items-center justify-center hover:bg-muted transition-colors opacity-40 hover:opacity-100"
           aria-label="إغلاق"
         >
           <X className="size-3.5 text-muted-foreground" />

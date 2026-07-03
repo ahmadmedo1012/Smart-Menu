@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, memo } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -17,14 +18,23 @@ interface AreaChartProps {
   showAxis?: boolean
 }
 
-export default function AreaChart({
+interface TooltipState {
+  x: number
+  y: number
+  label: string
+  value: number
+}
+
+const AreaChart = memo(function AreaChart({
   data,
   height = 200,
-  color = "#f66d0f",
+  color = "oklch(0.55 0.19 45)",
   gradientId = "area-gradient",
   className,
   showAxis = true,
 }: AreaChartProps) {
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+
   if (data.length === 0) return null
 
   const width = 600
@@ -46,16 +56,16 @@ export default function AreaChart({
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`
 
   return (
-    <div className={cn("w-full", className)}>
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+    <div className={cn("w-full relative", className)}>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Area chart">
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+            <stop offset="0%" stopColor={color} stopOpacity={0.3} />
             <stop offset="100%" stopColor={color} stopOpacity={0.02} />
           </linearGradient>
         </defs>
 
-        {/* Grid lines */}
+        {/* Grid lines — recessive */}
         {showAxis && [0, 0.25, 0.5, 0.75, 1].map((pct) => {
           const y = padding.top + chartH * (1 - pct)
           return (
@@ -66,7 +76,7 @@ export default function AreaChart({
               x2={width - padding.right}
               y2={y}
               stroke="currentColor"
-              strokeOpacity={0.08}
+              strokeOpacity={0.06}
               strokeDasharray="4 4"
             />
           )
@@ -81,7 +91,7 @@ export default function AreaChart({
           transition={{ duration: 0.8, ease: "easeOut" }}
         />
 
-        {/* Line */}
+        {/* Line — thin 2px */}
         <motion.path
           d={linePath}
           fill="none"
@@ -94,20 +104,33 @@ export default function AreaChart({
           transition={{ duration: 1, ease: "easeInOut" }}
         />
 
-        {/* Dots */}
+        {/* Hit targets + Dots */}
         {points.map((p, i) => (
-          <motion.circle
-            key={i}
-            cx={p.x}
-            cy={p.y}
-            r={3}
-            fill={color}
-            stroke="white"
-            strokeWidth={2}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8 + i * 0.03, duration: 0.3 }}
-          />
+          <g key={i}>
+            {/* Invisible wide hit target */}
+            <rect
+              x={p.x - 16}
+              y={padding.top}
+              width={32}
+              height={chartH}
+              fill="transparent"
+              className="cursor-pointer"
+              onMouseEnter={() => setTooltip({ x: p.x, y: p.y - 12, label: p.label, value: p.value })}
+              onMouseLeave={() => setTooltip(null)}
+            />
+            {/* Dot */}
+            <motion.circle
+              cx={p.x}
+              cy={p.y}
+              r={3}
+              fill={color}
+              stroke="var(--background)"
+              strokeWidth={2}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.8 + i * 0.03, duration: 0.3 }}
+            />
+          </g>
         ))}
 
         {/* Labels */}
@@ -120,13 +143,28 @@ export default function AreaChart({
                 x={points[i].x}
                 y={height - 5}
                 textAnchor="middle"
-                className="fill-muted-foreground text-[10px]"
+                className="fill-muted-foreground/60 text-[10px]"
               >
                 {d.label}
               </text>
             ) : null
           )}
       </svg>
+
+      {/* Tooltip */}
+      {tooltip && (
+        <div
+          className="absolute pointer-events-none z-10 -translate-x-1/2"
+          style={{ left: tooltip.x, top: tooltip.y }}
+        >
+          <div className="rounded-md border border-border/40 bg-card/95 px-2.5 py-1.5 text-xs shadow-lg backdrop-blur-xl whitespace-nowrap">
+            <p className="font-medium text-foreground">{tooltip.label}</p>
+            <p className="text-muted-foreground tabular-nums" style={{ color }}>{tooltip.value}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
-}
+})
+
+export default AreaChart
