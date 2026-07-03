@@ -1,16 +1,8 @@
 import { prisma } from "./db";
-import { unstable_cache } from "next/cache";
 
 export async function getConfig(key: string): Promise<unknown> {
-  const cached = unstable_cache(
-    async () => {
-      const entry = await prisma.systemConfig.findUnique({ where: { key } });
-      return entry?.value ?? null;
-    },
-    [`system-config-${key}`],
-    { tags: ["system-config"], revalidate: 60 }
-  );
-  return cached();
+  const entry = await prisma.systemConfig.findUnique({ where: { key } });
+  return entry?.value ?? null;
 }
 
 export async function getConfigOrThrow<T>(key: string): Promise<T> {
