@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 
 // Test chatId normalization logic (branch: group chats prefixed "-" → Number)
-function prepBody(chatId: string, text: string) {
+function prepBody(chatId: string, text?: string) {
   return {
     chat_id: chatId.startsWith("-") ? Number(chatId) : chatId,
     text,
