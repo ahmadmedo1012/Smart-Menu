@@ -5,6 +5,14 @@ updated: 2026-07-03
 
 # 📊 لوحة التحكم - Smart Menu
 
+## 🔴 صندوق الوارد
+```dataview
+TABLE created AS "التاريخ", source AS "المصدر"
+FROM "0-📥 صندوق-الوارد-Inbox"
+WHERE contains(tags, "حالة/معلق")
+SORT created ASC
+```
+
 ## 🔴 مهام قيد التنفيذ
 ```dataview
 TABLE priority, targetDate, project
@@ -40,3 +48,10 @@ FROM "1-Projects"
 FLATTEN file.tasks AS task
 GROUP BY project
 ```
+
+## 🛠 اختصارات
+| اختصار | يفتح |
+|--------|------|
+| [[🧠 الدليل-الرئيسي-MOC]] | الخريطة الكاملة |
+| [[المراجعات-الدورية]] | جدول المراجعات |
+| [[صندوق-الوارد]] | Inbox |
