@@ -1,42 +1,33 @@
 import { prisma } from "@/lib/db";
-import { error } from "@/lib/api-helpers";
-import { z } from "zod";
-import { createSession } from "@/lib/session";
 import { cookies } from "next/headers";
 
-export async function POST(request: Request) {
+export async function GET() {
+  const steps: string[] = [];
   try {
-    // Step 1: Parse
-    const body = await request.json();
-    const { username, password } = body;
-
-    // Step 2: Find user
+    steps.push("prisma: starting");
     const user = await prisma.user.findUnique({
-      where: { username },
-      select: { id: true, username: true, password: true, name: true, role: true, restaurantId: true },
+      where: { username: "admin" },
+      select: { id: true, username: true, role: true, password: true },
     });
-    if (!user) return Response.json({ step: "findUser", error: "not found" });
+    steps.push(`prisma: user=${user?.id} role=${user?.role} pw_len=${user?.password.length}`);
+    if (!user) return Response.json({ steps, error: "user not found" });
 
-    // Step 3: Verify hash
+    steps.push("verifyHash: starting");
     const { verifyHash } = await import("@/lib/hash");
-    const valid = verifyHash(password, user.password);
-    if (!valid) return Response.json({ step: "verifyHash", valid, pw_len: user.password.length, pw_prefix: user.password.substring(0, 30) });
+    const valid = verifyHash("admin123", user.password);
+    steps.push(`verifyHash: ${valid}`);
 
-    // Step 4: Update lastLogin
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
+    steps.push("createSession: starting");
+    // test just creating session without actually doing it
+    const { createSession } = await import("@/lib/session");
+    steps.push("createSession: imported OK");
 
-    // Step 5: Create session
-    await createSession(user.id);
+    steps.push("cookies: starting");
+    const c = await cookies();
+    steps.push(`cookies: OK`);
 
-    // Step 6: Set cookies
-    const cookieStore = await cookies();
-    cookieStore.set("test-cookie", "ok");
-
-    return Response.json({ step: "done", success: true, role: user.role });
+    return Response.json({ steps, success: true });
   } catch (e: any) {
-    return Response.json({ step: "catch", error: e?.message || String(e), stack: e?.stack?.substring(0, 500) });
+    return Response.json({ steps, error: e?.message || String(e), stack: e?.stack?.substring(0, 2000) }, { status: 500 });
   }
 }
