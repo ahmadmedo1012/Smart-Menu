@@ -105,7 +105,7 @@ export async function DELETE(
 ) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized || auth.role !== "admin") {
+    if (!auth.authorized || !["super_admin","sub_admin","admin"].includes(auth.role ?? "")) {
       return apiError("غير مصرح", 401);
     }
     const { id } = await params;

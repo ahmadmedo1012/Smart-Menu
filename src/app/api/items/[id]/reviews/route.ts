@@ -31,7 +31,7 @@ export async function GET(
   const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
 
   const auth = await requireAuth().catch(() => ({ authorized: false as const }));
-  const isOwner = auth.authorized && (auth.role === "admin" || auth.role === "owner");
+  const isOwner = auth.authorized && (["super_admin","sub_admin","admin"].includes(auth.role ?? "") || auth.role === "owner");
 
   const [reviews, stats] = await Promise.all([
     prisma.review.findMany({

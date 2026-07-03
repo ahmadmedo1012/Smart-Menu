@@ -1,11 +1,11 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { PhoneVideo } from "./PhoneVideo"
 import { springGentle, springDefault, springSnappy } from "@/lib/motion"
 
@@ -18,7 +18,7 @@ export default function HeroSection() {
 	return (
 		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0">
-				<Image src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80" alt="" fill className="object-cover opacity-[0.08] sm:opacity-15" sizes="100vw" priority />
+				<OptimizedImage src="/hero-bg.webp" alt="" className="absolute inset-0" imageClassName="object-cover opacity-[0.08] sm:opacity-15" skeleton={false} priority />
 				<div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
 			</div>
 
