@@ -56,9 +56,10 @@ export function LivePaymentToast() {
 
     es.onerror = () => es.close();
 
+    const timeouts = timeoutsRef.current;
     return () => {
       es.close();
-      timeoutsRef.current.forEach(clearTimeout);
+      timeouts.forEach(clearTimeout);
     };
   }, []);
 
