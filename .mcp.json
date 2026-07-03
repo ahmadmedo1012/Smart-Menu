@@ -1,15 +1,21 @@
 {
   "mcpServers": {
-    "lottiefiles-creator": {
-      "command": "npx",
-      "args": ["-y", "@lottiefiles/creator-mcp@latest"]
-    },
     "halai": {
       "url": "https://mcp.hallah.ai/mcp"
     },
+    "lottiefiles-creator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@lottiefiles/creator-mcp@latest"
+      ]
+    },
     "puppeteer": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ]
     }
   }
 }

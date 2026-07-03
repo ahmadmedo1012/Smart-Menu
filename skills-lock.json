@@ -1,6 +1,36 @@
 {
   "version": 1,
   "skills": {
+    "halai-<TODO-short-name>": {
+      "source": "hallah-ai/skills",
+      "sourceType": "github",
+      "skillPath": "_template/SKILL.md",
+      "computedHash": "560cb884054821db35b48afa05e1beb28ad748d404eed3f340b4cffa6fcb5904"
+    },
+    "halai-generate": {
+      "source": "hallah-ai/skills",
+      "sourceType": "github",
+      "skillPath": "halai-generate/SKILL.md",
+      "computedHash": "abdcecf14717567a4ba8677cbfcdf5adb714ee62ae1f9b3d4e2c2da9d7e1278d"
+    },
+    "halai-marketing-studio": {
+      "source": "hallah-ai/skills",
+      "sourceType": "github",
+      "skillPath": "halai-marketing-studio/SKILL.md",
+      "computedHash": "e4a651cc6786107f2b3d151de39be215600ef98fcf7939f9e111a9b7721b31c1"
+    },
+    "halai-product-studio": {
+      "source": "hallah-ai/skills",
+      "sourceType": "github",
+      "skillPath": "halai-product-studio/SKILL.md",
+      "computedHash": "c3d4b19981480a302e200468ea2dc7f4b7b703a125715865604b0e9eb67ef77c"
+    },
+    "halai-ugc-studio": {
+      "source": "hallah-ai/skills",
+      "sourceType": "github",
+      "skillPath": "halai-ugc-studio/SKILL.md",
+      "computedHash": "9f60eb662a4a0c38171913fc0418dca28cba8a6cae1be1e151b9c1c074abbcc5"
+    },
     "neon": {
       "source": "neondatabase/agent-skills",
       "sourceType": "github",
