@@ -31,7 +31,7 @@ export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, rol
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-border/30 bg-background/70 backdrop-blur-2xl transition-transform duration-300"
+      className="sticky top-0 z-30 border-b border-border/30 bg-background/70 backdrop-blur-2xl transition-transform duration-300"
       style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
     >
       <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6 lg:px-8">

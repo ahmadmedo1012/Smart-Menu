@@ -44,29 +44,31 @@ export async function PUT(request: NextRequest) {
 
     const body = upsertSchema.parse(await request.json());
 
-    // Encrypt secret values at rest
-    const value = body.isSecret && typeof body.value === "string"
-      ? await encryptValue(body.value)
+    // Encrypt secret values at rest — serialize non-strings so encryption always runs
+    const value = body.isSecret
+      ? await encryptValue(typeof body.value === "string" ? body.value : JSON.stringify(body.value))
       : body.value;
 
-    const config = await prisma.systemConfig.upsert({
-      where: { key: body.key },
-      update: {
-        value,
-        category: body.category,
-        isSecret: body.isSecret,
-        description: body.description,
-        updatedBy: auth.userId ?? undefined,
-      },
-      create: {
-        key: body.key,
-        value,
-        category: body.category,
-        isSecret: body.isSecret,
-        description: body.description,
-        updatedBy: auth.userId ?? undefined,
-      },
-      select: { id: true, key: true, category: true, isSecret: true, description: true, updatedAt: true },
+    const config = await prisma.$transaction(async (tx) => {
+      return tx.systemConfig.upsert({
+        where: { key: body.key },
+        update: {
+          value,
+          category: body.category,
+          isSecret: body.isSecret,
+          description: body.description,
+          updatedBy: auth.userId ?? undefined,
+        },
+        create: {
+          key: body.key,
+          value,
+          category: body.category,
+          isSecret: body.isSecret,
+          description: body.description,
+          updatedBy: auth.userId ?? undefined,
+        },
+        select: { id: true, key: true, category: true, isSecret: true, description: true, updatedAt: true },
+      });
     });
 
     revalidateTag("system-config", { expire: 60 });

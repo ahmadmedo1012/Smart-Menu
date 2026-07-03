@@ -70,7 +70,7 @@ export function LivePaymentToast() {
   if (events.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-[9999] flex flex-col gap-3 w-80">
+    <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-3 w-80">
       <AnimatePresence initial={false}>
         {events.map((evt) => (
           <motion.div

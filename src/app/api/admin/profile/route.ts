@@ -10,6 +10,8 @@ import { verifyHash, hashPassword } from "@/lib/hash";
 const updateSchema = z
   .object({
     name: z.string().min(1).max(100).optional(),
+    email: z.string().email().optional().or(z.literal("")),
+    phone: z.string().optional(),
     currentPassword: z.string().optional(),
     newPassword: z.string().min(6).optional(),
   })
@@ -64,9 +66,11 @@ export async function PUT(request: NextRequest) {
     const body = updateSchema.parse(await request.json());
 
     const hasName = body.name !== undefined;
+    const hasEmail = body.email !== undefined;
+    const hasPhone = body.phone !== undefined;
     const hasPassword = body.newPassword !== undefined;
 
-    if (!hasName && !hasPassword) {
+    if (!hasName && !hasEmail && !hasPhone && !hasPassword) {
       return error("لا توجد بيانات للتحديث", 400);
     }
 
@@ -86,6 +90,8 @@ export async function PUT(request: NextRequest) {
       where: { id: auth.userId },
       data: {
         ...(body.name && { name: body.name }),
+        ...(body.email !== undefined && { email: body.email }),
+        ...(body.phone !== undefined && { phone: body.phone }),
         ...(body.newPassword && { password: hashPassword(body.newPassword) }),
       },
     });
@@ -98,6 +104,8 @@ export async function PUT(request: NextRequest) {
       metadata: {
         updatedFields: [
           ...(hasName ? ["name"] : []),
+          ...(hasEmail ? ["email"] : []),
+          ...(hasPhone ? ["phone"] : []),
           ...(hasPassword ? ["password"] : []),
         ],
       },

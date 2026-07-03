@@ -1,3 +1,19 @@
+/*
+ * Z-INDEX LAYER REGISTRY
+ * ======================
+ * base       0-10     Default content
+ * sticky    10-20    Sticky headers, sidebar
+ * dropdown  30-40    Dropdowns, selects
+ * drawer    40-50    Mobile side drawers (Sheet)
+ * header    40-50    LayoutHeader
+ * modal     50-60    Dialogs, modals (Dialog)
+ * toast     60-70    Toast notifications (sonner)
+ * popover   70-80    Popovers, tooltips
+ * live-toast 80-90   LivePaymentToast (bottom-left)
+ * overlay   90-100   Full-screen overlays
+ * max      99999     Emergency overlays
+ */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
