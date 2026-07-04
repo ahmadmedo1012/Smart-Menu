@@ -15,8 +15,8 @@ export function PhoneVideo() {
       style={{ borderRadius: "2.3rem", background: BG, minWidth: 0 }}
     >
       <VideoWrapper
-        src="/hero-intro.mp4"
-        poster="/hero-poster.webp"
+        src="/video/promo.mp4"
+        poster="/video/promo-poster.webp"
         className="size-full"
         posterClassName="object-cover"
       />
