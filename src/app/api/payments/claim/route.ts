@@ -76,24 +76,17 @@ export async function POST(request: NextRequest) {
       select: { id: true, status: true, createdAt: true },
     });
 
-    // Send interactive inline keyboard to admin allowlist
-    // Priority: env var first (Vercel), then DB config (admin panel)
+    // Send interactive inline keyboard to admin allowlist + broadcast targets
     const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
-    const envTokenPresent = !!process.env.TELEGRAM_BOT_TOKEN;
     const adminIds = getAdminTelegramIds();
-    const hasAdminIds = adminIds.length > 0;
+    const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
+      where: { isActive: true },
+      select: { chatId: true },
+    });
 
-    let keyboardSent = false;
-    let keyboardError = "";
-
-    if (botToken && hasAdminIds) {
+    if (botToken && (adminIds.length > 0 || broadcastTargets.length > 0)) {
       const chatIds = new Set<string>();
       for (const id of adminIds) chatIds.add(String(id));
-
-      const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
-        where: { isActive: true },
-        select: { chatId: true },
-      });
       for (const t of broadcastTargets) chatIds.add(t.chatId);
 
       if (chatIds.size > 0) {
@@ -115,10 +108,9 @@ export async function POST(request: NextRequest) {
             ], { parseMode: "Markdown" });
             if (sent) {
               telegramMessages.push({ chatId: sent.chat.id, messageId: sent.message_id });
-              keyboardSent = true;
             }
           } catch (e: any) {
-            keyboardError = `chat ${chatId}: ${e.message}`;
+            console.error("[payments/claim] keyboard send error:", e);
           }
         }
 
@@ -129,16 +121,7 @@ export async function POST(request: NextRequest) {
           });
         }
       }
-    } else {
-      keyboardError = `blocked: botToken=${!!botToken} adminIds=${adminIds.length} envToken=${envTokenPresent}`;
     }
-
-    // Log keyboard result to SystemConfig for diagnostics
-    await prisma.systemConfig.upsert({
-      where: { key: "diag_last_keyboard" },
-      update: { value: { paymentId: payment.id, timestamp: Date.now(), sent: keyboardSent, error: keyboardError, envToken: envTokenPresent, adminCount: adminIds.length } },
-      create: { key: "diag_last_keyboard", value: { paymentId: payment.id, timestamp: Date.now(), sent: keyboardSent, error: keyboardError, envToken: envTokenPresent, adminCount: adminIds.length }, category: "diagnostics" },
-    });
 
     return success(payment, 201);
   } catch (e) {
