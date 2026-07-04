@@ -5,6 +5,8 @@ import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { notifyEvent } from "@/lib/telegram";
+import { getAdminTelegramIds } from "@/lib/telegram-admin";
+import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 
 const claimSchema = z.object({
   planId: z.number().int().positive(),
@@ -65,17 +67,77 @@ export async function POST(request: NextRequest) {
         metadata: {
           tempRestaurantName,
           tempRestaurantSlug,
+          telegramMessages: [],
         },
       },
       select: { id: true, status: true, createdAt: true },
     });
 
+    // Notify existing broadcast targets (plain text, no buttons)
     await notifyEvent("payment_claimed", {
       userId: auth.userId,
       plan: plan.name,
       tempRestaurantName,
       tempRestaurantSlug,
     });
+
+    // Send interactive inline keyboard to admin allowlist
+    const config = await prisma.telegramConfig.findFirst();
+    const botToken = config?.botToken || process.env.TELEGRAM_BOT_TOKEN;
+    if (botToken) {
+      const adminIds = getAdminTelegramIds();
+      if (adminIds.length > 0) {
+        // Resolve admin IDs to chat IDs — adminIds are Telegram user IDs, match against telegramChatId
+        const linkedUsers = await prisma.user.findMany({
+          where: { telegramChatId: { in: adminIds.map(String) } },
+          select: { telegramChatId: true },
+        });
+        // Fallback: use numeric admin IDs directly (group/supergroup chat IDs)
+        const linkedSet = new Set(linkedUsers.map((u) => u.telegramChatId!));
+        const directIds = adminIds.filter((id) => !linkedSet.has(String(id)));
+        const chatIds = [
+          ...new Set([
+            ...linkedUsers.map((u) => u.telegramChatId!),
+            ...directIds.map(String),
+          ]),
+        ];
+
+        const msgParts = [
+          `🆕 *طلب اشتراك جديد* #${payment.id}`,
+          `• المستخدم: #${auth.userId}`,
+          `• الباقة: ${plan.name}`,
+          `• الرقم: ${phone}`,
+          `• المبلغ: ${amount} د.ل`,
+        ];
+        const msg = msgParts.join("\n");
+
+        const telegramMessages: { chatId: number; messageId: number }[] = [];
+
+        for (const chatId of chatIds) {
+          const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
+            [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
+            [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
+          ], { parseMode: "Markdown" });
+          if (sent) {
+            telegramMessages.push({ chatId: sent.chat.id, messageId: sent.message_id });
+          }
+        }
+
+        // Store message refs in payment metadata for post-resolution cleanup
+        if (telegramMessages.length > 0) {
+          await prisma.subscriptionPayment.update({
+            where: { id: payment.id },
+            data: {
+              metadata: {
+                tempRestaurantName,
+                tempRestaurantSlug,
+                telegramMessages,
+              },
+            },
+          });
+        }
+      }
+    }
 
     return success(payment, 201);
   } catch (e) {

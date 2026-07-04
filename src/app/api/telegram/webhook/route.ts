@@ -1,6 +1,13 @@
 import type { NextRequest } from "next/server";
 import { createHmac } from "crypto";
 import { prisma } from "@/lib/db";
+import { getAdminTelegramIds } from "@/lib/telegram-admin";
+import { resolveSubscriptionPayment } from "@/lib/subscription-decisions";
+import {
+  editMessageReplyMarkup,
+  editMessageText,
+  answerCallbackQuery,
+} from "@/lib/telegram-api";
 
 interface TelegramUpdate {
   message?: {
@@ -15,6 +22,101 @@ interface TelegramUpdate {
   };
 }
 
+async function getBotToken(): Promise<string | null> {
+  const config = await prisma.telegramConfig.findFirst();
+  return config?.botToken || process.env.TELEGRAM_BOT_TOKEN || null;
+}
+
+async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_query"]>): Promise<Response> {
+  const botToken = await getBotToken();
+  if (!botToken) {
+    console.error("[webhook] no bot token configured");
+    return new Response("OK", { status: 200 });
+  }
+
+  // Gate 1: only allowlisted admin Telegram IDs may act
+  const adminIds = getAdminTelegramIds();
+  if (!adminIds.includes(cq.from.id)) {
+    await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
+    return new Response("OK", { status: 200 });
+  }
+
+  const callbackData = cq.data ?? "";
+  const colonIdx = callbackData.indexOf(":");
+  if (colonIdx === -1) {
+    await answerCallbackQuery(botToken, cq.id, "بيانات غير صالحة", true);
+    return new Response("OK", { status: 200 });
+  }
+
+  const action = callbackData.slice(0, colonIdx);
+  const paymentId = Number(callbackData.slice(colonIdx + 1));
+  if (!Number.isFinite(paymentId) || paymentId <= 0) {
+    await answerCallbackQuery(botToken, cq.id, "بيانات غير صالحة", true);
+    return new Response("OK", { status: 200 });
+  }
+
+  let decision: "verified" | "cancelled";
+  let toastSuccess: string;
+  let statusLine: string;
+
+  if (action === "sub_app") {
+    decision = "verified";
+    toastSuccess = "✅ تم التفعيل والموافقة";
+    statusLine = "\n\n⚡ [الحالة: تم التفعيل والموافقة بواسطة المشرف]";
+  } else if (action === "sub_rej") {
+    decision = "cancelled";
+    toastSuccess = "❌ تم رفض الطلب";
+    statusLine = "\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]";
+  } else {
+    await answerCallbackQuery(botToken, cq.id, "إجراء غير معروف", true);
+    return new Response("OK", { status: 200 });
+  }
+
+  const result = await resolveSubscriptionPayment(paymentId, decision);
+
+  // Strip keyboard from the tapped message
+  if (cq.message?.chat?.id && cq.message?.message_id) {
+    await editMessageReplyMarkup(botToken, cq.message.chat.id, cq.message.message_id);
+  }
+
+  if (!result.ok) {
+    // Already processed or not found — toast reason, update text
+    if (cq.message?.chat?.id && cq.message?.message_id) {
+      await editMessageText(botToken, cq.message.chat.id, cq.message.message_id, `${result.reason}${statusLine}`);
+    }
+    await answerCallbackQuery(botToken, cq.id, result.reason, true);
+    return new Response("OK", { status: 200 });
+  }
+
+  // Success — update message text with status line
+  if (cq.message?.chat?.id && cq.message?.message_id) {
+    await editMessageText(botToken, cq.message.chat.id, cq.message.message_id, `✅ ${decision === "verified" ? "تم التفعيل" : "تم الرفض"}${statusLine}`);
+  }
+
+  await answerCallbackQuery(botToken, cq.id, toastSuccess);
+
+  // Clean up any other keyboard instances stored in payment metadata
+  try {
+    const payment = await prisma.subscriptionPayment.findUnique({
+      where: { id: paymentId },
+      select: { metadata: true },
+    });
+    const meta = payment?.metadata as { telegramMessages?: { chatId: number; messageId: number }[] } | null;
+    if (meta?.telegramMessages) {
+      for (const ref of meta.telegramMessages) {
+        // Skip the chat we already cleaned up
+        if (cq.message?.chat?.id === ref.chatId && cq.message?.message_id === ref.messageId) continue;
+        await editMessageReplyMarkup(botToken, ref.chatId, ref.messageId);
+      }
+    }
+  } catch (e) {
+    // Best-effort cleanup — non-critical
+    console.error("[webhook] keyboard cleanup error:", e);
+  }
+
+  return new Response("OK", { status: 200 });
+}
+
 export async function POST(request: NextRequest) {
   // Gate 0: prove this request actually came from Telegram (optional — skip if unset for dev)
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -27,6 +129,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const update: TelegramUpdate = await request.json();
+
+    // Handle callback_query (interactive button tap)
+    if (update.callback_query) {
+      return handleCallbackQuery(update.callback_query);
+    }
+
+    // Handle /start verify_<token> (account linking)
     const text = update.message?.text ?? "";
     const chatId = update.message?.chat?.id;
     const username = update.message?.chat?.username;
@@ -80,8 +189,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Send confirmation to the user via Telegram
-    const config = await prisma.telegramConfig.findFirst();
-    const botToken = config?.botToken || process.env.TELEGRAM_BOT_TOKEN;
+    const botToken = await getBotToken();
     if (botToken) {
       await fetch(
         `https://api.telegram.org/bot${botToken}/sendMessage`,
