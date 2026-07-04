@@ -47,8 +47,7 @@ export const Scene2B_Payment: React.FC<Props> = ({ frameOffset }) => {
               padding: "8px 14px", borderRadius: 10, marginBottom: 6,
               background: i === 2 ? `${O}22` : "rgba(255,255,255,0.04)",
               border: i === 2 ? `1px solid ${O}44` : "1px solid rgba(255,255,255,0.06)",
-              opacity: itemOp, fontSize: 12, color: i === 2 ? O : TXT, fontWeight: 600, textAlign: "right" as any,
-            }}>
+              opacity: itemOp, fontSize: 12, color: i === 2 ? O : TXT, fontWeight: 600,             }}>
               {t}
             </div>
           )

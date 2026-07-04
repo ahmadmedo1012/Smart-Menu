@@ -39,7 +39,6 @@ export const Scene2C_Validation: React.FC<Props> = ({ frameOffset }) => {
           fontSize: 20, fontWeight: 700, color: statusColor,
           opacity: badgeS.opacity,
           transform: `translateY(${badgeS.translateY}px)`,
-          transition: "color 0.3s",
         }}>
           {status}
         </div>
@@ -60,7 +59,6 @@ export const Scene2C_Validation: React.FC<Props> = ({ frameOffset }) => {
           <div style={{
             width: `${f < 40 ? interpolate(f, [0, 40], [0, 90]) : 100}%`,
             height: "100%", borderRadius: 2, background: O,
-            transition: "width 0.3s",
           }} />
         </div>
       </div>

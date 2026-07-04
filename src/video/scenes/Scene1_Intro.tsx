@@ -1,6 +1,6 @@
-import { AbsoluteFill, useCurrentFrame, OffthreadVideo, Audio, interpolate } from "remotion"
+import { AbsoluteFill, useCurrentFrame, OffthreadVideo, Audio, Sequence, interpolate } from "remotion"
 import { loadFont } from "@remotion/google-fonts/Tajawal"
-import { VIDEO_URLS, AUDIO_URLS, springEntry, fadeIn, fadeOut, SPRING_CONFIGS, O, TXT, TXT_MUTED, GLOW } from "../shared"
+import { VIDEO_URLS, AUDIO_URLS, springEntry, fadeIn, SPRING_CONFIGS, O, TXT, TXT_MUTED, GLOW } from "../shared"
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "500", "700", "800"] })
 
@@ -8,14 +8,12 @@ export const Scene1_Intro: React.FC = () => {
   const f = useCurrentFrame()
   const videoOp = interpolate(f, [0, 10], [0, 1], { extrapolateRight: "clamp" })
   const overlayOp = interpolate(f, [0, 20], [0.6, 0.3], { extrapolateRight: "clamp" })
-  const fade = fadeOut(f, 120)
-
   const titleS = springEntry(f, 10, SPRING_CONFIGS.title)
   const taglineS = springEntry(f, 25, SPRING_CONFIGS.tagline)
   const lineW = interpolate(f, [45, 60], [0, 40], { extrapolateRight: "clamp", easing: (t) => t * (2 - t) })
 
   return (
-    <AbsoluteFill style={{ background: "#000", fontFamily, opacity: fade }}>
+    <AbsoluteFill style={{ background: "#000", fontFamily }}>
       <OffthreadVideo src={VIDEO_URLS.scene1} style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
         objectFit: "cover", opacity: videoOp,
@@ -91,7 +89,9 @@ export const Scene1_Intro: React.FC = () => {
         </div>
       </div>
 
-      <Audio src={AUDIO_URLS.whoosh} volume={0.25} />
+      <Sequence from={18}>
+        <Audio src={AUDIO_URLS.whoosh} volume={0.25} />
+      </Sequence>
     </AbsoluteFill>
   )
 }

@@ -103,7 +103,6 @@ function ChatBubble({
       opacity: s.opacity,
       transform: `translateY(${s.translateY}px)`,
       alignSelf: isBot ? "flex-start" : "flex-end",
-      textAlign: "right" as any,
     }}>
       <div style={{
         fontSize: 12, fontWeight: highlight ? 600 : 400,

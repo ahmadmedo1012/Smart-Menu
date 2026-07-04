@@ -4,8 +4,10 @@ import { VIDEO_URLS, AUDIO_URLS, springEntry, fadeIn, fadeOut, SPRING_CONFIGS, O
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "500", "700", "800"] })
 
-export const Scene3_CTA: React.FC = () => {
-  const f = useCurrentFrame()
+interface Props { frameOffset?: number }
+
+export const Scene3_CTA: React.FC<Props> = ({ frameOffset = 0 }) => {
+  const f = useCurrentFrame() - frameOffset
   const videoOp = interpolate(f, [0, 10], [0, 1], { extrapolateRight: "clamp" })
   const fade = fadeOut(f, 120)
   const badgeS = springEntry(f, 5, SPRING_CONFIGS.badge)
