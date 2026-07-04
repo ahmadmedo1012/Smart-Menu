@@ -324,7 +324,7 @@ model SubscriptionPayment {
   provider  String   @default("libyana")
   planId    Int
   planName  String   @default("")
-  status    PaymentStatus   @default(pending)
+  status    String   @default("pending")
   metadata  Json     @default("{}")
   createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id])
@@ -379,12 +379,6 @@ enum SubscriptionStatus {
   UNPAID
   PAID
   REJECTED
-}
-
-enum PaymentStatus {
-  pending
-  verified
-  cancelled
 }
 
 enum EventSeverity {
