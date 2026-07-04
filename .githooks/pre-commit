@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Pre-commit hook: reject any commit that stages an .env file other than .env.example
+set -euo pipefail
+
+staged_env=$(git diff --cached --name-only --diff-filter=ACR | grep -E '^\.env($|\.)' | grep -v '\.env\.example$' || true)
+if [ -n "$staged_env" ]; then
+  echo "❌ SECURITY BLOCKED: You tried to commit environment files:"
+  echo "$staged_env"
+  echo ""
+  echo "These files contain secrets (DATABASE_URL, JWT_SECRET, etc.)."
+  echo "If you must track config defaults, use only .env.example."
+  exit 1
+fi
