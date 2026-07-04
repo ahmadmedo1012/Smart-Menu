@@ -1,111 +1,148 @@
-import { AbsoluteFill, useCurrentFrame, Audio, interpolate } from "remotion"
-import { loadFont } from "@remotion/google-fonts/Tajawal"
+import { AbsoluteFill, useCurrentFrame, Audio, Sequence, interpolate } from "remotion"
+import { loadFont } from "@remotion/google-fonts/Cairo"
 import { VideoBg } from "../VideoBg"
-import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, fadeOut, SPRING_CONFIGS, O, TXT, TXT_MUTED, GLOW, GRAD_BTN } from "../shared"
+import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, O, GOLD, TEAL, TXT, TXT_MUTED, DARK_OVERLAY } from "../shared"
 
-const { fontFamily } = loadFont("normal", { weights: ["400", "500", "700", "800"] })
+const { fontFamily } = loadFont("normal", { weights: ["400", "700", "800"] })
 
-interface Props { frameOffset?: number }
+const BOT_BLUE = "#2AABEE"
 
-export const Scene3_CTA: React.FC<Props> = ({ frameOffset = 0 }) => {
-  const f = useCurrentFrame() - frameOffset
-  const videoOp = interpolate(f, [0, 10], [0, 1], { extrapolateRight: "clamp" })
-  const fade = fadeOut(f, 120)
-  const badgeS = springEntry(f, 5, SPRING_CONFIGS.badge)
-  const titleS = springEntry(f, 20, SPRING_CONFIGS.title)
-  const ctaS = springEntry(f, 35, SPRING_CONFIGS.cta)
-  const msgOp = fadeIn(f, 50)
-  const chipS = fadeIn(f, 55)
-  const btnPulse = 1 + 0.04 * Math.sin(f * 0.07)
+export const Scene3_CTA: React.FC = () => {
+  const f = useCurrentFrame()
+  const videoOp = interpolate(f, [0, 10], [0, 1])
+  const headlineS = springEntry(f, 5, 0.85, 35)
+  const subS = springEntry(f, 22, 0.9, 25)
+  const lineOp = fadeIn(f, 18)
+  const leftPanel = springEntry(f, 30, 0.9, 40)
+  const rightPanel = springEntry(f, 38, 0.9, 40)
+  const badgeS = springEntry(f, 55, 0.85, 20)
+  const pulse = 1 + 0.05 * Math.sin(f * 0.06)
 
   return (
-    <AbsoluteFill style={{ background: "#000", fontFamily, opacity: fade }}>
+    <AbsoluteFill style={{ background: "#000", fontFamily }}>
       <VideoBg src={VIDEO_URLS.scene3} gradient={BG_GRADIENT.scene3} opacity={videoOp} />
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.3) 100%)",
-      }} />
-      <div style={{
-        position: "absolute", bottom: "30%", left: "50%",
-        transform: "translateX(-50%)",
-        width: 400, height: 400, borderRadius: "50%",
-        background: `radial-gradient(circle, ${O}22, transparent 70%)`,
-        filter: "blur(60px)",
-      }} />
+      <div style={{ position: "absolute", inset: 0, background: DARK_OVERLAY }} />
 
+      {/* Header */}
       <div style={{
-        position: "absolute", inset: 0,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "flex-end",
-        paddingBottom: 140,
+        position: "absolute", top: 80, left: 0, right: 0, textAlign: "center",
+        padding: "0 40px",
       }}>
-        {/* Badge */}
-        <div style={{
-          padding: "5px 18px", borderRadius: 20,
-          background: `${O}22`, border: `1px solid ${O}44`,
-          fontSize: 11, fontWeight: 600, color: O,
-          letterSpacing: "0.15em", marginBottom: 12,
-          opacity: badgeS.opacity,
-          transform: `scale(${badgeS.scale}) translateY(${badgeS.translateY}px)`,
-        }}>
-          انطلق الآن
-        </div>
-
-        {/* Headline */}
         <div dir="rtl" style={{
-          fontSize: 36, fontWeight: 700, color: TXT,
-          lineHeight: 1.15, textAlign: "center",
-          opacity: titleS.opacity,
-          transform: `scale(${titleS.scale}) translateY(${titleS.translateY}px)`,
+          fontSize: 40, fontWeight: 800, color: GOLD,
+          textShadow: "0 8px 25px rgba(0,0,0,0.7)",
+          opacity: headlineS.opacity,
+          transform: `scale(${headlineS.scale * pulse}) translateY(${headlineS.translateY}px)`,
         }}>
-          مطعمك جاهز للانطلاق <span style={{ color: O }}>الرقمي</span>
+          التحكم الكامل والقبول الفوري عبر تليجرام
         </div>
-
-        {/* Accent line */}
-        <div style={{
-          width: 40, height: 3, borderRadius: 2, background: O,
-          margin: "12px auto", boxShadow: `0 0 10px ${GLOW}`,
-          opacity: fadeIn(f, 42),
-        }} />
-
-        {/* CTA Button */}
-        <div style={{
-          padding: "13px 44px", borderRadius: 50,
-          background: GRAD_BTN,
-          transform: `scale(${ctaS.scale * btnPulse})`,
-          opacity: ctaS.opacity,
-          boxShadow: `0 0 30px ${GLOW}`,
-        }}>
-          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>
-            ابدأ مجاناً
-          </span>
-        </div>
-
-        {/* Subtext */}
+        <div style={{ width: 50, height: 3, borderRadius: 2, background: GOLD, margin: "14px auto", opacity: lineOp }} />
         <div dir="rtl" style={{
-          fontSize: 12, color: TXT_MUTED, marginTop: 8,
-          opacity: msgOp,
+          fontSize: 18, fontWeight: 400, color: TXT_MUTED, lineHeight: 1.4,
+          opacity: subS.opacity, transform: `translateY(${subS.translateY}px)`,
         }}>
-          مجاناً • بدون بطاقة • دعم فني متكامل
-        </div>
-
-        {/* Chips */}
-        <div style={{ display: "flex", gap: 8, marginTop: 14, opacity: chipS }}>
-          {["QR سريع", "تقارير", "دعم 24/7"].map((t, i) => (
-            <div key={i} style={{
-              padding: "4px 12px", borderRadius: 12,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              fontSize: 10, fontWeight: 500, color: TXT_MUTED,
-              opacity: fadeIn(f, 55 + i * 3),
-            }}>
-              {t}
-            </div>
-          ))}
+          لا حاجة للوحات التحكم المعقدة.. وافق بضغطة زر واحدة
         </div>
       </div>
 
-      <Audio src={AUDIO_URLS.ding} volume={0.12} />
+      {/* Split screen */}
+      <div style={{
+        position: "absolute", bottom: 120, left: 30, right: 30,
+        display: "flex", gap: 14, height: 220,
+      }}>
+        {/* Left: Telegram notification mock */}
+        <div style={{
+          flex: 1, borderRadius: 20, padding: 14,
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          opacity: leftPanel.opacity,
+          transform: `scale(${leftPanel.scale}) translateY(${leftPanel.translateY}px)`,
+        }}>
+          {/* Telegram header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+            <div style={{
+              width: 24, height: 24, borderRadius: "50%", background: BOT_BLUE,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 10, fontWeight: 700, color: "#fff",
+            }}>S</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: TXT }}>SmartMenuBot</div>
+          </div>
+
+          {/* Telegram message */}
+          <div style={{
+            padding: "8px 12px", borderRadius: 12, borderTopLeftRadius: 4,
+            background: "rgba(255,255,255,0.06)",
+            fontSize: 10, color: TXT, marginBottom: 6, lineHeight: 1.3,
+          }}>
+            طلب تفعيل الاشتراك لـ "grilled_food_hub"
+          </div>
+
+          {/* Action buttons */}
+          <div style={{
+            display: "flex", gap: 6, marginTop: 6,
+            opacity: fadeIn(f, 40),
+          }}>
+            <div style={{
+              flex: 1, padding: "6px 0", borderRadius: 10,
+              background: `${TEAL}22`, border: `1px solid ${TEAL}55`,
+              textAlign: "center", fontSize: 10, fontWeight: 700, color: TEAL,
+            }}>🟢 موافقة على التفعيل</div>
+            <div style={{
+              flex: 1, padding: "6px 0", borderRadius: 10,
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+              textAlign: "center", fontSize: 10, fontWeight: 600, color: TXT_MUTED,
+            }}>🔴 رفض الطلب</div>
+          </div>
+        </div>
+
+        {/* Right: Dashboard activation */}
+        <div style={{
+          flex: 1, borderRadius: 20, padding: 14,
+          background: `linear-gradient(145deg, ${O}15, #fb923c08)`,
+          border: `1px solid ${O}33`,
+          opacity: rightPanel.opacity,
+          transform: `scale(${rightPanel.scale}) translateY(${rightPanel.translateY}px)`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+            <div style={{
+              width: 8, height: 8, borderRadius: "50%", background: TEAL,
+              boxShadow: `0 0 6px ${TEAL}`,
+            }} />
+            <div style={{ fontSize: 10, fontWeight: 600, color: TXT_MUTED }}>بريـــم • نشط</div>
+          </div>
+
+          {/* Premium dashboard badge */}
+          <div style={{
+            padding: "10px 12px", borderRadius: 12,
+            background: `${TEAL}10`, border: `1px solid ${TEAL}33`,
+            opacity: fadeIn(f, 48),
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: TEAL, marginBottom: 2 }}>
+              ✓ Premium Active
+            </div>
+            <div style={{ fontSize: 9, color: TXT_MUTED }}>
+              جميع الميزات مفعلة • QR • تقارير • دعم 24/7
+            </div>
+          </div>
+
+          {/* Badge */}
+          <div style={{
+            marginTop: 10, padding: "4px 12px", borderRadius: 10,
+            background: `${GOLD}15`, border: `1px solid ${GOLD}33`,
+            textAlign: "center",
+            opacity: badgeS.opacity,
+            transform: `scale(${badgeS.scale})`,
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: GOLD }}>
+              ✦ تم التفعيل — مطعمك جاهز رقمياً
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <Sequence from={25}>
+        <Audio src={AUDIO_URLS.notification} volume={0.12} />
+      </Sequence>
     </AbsoluteFill>
   )
 }

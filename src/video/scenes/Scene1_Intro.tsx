@@ -1,94 +1,62 @@
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence, interpolate } from "remotion"
-import { loadFont } from "@remotion/google-fonts/Tajawal"
+import { loadFont } from "@remotion/google-fonts/Cairo"
 import { VideoBg } from "../VideoBg"
-import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, SPRING_CONFIGS, O, TXT, TXT_MUTED, GLOW } from "../shared"
+import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, TEAL, TXT, DARK_OVERLAY } from "../shared"
 
-const { fontFamily } = loadFont("normal", { weights: ["400", "500", "700", "800"] })
+const { fontFamily } = loadFont("normal", { weights: ["400", "700", "800"] })
 
 export const Scene1_Intro: React.FC = () => {
   const f = useCurrentFrame()
-  const videoOp = interpolate(f, [0, 10], [0, 1], { extrapolateRight: "clamp" })
-  const overlayOp = interpolate(f, [0, 20], [0.6, 0.3], { extrapolateRight: "clamp" })
-  const titleS = springEntry(f, 10, SPRING_CONFIGS.title)
-  const taglineS = springEntry(f, 25, SPRING_CONFIGS.tagline)
-  const lineW = interpolate(f, [45, 60], [0, 40], { extrapolateRight: "clamp", easing: (t) => t * (2 - t) })
+  const videoOp = interpolate(f, [0, 15], [0, 1])
+  const s1 = springEntry(f, 8, 0.85, 40)
+  const s2 = springEntry(f, 30, 0.9, 30)
+  const lineOp = fadeIn(f, 50)
+  const lineW = interpolate(f, [50, 70], [0, 60], { extrapolateRight: "clamp" })
+  const scaleAnim = 1 + 0.03 * Math.sin(f * 0.015)
 
   return (
     <AbsoluteFill style={{ background: "#000", fontFamily }}>
       <VideoBg src={VIDEO_URLS.scene1} gradient={BG_GRADIENT.scene1} opacity={videoOp} />
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 30%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.3) 100%)",
-        opacity: overlayOp,
-      }} />
-      <div style={{
-        position: "absolute", bottom: 0, left: 0, right: 0, height: "50%",
-        background: `linear-gradient(0deg, ${O}22, transparent)`,
-      }} />
+      <div style={{ position: "absolute", inset: 0, background: DARK_OVERLAY }} />
 
       <div style={{
         position: "absolute", inset: 0,
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
+        padding: "0 40px",
       }}>
-        {/* Logo icon */}
-        <div style={{
-          width: 80, height: 80, borderRadius: 20,
-          background: `linear-gradient(145deg, ${O}, #fb923c)`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          marginBottom: 18,
-          opacity: titleS.opacity,
-          transform: `scale(${titleS.scale}) translateY(${titleS.translateY}px)`,
-          boxShadow: `0 0 50px ${GLOW}`,
-        }}>
-          <svg width={36} height={36} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5}>
-            <path d="M3 12h2M21 12h-2M12 3v2M12 21v-2" /><circle cx="12" cy="12" r="8" /><path d="M8 12l2 2 4-4" />
-          </svg>
-        </div>
-
-        {/* Smart Menu title */}
-        <div style={{
-          fontSize: 56, fontWeight: 700, color: TXT,
-          letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 4,
-          opacity: titleS.opacity,
-          transform: `scale(${titleS.scale}) translateY(${titleS.translateY}px)`,
-        }}>
-          Smart Menu
-        </div>
-
-        {/* Arabic tagline */}
+        {/* Main title */}
         <div dir="rtl" style={{
-          fontSize: 16, fontWeight: 400, color: TXT_MUTED,
-          marginTop: 6, opacity: taglineS.opacity,
-          transform: `translateY(${taglineS.translateY}px)`,
+          fontSize: 76, fontWeight: 800, color: TXT,
+          lineHeight: 1.15, textAlign: "center",
+          textShadow: "0 10px 30px rgba(0,0,0,0.8)",
+          opacity: s1.opacity,
+          transform: `scale(${s1.scale * scaleAnim}) translateY(${s1.translateY}px)`,
         }}>
-          مدعوم بالذكاء الاصطناعي
+          أهلاً بك في الجيل الجديد لإدارة المطاعم
         </div>
 
         {/* Accent line */}
         <div style={{
-          width: `${lineW}px`, height: 3, borderRadius: 2, background: O,
-          marginTop: 10, boxShadow: `0 0 10px ${GLOW}`,
+          width: `${lineW}px`, height: 3, borderRadius: 2, background: TEAL,
+          margin: "18px auto", opacity: lineOp,
+          boxShadow: `0 0 15px ${TEAL}55`,
         }} />
 
-        {/* Tech badges */}
-        <div style={{ display: "flex", gap: 8, marginTop: 20, opacity: fadeIn(f, 60) }}>
-          {["QR Menu", "AI", "Telegram"].map((t, i) => (
-            <div key={i} style={{
-              padding: "4px 14px", borderRadius: 12,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              fontSize: 11, fontWeight: 600, color: TXT_MUTED,
-              opacity: fadeIn(f, 60 + i * 5),
-            }}>
-              {t}
-            </div>
-          ))}
+        {/* Subtitle teal */}
+        <div dir="rtl" style={{
+          fontSize: 28, fontWeight: 700, color: TEAL,
+          textAlign: "center", lineHeight: 1.3,
+          opacity: s2.opacity,
+          transform: `translateY(${s2.translateY}px)`,
+          textShadow: "0 4px 20px rgba(0,0,0,0.6)",
+        }}>
+          أنشئ حسابك وابدأ فوراً في ثوانٍ معدودة
         </div>
       </div>
 
-      <Sequence from={18}>
-        <Audio src={AUDIO_URLS.whoosh} volume={0.25} />
+      <Sequence from={20}>
+        <Audio src={AUDIO_URLS.whoosh} volume={0.2} />
       </Sequence>
     </AbsoluteFill>
   )

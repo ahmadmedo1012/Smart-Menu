@@ -3,10 +3,12 @@ import { Scene1_Intro } from "./scenes/Scene1_Intro"
 import { Scene2_Checkout } from "./scenes/Scene2_Checkout"
 import { Scene3_CTA } from "./scenes/Scene3_CTA"
 
+// 900f @30fps = 30s
+// Scene 1: 0–210f (7s), Scene 2: 210–540f (11s), Scene 3: 540–900f (12s)
 const SCENES = [
-  { start: 0, end: 120, offset: 0, Component: Scene1_Intro },
-  { start: 120, end: 420, offset: 120, Component: Scene2_Checkout },
-  { start: 420, end: 540, offset: 420, Component: Scene3_CTA },
+  { start: 0, end: 210, Component: Scene1_Intro },
+  { start: 210, end: 540, Component: Scene2_Checkout },
+  { start: 540, end: 900, Component: Scene3_CTA },
 ] as const
 
 export const PromoVideo: React.FC = () => {
@@ -14,7 +16,7 @@ export const PromoVideo: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#000" }}>
-      {SCENES.map(({ start, end, offset, Component }) => (
+      {SCENES.map(({ start, end, Component }) => (
         <div
           key={start}
           style={{
@@ -24,11 +26,10 @@ export const PromoVideo: React.FC = () => {
             pointerEvents: "none",
           }}
         >
-          <Component frameOffset={offset} />
+          <Component />
         </div>
       ))}
 
-      {/* Crossfade between scenes */}
       <CrossfadeOverlay />
     </AbsoluteFill>
   )
@@ -36,8 +37,8 @@ export const PromoVideo: React.FC = () => {
 
 function CrossfadeOverlay() {
   const f = useCurrentFrame()
-  const fade1 = sceneCrossfade(f, 115)
-  const fade2 = sceneCrossfade(f, 415)
+  const fade1 = sceneCrossfade(f, 205)
+  const fade2 = sceneCrossfade(f, 535)
 
   return (
     <>
