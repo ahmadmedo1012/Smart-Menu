@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: "22.x"
+
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: smart-menu-test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run build
+
+      - name: Check for committed .env files
+        run: |
+          STAGED=$(git ls-files '.env' '.env.local' '.env.prod' '.env.development')
+          if [ -n "$STAGED" ]; then
+            echo "❌ SECURITY BLOCKED: .env files are tracked:"
+            echo "$STAGED"
+            exit 1
+          fi
+
+      # Unit tests — no DB needed
+      - run: npm test
+        env:
+          TELEGRAM_BOT_TOKEN: "test"
+          TELEGRAM_CHAT_ID: "0"
+
+      # E2E tests require DB — skip in PRs without DB creds;
+      # run on main push where env vars are available from GitHub Secrets.
+      - name: E2E tests (main push only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: npx playwright install --with-deps chromium && npm run test:e2e
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
