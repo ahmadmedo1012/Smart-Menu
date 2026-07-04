@@ -72,27 +72,20 @@ export async function POST(request: NextRequest) {
       select: { id: true, status: true, createdAt: true },
     });
 
-    // Interactive keyboard sent below to admin allowlist only — plain-text
-    // notifyEvent deliberately omitted here to avoid leaking payment data
-    // to non-admin Telegram-linked users. The keyboard message carries the
-    // same info plus approval actions.
-
     // Send interactive inline keyboard to admin allowlist
     // Priority: env var first (Vercel), then DB config (admin panel)
     const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
-    if (botToken) {
-      // Resolve target chat IDs: admin allowlist (env) + broadcast targets (DB)
-      const adminIds = getAdminTelegramIds();
+    const envTokenPresent = !!process.env.TELEGRAM_BOT_TOKEN;
+    const adminIds = getAdminTelegramIds();
+    const hasAdminIds = adminIds.length > 0;
+
+    let keyboardSent = false;
+    let keyboardError = "";
+
+    if (botToken && hasAdminIds) {
       const chatIds = new Set<string>();
+      for (const id of adminIds) chatIds.add(String(id));
 
-      // 1. Admin allowlist — always include raw IDs; Telegram rejects unstarted chats silently
-      if (adminIds.length > 0) {
-        for (const id of adminIds) {
-          chatIds.add(String(id));
-        }
-      }
-
-      // 2. Broadcast targets (channels/groups from admin panel)
       const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
         where: { isActive: true },
         select: { chatId: true },
@@ -100,7 +93,6 @@ export async function POST(request: NextRequest) {
       for (const t of broadcastTargets) chatIds.add(t.chatId);
 
       if (chatIds.size > 0) {
-
         const msgParts = [
           `🆕 *طلب اشتراك جديد* #${payment.id}`,
           `• المستخدم: #${auth.userId}`,
@@ -109,34 +101,40 @@ export async function POST(request: NextRequest) {
           `• المبلغ: ${amount} د.ل`,
         ];
         const msg = msgParts.join("\n");
-
         const telegramMessages: { chatId: number; messageId: number }[] = [];
 
         for (const chatId of chatIds) {
-          const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
-            [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
-            [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
-          ], { parseMode: "Markdown" });
-          if (sent) {
-            telegramMessages.push({ chatId: sent.chat.id, messageId: sent.message_id });
+          try {
+            const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
+              [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
+              [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
+            ], { parseMode: "Markdown" });
+            if (sent) {
+              telegramMessages.push({ chatId: sent.chat.id, messageId: sent.message_id });
+              keyboardSent = true;
+            }
+          } catch (e: any) {
+            keyboardError = `chat ${chatId}: ${e.message}`;
           }
         }
 
-        // Store message refs in payment metadata for post-resolution cleanup
         if (telegramMessages.length > 0) {
           await prisma.subscriptionPayment.update({
             where: { id: payment.id },
-            data: {
-              metadata: {
-                tempRestaurantName,
-                tempRestaurantSlug,
-                telegramMessages,
-              },
-            },
+            data: { metadata: { tempRestaurantName, tempRestaurantSlug, telegramMessages } },
           });
         }
       }
+    } else {
+      keyboardError = `blocked: botToken=${!!botToken} adminIds=${adminIds.length} envToken=${envTokenPresent}`;
     }
+
+    // Log keyboard result to SystemConfig for diagnostics
+    await prisma.systemConfig.upsert({
+      where: { key: "diag_last_keyboard" },
+      update: { value: { paymentId: payment.id, timestamp: Date.now(), sent: keyboardSent, error: keyboardError, envToken: envTokenPresent, adminCount: adminIds.length } },
+      create: { key: "diag_last_keyboard", value: { paymentId: payment.id, timestamp: Date.now(), sent: keyboardSent, error: keyboardError, envToken: envTokenPresent, adminCount: adminIds.length }, category: "diagnostics" },
+    });
 
     return success(payment, 201);
   } catch (e) {
