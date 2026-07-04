@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
-import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 export const metadata: Metadata = {
 	title: "سياسة الخصوصية",
@@ -11,9 +10,6 @@ export default function PrivacyPage() {
 	return (
 		<div className="min-h-screen bg-background">
 			<Header />
-			<div className="fixed right-4 top-4 z-50">
-				<ThemeToggle />
-			</div>
 			<div className="max-w-3xl mx-auto px-4 py-20">
 				<h1 className="text-3xl font-bold mb-8">سياسة الخصوصية</h1>
 				<div className="space-y-6 text-foreground/80">

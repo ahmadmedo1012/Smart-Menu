@@ -60,7 +60,6 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
             onClick={onClose}
-            aria-hidden="true"
           />
           <motion.div
             key="menu"
