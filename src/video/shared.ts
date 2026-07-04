@@ -12,8 +12,9 @@ export const VIDEO_URLS = {
 
 export const BG_GRADIENT = {
   scene1: "linear-gradient(145deg, #0c0c14, #1a1a2e, #0f0f1a)",
-  scene2: "linear-gradient(145deg, #07070a, #111122, #0a0a14)",
-  scene3: "linear-gradient(145deg, #0a0a0a, #1a0f0a, #0f0a1a)",
+  // Brighter gradients for Scene 2+3 — content must be legible
+  scene2: "linear-gradient(145deg, #0d1220, #1a2340, #121a2e)",
+  scene3: "linear-gradient(145deg, #12100e, #1f1810, #141010)",
 }
 
 export const AUDIO_URLS = {
@@ -51,7 +52,7 @@ export function fadeOut(frame: number, exit: number, dur = 15) {
   return 1 - interpolate(frame, [exit - dur, exit], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
 }
 
-export function springScale(frame: number, entrance: number, duration = 120) {
+export function springScale(frame: number, entrance: number, _duration = 120) {
   const p = spring({ frame: frame - entrance, fps: FPS, config: { mass: 1, damping: 15, stiffness: 60 } as SpringConfig })
   return interpolate(p, [0, 1], [1, 1.04])
 }
