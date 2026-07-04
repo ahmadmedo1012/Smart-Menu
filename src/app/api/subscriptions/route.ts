@@ -53,40 +53,32 @@ export async function POST(request: NextRequest) {
     );
 
     // Also send interactive keyboard to admin IDs and broadcast targets
+    try {
     const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
     if (botToken) {
       const adminIds = getAdminTelegramIds();
       const chatIds = new Set<string>();
 
-      if (adminIds.length > 0) {
-        for (const id of adminIds) chatIds.add(String(id));
-      }
+      for (const id of adminIds) chatIds.add(String(id));
 
       const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
         where: { isActive: true },
         select: { chatId: true },
       });
-      for (const t of broadcastTargets) {
-        if (t.chatId !== String(adminIds[0])) chatIds.add(t.chatId);
-      }
+      for (const t of broadcastTargets) chatIds.add(t.chatId);
 
       if (chatIds.size > 0) {
         const msg = `🆕 *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
-        const telegramMessages: { chatId: number; messageId: number }[] = [];
         for (const chatId of chatIds) {
-          const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
+          await sendMessageWithKeyboard(botToken, chatId, msg, [
             [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
             [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
           ], { parseMode: "Markdown" });
-          if (sent) telegramMessages.push({ chatId: sent.chat.id, messageId: sent.message_id });
-        }
-        if (telegramMessages.length > 0) {
-          await prisma.subscriptionPayment.update({
-            where: { id: payment.id },
-            data: { metadata: { telegramMessages } },
-          });
         }
       }
+    }
+    } catch (keyboardErr) {
+      console.error("[subscriptions] keyboard error:", keyboardErr);
     }
 
     return success({ id: payment.id }, 201);
