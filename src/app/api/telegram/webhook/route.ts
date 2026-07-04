@@ -118,13 +118,15 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
 }
 
 export async function POST(request: NextRequest) {
-  // Gate 0: prove this request actually came from Telegram (optional — skip if unset for dev)
+  // Gate 0: prove this request actually came from Telegram
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (expectedSecret) {
-    const incomingSecret = request.headers.get("x-telegram-bot-api-secret-token");
-    if (incomingSecret !== expectedSecret) {
-      return new Response("Forbidden", { status: 403 });
-    }
+  if (!expectedSecret) {
+    console.error("[webhook] TELEGRAM_WEBHOOK_SECRET is not set — refusing all webhook traffic");
+    return new Response("Server misconfigured", { status: 500 });
+  }
+  const incomingSecret = request.headers.get("x-telegram-bot-api-secret-token");
+  if (incomingSecret !== expectedSecret) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   try {
