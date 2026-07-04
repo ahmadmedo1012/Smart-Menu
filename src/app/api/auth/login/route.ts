@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       data: { lastLoginAt: new Date() },
     });
     await logAudit({ action: "login", actorId: user.id, targetType: "user", targetId: user.id, ip });
-    await notifyEvent("user_login", { username: user.username, name: user.name, role: user.role });
+    await notifyEvent("user_login", { username: user.username, name: user.name, role: user.role }, { adminOnly: true });
 
     const secure = process.env.NODE_ENV === "production";
     // Create server-side session (primary auth)

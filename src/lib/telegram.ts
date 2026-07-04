@@ -12,7 +12,8 @@ export async function sendTelegramNotification(
 
 export async function notifyEvent(
   eventType: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  opts?: { adminOnly?: boolean },
 ): Promise<BroadcastResult> {
   const config = await prisma.telegramConfig.findFirst();
   if (!config || !config.isActive) return { sent: 0, failed: [] };
@@ -24,7 +25,7 @@ export async function notifyEvent(
   for (const [k, v] of Object.entries(data)) {
     lines.push(`• ${k}: ${v}`);
   }
-  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown" }, config);
+  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown", adminOnly: opts?.adminOnly }, config);
 }
 
 /** Alias for backward compatibility */

@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
     // Audit + Telegram
     await logAudit({ action: "create", actorId: user.id, targetType: "user", targetId: user.id, ip });
-    await notifyEvent("user_registered", { username: user.username, name: user.name });
+    await notifyEvent("user_registered", { username: user.username, name: user.name }, { adminOnly: true });
 
     return Response.json({
       success: true,

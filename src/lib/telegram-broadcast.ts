@@ -7,6 +7,7 @@ interface BroadcastResult {
 
 interface BroadcastOpts {
   parseMode?: "Markdown" | "HTML";
+  adminOnly?: boolean;
 }
 
 export async function sendToChat(
@@ -34,23 +35,25 @@ export async function sendToChat(
   }
 }
 
-async function gatherTargets(): Promise<Set<string>> {
+async function gatherTargets(opts?: BroadcastOpts): Promise<Set<string>> {
   const targets = new Set<string>();
 
-  // Active broadcast targets
+  // Active broadcast targets (always included — these are intentional admin channels)
   const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
     where: { isActive: true },
     select: { chatId: true },
   });
   for (const t of broadcastTargets) targets.add(t.chatId);
 
-  // Linked admin users
-  const linkedUsers = await prisma.user.findMany({
-    where: { telegramChatId: { not: null } },
-    select: { telegramChatId: true },
-  });
-  for (const u of linkedUsers) {
-    if (u.telegramChatId) targets.add(u.telegramChatId);
+  // Linked users — only include for non-admin broadcasts (order notifications, etc.)
+  if (!opts?.adminOnly) {
+    const linkedUsers = await prisma.user.findMany({
+      where: { telegramChatId: { not: null } },
+      select: { telegramChatId: true },
+    });
+    for (const u of linkedUsers) {
+      if (u.telegramChatId) targets.add(u.telegramChatId);
+    }
   }
 
   return targets;
@@ -66,7 +69,7 @@ export async function broadcastToAll(
     return { sent: 0, failed: [] };
   }
 
-  const targetIds = await gatherTargets();
+  const targetIds = await gatherTargets(opts);
   if (targetIds.size === 0) return { sent: 0, failed: [] };
 
   const results = await Promise.allSettled(

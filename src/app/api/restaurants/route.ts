@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // Audit log + Telegram (best-effort, must not fail the response)
     logAudit({ action: "create", targetType: "restaurant", targetId: result.id, actorId }).catch(() => {});
-    notifyEvent("restaurant_created", { name: result.name, slug: result.slug, plan: result.planId ? "paid" : "free" });
+    notifyEvent("restaurant_created", { name: result.name, slug: result.slug, plan: result.planId ? "paid" : "free" }, { adminOnly: true });
 
     return success(result, 201);
   } catch (e) {
