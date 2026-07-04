@@ -1,37 +1,61 @@
-import { AbsoluteFill } from "remotion"
-import { TransitionSeries, linearTiming } from "@remotion/transitions"
-import { fade } from "@remotion/transitions/fade"
-
-import { Scene1_Brand } from "./scenes/Scene1_Brand"
-import { Scene2_FoodMontage } from "./scenes/Scene2_FoodMontage"
+import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion"
+import { Scene1_Intro } from "./scenes/Scene1_Intro"
+import { Scene2_Checkout } from "./scenes/Scene2_Checkout"
 import { Scene3_CTA } from "./scenes/Scene3_CTA"
 
+const SCENES = [
+  { start: 0, end: 120, Component: Scene1_Intro },
+  { start: 120, end: 420, Component: Scene2_Checkout },
+  { start: 420, end: 540, Component: Scene3_CTA },
+] as const
+
 export const PromoVideo: React.FC = () => {
-	return (
-		<AbsoluteFill style={{ background: "#000" }}>
-			<TransitionSeries>
-				<TransitionSeries.Sequence durationInFrames={120}>
-					<Scene1_Brand />
-				</TransitionSeries.Sequence>
+  const f = useCurrentFrame()
 
-				<TransitionSeries.Transition
-					presentation={fade()}
-					timing={linearTiming({ durationInFrames: 15 })}
-				/>
+  return (
+    <AbsoluteFill style={{ background: "#000" }}>
+      {SCENES.map(({ start, end, Component }) => (
+        <div
+          key={start}
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: f >= start && f < end ? 1 : 0,
+            pointerEvents: "none",
+          }}
+        >
+          <Component />
+        </div>
+      ))}
 
-				<TransitionSeries.Sequence durationInFrames={300}>
-					<Scene2_FoodMontage />
-				</TransitionSeries.Sequence>
+      {/* Crossfade between scenes */}
+      <CrossfadeOverlay />
+    </AbsoluteFill>
+  )
+}
 
-				<TransitionSeries.Transition
-					presentation={fade()}
-					timing={linearTiming({ durationInFrames: 15 })}
-				/>
+function CrossfadeOverlay() {
+  const f = useCurrentFrame()
+  const fade1 = sceneCrossfade(f, 115)
+  const fade2 = sceneCrossfade(f, 415)
 
-				<TransitionSeries.Sequence durationInFrames={120}>
-					<Scene3_CTA />
-				</TransitionSeries.Sequence>
-			</TransitionSeries>
-		</AbsoluteFill>
-	)
+  return (
+    <>
+      <div style={{
+        position: "absolute", inset: 0, background: "#000",
+        opacity: fade1 * 0.5, pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute", inset: 0, background: "#000",
+        opacity: fade2 * 0.5, pointerEvents: "none",
+      }} />
+    </>
+  )
+}
+
+function sceneCrossfade(frame: number, startFrame: number) {
+  return interpolate(frame, [startFrame, startFrame + 5], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  })
 }
