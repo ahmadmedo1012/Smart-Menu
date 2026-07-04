@@ -1,6 +1,7 @@
-import { AbsoluteFill, useCurrentFrame, OffthreadVideo, interpolate } from "remotion"
+import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion"
 import { loadFont } from "@remotion/google-fonts/Tajawal"
-import { VIDEO_URLS, O } from "../shared"
+import { VideoBg } from "../VideoBg"
+import { VIDEO_URLS, BG_GRADIENT, O } from "../shared"
 import { Scene2A_PlanSelect } from "./Scene2A_PlanSelect"
 import { Scene2B_Payment } from "./Scene2B_Payment"
 import { Scene2C_Validation } from "./Scene2C_Validation"
@@ -22,10 +23,7 @@ export const Scene2_Checkout: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#000", fontFamily }}>
-      <OffthreadVideo src={VIDEO_URLS.scene2} style={{
-        position: "absolute", inset: 0, width: "100%", height: "100%",
-        objectFit: "cover", opacity: videoOp,
-      }} muted />
+      <VideoBg src={VIDEO_URLS.scene2} gradient={BG_GRADIENT.scene2} opacity={videoOp} />
       <div style={{
         position: "absolute", inset: 0,
         background: "linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.4) 100%)",

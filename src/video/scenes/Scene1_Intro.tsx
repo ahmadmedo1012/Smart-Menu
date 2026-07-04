@@ -1,6 +1,7 @@
-import { AbsoluteFill, useCurrentFrame, OffthreadVideo, Audio, Sequence, interpolate } from "remotion"
+import { AbsoluteFill, useCurrentFrame, Audio, Sequence, interpolate } from "remotion"
 import { loadFont } from "@remotion/google-fonts/Tajawal"
-import { VIDEO_URLS, AUDIO_URLS, springEntry, fadeIn, SPRING_CONFIGS, O, TXT, TXT_MUTED, GLOW } from "../shared"
+import { VideoBg } from "../VideoBg"
+import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, SPRING_CONFIGS, O, TXT, TXT_MUTED, GLOW } from "../shared"
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "500", "700", "800"] })
 
@@ -14,10 +15,7 @@ export const Scene1_Intro: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "#000", fontFamily }}>
-      <OffthreadVideo src={VIDEO_URLS.scene1} style={{
-        position: "absolute", inset: 0, width: "100%", height: "100%",
-        objectFit: "cover", opacity: videoOp,
-      }} muted />
+      <VideoBg src={VIDEO_URLS.scene1} gradient={BG_GRADIENT.scene1} opacity={videoOp} />
       <div style={{
         position: "absolute", inset: 0,
         background: "linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 30%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.3) 100%)",
