@@ -53,12 +53,12 @@ function SubscribeContent() {
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [form, setForm] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    phone: "",
-    whatsapp: "",
-    username: "",
+    name: "مقهى الواحة",
+    slug: "al-waha-cafe",
+    description: "مقهى ومطعم يقدم أشهى المشروبات",
+    phone: "0910089975",
+    whatsapp: "0910089975",
+    username: "admin",
     password: "",
   });
 
@@ -89,14 +89,18 @@ function SubscribeContent() {
     }
   };
   const isFormValid =
-    !fieldError("name") &&
-    !fieldError("slug") &&
-    !fieldError("username") &&
-    !fieldError("password");
+    form.name.trim().length >= 2 &&
+    form.slug.trim().length >= 2 &&
+    form.username.trim().length >= 3 &&
+    form.password.trim().length >= 4;
 
   const handleSubmit = async () => {
     setSubmitted(true);
-    if (!selectedPlan || !isFormValid) return;
+    if (!selectedPlan ||
+        form.name.trim().length < 2 ||
+        form.slug.trim().length < 2 ||
+        form.username.trim().length < 3 ||
+        form.password.trim().length < 4) return;
 
     // Paid plan → show payment dialog (account NOT created until admin approves)
     if (currentPlan && Number(currentPlan.price) > 0) {
