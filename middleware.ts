@@ -8,7 +8,7 @@ const publicPrefixes = [
   "/uploads", "/fonts", "/sw.js", "/manifest.json",
   "/brand-icon.png", "/icon-192.png", "/icon-512.png",
   "/api/auth", "/api/loyalty", "/api/subscriptions", "/api/plans", "/api/restaurants",
-  "/api/telegram/webhook", "/api/telegram/diagnose-keyboard", "/api/telegram/diag-last",
+  "/api/telegram/webhook",
   "/login", "/menu", "/cart", "/order-confirmed",
   "/pricing", "/subscribe", "/demo", "/checkout",
 ];

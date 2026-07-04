@@ -37,19 +37,11 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
     return new Response("OK", { status: 200 });
   }
 
-  // Gate 1: allow group members if message is in a trusted group, else check admin IDs
-  const groupIds = (process.env.TELEGRAM_GROUP_IDS ?? "")
-    .split(",")
-    .map((s) => Number(s.trim()))
-    .filter((n) => Number.isFinite(n) && n < 0);
-  const isFromTrustedGroup = cq.message?.chat?.id && groupIds.includes(cq.message.chat.id);
-
-  if (!isFromTrustedGroup) {
-    const adminIds = getAdminTelegramIds();
-    if (!adminIds.includes(cq.from.id)) {
-      await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
-      return new Response("OK", { status: 200 });
-    }
+  // Gate 1: only allowlisted admin Telegram IDs may act
+  const adminIds = getAdminTelegramIds();
+  if (!adminIds.includes(cq.from.id)) {
+    await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
+    return new Response("OK", { status: 200 });
   }
 
   const callbackData = cq.data ?? "";
