@@ -30,21 +30,22 @@ export async function resolveSubscriptionPayment(
         data: { status: "verified" },
       });
 
-      const restaurant = await tx.restaurant.create({
-        data: {
-          name: restaurantName,
-          slug: restaurantSlug,
-          phone: existing.phone,
-          planId: existing.planId,
-          planStart: new Date(),
-          planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          isActive: true,
-        },
-      });
-
-      // Guard: only promote user if userId exists (anonymous payment via /api/subscriptions)
+      // Guard: skip restaurant+user creation if no userId (anonymous payment)
+      let restaurant = null;
       let user = null;
       if (existing.userId) {
+        restaurant = await tx.restaurant.create({
+          data: {
+            name: restaurantName,
+            slug: restaurantSlug,
+            phone: existing.phone,
+            planId: existing.planId,
+            planStart: new Date(),
+            planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            isActive: true,
+          },
+        });
+
         user = await tx.user.update({
           where: { id: existing.userId },
           data: {
@@ -55,6 +56,10 @@ export async function resolveSubscriptionPayment(
           },
           select: { id: true, username: true, role: true, subscriptionStatus: true, restaurantId: true },
         });
+      } else {
+        // ponytail: anonymous payment — no user to promote, no restaurant to create.
+        // Payment is marked verified for manual bookkeeping. Add admin-panel UI to
+        // attach an owner later if this becomes a real onboarding path.
       }
 
       return { updated, restaurant, user };
@@ -77,7 +82,7 @@ export async function resolveSubscriptionPayment(
       timestamp: new Date().toISOString(),
     });
 
-    return { ok: true, action: "verified", paymentId, restaurant: { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug }, user: result.user ?? undefined };
+    return { ok: true, action: "verified", paymentId, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
   }
 
   // decision === "cancelled"
