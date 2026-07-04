@@ -90,6 +90,17 @@ export async function resolveSubscriptionPayment(
       timestamp: new Date().toISOString(),
     });
 
+    // SSE for user — real-time redirect on checkout page
+    if (existing.userId) {
+      eventEmitter.emit("user-event", {
+        userId: existing.userId,
+        type: "subscription_approved",
+        message: "تم تفعيل حسابك بنجاح!",
+        restaurantSlug,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     return { ok: true, action: "verified", paymentId, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
   }
 

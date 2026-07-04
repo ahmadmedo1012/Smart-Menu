@@ -114,14 +114,17 @@ export default function CheckoutPage() {
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.type === "subscription_rejected") {
+        if (data.type === "subscription_approved") {
+          premiumToast("success", "تم تفعيل حسابك! جاري التحويل...");
+          router.push("/owner");
+        } else if (data.type === "subscription_rejected") {
           setRejected(true);
           setRejectionMessage(
             data.message ||
               "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني."
           );
           setSubmitted(false);
-          setSubmitting(false); // force unlock form + button
+          setSubmitting(false);
           premiumToast("error", "تم رفض طلب التفعيل");
         }
       } catch {}
@@ -130,7 +133,7 @@ export default function CheckoutPage() {
     return () => {
       es.close();
     };
-  }, [loading]);
+  }, [loading, router]);
 
   const handleSubmit = useCallback(async () => {
     if (!selectedPlan || !phone.trim() || !tempRestaurantName.trim() || !tempRestaurantSlug.trim()) {
