@@ -16,6 +16,7 @@ export async function requireAuth(opts?: { requireRestaurant?: boolean }) {
         userId: user.id,
         role: user.role,
         restaurantId: user.restaurantId,
+        subscriptionStatus: (user as any).subscriptionStatus ?? null,
         permissions: (user as any).permissions ?? [],
       };
     }

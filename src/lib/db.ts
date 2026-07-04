@@ -44,7 +44,7 @@ export async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T
 export async function getUserById(id: number) {
   return prisma.user.findUnique({
     where: { id },
-    select: { id: true, role: true, restaurantId: true, permissions: true },
+    select: { id: true, role: true, restaurantId: true, permissions: true, subscriptionStatus: true },
   });
 }
 

@@ -10,6 +10,7 @@ export async function GET() {
       authenticated: true,
       role: auth.role,
       restaurantId: auth.restaurantId,
+      subscriptionStatus: (auth as any).subscriptionStatus ?? null,
     });
   } catch (e) {
     return handleError(e);

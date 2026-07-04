@@ -11,6 +11,7 @@ model User {
   id           Int               @id @default(autoincrement())
   username     String            @unique
   password     String
+  subscriptionStatus String @default("UNPAID")
   name         String
   email        String   @default("")
   phone        String   @default("")
@@ -30,6 +31,7 @@ model User {
   notificationPrefs      Json      @default("{}")
   auditLogs             AuditLog[]
   sessions     Session[]
+  subscriptionPayments  SubscriptionPayment[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id])
 
@@ -315,16 +317,20 @@ model Session {
 
 model SubscriptionPayment {
   id        Int      @id @default(autoincrement())
+  userId    Int?
   phone     String
   amount    Decimal  @db.Decimal(10, 2)
   provider  String   @default("")
   planId    Int
   planName  String   @default("")
   status    String   @default("pending")
+  metadata  Json     @default("{}")
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@index([status])
   @@index([createdAt])
+  @@index([userId])
 }
 
 model SystemConfig {
@@ -372,6 +378,7 @@ enum Role {
   sub_admin
   admin
   owner
+  USER
 }
 
 enum Permission {

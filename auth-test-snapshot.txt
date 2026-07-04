@@ -1,0 +1,19 @@
+uid=74_0 RootWebArea "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي" url="https://smart-menu-sigma.vercel.app/login?redirect=%2Fowner%2Fmenu"
+  uid=74_1 button "العودة للأعلى"
+  uid=74_2 link "العودة للرئيسية" url="https://smart-menu-sigma.vercel.app/"
+    uid=74_3 button "العودة للرئيسية"
+  uid=74_4 button "الوضع الليلي"
+  uid=74_5 image "الربط الذكي" url="https://smart-menu-sigma.vercel.app/_next/image?url=%2Fbrand-icon.png&w=256&q=75"
+  uid=74_6 StaticText "الربط الذكي"
+  uid=74_7 StaticText "لوحة تحكم المطاعم"
+  uid=74_8 form
+    uid=74_9 StaticText "اسم المستخدم"
+    uid=74_10 textbox "اسم المستخدم" focusable focused required
+    uid=74_11 StaticText "كلمة المرور"
+    uid=74_12 textbox "كلمة المرور" required
+    uid=74_13 button "إظهار كلمة المرور"
+    uid=74_14 button "تسجيل الدخول"
+  uid=74_15 StaticText "نظام إدارة المطاعم — الربط الذكي"
+  uid=74_16 link "تواصل عبر واتساب" url="https://wa.me/218910089975"
+  uid=74_17 region "Notifications alt+T" live="polite" relevant="additions text"
+  uid=74_18 alert atomic live="assertive" relevant="additions text"

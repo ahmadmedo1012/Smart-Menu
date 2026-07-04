@@ -1,0 +1,169 @@
+- generic [active] [ref=f3e1]:
+  - img
+  - button "العودة للأعلى":
+    - img
+  - generic [ref=f3e4]:
+    - complementary "شريط التنقل الجانبي" [ref=f3e5]:
+      - generic [ref=f3e6]:
+        - img [ref=f3e8]
+        - generic [ref=f3e12]:
+          - paragraph [ref=f3e13]: الربط الذكي
+          - paragraph [ref=f3e14]: لوحة التحكم
+      - navigation "القائمة الرئيسية" [ref=f3e15]:
+        - link "(الصفحة الحالية) لوحة التحكم" [ref=f3e16] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f3e18]: (الصفحة الحالية)
+          - img [ref=f3e19]
+          - generic [ref=f3e24]: لوحة التحكم
+        - link "المطاعم" [ref=f3e25] [cursor=pointer]:
+          - /url: /admin/restaurants
+          - img [ref=f3e26]
+          - generic [ref=f3e30]: المطاعم
+        - link "المستخدمون" [ref=f3e31] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=f3e32]
+          - generic [ref=f3e37]: المستخدمون
+        - link "المسؤولون" [ref=f3e38] [cursor=pointer]:
+          - /url: /admin/admins
+          - img [ref=f3e39]
+          - generic [ref=f3e41]: المسؤولون
+        - link "المينيو" [ref=f3e42] [cursor=pointer]:
+          - /url: /admin/menu
+          - img [ref=f3e43]
+          - generic [ref=f3e48]: المينيو
+        - link "الطلبات" [ref=f3e49] [cursor=pointer]:
+          - /url: /admin/orders
+          - img [ref=f3e50]
+          - generic [ref=f3e53]: الطلبات
+        - link "رمز QR" [ref=f3e54] [cursor=pointer]:
+          - /url: /admin/qr
+          - img [ref=f3e55]
+          - generic [ref=f3e61]: رمز QR
+        - link "(الصفحة الحالية) المدفوعات" [ref=f3e62] [cursor=pointer]:
+          - /url: /admin/subscriptions
+          - generic [ref=f3e64]: (الصفحة الحالية)
+          - img [ref=f3e65]
+          - generic [ref=f3e67]: المدفوعات
+        - link "التليجرام" [ref=f3e68] [cursor=pointer]:
+          - /url: /admin/telegram
+          - img [ref=f3e69]
+          - generic [ref=f3e71]: التليجرام
+        - link "سجل التدقيق" [ref=f3e72] [cursor=pointer]:
+          - /url: /admin/audit-logs
+          - img [ref=f3e73]
+          - generic [ref=f3e75]: سجل التدقيق
+        - link "الإعدادات" [ref=f3e76] [cursor=pointer]:
+          - /url: /admin/settings
+          - img [ref=f3e77]
+          - generic [ref=f3e80]: الإعدادات
+      - link "العودة للموقع" [ref=f3e82] [cursor=pointer]:
+        - /url: /
+        - img [ref=f3e83]
+        - text: العودة للموقع
+    - generic [ref=f3e85]:
+      - banner [ref=f3e86]:
+        - generic [ref=f3e87]:
+          - heading "لوحة التحكم" [level=1] [ref=f3e89]
+          - button "بحث سريع (⌘K)" [ref=f3e90]:
+            - img [ref=f3e91]
+            - generic [ref=f3e94]: بحث سريع...
+            - generic [ref=f3e95]:
+              - generic [ref=f3e96]: ⌘
+              - text: K
+          - button "الوضع النهاري" [ref=f3e97] [cursor=pointer]:
+            - img [ref=f3e99]
+      - main "محتوى الصفحة" [ref=f3e101]:
+        - generic [ref=f3e103]:
+          - generic [ref=f3e112]:
+            - heading "إدارة الاشتراكات" [level=2] [ref=f3e113]
+            - paragraph [ref=f3e114]: 3 اشتراك
+          - generic [ref=f3e115]:
+            - generic [ref=f3e116]:
+              - paragraph [ref=f3e117]: الإجمالي
+              - paragraph [ref=f3e118]: "3"
+            - generic [ref=f3e119]:
+              - paragraph [ref=f3e120]: قيد الانتظار
+              - paragraph [ref=f3e121]: "3"
+            - generic [ref=f3e122]:
+              - paragraph [ref=f3e123]: تم التحقق
+              - paragraph [ref=f3e124]: "0"
+            - generic [ref=f3e125]:
+              - paragraph [ref=f3e126]: ملغى
+              - paragraph [ref=f3e127]: "0"
+          - generic [ref=f3e128]:
+            - combobox "فلتر الحالة" [ref=f3e129]:
+              - generic [ref=f3e130]: pending
+              - img: ▼
+            - textbox [ref=f3e131]: pending
+          - generic [ref=f3e132]:
+            - generic [ref=f3e134]:
+              - generic [ref=f3e135]:
+                - img [ref=f3e137]
+                - generic [ref=f3e139]:
+                  - generic [ref=f3e140]:
+                    - paragraph [ref=f3e141]: "0912345678"
+                    - generic [ref=f3e142]: قيد الانتظار
+                  - generic [ref=f3e143]:
+                    - generic [ref=f3e144]: 19 د.ل
+                    - generic [ref=f3e145]: •
+                    - generic [ref=f3e146]: ليبيانا
+                    - generic [ref=f3e147]: •
+                    - generic [ref=f3e148]: أساسي
+                    - generic [ref=f3e149]: •
+                    - generic [ref=f3e150]:
+                      - img [ref=f3e151]
+                      - text: 04/07/2026 02:13
+              - generic [ref=f3e154]:
+                - button "تأكيد الدفع" [ref=f3e155]:
+                  - img [ref=f3e156]
+                - button "إلغاء" [ref=f3e158]:
+                  - img [ref=f3e159]
+            - generic [ref=f3e163]:
+              - generic [ref=f3e164]:
+                - img [ref=f3e166]
+                - generic [ref=f3e168]:
+                  - generic [ref=f3e169]:
+                    - paragraph [ref=f3e170]: "58588"
+                    - generic [ref=f3e171]: قيد الانتظار
+                  - generic [ref=f3e172]:
+                    - generic [ref=f3e173]: 19 د.ل
+                    - generic [ref=f3e174]: •
+                    - generic [ref=f3e175]: ليبيانا
+                    - generic [ref=f3e176]: •
+                    - generic [ref=f3e177]: أساسي
+                    - generic [ref=f3e178]: •
+                    - generic [ref=f3e179]:
+                      - img [ref=f3e180]
+                      - text: 04/07/2026 01:58
+              - generic [ref=f3e183]:
+                - button "تأكيد الدفع" [ref=f3e184]:
+                  - img [ref=f3e185]
+                - button "إلغاء" [ref=f3e187]:
+                  - img [ref=f3e188]
+            - generic [ref=f3e192]:
+              - generic [ref=f3e193]:
+                - img [ref=f3e195]
+                - generic [ref=f3e197]:
+                  - generic [ref=f3e198]:
+                    - paragraph [ref=f3e199]: "5858548"
+                    - generic [ref=f3e200]: قيد الانتظار
+                  - generic [ref=f3e201]:
+                    - generic [ref=f3e202]: 19 د.ل
+                    - generic [ref=f3e203]: •
+                    - generic [ref=f3e204]: ليبيانا
+                    - generic [ref=f3e205]: •
+                    - generic [ref=f3e206]: أساسي
+                    - generic [ref=f3e207]: •
+                    - generic [ref=f3e208]:
+                      - img [ref=f3e209]
+                      - text: 04/07/2026 01:57
+              - generic [ref=f3e212]:
+                - button "تأكيد الدفع" [ref=f3e213]:
+                  - img [ref=f3e214]
+                - button "إلغاء" [ref=f3e216]:
+                  - img [ref=f3e217]
+  - link "تواصل عبر واتساب" [ref=f3e107] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+    - img [ref=f3e108]
+  - region "Notifications alt+T"
+  - alert [ref=f3e110]

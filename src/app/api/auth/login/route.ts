@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { username },
-      select: { id: true, username: true, password: true, name: true, role: true, restaurantId: true },
+      select: { id: true, username: true, password: true, name: true, role: true, restaurantId: true, subscriptionStatus: true },
     });
     if (!user) {
       return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);
@@ -64,12 +64,13 @@ export async function POST(request: Request) {
     if (user.restaurantId) {
       cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
     }
+    cookieStore.set("smart-menu-subscription-status", user.subscriptionStatus ?? "UNPAID", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
     cookieStore.set("csrf-token", generateToken(), { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 });
 
     return Response.json({
       success: true,
       message: "تم تسجيل الدخول بنجاح",
-      user: { id: user.id, username: user.username, name: user.name, role: user.role, restaurantId: user.restaurantId },
+      user: { id: user.id, username: user.username, name: user.name, role: user.role, restaurantId: user.restaurantId, subscriptionStatus: user.subscriptionStatus ?? "UNPAID" },
     });
   } catch (e) {
     logError("Login error:", { error: e instanceof Error ? e.message : String(e) });

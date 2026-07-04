@@ -9,7 +9,7 @@ const publicPrefixes = [
   "/brand-icon.png", "/icon-192.png", "/icon-512.png",
   "/api/auth", "/api/loyalty", "/api/subscriptions", "/api/plans", "/api/restaurants",
   "/login", "/menu", "/cart", "/order-confirmed",
-  "/pricing", "/subscribe", "/demo",
+  "/pricing", "/subscribe", "/demo", "/checkout",
 ];
 
 function setCsrfCookie(resp: NextResponse, req: NextRequest) {
@@ -72,10 +72,21 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    if (pathname.startsWith("/owner") && (!hasAuth || roleCookie !== "owner")) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+    if (pathname.startsWith("/owner")) {
+      if (!hasAuth) {
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("redirect", pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      // If role is USER (not yet approved), redirect to /checkout
+      if (roleCookie === "USER") {
+        return NextResponse.redirect(new URL("/checkout", request.url));
+      }
+      // Also guard against unpaid owners (edge case)
+      const subStatus = request.cookies.get("smart-menu-subscription-status")?.value;
+      if (subStatus && subStatus !== "PAID") {
+        return NextResponse.redirect(new URL("/checkout", request.url));
+      }
     }
 
     return response;
