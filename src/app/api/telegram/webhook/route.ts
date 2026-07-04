@@ -7,9 +7,24 @@ interface TelegramUpdate {
     text?: string;
     chat?: { id: number; username?: string };
   };
+  callback_query?: {
+    id: string;
+    from: { id: number };
+    message?: { chat: { id: number }; message_id: number };
+    data?: string;
+  };
 }
 
 export async function POST(request: NextRequest) {
+  // Gate 0: prove this request actually came from Telegram (optional — skip if unset for dev)
+  const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (expectedSecret) {
+    const incomingSecret = request.headers.get("x-telegram-bot-api-secret-token");
+    if (incomingSecret !== expectedSecret) {
+      return new Response("Forbidden", { status: 403 });
+    }
+  }
+
   try {
     const update: TelegramUpdate = await request.json();
     const text = update.message?.text ?? "";
