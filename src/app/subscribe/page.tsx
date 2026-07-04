@@ -118,7 +118,15 @@ function SubscribeContent() {
   };
 
   const createAccount = async () => {
-    if (!selectedPlan) return;
+    setSubmitted(true);
+    if (!selectedPlan ||
+        form.name.trim().length < 2 ||
+        form.slug.trim().length < 2 ||
+        form.username.trim().length < 3 ||
+        form.password.trim().length < 4) {
+      premiumToast("error", "يرجى تعبئة جميع الحقول المطلوبة");
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await csrfFetch("/api/restaurants", {
@@ -291,7 +299,7 @@ function SubscribeContent() {
               </div>
             )}
 
-            <div className="space-y-5">
+            <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
               {/* Restaurant name + slug */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -302,6 +310,7 @@ function SubscribeContent() {
                     placeholder="مقهى الواحة"
                     className={cn("h-11 mt-1.5", fieldError("name") && "border-destructive ring-1 ring-destructive/30")}
                     aria-invalid={fieldError("name") || undefined}
+                    required
                   />
                   {fieldError("name") && <p className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>}
                 </div>
@@ -318,6 +327,7 @@ function SubscribeContent() {
                       className={cn("h-11 rounded-[4px] -me-[2px] text-left", fieldError("slug") && "border-destructive ring-1 ring-destructive/30")}
                       dir="ltr"
                       aria-invalid={fieldError("slug") || undefined}
+                      required
                     />
                   </div>
                   {fieldError("slug") && <p className="text-xs text-destructive mt-1">الرابط مطلوب (حرفان على الأقل)</p>}
@@ -380,6 +390,7 @@ function SubscribeContent() {
                     className={cn("h-11 mt-1.5 text-left", fieldError("username") && "border-destructive ring-1 ring-destructive/30")}
                     dir="ltr"
                     aria-invalid={fieldError("username") || undefined}
+                    required
                   />
                   {fieldError("username") && <p className="text-xs text-destructive mt-1">اسم المستخدم مطلوب (3 أحرف على الأقل)</p>}
                 </div>
@@ -392,6 +403,7 @@ function SubscribeContent() {
                     placeholder="أدخل كلمة المرور"
                     className={cn("h-11 mt-1.5", fieldError("password") && "border-destructive ring-1 ring-destructive/30")}
                     aria-invalid={fieldError("password") || undefined}
+                    required
                   />
                   {fieldError("password") && <p className="text-xs text-destructive mt-1">كلمة المرور مطلوبة (4 أحرف على الأقل)</p>}
                 </div>
@@ -425,7 +437,7 @@ function SubscribeContent() {
               <Button
                 className="w-full h-14 text-base font-semibold rounded-sm mt-4"
                 size="lg"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={!isFormValid || submitting}
               >
                 {submitting ? (
@@ -445,7 +457,7 @@ function SubscribeContent() {
                 بالضغط على إنشاء الحساب، أنت توافق على{" "}
                 <Link href="/terms" className="text-primary underline">شروط الخدمة</Link>
               </p>
-            </div>
+            </form>
           </div>
         )}
       </div>

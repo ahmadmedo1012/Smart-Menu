@@ -123,6 +123,7 @@ function LoginForm() {
                 <Input
                   id="username"
                   type="text"
+                  autoComplete="username"
                   dir="auto"
                   placeholder="اسم المستخدم"
                   value={username}
@@ -142,6 +143,7 @@ function LoginForm() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   dir="auto"
                   placeholder="كلمة المرور"
                   value={password}
