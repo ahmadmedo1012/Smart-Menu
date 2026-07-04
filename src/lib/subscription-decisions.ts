@@ -24,6 +24,14 @@ export async function resolveSubscriptionPayment(
     const restaurantName = meta?.tempRestaurantName ?? `مطعم ${existing.phone}`;
     const restaurantSlug = meta?.tempRestaurantSlug ?? `restaurant-${existing.id}`;
 
+    // Guard: re-check slug hasn't been taken since payment was created (race window)
+    if (existing.userId) {
+      const slugTaken = await prisma.restaurant.findUnique({ where: { slug: restaurantSlug } });
+      if (slugTaken) {
+        return { ok: false, reason: "رابط المطعم محجوز مسبقاً. يُرجى إبلاغ العميل باختيار رابط آخر." };
+      }
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       const updated = await tx.subscriptionPayment.update({
         where: { id: paymentId },
