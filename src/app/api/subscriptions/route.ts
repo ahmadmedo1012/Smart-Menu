@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { getAdminTelegramIds } from "@/lib/telegram-admin";
+import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 import { z } from "zod";
 
 const subscriptionLimiter = createRateLimiter({ windowMs: 60_000, max: 5 });
@@ -39,7 +41,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Notify admin directly (bypasses event filter config)
+    // Notify via broadcast (plain text, for historical channels)
     sendTelegramNotification(
       `*طلب اشتراك جديد*\n` +
       `• الباقة: ${plan?.nameAr ?? "غير معروف"}\n` +
@@ -49,6 +51,43 @@ export async function POST(request: NextRequest) {
       `• الحالة: قيد الانتظار`,
       { parseMode: "Markdown" }
     );
+
+    // Also send interactive keyboard to admin IDs and broadcast targets
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
+    if (botToken) {
+      const adminIds = getAdminTelegramIds();
+      const chatIds = new Set<string>();
+
+      if (adminIds.length > 0) {
+        for (const id of adminIds) chatIds.add(String(id));
+      }
+
+      const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
+        where: { isActive: true },
+        select: { chatId: true },
+      });
+      for (const t of broadcastTargets) {
+        if (t.chatId !== String(adminIds[0])) chatIds.add(t.chatId);
+      }
+
+      if (chatIds.size > 0) {
+        const msg = `🆕 *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
+        const telegramMessages: { chatId: number; messageId: number }[] = [];
+        for (const chatId of chatIds) {
+          const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
+            [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
+            [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
+          ], { parseMode: "Markdown" });
+          if (sent) telegramMessages.push({ chatId: sent.chat.id, messageId: sent.message_id });
+        }
+        if (telegramMessages.length > 0) {
+          await prisma.subscriptionPayment.update({
+            where: { id: payment.id },
+            data: { metadata: { telegramMessages } },
+          });
+        }
+      }
+    }
 
     return success({ id: payment.id }, 201);
   } catch (e) {
