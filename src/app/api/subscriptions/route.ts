@@ -72,7 +72,6 @@ export async function POST(request: NextRequest) {
 
     return success({ id: payment.id }, 201);
   } catch (e) {
-    console.error("[subscriptions] UNHANDLED:", e);
     return handleError(e);
   }
 }

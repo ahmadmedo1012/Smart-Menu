@@ -321,7 +321,7 @@ model SubscriptionPayment {
   userId    Int?
   phone     String
   amount    Decimal  @db.Decimal(10, 2)
-  provider  PaymentProvider @default(libyana)
+  provider  String   @default("libyana")
   planId    Int
   planName  String   @default("")
   status    PaymentStatus   @default(pending)
@@ -385,11 +385,6 @@ enum PaymentStatus {
   pending
   verified
   cancelled
-}
-
-enum PaymentProvider {
-  libyana
-  madar
 }
 
 enum EventSeverity {
