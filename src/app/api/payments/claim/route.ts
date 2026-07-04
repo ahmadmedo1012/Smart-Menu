@@ -81,22 +81,25 @@ export async function POST(request: NextRequest) {
     const config = await prisma.telegramConfig.findFirst();
     const botToken = config?.botToken || process.env.TELEGRAM_BOT_TOKEN;
     if (botToken) {
+      // Resolve target chat IDs: admin allowlist (env) + broadcast targets (DB)
       const adminIds = getAdminTelegramIds();
+      const chatIds = new Set<string>();
+
+      // 1. Admin allowlist — always include raw IDs; Telegram rejects unstarted chats silently
       if (adminIds.length > 0) {
-        // Resolve admin IDs to chat IDs — adminIds are Telegram user IDs, match against telegramChatId
-        const linkedUsers = await prisma.user.findMany({
-          where: { telegramChatId: { in: adminIds.map(String) } },
-          select: { telegramChatId: true },
-        });
-        // Fallback: use numeric admin IDs directly (group/supergroup chat IDs)
-        const linkedSet = new Set(linkedUsers.map((u) => u.telegramChatId!));
-        const directIds = adminIds.filter((id) => !linkedSet.has(String(id)));
-        const chatIds = [
-          ...new Set([
-            ...linkedUsers.map((u) => u.telegramChatId!),
-            ...directIds.map(String),
-          ]),
-        ];
+        for (const id of adminIds) {
+          chatIds.add(String(id));
+        }
+      }
+
+      // 2. Broadcast targets (channels/groups from admin panel)
+      const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
+        where: { isActive: true },
+        select: { chatId: true },
+      });
+      for (const t of broadcastTargets) chatIds.add(t.chatId);
+
+      if (chatIds.size > 0) {
 
         const msgParts = [
           `🆕 *طلب اشتراك جديد* #${payment.id}`,
