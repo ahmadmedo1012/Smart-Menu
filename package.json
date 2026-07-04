@@ -19,7 +19,6 @@
     "@prisma/client": "^7.8.0",
     "@remotion/google-fonts": "4.0.484",
     "@remotion/media": "4.0.484",
-    "@remotion/transitions": "4.0.484",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
