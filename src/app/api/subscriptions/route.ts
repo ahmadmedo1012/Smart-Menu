@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { success, error, handleError } from "@/lib/api-helpers";
+import { success, error } from "@/lib/api-helpers";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
@@ -72,6 +72,9 @@ export async function POST(request: NextRequest) {
 
     return success({ id: payment.id }, 201);
   } catch (e) {
-    return handleError(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error ? e.stack : "";
+    console.error("[subscriptions/500]", msg, stack);
+    return error(`خطأ: ${msg}`, 500);
   }
 }
