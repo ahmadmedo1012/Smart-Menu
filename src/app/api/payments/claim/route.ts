@@ -44,9 +44,13 @@ export async function POST(request: NextRequest) {
     });
     if (!plan || !plan.isActive) return error("الباقة غير موجودة أو غير نشطة", 400);
 
-    // Check slug uniqueness
+    // Check slug uniqueness: active restaurants + pending payments
     const slugExists = await prisma.restaurant.findUnique({ where: { slug: tempRestaurantSlug } });
     if (slugExists) return error("رابط المطعم مستخدم مسبقاً", 409);
+    const slugPending = await prisma.subscriptionPayment.findFirst({
+      where: { status: "pending", metadata: { path: ["tempRestaurantSlug"], equals: tempRestaurantSlug } },
+    });
+    if (slugPending) return error("رابط المطعم محجوز بطلب دفع معلق", 409);
 
     // Check user has no pending payment
     const pendingPayment = await prisma.subscriptionPayment.findFirst({

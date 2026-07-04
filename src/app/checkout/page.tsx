@@ -121,6 +121,7 @@ export default function CheckoutPage() {
               "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني."
           );
           setSubmitted(false);
+          setSubmitting(false); // force unlock form + button
           premiumToast("error", "تم رفض طلب التفعيل");
         }
       } catch {}
