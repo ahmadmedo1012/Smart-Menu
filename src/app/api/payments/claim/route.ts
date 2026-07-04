@@ -4,7 +4,6 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { z } from "zod";
 import { createRateLimiter } from "@/lib/rate-limit";
-import { notifyEvent } from "@/lib/telegram";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 
@@ -73,13 +72,10 @@ export async function POST(request: NextRequest) {
       select: { id: true, status: true, createdAt: true },
     });
 
-    // Notify existing broadcast targets (plain text, no buttons)
-    await notifyEvent("payment_claimed", {
-      userId: auth.userId,
-      plan: plan.name,
-      tempRestaurantName,
-      tempRestaurantSlug,
-    });
+    // Interactive keyboard sent below to admin allowlist only — plain-text
+    // notifyEvent deliberately omitted here to avoid leaking payment data
+    // to non-admin Telegram-linked users. The keyboard message carries the
+    // same info plus approval actions.
 
     // Send interactive inline keyboard to admin allowlist
     const config = await prisma.telegramConfig.findFirst();
