@@ -1,9 +1,12 @@
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence, interpolate } from "remotion"
 import { loadFont } from "@remotion/google-fonts/Cairo"
 import { VideoBg } from "../VideoBg"
-import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, O, TEAL, TXT, TXT_MUTED, DARK_OVERLAY } from "../shared"
+import { VIDEO_URLS, BG_GRADIENT, AUDIO_URLS, springEntry, fadeIn, O, TEAL, TXT } from "../shared"
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "700", "800"] })
+
+// Brighter overlay for better readability
+const SOFT_OVERLAY = "linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.15) 100%)"
 
 export const Scene2_Checkout: React.FC = () => {
   const f = useCurrentFrame()
@@ -19,7 +22,8 @@ export const Scene2_Checkout: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#000", fontFamily }}>
       <VideoBg src={VIDEO_URLS.scene2} gradient={BG_GRADIENT.scene2} opacity={videoOp} />
-      <div style={{ position: "absolute", inset: 0, background: DARK_OVERLAY }} />
+      {/* Lighter overlay — content pops */}
+      <div style={{ position: "absolute", inset: 0, background: SOFT_OVERLAY }} />
 
       <div style={{
         position: "absolute", inset: 0,
@@ -31,45 +35,46 @@ export const Scene2_Checkout: React.FC = () => {
         <div dir="rtl" style={{
           fontSize: 52, fontWeight: 800, color: TXT,
           textAlign: "center", lineHeight: 1.25,
-          textShadow: "0 10px 30px rgba(0,0,0,0.8)",
+          textShadow: "0 8px 30px rgba(0,0,0,0.9)",
           opacity: titleS.opacity,
           transform: `scale(${titleS.scale}) translateY(${titleS.translateY}px)`,
-          marginBottom: 16,
+          marginBottom: 14,
         }}>
           احجز رابط مطعمك الخاص فوراً
         </div>
-        <div style={{ width: 50, height: 3, borderRadius: 2, background: TEAL, marginBottom: 28, opacity: lineOp }} />
+        <div style={{ width: 50, height: 3, borderRadius: 2, background: TEAL, marginBottom: 24, opacity: lineOp, boxShadow: `0 0 15px ${TEAL}66` }} />
 
-        {/* Checkout UI card — larger, lighter */}
+        {/* Checkout UI card — much brighter bg */}
         <div style={{
           width: "92%", maxWidth: 480, borderRadius: 28,
-          padding: "32px 28px",
-          background: "rgba(255,255,255,0.07)",
-          border: "1px solid rgba(255,255,255,0.12)",
+          padding: "30px 26px",
+          background: "rgba(255,255,255,0.12)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          backdropFilter: "blur(8px)",
           opacity: cardS.opacity,
           transform: `scale(${cardS.scale}) translateY(${cardS.translateY}px)`,
         }}>
           {/* Input label */}
-          <div dir="rtl" style={{ fontSize: 15, color: TXT_MUTED, marginBottom: 8, fontWeight: 600 }}>
+          <div dir="rtl" style={{ fontSize: 15, color: "rgba(255,255,255,0.7)", marginBottom: 8, fontWeight: 700 }}>
             اسم المطعم
           </div>
 
-          {/* Input field */}
+          {/* Input field — bright bg */}
           <div style={{
             padding: "18px 20px", borderRadius: 16,
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.15)",
+            border: "1px solid rgba(255,255,255,0.2)",
             display: "flex", alignItems: "center", gap: 10,
           }}>
-            <div style={{ flex: 1, fontSize: 22, fontWeight: 700, color: TXT, letterSpacing: "-0.01em" }}>
+            <div style={{ flex: 1, fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
               grilled_food_hub
             </div>
-            {/* Verified checkmark — large, bright */}
+            {/* Verified checkmark — glow prominent */}
             <div style={{
               width: 36, height: 36, borderRadius: "50%",
-              background: `${TEAL}20`, border: `2.5px solid ${TEAL}`,
+              background: `${TEAL}30`, border: `2.5px solid ${TEAL}`,
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: `0 0 20px ${TEAL}44`,
+              boxShadow: `0 0 25px ${TEAL}66`,
             }}>
               <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth={3.5}>
                 <polyline points="20 6 9 17 4 12" />
@@ -77,31 +82,33 @@ export const Scene2_Checkout: React.FC = () => {
             </div>
           </div>
 
-          {/* Slug availability — bigger */}
+          {/* Slug availability */}
           <div dir="rtl" style={{
-            fontSize: 14, color: TEAL, marginTop: 8, fontWeight: 600,
-            opacity: slugOp,
+            fontSize: 14, color: TEAL, marginTop: 8, fontWeight: 700,
+            opacity: slugOp, textShadow: "0 2px 10px rgba(0,0,0,0.6)",
           }}>
             ✓ smartmenu.com/grilled_food_hub — متاح
           </div>
 
-          {/* Alert banner — bigger text, orange border, full width */}
+          {/* Alert banner */}
           <div dir="rtl" style={{
             marginTop: 18, padding: "14px 18px", borderRadius: 14,
-            background: `${O}18`, border: `1px solid ${O}44`,
-            fontSize: 14, color: TXT, lineHeight: 1.5, fontWeight: 600,
+            background: "rgba(249,115,22,0.15)",
+            border: "1px solid rgba(249,115,22,0.5)",
+            fontSize: 14, color: "#fff", lineHeight: 1.5, fontWeight: 600,
+            textShadow: "0 1px 6px rgba(0,0,0,0.4)",
             opacity: alertOp,
           }}>
             فحص تلقائي وحجز فوري للروابط لضمان عدم التكرار
           </div>
         </div>
 
-        {/* Status + CTA — bigger */}
+        {/* Status + CTA */}
         <div style={{
-          textAlign: "center", marginTop: 36,
+          textAlign: "center", marginTop: 32,
           opacity: statusS.opacity, transform: `translateY(${statusS.translateY}px)`,
         }}>
-          <div dir="rtl" style={{ fontSize: 20, fontWeight: 700, color: TEAL, textShadow: "0 4px 20px rgba(0,0,0,0.6)" }}>
+          <div dir="rtl" style={{ fontSize: 20, fontWeight: 700, color: TEAL, textShadow: "0 4px 20px rgba(0,0,0,0.8)" }}>
             ✓ تم التحقق — الرابط متاح للحجز الفوري
           </div>
           <div style={{
@@ -110,7 +117,7 @@ export const Scene2_Checkout: React.FC = () => {
             background: `linear-gradient(145deg, ${O}, #fb923c)`,
             fontSize: 18, fontWeight: 800, color: "#fff",
             opacity: btnS.opacity, transform: `scale(${btnS.scale})`,
-            boxShadow: `0 0 40px ${O}55`,
+            boxShadow: `0 0 40px ${O}66, 0 4px 15px rgba(0,0,0,0.4)`,
           }}>
             احجز الآن
           </div>
