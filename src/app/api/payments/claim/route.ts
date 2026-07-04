@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
     // same info plus approval actions.
 
     // Send interactive inline keyboard to admin allowlist
-    const config = await prisma.telegramConfig.findFirst();
-    const botToken = config?.botToken || process.env.TELEGRAM_BOT_TOKEN;
+    // Priority: env var first (Vercel), then DB config (admin panel)
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
     if (botToken) {
       // Resolve target chat IDs: admin allowlist (env) + broadcast targets (DB)
       const adminIds = getAdminTelegramIds();

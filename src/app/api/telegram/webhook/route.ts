@@ -23,8 +23,11 @@ interface TelegramUpdate {
 }
 
 async function getBotToken(): Promise<string | null> {
+  // Priority: env var first (Vercel), then DB config (admin panel)
+  const envToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (envToken) return envToken;
   const config = await prisma.telegramConfig.findFirst();
-  return config?.botToken || process.env.TELEGRAM_BOT_TOKEN || null;
+  return config?.botToken || null;
 }
 
 async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_query"]>): Promise<Response> {
