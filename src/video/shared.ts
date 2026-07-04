@@ -5,13 +5,19 @@ export const FPS = 30
 export const DURATION = 540 // 18s
 
 // Default placeholder videos (swap with AI renders)
+// Empty strings = gradient-only fallbacks.
+// Replace with Higgsfield/Haiper MP4 URLs when ready.
 export const VIDEO_URLS = {
-  scene1: "https://remotion-assets.s3.eu-west-1.amazonaws.com/example-videos/restaurant.mp4",
-  scene2: "https://remotion-assets.s3.eu-west-1.amazonaws.com/example-videos/particles.mp4",
-  scene3: "https://remotion-assets.s3.eu-west-1.amazonaws.com/example-videos/ambient.mp4",
+  scene1: "",
+  scene2: "",
+  scene3: "",
 }
 
-// Audio assets
+export const BG_GRADIENT = {
+  scene1: "linear-gradient(145deg, #0f0f1a, #1a1a2e, #16213e)",
+  scene2: "linear-gradient(145deg, #0d0d0d, #1a0a0a, #0d1a0d)",
+  scene3: "linear-gradient(145deg, #0a0a0a, #1a0f0a, #0f0a1a)",
+}
 export const AUDIO_URLS = {
   whoosh: "https://remotion.media/whoosh.wav",
   ding: "https://remotion.media/ding.wav",
