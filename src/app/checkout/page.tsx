@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Check,
@@ -55,7 +55,6 @@ export default function CheckoutPage() {
   const [tempRestaurantSlug, setTempRestaurantSlug] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const esRef = useRef<EventSource | null>(null);
 
   // Fetch user + plans on mount
   useEffect(() => {
@@ -104,36 +103,31 @@ export default function CheckoutPage() {
     init();
   }, [router]);
 
-  // SSE listener for real-time rejection updates
+  // Poll subscription status as fallback for SSE (EventEmitter doesn't cross serverless instances)
   useEffect(() => {
-    if (loading) return;
-    esRef.current?.close();
-    const es = new EventSource("/api/user/events/stream");
-    esRef.current = es;
-
-    es.onmessage = (event) => {
+    if (loading || !submitted) return;
+    const t = setInterval(async () => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.type === "subscription_approved") {
+        const res = await fetch("/api/auth/me");
+        const json = await res.json();
+        if (!json.success || !json.data) return;
+        const status = json.data.subscriptionStatus;
+        if (status === "PAID") {
+          clearInterval(t);
           premiumToast("success", "تم تفعيل حسابك! جاري التحويل...");
           router.push("/owner");
-        } else if (data.type === "subscription_rejected") {
+        } else if (status === "REJECTED") {
+          clearInterval(t);
           setRejected(true);
-          setRejectionMessage(
-            data.message ||
-              "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني."
-          );
+          setRejectionMessage("عذراً، تم رفض طلب تفعيل الحساب.");
           setSubmitted(false);
           setSubmitting(false);
           premiumToast("error", "تم رفض طلب التفعيل");
         }
       } catch {}
-    };
-
-    return () => {
-      es.close();
-    };
-  }, [loading, router]);
+    }, 3000);
+    return () => clearInterval(t);
+  }, [loading, submitted, router]);
 
   const handleSubmit = useCallback(async () => {
     if (!selectedPlan || !phone.trim() || !tempRestaurantName.trim() || !tempRestaurantSlug.trim()) {
