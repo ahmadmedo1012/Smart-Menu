@@ -56,6 +56,12 @@ export async function POST(request: NextRequest) {
       });
       for (const t of broadcastTargets) chatIds.add(t.chatId);
 
+      // Fallback: if no admin IDs or broadcast targets, use TELEGRAM_CHAT_ID
+      if (chatIds.size === 0) {
+        const fallbackChatId = process.env.TELEGRAM_CHAT_ID;
+        if (fallbackChatId) chatIds.add(fallbackChatId);
+      }
+
       if (chatIds.size > 0) {
         const msg = `\u{d83c}\u{dd97} *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
         for (const chatId of chatIds) {

@@ -89,6 +89,12 @@ export async function POST(request: NextRequest) {
       for (const id of adminIds) chatIds.add(String(id));
       for (const t of broadcastTargets) chatIds.add(t.chatId);
 
+      // Fallback to TELEGRAM_CHAT_ID when no admin IDs or broadcast targets configured
+      if (chatIds.size === 0) {
+        const fallback = process.env.TELEGRAM_CHAT_ID;
+        if (fallback) chatIds.add(fallback);
+      }
+
       if (chatIds.size > 0) {
         const msgParts = [
           `🆕 *طلب اشتراك جديد* #${payment.id}`,
