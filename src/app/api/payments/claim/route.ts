@@ -10,7 +10,7 @@ import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 const claimSchema = z.object({
   planId: z.number().int().positive(),
   phone: z.string().min(7, "رقم الهاتف مطلوب"),
-  provider: z.string().min(1, "مزود الخدمة مطلوب"),
+  provider: z.enum(["libyana", "madar"]),
   amount: z.number().positive("المبلغ يجب أن يكون أكبر من صفر"),
   tempRestaurantName: z.string().min(1, "اسم المطعم مطلوب"),
   tempRestaurantSlug: z

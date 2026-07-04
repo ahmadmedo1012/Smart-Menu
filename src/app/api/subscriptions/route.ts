@@ -11,7 +11,7 @@ const subscriptionLimiter = createRateLimiter({ windowMs: 60_000, max: 5 });
 const createPaymentSchema = z.object({
   phone: z.string().min(1),
   amount: z.number().positive(),
-  provider: z.string().min(1),
+  provider: z.enum(["libyana", "madar"]),
   planId: z.number().int().positive(),
 });
 
