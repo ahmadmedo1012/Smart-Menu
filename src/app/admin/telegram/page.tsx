@@ -299,7 +299,7 @@ export default function AdminTelegramPage() {
                 <button
                   type="button"
                   onClick={() => setShowToken(!showToken)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}
                 >
                   {showToken ? (

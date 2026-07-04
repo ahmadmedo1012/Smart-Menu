@@ -11,7 +11,7 @@ model User {
   id           Int               @id @default(autoincrement())
   username     String            @unique
   password     String
-  subscriptionStatus String @default("UNPAID")
+  subscriptionStatus SubscriptionStatus @default(UNPAID)
   name         String
   email        String   @default("")
   phone        String   @default("")
@@ -169,7 +169,7 @@ model OrderItem {
   price    Decimal  @db.Decimal(10, 2)
   orderId  Int
   itemId   Int
-  item     MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item     MenuItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
   order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
@@ -265,6 +265,7 @@ model Referral {
   @@index([referrerId])
   @@index([referrerId, status])
   @@index([restaurantId])
+  @@index([referralCode, restaurantId])
 }
 
 model RewardTransaction {
@@ -320,10 +321,10 @@ model SubscriptionPayment {
   userId    Int?
   phone     String
   amount    Decimal  @db.Decimal(10, 2)
-  provider  String   @default("")
+  provider  PaymentProvider @default(libyana)
   planId    Int
   planName  String   @default("")
-  status    String   @default("pending")
+  status    PaymentStatus   @default(pending)
   metadata  Json     @default("{}")
   createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id])
@@ -331,6 +332,7 @@ model SubscriptionPayment {
   @@index([status])
   @@index([createdAt])
   @@index([userId])
+  @@index([userId, status])
 }
 
 model SystemConfig {
@@ -352,7 +354,7 @@ model Review {
   customerPhone String   @default("")
   menuItemId    Int
   createdAt     DateTime @default(now())
-  menuItem      MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  menuItem      MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
 
   @@index([menuItemId])
   @@index([menuItemId, createdAt])
@@ -363,7 +365,7 @@ model SystemEvent {
   eventType String
   title     String
   message   String   @default("")
-  severity  String   @default("info")
+  severity  EventSeverity @default(info)
   metadata  Json     @default("{}")
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -371,6 +373,30 @@ model SystemEvent {
   @@index([eventType])
   @@index([createdAt])
   @@index([read])
+}
+
+enum SubscriptionStatus {
+  UNPAID
+  PAID
+  REJECTED
+}
+
+enum PaymentStatus {
+  pending
+  verified
+  cancelled
+}
+
+enum PaymentProvider {
+  libyana
+  madar
+}
+
+enum EventSeverity {
+  info
+  warning
+  error
+  critical
 }
 
 enum Role {

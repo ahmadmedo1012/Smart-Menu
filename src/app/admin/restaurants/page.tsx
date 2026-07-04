@@ -312,8 +312,8 @@ export default function AdminRestaurantsPage() {
           <span className="text-sm text-muted-foreground">
             تم اختيار {toArabicNumber(selectedIds.size)} مطعم
           </span>
-          <Button variant="destructive" size="sm" onClick={bulkDelete} className="mr-auto">
-            <Trash2 className="size-3.5 ml-1" aria-hidden="true" />
+          <Button variant="destructive" size="sm" onClick={bulkDelete} className="ms-auto">
+            <Trash2 className="size-3.5 me-1" aria-hidden="true" />
             حذف
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>

@@ -98,7 +98,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
             <Button
               variant="ghost"
               size="icon"
-              className="fixed right-3 top-3 z-[60] flex lg:hidden"
+              className="fixed start-3 top-3 z-[60] flex lg:hidden"
               aria-label="فتح القائمة"
             >
               <Menu className="size-5" />

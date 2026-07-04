@@ -37,6 +37,7 @@ open-design/
 .pnp.*
 /.pnp
 .pnpm-debug.log*
+prisma/.env
 # ── Prisma generated ──────────────────────
 # production
 !public/**/*.png

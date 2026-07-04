@@ -62,28 +62,16 @@ export function middleware(request: NextRequest) {
       return response;
     }
 
-    // Protected routes — auth check via cookie-based auth (backward compatible)
+    // Protected routes — auth gate (server-side auth handles actual role enforcement)
     const authCookie = request.cookies.get("smart-menu-auth")?.value;
-    const hasAuth = authCookie === "true";
-    const roleCookie = request.cookies.get("smart-menu-role")?.value;
-
-    if (pathname.startsWith("/admin") && (!hasAuth || (roleCookie !== "admin" && roleCookie !== "super_admin" && roleCookie !== "sub_admin"))) {
+    if ((pathname.startsWith("/admin") || pathname.startsWith("/owner")) && authCookie !== "true") {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
+    // Owner checkout guard — subscription cookie is a hint, not a privilege claim
     if (pathname.startsWith("/owner")) {
-      if (!hasAuth) {
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("redirect", pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-      // If role is USER (not yet approved), redirect to /checkout
-      if (roleCookie === "USER") {
-        return NextResponse.redirect(new URL("/checkout", request.url));
-      }
-      // Also guard against unpaid owners (edge case)
       const subStatus = request.cookies.get("smart-menu-subscription-status")?.value;
       if (subStatus && subStatus !== "PAID") {
         return NextResponse.redirect(new URL("/checkout", request.url));

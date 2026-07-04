@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { sendTelegramNotification } from "@/lib/telegram";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
@@ -34,25 +33,15 @@ export async function POST(request: NextRequest) {
       data: {
         phone: String(phone),
         amount,
-        provider: String(provider),
+        provider: provider as "libyana" | "madar",
         planId,
         planName: plan?.nameAr ?? "",
         status: "pending",
       },
     });
 
-    // Notify via broadcast (plain text, for historical channels)
-    sendTelegramNotification(
-      `*طلب اشتراك جديد*\n` +
-      `• الباقة: ${plan?.nameAr ?? "غير معروف"}\n` +
-      `• الهاتف: ${String(phone)}\n` +
-      `• المبلغ: ${String(amount)} د.ل\n` +
-      `• مزود: ${String(provider)}\n` +
-      `• الحالة: قيد الانتظار`,
-      { parseMode: "Markdown" }
-    );
-
-    // Also send interactive keyboard to admin IDs and broadcast targets
+    // Send interactive keyboard to admin IDs and broadcast targets
+    // ponytail: plain-text sendTelegramNotification removed — it duplicates the keyboard broadcast below
     try {
     const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
     if (botToken) {
@@ -68,11 +57,11 @@ export async function POST(request: NextRequest) {
       for (const t of broadcastTargets) chatIds.add(t.chatId);
 
       if (chatIds.size > 0) {
-        const msg = `🆕 *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
+        const msg = `\u{d83c}\u{dd97} *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
         for (const chatId of chatIds) {
           await sendMessageWithKeyboard(botToken, chatId, msg, [
-            [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
-            [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
+            [{ text: "\u{d83d}\u{fe0f} موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
+            [{ text: "\u{d83d}\u{fe34} رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
           ], { parseMode: "Markdown" });
         }
       }

@@ -18,6 +18,9 @@ export async function GET() {
     const config = await prisma.telegramConfig.findFirst({
       select: { id: true, botToken: true, chatId: true, events: true, isActive: true },
     });
+    if (config?.botToken && config.botToken.length > 4) {
+      config.botToken = "***" + config.botToken.slice(-4);
+    }
     return success(config ?? {});
   } catch (e) {
     return handleError(e);

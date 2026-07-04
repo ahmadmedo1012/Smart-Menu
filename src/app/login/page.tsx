@@ -86,7 +86,7 @@ function LoginForm() {
       <FloatingShapes />
 
       {/* Back to home + ThemeToggle */}
-      <div className="fixed right-4 top-4 z-50 flex items-center gap-2">
+      <div className="fixed start-4 top-4 z-50 flex items-center gap-2">
         <Link href="/">
           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground/60 hover:text-foreground">
             <ArrowRight className="size-3.5" />

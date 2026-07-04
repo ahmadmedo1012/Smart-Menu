@@ -15,14 +15,14 @@ export default function PrivacyPage() {
 				<div className="space-y-6 text-foreground/80">
 					<p>نحن في الربط الذكي | Smart Menu نلتزم بحماية خصوصيتك. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p>
 					<h2 className="text-foreground text-xl font-semibold mt-8">المعلومات التي نجمعها</h2>
-					<ul className="list-disc pr-5 space-y-2">
+					<ul className="list-disc ps-5 space-y-2">
 						<li>معلومات الحساب: الاسم، البريد الإلكتروني، رقم الهاتف</li>
 						<li>بيانات المطعم: اسم المطعم، الشعار، العنوان، ساعات العمل</li>
 						<li>قائمة الطعام: الأصناف، الأسعار، الوصف، الصور</li>
 						<li>بيانات الطلبات: سجل الطلبات، الإحصائيات</li>
 					</ul>
 					<h2 className="text-foreground text-xl font-semibold mt-8">كيف نستخدم معلوماتك</h2>
-					<ul className="list-disc pr-5 space-y-2">
+					<ul className="list-disc ps-5 space-y-2">
 						<li>تقديم وتحسين خدمة المنيو الرقمي</li>
 						<li>معالجة الطلبات والتواصل مع العملاء</li>
 						<li>تحليل الأداء وإرسال التقارير</li>

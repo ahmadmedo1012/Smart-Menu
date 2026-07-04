@@ -446,7 +446,7 @@ export default function OwnerLoyaltyPage() {
         <p className="text-lg font-semibold">خطأ في تحميل بيانات الولاء</p>
         <p className="mt-1 text-sm text-muted-foreground">{error}</p>
         <Button variant="outline" className="mt-5" onClick={() => load()}>
-          <RefreshCw className="size-4 mr-2" />
+          <RefreshCw className="size-4 me-2" />
           إعادة المحاولة
         </Button>
       </div>

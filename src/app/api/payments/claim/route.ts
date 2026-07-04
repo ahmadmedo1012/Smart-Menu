@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         userId: auth.userId,
         phone,
         amount,
-        provider,
+        provider: provider as "libyana" | "madar",
         planId,
         planName: plan.name,
         status: "pending",

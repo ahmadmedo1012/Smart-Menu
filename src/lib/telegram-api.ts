@@ -20,6 +20,11 @@ async function apiCall(
   });
 }
 
+/** Coerce numeric-looking strings to numbers (Telegram API expects numeric IDs) */
+function normalizeChatId(chatId: number | string): number | string {
+  return typeof chatId === "string" && /^-?\d+$/.test(chatId) ? Number(chatId) : chatId;
+}
+
 export async function sendMessageWithKeyboard(
   botToken: string,
   chatId: number | string,
@@ -28,7 +33,7 @@ export async function sendMessageWithKeyboard(
   opts?: SendMsgOpts,
 ): Promise<TelegramMessage | null> {
   const payload: Record<string, unknown> = {
-    chat_id: chatId,
+    chat_id: normalizeChatId(chatId),
     text,
     reply_markup: { inline_keyboard: buttons.map((row) => row.map((b) => ({ text: b.text, callback_data: b.callbackData }))) },
   };

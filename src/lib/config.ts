@@ -44,7 +44,10 @@ export async function encryptValue(plaintext: string): Promise<string> {
 }
 
 async function getEncryptionKey(): Promise<CryptoKey> {
-  const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET || "default-dev-key-1234567890";
+  const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("AUTH_SECRET or JWT_SECRET must be set");
+  }
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
     encoder.encode(secret.padEnd(32, "x").slice(0, 32)),

@@ -167,7 +167,7 @@ export default function AdminAuditLogsPage() {
       <div className="flex flex-col gap-4">
         {/* Search input */}
         <div className="relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <input
             type="text"
             value={searchInput}

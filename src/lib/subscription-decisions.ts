@@ -20,34 +20,40 @@ export async function resolveSubscriptionPayment(
   if (existing.status !== "pending") return { ok: false, reason: "تمت معالجة هذا الطلب مسبقاً" };
 
   if (decision === "verified") {
-    const meta = existing.metadata as { tempRestaurantName?: string; tempRestaurantSlug?: string } | null;
-    const restaurantName = meta?.tempRestaurantName ?? `مطعم ${existing.phone}`;
-    const restaurantSlug = meta?.tempRestaurantSlug ?? `restaurant-${existing.id}`;
+    return handleVerified(existing);
+  }
 
-    // Guard: re-check slug hasn't been taken since payment was created (race window)
-    if (existing.userId) {
-      const slugTaken = await prisma.restaurant.findUnique({ where: { slug: restaurantSlug } });
-      if (slugTaken) {
-        return { ok: false, reason: "رابط المطعم محجوز مسبقاً. يُرجى إبلاغ العميل باختيار رابط آخر." };
-      }
-    }
+  return handleCancelled(existing);
+}
 
+async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscriptionPayment.findUnique>>): Promise<ResolveResult> {
+  const meta = existing!.metadata as { tempRestaurantName?: string; tempRestaurantSlug?: string } | null;
+  const restaurantName = meta?.tempRestaurantName ?? `مطعم ${existing!.phone}`;
+  const restaurantSlug = meta?.tempRestaurantSlug ?? `restaurant-${existing!.id}`;
+
+  try {
     const result = await prisma.$transaction(async (tx) => {
+      // Slug uniqueness check inside transaction (avoids race)
+      if (existing!.userId) {
+        const slugTaken = await tx.restaurant.findUnique({ where: { slug: restaurantSlug } });
+        if (slugTaken) throw new Error("SLUG_TAKEN");
+      }
+
       const updated = await tx.subscriptionPayment.update({
-        where: { id: paymentId },
+        where: { id: existing!.id },
         data: { status: "verified" },
       });
 
       // Guard: skip restaurant+user creation if no userId (anonymous payment)
       let restaurant = null;
       let user = null;
-      if (existing.userId) {
+      if (existing!.userId) {
         restaurant = await tx.restaurant.create({
           data: {
             name: restaurantName,
             slug: restaurantSlug,
-            phone: existing.phone,
-            planId: existing.planId,
+            phone: existing!.phone,
+            planId: existing!.planId,
             planStart: new Date(),
             planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             isActive: true,
@@ -55,11 +61,11 @@ export async function resolveSubscriptionPayment(
         });
 
         user = await tx.user.update({
-          where: { id: existing.userId },
+          where: { id: existing!.userId },
           data: {
             role: "owner",
             subscriptionStatus: "PAID",
-            planId: existing.planId,
+            planId: existing!.planId,
             restaurantId: restaurant.id,
           },
           select: { id: true, username: true, role: true, subscriptionStatus: true, restaurantId: true },
@@ -75,25 +81,25 @@ export async function resolveSubscriptionPayment(
 
     // Notify via Telegram broadcast
     const userPart = result.user ? `• المستخدم: ${result.user.username}\n` : "";
-    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المطعم: ${restaurantName}\n• الخطة: ${existing.planName}\n• الرابط: ${restaurantSlug}`;
-    sendTelegramNotification(msg, { parseMode: "Markdown" });
+    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المطعم: ${restaurantName}\n• الخطة: ${existing!.planName}\n• الرابط: ${restaurantSlug}`;
+    sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
 
     // SSE for admin panel
     eventEmitter.emit("admin-event", {
       type: "payment",
       title: "اشتراك جديد",
-      message: `تم تأكيد دفع ${existing.planName} — ${restaurantName}`,
-      amount: existing.amount,
-      planName: existing.planName,
-      phone: existing.phone,
-      userId: existing.userId,
+      message: `تم تأكيد دفع ${existing!.planName} — ${restaurantName}`,
+      amount: existing!.amount,
+      planName: existing!.planName,
+      phone: existing!.phone,
+      userId: existing!.userId,
       timestamp: new Date().toISOString(),
     });
 
     // SSE for user — real-time redirect on checkout page
-    if (existing.userId) {
+    if (existing!.userId) {
       eventEmitter.emit("user-event", {
-        userId: existing.userId,
+        userId: existing!.userId,
         type: "subscription_approved",
         message: "تم تفعيل حسابك بنجاح!",
         restaurantSlug,
@@ -101,20 +107,26 @@ export async function resolveSubscriptionPayment(
       });
     }
 
-    return { ok: true, action: "verified", paymentId, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
+    return { ok: true, action: "verified", paymentId: existing!.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
+  } catch (e) {
+    const reason = (e instanceof Error && e.message === "SLUG_TAKEN")
+      ? "رابط المطعم محجوز مسبقاً. يُرجى إبلاغ العميل باختيار رابط آخر."
+      : "حدث خطأ أثناء معالجة الطلب";
+    return { ok: false, reason };
   }
+}
 
-  // decision === "cancelled"
+async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscriptionPayment.findUnique>>): Promise<ResolveResult> {
   await prisma.$transaction(async (tx) => {
     const updated = await tx.subscriptionPayment.update({
-      where: { id: paymentId },
+      where: { id: existing!.id },
       data: { status: "cancelled" },
     });
 
     // Only reject if user still UNPAID (might have been promoted by another route)
-    if (existing.userId) {
+    if (existing!.userId) {
       await tx.user.updateMany({
-        where: { id: existing.userId, subscriptionStatus: "UNPAID" },
+        where: { id: existing!.userId, subscriptionStatus: "UNPAID" },
         data: { subscriptionStatus: "REJECTED" },
       });
     }
@@ -123,31 +135,31 @@ export async function resolveSubscriptionPayment(
   });
 
   // Telegram broadcast
-  const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
-  sendTelegramNotification(msg, { parseMode: "Markdown" });
+  const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing!.phone}\n• المبلغ: ${existing!.amount} د.ل\n• الخطة: ${existing!.planName}`;
+  sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
 
   // Admin SSE
   eventEmitter.emit("admin-event", {
     type: "payment_rejected",
     title: "رفض اشتراك",
-    message: `تم رفض دفع ${existing.planName}`,
-    amount: existing.amount,
-    planName: existing.planName,
-    phone: existing.phone,
-    userId: existing.userId,
+    message: `تم رفض دفع ${existing!.planName}`,
+    amount: existing!.amount,
+    planName: existing!.planName,
+    phone: existing!.phone,
+    userId: existing!.userId,
     timestamp: new Date().toISOString(),
   });
 
   // User SSE — push rejection event to the user in real-time
-  if (existing.userId) {
+  if (existing!.userId) {
     eventEmitter.emit("user-event", {
-      userId: existing.userId,
+      userId: existing!.userId,
       type: "subscription_rejected",
       message: "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني.",
-      paymentId: existing.id,
+      paymentId: existing!.id,
       timestamp: new Date().toISOString(),
     });
   }
 
-  return { ok: true, action: "cancelled", paymentId };
+  return { ok: true, action: "cancelled", paymentId: existing!.id };
 }

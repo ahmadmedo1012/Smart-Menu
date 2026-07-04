@@ -32,33 +32,47 @@ export function LivePaymentToast() {
   const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
   useEffect(() => {
-    const es = new EventSource("/api/admin/events/stream");
+    let es: EventSource;
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let retries = 0;
 
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type !== "payment") return;
+    const connect = () => {
+      es = new EventSource("/api/admin/events/stream");
 
-        playPaymentBeep();
-        const id = idRef.current++;
-        setEvents((prev) => [
-          ...prev,
-          { id, title: data.title || "تم إيداع", message: data.message },
-        ]);
+      es.onmessage = (event) => {
+        retries = 0;
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type !== "payment") return;
 
-        const t = setTimeout(() => {
-          setEvents((prev) => prev.filter((e) => e.id !== id));
-          timeoutsRef.current.delete(t);
-        }, 5000);
-        timeoutsRef.current.add(t);
-      } catch {}
+          playPaymentBeep();
+          const id = idRef.current++;
+          setEvents((prev) => [
+            ...prev,
+            { id, title: data.title || "تم إيداع", message: data.message },
+          ]);
+
+          const t = setTimeout(() => {
+            setEvents((prev) => prev.filter((e) => e.id !== id));
+            timeoutsRef.current.delete(t);
+          }, 5000);
+          timeoutsRef.current.add(t);
+        } catch {}
+      };
+
+      es.onerror = () => {
+        es.close();
+        const delay = Math.min(1000 * Math.pow(2, retries), 30000);
+        retries++;
+        reconnectTimer = setTimeout(connect, delay);
+      };
     };
 
-    es.onerror = () => es.close();
-
+    connect();
     const timeouts = timeoutsRef.current;
     return () => {
       es.close();
+      clearTimeout(reconnectTimer);
       timeouts.forEach(clearTimeout);
     };
   }, []);
@@ -70,7 +84,7 @@ export function LivePaymentToast() {
   if (events.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-3 w-80">
+    <div className="fixed bottom-6 end-6 z-50 flex flex-col gap-3 w-80">
       <AnimatePresence initial={false}>
         {events.map((evt) => (
           <motion.div

@@ -44,9 +44,9 @@ export default function HorizontalBar({
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium truncate">{item.label}</span>
-                <span className="text-xs text-muted-foreground tabular-nums shrink-0 mr-2">
+                <span className="text-xs text-muted-foreground tabular-nums shrink-0 me-2">
                   {item.value}
-                  {item.subtitle && <span className="text-[10px] mr-1">{item.subtitle}</span>}
+                  {item.subtitle && <span className="text-[10px] me-1">{item.subtitle}</span>}
                 </span>
               </div>
               <div className="h-2 rounded-full bg-muted/50 overflow-hidden">

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
 
-    const where = status !== "all" ? { status } : {};
+    const where = status !== "all" ? { status: status as "pending" | "verified" | "cancelled" } : {};
 
     const [data, total] = await Promise.all([
       prisma.subscriptionPayment.findMany({

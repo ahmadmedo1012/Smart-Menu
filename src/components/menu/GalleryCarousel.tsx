@@ -140,7 +140,7 @@ export default function GalleryCarousel({
         )}
 
         <button type="button" onClick={(e) => { e.stopPropagation(); openLightbox(current); }}
-          className="absolute top-3 left-3 size-8 rounded-full bg-background/40 backdrop-blur-sm text-foreground/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/70"
+          className="absolute top-3 start-3 size-8 rounded-full bg-background/40 backdrop-blur-sm text-foreground/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/70"
           aria-label="تكبير الصورة">
           <Maximize2 className="size-3.5" aria-hidden="true" />
         </button>
@@ -152,7 +152,7 @@ export default function GalleryCarousel({
           onKeyDown={trapFocus}>
           <button ref={closeRef} type="button" onClick={closeLightbox}
             aria-label="إغلاق"
-            className="absolute top-4 left-4 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+            className="absolute top-4 start-4 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
             <X className="size-5" aria-hidden="true" />
           </button>
 

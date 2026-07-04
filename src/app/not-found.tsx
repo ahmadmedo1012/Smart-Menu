@@ -21,7 +21,7 @@ export default function NotFound() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
       <Header />
-      <div className="fixed right-4 top-20 z-50">
+      <div className="fixed start-4 top-20 z-50">
         <ThemeToggle />
       </div>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-orange/5" />

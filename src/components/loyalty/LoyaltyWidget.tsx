@@ -93,7 +93,7 @@ export default function LoyaltyWidget({ restaurantId, restaurantName, restaurant
           <div className="px-4 pb-4">
             <div className="flex gap-2">
               <div className="flex-1 relative rounded-xl border border-border/30 bg-white/70 dark:bg-card/70">
-                <Phone className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                <Phone className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleCheck()}
                   placeholder="رقم هاتفك للولاء" className="w-full h-10 pr-10 px-3 bg-transparent text-sm outline-none rounded-xl" dir="ltr" />

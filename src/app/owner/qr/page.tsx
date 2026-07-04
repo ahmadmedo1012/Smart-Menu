@@ -83,7 +83,7 @@ export default function OwnerQRPage() {
             <p className="text-xs text-muted-foreground">{url ? `/menu/${slug}` : "..."}</p>
           </div>
           {url && (
-            <a href={url} target="_blank" rel="noopener noreferrer" className="mr-auto">
+            <a href={url} target="_blank" rel="noopener noreferrer" className="ms-auto">
               <Button variant="ghost" size="icon" aria-label="فتح الرابط" className="size-9">
                 <ExternalLink className="size-4" />
               </Button>

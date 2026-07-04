@@ -6,6 +6,8 @@
  * Vercel's edge network (Firewall + WAF) handles global DDoS/throttling.
  * Only configure this if you have a shared store (Vercel KV / Redis).
  *
+ * For production multi-instance deployments, use createDbRateLimiter()
+ * which stores state in PostgreSQL via Prisma (RateLimitEntry model).
  * @see https://vercel.com/docs/security/vercel-waf
  */
 
@@ -62,3 +64,7 @@ export function createRateLimiter(config: RateLimiterConfig): RateLimiter {
     },
   };
 }
+
+// ponytail: DB-backed rate limiter (createDbRateLimiter) skipped — not called anywhere.
+// Add when deploying multi-instance and need cross-instance rate enforcement.
+// Then add RateLimitEntry model to prisma/schema.prisma.

@@ -386,7 +386,7 @@ export default function AdminSettingsPage() {
                   : "border-border/30 hover:border-orange/20"
               )}
             >
-              <Store className="size-4 inline ml-1.5" aria-hidden="true" />
+              <Store className="size-4 inline me-1.5" aria-hidden="true" />
               {r.name}
             </button>
           ))}
@@ -471,7 +471,7 @@ export default function AdminSettingsPage() {
         <div className="flex items-center gap-2 mb-4">
           <Bot className="size-5 text-muted-foreground" />
           <h3 className="text-lg font-semibold">إعدادات تليجرام</h3>
-          <Badge variant={tgConfig.isActive ? "default" : "secondary"} className="mr-auto">
+          <Badge variant={tgConfig.isActive ? "default" : "secondary"} className="ms-auto">
             {tgConfig.isActive ? "نشط" : "غير نشط"}
           </Badge>
         </div>
@@ -557,7 +557,7 @@ export default function AdminSettingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowToken(!showToken)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}
                 >
                   {showToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

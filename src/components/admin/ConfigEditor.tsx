@@ -172,7 +172,7 @@ export default function ConfigEditor() {
                     <button
                       type="button"
                       onClick={() => setShowSecrets((prev) => ({ ...prev, [item.key]: !prev[item.key] }))}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showSecrets[item.key] ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>

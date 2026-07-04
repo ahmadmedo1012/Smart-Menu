@@ -78,8 +78,7 @@ export default function MenuPageClient({
 
   useEffect(() => {
     if (restaurantId) cart.setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restaurantId]);
+  }, [restaurantId, restaurantWhatsapp, restaurantName, cart]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -126,7 +125,7 @@ export default function MenuPageClient({
     <>
       <div className="relative mb-4 flex gap-2 items-start">
         <div className="flex-1 relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder="ابحث في القائمة..."
@@ -139,7 +138,7 @@ export default function MenuPageClient({
               type="button"
               aria-label="مسح البحث"
               onClick={() => setSearch("")}
-              className="absolute left-3 top-1/2 -translate-y-1/2 size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
+              className="absolute end-3 top-1/2 -translate-y-1/2 size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
             >
               <X className="size-3" />
             </button>
@@ -163,7 +162,7 @@ export default function MenuPageClient({
           {showSort && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
-              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-sm border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
+              <div className="absolute end-0 sm:end-auto sm:start-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-sm border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
                 role="listbox"
                 aria-label="خيارات الترتيب"
                 onKeyDown={(e) => {

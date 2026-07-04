@@ -7,7 +7,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_WHATSAPP_NUMBER: z.string().optional().default(""),
   TELEGRAM_BOT_TOKEN: z.string().optional().default(""),
   TELEGRAM_CHAT_ID: z.string().optional().default(""),
-  AUTH_SECRET: z.string().optional().default(""),
+  AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
   DATABASE_SCHEMA: z.string().optional().default("public"),
 });
 

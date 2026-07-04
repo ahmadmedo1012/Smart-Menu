@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
+import { requireAuth } from "@/lib/auth";
+import { createRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const referralSchema = z.object({
@@ -9,8 +11,17 @@ const referralSchema = z.object({
   referredName: z.string().optional(),
 });
 
+const referralLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
+
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAuth();
+    if (!auth.authorized) return error("غير مصرح", 401);
+
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    const rl = referralLimiter.check(`referral:${ip}`);
+    if (!rl.success) return error("طلبات كثيرة — حاول لاحقاً", 429);
+
     const body = referralSchema.parse(await request.json());
     const { referralCode, referredPhone, referredName } = body;
 

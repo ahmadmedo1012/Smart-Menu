@@ -163,7 +163,7 @@ ${items}
                 </span>
                 {idx < STATUS_FLOW.length - 1 && (
                   <div className={cn(
-                    "h-0.5 w-full -mt-6 mr-10",
+                    "h-0.5 w-full -mt-6 me-10",
                     isActive && idx < currentIdx ? "bg-emerald-300 dark:bg-emerald-700" :
                     isActive ? "bg-orange/60 dark:bg-orange" : "bg-border/20"
                   )} />

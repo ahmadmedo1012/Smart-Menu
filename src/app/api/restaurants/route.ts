@@ -72,10 +72,6 @@ export async function POST(request: NextRequest) {
       actorId = auth.userId!;
     }
 
-    // Check slug uniqueness
-    const existingSlug = await prisma.restaurant.findUnique({ where: { slug: body.slug } });
-    if (existingSlug) return error("الرابط المختصر مستخدم بالفعل", 409);
-
     // Check username uniqueness before transaction
     if (body.username && body.password) {
       const existingUser = await prisma.user.findUnique({ where: { username: body.username } });
@@ -83,6 +79,9 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      // Check slug uniqueness inside transaction to avoid race (multiple concurrent requests)
+      const slugTaken = await tx.restaurant.findUnique({ where: { slug: body.slug } });
+      if (slugTaken) throw new Error("Unique constraint failed on slug");
       const restaurant = await tx.restaurant.create({
         data: {
           name: body.name,
