@@ -7,7 +7,6 @@ import Link from "next/link";
 import { Store, Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 import dynamicNext from "next/dynamic";
 import { MenuClientSection } from "@/components/menu/MenuClientSection";
-import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
 import { LottieAnimation } from "@/components/shared/LottieAnimation";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
@@ -99,8 +98,6 @@ export default async function PublicMenuPage({
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.08),transparent_70%)] pointer-events-none" />
-      <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
-
       {/* Hero */}
       <header className="relative overflow-hidden bg-gradient-to-b from-orange/8 via-background to-background">
         <div className="absolute inset-0 hero-mesh">
@@ -193,13 +190,13 @@ export default async function PublicMenuPage({
       )}
 
       <MenuClientSection
+        restaurantName={restaurant.name}
+        restaurantLogo={restaurant.logo}
         categories={categories}
         items={serializedItems}
         restaurantWhatsapp={restaurant.whatsapp}
-        restaurantName={restaurant.name}
         restaurantId={restaurant.id}
         restaurantSlug={slug}
-        restaurantLogo={restaurant.logo}
       />
 
 
