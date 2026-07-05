@@ -181,7 +181,7 @@ export default function PricingPage() {
           </p>
 
           <div className="inline-flex items-center mt-6 sm:mt-8 bg-muted/60 rounded-sm p-1 relative">
-            <div className={cn("absolute inset-y-1 w-1/2 rounded-sm bg-background shadow-sm transition-all duration-300", yearly ? "translate-x-full" : "translate-x-0")} />
+            <div className={cn("absolute inset-y-1 w-1/2 rounded-sm bg-background shadow-sm transition-all duration-300", yearly ? "ltr:translate-x-full rtl:-translate-x-full" : "translate-x-0")} />
             <button type="button" onClick={() => setYearly(false)} className="relative z-10 px-5 sm:px-6 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors">
               شهري
             </button>
