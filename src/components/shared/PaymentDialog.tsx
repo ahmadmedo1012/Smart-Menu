@@ -137,6 +137,12 @@ export default function PaymentDialog({
             cleanup();
             finishFlow();
           }
+          if (json.data?.status === "cancelled") {
+            clearInterval(tick);
+            cleanup();
+            handleOpenChange(false);
+            premiumToast("error", "تم رفض طلب الدفع");
+          }
         } catch {
           pollFailures++;
           if (pollFailures >= 3 && !warnedRef.current) {
