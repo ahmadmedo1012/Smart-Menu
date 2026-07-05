@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { AdminSidebar, navItems } from "@/components/layout/AdminSidebar"
+import { AdminSidebar, allNavItems } from "@/components/layout/AdminSidebar"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
 import { Store } from "lucide-react"
@@ -22,7 +22,7 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
         </div>
       </div>
       <nav aria-label="القائمة المتنقلة" className="flex-1 space-y-1 px-3 py-4">
-        {navItems.map((item) => (
+        {allNavItems.map((item) => (
           <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={onNavClick} />
         ))}
       </nav>

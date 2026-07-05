@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
-// Session DB token not yet deployed — using cookie-based auth
+import { createSession } from "@/lib/session";
 
 export async function GET() {
   if (process.env.NODE_ENV === "production") {
@@ -17,7 +17,10 @@ export async function GET() {
   const redirectUrl = new URL("/owner", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000");
   const response = NextResponse.redirect(redirectUrl);
 
-  // Cookie-based auth — see auth.ts
+  // Create server-side session (primary auth)
+  await createSession(user.id);
+
+  // Cookie-based auth (backward compat)
   const cookieOpts = {
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",

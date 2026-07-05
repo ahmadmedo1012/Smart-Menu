@@ -12,8 +12,8 @@ import { premiumToast } from "@/lib/premium-toast"
 import {
   Save, Store, Phone, Mail, MapPin, Clock, Image,
   Bot, Eye, EyeOff, Send, MessageSquare,
-  UserPlus, Store as StoreIcon, AlertTriangle, Settings,
-  User, Bell, Copy, ExternalLink,
+  UserPlus, Store as StoreIcon, Settings,
+  User, Bell, Copy, ExternalLink, AlertTriangle,
 } from "lucide-react"
 import ConfigEditor from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
@@ -70,6 +70,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 export default function AdminSettingsPage() {
+  const [accessDenied, setAccessDenied] = useState(false);
   const [activeTab, setActiveTab] = useState("restaurants")
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -113,6 +114,20 @@ export default function AdminSettingsPage() {
   const [notifSaving, setNotifSaving] = useState(false)
 
   const selected = restaurants.find(r => r.id === selectedId)
+
+  // Permission check on mount
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) { setAccessDenied(true); return; }
+        const { role, permissions } = d.data;
+        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("EDIT_SETTINGS")) {
+          setAccessDenied(true);
+        }
+      })
+      .catch(() => setAccessDenied(true));
+  }, []);
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -332,6 +347,16 @@ export default function AdminSettingsPage() {
     } catch { premiumToast("error", "فشل حفظ الإعدادات") }
     finally { setNotifSaving(false) }
   }
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى إعدادات النظام. يرجى التواصل مع المدير العام.</p>
+    </div>
+  )
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in" aria-live="polite">

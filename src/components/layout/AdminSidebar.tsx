@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react";
 import Link from "next/link"
 import {
   LayoutDashboard, UtensilsCrossed, ScrollText,
@@ -12,23 +13,53 @@ export interface NavItem {
   href: string
   label: string
   icon: typeof LayoutDashboard
+  permission?: string
 }
 
-export const navItems: NavItem[] = [
+export const allNavItems: NavItem[] = [
   { href: "/admin", label: "لوحة التحكم", icon: LayoutDashboard },
-  { href: "/admin/restaurants", label: "المطاعم", icon: Store },
-  { href: "/admin/users", label: "المستخدمون", icon: Users },
+  { href: "/admin/restaurants", label: "المطاعم", icon: Store, permission: "MANAGE_RESTAURANTS" },
+  { href: "/admin/users", label: "المستخدمون", icon: Users, permission: "MANAGE_USERS" },
   { href: "/admin/admins", label: "المسؤولون", icon: Shield },
-  { href: "/admin/menu", label: "المينيو", icon: UtensilsCrossed },
-  { href: "/admin/orders", label: "الطلبات", icon: ScrollText },
-  { href: "/admin/qr", label: "رمز QR", icon: QrCode },
-  { href: "/admin/subscriptions", label: "المدفوعات", icon: DollarSign },
-  { href: "/admin/telegram", label: "التليجرام", icon: MessageCircle },
+  { href: "/admin/menu", label: "المينيو", icon: UtensilsCrossed, permission: "MANAGE_RESTAURANTS" },
+  { href: "/admin/orders", label: "الطلبات", icon: ScrollText, permission: "APPROVE_ORDERS" },
+  { href: "/admin/qr", label: "رمز QR", icon: QrCode, permission: "MANAGE_RESTAURANTS" },
+  { href: "/admin/subscriptions", label: "المدفوعات", icon: DollarSign, permission: "MANAGE_SUBSCRIPTIONS" },
+  { href: "/admin/telegram", label: "التليجرام", icon: MessageCircle, permission: "EDIT_SETTINGS" },
   { href: "/admin/audit-logs", label: "سجل التدقيق", icon: Activity },
-  { href: "/admin/settings", label: "الإعدادات", icon: Settings },
-]
+  { href: "/admin/settings", label: "الإعدادات", icon: Settings, permission: "EDIT_SETTINGS" },
+];
+
+function hasItemPermission(
+  item: NavItem,
+  role: string | null,
+  permissions: string[]
+): boolean {
+  if (!item.permission) return true;
+  if (role === "super_admin" || role === "admin") return true;
+  return permissions.includes(item.permission);
+}
 
 export function AdminSidebar() {
+  const [role, setRole] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setRole(d.data.role);
+          setPermissions(d.data.permissions ?? []);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const visible = role === "super_admin" || role === "admin"
+    ? allNavItems
+    : allNavItems.filter((item) => hasItemPermission(item, role, permissions));
+
   return (
     <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/20 bg-card/80 backdrop-blur-2xl lg:flex lg:flex-col shadow-md">
       {/* Brand */}
@@ -44,7 +75,7 @@ export function AdminSidebar() {
 
       {/* Navigation */}
       <nav aria-label="القائمة الرئيسية" className="flex-1 space-y-0.5 px-3 py-5 overflow-y-auto">
-        {navItems.map((item) => (
+        {visible.map((item) => (
           <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} />
         ))}
       </nav>
