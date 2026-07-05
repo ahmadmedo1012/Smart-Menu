@@ -129,6 +129,24 @@ export default function CheckoutPage() {
     return () => clearInterval(t);
   }, [loading, submitted, router]);
 
+  // SSE stream for instant rejection detection (complements polling fallback)
+  useEffect(() => {
+    const es = new EventSource("/api/user/events/stream");
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.eventType === "subscription_rejected") {
+          setRejected(true);
+          setRejectionMessage(data.message || "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني.");
+          setSubmitted(false);
+          setSubmitting(false);
+        }
+      } catch { /* parse error */ }
+    };
+    es.onerror = () => { /* SSE will auto-reconnect — no action needed */ };
+    return () => es.close();
+  }, []);
+
   const handleSubmit = useCallback(async () => {
     if (!selectedPlan || !phone.trim() || !tempRestaurantName.trim() || !tempRestaurantSlug.trim()) {
       premiumToast("error", "يرجى ملء جميع الحقول");
