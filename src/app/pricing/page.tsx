@@ -180,14 +180,15 @@ export default function PricingPage() {
             ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
           </p>
 
-          <div className="inline-flex items-center mt-6 sm:mt-8 bg-muted/60 rounded-sm p-1 relative">
-            <div className={cn("absolute inset-y-1 w-1/2 rounded-sm bg-background shadow-sm transition-all duration-300", yearly ? "ltr:translate-x-full rtl:-translate-x-full" : "translate-x-0")} />
-            <button type="button" onClick={() => setYearly(false)} className="relative z-10 px-5 sm:px-6 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors">
+          <div className="inline-flex items-center gap-3 mt-6 sm:mt-8">
+            <button type="button" onClick={() => setYearly(false)} className={cn("px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-all relative", yearly ? "text-muted-foreground" : "text-orange bg-orange-muted")}>
               شهري
+              {!yearly && <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />}
             </button>
-            <button type="button" onClick={() => setYearly(true)} className="relative z-10 px-5 sm:px-6 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors">
+            <button type="button" onClick={() => setYearly(true)} className={cn("px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-all relative", yearly ? "text-orange bg-orange-muted" : "text-muted-foreground")}>
               سنوي —
               <span className="mr-1 text-xs text-orange font-bold">وفر شهرين</span>
+              {yearly && <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />}
             </button>
           </div>
         </div>
