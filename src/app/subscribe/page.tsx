@@ -236,6 +236,7 @@ function SubscribeContent() {
           body: JSON.stringify({ username: form.username.trim(), password: form.password.trim() }),
         });
         if (loginRes.ok) {
+          premiumToast("success", "تم إنشاء حسابك! جارِ نقلك إلى لوحة التحكم...");
           router.push("/owner");
           router.refresh();
           return;
