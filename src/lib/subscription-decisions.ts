@@ -2,6 +2,19 @@ import { prisma } from "@/lib/db";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { eventEmitter } from "@/lib/events";
 
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
+async function notifyUserViaTelegram(chatId: string | null, text: string) {
+  if (!chatId || !BOT_TOKEN) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
+    });
+  } catch { /* best-effort */ }
+}
+
 export type Decision = "verified" | "cancelled";
 
 export type ResolveResult =
@@ -84,6 +97,14 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المطعم: ${restaurantName}\n• الخطة: ${existing!.planName}\n• الرابط: ${restaurantSlug}`;
     sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
 
+    // Notify user directly
+    const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
+    const userChatId = existingUser.user?.telegramChatId;
+    if (userChatId) {
+      await notifyUserViaTelegram(String(userChatId),
+        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: https://smart-menu-sigma.vercel.app/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
+    }
+
     // SSE for admin panel
     eventEmitter.emit("admin-event", {
       type: "payment",
@@ -137,6 +158,14 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
   // Telegram broadcast
   const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing!.phone}\n• المبلغ: ${existing!.amount} د.ل\n• الخطة: ${existing!.planName}`;
   sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
+
+  // Notify user directly
+  const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
+  const userChatId = existingUser.user?.telegramChatId;
+  if (userChatId) {
+    await notifyUserViaTelegram(String(userChatId),
+      `❌ *عذراً، تم رفض طلب تفعيل حسابك في Smart Menu.*\n\nإذا كنت تعتقد أن هناك خطأ، يرجى التواصل مع الدعم الفني.`);
+  }
 
   // Admin SSE
   eventEmitter.emit("admin-event", {
