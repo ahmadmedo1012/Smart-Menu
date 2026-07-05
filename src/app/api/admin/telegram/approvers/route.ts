@@ -3,6 +3,11 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 
+// Helper: bigint → string for JSON-safe serialization
+function serializeApprover(a: any) {
+  return { ...a, telegramId: String(a.telegramId) };
+}
+
 export async function GET() {
   try {
     const auth = await requirePermission("EDIT_SETTINGS");
@@ -13,7 +18,7 @@ export async function GET() {
       include: { addedBy: { select: { id: true, name: true, username: true } } },
     });
 
-    return success(approvers);
+    return success(approvers.map(serializeApprover));
   } catch (e) {
     return handleError(e);
   }
@@ -25,12 +30,15 @@ export async function POST(request: NextRequest) {
     if (!auth.authorized) return error(auth.error, auth.status);
 
     const body = await request.json();
-    const telegramId = Number(body.telegramId);
-    if (!Number.isFinite(telegramId) || telegramId <= 0) {
-      return error("معرف تليجرام غير صالح — أدخل الرقم الظاهر في @userinfobot", 400);
+    const rawId = String(body.telegramId ?? "").trim();
+    if (!/^\d{1,20}$/.test(rawId) || rawId === "0") {
+      return error("معرف تليجرام غير صالح", 400);
     }
 
-    const existing = await prisma.telegramApprover.findUnique({ where: { telegramId } });
+    const telegramId = BigInt(rawId);
+
+    // findUnique doesn't support BigInt composite keys — use findFirst
+    const existing = await prisma.telegramApprover.findFirst({ where: { telegramId } });
     if (existing) return error("هذا المعرف مضاف مسبقاً", 409);
 
     const approver = await prisma.telegramApprover.create({
@@ -42,7 +50,7 @@ export async function POST(request: NextRequest) {
       include: { addedBy: { select: { id: true, name: true, username: true } } },
     });
 
-    return success(approver);
+    return success(serializeApprover(approver));
   } catch (e) {
     return handleError(e);
   }

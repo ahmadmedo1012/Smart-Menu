@@ -211,7 +211,7 @@ model TelegramBroadcastTarget {
 
 model TelegramApprover {
   id         Int      @id @default(autoincrement())
-  telegramId Int
+  telegramId BigInt
   label      String   @default("")
   addedById  Int?
   addedBy    User?    @relation(fields: [addedById], references: [id])

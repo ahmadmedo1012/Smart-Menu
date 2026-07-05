@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile drawer */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
-          side="right"
+          side="left"
           className="w-60 border-0 bg-card"
         >
           <MobileNav onNavClick={() => setSheetOpen(false)} role={role} permissions={permissions} />
