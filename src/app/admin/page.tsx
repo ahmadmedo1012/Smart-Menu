@@ -14,7 +14,7 @@ import {
   Store, ShoppingCart, TrendingUp, AlertCircle,
   Users, ArrowUpRight, BarChart3,
   RefreshCw, UserPlus, LogIn,
-  Activity, DollarSign, MapPin,
+  Activity, DollarSign,
 } from "lucide-react"
 
 interface StatsData {
@@ -36,6 +36,7 @@ interface StatsData {
   restaurantGrowthPct: number
   avgOrderValue: number
   avgOrderValuePrev: number
+  topRestaurants: { restaurant: { id: number; name: string; isActive: boolean; slug: string } | null; orderCount: number }[]
 }
 
 export default function AdminDashboard() {
@@ -356,40 +357,18 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Active restaurants */}
+        {/* Top Restaurants by Orders */}
+        {stats.topRestaurants && stats.topRestaurants.length > 0 && (
         <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
             <div className="flex items-center gap-2">
-              <MapPin className="size-4 text-muted-foreground" aria-hidden="true" />
-              <h3 className="text-sm font-semibold">المطاعم النشطة</h3>
+              <BarChart3 className="size-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">المطاعم الأكثر طلباً</h3>
             </div>
           </div>
-          {stats.recentSignups.length > 0 ? (
-            <div className="divide-y divide-border/20">
-              {stats.recentSignups.slice(0, 6).map((r) => (
-                <div key={r.id} className="flex items-center justify-between px-5 py-3 hover:bg-muted/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="size-9 rounded-xl bg-gradient-to-br from-emerald-400/20 to-emerald-600/10 flex items-center justify-center" aria-hidden="true">
-                      <Store className="size-4 text-emerald-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{r.name}</p>
-                      <p className="text-xs text-muted-foreground">/{r.slug}</p>
-                    </div>
-                  </div>
-                  <Link href={`/menu/${r.slug}`} target="_blank" aria-label={`عرض منيو ${r.name}`}>
-                    <ArrowUpRight className="size-3 text-muted-foreground" aria-hidden="true" />
-                  </Link>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-              <MapPin className="size-10 text-muted-foreground/40" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">لا توجد مطاعم نشطة</p>
-            </div>
-          )}
+          <HorizontalBar data={stats.topRestaurants.map(r => ({ label: r.restaurant?.name ?? "—", value: r.orderCount }))} />
         </div>
+        )}
       </div>
 
       {/* Quick actions */}

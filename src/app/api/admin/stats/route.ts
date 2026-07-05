@@ -58,10 +58,27 @@ export async function GET() {
       prisma.systemEvent.findMany({
         take: 10,
         orderBy: { createdAt: "desc" },
-        select: { id: true, eventType: true, title: true, severity: true, createdAt: true },
+        select: { id: true, eventType: true, title: true, message: true, severity: true, createdAt: true, read: true },
       }),
       prisma.restaurant.count({ where: { planId: { not: null } } }),
     ]);
+
+    // Top 10 restaurants by order count
+    const topRestaurants = await prisma.order.groupBy({
+      by: ["restaurantId"],
+      _count: { id: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 10,
+    });
+    const topRestIds = topRestaurants.map(t => t.restaurantId);
+    const topRestDetails = topRestIds.length > 0
+      ? await prisma.restaurant.findMany({ where: { id: { in: topRestIds } }, select: { id: true, name: true, isActive: true, slug: true } })
+      : [];
+    const topRestMap = new Map(topRestDetails.map(r => [r.id, r]));
+    const topRestaurantsFormatted = topRestaurants.map(t => ({
+      restaurant: topRestMap.get(t.restaurantId) || null,
+      orderCount: t._count.id,
+    }));
 
     // Revenue trend (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -182,7 +199,7 @@ export async function GET() {
       })),
       ordersToday: { count: ordersToday._count, revenue: ordersToday._sum.total ?? 0 },
       systemEvents,
-      onlineCount: 0,
+      topRestaurants: topRestaurantsFormatted,
       linkedRestaurants,
       revenueTrend: revenueTrend.map((r) => ({ date: r.date, revenue: Number(r.revenue) })),
       orderVolumeTrend: orderVolumeTrend.map((r) => ({ date: r.date, count: Number(r.count) })),

@@ -21,12 +21,12 @@
 
 @theme inline {
 	/* ── Font system — premium Arabic-first ── */
-	--font-sans: "Noto Sans Arabic", system-ui, sans-serif;
+	--font-sans: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
 	--font-mono: "Noto Naskh Arabic", "Courier New", monospace;
-	--font-display: var(--font-display, "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif);
-	--font-arabic: "Noto Naskh Arabic", "Noto Sans Arabic", "Readex Pro", system-ui, sans-serif;
-	--font-body: var(--font-body, "Noto Sans Arabic", system-ui, sans-serif);
-	--font-heading: var(--font-heading, "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif);
+	--font-display: "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-arabic: "Noto Naskh Arabic", "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-body: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-heading: "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
 
 	/* ── Theme colors ── */
 	--color-background: var(--background);
@@ -246,6 +246,7 @@
 [dir="rtl"] {
 	--font-sans: var(--font-arabic);
 	font-family: var(--font-body);
+		font-size: 17px;
 }
 
 @layer base {
@@ -279,20 +280,19 @@
 	::view-transition-new(root) { animation: fade-in 0.3s ease-out; }
 
 	html[dir="rtl"] {
-		font-family: var(--font-arabic);
 		letter-spacing: 0;
 	}
 
 	/* Typography scale */
 	h1, h2 {
 		font-family: var(--font-heading);
-		font-weight: 500;
+		font-weight: 600;
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
 	h3, h4, h5 {
 		font-family: var(--font-heading);
-		font-weight: 500;
+		font-weight: 600;
 		letter-spacing: -0.01em;
 		line-height: 1.2;
 	}

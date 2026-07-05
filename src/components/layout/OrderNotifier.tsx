@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
 
@@ -23,21 +23,37 @@ function playOrderSound() {
   } catch {}
 }
 
-/**
- * Real-time order notifications via SSE (Server-Sent Events).
- * No page reload needed — pushes instantly from server.
- */
+function showOrderToast(newOrders: number) {
+  playOrderSound();
+  toast(
+    <div className="flex items-center gap-3">
+      <div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
+        <ShoppingCart className="size-5 text-white" />
+      </div>
+      <div>
+        <p className="font-bold text-sm">طلب جديد!</p>
+        <p className="text-xs text-muted-foreground">لديك {newOrders} طلب جديد</p>
+      </div>
+    </div>,
+    { duration: 5000, position: "top-center" }
+  );
+}
+
 export function useOrderNotifier(restaurantId?: number) {
   const hasNotified = useRef(false);
   const retryCount = useRef(0);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const esRef = useRef<EventSource | null>(null);
+  const [pollMode, setPollMode] = useState(false);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const lastOrderCountRef = useRef(0);
 
   useEffect(() => {
     if (!restaurantId) return;
 
-    function connect() {
+    function connectSSE() {
       esRef.current?.close();
+      if (pollMode) return;
 
       const url = `/api/orders/stream?restaurantId=${restaurantId}`;
       const eventSource = new EventSource(url);
@@ -47,19 +63,7 @@ export function useOrderNotifier(restaurantId?: number) {
         try {
           const data = JSON.parse(event.data);
           if (data.newOrders && data.newOrders > 0 && !hasNotified.current) {
-            playOrderSound();
-            toast(
-              <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
-                  <ShoppingCart className="size-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm">طلب جديد!</p>
-                  <p className="text-xs text-muted-foreground">لديك {data.newOrders} طلب جديد</p>
-                </div>
-              </div>,
-              { duration: 5000, position: "top-center" }
-            );
+            showOrderToast(data.newOrders);
             hasNotified.current = true;
             setTimeout(() => { hasNotified.current = false; }, 30000);
           }
@@ -72,22 +76,50 @@ export function useOrderNotifier(restaurantId?: number) {
 
       eventSource.onerror = () => {
         eventSource.close();
-        if (retryCount.current < 5) {
-          const delay = Math.min(1000 * Math.pow(2, retryCount.current), 60000);
-          retryCount.current += 1;
-          if (retryCount.current === 1) {
-            toast.warning("انقطع الاتصال بالطلبات الجديدة، جار إعادة الاتصال...", { duration: 4000 });
-          }
-          retryTimer.current = setTimeout(connect, delay);
+        retryCount.current += 1;
+        if (retryCount.current >= 3) {
+          // Fallback to polling after 3 SSE failures
+          setPollMode(true);
+          return;
         }
+        if (retryCount.current === 1) {
+          toast.warning("انقطع الاتصال بالطلبات الجديدة، جار إعادة الاتصال...", { duration: 4000 });
+        }
+        const delay = Math.min(1000 * Math.pow(2, retryCount.current), 60000);
+        retryTimer.current = setTimeout(connectSSE, delay);
       };
     }
 
-    connect();
+    function startPolling() {
+      if (!restaurantId) return;
+      const poll = async () => {
+        try {
+          const res = await fetch(`/api/orders?status=new&restaurantId=${restaurantId}`);
+          if (!res.ok) return;
+          const json = await res.json();
+          const count = Array.isArray(json) ? json.length : (json?.data?.length ?? 0);
+          if (count > lastOrderCountRef.current && !hasNotified.current) {
+            showOrderToast(count - lastOrderCountRef.current);
+            hasNotified.current = true;
+            setTimeout(() => { hasNotified.current = false; }, 30000);
+          }
+          lastOrderCountRef.current = count;
+        } catch { /* poll failed */ }
+      };
+      poll();
+      pollIntervalRef.current = setInterval(poll, 5000);
+    }
+
+    if (pollMode) {
+      startPolling();
+    } else {
+      connectSSE();
+    }
 
     return () => {
       esRef.current?.close();
       if (retryTimer.current) clearTimeout(retryTimer.current);
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
-  }, [restaurantId]);
+  }, [restaurantId, pollMode]);
 }

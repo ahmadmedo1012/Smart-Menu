@@ -20,53 +20,44 @@ function playBeep(freq: number, duration: number) {
 }
 
 export function AdminEventNotifier() {
-  const esRef = useRef<EventSource | null>(null);
-  const retryCount = useRef(0);
-  const retryTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const lastIdRef = useRef(0);
 
   useEffect(() => {
-    function connect() {
-      esRef.current?.close();
-      const es = new EventSource("/api/admin/events/stream");
-      esRef.current = es;
+    const poll = async () => {
+      try {
+        const res = await fetch("/api/admin/system-events?page=1&pageSize=50");
+        if (!res.ok) return;
+        const json = await res.json();
+        const data: any[] = json?.data ?? [];
+        if (!Array.isArray(data)) return;
 
-      es.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          switch (data.type) {
+        let maxId = lastIdRef.current;
+        for (const ev of data) {
+          if (ev.id > maxId) maxId = ev.id;
+          if (ev.id <= lastIdRef.current) continue;
+          switch (ev.eventType) {
             case "payment":
               playBeep(880, 0.4);
-              premiumToast("success", data.title || "عملية دفع", data.message);
+              premiumToast("success", ev.title || "عملية دفع", ev.message);
               break;
             case "new_order":
             case "restaurant_created":
-              premiumToast("info", data.title || data.type, data.message);
+              premiumToast("info", ev.title || ev.eventType, ev.message);
               break;
             case "system_alert":
-              premiumToast("error", data.title || "تنبيه النظام", data.message);
+              premiumToast("error", ev.title || "تنبيه النظام", ev.message);
               break;
             default:
-              premiumToast("info", data.title || "حدث جديد", data.message);
+              premiumToast("info", ev.title || "حدث جديد", ev.message);
           }
-        } catch {}
-      };
-
-      es.onopen = () => { retryCount.current = 0; };
-      es.onerror = () => {
-        es.close();
-        if (retryCount.current < 5) {
-          const delay = Math.min(1000 * Math.pow(2, retryCount.current), 60000);
-          retryCount.current += 1;
-          retryTimer.current = setTimeout(connect, delay);
         }
-      };
-    }
-
-    connect();
-    return () => {
-      esRef.current?.close();
-      if (retryTimer.current) clearTimeout(retryTimer.current);
+        lastIdRef.current = maxId;
+      } catch { /* poll failed */ }
     };
+
+    poll(); // immediate first poll
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return null;

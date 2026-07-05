@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
 import { sendTelegramNotification } from "@/lib/telegram";
-import { eventEmitter } from "@/lib/events";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -105,27 +104,28 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: https://smart-menu-sigma.vercel.app/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
     }
 
-    // SSE for admin panel
-    eventEmitter.emit("admin-event", {
-      type: "payment",
-      title: "اشتراك جديد",
-      message: `تم تأكيد دفع ${existing!.planName} — ${restaurantName}`,
-      amount: existing!.amount,
-      planName: existing!.planName,
-      phone: existing!.phone,
-      userId: existing!.userId,
-      timestamp: new Date().toISOString(),
-    });
+    // Record in SystemEvent table
+    prisma.systemEvent.create({
+      data: {
+        eventType: "payment",
+        title: "اشتراك جديد",
+        message: `تم تأكيد دفع ${existing!.planName} — ${restaurantName}`,
+        severity: "info",
+        metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
+      },
+    }).catch(() => {});
 
-    // SSE for user — real-time redirect on checkout page
+    // Record user event in SystemEvent table
     if (existing!.userId) {
-      eventEmitter.emit("user-event", {
-        userId: existing!.userId,
-        type: "subscription_approved",
-        message: "تم تفعيل حسابك بنجاح!",
-        restaurantSlug,
-        timestamp: new Date().toISOString(),
-      });
+      prisma.systemEvent.create({
+        data: {
+          eventType: "subscription_approved",
+          title: "تم تفعيل الحساب",
+          message: "تم تفعيل حسابك بنجاح!",
+          severity: "info",
+          metadata: { userId: existing!.userId, restaurantSlug },
+        },
+      }).catch(() => {});
     }
 
     return { ok: true, action: "verified", paymentId: existing!.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
@@ -167,27 +167,28 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
       `❌ *عذراً، تم رفض طلب تفعيل حسابك في Smart Menu.*\n\nإذا كنت تعتقد أن هناك خطأ، يرجى التواصل مع الدعم الفني.`);
   }
 
-  // Admin SSE
-  eventEmitter.emit("admin-event", {
-    type: "payment_rejected",
-    title: "رفض اشتراك",
-    message: `تم رفض دفع ${existing!.planName}`,
-    amount: existing!.amount,
-    planName: existing!.planName,
-    phone: existing!.phone,
-    userId: existing!.userId,
-    timestamp: new Date().toISOString(),
-  });
+  // Record admin event in SystemEvent table
+  prisma.systemEvent.create({
+    data: {
+      eventType: "payment_rejected",
+      title: "رفض اشتراك",
+      message: `تم رفض دفع ${existing!.planName}`,
+      severity: "warning",
+      metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
+    },
+  }).catch(() => {});
 
-  // User SSE — push rejection event to the user in real-time
+  // Record user event in SystemEvent table
   if (existing!.userId) {
-    eventEmitter.emit("user-event", {
-      userId: existing!.userId,
-      type: "subscription_rejected",
-      message: "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني.",
-      paymentId: existing!.id,
-      timestamp: new Date().toISOString(),
-    });
+    prisma.systemEvent.create({
+      data: {
+        eventType: "subscription_rejected",
+        title: "رفض طلب التفعيل",
+        message: "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني.",
+        severity: "warning",
+        metadata: { userId: existing!.userId, paymentId: existing!.id },
+      },
+    }).catch(() => {});
   }
 
   return { ok: true, action: "cancelled", paymentId: existing!.id };

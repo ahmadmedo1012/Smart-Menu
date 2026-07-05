@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
 import { requireAdmin } from "@/lib/auth";
-import { eventEmitter } from "@/lib/events";
+import { prisma } from "@/lib/db";
 import { error } from "@/lib/api-helpers";
+
+export const maxDuration = 300;
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,24 +11,31 @@ export async function GET(request: NextRequest) {
     if (!auth.authorized) return error("غير مصرح", 401);
 
     const encoder = new TextEncoder();
+    let lastId = 0;
     const stream = new ReadableStream({
       start(controller) {
-        const listener = (event: any) => {
+        const poll = async () => {
           try {
-            const msg = `data: ${JSON.stringify(event)}\n\n`;
-            controller.enqueue(encoder.encode(msg));
-          } catch {
-            // client disconnected — listener cleaned up in abort handler
-          }
+            const events = await prisma.systemEvent.findMany({
+              where: { id: { gt: lastId } },
+              orderBy: { id: "asc" },
+              take: 50,
+            });
+            for (const ev of events) {
+              const msg = `data: ${JSON.stringify(ev)}\n\n`;
+              controller.enqueue(encoder.encode(msg));
+              lastId = ev.id;
+            }
+          } catch { /* poll failed */ }
         };
-        eventEmitter.on("admin-event", listener);
-
+        poll(); // immediate first poll
+        const interval = setInterval(poll, 5000);
         const hb = setInterval(() => {
-          controller.enqueue(encoder.encode(": heartbeat\n\n"));
+          try { controller.enqueue(encoder.encode(": heartbeat\n\n")); } catch {}
         }, 30000);
 
         request.signal.addEventListener("abort", () => {
-          eventEmitter.off("admin-event", listener);
+          clearInterval(interval);
           clearInterval(hb);
         });
       },
@@ -39,7 +48,5 @@ export async function GET(request: NextRequest) {
         Connection: "keep-alive",
       },
     });
-  } catch {
-    return error("حدث خطأ في الخادم", 500);
-  }
+  } catch { return error("حدث خطأ في الخادم", 500); }
 }
