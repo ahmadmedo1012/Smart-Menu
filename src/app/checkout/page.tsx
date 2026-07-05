@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Check,
@@ -12,11 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { csrfFetch } from "@/lib/csrf-client";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { motion } from "framer-motion";
+import PaymentDialog from "@/components/shared/PaymentDialog";
 
 type UserInfo = {
   id: number;
@@ -45,16 +45,13 @@ export default function CheckoutPage() {
   const [rejected, setRejected] = useState(false);
   const [rejectionMessage, setRejectionMessage] = useState("");
 
-  // Payment form state
+  // Checkout state
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [provider, setProvider] = useState<"libyana" | "madar">("libyana");
-  const [phone, setPhone] = useState("");
-  const [amount, setAmount] = useState(0);
   const [tempRestaurantName, setTempRestaurantName] = useState("");
   const [tempRestaurantSlug, setTempRestaurantSlug] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   // Fetch user + plans on mount
   useEffect(() => {
@@ -91,7 +88,6 @@ export default function CheckoutPage() {
           setPlans(active);
           if (active.length > 0) {
             setSelectedPlan(active[0]);
-            setAmount(Number(active[0].price));
           }
         }
       } catch {
@@ -121,7 +117,6 @@ export default function CheckoutPage() {
           setRejected(true);
           setRejectionMessage("عذراً، تم رفض طلب تفعيل الحساب.");
           setSubmitted(false);
-          setSubmitting(false);
           premiumToast("error", "تم رفض طلب التفعيل");
         }
       } catch {}
@@ -139,7 +134,6 @@ export default function CheckoutPage() {
           setRejected(true);
           setRejectionMessage(data.message || "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني.");
           setSubmitted(false);
-          setSubmitting(false);
         }
       } catch { /* parse error */ }
     };
@@ -147,35 +141,10 @@ export default function CheckoutPage() {
     return () => es.close();
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    if (!selectedPlan || !phone.trim() || !tempRestaurantName.trim() || !tempRestaurantSlug.trim()) {
-      premiumToast("error", "يرجى ملء جميع الحقول");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await csrfFetch("/api/payments/claim", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planId: selectedPlan.id,
-          phone: phone.trim(),
-          provider,
-          amount,
-          tempRestaurantName: tempRestaurantName.trim(),
-          tempRestaurantSlug: tempRestaurantSlug.trim().toLowerCase(),
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "فشل إرسال الطلب");
-      setSubmitted(true);
-      premiumToast("success", "تم إرسال طلب الدفع", "بانتظار تأكيد الإدارة");
-    } catch (e: any) {
-      premiumToast("error", e.message);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [selectedPlan, phone, provider, amount, tempRestaurantName, tempRestaurantSlug]);
+  const handlePaymentSuccess = () => {
+    setSubmitted(true);
+    premiumToast("success", "تم إرسال طلب الدفع", "بانتظار تأكيد الإدارة");
+  };
 
   if (loading) {
     return (
@@ -261,7 +230,6 @@ export default function CheckoutPage() {
                       type="button"
                       onClick={() => {
                         setSelectedPlan(plan);
-                        setAmount(Number(plan.price));
                       }}
                       className={cn(
                         "rounded-xl border-2 p-4 text-right transition-all",
@@ -292,55 +260,7 @@ export default function CheckoutPage() {
             {/* Payment form */}
             {selectedPlan && (
               <section className="space-y-5 rounded-2xl border border-border/30 bg-card/50 p-6">
-                <h2 className="text-lg font-semibold">بيانات الدفع</h2>
-
-                {/* Provider */}
-                <div>
-                  <Label>طريقة الدفع</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-1.5">
-                    {(["libyana", "madar"] as const).map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setProvider(p)}
-                        className={cn(
-                          "h-11 rounded-xl border-2 text-sm font-medium transition-all",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
-                          provider === p
-                            ? "border-orange bg-orange-muted/40 shadow-sm"
-                            : "border-border/30 hover:border-orange/30 text-muted-foreground"
-                        )}
-                      >
-                        {p === "libyana" ? "ليبيانا" : "مدار"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <Label>رقم هاتفك للتواصل</Label>
-                  <Input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="0910089975"
-                    className="h-11 rounded-xl mt-1.5 text-left font-mono"
-                    dir="ltr"
-                  />
-                </div>
-
-                {/* Amount */}
-                <div>
-                  <Label>المبلغ (د.ل)</Label>
-                  <Input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    className="h-11 rounded-xl mt-1.5"
-                    min={1}
-                    max={99}
-                  />
-                </div>
+                <h2 className="text-lg font-semibold">بيانات المطعم</h2>
 
                 {/* Restaurant name + slug */}
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -349,7 +269,7 @@ export default function CheckoutPage() {
                     <Input
                       value={tempRestaurantName}
                       onChange={(e) => setTempRestaurantName(e.target.value)}
-                      placeholder="مطعمي"
+                      placeholder="اسم مطعمك"
                       className="h-11 rounded-xl mt-1.5"
                     />
                   </div>
@@ -370,29 +290,39 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
+                {/* Plan summary */}
+                <div className="rounded-xl bg-orange-muted/30 dark:bg-orange-muted/10 border border-orange/15 p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold">{selectedPlan.nameAr}</span>
+                    <span className="text-lg font-bold text-orange">{selectedPlan.price} د.ل</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">اشتراك شهري</p>
+                </div>
+
                 <Button
                   className="w-full h-12 text-base font-semibold rounded-xl"
-                  onClick={handleSubmit}
-                  disabled={
-                    submitting ||
-                    !phone.trim() ||
-                    !tempRestaurantName.trim() ||
-                    !tempRestaurantSlug.trim()
-                  }
+                  onClick={() => setPaymentOpen(true)}
+                  disabled={!tempRestaurantName.trim() || !tempRestaurantSlug.trim()}
                 >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin ml-2" />
-                      جاري الإرسال...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="size-4 ml-2" />
-                      إرسال طلب الدفع
-                    </>
-                  )}
+                  <CreditCard className="size-4 ml-2" />
+                  متابعة للدفع
                 </Button>
               </section>
+            )}
+
+            {/* PaymentDialog */}
+            {selectedPlan && (
+              <PaymentDialog
+                open={paymentOpen}
+                onOpenChange={setPaymentOpen}
+                planId={selectedPlan.id}
+                planName={selectedPlan.name}
+                planNameAr={selectedPlan.nameAr}
+                price={Number(selectedPlan.price)}
+                tempRestaurantName={tempRestaurantName.trim()}
+                tempRestaurantSlug={tempRestaurantSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "")}
+                onSuccess={handlePaymentSuccess}
+              />
             )}
 
             <p className="text-xs text-center text-muted-foreground mt-6">

@@ -28,6 +28,8 @@ interface PaymentDialogProps {
   planNameAr: string;
   price: number;
   onSuccess: () => void;
+  tempRestaurantName?: string;
+  tempRestaurantSlug?: string;
 }
 
 export default function PaymentDialog({
@@ -37,6 +39,8 @@ export default function PaymentDialog({
   planNameAr,
   price,
   onSuccess,
+  tempRestaurantName,
+  tempRestaurantSlug,
 }: PaymentDialogProps) {
   const [provider, setProvider] = useState<Provider>("libyana");
   const { config } = useConfig();
@@ -88,7 +92,11 @@ export default function PaymentDialog({
       const res = await csrfFetch("/api/subscriptions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.trim(), amount, provider, planId }),
+        body: JSON.stringify({
+          phone: phone.trim(), amount, provider, planId,
+          ...(tempRestaurantName ? { tempRestaurantName } : {}),
+          ...(tempRestaurantSlug ? { tempRestaurantSlug } : {}),
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "فشل إرسال طلب الدفع");

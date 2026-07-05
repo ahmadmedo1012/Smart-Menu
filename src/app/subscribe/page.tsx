@@ -53,12 +53,12 @@ function SubscribeContent() {
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [form, setForm] = useState({
-    name: "مقهى الواحة",
-    slug: "al-waha-cafe",
-    description: "مقهى ومطعم يقدم أشهى المشروبات",
-    phone: "0910089975",
-    whatsapp: "0910089975",
-    username: "admin",
+    name: "",
+    slug: "",
+    description: "",
+    phone: "",
+    whatsapp: "",
+    username: "",
     password: "",
   });
 
