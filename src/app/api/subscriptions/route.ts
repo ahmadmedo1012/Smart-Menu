@@ -66,14 +66,16 @@ export async function POST(request: NextRequest) {
       }
 
       if (chatIds.size > 0) {
-        const msg = `\u{d83c}\u{dd97} *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
+        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
+        const results: { chatId: string; ok: boolean }[] = [];
         for (const chatId of chatIds) {
-          await sendMessageWithKeyboard(botToken, chatId, msg, [
-            [{ text: "\u{d83d}\u{fe0f} موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
-            [{ text: "\u{d83d}\u{fe34} رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
+          const r = await sendMessageWithKeyboard(botToken, chatId, msg, [
+            [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
+            [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
           ], { parseMode: "Markdown" });
+          results.push({ chatId, ok: r !== null });
         }
-      }
+        return success({ id: payment.id, telegram: results }, 201);
     }
     } catch (keyboardErr) {
       console.error("[subscriptions] keyboard error:", keyboardErr);
