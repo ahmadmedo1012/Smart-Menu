@@ -4,7 +4,7 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 
 // Helper: bigint → string for JSON-safe serialization
-function serializeApprover(a: any) {
+function serializeApprover(a: { telegramId: bigint } & Record<string, unknown>) {
   return { ...a, telegramId: String(a.telegramId) };
 }
 
