@@ -14,7 +14,7 @@ import { csrfFetch } from "@/lib/csrf-client";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Smartphone, Copy, Phone, CheckCircle2 } from "lucide-react";
+import { Smartphone, Copy, Phone, CheckCircle2, XCircle } from "lucide-react";
 import { useConfig } from "@/hooks/useConfig";
 
 
@@ -45,7 +45,8 @@ export default function PaymentDialog({
 
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState(price);
-  const [step, setStep] = useState<"form" | "waiting" | "success">("form");
+  const [step, setStep] = useState<"form" | "waiting" | "success" | "approved" | "rejected">("form");
+  const [resolutionMsg, setResolutionMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
   const [submitting, setSubmitting] = useState(false);
   const [paymentId, setPaymentId] = useState<number | null>(null);
@@ -135,13 +136,14 @@ export default function PaymentDialog({
           if (json.data?.status === "verified") {
             clearInterval(tick);
             cleanup();
-            finishFlow();
+            setResolutionMsg("تم الموافقة على اشتراكك بنجاح! سيتم توجيهك إلى لوحة التحكم.");
+            setStep("approved");
           }
           if (json.data?.status === "cancelled") {
             clearInterval(tick);
             cleanup();
-            handleOpenChange(false);
-            premiumToast("error", "تم رفض طلب الدفع");
+            setResolutionMsg(json.data?.message || "عذراً، تم رفض طلب تفعيل الاشتراك. يمكنك تعديل البيانات والمحاولة مرة أخرى.");
+            setStep("rejected");
           }
         } catch {
           pollFailures++;
@@ -366,6 +368,59 @@ export default function PaymentDialog({
                   الإشتراك سينتهي خلال {countdown} ثانية
                 </p>
               </div>
+            </div>
+          )}
+
+          {step === "approved" && (
+            <div className="flex flex-col items-center py-8 space-y-6">
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="relative size-20">
+                <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping opacity-75" style={{ animationDuration: '1.5s' }} />
+                <div className="relative size-full rounded-full bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-green-500/30">
+                  <CheckCircle2 className="size-10 text-white" />
+                </div>
+              </motion.div>
+              <div className="text-center space-y-2">
+                <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-lg font-bold text-green-600 dark:text-green-400">✅ تم الموافقة على الاشتراك</motion.p>
+                <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">{resolutionMsg}</motion.p>
+              </div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                <Button
+                  className="w-full h-11 rounded-xl bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => { onOpenChange(false); onSuccess(); }}
+                >
+                  الانتقال إلى لوحة التحكم
+                </Button>
+              </motion.div>
+            </div>
+          )}
+
+          {step === "rejected" && (
+            <div className="flex flex-col items-center py-8 space-y-6">
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="relative size-20">
+                <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping opacity-75" style={{ animationDuration: '1.5s' }} />
+                <div className="relative size-full rounded-full bg-gradient-to-br from-red-500 to-rose-400 flex items-center justify-center shadow-lg shadow-red-500/30">
+                  <XCircle className="size-10 text-white" />
+                </div>
+              </motion.div>
+              <div className="text-center space-y-2">
+                <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-lg font-bold text-red-600 dark:text-red-400">❌ تم رفض طلب الاشتراك</motion.p>
+                <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">{resolutionMsg}</motion.p>
+              </div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex gap-2 w-full">
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11 rounded-xl"
+                  onClick={() => { handleOpenChange(false); }}
+                >
+                  إغلاق
+                </Button>
+                <Button
+                  className="flex-1 h-11 rounded-xl"
+                  onClick={() => { setStep("form"); setResolutionMsg(""); setPhone(""); setAmount(price); setPaymentId(null); }}
+                >
+                  إعادة المحاولة
+                </Button>
+              </motion.div>
             </div>
           )}
 
