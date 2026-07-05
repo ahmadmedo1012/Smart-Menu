@@ -82,7 +82,7 @@ export const Scene3_CTA: React.FC = () => {
               marginBottom: 8,
               opacity: fadeIn(f, 45),
             }}>
-              طلب تفعيل الاشتراك لـ "grilled_food_hub"
+              {`طلب تفعيل الاشتراك لـ “grilled_food_hub”`}
             </div>
 
             <div style={{ display: "flex", gap: 6, opacity: fadeIn(f, 55) }}>

@@ -2,10 +2,7 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import type { Metadata } from "next";
-import dynamicNext from "next/dynamic";
 import { MenuClientSection } from "@/components/menu/MenuClientSection";
-
-const GalleryCarousel = dynamicNext(() => import("@/components/menu/GalleryCarousel"));
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -39,6 +36,8 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
   });
   if (!restaurant) notFound();
 
+  // Server component, runs once per request — Date.now is safe here
+  // eslint-disable-next-line react-hooks/purity
   const SEVEN_DAYS_MS = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const SEVEN_DAYS_AGO = new Date(SEVEN_DAYS_MS);
 
@@ -92,12 +91,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         hasContact={hasContact}
       />
 
-      {/* Static gallery — safe to server-render */}
-      {hasGallery && (
-        <section className="max-w-4xl mx-auto px-4 mt-6">
-          <GalleryCarousel images={restaurant.gallery} restaurantName={restaurant.name} />
-        </section>
-      )}
     </div>
   );
 }

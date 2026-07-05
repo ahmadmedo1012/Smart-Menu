@@ -8,6 +8,7 @@ const MenuPageClient = dynamic(() => import("./MenuPageClient"), { ssr: false })
 const LoyaltyWidget = dynamic(() => import("../loyalty/LoyaltyWidget"), { ssr: false })
 const LottieAnimation = dynamic(() => import("@/components/shared/LottieAnimation").then(m => ({ default: m.LottieAnimation })), { ssr: false })
 const ShareButton = dynamic(() => import("@/components/shared/ShareButton"), { ssr: false })
+const GalleryCarousel = dynamic(() => import("@/components/menu/GalleryCarousel"), { ssr: false })
 
 type Restaurant = {
   name: string; logo: string; description: string | null; phone: string | null
@@ -112,7 +113,14 @@ export function MenuClientSection({
         </div>
       </header>
 
-      {/* Center section */}
+      {/* Gallery */}
+      {restaurant.gallery?.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 mt-6">
+          <GalleryCarousel images={restaurant.gallery} restaurantName={restaurant.name} />
+        </section>
+      )}
+
+      {/* Menu section */}
       <div className="max-w-4xl mx-auto px-4 -mt-1 relative z-20">
         <MenuPageClient
           categories={categories}
