@@ -2,6 +2,20 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+// SSR-safe localStorage wrapper — returns null on server to prevent hydration mismatch
+const ssrSafeStorage = () => ({
+  getItem: (name: string) => {
+    if (typeof window === "undefined") return null;
+    try { return localStorage.getItem(name); } catch { return null; }
+  },
+  setItem: (name: string, value: string) => {
+    try { localStorage.setItem(name, value); } catch { /* noop */ }
+  },
+  removeItem: (name: string) => {
+    try { localStorage.removeItem(name); } catch { /* noop */ }
+  },
+});
+
 export type CartItem = {
   id: string;
   itemId: number;
@@ -93,7 +107,7 @@ export const useCart = create<CartStore>()(
 }),
     {
       name: "cart-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(ssrSafeStorage),
       partialize: (state) => ({
         items: state.items,
         customerName: state.customerName,

@@ -6,8 +6,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Store, Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 import dynamicNext from "next/dynamic";
-
-const MenuPageClient = dynamicNext(() => import("@/components/menu/MenuPageClient"), { ssr: false });
+import MenuPageClient from "@/components/menu/MenuPageClient";
 import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
