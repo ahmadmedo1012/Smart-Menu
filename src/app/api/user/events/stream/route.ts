@@ -15,8 +15,12 @@ export async function GET(request: NextRequest) {
         const listener = (event: any) => {
           // Filter events for this user only
           if (event.userId === userId) {
-            const msg = `data: ${JSON.stringify(event)}\n\n`;
-            controller.enqueue(encoder.encode(msg));
+            try {
+              const msg = `data: ${JSON.stringify(event)}\n\n`;
+              controller.enqueue(encoder.encode(msg));
+            } catch {
+              // client disconnected — listener cleaned up in abort handler
+            }
           }
         };
         eventEmitter.on("user-event", listener);

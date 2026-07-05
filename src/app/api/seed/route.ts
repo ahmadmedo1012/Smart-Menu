@@ -22,7 +22,7 @@ export async function GET() {
     // Upsert admin — create if missing, or fix role if wrong
     const existingAdmin = await prisma.user.findUnique({ where: { username: "admin" } });
     if (!existingAdmin) {
-      await prisma.user.create({ data: { username: "admin", password: hashPassword(process.env.ADMIN_PASSWORD ?? "admin123"), name: "مدير النظام", role: "admin" } });
+      await prisma.user.create({ data: { username: "admin", password: hashPassword(process.env.ADMIN_PASSWORD ?? (() => { throw new Error("ADMIN_PASSWORD env var is required"); })()), name: "مدير النظام", role: "admin" } });
     } else if (existingAdmin.role !== "admin") {
       await prisma.user.update({ where: { id: existingAdmin.id }, data: { role: "admin" } });
     }

@@ -52,8 +52,8 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         if (slugTaken) throw new Error("SLUG_TAKEN");
       }
 
-      const updated = await tx.subscriptionPayment.update({
-        where: { id: existing!.id },
+      await tx.subscriptionPayment.update({
+        where: { id: existing!.id, status: "pending" },
         data: { status: "verified" },
       });
 
@@ -89,7 +89,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         // attach an owner later if this becomes a real onboarding path.
       }
 
-      return { updated, restaurant, user };
+      return { restaurant, user };
     });
 
     // Notify via Telegram broadcast
