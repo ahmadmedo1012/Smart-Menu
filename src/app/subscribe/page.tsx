@@ -55,7 +55,6 @@ function SubscribeContent() {
   // Upgrade mode: authenticated free owner upgrading plan
   const [user, setUser] = useState<{ role: string; subscriptionStatus: string; restaurantId: number | null } | null>(null);
   const [upgradeMode, setUpgradeMode] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -95,8 +94,7 @@ function SubscribeContent() {
           }
         }
       })
-      .catch(() => {})
-      .finally(() => setAuthChecked(true));
+      .catch(() => {});
   }, []);
 
   // SSE stream for instant rejection notification (user is authenticated via pre-payment registration)
@@ -194,8 +192,6 @@ function SubscribeContent() {
   };
 
   const handlePaymentSuccess = async () => {
-    // Refresh status cookie so middleware doesn't redirect back to /subscribe
-    try { await fetch("/api/auth/refresh-status", { method: "POST" }); } catch {}
     router.push("/owner");
   };
 

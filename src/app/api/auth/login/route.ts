@@ -1,9 +1,7 @@
 import { prisma } from "@/lib/db";
 import { error as logError } from "@/lib/logger";
-import { cookies } from "next/headers";
 import { error } from "@/lib/api-helpers";
 import { z } from "zod";
-import { generateToken } from "@/lib/csrf";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
@@ -18,9 +16,6 @@ const loginLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 
 export async function POST(request: Request) {
   try {
-    // ponytail: no CSRF check on login — rate-limited, httpOnly cookies, HTTPS
-    const cookieStore = await cookies();
-
     const parsed = loginSchema.safeParse(await request.json());
     if (!parsed.success) return error("يرجى إدخال اسم المستخدم وكلمة المرور", 400);
     const { username, password } = parsed.data;
@@ -53,19 +48,8 @@ export async function POST(request: Request) {
     await logAudit({ action: "login", actorId: user.id, targetType: "user", targetId: user.id, ip });
     await notifyEvent("user_login", { username: user.username, name: user.name, role: user.role }, { adminOnly: true });
 
-    const secure = process.env.NODE_ENV === "production";
-    // Create server-side session (primary auth)
+    // Create server-side session
     await createSession(user.id);
-    // Backward-compat cookie-based auth
-    const SEVEN_DAYS = 60 * 60 * 24 * 7;
-    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
-    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
-    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
-    if (user.restaurantId) {
-      cookieStore.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
-    }
-    cookieStore.set("smart-menu-subscription-status", user.subscriptionStatus ?? "UNPAID", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS });
-    cookieStore.set("csrf-token", generateToken(), { httpOnly: false, secure, sameSite: "strict", path: "/", maxAge: 60 * 60 });
 
     return Response.json({
       success: true,

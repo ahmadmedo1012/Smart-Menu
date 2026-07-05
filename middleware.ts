@@ -70,8 +70,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // ponytail: owner subscription guard removed — enforced server-side by requireAuth
-
     return response;
   } catch (e) {
     console.error("[middleware] Unhandled error:", (e as Error).message);
