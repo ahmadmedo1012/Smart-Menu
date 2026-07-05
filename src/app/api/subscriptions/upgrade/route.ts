@@ -37,21 +37,22 @@ export async function POST(request: NextRequest) {
     });
     if (!plan || !plan.isActive) return error("الباقة غير موجودة أو غير نشطة", 400);
 
-    // Validate restaurant exists
+    // Validate restaurant exists and check current plan isn't paid
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: upgradeRestaurantId },
       select: { id: true, planId: true },
     });
     if (!restaurant) return error("المطعم غير موجود", 404);
 
-    // Check user owns this restaurant
-    if (auth.restaurantId !== upgradeRestaurantId && auth.role !== "super_admin" && auth.role !== "admin") {
-      return error("لا تملك صلاحية ترقية هذا المطعم", 403);
-    }
-
-    // Check restaurant is on free plan
+    // Check current plan — if it has a price > 0, restaurant is already paid
     if (restaurant.planId !== null) {
-      return error("صاحب المطعم مشترك حالياً في خطة مدفوعة", 400);
+      const currentPlan = await prisma.subscriptionPlan.findUnique({
+        where: { id: restaurant.planId },
+        select: { price: true },
+      });
+      if (currentPlan && Number(currentPlan.price) > 0) {
+        return error("صاحب المطعم مشترك حالياً في خطة مدفوعة", 400);
+      }
     }
 
     // Check no pending upgrade for this restaurant
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     try {
       const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
       if (botToken) {
-        const adminIds = getAdminTelegramIds();
+        const adminIds = await getAdminTelegramIds();
         const chatIds = new Set<string>();
         for (const id of adminIds) chatIds.add(String(id));
         const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({

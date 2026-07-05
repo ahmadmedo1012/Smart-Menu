@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     try {
       const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
       if (botToken) {
-        const adminIds = getAdminTelegramIds();
+        const adminIds = await getAdminTelegramIds();
         const chatIds = new Set<string>();
         for (const id of adminIds) chatIds.add(String(id));
         const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({

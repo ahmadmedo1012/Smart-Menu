@@ -282,12 +282,12 @@ function SubscribeContent() {
           </div>
         </div>
 
-        {/* Step 1: Plan selection */}
+        {/* Step 1: Plan selection — hide free plans in upgrade mode */}
         {step === "plan" && (
           <div className="animate-fade-in">
-            <h2 className="text-2xl font-bold text-center mb-8">اختر خطة تناسب مطعمك</h2>
+            <h2 className="text-2xl font-bold text-center mb-8">{upgradeMode ? "اختر خطة للترقية إليها" : "اختر خطة تناسب مطعمك"}</h2>
             <div className="grid md:grid-cols-2 gap-4 mb-8 max-w-lg mx-auto">
-              {plans.slice(0, 2).map((plan, i) => {
+              {plans.filter(p => !upgradeMode || Number(p.price) > 0).slice(0, 2).map((plan, i) => {
                 const Icon = PLAN_ICONS[i] || Sparkles;
                 const isSelected = selectedPlan === plan.id;
 
