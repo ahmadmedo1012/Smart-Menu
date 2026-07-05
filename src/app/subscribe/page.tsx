@@ -227,6 +227,20 @@ function SubscribeContent() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "فشل إنشاء الحساب");
+
+      // Free plan: auto-login and redirect to dashboard
+      if (currentPlan && Number(currentPlan.price) === 0) {
+        const loginRes = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: form.username.trim(), password: form.password.trim() }),
+        });
+        if (loginRes.ok) {
+          router.push("/owner");
+          router.refresh();
+          return;
+        }
+      }
       premiumToast("success", "تم إنشاء الحساب! يمكنك تسجيل الدخول الآن");
       router.push("/login");
     } catch (e: any) {

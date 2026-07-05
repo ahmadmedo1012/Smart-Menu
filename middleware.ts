@@ -70,13 +70,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Owner checkout guard — subscription cookie is a hint, not a privilege claim
-    if (pathname.startsWith("/owner")) {
-      const subStatus = request.cookies.get("smart-menu-subscription-status")?.value;
-      if (subStatus && subStatus !== "PAID") {
-        return NextResponse.redirect(new URL("/subscribe", request.url));
-      }
-    }
+    // ponytail: owner subscription guard removed — enforced server-side by requireAuth
 
     return response;
   } catch (e) {
