@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import { Store, Clock } from "lucide-react"
 
@@ -25,9 +24,6 @@ export function MenuClientSection(props: {
   serializedItems: any[]
   hasContact: boolean
 }) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return <div style={{display:'none'}} />
 
 
   const { restaurant, slug, origin, categories, serializedItems, hasContact } = props

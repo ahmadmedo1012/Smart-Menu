@@ -75,7 +75,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
   }));
 
   const hasContact = !!(restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address);
-  const hasGallery = restaurant.gallery && restaurant.gallery.length > 0;
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
