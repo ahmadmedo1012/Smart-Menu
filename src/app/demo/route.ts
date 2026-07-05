@@ -4,11 +4,7 @@ import { prisma } from "@/lib/db";
 import { createSession } from "@/lib/session";
 
 export async function GET() {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000"));
-  }
-
-  const user = await prisma.user.findUnique({ where: { username: "waha" } });
+  const user = await prisma.user.findFirst({ where: { role: "owner" }, orderBy: { id: "asc" } });
 
   if (!user) {
     return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000"));
