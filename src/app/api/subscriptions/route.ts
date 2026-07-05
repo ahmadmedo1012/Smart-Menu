@@ -67,16 +67,17 @@ export async function POST(request: NextRequest) {
 
       if (chatIds.size > 0) {
         const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
-        const results: { chatId: string; ok: boolean }[] = [];
         for (const chatId of chatIds) {
-          const r = await sendMessageWithKeyboard(botToken, chatId, msg, [
-            [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
-            [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
-          ], { parseMode: "Markdown" });
-          results.push({ chatId, ok: r !== null });
+          try {
+            await sendMessageWithKeyboard(botToken, chatId, msg, [
+              [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
+              [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
+            ], { parseMode: "Markdown" });
+          } catch (singleErr) {
+            console.error("[subscriptions] send to", chatId, "failed:", singleErr);
+          }
         }
-        return success({ id: payment.id, telegram: results }, 201);
-        }
+      }
       }
       } catch (keyboardErr) {
       console.error("[subscriptions] keyboard error:", keyboardErr);
