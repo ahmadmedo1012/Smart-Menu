@@ -27,7 +27,8 @@ export function MenuClientSection(props: {
 }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return null
+  if (!mounted) return <div style={{display:'none'}} />
+
 
   const { restaurant, slug, origin, categories, serializedItems, hasContact } = props
 
