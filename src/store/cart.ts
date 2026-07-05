@@ -108,6 +108,7 @@ export const useCart = create<CartStore>()(
     {
       name: "cart-storage",
       storage: createJSONStorage(ssrSafeStorage),
+      skipHydration: true,
       partialize: (state) => ({
         items: state.items,
         customerName: state.customerName,
