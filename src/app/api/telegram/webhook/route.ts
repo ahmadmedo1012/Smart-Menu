@@ -12,7 +12,7 @@ import {
 interface TelegramUpdate {
   message?: {
     text?: string;
-    chat?: { id: number; username?: string };
+    chat?: { id: number; username?: string; type?: string };
   };
   callback_query?: {
     id: string;
@@ -140,10 +140,16 @@ export async function POST(request: NextRequest) {
       return handleCallbackQuery(update.callback_query);
     }
 
-    // Handle /start verify_<token> (account linking)
-    const text = update.message?.text ?? "";
+    // Log all incoming messages for debugging
     const chatId = update.message?.chat?.id;
     const username = update.message?.chat?.username;
+    const chatType = update.message?.chat?.type;
+    if (chatId) {
+      console.log(`[webhook] msg from chat_id=${chatId} type=${chatType} username=${username ?? "N/A"}`);
+    }
+
+    // Handle /start verify_<token> (account linking)
+    const text = update.message?.text ?? "";
 
     if (!chatId || !text.startsWith("/start verify_")) {
       return new Response("OK", { status: 200 });
