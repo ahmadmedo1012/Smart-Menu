@@ -76,9 +76,11 @@ export default function MenuPageClient({
     // reserved for future scroll effects
   }, []);
 
+  // ponytail: cart omitted from deps — setRestaurantDetails is stable, including cart (full zustand store ref) causes infinite re-render loop
   useEffect(() => {
     if (restaurantId) cart.setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
-  }, [restaurantId, restaurantWhatsapp, restaurantName, cart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantId, restaurantWhatsapp, restaurantName]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
