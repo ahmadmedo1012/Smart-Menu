@@ -72,7 +72,10 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
 
         await tx.user.update({
           where: { id: existing!.userId! },
-          data: { planId: existing!.planId },
+          data: {
+            planId: existing!.planId,
+            subscriptionStatus: "PAID",
+          },
         });
 
         return { restaurant, plan };

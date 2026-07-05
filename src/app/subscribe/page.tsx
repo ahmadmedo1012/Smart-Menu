@@ -89,7 +89,7 @@ function SubscribeContent() {
       .then((d) => {
         if (d.success && d.data) {
           const u = d.data;
-          if (u.role === "owner" && u.subscriptionStatus === "PAID" && u.restaurantId) {
+          if (u.role === "owner" && u.restaurantId) {
             setUser({ role: u.role, subscriptionStatus: u.subscriptionStatus, restaurantId: u.restaurantId });
             setUpgradeMode(true);
           }
@@ -193,8 +193,9 @@ function SubscribeContent() {
     await createAccount();
   };
 
-  const handlePaymentSuccess = () => {
-    // User already has session — redirect straight to dashboard
+  const handlePaymentSuccess = async () => {
+    // Refresh status cookie so middleware doesn't redirect back to /subscribe
+    try { await fetch("/api/auth/refresh-status", { method: "POST" }); } catch {}
     router.push("/owner");
   };
 
