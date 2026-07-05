@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const telegramId = Number(body.telegramId);
     if (!Number.isFinite(telegramId) || telegramId <= 0) {
-      return error("معرف تليجرام غير صالح", 400);
+      return error("معرف تليجرام غير صالح — أدخل الرقم الظاهر في @userinfobot", 400);
     }
 
     const existing = await prisma.telegramApprover.findUnique({ where: { telegramId } });
