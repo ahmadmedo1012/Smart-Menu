@@ -2,10 +2,9 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
-import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, Menu, QrCode, Gift, Star } from "lucide-react"
+import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, QrCode, Gift, Star, X } from "lucide-react"
 import { csrfFetch } from "@/lib/csrf-client"
 import { useRouter } from "next/navigation"
 import { premiumToast } from "@/lib/premium-toast"
@@ -27,8 +26,13 @@ const navItems = [
 function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   return (
     <>
-      {/* Brand */}
-      <div className="relative z-10 flex items-center border-b border-border/20 px-4 py-4 min-h-[72px]">
+      {/* Close + Brand row */}
+      <div className="relative z-20 flex items-center gap-2 border-b border-border/20 px-4 py-4 min-h-[72px]">
+        {onNavClick && (
+          <button onClick={onNavClick} className="flex size-8 items-center justify-center rounded-lg hover:bg-accent" aria-label="إغلاق">
+            <X className="size-4" />
+          </button>
+        )}
         <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="max-h-9 w-auto" priority />
       </div>
 
@@ -93,21 +97,10 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="fixed start-3 top-3 z-[60] flex lg:hidden"
-              aria-label="فتح القائمة"
-            >
-              <Menu className="size-5" />
-            </Button>
-          }
-        />
         <SheetContent
           side="left"
           className="w-60 border-0 bg-card"
+          showCloseButton={false}
         >
           <SidebarContent onNavClick={() => setSheetOpen(false)} />
         </SheetContent>

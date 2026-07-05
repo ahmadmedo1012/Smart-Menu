@@ -5,7 +5,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { AdminSidebar, allNavItems } from "@/components/layout/AdminSidebar"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
-import { Store, LogOut } from "lucide-react"
+import { Store, LogOut, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import PageFade from "@/components/shared/PageFade"
 import { AdminEventNotifier } from "@/components/admin/AdminEventNotifier"
@@ -22,6 +22,11 @@ function MobileNav({ onNavClick, role, permissions }: { onNavClick: () => void; 
   return (
     <>
       <div className="flex items-center gap-3 border-b border-border px-4 pb-4 pt-5">
+        {onNavClick && (
+          <button onClick={onNavClick} className="flex size-8 items-center justify-center rounded-lg hover:bg-accent" aria-label="إغلاق">
+            <X className="size-4" />
+          </button>
+        )}
         <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange to-orange/80 shadow-lg shadow-orange/25" aria-hidden="true">
           <Store className="size-5 text-white" aria-hidden="true" />
         </div>
@@ -85,6 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <SheetContent
           side="left"
           className="w-60 border-0 bg-card"
+          showCloseButton={false}
         >
           <MobileNav onNavClick={() => setSheetOpen(false)} role={role} permissions={permissions} />
         </SheetContent>
