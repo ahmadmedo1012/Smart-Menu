@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -11,8 +11,8 @@ const createSchema = z.object({
 
 export async function GET() {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
     const targets = await prisma.telegramBroadcastTarget.findMany({
       orderBy: { createdAt: "desc" },
     });
@@ -24,8 +24,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
     const body = createSchema.parse(await request.json());
     const target = await prisma.telegramBroadcastTarget.create({
       data: { label: body.label, chatId: body.chatId },

@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   LayoutDashboard, UtensilsCrossed, ScrollText,
   Settings, QrCode, Store, Users, ChevronRight,
-  Activity, DollarSign, MessageCircle, Shield,
+  Activity, DollarSign, MessageCircle, Shield, LogOut,
 } from "lucide-react"
 import { NavLink } from "@/components/shared/NavLink"
 
@@ -17,16 +18,16 @@ export interface NavItem {
 }
 
 export const allNavItems: NavItem[] = [
-  { href: "/admin", label: "لوحة التحكم", icon: LayoutDashboard },
+  { href: "/admin", label: "لوحة التحكم", icon: LayoutDashboard, permission: "VIEW_ANALYTICS" },
   { href: "/admin/restaurants", label: "المطاعم", icon: Store, permission: "MANAGE_RESTAURANTS" },
   { href: "/admin/users", label: "المستخدمون", icon: Users, permission: "MANAGE_USERS" },
-  { href: "/admin/admins", label: "المسؤولون", icon: Shield },
+  { href: "/admin/admins", label: "المسؤولون", icon: Shield, permission: "MANAGE_USERS" },
   { href: "/admin/menu", label: "المينيو", icon: UtensilsCrossed, permission: "MANAGE_RESTAURANTS" },
   { href: "/admin/orders", label: "الطلبات", icon: ScrollText, permission: "APPROVE_ORDERS" },
   { href: "/admin/qr", label: "رمز QR", icon: QrCode, permission: "MANAGE_RESTAURANTS" },
   { href: "/admin/subscriptions", label: "المدفوعات", icon: DollarSign, permission: "MANAGE_SUBSCRIPTIONS" },
   { href: "/admin/telegram", label: "التليجرام", icon: MessageCircle, permission: "EDIT_SETTINGS" },
-  { href: "/admin/audit-logs", label: "سجل التدقيق", icon: Activity },
+  { href: "/admin/audit-logs", label: "سجل التدقيق", icon: Activity, permission: "VIEW_ANALYTICS" },
   { href: "/admin/settings", label: "الإعدادات", icon: Settings, permission: "EDIT_SETTINGS" },
 ];
 
@@ -38,6 +39,28 @@ function hasItemPermission(
   if (!item.permission) return true;
   if (role === "super_admin" || role === "admin") return true;
   return permissions.includes(item.permission);
+}
+
+function LogoutButton() {
+  const router = useRouter()
+
+  return (
+    <button
+      onClick={async () => {
+        try {
+          const res = await fetch("/api/auth/logout", { method: "POST" })
+          if (res.ok) {
+            router.push("/login")
+            router.refresh()
+          }
+        } catch { /* ignore */ }
+      }}
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
+    >
+      <LogOut className="size-4" />
+      تسجيل الخروج
+    </button>
+  )
 }
 
 export function AdminSidebar() {
@@ -81,7 +104,8 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border/20 px-3 py-3">
+      <div className="border-t border-border/20 px-3 py-3 space-y-1">
+        <LogoutButton />
         <Link
           href="/"
           className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 group"

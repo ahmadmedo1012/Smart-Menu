@@ -8,7 +8,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
 import {
   ClipboardList, Store, Clock, ChefHat,
-  CheckCircle, XCircle, Activity, BarChart3,
+  CheckCircle, XCircle, Activity, BarChart3, AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -38,6 +38,20 @@ const TABS = [
 ]
 
 export default function AdminOrdersPage() {
+  const [accessDenied, setAccessDenied] = useState(false)
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) { setAccessDenied(true); return }
+        const { role, permissions } = d.data
+        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("APPROVE_ORDERS")) {
+          setAccessDenied(true)
+        }
+      })
+      .catch(() => setAccessDenied(true))
+  }, [])
+
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("")
@@ -124,6 +138,16 @@ export default function AdminOrdersPage() {
   if (loading && orders.length === 0) return (
     <div className="space-y-4 animate-fade-in">
       {[1,2,3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
+    </div>
+  )
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
     </div>
   )
 

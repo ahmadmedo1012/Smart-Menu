@@ -1,19 +1,15 @@
 "use client"
 
 import { csrfFetch } from "@/lib/csrf-client";
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
 import { premiumToast } from "@/lib/premium-toast"
 import {
   Save, Store, Phone, Mail, MapPin, Clock, Image,
-  Bot, Eye, EyeOff, Send, MessageSquare,
-  UserPlus, Store as StoreIcon, Settings,
-  User, Bell, Copy, ExternalLink, AlertTriangle,
+  Settings, User, AlertTriangle,
 } from "lucide-react"
 import ConfigEditor from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
@@ -23,14 +19,6 @@ interface Restaurant {
   id: number; name: string; slug: string; description: string
   phone: string; whatsapp: string; email: string; address: string
   workingHours: string; logo: string; planId: number | null
-}
-
-interface TelegramConfig {
-  id?: number
-  botToken: string
-  chatId: string
-  events: string[]
-  isActive: boolean
 }
 
 interface AdminProfile {
@@ -43,23 +31,9 @@ interface AdminProfile {
   telegramUsername: string | null
 }
 
-interface NotifPrefs {
-  telegramNotifyOrders: boolean
-  telegramNotifyPayments: boolean
-  telegramNotifySettings: boolean
-}
-
-const EVENT_OPTIONS = [
-  { value: "user_signup", label: "اشتراك مستخدم جديد", icon: UserPlus },
-  { value: "restaurant_created", label: "إنشاء مطعم", icon: StoreIcon },
-  { value: "system_alert", label: "تنبيه النظام", icon: AlertTriangle },
-]
-
 const SETTINGS_TABS = [
   { id: "restaurants", label: "المطاعم", icon: Store },
-  { id: "telegram", label: "تليجرام", icon: Bot },
   { id: "profile", label: "الملف الشخصي", icon: User },
-  { id: "notifications", label: "الإشعارات", icon: Bell },
   { id: "config", label: "إعدادات النظام", icon: Settings },
 ]
 
@@ -81,14 +55,6 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  // Telegram config
-  const [tgConfig, setTgConfig] = useState<TelegramConfig>({
-    botToken: "", chatId: "", events: [], isActive: false,
-  })
-  const [tgSaving, setTgSaving] = useState(false)
-  const [tgTesting, setTgTesting] = useState(false)
-  const [showToken, setShowToken] = useState(false)
-
   // Profile
   const [profile, setProfile] = useState<AdminProfile | null>(null)
   const [profileName, setProfileName] = useState("")
@@ -97,21 +63,6 @@ export default function AdminSettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [profileSaving, setProfileSaving] = useState(false)
-
-  // Telegram linking
-  const [linkUrl, setLinkUrl] = useState<string | null>(null)
-  const [linkCountdown, setLinkCountdown] = useState(0)
-  const [linking, setLinking] = useState(false)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  // Notification prefs
-  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>({
-    telegramNotifyOrders: false,
-    telegramNotifyPayments: false,
-    telegramNotifySettings: false,
-  })
-  const [notifSaving, setNotifSaving] = useState(false)
 
   const selected = restaurants.find(r => r.id === selectedId)
 
@@ -129,45 +80,20 @@ export default function AdminSettingsPage() {
       .catch(() => setAccessDenied(true));
   }, []);
 
-  // Cleanup polling on unmount
-  useEffect(() => {
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current)
-      if (countdownRef.current) clearInterval(countdownRef.current)
-    }
-  }, [])
-
   useEffect(() => {
     Promise.all([
       fetch("/api/restaurants").then(r => r.json()),
-      fetch("/api/telegram/config").then(r => r.json()),
       fetch("/api/admin/profile").then(r => r.json()),
-      fetch("/api/admin/notification-preferences").then(r => r.json()),
     ])
-      .then(([restData, tgData, profileData, notifData]) => {
+      .then(([restData, profileData]) => {
         const list = restData.data?.restaurants ?? restData.data ?? []
         setRestaurants(list)
         if (list.length > 0) setSelectedId(list[0].id)
-        if (tgData.data?.botToken !== undefined) {
-          setTgConfig({
-            botToken: tgData.data.botToken ?? "",
-            chatId: tgData.data.chatId ?? "",
-            events: tgData.data.events ?? [],
-            isActive: tgData.data.isActive ?? false,
-          })
-        }
         if (profileData.data) {
           setProfile(profileData.data)
           setProfileName(profileData.data.name ?? "")
           setProfileEmail(profileData.data.email ?? "")
           setProfilePhone(profileData.data.phone ?? "")
-        }
-        if (notifData.data) {
-          setNotifPrefs({
-            telegramNotifyOrders: notifData.data.telegramNotifyOrders ?? false,
-            telegramNotifyPayments: notifData.data.telegramNotifyPayments ?? false,
-            telegramNotifySettings: notifData.data.telegramNotifySettings ?? false,
-          })
         }
       })
       .catch(() => premiumToast("error", "فشل تحميل البيانات"))
@@ -205,46 +131,6 @@ export default function AdminSettingsPage() {
     finally { setSaving(false) }
   }
 
-  const saveTelegram = async () => {
-    if (!tgConfig.botToken.trim() || !tgConfig.chatId.trim()) {
-      premiumToast("error", "يرجى إدخال رمز البوت ومعرف المحادثة"); return
-    }
-    setTgSaving(true)
-    try {
-      const res = await csrfFetch("/api/telegram/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tgConfig),
-      })
-      if (!res.ok) throw Error()
-      premiumToast("save", "تم حفظ إعدادات تليجرام")
-    } catch { premiumToast("error", "فشل حفظ إعدادات تليجرام") }
-    finally { setTgSaving(false) }
-  }
-
-  const testTelegram = async () => {
-    setTgTesting(true)
-    try {
-      const res = await csrfFetch("/api/telegram/test", { method: "POST" })
-      const json = await res.json()
-      if (!json.success) throw new Error(json.error || "فشل الإرسال")
-      premiumToast("success", "تم إرسال رسالة الاختبار بنجاح!")
-    } catch (e: any) {
-      premiumToast("error", e.message || "فشل إرسال رسالة الاختبار")
-    } finally {
-      setTgTesting(false)
-    }
-  }
-
-  const toggleEvent = (event: string) => {
-    setTgConfig(prev => ({
-      ...prev,
-      events: prev.events.includes(event)
-        ? prev.events.filter(e => e !== event)
-        : [...prev.events, event],
-    }))
-  }
-
   // --- Profile handlers ---
 
   const saveProfile = async () => {
@@ -278,74 +164,6 @@ export default function AdminSettingsPage() {
     } catch (e: any) {
       premiumToast("error", e.message || "فشل حفظ الملف الشخصي")
     } finally { setProfileSaving(false) }
-  }
-
-  // --- Telegram linking handlers ---
-
-  const startLinking = async () => {
-    setLinking(true)
-    try {
-      const res = await csrfFetch("/api/admin/telegram/link", { method: "POST" })
-      const json = await res.json()
-      if (!json.success) throw new Error(json.error)
-      setLinkUrl(json.data.url)
-      setLinkCountdown(300)
-
-      countdownRef.current = setInterval(() => {
-        setLinkCountdown(prev => {
-          if (prev <= 1) {
-            if (countdownRef.current) clearInterval(countdownRef.current)
-            if (pollRef.current) clearInterval(pollRef.current)
-            premiumToast("error", "انتهت صلاحية رابط الربط")
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-
-      pollRef.current = setInterval(async () => {
-        try {
-          const pRes = await fetch("/api/admin/profile")
-          const pJson = await pRes.json()
-          if (pJson.data?.telegramLinked) {
-            setProfile(pJson.data)
-            setLinkUrl(null); setLinkCountdown(0)
-            if (pollRef.current) clearInterval(pollRef.current)
-            if (countdownRef.current) clearInterval(countdownRef.current)
-            premiumToast("success", "تم ربط حساب تليجرام بنجاح!")
-          }
-        } catch { /* ignore */ }
-      }, 3000)
-    } catch (e: any) {
-      premiumToast("error", e.message || "فشل بدء الربط")
-    } finally { setLinking(false) }
-  }
-
-  const cancelLinking = () => {
-    if (pollRef.current) clearInterval(pollRef.current)
-    if (countdownRef.current) clearInterval(countdownRef.current)
-    setLinkUrl(null); setLinkCountdown(0)
-  }
-
-  const copyLinkUrl = () => {
-    if (linkUrl) navigator.clipboard.writeText(linkUrl)
-    premiumToast("success", "تم نسخ الرابط")
-  }
-
-  // --- Notification prefs handler ---
-
-  const saveNotifPrefs = async () => {
-    setNotifSaving(true)
-    try {
-      const res = await csrfFetch("/api/admin/notification-preferences", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(notifPrefs),
-      })
-      if (!res.ok) throw Error()
-      premiumToast("save", "تم حفظ إعدادات الإشعارات")
-    } catch { premiumToast("error", "فشل حفظ الإعدادات") }
-    finally { setNotifSaving(false) }
   }
 
   if (accessDenied) return (
@@ -491,168 +309,6 @@ export default function AdminSettingsPage() {
         ) : null}
       </section>}
 
-      {/* === Telegram Settings === */}
-      {activeTab === "telegram" && <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Bot className="size-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold">إعدادات تليجرام</h3>
-          <Badge variant={tgConfig.isActive ? "default" : "secondary"} className="ms-auto">
-            {tgConfig.isActive ? "نشط" : "غير نشط"}
-          </Badge>
-        </div>
-
-        {/* Personal Telegram linking */}
-        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden mb-6">
-          <div className="p-5 space-y-4">
-            <h4 className="font-semibold">ربط حساب المسؤول</h4>
-            {profile?.telegramLinked ? (
-              <div className="flex items-center gap-2">
-                <Badge variant="default">مرتبط</Badge>
-                <span className="text-sm">
-                  {profile.telegramUsername ? `@${profile.telegramUsername}` : "حساب تليجرام"}
-                </span>
-              </div>
-            ) : linkUrl ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  افتح الرابط التالي في تليجرام لربط حسابك. ينتهي الصلاحية بعد {Math.floor(linkCountdown / 60)}:{String(linkCountdown % 60).padStart(2, '0')}
-                </p>
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 border border-border/30">
-                  <span className="text-sm text-left ltr flex-1 truncate" dir="ltr">{linkUrl}</span>
-                  <button
-                    type="button"
-                    onClick={copyLinkUrl}
-                    className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label="نسخ الرابط"
-                  >
-                    <Copy className="size-4" />
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
-                    <Button variant="orange" className="w-full gap-2">
-                      <ExternalLink className="size-4" />
-                      فتح في تليجرام
-                    </Button>
-                  </a>
-                  <Button variant="ghost" onClick={cancelLinking}>إلغاء</Button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  اربط حساب تليجرام الخاص بك لتلقي إشعارات النظام
-                </p>
-                <Button onClick={startLinking} disabled={linking} className="gap-2">
-                  <Bot className="size-4" />
-                  {linking ? "جارٍ..." : "ربط تليجرام"}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Bot config */}
-        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
-          <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between gap-4">
-              <Label htmlFor="tg-active" className="flex items-center gap-2 cursor-pointer">
-                <MessageSquare className="size-4 text-muted-foreground" aria-hidden="true" />
-                تفعيل إشعارات تليجرام
-              </Label>
-              <Switch
-                id="tg-active"
-                checked={tgConfig.isActive}
-                onCheckedChange={(v) => setTgConfig(prev => ({ ...prev, isActive: v }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="tg-bot-token">رمز البوت (Bot Token)</Label>
-              <div className="relative mt-1.5">
-                <Input
-                  id="tg-bot-token"
-                  type={showToken ? "text" : "password"}
-                  value={tgConfig.botToken}
-                  onChange={e => setTgConfig(prev => ({ ...prev, botToken: e.target.value }))}
-                  placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz"
-                  className="h-11 rounded-xl text-left ltr pl-10"
-                  dir="ltr"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowToken(!showToken)}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}
-                >
-                  {showToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                احصل على الرمز من <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="underline">@BotFather</a>
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="tg-chat-id">معرف المحادثة (Chat ID)</Label>
-              <Input
-                id="tg-chat-id"
-                value={tgConfig.chatId}
-                onChange={e => setTgConfig(prev => ({ ...prev, chatId: e.target.value }))}
-                placeholder="-1001234567890"
-                className="h-11 rounded-xl mt-1.5 text-left" dir="ltr"
-              />
-            </div>
-
-            <div>
-              <Label className="block mb-2">الأحداث المرسلة</Label>
-              <div className="space-y-2">
-                {EVENT_OPTIONS.map(ev => {
-                  const Icon = ev.icon
-                  const enabled = tgConfig.events.includes(ev.value)
-                  return (
-                    <label
-                      key={ev.value}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all",
-                        enabled
-                          ? "border-orange/30 bg-orange-muted/30 dark:bg-orange-muted"
-                          : "border-border/30 hover:border-orange/20"
-                      )}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={enabled}
-                        onChange={() => toggleEvent(ev.value)}
-                        className="rounded border-border"
-                      />
-                      <Icon className="size-4 text-muted-foreground shrink-0" aria-hidden="true" />
-                      <span className="text-sm">{ev.label}</span>
-                    </label>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button onClick={saveTelegram} disabled={tgSaving} className="gap-1">
-                <Save className="size-4" aria-hidden="true" />
-                {tgSaving ? "جارٍ..." : "حفظ الإعدادات"}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={testTelegram}
-                disabled={tgTesting || !tgConfig.botToken.trim() || !tgConfig.chatId.trim()}
-                className="gap-1"
-              >
-                <Send className="size-4" aria-hidden="true" />
-                {tgTesting ? "جارٍ..." : "اختبار الإرسال"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>}
-
       {/* === Profile === */}
       {activeTab === "profile" && <section>
         <div className="flex items-center gap-2 mb-4">
@@ -718,55 +374,6 @@ export default function AdminSettingsPage() {
               <Button onClick={saveProfile} disabled={profileSaving} className="gap-1">
                 <Save className="size-4" aria-hidden="true" />
                 {profileSaving ? "جارٍ..." : "حفظ"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>}
-
-      {/* === Notifications === */}
-      {activeTab === "notifications" && <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Bell className="size-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold">إعدادات الإشعارات</h3>
-        </div>
-
-        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
-          <div className="p-5 space-y-4">
-            <label className="flex items-center justify-between p-4 rounded-xl border border-border/30 cursor-pointer transition-all hover:border-orange/20">
-              <div>
-                <p className="font-medium">إشعارات الطلبات</p>
-                <p className="text-sm text-muted-foreground mt-0.5">إرسال إشعار عند إنشاء طلب جديد</p>
-              </div>
-              <Switch
-                checked={notifPrefs.telegramNotifyOrders}
-                onCheckedChange={v => setNotifPrefs(prev => ({...prev, telegramNotifyOrders: v}))}
-              />
-            </label>
-            <label className="flex items-center justify-between p-4 rounded-xl border border-border/30 cursor-pointer transition-all hover:border-orange/20">
-              <div>
-                <p className="font-medium">إشعارات المدفوعات</p>
-                <p className="text-sm text-muted-foreground mt-0.5">إرسال إشعار عند حدوث عملية دفع</p>
-              </div>
-              <Switch
-                checked={notifPrefs.telegramNotifyPayments}
-                onCheckedChange={v => setNotifPrefs(prev => ({...prev, telegramNotifyPayments: v}))}
-              />
-            </label>
-            <label className="flex items-center justify-between p-4 rounded-xl border border-border/30 cursor-pointer transition-all hover:border-orange/20">
-              <div>
-                <p className="font-medium">إشعارات الإعدادات</p>
-                <p className="text-sm text-muted-foreground mt-0.5">إرسال إشعار عند تغيير إعدادات النظام</p>
-              </div>
-              <Switch
-                checked={notifPrefs.telegramNotifySettings}
-                onCheckedChange={v => setNotifPrefs(prev => ({...prev, telegramNotifySettings: v}))}
-              />
-            </label>
-            <div className="flex justify-end pt-2">
-              <Button onClick={saveNotifPrefs} disabled={notifSaving} className="gap-1">
-                <Save className="size-4" aria-hidden="true" />
-                {notifSaving ? "جارٍ..." : "حفظ الإعدادات"}
               </Button>
             </div>
           </div>

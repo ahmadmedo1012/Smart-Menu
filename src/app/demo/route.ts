@@ -37,6 +37,37 @@ export async function GET() {
     });
   }
 
+  // Self-healing: ensure demo restaurant has categories and menu items
+  const cats = await prisma.menuCategory.findMany({
+    where: { restaurantId: user.restaurantId! },
+  });
+  if (cats.length === 0) {
+    const [hot, cold, sweets, snacks] = await prisma.$transaction([
+      prisma.menuCategory.create({ data: { name: "مشروبات ساخنة", icon: "☕", sortOrder: 1, restaurantId: user.restaurantId! } }),
+      prisma.menuCategory.create({ data: { name: "مشروبات باردة", icon: "🧃", sortOrder: 2, restaurantId: user.restaurantId! } }),
+      prisma.menuCategory.create({ data: { name: "حلويات", icon: "🍰", sortOrder: 3, restaurantId: user.restaurantId! } }),
+      prisma.menuCategory.create({ data: { name: "وجبات خفيفة", icon: "🍔", sortOrder: 4, restaurantId: user.restaurantId! } }),
+    ]);
+    await prisma.menuItem.createMany({ data: [
+      { name: "قهوة تركي", price: 3, categoryId: hot.id, sortOrder: 1 },
+      { name: "إسبريسو", price: 4, categoryId: hot.id, sortOrder: 2 },
+      { name: "كابتشينو", price: 5, categoryId: hot.id, sortOrder: 3 },
+      { name: "شاي", price: 2, categoryId: hot.id, sortOrder: 4 },
+      { name: "ليموناضة", price: 4, categoryId: cold.id, sortOrder: 1 },
+      { name: "سموثي", price: 6, categoryId: cold.id, sortOrder: 2 },
+      { name: "موهيتو", price: 5, categoryId: cold.id, sortOrder: 3 },
+      { name: "آيس كوفي", price: 5, categoryId: cold.id, sortOrder: 4 },
+      { name: "تشيز كيك", price: 7, categoryId: sweets.id, sortOrder: 1 },
+      { name: "كنافة", price: 6, categoryId: sweets.id, sortOrder: 2 },
+      { name: "كريب", price: 5, categoryId: sweets.id, sortOrder: 3 },
+      { name: "بسبوسة", price: 4, categoryId: sweets.id, sortOrder: 4 },
+      { name: "ساندويتش", price: 5, categoryId: snacks.id, sortOrder: 1 },
+      { name: "بطاطس مقلية", price: 3, categoryId: snacks.id, sortOrder: 2 },
+      { name: "سلطة", price: 4, categoryId: snacks.id, sortOrder: 3 },
+      { name: "برجر", price: 7, categoryId: snacks.id, sortOrder: 4 },
+    ]});
+  }
+
   const redirectUrl = new URL("/owner", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000");
   const response = NextResponse.redirect(redirectUrl);
 

@@ -55,6 +55,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Ownership check — prevent IDOR: only owner of restaurant or super_admin/admin can upgrade
+    if (auth.restaurantId !== upgradeRestaurantId && auth.role !== "super_admin" && auth.role !== "admin") {
+      return error("لا تملك صلاحية ترقية هذا المطعم", 403);
+    }
+
     // Check no pending upgrade for this restaurant
     const pending = await prisma.subscriptionPayment.findFirst({
       where: {

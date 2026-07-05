@@ -1,15 +1,24 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { AdminSidebar, allNavItems } from "@/components/layout/AdminSidebar"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
-import { Store } from "lucide-react"
+import { Store, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 import PageFade from "@/components/shared/PageFade"
 import { AdminEventNotifier } from "@/components/admin/AdminEventNotifier"
 
-function MobileNav({ onNavClick }: { onNavClick: () => void }) {
+function MobileNav({ onNavClick, role, permissions }: { onNavClick: () => void; role: string | null; permissions: string[] }) {
+  const router = useRouter()
+  const visible = role === "super_admin" || role === "admin"
+    ? allNavItems
+    : allNavItems.filter((item) => {
+        if (!item.permission) return true;
+        return permissions.includes(item.permission);
+      });
+
   return (
     <>
       <div className="flex items-center gap-3 border-b border-border px-4 pb-4 pt-5">
@@ -22,16 +31,47 @@ function MobileNav({ onNavClick }: { onNavClick: () => void }) {
         </div>
       </div>
       <nav aria-label="القائمة المتنقلة" className="flex-1 space-y-1 px-3 py-4">
-        {allNavItems.map((item) => (
+        {visible.map((item) => (
           <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} onClick={onNavClick} />
         ))}
       </nav>
+      <div className="border-t border-border/20 px-3 py-3">
+        <button
+          onClick={async () => {
+            try {
+              const res = await fetch("/api/auth/logout", { method: "POST" })
+              if (res.ok) {
+                router.push("/login")
+                router.refresh()
+              }
+            } catch { /* ignore */ }
+          }}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
+        >
+          <LogOut className="size-4" />
+          تسجيل الخروج
+        </button>
+      </div>
     </>
   )
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [role, setRole] = useState<string | null>(null)
+  const [permissions, setPermissions] = useState<string[]>([])
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setRole(d.data.role)
+          setPermissions(d.data.permissions ?? [])
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="flex min-h-screen">
@@ -46,7 +86,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           side="right"
           className="w-60 border-0 bg-card"
         >
-          <MobileNav onNavClick={() => setSheetOpen(false)} />
+          <MobileNav onNavClick={() => setSheetOpen(false)} role={role} permissions={permissions} />
         </SheetContent>
       </Sheet>
 

@@ -248,6 +248,7 @@
 	font-family: var(--font-body);
 		font-size: 17px;
 }
+		font-size: 17px;
 
 @layer base {
 	* {
@@ -310,6 +311,7 @@
 
 	[dir="rtl"] p, [dir="rtl"] li, [dir="rtl"] .body-text {
 		font-family: var(--font-body);
+	font-size: 17px;
 	}
 
 	a {

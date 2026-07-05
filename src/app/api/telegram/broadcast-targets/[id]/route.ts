@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -15,8 +15,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
     const { id } = await params;
     const body = updateSchema.parse(await request.json());
     const target = await prisma.telegramBroadcastTarget.update({
@@ -34,8 +34,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
     const { id } = await params;
     await prisma.telegramBroadcastTarget.delete({
       where: { id: Number(id) },

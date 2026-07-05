@@ -12,7 +12,7 @@ import { csrfFetch } from "@/lib/csrf-client"
 import {
   Shield, UserPlus, Key, Trash2, LogOut, RefreshCw, AlertCircle,
   CheckCheck, Users, Store, DollarSign, Settings as SettingsIcon,
-  BarChart3,
+  BarChart3, AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
@@ -32,6 +32,20 @@ const PERMISSION_OPTIONS = [
 ]
 
 export default function AdminAdminsPage() {
+  const [accessDenied, setAccessDenied] = useState(false)
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) { setAccessDenied(true); return }
+        const { role, permissions } = d.data
+        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("MANAGE_USERS")) {
+          setAccessDenied(true)
+        }
+      })
+      .catch(() => setAccessDenied(true))
+  }, [])
+
   const [admins, setAdmins] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -177,6 +191,16 @@ export default function AdminAdminsPage() {
 
   const superAdmins = admins.filter(a => a.role === "super_admin")
   const subAdmins = admins.filter(a => a.role === "sub_admin")
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
+    </div>
+  )
 
   return (
     <div className="space-y-8 animate-fade-in">

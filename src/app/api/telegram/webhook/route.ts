@@ -38,7 +38,7 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
   }
 
   // Gate 1: only allowlisted admin Telegram IDs may act
-  const adminIds = getAdminTelegramIds();
+  const adminIds = await getAdminTelegramIds();
   if (!adminIds.includes(cq.from.id)) {
     await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
     return new Response("OK", { status: 200 });

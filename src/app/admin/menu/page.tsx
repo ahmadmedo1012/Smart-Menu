@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Switch } from "@/components/ui/switch"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import { Package, Store, Activity } from "lucide-react"
+import { Package, Store, Activity, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import { Badge } from "@/components/ui/badge"
@@ -20,6 +20,20 @@ interface Item {
 }
 
 export default function AdminMenuPage() {
+  const [accessDenied, setAccessDenied] = useState(false)
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) { setAccessDenied(true); return }
+        const { role, permissions } = d.data
+        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("MANAGE_RESTAURANTS")) {
+          setAccessDenied(true)
+        }
+      })
+      .catch(() => setAccessDenied(true))
+  }, [])
+
   const [items, setItems] = useState<Item[]>([])
   const [restaurants, setRestaurants] = useState<{ id: number; name: string; slug: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -113,6 +127,16 @@ export default function AdminMenuPage() {
   )
 
   const totalRestaurants = Object.keys(grouped).length
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -63,8 +63,8 @@ export function middleware(request: NextRequest) {
     }
 
     // Protected routes — auth gate (server-side auth handles actual role enforcement)
-    const authCookie = request.cookies.get("smart-menu-auth")?.value;
-    if ((pathname.startsWith("/admin") || pathname.startsWith("/owner")) && authCookie !== "true") {
+    const sessionCookie = request.cookies.get("smart-menu-session")?.value;
+    if ((pathname.startsWith("/admin") || pathname.startsWith("/owner")) && !sessionCookie) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);

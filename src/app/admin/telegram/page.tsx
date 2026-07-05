@@ -21,6 +21,8 @@ import {
   Plus,
   Trash2,
   Users,
+  UserCheck,
+  AlertTriangle,
 } from "lucide-react"
 
 interface TelegramConfig {
@@ -54,12 +56,21 @@ interface BroadcastTarget {
   createdAt: string
 }
 
+interface Approver {
+  id: number
+  telegramId: number
+  label: string
+  addedBy: { id: number; name: string; username: string } | null
+  createdAt: string
+}
+
 function maskChatId(id: string): string {
   if (id.length <= 4) return id
   return id.slice(0, 4) + "..." + id.slice(-3)
 }
 
 export default function AdminTelegramPage() {
+  const [accessDenied, setAccessDenied] = useState(false);
   const [config, setConfig] = useState<TelegramConfig>({
     botToken: "",
     chatId: "",
@@ -79,7 +90,28 @@ export default function AdminTelegramPage() {
   const [adding, setAdding] = useState(false)
   const [linkedAdmins, setLinkedAdmins] = useState(0)
 
+  // Approvers
+  const [approvers, setApprovers] = useState<Approver[]>([])
+  const [approversLoading, setApproversLoading] = useState(true)
+  const [newApproverId, setNewApproverId] = useState("")
+  const [newApproverLabel, setNewApproverLabel] = useState("")
+  const [addingApprover, setAddingApprover] = useState(false)
+
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          const { role, permissions } = d.data;
+          if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("EDIT_SETTINGS")) {
+            setAccessDenied(true);
+            setLoading(false);
+            return;
+          }
+        }
+      })
+      .catch(() => { setAccessDenied(true); setLoading(false); return; })
+
     fetch("/api/telegram/config")
       .then((r) => r.json())
       .then((json) => {
@@ -113,6 +145,14 @@ export default function AdminTelegramPage() {
         }
       })
       .catch(() => {})
+
+    fetch("/api/admin/telegram/approvers")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setApprovers(json.data ?? [])
+      })
+      .catch(() => {})
+      .finally(() => setApproversLoading(false))
   }, [])
 
   const handleSave = async () => {
@@ -235,6 +275,16 @@ export default function AdminTelegramPage() {
       premiumToast("error", e.message || "فشل حذف جهة الإرسال")
     }
   }
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى إعدادات التليجرام. يرجى التواصل مع المدير العام.</p>
+    </div>
+  )
 
   if (loading) {
     return (
@@ -501,6 +551,141 @@ export default function AdminTelegramPage() {
               <Users className="size-4 inline-block align-text-bottom ml-1" />
               عدد المشرفين المرتبطين: {linkedAdmins}
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Approvers (Subscription Approvers) ─── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <UserCheck className="size-5 text-muted-foreground" />
+          <h3 className="text-lg font-semibold">
+            الموافقون على الاشتراكات
+          </h3>
+        </div>
+
+        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+          <div className="p-5 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              أضف معرفات تليجرام لأشخاص إضافيين يمكنهم الموافقة أو رفض طلبات الاشتراك عبر البوت
+            </p>
+
+            {/* Add form */}
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Label htmlFor="appr-telegram-id">معرف تليجرام (User ID)</Label>
+                <Input
+                  id="appr-telegram-id"
+                  type="number"
+                  value={newApproverId}
+                  onChange={(e) => setNewApproverId(e.target.value)}
+                  placeholder="123456789"
+                  className="h-11 rounded-xl mt-1.5 text-left"
+                  dir="ltr"
+                />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="appr-label">تسمية</Label>
+                <Input
+                  id="appr-label"
+                  value={newApproverLabel}
+                  onChange={(e) => setNewApproverLabel(e.target.value)}
+                  placeholder="مثال: أحمد"
+                  className="h-11 rounded-xl mt-1.5"
+                />
+              </div>
+              <Button
+                onClick={async () => {
+                  if (!newApproverId.trim()) {
+                    premiumToast("error", "يرجى إدخال معرف تليجرام")
+                    return
+                  }
+                  setAddingApprover(true)
+                  try {
+                    const res = await csrfFetch("/api/admin/telegram/approvers", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        telegramId: Number(newApproverId),
+                        label: newApproverLabel.trim(),
+                      }),
+                    })
+                    const json = await res.json()
+                    if (!json.success) throw new Error(json.error || "فشل الإضافة")
+                    setApprovers((prev) => [json.data, ...prev])
+                    setNewApproverId("")
+                    setNewApproverLabel("")
+                    premiumToast("success", "تمت إضافة الموافق")
+                  } catch (e: any) {
+                    premiumToast("error", e.message || "فشل إضافة الموافق")
+                  } finally {
+                    setAddingApprover(false)
+                  }
+                }}
+                disabled={addingApprover || !newApproverId.trim()}
+                className="rounded-xl gap-1 shrink-0"
+              >
+                {addingApprover ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-4" />
+                )}
+                إضافة
+              </Button>
+            </div>
+
+            {/* Approvers list */}
+            {approversLoading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="size-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : approvers.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                لا يوجد موافقون مضافة
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {approvers.map((a) => (
+                  <div
+                    key={a.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/20"
+                  >
+                    <UserCheck className="size-4 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {a.label || `ID: ${a.telegramId}`}
+                      </p>
+                      <p className="text-xs font-mono text-muted-foreground" dir="ltr">
+                        {a.telegramId}
+                        {a.addedBy && (
+                          <span className="text-muted-foreground/60">
+                            {" "}· أضيف بواسطة {a.addedBy.name}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const res = await csrfFetch(`/api/admin/telegram/approvers/${a.id}`, { method: "DELETE" })
+                          const json = await res.json()
+                          if (!json.success) throw new Error(json.error || "فشل الحذف")
+                          setApprovers((prev) => prev.filter((x) => x.id !== a.id))
+                          premiumToast("success", "تم حذف الموافق")
+                        } catch (e: any) {
+                          premiumToast("error", e.message || "فشل حذف الموافق")
+                        }
+                      }}
+                      className="rounded-xl"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

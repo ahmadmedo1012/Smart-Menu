@@ -26,6 +26,7 @@ import {
   Store, Plus, Pencil, Trash2, ExternalLink,
   Crown, Star, Sparkles, Building2, ShoppingCart,
   ChevronLeft, ChevronRight, RefreshCw, AlertCircle, FilterX,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
@@ -53,6 +54,20 @@ const PLAN_COLORS: Record<string, string> = {
 };
 
 export default function AdminRestaurantsPage() {
+  const [accessDenied, setAccessDenied] = useState(false);
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) { setAccessDenied(true); return }
+        const { role, permissions } = d.data
+        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("MANAGE_RESTAURANTS")) {
+          setAccessDenied(true)
+        }
+      })
+      .catch(() => setAccessDenied(true))
+  }, []);
+
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -241,6 +256,16 @@ export default function AdminRestaurantsPage() {
       </div>
     );
   }
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">

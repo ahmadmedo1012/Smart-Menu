@@ -24,6 +24,7 @@ import { toArabicNumber } from "@/lib/format";
 import {
   CreditCard, Check, X, RefreshCw, FilterX,
   ChevronLeft, ChevronRight, AlertCircle, Smartphone, Clock,
+  AlertTriangle,
 } from "lucide-react";
 
 interface Payment {
@@ -49,6 +50,20 @@ const PROVIDER_NAMES: Record<string, string> = {
 };
 
 export default function AdminSubscriptionsPage() {
+  const [accessDenied, setAccessDenied] = useState(false);
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) { setAccessDenied(true); return }
+        const { role, permissions } = d.data
+        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("MANAGE_SUBSCRIPTIONS")) {
+          setAccessDenied(true)
+        }
+      })
+      .catch(() => setAccessDenied(true))
+  }, []);
+
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +155,16 @@ export default function AdminSubscriptionsPage() {
       </div>
     );
   }
+
+  if (accessDenied) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
+      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+        <AlertTriangle className="size-8 text-destructive" />
+      </div>
+      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in">

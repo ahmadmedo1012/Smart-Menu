@@ -31,6 +31,7 @@ model User {
   notificationPrefs      Json      @default("{}")
   auditLogs             AuditLog[]
   sessions     Session[]
+  telegramApprovers TelegramApprover[]
   subscriptionPayments  SubscriptionPayment[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id])
@@ -206,6 +207,17 @@ model TelegramBroadcastTarget {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model TelegramApprover {
+  id         Int      @id @default(autoincrement())
+  telegramId Int
+  label      String   @default("")
+  addedById  Int?
+  addedBy    User?    @relation(fields: [addedById], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([telegramId])
 }
 
 model WhatsappTemplate {

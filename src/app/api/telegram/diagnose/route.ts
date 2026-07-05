@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 
 async function testChatId(
   botToken: string,
@@ -31,8 +31,8 @@ async function testChatId(
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    const auth = await requirePermission("EDIT_SETTINGS");
+    if (!auth.authorized) return error(auth.error, auth.status);
     const { searchParams } = new URL(request.url);
     const dryRun = searchParams.get("dryRun") === "true";
 
