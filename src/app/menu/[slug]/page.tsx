@@ -6,8 +6,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Store, Phone, MessageCircle, Mail, MapPin, Clock } from "lucide-react";
 import dynamicNext from "next/dynamic";
-import MenuPageClient from "@/components/menu/MenuPageClient";
-import LoyaltyWidget from "@/components/loyalty/LoyaltyWidget";
+import { MenuClientSection } from "@/components/menu/MenuClientSection";
 import StickyMenuHeader from "@/components/menu/StickyMenuHeader";
 import ShareButton from "@/components/shared/ShareButton";
 import { LottieAnimation } from "@/components/shared/LottieAnimation";
@@ -193,25 +192,17 @@ export default async function PublicMenuPage({
         </div>
       )}
 
-      {/* Menu */}
-      <div className="max-w-4xl mx-auto px-4 -mt-1 relative z-20">
-        <MenuPageClient
-          categories={categories}
-          items={serializedItems}
-          restaurantWhatsapp={restaurant.whatsapp}
-          restaurantName={restaurant.name}
-          restaurantId={restaurant.id}
-          restaurantSlug={slug}
-          restaurantLogo={restaurant.logo}
-        />
-      </div>
-
-      <LoyaltyWidget
-        restaurantId={restaurant.id}
+      <MenuClientSection
+        categories={categories}
+        items={serializedItems}
+        restaurantWhatsapp={restaurant.whatsapp}
         restaurantName={restaurant.name}
+        restaurantId={restaurant.id}
         restaurantSlug={slug}
-        whatsapp={restaurant.whatsapp}
+        restaurantLogo={restaurant.logo}
       />
+
+
 
       {/* Contact */}
       {hasContact && (
