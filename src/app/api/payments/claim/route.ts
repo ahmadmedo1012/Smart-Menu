@@ -93,6 +93,8 @@ export async function POST(request: NextRequest) {
       if (chatIds.size === 0) {
         const fallback = process.env.TELEGRAM_CHAT_ID;
         if (fallback) chatIds.add(fallback);
+        const groupIds = (process.env.TELEGRAM_GROUP_IDS ?? "").split(",").map(s => s.trim()).filter(Boolean);
+        for (const gid of groupIds) chatIds.add(gid);
       }
 
       if (chatIds.size > 0) {
