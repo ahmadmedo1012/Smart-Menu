@@ -102,19 +102,61 @@ function SubscribeContent() {
         form.username.trim().length < 3 ||
         form.password.trim().length < 4) return;
 
-    // Paid plan → show payment dialog (account NOT created until admin approves)
-    if (currentPlan && Number(currentPlan.price) > 0) {
-      setPaymentOpen(true);
+    // Pre-flight validation
+    try {
+      const valRes = await fetch("/api/subscriptions/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username.trim(),
+          slug: form.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+        }),
+      });
+      const valJson = await valRes.json();
+      if (!valJson.success || !valJson.data?.valid) {
+        const errs = valJson.data?.errors ?? {};
+        if (errs.username) premiumToast("error", errs.username);
+        if (errs.slug) premiumToast("error", errs.slug);
+        if (!errs.username && !errs.slug) premiumToast("error", "البيانات غير صالحة");
+        return;
+      }
+    } catch {
+      premiumToast("error", "خطأ في التحقق من البيانات");
       return;
     }
 
-    // Free plan → create account immediately
+    // Paid plan → create user first, then payment dialog
+    if (currentPlan && Number(currentPlan.price) > 0) {
+      setSubmitting(true);
+      try {
+        const regRes = await csrfFetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: form.username.trim(),
+            password: form.password.trim(),
+            name: form.name.trim(),
+          }),
+        });
+        const regJson = await regRes.json();
+        if (!regRes.ok) throw new Error(regJson.error ?? "فشل إنشاء الحساب");
+        setPaymentOpen(true);
+      } catch (e: any) {
+        premiumToast("error", e.message);
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    // Free plan → create account immediately (unchanged)
     await createAccount();
   };
 
   const handlePaymentSuccess = () => {
-    // Paid plan: create account after payment approval
-    createAccount();
+    // Paid plan: payment approved — subscription-decisions.ts promotes user
+    // Nothing to do here; admin approval triggers handleVerified which upgrades the user
+    router.push("/login");
   };
 
   const createAccount = async () => {
