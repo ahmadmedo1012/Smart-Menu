@@ -138,11 +138,11 @@ export function Header({ className }: HeaderProps) {
       )}>
         <nav className="max-w-[1220px] mx-auto px-4 sm:px-6 lg:px-10 h-full flex items-center justify-between" aria-label="الرئيسية">
           {/* Logo & Hamburger */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1">
             <HamburgerButton open={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} />
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-              <span className="text-base font-medium tracking-tight text-foreground/90 group-hover:text-orange transition-colors duration-200">Smart Menu</span>
+              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-orange transition-colors duration-200" style={{ fontFamily: "var(--font-display)" }}>Smart Menu</span>
             </Link>
           </div>
 
@@ -181,7 +181,7 @@ export function Header({ className }: HeaderProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2 flex-1">
             <ThemeToggle />
           </div>
         </nav>
