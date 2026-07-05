@@ -7,7 +7,6 @@ export async function GET() {
   try {
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
-    if (auth.role !== "super_admin") return error("غير مصرح", 403);
 
     const approvers = await prisma.telegramApprover.findMany({
       orderBy: { createdAt: "desc" },
@@ -24,7 +23,6 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
-    if (auth.role !== "super_admin") return error("غير مصرح", 403);
 
     const body = await request.json();
     const telegramId = Number(body.telegramId);
