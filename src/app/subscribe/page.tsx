@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, ArrowLeft, Loader2, Sparkles, Store, Building2, Crown, Star } from "lucide-react";
+import { Check, ArrowLeft, Loader2, Sparkles, Store, Building2, Crown, Star, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +52,11 @@ function SubscribeContent() {
 
   const [paymentOpen, setPaymentOpen] = useState(false);
 
+  // Upgrade mode: authenticated free owner upgrading plan
+  const [user, setUser] = useState<{ role: string; subscriptionStatus: string; restaurantId: number | null } | null>(null);
+  const [upgradeMode, setUpgradeMode] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -76,6 +81,23 @@ function SubscribeContent() {
       .catch(() => premiumToast("error", "فشل تحميل الخطط"))
       .finally(() => setLoading(false));
   }, [preselectedPlan]);
+
+  // Check if user is an authenticated free owner → upgrade mode
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.data) {
+          const u = d.data;
+          if (u.role === "owner" && u.subscriptionStatus === "PAID" && u.restaurantId) {
+            setUser({ role: u.role, subscriptionStatus: u.subscriptionStatus, restaurantId: u.restaurantId });
+            setUpgradeMode(true);
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAuthChecked(true));
+  }, []);
 
   // SSE stream for instant rejection notification (user is authenticated via pre-payment registration)
   useEffect(() => {
@@ -172,9 +194,8 @@ function SubscribeContent() {
   };
 
   const handlePaymentSuccess = () => {
-    // Paid plan: payment approved — subscription-decisions.ts promotes user
-    // Nothing to do here; admin approval triggers handleVerified which upgrades the user
-    router.push("/login");
+    // User already has session — redirect straight to dashboard
+    router.push("/owner");
   };
 
   const createAccount = async () => {
@@ -327,8 +348,49 @@ function SubscribeContent() {
           </div>
         )}
 
-        {/* Step 2: Registration form */}
-        {step === "form" && (
+        {/* Step 2: Registration form or upgrade pay */}
+        {step === "form" && upgradeMode ? (
+          <div className="animate-fade-in max-w-lg mx-auto">
+            {/* Upgrade mode: show plan + pay only — no form */}
+            {currentPlan && (
+              <div className="rounded-md p-5 mb-8 border-2 border-orange/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-lg">{currentPlan.nameAr}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {currentPlan.price} د.ل/شهر
+                    </p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setStep("plan")}>
+                    تغيير
+                  </Button>
+                </div>
+                <div className="mt-4 space-y-2 text-sm">
+                  {currentPlan.features.slice(0, 5).map((f, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Check className="size-3.5 text-primary shrink-0" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <p className="text-sm text-muted-foreground mb-6 text-center">
+              بيانات مطعمك الحالية ستبقى كما هي — فقط سيتم ترقية خطتك.
+            </p>
+
+            <Button
+              className="w-full h-14 text-base font-semibold rounded-sm"
+              size="lg"
+              onClick={() => setPaymentOpen(true)}
+              disabled={!selectedPlan}
+            >
+              <CreditCard className="size-5 ml-2" />
+              ادفع الآن {currentPlan ? `(${currentPlan.price} د.ل)` : ""}
+            </Button>
+          </div>
+        ) : step === "form" ? (
           <div className="animate-fade-in max-w-lg mx-auto">
             {/* Selected plan summary */}
             {currentPlan && (
@@ -519,7 +581,7 @@ function SubscribeContent() {
               </p>
             </form>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Payment Dialog for paid plans */}
@@ -532,6 +594,7 @@ function SubscribeContent() {
           planNameAr={currentPlan.nameAr}
           price={Number(currentPlan.price)}
           onSuccess={handlePaymentSuccess}
+          upgradeRestaurantId={upgradeMode && user?.restaurantId ? user.restaurantId : undefined}
         />
       )}
     </div>

@@ -30,6 +30,7 @@ interface PaymentDialogProps {
   onSuccess: () => void;
   tempRestaurantName?: string;
   tempRestaurantSlug?: string;
+  upgradeRestaurantId?: number;
 }
 
 export default function PaymentDialog({
@@ -41,6 +42,7 @@ export default function PaymentDialog({
   onSuccess,
   tempRestaurantName,
   tempRestaurantSlug,
+  upgradeRestaurantId,
 }: PaymentDialogProps) {
   const [provider, setProvider] = useState<Provider>("libyana");
   const { config } = useConfig();
@@ -89,13 +91,17 @@ export default function PaymentDialog({
     }
     setSubmitting(true);
     try {
-      const res = await csrfFetch("/api/subscriptions", {
+      const endpoint = upgradeRestaurantId
+        ? "/api/subscriptions/upgrade"
+        : "/api/subscriptions";
+      const res = await csrfFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: phone.trim(), amount, provider, planId,
           ...(tempRestaurantName ? { tempRestaurantName } : {}),
           ...(tempRestaurantSlug ? { tempRestaurantSlug } : {}),
+          ...(upgradeRestaurantId ? { upgradeRestaurantId } : {}),
         }),
       });
       const json = await res.json();

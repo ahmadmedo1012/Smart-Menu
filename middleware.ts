@@ -10,7 +10,7 @@ const publicPrefixes = [
   "/api/auth", "/api/loyalty", "/api/subscriptions", "/api/plans", "/api/restaurants",
   "/api/telegram/webhook",
   "/login", "/menu", "/cart", "/order-confirmed",
-  "/pricing", "/subscribe", "/demo", "/checkout",
+  "/pricing", "/subscribe", "/demo",
 ];
 
 function setCsrfCookie(resp: NextResponse, req: NextRequest) {
@@ -74,7 +74,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith("/owner")) {
       const subStatus = request.cookies.get("smart-menu-subscription-status")?.value;
       if (subStatus && subStatus !== "PAID") {
-        return NextResponse.redirect(new URL("/checkout", request.url));
+        return NextResponse.redirect(new URL("/subscribe", request.url));
       }
     }
 

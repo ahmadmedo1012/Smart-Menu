@@ -39,7 +39,68 @@ export async function resolveSubscriptionPayment(
 }
 
 async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscriptionPayment.findUnique>>): Promise<ResolveResult> {
-  const meta = existing!.metadata as { tempUsername?: string; tempRestaurantName?: string; tempRestaurantSlug?: string } | null;
+  const meta = existing!.metadata as {
+    tempUsername?: string;
+    tempRestaurantName?: string;
+    tempRestaurantSlug?: string;
+    upgradeRestaurantId?: number;
+    currentPlanId?: number | null;
+  } | null;
+
+  // UPGRADE BRANCH: existing free owner upgrading to paid plan
+  if (meta?.upgradeRestaurantId) {
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.subscriptionPayment.update({
+          where: { id: existing!.id, status: "pending" },
+          data: { status: "verified" },
+        });
+
+        const plan = await tx.subscriptionPlan.findUnique({
+          where: { id: existing!.planId },
+          select: { id: true, nameAr: true },
+        });
+
+        const restaurant = await tx.restaurant.update({
+          where: { id: meta!.upgradeRestaurantId },
+          data: {
+            planId: existing!.planId,
+            planStart: new Date(),
+            planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+        });
+
+        await tx.user.update({
+          where: { id: existing!.userId! },
+          data: { planId: existing!.planId },
+        });
+
+        return { restaurant, plan };
+      });
+
+      // Notify via Telegram broadcast
+      const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${result.restaurant.name}\n• الخطة: ${result.plan?.nameAr ?? existing!.planName}\n• المبلغ: ${existing!.amount} د.ل`;
+      const { sendTelegramNotification } = await import("@/lib/telegram");
+      sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
+
+      // Record system event
+      prisma.systemEvent.create({
+        data: {
+          eventType: "payment",
+          title: "ترقية اشتراك",
+          message: `تم تأكيد ترقية ${existing!.planName} — ${result.restaurant.name}`,
+          severity: "info",
+          metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
+        },
+      }).catch(() => {});
+
+      return { ok: true, action: "verified", paymentId: existing!.id };
+    } catch (e) {
+      return { ok: false, reason: "حدث خطأ أثناء ترقية الخطة" };
+    }
+  }
+
+  // NEW USER BRANCH: existing logic (unchanged below)
   const restaurantName = meta?.tempRestaurantName ?? `مطعم ${existing!.phone}`;
   const restaurantSlug = meta?.tempRestaurantSlug ?? `restaurant-${existing!.id}`;
 
