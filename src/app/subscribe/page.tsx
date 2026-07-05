@@ -77,6 +77,24 @@ function SubscribeContent() {
       .finally(() => setLoading(false));
   }, [preselectedPlan]);
 
+  // SSE stream for instant rejection notification (user is authenticated via pre-payment registration)
+  useEffect(() => {
+    const es = new EventSource("/api/user/events/stream");
+    es.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.eventType === "subscription_rejected") {
+          setPaymentOpen(false);
+          setSubmitted(false);
+          setSubmitting(false);
+          premiumToast("error", data.message || "عذراً، تم رفض طلب التفعيل");
+        }
+      } catch { /* parse error */ }
+    };
+    es.onerror = () => {};
+    return () => es.close();
+  }, []);
+
   const currentPlan = plans.find((p) => p.id === selectedPlan);
   const fieldError = (field: string) => {
     if (!submitted) return false;

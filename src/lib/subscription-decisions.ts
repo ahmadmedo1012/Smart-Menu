@@ -39,7 +39,7 @@ export async function resolveSubscriptionPayment(
 }
 
 async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscriptionPayment.findUnique>>): Promise<ResolveResult> {
-  const meta = existing!.metadata as { tempRestaurantName?: string; tempRestaurantSlug?: string } | null;
+  const meta = existing!.metadata as { tempUsername?: string; tempRestaurantName?: string; tempRestaurantSlug?: string } | null;
   const restaurantName = meta?.tempRestaurantName ?? `مطعم ${existing!.phone}`;
   const restaurantSlug = meta?.tempRestaurantSlug ?? `restaurant-${existing!.id}`;
 
