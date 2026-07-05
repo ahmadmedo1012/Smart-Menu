@@ -7,7 +7,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
-    if (auth.role !== "super_admin") return error("غير مصرح", 403);
 
     const { id } = await params;
     const approverId = parseInt(id);
