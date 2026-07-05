@@ -2,12 +2,39 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { createSession } from "@/lib/session";
+import { hashPassword } from "@/lib/hash";
 
 export async function GET() {
-  const user = await prisma.user.findFirst({ where: { role: "owner" }, orderBy: { id: "asc" } });
+  // Upsert demo owner user so it works on any DB (production or local)
+  let user = await prisma.user.upsert({
+    where: { username: "waha" },
+    update: {},
+    create: {
+      username: "waha",
+      password: hashPassword("waha123"),
+      name: "مقهى الواحة",
+      role: "owner",
+      subscriptionStatus: "PAID",
+    },
+  });
 
-  if (!user) {
-    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000"));
+  // Upsert demo restaurant if not linked
+  if (!user.restaurantId) {
+    const restaurant = await prisma.restaurant.upsert({
+      where: { slug: "al-waha-cafe" },
+      update: {},
+      create: {
+        name: "مقهى الواحة",
+        slug: "al-waha-cafe",
+        phone: "0910089975",
+        whatsapp: "0910089975",
+        isActive: true,
+      },
+    });
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { restaurantId: restaurant.id },
+    });
   }
 
   const redirectUrl = new URL("/owner", process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000");
