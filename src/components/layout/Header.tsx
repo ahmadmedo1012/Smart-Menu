@@ -6,7 +6,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { springDefault } from "@/lib/motion"
@@ -18,7 +17,7 @@ const PARTNER_SLUG = "al-waha-cafe"
 const landingLinks = [
   { href: "/pricing", label: "الخطط والأسعار" },
   { href: `/menu/${PARTNER_SLUG}`, label: "منيو تجريبي" },
-  { href: "/login", label: "لوحة التحكم" },
+  { href: "/login", label: "تسجيل الدخول" },
 ]
 
 function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void }) {
@@ -95,18 +94,6 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
                   </motion.div>
                 )
               })}
-              <motion.div
-                custom={landingLinks.length}
-                variants={mobileLinkVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="pt-3 px-4"
-              >
-                <Link href="/subscribe" onClick={onClose}>
-                  <Button variant="orange" size="lg" className="w-full text-sm">ابدأ الآن مجاناً</Button>
-                </Link>
-              </motion.div>
             </nav>
           </motion.div>
         </>
@@ -196,12 +183,6 @@ export function Header({ className }: HeaderProps) {
           {/* Actions */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/login" className="hidden sm:inline-flex">
-              <Button variant="ghost" size="sm">تسجيل الدخول</Button>
-            </Link>
-            <Link href="/subscribe">
-              <Button variant="orange" size="sm" className="text-xs sm:text-sm px-3 sm:px-4">ابدأ الآن</Button>
-            </Link>
           </div>
         </nav>
       </header>

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, MessageCircle } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { PhoneVideo } from "./PhoneVideo"
@@ -71,10 +71,9 @@ export default function HeroSection() {
 							أنشئ قائمتك مجاناً <ArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
 						</Button>
 					</Link>
-					<Link href="https://wa.me/218911111111" target="_blank" rel="noopener noreferrer">
+					<Link href="/login">
 						<Button variant="outline" size="lg" className="text-sm sm:text-base">
-							<MessageCircle className="size-4 sm:size-5" />
-							تواصل عبر واتساب
+							تسجيل الدخول
 						</Button>
 					</Link>
 				</motion.div>
