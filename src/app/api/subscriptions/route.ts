@@ -76,8 +76,9 @@ export async function POST(request: NextRequest) {
           results.push({ chatId, ok: r !== null });
         }
         return success({ id: payment.id, telegram: results }, 201);
-    }
-    } catch (keyboardErr) {
+        }
+      }
+      } catch (keyboardErr) {
       console.error("[subscriptions] keyboard error:", keyboardErr);
     }
 
