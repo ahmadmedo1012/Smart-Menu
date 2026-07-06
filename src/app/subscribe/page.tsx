@@ -89,6 +89,11 @@ function SubscribeContent() {
         if (d.success && d.data) {
           const u = d.data;
           if (u.role === "owner" && u.restaurantId) {
+            // Already PAID → no reason to be on subscribe page
+            if (u.subscriptionStatus === "PAID") {
+              router.push("/owner");
+              return;
+            }
             setUser({ role: u.role, subscriptionStatus: u.subscriptionStatus, restaurantId: u.restaurantId });
             setUpgradeMode(true);
           }
