@@ -197,7 +197,18 @@ function SubscribeContent() {
   };
 
   const handlePaymentSuccess = async () => {
-    router.push("/owner");
+    // Only redirect to dashboard if user has access (restaurant exists / admin approved)
+    try {
+      const meRes = await fetch("/api/auth/me");
+      const meData = await meRes.json();
+      if (meData.success && meData.data?.restaurantId) {
+        router.push("/owner");
+        return;
+      }
+    } catch {}
+    // No restaurantId yet — payment still pending admin approval
+    // Stay on subscribe page, user sees plan selection which is safe
+    premiumToast("info", "طلبك قيد المراجعة من الإدارة. سيتم إشعارك عند التفعيل.");
   };
 
   const createAccount = async () => {

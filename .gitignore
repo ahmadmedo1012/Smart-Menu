@@ -88,3 +88,4 @@ obsidian-vault/.obsidian/plugins/obsidian-git/data.json
 # ── Obsidian project config (not vault) ────
 smart-menu/.obsidian/
 smart-menu/Welcome.md
+/smart-menu
