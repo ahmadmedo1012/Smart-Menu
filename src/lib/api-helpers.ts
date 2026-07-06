@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
 import { error as logError } from "@/lib/logger";
 
 export function success<T>(data: T, status = 200) {
@@ -9,6 +8,9 @@ export function success<T>(data: T, status = 200) {
 export function error(message: string, status = 400) {
   return NextResponse.json({ success: false, error: message }, { status });
 }
+
+// ponytail: ZodError imported via type-only to avoid dual-package hazard at runtime
+import type { ZodError } from "zod";
 
 export function validationError(err: ZodError) {
   const messages = err.issues.map(
@@ -38,7 +40,10 @@ export function paginated<T>(
 }
 
 export function handleError(e: unknown) {
-  if (e instanceof ZodError) return validationError(e);
+  // Use duck-typing instead of ZodError instanceof (avoids dual-package hazard in Zod 4)
+  if (e && typeof e === "object" && "issues" in e && Array.isArray((e as Record<string, unknown>).issues)) {
+    return validationError(e as import("zod").ZodError);
+  }
   const msg = e instanceof Error ? e.message : String(e);
   logError("handleError", { error: msg });
 

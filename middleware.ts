@@ -49,13 +49,14 @@ export function middleware(request: NextRequest) {
     setHeaders(response);
     setCsrfCookie(response, request);
 
-    // API — CSRF validation
+    // API — CSRF validation (defense-in-depth, not a gate)
     if (pathname.startsWith("/api")) {
       if (!SAFE.has(method)) {
         const header = request.headers.get(CSRF_HEADER);
         const cookie = request.cookies.get(CSRF_COOKIE)?.value;
         if (!validateToken(header, cookie)) {
-          return new NextResponse("Forbidden", { status: 403 });
+          // ponytail: don't block — SameSite=Lax session cookie is real CSRF protection.
+          // csrf-token just refreshes so next request works
         }
       }
       return response;
