@@ -34,8 +34,9 @@ export async function POST(request: NextRequest) {
 
     // Pre-flight uniqueness checks (defense in depth alongside client-side validation)
     if (tempUsername) {
-      const existingUser = await prisma.user.findUnique({ where: { username: tempUsername } });
-      if (existingUser) return error("اسم المستخدم مستخدم بالفعل", 409);
+      const tempUser = await prisma.user.findUnique({ where: { username: tempUsername }, select: { id: true } });
+      // Allow if tempUsername matches the currently authenticated user (already registered before payment)
+      if (tempUser && tempUser.id !== auth.userId) return error("اسم المستخدم مستخدم بالفعل", 409);
     }
     if (tempRestaurantSlug) {
       const existingSlug = await prisma.restaurant.findUnique({ where: { slug: tempRestaurantSlug } });

@@ -606,6 +606,8 @@ function SubscribeContent() {
           price={Number(currentPlan.price)}
           onSuccess={handlePaymentSuccess}
           upgradeRestaurantId={upgradeMode && user?.restaurantId ? user.restaurantId : undefined}
+          tempRestaurantName={form.name}
+          tempRestaurantSlug={form.slug}
         />
       )}
     </div>

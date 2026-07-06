@@ -58,7 +58,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
 
         const plan = await tx.subscriptionPlan.findUnique({
           where: { id: existing!.planId },
-          select: { id: true, nameAr: true },
+          select: { id: true, nameAr: true, maxItems: true, maxOrders: true },
         });
 
         const restaurant = await tx.restaurant.update({
@@ -67,6 +67,8 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
             planId: existing!.planId,
             planStart: new Date(),
             planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            maxItems: plan?.maxItems ?? undefined,
+            maxOrders: plan?.maxOrders ?? undefined,
           },
         });
 
@@ -99,7 +101,9 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
 
       return { ok: true, action: "verified", paymentId: existing!.id };
     } catch (e) {
-      return { ok: false, reason: "حدث خطأ أثناء ترقية الخطة" };
+      console.error("[subscription-decisions] upgrade error:", e);
+      const reason = e instanceof Error ? `حدث خطأ أثناء ترقية الخطة: ${e.message}` : "حدث خطأ أثناء ترقية الخطة";
+      return { ok: false, reason };
     }
   }
 
@@ -124,6 +128,11 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
       let restaurant = null;
       let user = null;
       if (existing!.userId) {
+        const plan = await tx.subscriptionPlan.findUnique({
+          where: { id: existing!.planId },
+          select: { maxItems: true, maxOrders: true },
+        });
+
         restaurant = await tx.restaurant.create({
           data: {
             name: restaurantName,
@@ -132,6 +141,8 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
             planId: existing!.planId,
             planStart: new Date(),
             planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            maxItems: plan?.maxItems ?? undefined,
+            maxOrders: plan?.maxOrders ?? undefined,
             isActive: true,
           },
         });
@@ -194,9 +205,10 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
 
     return { ok: true, action: "verified", paymentId: existing!.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
   } catch (e) {
+    console.error("[subscription-decisions] new user error:", e);
     const reason = (e instanceof Error && e.message === "SLUG_TAKEN")
       ? "رابط المطعم محجوز مسبقاً. يُرجى إبلاغ العميل باختيار رابط آخر."
-      : "حدث خطأ أثناء معالجة الطلب";
+      : `حدث خطأ أثناء معالجة الطلب ${e instanceof Error ? e.message : ""}`;
     return { ok: false, reason };
   }
 }
