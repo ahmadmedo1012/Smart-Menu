@@ -14,12 +14,11 @@ const publicPrefixes = [
 ];
 
 function setCsrfCookie(resp: NextResponse, req: NextRequest) {
-  if (!req.cookies.get(CSRF_COOKIE)?.value) {
-    resp.cookies.set(CSRF_COOKIE, generateToken(), {
-      path: "/", httpOnly: false, sameSite: "strict",
-      secure: process.env.NODE_ENV === "production", maxAge: 3600,
-    });
-  }
+  const existing = req.cookies.get(CSRF_COOKIE)?.value;
+  resp.cookies.set(CSRF_COOKIE, existing || generateToken(), {
+    path: "/", httpOnly: false, sameSite: "strict",
+    secure: process.env.NODE_ENV === "production", maxAge: 3600,
+  });
 }
 
 function setHeaders(resp: NextResponse) {
