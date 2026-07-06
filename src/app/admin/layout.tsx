@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { AdminSidebar, allNavItems } from "@/components/layout/AdminSidebar"
+import { AdminSidebar, allNavItems, hasItemPermission } from "@/components/layout/AdminSidebar"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
 import { Store, LogOut, X } from "lucide-react"
@@ -14,10 +14,7 @@ function MobileNav({ onNavClick, role, permissions }: { onNavClick: () => void; 
   const router = useRouter()
   const visible = role === "super_admin" || role === "admin"
     ? allNavItems
-    : allNavItems.filter((item) => {
-        if (!item.permission) return true;
-        return permissions.includes(item.permission);
-      });
+    : allNavItems.filter((item) => hasItemPermission(item, role, permissions));
 
   return (
     <>

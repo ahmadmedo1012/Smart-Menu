@@ -31,7 +31,7 @@ export const allNavItems: NavItem[] = [
   { href: "/admin/settings", label: "الإعدادات", icon: Settings, permission: "EDIT_SETTINGS" },
 ];
 
-function hasItemPermission(
+export function hasItemPermission(
   item: NavItem,
   role: string | null,
   permissions: string[]

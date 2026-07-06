@@ -196,7 +196,6 @@ function SubscribeContent() {
   };
 
   const createAccount = async () => {
-    setSubmitted(true);
     if (!selectedPlan ||
         form.name.trim().length < 2 ||
         form.slug.trim().length < 2 ||
