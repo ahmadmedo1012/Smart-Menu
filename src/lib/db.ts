@@ -24,6 +24,30 @@ export const prisma =
     adapter: new PrismaPg(createPool(), {
       schema: process.env.DATABASE_SCHEMA ?? "public",
     }),
+  }).$extends({
+    result: {
+      menuItem: {
+        price: { needs: { price: true }, compute(i) { return Number(i.price) } },
+        discountedPrice: { needs: { discountedPrice: true }, compute(i) { return i.discountedPrice ? Number(i.discountedPrice) : null } },
+      },
+      order: {
+        subtotal: { needs: { subtotal: true }, compute(i) { return Number(i.subtotal) } },
+        discount: { needs: { discount: true }, compute(i) { return Number(i.discount) } },
+        total: { needs: { total: true }, compute(i) { return Number(i.total) } },
+      },
+      orderItem: {
+        price: { needs: { price: true }, compute(i) { return Number(i.price) } },
+      },
+      subscriptionPlan: {
+        price: { needs: { price: true }, compute(i) { return Number(i.price) } },
+      },
+      subscriptionPayment: {
+        amount: { needs: { amount: true }, compute(i) { return Number(i.amount) } },
+      },
+      loyaltyCard: {
+        totalSpent: { needs: { totalSpent: true }, compute(i) { return Number(i.totalSpent) } },
+      },
+    },
   });
 
 // ponytail: simple retry wrapper for transient DB errors, use exponential backoff if needed
