@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,14 +46,17 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const openDialog = () => {
-    setForm(editing ? {
-      name: editing.name, nameAr: editing.nameAr || "", description: editing.description,
-      descriptionAr: editing.descriptionAr || "", price: editing.price,
-      discountedPrice: editing.discountedPrice ? String(editing.discountedPrice) : "",
-      status: editing.status, categoryId: editing.categoryId, image: editing.image,
-    } : initForm(categoryId));
-  };
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setForm(editing ? {
+        name: editing.name, nameAr: editing.nameAr || "", description: editing.description,
+        descriptionAr: editing.descriptionAr || "", price: editing.price,
+        discountedPrice: editing.discountedPrice ? String(editing.discountedPrice) : "",
+        status: editing.status, categoryId: editing.categoryId, image: editing.image,
+      } : initForm(categoryId));
+    }
+  }, [open, editing, categoryId]);
 
   const save = async () => {
     if (saving) return;
@@ -81,7 +84,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
   };
 
   return (
-    <Dialog open={open} onOpenChange={o => { if (o) openDialog(); onOpenChange(o); }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg rounded-md">
         <DialogHeader><DialogTitle>{editing ? "تعديل صنف" : "إضافة صنف"}</DialogTitle></DialogHeader>
         <div className="space-y-4 max-h-[60vh] overflow-y-auto">
