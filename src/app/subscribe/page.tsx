@@ -121,8 +121,11 @@ function SubscribeContent() {
   }, []);
 
   const currentPlan = plans.find((p) => p.id === selectedPlan);
+  const [fieldTouched, setFieldTouched] = useState<Record<string, boolean>>({});
+  const touchField = (field: string) => setFieldTouched(prev => ({ ...prev, [field]: true }));
   const fieldError = (field: string) => {
-    if (!submitted) return false;
+    const touched = fieldTouched[field] || submitted;
+    if (!touched) return false;
     switch (field) {
       case "name": return form.name.trim().length < 2;
       case "slug": return form.slug.trim().length < 2;
@@ -459,7 +462,8 @@ function SubscribeContent() {
                   <Input
                     value={form.name}
                     onChange={(e) => { setForm({ ...form, name: e.target.value }); setSubmitted(false); }}
-                    placeholder="مقهى الواحة"
+                    onBlur={() => touchField("name")}
+                    placeholder="اسم المطعم (مثال: مقهى الواحة)"
                     className={cn("h-11 mt-1.5", fieldError("name") && "border-destructive ring-1 ring-destructive/30")}
                     aria-invalid={fieldError("name") || undefined}
                     required
@@ -475,7 +479,8 @@ function SubscribeContent() {
                     <Input
                       value={form.slug}
                       onChange={(e) => { setForm({ ...form, slug: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase() }); setSubmitted(false); }}
-                      placeholder="al-waha-cafe"
+                      onBlur={() => touchField("slug")}
+                      placeholder="الرابط المختصر (مثال: al-waha-cafe)"
                       className={cn("h-11 rounded-[4px] -me-[2px] text-left", fieldError("slug") && "border-destructive ring-1 ring-destructive/30")}
                       dir="ltr"
                       aria-invalid={fieldError("slug") || undefined}
@@ -492,7 +497,7 @@ function SubscribeContent() {
                 <Input
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="مقهى ومطعم يقدم أشهى المشروبات..."
+                  placeholder="وصف المطعم (اختياري)"
                   className="h-11 mt-1.5"
                 />
               </div>
@@ -504,7 +509,7 @@ function SubscribeContent() {
                   <Input
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="0910089975"
+                    placeholder="رقم الهاتف (مثال: 0912345678)"
                     className="h-11 mt-1.5 text-left"
                     dir="ltr"
                   />
@@ -514,7 +519,7 @@ function SubscribeContent() {
                   <Input
                     value={form.whatsapp}
                     onChange={(e) => { setForm({ ...form, whatsapp: e.target.value }) }}
-                    placeholder="0910089975"
+                    placeholder="رقم الواتساب (مثال: 0912345678)"
                     className="h-11 mt-1.5 text-left"
                     dir="ltr"
                   />
@@ -538,7 +543,8 @@ function SubscribeContent() {
                   <Input
                     value={form.username}
                     onChange={(e) => { setForm({ ...form, username: e.target.value }); setSubmitted(false); }}
-                    placeholder="admin"
+                    onBlur={() => touchField("username")}
+                    placeholder="اسم المستخدم (3 أحرف على الأقل)"
                     className={cn("h-11 mt-1.5 text-left", fieldError("username") && "border-destructive ring-1 ring-destructive/30")}
                     dir="ltr"
                     aria-invalid={fieldError("username") || undefined}
@@ -552,7 +558,8 @@ function SubscribeContent() {
                     type="password"
                     value={form.password}
                     onChange={(e) => { setForm({ ...form, password: e.target.value }); setSubmitted(false); }}
-                    placeholder="أدخل كلمة المرور"
+                    onBlur={() => touchField("password")}
+                    placeholder="كلمة المرور (4 أحرف على الأقل)"
                     className={cn("h-11 mt-1.5", fieldError("password") && "border-destructive ring-1 ring-destructive/30")}
                     aria-invalid={fieldError("password") || undefined}
                     required

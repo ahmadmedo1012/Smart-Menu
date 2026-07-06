@@ -21,7 +21,7 @@ const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   Package, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, Milk, UtensilsCrossed,
 };
 
-const CATEGORY_ICONS = ["Package","Coffee","Pizza","CupSoda","IceCream","Apple","Beef","UtensilsCrossed","Fish","Milk","Beef","UtensilsCrossed"];
+const CATEGORY_ICONS = ["Package","Coffee","Pizza","CupSoda","IceCream","Apple","Beef","UtensilsCrossed","Fish","Milk"];
 
 export default function OwnerMenuPage() {
   const router = useRouter()
