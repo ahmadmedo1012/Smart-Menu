@@ -11,7 +11,7 @@ export default function FinalCTASection() {
   return (
     <section className="relative overflow-hidden py-12 sm:py-16">
       {/* Background image — subtle */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <OptimizedImage
           src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1600&q=80"
           alt=""
