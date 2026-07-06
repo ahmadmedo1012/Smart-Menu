@@ -154,7 +154,11 @@ export default function OwnerDashboard() {
       const meRes = await fetch("/api/auth/me")
       if (!meRes.ok) { router.push("/login"); return }
       const userData = await meRes.json()
-      if (!userData.data?.restaurantId) { setError("لا يوجد مطعم مرتبط"); setLoading(false); return }
+      if (!userData.data?.restaurantId) {
+        setError("لم يتم تفعيل حسابك بعد. يرجى الانتظار حتى يتم تأكيد الدفع من الإدارة.");
+        setLoading(false);
+        return;
+      }
 
       const rid = userData.data?.restaurantId
 

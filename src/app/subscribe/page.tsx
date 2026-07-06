@@ -202,12 +202,15 @@ function SubscribeContent() {
       const meRes = await fetch("/api/auth/me");
       const meData = await meRes.json();
       if (meData.success && meData.data?.restaurantId) {
+        // Owner upgrade path or approved payment — redirect to dashboard
+        if (meData.data?.subscriptionStatus !== "PAID") {
+          premiumToast("info", "تم إرسال طلب الترقية. سيتم تفعيلها بعد موافقة الإدارة.");
+        }
         router.push("/owner");
         return;
       }
     } catch {}
     // No restaurantId yet — payment still pending admin approval
-    // Stay on subscribe page, user sees plan selection which is safe
     premiumToast("info", "طلبك قيد المراجعة من الإدارة. سيتم إشعارك عند التفعيل.");
   };
 
