@@ -59,7 +59,7 @@ export default function CartPage() {
   const [animateItems, setAnimateItems] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [supportedPickupTypes, setSupportedPickupTypes] = useState<string[]>([]);
-  const [waError] = useState(false);
+  const [_waError] = useState(false);
   const submittingRef = useRef(false);
 
   // Warn on accidental navigation if cart has items
