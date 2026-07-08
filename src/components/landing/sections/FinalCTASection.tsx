@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { springGentle, springDefault, springSnappy } from "@/lib/motion"
+import { Eyebrow } from "@/components/ui/Eyebrow"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 export default function FinalCTASection() {
@@ -42,10 +43,8 @@ export default function FinalCTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ ...springDefault, delay: 0.1 }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium text-orange mb-6"
           >
-            <Sparkles className="size-3" />
-            انطلق الآن
+            <Eyebrow><Sparkles className="size-3" />انطلق الآن</Eyebrow>
           </motion.div>
 
           <motion.h2
@@ -76,11 +75,9 @@ export default function FinalCTASection() {
             transition={{ ...springSnappy, delay: 0.4 }}
             className="flex gap-4 justify-center flex-wrap"
           >
-            <Link href="/subscribe">
-              <Button size="lg">
-                ابدأ مجاناً <ArrowLeft className="size-4 sm:size-5" />
-              </Button>
-            </Link>
+            <motion.div animate={{ scale: [1, 1.03, 1] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}>
+              <Link href="/subscribe"><Button size="lg">ابدأ مجاناً <ArrowLeft className="size-4 sm:size-5" /></Button></Link>
+            </motion.div>
             <Link href="/pricing">
               <Button variant="outline" size="lg">
                 عرض الخطط

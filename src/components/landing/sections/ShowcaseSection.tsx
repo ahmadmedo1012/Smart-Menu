@@ -4,6 +4,7 @@ import { useRef } from "react"
 import Image from "next/image"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { springGentle, springSnappy } from "@/lib/motion"
+import { Eyebrow } from "@/components/ui/Eyebrow"
 
 export default function ShowcaseSection() {
 	const ref = useRef<HTMLDivElement>(null)
@@ -30,9 +31,7 @@ export default function ShowcaseSection() {
 					transition={springSnappy}
 					className="text-center mb-6 sm:mb-8"
 				>
-					<span className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium text-orange">
-						تجربة المطعم
-					</span>
+					<Eyebrow>تجربة المطعم</Eyebrow>
 				</motion.div>
 
 				<motion.div

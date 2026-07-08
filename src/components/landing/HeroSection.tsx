@@ -1,20 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
-import { PhoneVideo } from "./PhoneVideo"
-import { springGentle, springDefault, springSnappy } from "@/lib/motion"
+import { springGentle, springDefault } from "@/lib/motion"
 
 export default function HeroSection() {
-	const [isRtl, setIsRtl] = useState(false)
-
-	useEffect(() => {
-		setIsRtl(document.documentElement.dir === "rtl")
-	}, [])
 	return (
 		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0 pointer-events-none">
@@ -51,6 +44,8 @@ export default function HeroSection() {
 					</motion.span>
 				</motion.h1>
 
+				<div className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-gradient-to-r from-gold/0 via-gold to-gold/0" />
+
 				<motion.p
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -76,28 +71,6 @@ export default function HeroSection() {
 							تسجيل الدخول
 						</Button>
 					</Link>
-				</motion.div>
-
-				<motion.div
-					initial={{ opacity: 0, y: 40 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ ...springGentle, delay: 0.4 }}
-					className="gpu-layer mt-8 flex justify-center gap-4 sm:gap-6 items-end"
-				>
-					<div className="relative overflow-hidden" style={{ perspective: "1000px" }}>
-						<div className="absolute -inset-8 rounded-full blur-[80px] opacity-40 pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)", willChange: "filter" }} />
-						<motion.div
-							className="gpu-layer phone-mask relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
-							animate={{ rotateY: isRtl ? 3 : -3, rotateX: 2, y: [0, -6, 0] }}
-							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02, transition: springSnappy }}
-							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, oklch(0.37 0.01 264), oklch(0.12 0.003 0) 30%, oklch(0.05 0.002 0) 70%, oklch(0.19 0.005 0))" }}
-						>
-							<div className="relative w-full h-full overflow-hidden bg-black animate-pulse-glow" style={{ borderRadius: "2.3rem" }}>
-								<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black z-10" style={{ borderRadius: "0 0 1rem 1rem" }} />
-								<PhoneVideo />
-							</div>
-						</motion.div>
-					</div>
 				</motion.div>
 			</div>
 		</section>

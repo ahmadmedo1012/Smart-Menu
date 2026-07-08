@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Building2 } from "lucide-react";
 import CircularTestimonials from "@/components/ui/circular-testimonials";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { springGentle } from "@/lib/motion";
 
 const CLIENT_TESTIMONIALS = [
@@ -41,6 +42,20 @@ const CLIENT_TESTIMONIALS = [
     designation: "مطعم — بنغازي",
     src: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=150&q=80",
   },
+  {
+    quote:
+      "منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب. الزبائن صاروا يطلبون مباشرة من المنيو دون الاتصال بنا.",
+    name: "أحمد المبروك",
+    designation: "صاحب مقهى الواحة — طرابلس",
+    src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80",
+  },
+  {
+    quote:
+      "نظام الولاء والنقاط جعل الزبائن يعودون باستمرار. زيادة واضحة في المبيعات الشهرية.",
+    name: "عمر بن عاشور",
+    designation: "صاحب بيتزا روما — مصراتة",
+    src: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&q=80",
+  },
 ];
 
 export default function ClientsSection() {
@@ -64,10 +79,8 @@ export default function ClientsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={springGentle}
-            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3.5 py-1 text-[0.65rem] font-medium text-orange mb-5"
           >
-            <Building2 className="size-3" />
-            منصتنا
+            <Eyebrow><Building2 className="size-3" />منصتنا</Eyebrow>
           </motion.span>
 
           <motion.h2

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { STEPS } from "@/components/landing/landing-data"
 import { springGentle, springSnappy } from "@/lib/motion"
+import { Eyebrow } from "@/components/ui/Eyebrow"
 
 export default function HowItWorksSection() {
   return (
@@ -19,9 +20,8 @@ export default function HowItWorksSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={springSnappy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-4 py-1 text-[0.65rem] font-medium text-orange mb-5"
           >
-            خطوات بسيطة
+            <Eyebrow>خطوات بسيطة</Eyebrow>
           </motion.span>
 
           <motion.h2
@@ -64,7 +64,7 @@ export default function HowItWorksSection() {
                 </div>
 
                 {/* Step badge */}
-                <div className="absolute -top-1 -right-1 size-5 rounded-full bg-orange text-white text-[0.55rem] font-bold flex items-center justify-center shadow-md shadow-orange/30">
+                <div className="absolute -top-1 -right-1 size-5 rounded-full bg-gradient-to-br from-gold to-gold/80 text-white text-[0.55rem] font-bold flex items-center justify-center shadow-md shadow-gold/30 animate-pulse-glow">
                   {i + 1}
                 </div>
 
