@@ -292,10 +292,12 @@
 		transition: background-color 0.3s ease, color 0.3s ease;
 	}
 
-	@view-transition { navigation: auto; }
+	/* ponytail: disabled — conflicts with framer-motion AnimatePresence */
+	/* @view-transition { navigation: auto; } */
 
-	::view-transition-old(root) { animation: fade-out 0.2s ease-out; }
-	::view-transition-new(root) { animation: fade-in 0.3s ease-out; }
+	/* ponytail: disabled alongside @view-transition */
+	/* ::view-transition-old(root) { animation: fade-out 0.2s ease-out; } */
+	/* ::view-transition-new(root) { animation: fade-in 0.3s ease-out; } */
 
 	html[dir="rtl"] {
 		letter-spacing: 0;

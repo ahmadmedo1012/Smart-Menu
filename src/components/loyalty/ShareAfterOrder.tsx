@@ -12,6 +12,7 @@ import {
   Gift,
   Sparkles,
 } from "lucide-react";
+import { useCart } from "@/store/cart";
 import { premiumToast } from "@/lib/premium-toast";
 import {
   Dialog,
@@ -38,6 +39,7 @@ export default function ShareAfterOrder({
   const [loading, setLoading] = useState(false);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const cartRestaurantId = useCart((s) => s.restaurantId);
   const [showSkip, setShowSkip] = useState(false);
 
   // Reset state when dialog opens
@@ -74,7 +76,7 @@ export default function ShareAfterOrder({
       const res = await fetch("/api/loyalty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerPhone: cleaned, customerName: "", restaurantId: undefined }),
+        body: JSON.stringify({ customerPhone: cleaned, customerName: "", restaurantId: cartRestaurantId || undefined }),
       });
       const json = await res.json();
 

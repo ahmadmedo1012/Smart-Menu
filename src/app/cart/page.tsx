@@ -59,7 +59,7 @@ export default function CartPage() {
   const [animateItems, setAnimateItems] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [supportedPickupTypes, setSupportedPickupTypes] = useState<string[]>([]);
-  const [_waError] = useState(false);
+  const [waError, setWaError] = useState(false);
   const submittingRef = useRef(false);
 
   // Warn on accidental navigation if cart has items
@@ -99,6 +99,7 @@ export default function CartPage() {
     if (submittingRef.current) return; // double-click guard
     const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
     if (!waNumber) {
+      setWaError(true);
       premiumToast("error", "رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.");
       setIsSubmitting(false);
       return;
@@ -381,6 +382,12 @@ export default function CartPage() {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {waError && (
+        <div className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-destructive text-center animate-fade-in">
+          رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.
         </div>
       )}
 

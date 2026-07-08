@@ -22,5 +22,5 @@ export const pageTransition: Transition = {
 export const pageVariants: Variants = {
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0, transition: pageTransition },
-  exit: { opacity: 0, y: -4, transition: { ...pageTransition, duration: 0.15 } },
+  exit: { opacity: 0, y: -4, transition: { duration: 0.12, ease: "easeOut" } },
 }
