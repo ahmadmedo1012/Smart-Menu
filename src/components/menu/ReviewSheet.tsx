@@ -115,6 +115,10 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed bottom-0 inset-x-0 z-50 max-h-[85vh] rounded-t-2xl bg-card border border-border/30 shadow-2xl flex flex-col overflow-hidden"
             dir="rtl"
+            role="dialog"
+            aria-modal="true"
+            aria-label={menuItemName}
+            onKeyDown={(e) => e.key === "Escape" && onOpenChange(false)}
           >
             {/* Handle */}
             <div className="flex justify-center pt-2 pb-1">
@@ -170,6 +174,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                     animate={formRating >= s ? starAnimate : {}}
                     transition={{ duration: 0.3 }}
                     onClick={() => { setFormRating(s); setSubmitError(""); }}
+                    aria-label={"تقييم " + s + " نجوم"}
                     className={cn(
                       "transition-colors cursor-pointer",
                       s <= formRating ? "text-amber-400" : "text-muted-foreground/20 hover:text-amber-300/50",
@@ -186,7 +191,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 onChange={(e) => setFormComment(e.target.value)}
                 rows={2}
                 maxLength={500}
-                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus:border-orange/50 transition-colors"
+                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus-visible:border-orange/50 transition-colors"
               />
               {/* Name */}
               <input
@@ -194,7 +199,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 maxLength={50}
-                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus:border-orange/50 transition-colors"
+                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus-visible:border-orange/50 transition-colors"
               />
               {/* Error */}
               {submitError && <p className="text-xs text-red-500">{submitError}</p>}

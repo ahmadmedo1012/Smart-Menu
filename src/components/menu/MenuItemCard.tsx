@@ -56,7 +56,7 @@ const MenuItemCard = memo(function MenuItemCard({
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
       {/* Image container */}
-      <div className="relative shrink-0 size-28 md:size-32 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
+      <div className="relative shrink-0 size-28 md:size-32 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-transform duration-300">
         {item.image && !imageError ? (
           <OptimizedImage
             src={item.image}
@@ -123,7 +123,7 @@ const MenuItemCard = memo(function MenuItemCard({
               onClick={(e) => { e.stopPropagation(); setReviewSheetItem({ id: item.id, name: displayName }); setReviewSheetOpen(true); }}
               aria-label={`تقييم ${displayName}`}
               className={cn(
-                "shrink-0 flex items-center gap-1 text-xs font-bold rounded-sm border transition-all duration-300",
+                "shrink-0 flex items-center gap-1 text-xs font-bold rounded-sm border transition-transform duration-300",
                 hasRating
                   ? "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 border-amber-200/50 dark:border-amber-700/30 hover:bg-amber-100 dark:hover:bg-amber-900/30"
                   : "text-muted-foreground/50 hover:text-amber-500 px-1.5 py-0.5 border-transparent hover:bg-amber-50 dark:hover:bg-amber-900/10",
@@ -172,7 +172,7 @@ const MenuItemCard = memo(function MenuItemCard({
                     onAddToCart(item);
                   }}
                   aria-label={`إضافة ${displayName} إلى السلة`}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange text-white border border-orange transition-all duration-300 hover:brightness-110 hover:border-orange hover:shadow-lg hover:shadow-orange/25 active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange text-white border border-orange transition-transform duration-300 hover:brightness-110 hover:border-orange hover:shadow-lg hover:shadow-orange/25 active:scale-95"
                 >
                   <Plus className="size-3.5" />
                   أضف

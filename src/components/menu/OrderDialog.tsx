@@ -129,7 +129,7 @@ export default function OrderDialog({
           <OptimizedImage src={item.image} alt={displayName} className="size-full" aspectRatio="video" skeleton />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
           <button type="button" onClick={() => onOpenChange(false)}
-            className="absolute top-3 start-3 size-8 rounded-sm bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center">
+            className="absolute top-3 start-3 size-8 rounded-sm bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center" aria-label="إغلاق">
             <X className="size-4" />
           </button>
           <div className="absolute bottom-4 end-4 start-16">
@@ -177,10 +177,10 @@ export default function OrderDialog({
           {/* Customer info */}
           <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2">
             <input value={customerName} onChange={e => setCustomerName(e.target.value)}
-              placeholder="الاسم (اختياري)" maxLength={30}
+              placeholder="الاسم (اختياري)" maxLength={30} aria-label="الاسم"
               className="h-11 rounded-sm border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-orange" />
             <input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
-              placeholder="رقم الهاتف (اختياري)" maxLength={15} dir="ltr"
+              placeholder="رقم الهاتف (اختياري)" maxLength={15} dir="ltr" aria-label="رقم الهاتف"
               className="h-11 rounded-sm border border-border/30 bg-card/50 px-4 text-sm outline-none focus-visible:border-orange text-left" />
           </div>
 
@@ -195,12 +195,14 @@ export default function OrderDialog({
             </div>
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}
-                className="size-11 rounded-sm border border-border/40 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 disabled:opacity-30">
+                className="size-11 rounded-sm border border-border/40 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 disabled:opacity-30"
+                aria-label="إنقاص الكمية">
                 <Minus className="size-4" />
               </button>
               <span className="font-bold text-xl min-w-[2.5ch] text-center tabular-nums">{toArabicNumber(quantity)}</span>
               <button type="button" onClick={() => setQuantity(Math.min(99, quantity + 1))} disabled={quantity >= 99}
-                className="size-11 rounded-sm border border-border/40 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 disabled:opacity-30">
+                className="size-11 rounded-sm border border-border/40 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 disabled:opacity-30"
+                aria-label="زيادة الكمية">
                 <Plus className="size-4" />
               </button>
             </div>
@@ -237,7 +239,7 @@ export default function OrderDialog({
 
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
             placeholder="ملاحظات إضافية للطلب..."
-            rows={2} className="w-full rounded-sm border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 resize-none" />
+            rows={2} aria-label="ملاحظات إضافية" className="w-full rounded-sm border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 resize-none" />
 
           {/* Total + WhatsApp */}
           <div className="space-y-3 pt-1">

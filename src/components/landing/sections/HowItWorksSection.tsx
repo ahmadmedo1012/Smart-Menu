@@ -28,8 +28,8 @@ export default function HowItWorksSection() {
           >
             {/* Icon container */}
             <div className="relative mb-4">
-              <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-all duration-500" />
-              <div className="relative size-18 sm:size-22 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-all duration-500">
+              <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-colors duration-500" />
+              <div className="relative size-18 sm:size-22 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-colors duration-500">
                 <step.icon className="size-6 sm:size-7 text-orange" />
               </div>
 

@@ -20,7 +20,7 @@ export default function ShowcaseSection() {
 	return (
 		<SectionContainer>
 			<div ref={ref}>
-				<SectionHeader eyebrow="المنيو الذكي في العمل" className="mb-6 sm:mb-8" />
+				<SectionHeader eyebrow="" title="المنيو الذكي في العمل" className="mb-6 sm:mb-8" />
 
 				<motion.div
 					initial={{ opacity: 0, y: 40 }}

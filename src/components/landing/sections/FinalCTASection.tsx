@@ -35,11 +35,11 @@ export default function FinalCTASection() {
       <div className="relative z-10 text-center">
         <SectionHeader
           icon={<Sparkles className="size-3" />}
-          eyebrow="انطلق الآن"
+          eyebrow=""
           title="جهّز مطعمك للانطلاق الرقمي"
           subtitle={
             <>
-              انضم إلى <span className="font-bold text-foreground">أكثر من 500 مطعم ومقهى</span>.
+              انطلق الآن — انضم إلى <span className="font-bold text-foreground">أكثر من 500 مطعم ومقهى</span>.
               استقبل الطلبات عبر واتساب وابدأ في دقائق.
             </>
           }
