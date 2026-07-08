@@ -8,6 +8,9 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { springGentle, springDefault } from "@/lib/motion"
 
 export default function HeroSection() {
+	// ponytail: deterministic decor pattern, avoid Math.random re-render
+	const decorCells = Array.from({ length: 9 }, (_, i) => (i * 7 + 3) % 2 === 0)
+
 	return (
 		<section style={{ backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0 pointer-events-none">
@@ -70,28 +73,30 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ ...springDefault, delay: 0.35 }}
-					className="gpu-layer flex gap-3 sm:gap-4 justify-center flex-wrap"
+					className="flex gap-3 sm:gap-4 justify-center flex-wrap"
 				>
-					<motion.div whileHover={{ scale: 1.05, x: 5 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
+					<motion.div whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.96 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
 						<Link href="/subscribe">
 							<Button size="lg" className="text-sm sm:text-base">
 								أنشئ قائمتك مجاناً <ArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
 							</Button>
 						</Link>
 					</motion.div>
-					<Link href="/login">
-						<Button variant="outline" size="lg" className="text-sm sm:text-base">
-							تسجيل الدخول
-						</Button>
-					</Link>
+					<motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
+						<Link href="/login">
+							<Button variant="outline" size="lg" className="text-sm sm:text-base">
+								تسجيل الدخول
+							</Button>
+						</Link>
+					</motion.div>
 				</motion.div>
 			</div>
 
 			{/* Floating decorative element — desktop only */}
 			<div className="hidden lg:block absolute left-8 top-1/3 opacity-20 pointer-events-none">
 				<div className="size-24 grid grid-cols-3 gap-0.5">
-					{Array.from({ length: 9 }).map((_, i) => (
-						<div key={i} className={`size-1.5 ${Math.random() > 0.5 ? 'bg-gold/60' : 'bg-transparent'} rounded-[1px]`} />
+					{decorCells.map((on, i) => (
+						<div key={i} className={`size-1.5 ${on ? 'bg-gold/60' : 'bg-transparent'} rounded-[1px]`} />
 					))}
 				</div>
 			</div>

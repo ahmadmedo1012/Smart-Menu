@@ -144,10 +144,7 @@ export default function CartPage() {
       customerPhone: customerPhone.trim() || undefined,
       pickupType,
     });
-    const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
-    if (waNumber) {
-      window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, "_blank");
-    }
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, "_blank");
 
     setConfirmed(true);
     setIsSubmitting(false);
