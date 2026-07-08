@@ -152,6 +152,10 @@
 		--gold-foreground: oklch(0.98 0 0);
 		--gold-muted: oklch(0.72 0.14 75 / 0.15);
 
+		/* Warm neutral surface */
+		--surface-warm: oklch(0.25 0.005 30);
+		--surface-warm-foreground: oklch(0.85 0.005 0);
+
 	/* Overlay backdrop — dark */
 	--overlay: oklch(0 0 0 / 0.55);
 
