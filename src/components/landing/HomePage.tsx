@@ -15,7 +15,7 @@ export default function HomePage() {
 	const [stats, setStats] = useState<PublicStats | null>(null)
 
 	useEffect(() => {
-		fetchPublicStats().then(setStats)
+		fetchPublicStats().then(setStats).catch(() => setStats({ totalRestaurants: 500, totalUsers: 5 }))
 	}, [])
 
 	return (

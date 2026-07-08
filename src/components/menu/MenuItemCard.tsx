@@ -192,9 +192,9 @@ const MenuItemCard = memo(function MenuItemCard({
                       onDecrementCart?.(item);
                     }}
                     aria-label={`إنقاص كمية ${displayName}`}
-                    className="flex items-center justify-center size-7 md:size-8 text-white hover:brightness-110 transition-colors active:brightness-90"
+                    className="flex items-center justify-center size-11 text-white hover:brightness-110 transition-colors active:brightness-90"
                   >
-                    <Minus className="size-3" />
+                    <Minus className="size-4" />
                   </button>
                   <span className="flex-1 min-w-[2ch] text-center text-xs md:text-sm font-bold text-white bg-orange tabular-nums leading-none py-1.5">
                     {toArabicNumber(cartQty)}
@@ -205,9 +205,9 @@ const MenuItemCard = memo(function MenuItemCard({
                       onAddToCart(item);
                     }}
                     aria-label={`زيادة كمية ${displayName}`}
-                    className="flex items-center justify-center size-7 md:size-8 text-white hover:brightness-110 transition-colors active:brightness-90"
+                    className="flex items-center justify-center size-11 text-white hover:brightness-110 transition-colors active:brightness-90"
                   >
-                    <Plus className="size-3" />
+                    <Plus className="size-4" />
                   </button>
                 </motion.div>
               )}

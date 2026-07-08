@@ -27,7 +27,7 @@ export default function FeaturesSection() {
 					<motion.h2
 						initial={{ opacity: 0, y: 24, scale: 0.96 }}
 						whileInView={{ opacity: 1, y: 0, scale: 1 }}
-						viewport={{ once: true }}
+						viewport={{ once: false }}
 						transition={springGentle}
 						className="text-2xl sm:text-3xl md:text-4xl font-medium leading-[1.2]"
 					>

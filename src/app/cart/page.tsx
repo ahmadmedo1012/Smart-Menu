@@ -97,6 +97,12 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (submittingRef.current) return; // double-click guard
+    const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
+    if (!waNumber) {
+      premiumToast("error", "رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.");
+      setIsSubmitting(false);
+      return;
+    }
     submittingRef.current = true;
     setIsSubmitting(true);
 

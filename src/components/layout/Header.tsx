@@ -24,7 +24,7 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
   return (
     <button
       onClick={onClick}
-      className="lg:hidden relative size-9 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200 active:scale-90"
+      className="lg:hidden relative size-11 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200 active:scale-90"
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
     >
       <span className="relative size-3.5">
@@ -72,7 +72,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
               <span className="text-sm font-medium tracking-tight text-foreground/80">Smart Menu</span>
-              <button onClick={onClose} className="size-8 rounded-lg border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors active:scale-90" aria-label="إغلاق"><X className="size-4" /></button>
+              <button onClick={onClose} className="size-11 rounded-lg border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors active:scale-90" aria-label="إغلاق"><X className="size-4" /></button>
             </div>
             <nav className="px-4 py-4 space-y-1">
               {landingLinks.map((link, i) => {

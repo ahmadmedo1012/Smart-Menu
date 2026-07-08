@@ -28,7 +28,7 @@ export default function HeroSection() {
 					initial="hidden"
 					animate="visible"
 					variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-					className="gpu-layer text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
+					className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
 				>
 					<motion.span
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
@@ -50,7 +50,7 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ ...springDefault, delay: 0.15 }}
-					className="gpu-layer text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
+					className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
 				>
 					هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
 				</motion.p>
@@ -59,7 +59,7 @@ export default function HeroSection() {
 				<motion.div
 					initial={{ opacity: 0, y: 10 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ ...springDefault, delay: 0.35 }}
+					transition={{ ...springDefault, delay: 0.2 }}
 					className="inline-flex items-center gap-1.5 rounded-full border border-gold/20 bg-gold/5 px-3 py-1 text-[11px] font-medium text-gold mb-6"
 				>
 					<span className="size-1.5 rounded-full bg-gold animate-pulse-dot" />
@@ -69,7 +69,7 @@ export default function HeroSection() {
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ ...springDefault, delay: 0.25 }}
+					transition={{ ...springDefault, delay: 0.35 }}
 					className="gpu-layer flex gap-3 sm:gap-4 justify-center flex-wrap"
 				>
 					<motion.div whileHover={{ scale: 1.05, x: 5 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
