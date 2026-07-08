@@ -13,7 +13,7 @@ export default function ShowcaseSection() {
 		offset: ["start end", "end start"],
 	})
 
-	const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.08, 1, 0.96])
+	const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.12, 1, 0.92])
 	const imageY = useTransform(scrollYProgress, [0, 0.5, 1], [40, 0, -40])
 
 	return (
@@ -31,7 +31,7 @@ export default function ShowcaseSection() {
 					transition={springSnappy}
 					className="text-center mb-6 sm:mb-8"
 				>
-					<Eyebrow>تجربة المطعم</Eyebrow>
+					<Eyebrow>المنيو الذكي في العمل</Eyebrow>
 				</motion.div>
 
 				<motion.div
@@ -40,37 +40,34 @@ export default function ShowcaseSection() {
 					viewport={{ once: true, margin: "-60px" }}
 					transition={springGentle}
 				>
-					{/* Double-Bezel outer shell */}
-					<div className="relative bg-black/5 dark:bg-white/5 p-1.5 sm:p-2 rounded-[2rem] ring-1 ring-black/5 dark:ring-white/10">
-						{/* Inner core with concentric radii */}
-						<div className="relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2rem-0.375rem)] sm:rounded-[calc(2rem-0.5rem)]">
-							{/* Parallax scroll layer */}
-							<motion.div style={{ scale: imageScale, y: imageY }}>
-								<Image
-									src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1800&q=85"
-									alt=""
-									width={1800}
-									height={950}
-									className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover saturate-[0.85] dark:saturate-[0.4] dark:brightness-[0.55]"
-									priority
-								/>
-							</motion.div>
-
-							{/* Multi-layer gradient blend */}
-							<div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
-							<div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/60 pointer-events-none" />
-							<div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-							<div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background/30 via-transparent to-transparent pointer-events-none" />
-
-							{/* Radial vignette */}
-							<div
-								className="absolute inset-0 pointer-events-none"
-								style={{
-									background:
-										"radial-gradient(ellipse at center, transparent 35%, var(--background) 100%)",
-								}}
+					{/* Inner rounded container */}
+					<div className="relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-2xl">
+						{/* Parallax scroll layer */}
+						<motion.div style={{ scale: imageScale, y: imageY }}>
+							<Image
+								src="https://images.unsplash.com/photo-1504312835578-c5866c0c8b34?w=1800&q=85"
+								alt=""
+								width={1800}
+								height={950}
+								className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover saturate-[1.1] dark:saturate-[0.4] dark:brightness-[0.8]"
+								priority
 							/>
-						</div>
+						</motion.div>
+
+						{/* Multi-layer gradient blend */}
+						<div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+						<div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/60 pointer-events-none" />
+						<div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+						<div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background/30 via-transparent to-transparent pointer-events-none" />
+
+						{/* Radial vignette */}
+						<div
+							className="absolute inset-0 pointer-events-none"
+							style={{
+								background:
+									"radial-gradient(ellipse at center, transparent 35%, var(--background) 100%)",
+							}}
+						/>
 					</div>
 
 					{/* Accent glow pool beneath */}

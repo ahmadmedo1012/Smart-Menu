@@ -10,11 +10,11 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 export default function FinalCTASection() {
   return (
-    <section className="relative overflow-hidden py-12 sm:py-16">
+    <section className="relative overflow-hidden py-12 sm:py-16 border-t border-gold/10">
       {/* Background image — subtle */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <OptimizedImage
-          src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1600&q=80"
+          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=85"
           alt=""
           className="absolute inset-0"
           imageClassName="object-cover opacity-[0.03]"
@@ -75,7 +75,12 @@ export default function FinalCTASection() {
             transition={{ ...springSnappy, delay: 0.4 }}
             className="flex gap-4 justify-center flex-wrap"
           >
-            <motion.div animate={{ scale: [1, 1.03, 1] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}>
+            <motion.div
+              animate={{ scale: [1, 1.04, 1] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="relative"
+            >
+              <div className="absolute inset-0 rounded-lg bg-orange/20 blur-xl animate-pulse-glow pointer-events-none" />
               <Link href="/subscribe"><Button size="lg">ابدأ مجاناً <ArrowLeft className="size-4 sm:size-5" /></Button></Link>
             </motion.div>
             <Link href="/pricing">
@@ -84,6 +89,16 @@ export default function FinalCTASection() {
               </Button>
             </Link>
           </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ ...springDefault, delay: 0.5 }}
+            className="text-xs text-gold/60 mt-6"
+          >
+            انضم إلى أكثر من 500 مطعم
+          </motion.p>
 
           <motion.p
             initial={{ opacity: 0 }}
