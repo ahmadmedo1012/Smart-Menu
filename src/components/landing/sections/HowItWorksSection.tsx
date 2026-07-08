@@ -50,27 +50,27 @@ export default function HowItWorksSection() {
           {STEPS.map((step, i) => (
             <motion.div
               key={step.title}
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 32, rotate: -3, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ ...springGentle, delay: i * 0.15 }}
               className="relative flex flex-col items-center text-center group"
             >
               {/* Icon container */}
               <div className="relative mb-4">
-                <div className="absolute inset-0 size-14 sm:size-16 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-all duration-500" />
-                <div className="relative size-14 sm:size-16 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-all duration-500">
+                <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-orange/10 blur-md group-hover:blur-lg transition-all duration-500" />
+                <div className="relative size-18 sm:size-22 rounded-full bg-gradient-to-b from-orange/15 to-orange/5 border border-orange/20 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-all duration-500">
                   <step.icon className="size-6 sm:size-7 text-orange" />
                 </div>
 
                 {/* Step badge */}
-                <div className="absolute -top-1 -right-1 size-5 rounded-full bg-gradient-to-br from-gold to-gold/80 text-white text-[0.55rem] font-bold flex items-center justify-center shadow-md shadow-gold/30 animate-pulse-glow">
+                <div className="absolute -top-1 -right-1 size-6 rounded-full bg-gold text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-gold/40 animate-pulse-glow">
                   {i + 1}
                 </div>
 
                 {/* Connector line (desktop only) */}
                 {i < STEPS.length - 1 && (
-                  <div className="hidden md:block absolute top-1/2 left-[calc(50%+2.5rem)] rtl:left-auto rtl:right-[calc(50%+2.5rem)] w-[calc(100%-5rem)] h-[1px]">
+                  <div className="hidden md:block absolute top-1/2 left-[calc(50%+2.5rem)] rtl:left-auto rtl:right-[calc(50%+2.5rem)] w-[calc(100%-5rem)] h-[2px]">
                     <div className="absolute inset-0 bg-gradient-to-r from-orange/40 to-transparent" />
                     <motion.div
                       initial={{ scaleX: 0 }}
@@ -89,7 +89,7 @@ export default function HowItWorksSection() {
                 whileInView={{ opacity: 1, rotate: 45 }}
                 viewport={{ once: true }}
                 transition={{ ...springSnappy, delay: 0.25 + i * 0.15 }}
-                className="size-1.5 bg-orange/40 rounded-sm mb-3"
+                className="size-1.5 bg-gold/40 rounded-sm mb-3"
               />
 
               <h3 className="text-base sm:text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>

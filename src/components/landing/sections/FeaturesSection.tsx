@@ -36,7 +36,7 @@ export default function FeaturesSection() {
 					<div className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-orange/40" />
 				</div>
 
-				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
 					{features.map((feat, i) => (
 						<motion.div
 							key={i}
@@ -45,10 +45,10 @@ export default function FeaturesSection() {
 							viewport={{ once: true, margin: "-40px" }}
 							transition={{ ...springDefault, delay: i * 0.06 }}
 							whileHover={{ y: -5, transition: springSnappy }}
-							className={`group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 transition-colors duration-300 ${i === 0 ? "lg:col-span-2 " : ""}${i % 2 === 0 ? "hover:border-gold/30" : "hover:border-orange/30"}`}
+							className={`group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 transition-colors duration-300 ${i === 0 ? "lg:col-span-3 md:col-span-2 " : ""}${i === 0 ? "border-gold/30 hover:border-gold/60" : (i % 2 === 0 ? "hover:border-gold/30" : "hover:border-orange/30")}`}
 						>
-							<div className="size-10 sm:size-12 rounded-sm bg-orange/10 flex items-center justify-center mb-4 group-hover:bg-orange/20 transition-colors duration-300">
-								<feat.icon className="size-5 sm:size-6 text-orange" />
+							<div className={`size-10 sm:size-12 rounded-sm flex items-center justify-center mb-4 transition-colors duration-300 ${i === 0 ? 'bg-gold/15 group-hover:bg-gold/25' : 'bg-orange/10 group-hover:bg-orange/20'}`}>
+								<feat.icon className={`size-5 sm:size-6 ${i === 0 ? 'text-gold' : 'text-orange'}`} />
 							</div>
 							<h3 className="text-base sm:text-lg font-medium mb-2">{feat.title}</h3>
 							<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>

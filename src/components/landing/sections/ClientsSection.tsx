@@ -60,7 +60,7 @@ const CLIENT_TESTIMONIALS = [
 
 export default function ClientsSection() {
   return (
-    <section className="relative py-12 sm:py-16 overflow-hidden">
+    <section className="relative py-12 sm:py-16 overflow-hidden bg-gradient-to-b from-background via-gold/[0.02] to-background">
       {/* Ambient glow */}
       <div
         className="pointer-events-none absolute top-1/2 right-1/4 -translate-y-1/2 size-[50vmin] rounded-full"
@@ -117,6 +117,7 @@ export default function ClientsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ ...springGentle, delay: 0.1 }}
+          className="ring-1 ring-gold/10 rounded-2xl p-6 sm:p-8"
         >
           <CircularTestimonials
             testimonials={CLIENT_TESTIMONIALS}
