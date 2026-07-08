@@ -26,7 +26,7 @@ export default function StickyMenuHeader({
       className={cn(
         "fixed inset-x-0 top-0 z-30 h-14 flex items-center px-4 gap-3 transition-all duration-300",
         scrolled
-          ? "bg-background/85 backdrop-blur-xl border-b border-border/40 shadow-sm"
+          ? "glass-strong"
           : "bg-transparent",
       )}
     >

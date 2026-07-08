@@ -59,6 +59,10 @@
 	--color-orange: var(--orange);
 	--color-orange-foreground: var(--orange-foreground);
 	--color-orange-muted: var(--orange-muted);
+		/* Gold accent -- secondary premium */
+		--color-gold: var(--gold);
+		--color-gold-foreground: var(--gold-foreground);
+		--color-gold-muted: var(--gold-muted);
 
 	/* Overlay */
 	--color-overlay: var(--overlay);
@@ -142,6 +146,11 @@
 	--orange: oklch(0.55 0.19 45);
 	--orange-foreground: oklch(0.98 0 0);
 	--orange-muted: oklch(0.55 0.19 45 / 0.15);
+
+		/* Gold accent -- secondary premium */
+		--gold: oklch(0.72 0.14 75);
+		--gold-foreground: oklch(0.98 0 0);
+		--gold-muted: oklch(0.72 0.14 75 / 0.15);
 
 	/* Overlay backdrop — dark */
 	--overlay: oklch(0 0 0 / 0.55);
@@ -248,7 +257,6 @@
 	font-family: var(--font-body);
 		font-size: 17px;
 }
-		font-size: 17px;
 
 @layer base {
 	* {

@@ -81,7 +81,7 @@ const MenuItemCard = memo(function MenuItemCard({
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-amber-500 text-white shadow-lg flex items-center gap-0.5"
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-gold text-white shadow-lg flex items-center gap-0.5"
               >
                 <Star className="size-2.5 fill-current" />
                 الأكثر طلباً
@@ -166,13 +166,13 @@ const MenuItemCard = memo(function MenuItemCard({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onAddToCart(item);
                   }}
                   aria-label={`إضافة ${displayName} إلى السلة`}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange-500 text-white border border-orange-500 transition-all duration-300 hover:bg-orange-600 hover:border-orange-600 hover:shadow-lg hover:shadow-orange/25 active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange text-white border border-orange transition-all duration-300 hover:brightness-110 hover:border-orange hover:shadow-lg hover:shadow-orange/25 active:scale-95"
                 >
                   <Plus className="size-3.5" />
                   أضف
@@ -183,8 +183,8 @@ const MenuItemCard = memo(function MenuItemCard({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center gap-0 rounded-sm overflow-hidden border border-orange-500 bg-orange-500"
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  className="flex items-center gap-0 rounded-sm overflow-hidden border border-orange bg-orange"
                 >
                   <button
                     onClick={(e) => {
@@ -192,11 +192,11 @@ const MenuItemCard = memo(function MenuItemCard({
                       onDecrementCart?.(item);
                     }}
                     aria-label={`إنقاص كمية ${displayName}`}
-                    className="flex items-center justify-center size-7 md:size-8 text-white hover:bg-orange-600 transition-colors active:bg-orange-700"
+                    className="flex items-center justify-center size-7 md:size-8 text-white hover:brightness-110 transition-colors active:brightness-90"
                   >
                     <Minus className="size-3" />
                   </button>
-                  <span className="flex-1 min-w-[2ch] text-center text-xs md:text-sm font-bold text-white bg-orange-500 tabular-nums leading-none py-1.5">
+                  <span className="flex-1 min-w-[2ch] text-center text-xs md:text-sm font-bold text-white bg-orange tabular-nums leading-none py-1.5">
                     {toArabicNumber(cartQty)}
                   </span>
                   <button
@@ -205,7 +205,7 @@ const MenuItemCard = memo(function MenuItemCard({
                       onAddToCart(item);
                     }}
                     aria-label={`زيادة كمية ${displayName}`}
-                    className="flex items-center justify-center size-7 md:size-8 text-white hover:bg-orange-600 transition-colors active:bg-orange-700"
+                    className="flex items-center justify-center size-7 md:size-8 text-white hover:brightness-110 transition-colors active:brightness-90"
                   >
                     <Plus className="size-3" />
                   </button>
