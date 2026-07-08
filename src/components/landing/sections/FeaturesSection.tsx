@@ -42,7 +42,7 @@ export default function FeaturesSection() {
 							key={i}
 							initial={{ opacity: 0, y: 24 }}
 							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true, margin: "-60px" }}
+							viewport={{ once: false, margin: "-60px" }}
 							transition={{ ...springDefault, delay: i * 0.06 }}
 							whileHover={{ y: -5, transition: springSnappy }}
 							className={`group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 transition-colors duration-300 ${i === 0 ? "lg:col-span-3 md:col-span-2 " : ""}${i === 0 ? "border-gold/30 hover:border-gold/60" : (i % 2 === 0 ? "hover:border-gold/30" : "hover:border-orange/30")}`}

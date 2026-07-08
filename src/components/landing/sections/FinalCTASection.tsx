@@ -64,7 +64,7 @@ export default function FinalCTASection() {
             transition={{ ...springDefault, delay: 0.3 }}
             className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed mb-10 sm:mb-12 max-w-xl mx-auto"
           >
-            انضم إلى <span className="font-bold text-foreground">عشرات المطاعم والمقاهي</span>.
+            انضم إلى <span className="font-bold text-foreground">أكثر من 500 مطعم ومقهى</span>.
             استقبل الطلبات عبر واتساب وابدأ في دقائق.
           </motion.p>
 
@@ -80,7 +80,6 @@ export default function FinalCTASection() {
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               className="relative"
             >
-              <div className="absolute inset-0 rounded-lg bg-orange/20 blur-xl animate-pulse-glow pointer-events-none" />
               <Link href="/subscribe"><Button size="lg">ابدأ مجاناً <ArrowLeft className="size-4 sm:size-5" /></Button></Link>
             </motion.div>
             <Link href="/pricing">

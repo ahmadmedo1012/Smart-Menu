@@ -34,13 +34,13 @@ export default function HeroSection() {
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
 						className="block"
 					>
-						اللي يواكب التطور
+						منيو رقمي لمطعمك
 					</motion.span>
 					<motion.span
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
 						className="block"
 					>
-						<span className="text-orange">يسبق الجميع</span>
+						<span className="text-orange">الطلبات تصل</span> على واتساب
 					</motion.span>
 				</motion.h1>
 

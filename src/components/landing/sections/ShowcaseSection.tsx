@@ -54,20 +54,9 @@ export default function ShowcaseSection() {
 							/>
 						</motion.div>
 
-						{/* Multi-layer gradient blend */}
-						<div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
-						<div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/60 pointer-events-none" />
+						{/* Gradient blend */}
 						<div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none" />
 						<div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background/30 via-transparent to-transparent pointer-events-none" />
-
-						{/* Radial vignette */}
-						<div
-							className="absolute inset-0 pointer-events-none"
-							style={{
-								background:
-									"radial-gradient(ellipse at center, transparent 35%, var(--background) 100%)",
-							}}
-						/>
 					</div>
 
 					{/* Accent glow pool beneath */}

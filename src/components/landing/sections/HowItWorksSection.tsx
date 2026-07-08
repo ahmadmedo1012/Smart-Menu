@@ -29,7 +29,7 @@ export default function HowItWorksSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ ...springGentle, delay: 0.06 }}
-            className="text-[1.8rem] sm:text-3xl md:text-[2.75rem] font-[520] leading-[1.2]"
+            className="text-[1.8rem] sm:text-3xl md:text-[2.75rem] font-semibold leading-[1.2]"
           >
             ابدأ في ٣ خطوات فقط
           </motion.h2>
@@ -52,7 +52,7 @@ export default function HowItWorksSection() {
               key={step.title}
               initial={{ opacity: 0, y: 32, rotate: -3, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-60px" }}
+              viewport={{ once: false, margin: "-60px" }}
               transition={{ ...springGentle, delay: i * 0.15 }}
               className="relative flex flex-col items-center text-center group"
             >

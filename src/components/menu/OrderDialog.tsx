@@ -80,8 +80,8 @@ export default function OrderDialog({
           restaurantId,
         }),
       });
-      if (!orderRes.ok) await orderRes.text();
-    } catch { /* silent */ }
+      if (!orderRes.ok) await orderRes.text().catch(() => {});
+    } catch { /* silent — WhatsApp receipt is primary */ }
 
     const origin = window.location.origin;
     const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
@@ -117,7 +117,7 @@ export default function OrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o && !submitting) onOpenChange(false); }}>
-      <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-md max-h-[90dvh] overflow-y-auto" showCloseButton={false}>
+      <DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-md max-h-[90dvh] overflow-y-auto" showCloseButton={true}>
         {/* Image preview */}
         {item.image && (
           <div className="relative h-36 sm:h-44 bg-muted overflow-hidden">
@@ -253,6 +253,11 @@ export default function OrderDialog({
                   <><MessageCircle className="size-5 text-white" /> أرسل الطلب عبر واتساب</>
                 )}
               </Button>
+              {!restaurantWhatsapp && (
+                <p className="text-[11px] text-center text-destructive">
+                  لم يتم إعداد واتساب بعد للمطعم. يُرجى التواصل مع المطعم مباشرة.
+                </p>
+              )}
               <p className="text-[11px] text-center text-muted-foreground/60">
                 سيتم فتح واتساب مع رسالة الطلب لإرسالها مباشرة
               </p>

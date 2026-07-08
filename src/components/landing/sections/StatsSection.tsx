@@ -47,7 +47,7 @@ export default function StatsSection({ stats }: { stats: { totalRestaurants: num
                 transition={{ ...springSnappy, delay: i * 0.1 }}
               >
                 <div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-all duration-300">
-                  <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-[520] leading-none mb-2">
+                  <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2">
                     <span className={i === 0 ? "text-gold" : "text-orange"}>
                     <AnimatedNumber value={item.value} />{item.suffix}
                     </span>

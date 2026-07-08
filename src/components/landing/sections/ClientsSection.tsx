@@ -88,7 +88,7 @@ export default function ClientsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ ...springGentle, delay: 0.06 }}
-            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-[520] leading-[1.2]"
+            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-semibold leading-[1.2]"
           >
             عملاؤنا
           </motion.h2>
