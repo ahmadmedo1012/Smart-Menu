@@ -16,7 +16,7 @@ const features = [
 
 export default function FeaturesSection() {
 	return (
-		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative py-12 sm:py-16 overflow-hidden">
+		<section style={{ backfaceVisibility: "hidden" }} className="relative py-12 sm:py-16 overflow-hidden">
 			<div className="absolute inset-0 z-0 bg-gradient-to-b from-background via-transparent to-background">
 				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,var(--color-background)_100%)] pointer-events-none" />
 			</div>
@@ -42,7 +42,7 @@ export default function FeaturesSection() {
 							key={i}
 							initial={{ opacity: 0, y: 24 }}
 							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true, margin: "-40px" }}
+							viewport={{ once: true, margin: "-60px" }}
 							transition={{ ...springDefault, delay: i * 0.06 }}
 							whileHover={{ y: -5, transition: springSnappy }}
 							className={`group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 transition-colors duration-300 ${i === 0 ? "lg:col-span-3 md:col-span-2 " : ""}${i === 0 ? "border-gold/30 hover:border-gold/60" : (i % 2 === 0 ? "hover:border-gold/30" : "hover:border-orange/30")}`}

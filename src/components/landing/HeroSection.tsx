@@ -9,7 +9,7 @@ import { springGentle, springDefault } from "@/lib/motion"
 
 export default function HeroSection() {
 	return (
-		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
+		<section style={{ backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0 pointer-events-none">
 				<OptimizedImage src="/hero-bg.webp" alt="" className="absolute inset-0" imageClassName="object-cover opacity-[0.08] sm:opacity-15" skeleton={false} priority />
 				<div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
