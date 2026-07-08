@@ -54,7 +54,7 @@ export default function ShowcaseSection() {
 					<div className="relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-2xl">
 						<motion.div style={{ scale: imageScale, y: imageY }}>
 							<Image
-								src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1800&q=85"
+								src="/video/screenshot_live_menu.png"
 								alt=""
 								width={1800}
 								height={950}

@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { AvatarInitials } from "./AvatarInitials";
 
 /* ── Premium tokens ── */
 const SPRING = { type: "spring" as const, stiffness: 100, damping: 16 };
@@ -14,7 +14,7 @@ interface Testimonial {
   quote: string;
   name: string;
   designation: string;
-  src: string;
+  src?: string;
 }
 
 interface CircularTestimonialsProps {
@@ -67,13 +67,8 @@ function OrbitalThumb({
       aria-label={`عرض تقييم ${t.name}`}
     >
       <div className="size-full p-[2px]">
-        <div className="size-full rounded-full overflow-hidden bg-background">
-          <OptimizedImage
-            src={t.src}
-            alt={t.name}
-            className="size-full"
-            skeleton={false}
-          />
+        <div className="size-full rounded-full overflow-hidden bg-background flex items-center justify-center">
+          <AvatarInitials name={t.name} size="sm" />
         </div>
       </div>
     </motion.button>
@@ -225,14 +220,7 @@ export default function CircularTestimonials({
                 </blockquote>
 
                 <div className="flex items-center justify-center gap-3">
-                  <div className="size-10 rounded-full overflow-hidden ring-1 ring-border/30 shrink-0">
-                    <OptimizedImage
-                      src={activeT.src}
-                      alt={activeT.name}
-                      className="size-full"
-                      skeleton={false}
-                    />
-                  </div>
+                  <AvatarInitials name={activeT.name} />
                   <div className="text-right rtl:text-left">
                     <p className="text-sm font-[500] text-foreground/90">
                       {activeT.name}
