@@ -3,8 +3,9 @@
 import { useRef } from "react"
 import Image from "next/image"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { springGentle, springSnappy } from "@/lib/motion"
-import { Eyebrow } from "@/components/ui/Eyebrow"
+import { springGentle } from "@/lib/motion"
+import { SectionContainer } from "@/components/ui/SectionContainer"
+import { SectionHeader } from "@/components/ui/SectionHeader"
 
 export default function ShowcaseSection() {
 	const ref = useRef<HTMLDivElement>(null)
@@ -17,22 +18,9 @@ export default function ShowcaseSection() {
 	const imageY = useTransform(scrollYProgress, [0, 0.5, 1], [40, 0, -40])
 
 	return (
-		<section
-			ref={ref}
-			style={{ willChange: "transform", backfaceVisibility: "hidden" }}
-			className="relative py-12 sm:py-16 overflow-hidden"
-		>
-			<div className="relative max-w-[1220px] mx-auto px-4 sm:px-6">
-				{/* Eyebrow tag */}
-				<motion.div
-					initial={{ opacity: 0, y: 12 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={springSnappy}
-					className="text-center mb-6 sm:mb-8"
-				>
-					<Eyebrow>المنيو الذكي في العمل</Eyebrow>
-				</motion.div>
+		<SectionContainer>
+			<div ref={ref}>
+				<SectionHeader eyebrow="المنيو الذكي في العمل" className="mb-6 sm:mb-8" />
 
 				<motion.div
 					initial={{ opacity: 0, y: 40 }}
@@ -63,6 +51,6 @@ export default function ShowcaseSection() {
 					<div className="absolute -bottom-10 left-1/2 -translate-x-1/2 size-48 sm:size-64 rounded-full bg-orange/10 blur-[80px] pointer-events-none" />
 				</motion.div>
 			</div>
-		</section>
+		</SectionContainer>
 	)
 }

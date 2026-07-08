@@ -142,7 +142,7 @@ export function Header({ className }: HeaderProps) {
             <HamburgerButton open={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} />
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-orange transition-colors duration-200" style={{ fontFamily: "var(--font-display)" }}>Smart Menu</span>
+              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-orange transition-colors duration-200" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
             </Link>
           </div>
 

@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import { Building2 } from "lucide-react";
 import CircularTestimonials from "@/components/ui/circular-testimonials";
-import { Eyebrow } from "@/components/ui/Eyebrow";
+import { SectionContainer } from "@/components/ui/SectionContainer";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { GlowPool } from "@/components/ui/GlowPool";
 import { springGentle } from "@/lib/motion";
 
 const CLIENT_TESTIMONIALS = [
@@ -60,72 +62,29 @@ const CLIENT_TESTIMONIALS = [
 
 export default function ClientsSection() {
   return (
-    <section className="relative py-12 sm:py-16 overflow-hidden bg-gradient-to-b from-background via-gold/[0.02] to-background">
-      {/* Ambient glow */}
-      <div
-        className="pointer-events-none absolute top-1/2 right-1/4 -translate-y-1/2 size-[50vmin] rounded-full"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, oklch(0.68 0.19 45 / 0.05) 0%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
+    <SectionContainer className="bg-gradient-to-b from-background via-gold/[0.02] to-background">
+      <GlowPool position="top-1/2 right-1/4" size="size-[50vmin]" color="orange/5" />
+
+      <SectionHeader
+        icon={<Building2 className="size-3" />}
+        eyebrow="منصتنا"
+        title="عملاؤنا"
+        subtitle="آلاف المطاعم والمقاهي تثق في منصتنا الرقمية"
       />
 
-      <div className="relative z-10 max-w-[1220px] mx-auto px-4 sm:px-6">
-        {/* Heading */}
-        <div className="text-center mb-14 sm:mb-16">
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={springGentle}
-          >
-            <Eyebrow><Building2 className="size-3" />منصتنا</Eyebrow>
-          </motion.span>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ ...springGentle, delay: 0.06 }}
-            className="text-[1.6rem] sm:text-3xl md:text-[2.5rem] font-semibold leading-[1.2]"
-          >
-            عملاؤنا
-          </motion.h2>
-
-          <motion.div
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ ...springGentle, delay: 0.15 }}
-            className="mx-auto mt-4 w-10 h-[2px] rounded-full bg-orange/50 origin-center"
-          />
-
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ ...springGentle, delay: 0.2 }}
-            className="text-sm text-muted-foreground/70 mt-4 max-w-lg mx-auto"
-          >
-            آلاف المطاعم والمقاهي تثق في منصتنا الرقمية
-          </motion.p>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ ...springGentle, delay: 0.1 }}
-          className="ring-1 ring-gold/10 rounded-2xl p-6 sm:p-8"
-        >
-          <CircularTestimonials
-            testimonials={CLIENT_TESTIMONIALS}
-            autoplay={true}
-            autoplayInterval={4500}
-          />
-        </motion.div>
-      </div>
-    </section>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ ...springGentle, delay: 0.1 }}
+        className="ring-1 ring-gold/10 rounded-2xl p-6 sm:p-8"
+      >
+        <CircularTestimonials
+          testimonials={CLIENT_TESTIMONIALS}
+          autoplay={true}
+          autoplayInterval={4500}
+        />
+      </motion.div>
+    </SectionContainer>
   );
 }
