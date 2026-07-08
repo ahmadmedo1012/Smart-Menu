@@ -59,6 +59,7 @@ export default function CartPage() {
   const [animateItems, setAnimateItems] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [supportedPickupTypes, setSupportedPickupTypes] = useState<string[]>([]);
+  const [waError, setWaError] = useState(false);
   const submittingRef = useRef(false);
 
   // Warn on accidental navigation if cart has items
@@ -96,25 +97,17 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (submittingRef.current) return; // double-click guard
+    const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
+    if (!waNumber) {
+      setWaError(true);
+      premiumToast("error", "رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.");
+      setIsSubmitting(false);
+      return;
+    }
     submittingRef.current = true;
     setIsSubmitting(true);
 
-    // 1. Send WhatsApp receipt to restaurant FIRST
-    const receipt = buildReceiptMessage({
-      restaurantName: restaurantName || "المطعم",
-      items: items.map(i => ({ name: i.name, qty: i.quantity, price: i.price, notes: i.notes || undefined })),
-      totalPrice: cartSubtotal,
-      notes: pickupType === "delivery" ? `${notes || ""}\nالعنوان: ${deliveryAddress}`.trim() : (notes || undefined),
-      customerName: customerName.trim() || undefined,
-      customerPhone: customerPhone.trim() || undefined,
-      pickupType,
-    });
-    const waNumber = restaurantWhatsapp?.replace(/^\+/, "");
-    if (waNumber) {
-      window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, "_blank");
-    }
-
-    // 2. Save order to DB (best-effort)
+    // 1. Save order to DB first
     let orderNo = "";
     try {
       const res = await csrfFetch("/api/orders", {
@@ -138,10 +131,25 @@ export default function CartPage() {
     } catch {
       premiumToast("error", "فشل تقديم الطلب. يرجى المحاولة مرة أخرى");
       setIsSubmitting(false);
-      return;}
+      submittingRef.current = false;
+      return;
+    }
+
+    // 2. Send WhatsApp receipt to restaurant on success
+    const receipt = buildReceiptMessage({
+      restaurantName: restaurantName || "المطعم",
+      items: items.map(i => ({ name: i.name, qty: i.quantity, price: i.price, notes: i.notes || undefined })),
+      totalPrice: cartSubtotal,
+      notes: pickupType === "delivery" ? `${notes || ""}\nالعنوان: ${deliveryAddress}`.trim() : (notes || undefined),
+      customerName: customerName.trim() || undefined,
+      customerPhone: customerPhone.trim() || undefined,
+      pickupType,
+    });
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, "_blank");
 
     setConfirmed(true);
     setIsSubmitting(false);
+    submittingRef.current = false;
     setTimeout(() => {
       router.push(`/order-confirmed?orderNo=${encodeURIComponent(orderNo)}&wa=${encodeURIComponent(waNumber ?? "")}`);
     }, 1500);
@@ -374,6 +382,12 @@ export default function CartPage() {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {waError && (
+        <div className="rounded-md bg-destructive/10 border border-destructive/30 p-4 mb-6 text-sm text-destructive text-center animate-fade-in">
+          رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.
         </div>
       )}
 

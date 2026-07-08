@@ -358,6 +358,17 @@ model SystemConfig {
   updatedBy   Int?
 }
 
+model RateLimitEntry {
+  id        Int      @id @default(autoincrement())
+  key       String
+  count     Int      @default(1)
+  windowEnd DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([key, windowEnd])
+  @@index([windowEnd])
+}
+
 model Review {
   id            Int      @id @default(autoincrement())
   rating        Int

@@ -6,31 +6,23 @@ import { test, expect, Page } from "@playwright/test";
    Seed: admin (username: admin, password: admin123)
    ================================================================ */
 
-/** Login as the seeded admin user. Page ends up at /admin or /owner. */
-async function loginAsAdmin(page: Page): Promise<boolean> {
+/** Login as the seeded admin user. Page ends up at /admin or /owner. Throws on failure. */
+async function loginAsAdmin(page: Page) {
   await page.goto("/login", { waitUntil: "networkidle", timeout: 30000 });
   await page.waitForTimeout(1000);
   await page.fill('input[id="username"]', "admin");
   await page.fill('input[id="password"]', "admin123");
   await page.click('button[type="submit"]');
 
-  try {
-    await page.waitForURL(/\/admin|\/owner/, { timeout: 10000 });
-  } catch {
-    return false;
-  }
-  return page.url().includes("/admin");
+  await page.waitForURL(/\/admin|\/owner/, { timeout: 10000 });
+  expect(page.url()).toContain("/admin");
 }
 
 test.describe("Admin RBAC", () => {
   test("1 — Login as admin, verify /admin dashboard loads", async ({ page }) => {
     test.setTimeout(60000);
 
-    const isAdmin = await loginAsAdmin(page);
-    if (!isAdmin) {
-      test.skip();
-      return;
-    }
+    await loginAsAdmin(page);
 
     // At /admin — body is rendered (loading state or data)
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
@@ -41,11 +33,7 @@ test.describe("Admin RBAC", () => {
   test("2 — Navigate to /admin/admins, see admins list", async ({ page }) => {
     test.setTimeout(60000);
 
-    const isAdmin = await loginAsAdmin(page);
-    if (!isAdmin) {
-      test.skip();
-      return;
-    }
+    await loginAsAdmin(page);
 
     await page.goto("/admin/admins", { waitUntil: "networkidle", timeout: 30000 });
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });
@@ -57,11 +45,7 @@ test.describe("Admin RBAC", () => {
   test("3 — Navigate to /admin/settings, verify tabs work", async ({ page }) => {
     test.setTimeout(60000);
 
-    const isAdmin = await loginAsAdmin(page);
-    if (!isAdmin) {
-      test.skip();
-      return;
-    }
+    await loginAsAdmin(page);
 
     await page.goto("/admin/settings", { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(3000);
@@ -93,11 +77,7 @@ test.describe("Admin RBAC", () => {
   test("4 — Navigate to /admin/users, verify user list loads", async ({ page }) => {
     test.setTimeout(60000);
 
-    const isAdmin = await loginAsAdmin(page);
-    if (!isAdmin) {
-      test.skip();
-      return;
-    }
+    await loginAsAdmin(page);
 
     await page.goto("/admin/users", { waitUntil: "networkidle", timeout: 30000 });
     await expect(page.locator("body")).toBeVisible({ timeout: 5000 });

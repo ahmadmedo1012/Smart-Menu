@@ -3,13 +3,16 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { error as apiError } from "@/lib/api-helpers";
 
-export async function GET() {
+export async function POST() {
   try {
     const auth = await requireAdmin();
     if (!auth.authorized) return apiError("غير مصرح", 401);
 
-    // Delete existing plans and recreate with 2-plan model
-    await prisma.subscriptionPlan.deleteMany();
+    // Idempotent: only seed if plans table is empty
+    const existing = await prisma.subscriptionPlan.count();
+    if (existing > 0) {
+      return Response.json({ message: "الخطط موجودة مسبقاً — لم يتم تغيير شيء" });
+    }
 
     const plans = [
       { name: "Free", nameAr: "مجاني", price: 0, periodDays: 30, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 1, features: JSON.stringify(["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"]) },
@@ -19,12 +22,10 @@ export async function GET() {
       await prisma.subscriptionPlan.create({ data: p });
     }
 
-    // Upsert admin — create if missing, or fix role if wrong
+    // Upsert admin — only if missing
     const existingAdmin = await prisma.user.findUnique({ where: { username: "admin" } });
     if (!existingAdmin) {
       await prisma.user.create({ data: { username: "admin", password: hashPassword(process.env.ADMIN_PASSWORD ?? (() => { throw new Error("ADMIN_PASSWORD env var is required"); })()), name: "مدير النظام", role: "admin" } });
-    } else if (existingAdmin.role !== "admin") {
-      await prisma.user.update({ where: { id: existingAdmin.id }, data: { role: "admin" } });
     }
 
     return Response.json({ message: "seeded with 2 plans (Free + Premium @10 LYD)" });

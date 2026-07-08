@@ -46,7 +46,6 @@ export async function GET(
     const data = await prisma.restaurant.findUnique({
       where: { id: rId },
       include: {
-        _count: { select: { orders: true, categories: true } },
         categories: { include: { _count: { select: { items: true } } }, orderBy: { sortOrder: "asc" } },
         plan: { select: { id: true, name: true, nameAr: true, price: true, maxItems: true, maxOrders: true } },
       },

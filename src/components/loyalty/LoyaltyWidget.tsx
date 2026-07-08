@@ -16,7 +16,7 @@ const TIER_CONFIG: Record<string, { labelAr: string; gradient: string; icon: typ
   platinum: { labelAr: "بلاتيني", gradient: "from-orange to-orange/80", icon: Sparkles, minPoints: 400, color: "text-orange" },
 };
 
-// ponytail: tier thresholds duplicated inline in progress calc, keep until extracted
+// ponytail: tier config hardcoded — pull from API response when backend includes tier config in /api/loyalty
 // Reward stamps config — "اطلب 5 مرات واحصل على وجبة مجانية"
 const STAMP_GOAL = 5;
 const REWARD_LABEL = "وجبة مجانية";

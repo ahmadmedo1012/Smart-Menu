@@ -23,9 +23,7 @@
 	/* ── Font system — premium Arabic-first ── */
 	--font-sans: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
 	--font-mono: "Noto Naskh Arabic", "Courier New", monospace;
-	--font-display: "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
 	--font-arabic: "Noto Naskh Arabic", "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
-	--font-body: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
 	--font-heading: "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
 
 	/* ── Theme colors ── */
@@ -59,6 +57,10 @@
 	--color-orange: var(--orange);
 	--color-orange-foreground: var(--orange-foreground);
 	--color-orange-muted: var(--orange-muted);
+		/* Gold accent -- secondary premium */
+		--color-gold: var(--gold);
+		--color-gold-foreground: var(--gold-foreground);
+		--color-gold-muted: var(--gold-muted);
 
 	/* Overlay */
 	--color-overlay: var(--overlay);
@@ -79,7 +81,7 @@
 	/* ── Shadow tokens ── */
 	--shadow-glass: var(--glass-shadow);
 	--shadow-glass-lg: var(--glass-shadow-lg);
-	--shadow-glow: 0 0 25px rgba(246, 109, 15, 0.3);
+		--shadow-glow: 0 0 25px oklch(0.55 0.19 45 / 0.3);
 }
 
 :root {
@@ -103,7 +105,7 @@
 	--duration-slow: 0.7s;
 
 	/* ── Dark theme (default) — deeper, richer ── */
-	--background: oklch(0.035 0.003 30);
+		--background: oklch(0.025 0.002 30);
 	--background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.68 0.19 45 / 0.08), transparent 70%);
 	--foreground: oklch(0.93 0.005 0);
 	--card: oklch(0.11 0.003 0);
@@ -143,6 +145,15 @@
 	--orange-foreground: oklch(0.98 0 0);
 	--orange-muted: oklch(0.55 0.19 45 / 0.15);
 
+		/* Gold accent -- secondary premium */
+		--gold: oklch(0.72 0.14 75);
+		--gold-foreground: oklch(0.98 0 0);
+		--gold-muted: oklch(0.72 0.14 75 / 0.15);
+
+		/* Warm neutral surface */
+		--surface-warm: oklch(0.25 0.005 30);
+		--surface-warm-foreground: oklch(0.85 0.005 0);
+
 	/* Overlay backdrop — dark */
 	--overlay: oklch(0 0 0 / 0.55);
 
@@ -172,7 +183,7 @@
 	--shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
 	--shadow-lg: 0 12px 40px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
 	--shadow-xl: 0 24px 60px rgba(0,0,0,0.45), 0 8px 16px rgba(0,0,0,0.35);
-	--shadow-glow: 0 0 25px rgba(246, 109, 15, 0.3);
+		--shadow-glow: 0 0 25px oklch(0.55 0.19 45 / 0.3);
 }
 
 /* ── Light theme ── */
@@ -185,7 +196,7 @@
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.11 0 0);
 
-	--primary: oklch(0.55 0.19 45);
+		--primary: oklch(0.48 0.19 45);
 	--primary-foreground: oklch(0.98 0 0);
 	--secondary: oklch(0.92 0.005 0);
 	--secondary-foreground: oklch(0.2 0 0);
@@ -218,6 +229,11 @@
 	--orange-foreground: oklch(0.98 0 0);
 	--orange-muted: oklch(0.55 0.19 45 / 0.12);
 
+	/* Gold accent -- secondary premium */
+	--gold: oklch(0.62 0.14 75);
+	--gold-foreground: oklch(0.02 0 0);
+	--gold-muted: oklch(0.62 0.14 75 / 0.12);
+
 	/* Overlay backdrop — light */
 	--overlay: oklch(0 0 0 / 0.25);
 
@@ -235,7 +251,7 @@
 	--shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
 	--shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.05);
 	--shadow-xl: 0 24px 60px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.06);
-	--shadow-glow: 0 0 20px rgba(246, 109, 15, 0.18);
+		--shadow-glow: 0 0 20px oklch(0.55 0.19 45 / 0.18);
 }
 
 @utility font-arabic {
@@ -245,18 +261,19 @@
 /* RTL base */
 [dir="rtl"] {
 	--font-sans: var(--font-arabic);
-	font-family: var(--font-body);
+	font-family: var(--font-arabic);
 		font-size: 17px;
 }
-		font-size: 17px;
 
 @layer base {
 	* {
-		@apply border-border outline-ring/50;
+		border-color: var(--border);
+		outline-color: var(--ring) / 50%;
 	}
 
 	body {
-		@apply bg-background text-foreground;
+		background: var(--background);
+		color: var(--foreground);
 		overflow-x: hidden;
 		max-width: 100vw;
 		transition: background-color 0.3s ease, color 0.3s ease;
@@ -271,14 +288,16 @@
 	html {
 		overflow-x: hidden;
 		max-width: 100vw;
-		@apply scroll-smooth;
+		scroll-behavior: smooth;
 		transition: background-color 0.3s ease, color 0.3s ease;
 	}
 
-	@view-transition { navigation: auto; }
+	/* ponytail: disabled — conflicts with framer-motion AnimatePresence */
+	/* @view-transition { navigation: auto; } */
 
-	::view-transition-old(root) { animation: fade-out 0.2s ease-out; }
-	::view-transition-new(root) { animation: fade-in 0.3s ease-out; }
+	/* ponytail: disabled alongside @view-transition */
+	/* ::view-transition-old(root) { animation: fade-out 0.2s ease-out; } */
+	/* ::view-transition-new(root) { animation: fade-in 0.3s ease-out; } */
 
 	html[dir="rtl"] {
 		letter-spacing: 0;
@@ -310,7 +329,7 @@
 	}
 
 	[dir="rtl"] p, [dir="rtl"] li, [dir="rtl"] .body-text {
-		font-family: var(--font-body);
+		font-family: var(--font-arabic);
 	font-size: 17px;
 	}
 
@@ -430,7 +449,6 @@
 	border: 1px solid var(--border);
 	border-radius: var(--radius-md);
 	box-shadow: var(--shadow-sm);
-	will-change: transform;
 	transform: translateZ(0);
 	transition: all 0.3s var(--ease-out-quart);
 }
@@ -514,7 +532,7 @@
 	opacity: 0.035;
 	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 	background-size: 256px 256px;
-	animation: grain-anim 8s steps(10) infinite;
+	animation: none;
 }
 @media (prefers-reduced-motion: reduce) { .grain-overlay::before { animation: none; } }
 @media (prefers-color-scheme: light) { .grain-overlay::before { opacity: 0.018; } }
@@ -555,5 +573,3 @@
 .animate-pulse-dot {
   animation: pulse-dot 1.4s ease-in-out infinite;
 }
-
-

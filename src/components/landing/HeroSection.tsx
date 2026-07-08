@@ -1,22 +1,18 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
-import { PhoneVideo } from "./PhoneVideo"
-import { springGentle, springDefault, springSnappy } from "@/lib/motion"
+import { springGentle, springDefault } from "@/lib/motion"
 
 export default function HeroSection() {
-	const [isRtl, setIsRtl] = useState(false)
+	// ponytail: deterministic decor pattern, avoid Math.random re-render
+	const decorCells = Array.from({ length: 9 }, (_, i) => (i * 7 + 3) % 2 === 0)
 
-	useEffect(() => {
-		setIsRtl(document.documentElement.dir === "rtl")
-	}, [])
 	return (
-		<section style={{ willChange: "transform", backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
+		<section style={{ backfaceVisibility: "hidden" }} className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden bg-background">
 			<div className="absolute inset-0 z-0 pointer-events-none">
 				<OptimizedImage src="/hero-bg.webp" alt="" className="absolute inset-0" imageClassName="object-cover opacity-[0.08] sm:opacity-15" skeleton={false} priority />
 				<div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
@@ -35,70 +31,74 @@ export default function HeroSection() {
 					initial="hidden"
 					animate="visible"
 					variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-					className="gpu-layer text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
+					className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
 				>
 					<motion.span
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
 						className="block"
 					>
-						اللي يواكب التطور
+						منيو رقمي لمطعمك
 					</motion.span>
 					<motion.span
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}
 						className="block"
 					>
-						<span className="text-orange">يسبق الجميع</span>
+						<span className="text-orange">الطلبات تصل</span> على واتساب
 					</motion.span>
 				</motion.h1>
+
+				<div className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-gradient-to-r from-gold/0 via-gold to-gold/0" />
 
 				<motion.p
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ ...springDefault, delay: 0.15 }}
-					className="gpu-layer text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
+					className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8"
 				>
 					هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
 				</motion.p>
 
+				{/* USP badge — trust signal */}
 				<motion.div
-					initial={{ opacity: 0, y: 20 }}
+					initial={{ opacity: 0, y: 10 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ ...springDefault, delay: 0.25 }}
-					className="gpu-layer flex gap-3 sm:gap-4 justify-center flex-wrap"
+					transition={{ ...springDefault, delay: 0.2 }}
+					className="inline-flex items-center gap-1.5 rounded-full border border-gold/20 bg-gold/5 px-3 py-1 text-[11px] font-medium text-gold mb-6"
 				>
-					<Link href="/subscribe">
-						<Button size="lg" className="text-sm sm:text-base">
-							أنشئ قائمتك مجاناً <ArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
-						</Button>
-					</Link>
-					<Link href="/login">
-						<Button variant="outline" size="lg" className="text-sm sm:text-base">
-							تسجيل الدخول
-						</Button>
-					</Link>
+					<span className="size-1.5 rounded-full bg-gold animate-pulse-dot" />
+					أكثر من 500 مطعم يثقون فينا
 				</motion.div>
 
 				<motion.div
-					initial={{ opacity: 0, y: 40 }}
+					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ ...springGentle, delay: 0.4 }}
-					className="gpu-layer mt-8 flex justify-center gap-4 sm:gap-6 items-end"
+					transition={{ ...springDefault, delay: 0.35 }}
+					className="flex gap-3 sm:gap-4 justify-center flex-wrap"
 				>
-					<div className="relative overflow-hidden" style={{ perspective: "1000px" }}>
-						<div className="absolute -inset-8 rounded-full blur-[80px] opacity-40 pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.68 0.19 45 / 0.12), transparent 70%)", willChange: "filter" }} />
-						<motion.div
-							className="gpu-layer phone-mask relative w-[280px] h-[580px] sm:w-[300px] sm:h-[620px] p-[3px] sm:p-[4px] shadow-2xl shadow-foreground/15 dark:shadow-black/60"
-							animate={{ rotateY: isRtl ? 3 : -3, rotateX: 2, y: [0, -6, 0] }}
-							whileHover={{ rotateY: 0, rotateX: 4, scale: 1.02, transition: springSnappy }}
-							style={{ borderRadius: "2.5rem", background: "linear-gradient(160deg, oklch(0.37 0.01 264), oklch(0.12 0.003 0) 30%, oklch(0.05 0.002 0) 70%, oklch(0.19 0.005 0))" }}
-						>
-							<div className="relative w-full h-full overflow-hidden bg-black animate-pulse-glow" style={{ borderRadius: "2.3rem" }}>
-								<div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black z-10" style={{ borderRadius: "0 0 1rem 1rem" }} />
-								<PhoneVideo />
-							</div>
-						</motion.div>
-					</div>
+					<motion.div whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.96 }} transition={{ type: "spring", stiffness: 400, damping: 15 }}>
+						<Link href="/subscribe">
+							<Button size="lg" className="text-sm sm:text-base">
+								أنشئ قائمتك مجاناً <ArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
+							</Button>
+						</Link>
+					</motion.div>
+					<motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
+						<Link href="/login">
+							<Button variant="outline" size="lg" className="text-sm sm:text-base">
+								تسجيل الدخول
+							</Button>
+						</Link>
+					</motion.div>
 				</motion.div>
+			</div>
+
+			{/* Floating decorative element — desktop only */}
+			<div className="hidden lg:block absolute left-8 top-1/3 opacity-20 pointer-events-none">
+				<div className="size-24 grid grid-cols-3 gap-0.5">
+					{decorCells.map((on, i) => (
+						<div key={i} className={`size-1.5 ${on ? 'bg-gold/60' : 'bg-transparent'} rounded-[1px]`} />
+					))}
+				</div>
 			</div>
 		</section>
 	)

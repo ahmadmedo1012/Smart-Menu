@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { hashPassword } from "@/lib/hash";
 import { generateToken } from "@/lib/csrf";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { createSession } from "@/lib/session";
@@ -16,12 +16,12 @@ const registerSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح").optional().or(z.literal("")),
 });
 
-const registerLimiter = createRateLimiter({ windowMs: 60_000, max: 5 });
+const registerLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 export async function POST(request: Request) {
   try {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { success: allowed } = registerLimiter.check(`register:${ip}`);
+    const { success: allowed } = await registerLimiter.check(`register:${ip}`);
     if (!allowed) {
       return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     }

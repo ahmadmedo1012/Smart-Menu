@@ -54,6 +54,7 @@ remotion/node_modules
 /src/generated/prisma
 *.svg
 .swarm/
+docs/superpowers/
 *.swo
 *.swp
 # testing

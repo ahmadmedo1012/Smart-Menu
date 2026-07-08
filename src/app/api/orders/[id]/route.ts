@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error as apiError, notFound, handleError } from "@/lib/api-helpers";
 import { requireAuth, requirePermission } from "@/lib/auth";
+import { computeTier } from "@/lib/loyalty-tiers";
 
 const updateSchema = z.object({
   customerName: z.string().optional(),
@@ -89,7 +90,7 @@ export async function PUT(
           where: { customerPhone_restaurantId: { customerPhone: data.customerPhone, restaurantId: data.restaurantId } },
         });
         if (card) {
-          const newTier = ptsEarned + card.points >= 400 ? "platinum" : ptsEarned + card.points >= 150 ? "gold" : ptsEarned + card.points >= 50 ? "silver" : "bronze";
+          const newTier = computeTier(ptsEarned + card.points);
           await prisma.$transaction([
             prisma.loyaltyCard.update({
               where: { id: card.id },

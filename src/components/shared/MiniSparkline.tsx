@@ -41,7 +41,7 @@ export default function MiniSparkline({
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={cn("shrink-0", className)} role="img" aria-label={isUp ? "Trending up" : "Trending down"}>
       <defs>
         <linearGradient id={`spark-${width}-${isUp ? "up" : "dn"}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor={trendColor} stopOpacity={0.2} />
+          <stop offset="0%" stopColor="oklch(0.72 0.14 75)" stopOpacity={0.25} />
           <stop offset="100%" stopColor={trendColor} stopOpacity={0} />
         </linearGradient>
       </defs>

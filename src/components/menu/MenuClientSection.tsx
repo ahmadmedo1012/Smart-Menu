@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { Store, Clock } from "lucide-react"
+import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 const StickyMenuHeader = dynamic(() => import("./StickyMenuHeader"), { ssr: false })
 const MenuPageClient = dynamic(() => import("./MenuPageClient"), { ssr: false })
@@ -32,12 +33,7 @@ export function MenuClientSection(props: {
     <>
       <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
-      <header className="relative overflow-hidden bg-gradient-to-b from-orange/8 via-background to-background">
-        <div className="absolute inset-0 hero-mesh">
-          <div className="blob" style={{ width: "500px", height: "500px", top: "-20%", left: "-10%", animationDuration: "22s" }} />
-          <div className="blob" style={{ width: "400px", height: "400px", bottom: "-30%", right: "-15%", animationDuration: "26s" }} />
-          <div className="blob" style={{ width: "350px", height: "350px", top: "40%", left: "60%", animationDuration: "19s" }} />
-        </div>
+      <header className="relative overflow-hidden bg-gradient-to-b from-orange/12 via-background to-background">
 
         <div className="absolute top-8 end-8 size-24 md:size-32 opacity-30 dark:opacity-20 pointer-events-none select-none">
           <LottieAnimation src="/animations/food-choice.lottie" loop autoplay speed={0.6} />
@@ -49,8 +45,11 @@ export function MenuClientSection(props: {
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 pt-16 pb-8 md:pt-14 md:pb-12 text-center animate-page-enter">
           {restaurant.logo ? (
-            <div className="relative mx-auto mb-5 size-24 md:size-28 rounded-md overflow-hidden shadow-xl shadow-orange/15 ring-2 ring-orange/20 dark:ring-orange/15 animate-magnetic-float">
-              <img src={restaurant.logo} alt={restaurant.name} className="size-full object-cover" />
+            <div className="relative mx-auto mb-5">
+              <div className="absolute -inset-4 rounded-full bg-orange/8 blur-[40px] animate-breath pointer-events-none" />
+              <div className="relative size-28 md:size-32 rounded-md overflow-hidden shadow-xl shadow-orange/15 ring-2 ring-orange/20 dark:ring-orange/15 animate-magnetic-float">
+                <OptimizedImage src={restaurant.logo} alt={restaurant.name} imageClassName="size-full object-cover" skeleton />
+              </div>
             </div>
           ) : (
             <div className="relative mx-auto mb-5 size-20 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 animate-magnetic-float">
@@ -63,6 +62,8 @@ export function MenuClientSection(props: {
           {restaurant.description && (
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">{restaurant.description}</p>
           )}
+
+          <div className="mx-auto mt-4 w-20 h-[2px] rounded-full bg-gradient-to-r from-gold/0 via-gold/60 to-gold/0" />
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
             {restaurant.workingHours && (

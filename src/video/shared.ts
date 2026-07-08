@@ -8,6 +8,8 @@ export const VIDEO_URLS = {
   scene1: "",
   scene2: "",
   scene3: "",
+  scene4: "",
+  scene5: "",
 }
 
 export const BG_GRADIENT = {
@@ -15,6 +17,8 @@ export const BG_GRADIENT = {
   // Brighter gradients for Scene 2+3 — content must be legible
   scene2: "linear-gradient(145deg, #0d1220, #1a2340, #121a2e)",
   scene3: "linear-gradient(145deg, #12100e, #1f1810, #141010)",
+  scene4: "linear-gradient(145deg, #0c0c14, #1a1a2e, #0f0f1a)",
+  scene5: "linear-gradient(145deg, #12100e, #1f1810, #141010)",
 }
 
 export const AUDIO_URLS = {

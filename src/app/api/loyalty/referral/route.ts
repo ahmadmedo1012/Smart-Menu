@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!auth.authorized) return error("غير مصرح", 401);
 
     const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-    const rl = referralLimiter.check(`referral:${ip}`);
+    const rl = await referralLimiter.check(`referral:${ip}`);
     if (!rl.success) return error("طلبات كثيرة — حاول لاحقاً", 429);
 
     const body = referralSchema.parse(await request.json());

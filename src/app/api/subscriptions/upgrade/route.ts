@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 import { z } from "zod";
@@ -15,7 +15,7 @@ const upgradeSchema = z.object({
   upgradeRestaurantId: z.number().int().positive(),
 });
 
-const upgradeLimiter = createRateLimiter({ windowMs: 60_000, max: 5 });
+const upgradeLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (!auth.authorized) return error("غير مصرح", 401);
 
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    const { success: allowed } = upgradeLimiter.check(`upgrade:${ip}`);
+    const { success: allowed } = await upgradeLimiter.check(`upgrade:${ip}`);
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 
     const parsed = upgradeSchema.safeParse(await request.json());

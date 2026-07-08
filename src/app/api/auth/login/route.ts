@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { error as logError } from "@/lib/logger";
 import { error } from "@/lib/api-helpers";
 import { z } from "zod";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { createSession } from "@/lib/session";
@@ -12,7 +12,7 @@ const loginSchema = z.object({
   password: z.string().min(1, "كلمة المرور مطلوبة"),
 });
 
-const loginLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
+const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
 
 export async function POST(request: Request) {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     const { username, password } = parsed.data;
     const ip = request.headers.get("x-forwarded-for") || "unknown";
     const lockKey = `${ip}:${username}`;
-    const { success: allowed } = loginLimiter.check(lockKey);
+    const { success: allowed } = await loginLimiter.check(lockKey);
     if (!allowed) {
       return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     }

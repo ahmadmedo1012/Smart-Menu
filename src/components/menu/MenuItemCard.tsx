@@ -49,14 +49,14 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted hover:shadow-glow active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-4 text-start cursor-pointer transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted hover:shadow-glow active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
       {/* Image container */}
-      <div className="relative shrink-0 size-24 md:size-28 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
+      <div className="relative shrink-0 size-28 md:size-32 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
         {item.image && !imageError ? (
           <OptimizedImage
             src={item.image}
@@ -81,7 +81,7 @@ const MenuItemCard = memo(function MenuItemCard({
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-amber-500 text-white shadow-lg flex items-center gap-0.5"
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-gold text-white shadow-lg flex items-center gap-0.5"
               >
                 <Star className="size-2.5 fill-current" />
                 الأكثر طلباً
@@ -115,7 +115,7 @@ const MenuItemCard = memo(function MenuItemCard({
       <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-between gap-1">
         <div>
           <div className="flex items-start justify-between gap-2 mb-0.5">
-            <h3 className="font-bold text-sm md:text-base leading-snug line-clamp-1">
+            <h3 className="font-bold text-base md:text-lg leading-snug line-clamp-1">
               {displayName}
             </h3>
             <button
@@ -151,7 +151,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
         <div className="flex items-center justify-between mt-auto pt-1">
           <div className="flex items-baseline gap-0.5">
-            <span className="text-base md:text-lg font-bold text-primary tabular-nums">
+            <span className="text-lg md:text-xl font-bold text-primary tabular-nums">
               {toArabicNumber(currentPrice.toFixed(1))}
             </span>
             <span className="text-[11px] text-muted-foreground">د.ل</span>
@@ -166,13 +166,13 @@ const MenuItemCard = memo(function MenuItemCard({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     onAddToCart(item);
                   }}
                   aria-label={`إضافة ${displayName} إلى السلة`}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange-500 text-white border border-orange-500 transition-all duration-300 hover:bg-orange-600 hover:border-orange-600 hover:shadow-lg hover:shadow-orange/25 active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-[11px] sm:text-xs font-bold bg-orange text-white border border-orange transition-all duration-300 hover:brightness-110 hover:border-orange hover:shadow-lg hover:shadow-orange/25 active:scale-95"
                 >
                   <Plus className="size-3.5" />
                   أضف
@@ -183,8 +183,8 @@ const MenuItemCard = memo(function MenuItemCard({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center gap-0 rounded-sm overflow-hidden border border-orange-500 bg-orange-500"
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  className="flex items-center gap-0 rounded-sm overflow-hidden border border-orange bg-orange"
                 >
                   <button
                     onClick={(e) => {
@@ -192,11 +192,11 @@ const MenuItemCard = memo(function MenuItemCard({
                       onDecrementCart?.(item);
                     }}
                     aria-label={`إنقاص كمية ${displayName}`}
-                    className="flex items-center justify-center size-7 md:size-8 text-white hover:bg-orange-600 transition-colors active:bg-orange-700"
+                    className="flex items-center justify-center size-11 text-white hover:brightness-110 transition-colors active:brightness-90"
                   >
-                    <Minus className="size-3" />
+                    <Minus className="size-4" />
                   </button>
-                  <span className="flex-1 min-w-[2ch] text-center text-xs md:text-sm font-bold text-white bg-orange-500 tabular-nums leading-none py-1.5">
+                  <span className="flex-1 min-w-[2ch] text-center text-xs md:text-sm font-bold text-white bg-orange tabular-nums leading-none py-1.5">
                     {toArabicNumber(cartQty)}
                   </span>
                   <button
@@ -205,9 +205,9 @@ const MenuItemCard = memo(function MenuItemCard({
                       onAddToCart(item);
                     }}
                     aria-label={`زيادة كمية ${displayName}`}
-                    className="flex items-center justify-center size-7 md:size-8 text-white hover:bg-orange-600 transition-colors active:bg-orange-700"
+                    className="flex items-center justify-center size-11 text-white hover:brightness-110 transition-colors active:brightness-90"
                   >
-                    <Plus className="size-3" />
+                    <Plus className="size-4" />
                   </button>
                 </motion.div>
               )}

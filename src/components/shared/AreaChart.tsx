@@ -28,7 +28,7 @@ interface TooltipState {
 const AreaChart = memo(function AreaChart({
   data,
   height = 200,
-  color = "oklch(0.55 0.19 45)",
+  color = "oklch(0.72 0.14 75)", // gold stroke default
   gradientId = "area-gradient",
   className,
   showAxis = true,
@@ -60,8 +60,8 @@ const AreaChart = memo(function AreaChart({
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Area chart">
         <defs>
           <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-            <stop offset="100%" stopColor={color} stopOpacity={0.02} />
+            <stop offset="0%" stopColor="oklch(0.72 0.14 75)" stopOpacity={0.35} />
+            <stop offset="100%" stopColor="oklch(0.55 0.19 45)" stopOpacity={0.05} />
           </linearGradient>
         </defs>
 

@@ -5,29 +5,9 @@ import { success, handleError, error } from "@/lib/api-helpers";
 import { randomBytes } from "crypto";
 import { z } from "zod";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { getNextTierInfo } from "@/lib/loyalty-tiers";
 
 const loyaltyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
-
-const TIER_THRESHOLDS: Record<string, { min: number; next: string | null }> = {
-  bronze: { min: 0, next: "silver" },
-  silver: { min: 50, next: "gold" },
-  gold: { min: 150, next: "platinum" },
-  platinum: { min: 400, next: null },
-};
-
-function _computeTier(points: number): string {
-  if (points >= 400) return "platinum";
-  if (points >= 150) return "gold";
-  if (points >= 50) return "silver";
-  return "bronze";
-}
-
-function getNextTierInfo(currentTier: string) {
-  const info = TIER_THRESHOLDS[currentTier];
-  if (!info || !info.next) return { nextTier: null as string | null, pointsToNext: 0 };
-  const nextMin = TIER_THRESHOLDS[info.next].min;
-  return { nextTier: info.next, pointsToNext: nextMin };
-}
 
 const PHONE_RE = /^\+?[0-9]{7,15}$/;
 
@@ -46,7 +26,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       ?? request.headers.get("x-real-ip")
       ?? "unknown";
-    const rateCheck = loyaltyLimiter.check(ip);
+    const rateCheck = await loyaltyLimiter.check(ip);
     if (!rateCheck.success) return error("Too many requests", 429);
 
     const body = createSchema.parse(await request.json());

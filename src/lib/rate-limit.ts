@@ -23,7 +23,7 @@ interface RateLimitResult {
 }
 
 interface RateLimiter {
-  check(key: string): RateLimitResult;
+  check(key: string): Promise<RateLimitResult>;
   destroy(): void;
 }
 
@@ -43,7 +43,7 @@ export function createRateLimiter(config: RateLimiterConfig): RateLimiter {
   if (typeof interval === "object" && "unref" in interval) interval.unref();
 
   return {
-    check(key: string): RateLimitResult {
+    check(key: string): Promise<RateLimitResult> {
       const now = Date.now();
       let entry = hits.get(key);
       if (!entry || entry.resetAt <= now) {
@@ -51,11 +51,11 @@ export function createRateLimiter(config: RateLimiterConfig): RateLimiter {
         hits.set(key, entry);
       }
       entry.count++;
-      return {
+      return Promise.resolve({
         success: entry.count <= max,
         remaining: Math.max(0, max - entry.count),
         reset: entry.resetAt,
-      };
+      });
     },
     destroy() {
       destroyed = true;
@@ -65,6 +65,54 @@ export function createRateLimiter(config: RateLimiterConfig): RateLimiter {
   };
 }
 
-// ponytail: DB-backed rate limiter (createDbRateLimiter) skipped — not called anywhere.
-// Add when deploying multi-instance and need cross-instance rate enforcement.
-// Then add RateLimitEntry model to prisma/schema.prisma.
+// ponytail: DB-backed rate limiter stores state in PostgreSQL via Prisma (RateLimitEntry model).
+// Use for multi-instance deployments (Vercel serverless).
+import { prisma } from "./db";
+
+export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
+  const { windowMs, max } = config;
+  let destroyed = false;
+
+  // Periodic cleanup of expired entries every 120s
+  const interval = setInterval(async () => {
+    if (destroyed) { clearInterval(interval); return; }
+    try {
+      await prisma.rateLimitEntry.deleteMany({
+        where: { windowEnd: { lte: new Date() } },
+      });
+    } catch { /* best effort cleanup */ }
+  }, 120_000);
+  if (typeof interval === "object" && "unref" in interval) interval.unref();
+
+  return {
+    async check(key: string): Promise<RateLimitResult> {
+      const now = Date.now();
+      const deadline = new Date(now + windowMs);
+
+      // Best-effort cleanup of expired entries for this key
+      await prisma.rateLimitEntry.deleteMany({
+        where: { key, windowEnd: { lte: new Date(now) } },
+      }).catch(() => {});
+
+      // Record this attempt
+      await prisma.rateLimitEntry.create({
+        data: { key, windowEnd: deadline },
+      }).catch(() => {}); // sink unique-constraint races
+
+      // Count attempts in current window
+      const count = await prisma.rateLimitEntry.count({
+        where: { key, windowEnd: { gt: new Date(now) } },
+      });
+
+      return {
+        success: count <= max,
+        remaining: Math.max(0, max - count),
+        reset: deadline.getTime(),
+      };
+    },
+    destroy() {
+      destroyed = true;
+      clearInterval(interval);
+    },
+  };
+}

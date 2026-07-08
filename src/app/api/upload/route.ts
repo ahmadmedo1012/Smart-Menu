@@ -18,6 +18,14 @@ export async function POST(request: NextRequest) {
 
 		const buffer = Buffer.from(await file.arrayBuffer());
 
+		// Magic byte validation — don't trust client-declared Content-Type
+		const hex = buffer.subarray(0, 12).toString("hex");
+		const isJpeg = hex.startsWith("ffd8ff");
+		const isPng = hex.startsWith("89504e47");
+		const isWebp = hex.startsWith("52494646") && hex.slice(8, 16) === "57454250";
+		const isAvif = hex.startsWith("0000001c6674797061766966") || (hex.startsWith("00000020") && hex.includes("6674797061766966"));
+		if (!isJpeg && !isPng && !isWebp && !isAvif) return error("محتويات الملف لا تطابق صيغة صورة صالحة", 400);
+
 		// Return as base64 data URL — works on Vercel (no filesystem writes)
 		const base64 = buffer.toString("base64");
 		const dataUrl = `data:${file.type};base64,${base64}`;
