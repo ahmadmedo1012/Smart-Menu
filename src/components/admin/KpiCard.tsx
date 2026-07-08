@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -18,7 +19,7 @@ interface KpiCardProps {
   onClick?: () => void
 }
 
-export default function KpiCard({
+const KpiCard = memo(function KpiCard({
   label, value, icon: Icon, iconBg, iconColor, suffix = "",
   trend, sparklineData, onClick,
 }: KpiCardProps) {
@@ -62,4 +63,6 @@ export default function KpiCard({
       </div>
     </motion.div>
   )
-}
+})
+
+export default KpiCard

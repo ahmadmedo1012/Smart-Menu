@@ -319,7 +319,7 @@ function SubscribeContent() {
           <div className="animate-fade-in">
             <h2 className="text-2xl font-bold text-center mb-8">{upgradeMode ? "اختر خطة للترقية إليها" : "اختر خطة تناسب مطعمك"}</h2>
             <div className="grid md:grid-cols-2 gap-4 mb-8 max-w-lg mx-auto">
-              {plans.filter(p => !upgradeMode ? true : p.name === "Basic").slice(0, 2).map((plan, i) => {
+              {plans.filter(p => !upgradeMode ? true : Number(p.price) > 0).slice(0, 2).map((plan, i) => {
                 const Icon = PLAN_ICONS[i] || Sparkles;
                 const isSelected = selectedPlan === plan.id;
 

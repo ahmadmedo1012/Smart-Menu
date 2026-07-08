@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!auth.authorized) return error("غير مصرح", 401);
 
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    const { success: allowed } = subscriptionLimiter.check(`sub:${ip}`);
+    const { success: allowed } = await subscriptionLimiter.check(`sub:${ip}`);
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 
     const parsed = createPaymentSchema.safeParse(await request.json());

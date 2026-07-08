@@ -134,7 +134,7 @@ src/components/
 │   ├── ThemeToggle.tsx        Dark/light mode toggle (5 consumers)
 │   ├── NavLink.tsx            Active-aware navigation link (3)
 │   ├── BackButton.tsx         Navigation back button (3)
-│   ├── FloatingWhatsApp.tsx   Floating WhatsApp button (2)
+│   ├── FloatingWhatsApp.tsx   Floating WhatsApp button (1 — global layout only)
 │   ├── PaymentDialog.tsx      Subscription payment dialog (1)
 │   ├── PageFade.tsx           Framer Motion page transition wrapper (2)
 │   ├── Confetti.tsx           Confetti animation (1)
@@ -171,13 +171,11 @@ src/components/
 │   ├── StickyMenuHeader.tsx   Sticky category header (1)
 │   ├── GalleryCarousel.tsx    Restaurant image gallery (1)
 │   ├── ReviewSheet.tsx        Item review form (1)
-│   └── StarRating.tsx         Star rating display (0 consumers — unused)
 │
 ├── admin/                     Admin panel components
 │   ├── KpiCard.tsx            KPI metric card (2)
 │   ├── AdminEventNotifier.tsx SSE admin event listener (1)
 │   ├── ConfigEditor.tsx       SystemConfig key-value editor (1)
-│   └── ...                    LivePaymentToast (0 consumers — dead component)
 │
 ├── owner/                     Owner panel components
 │   ├── ItemDialog.tsx         Menu item create/edit dialog (1)
@@ -217,11 +215,8 @@ src/components/
 | `receipt.ts` | `buildReceiptMessage` | 2 |
 | `env.ts` | `validateEnv` | 1 |
 | `config.ts` | `getConfig`, `getConfigOrThrow`, `getAllConfigs` | 1 |
-| `events.ts` | (re-exports EventEmitter) | 0 |
-
 ### `src/hooks/` — Custom React hooks
 - `useConfig.ts` — fetches platform configuration (1 consumer)
-- `useMe.ts` — fetches current user data (0 consumers — likely dead)
 
 ### `src/store/` — Zustand state management
 - Cart state: items, quantities, totals
@@ -231,11 +226,8 @@ src/components/
 ### `src/generated/` — Auto-generated Prisma types
 - Prisma client types generated from schema
 
-### `src/actions/` — Server Actions (if any)
-- Reserved for future Next.js Server Actions pattern
-
-### `src/video/` — Video-related assets
-- Promotional/demo video files
+### `src/video/` — Remotion video components
+- Promotional/demo video built with Remotion (React components for programmatic video)
 
 ---
 
@@ -742,7 +734,7 @@ Every restaurant-scoped model carries `restaurantId`:
 | `/api/admin/events/stream` | Admin session | `new_payment`, `new_order`, notification | /admin/* |
 | `/api/user/events/stream` | Session | `subscription_rejected` | /subscribe, /checkout |
 
-**EventEmitter Limitation:** SSE uses a global Node.js EventEmitter (`src/lib/events.ts`). On Vercel's serverless architecture, each invocation gets a fresh instance. An SSE connection on instance A registers a listener on A's EventEmitter. A payment approval on instance B emits on B's EventEmitter. The event is invisible to instance A — SSE notifications can be silently lost. Fix requires Redis pub/sub or a shared event bus.
+**Known limitation:** SSE uses an in-memory EventEmitter. On Vercel's serverless architecture, each invocation gets a fresh instance — SSE notifications can be silently lost across instances. Fix requires Redis pub/sub or a shared event bus.
 
 **Telegram Webhook:**
 - `POST /api/telegram/webhook` receives callback queries and `/start` commands
@@ -1081,7 +1073,7 @@ Every restaurant-scoped model carries `restaurantId`:
 - **Config state**: `useConfig()` hook fetches from `/api/config` on mount
 
 ### Real-Time State
-- **SSE EventEmitter**: Global EventEmitter in `src/lib/events.ts`
+- **SSE EventEmitter**: Global EventEmitter
 - **Stream types**:
   - Order notifications (owner dashboard)
   - Subscription payment status (subscribe page)

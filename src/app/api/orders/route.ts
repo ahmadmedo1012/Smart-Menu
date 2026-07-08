@@ -92,10 +92,12 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit order creation (public endpoint)
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    const { success: allowed } = orderRateLimiter.check(`order:${ip}`);
+    const { success: allowed } = await orderRateLimiter.check(`order:${ip}`);
     if (!allowed) return apiError("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 
-    const body = createSchema.parse(await request.json());
+    const parsedInput = createSchema.safeParse(await request.json());
+    if (!parsedInput.success) return apiError(parsedInput.error.issues[0].message, 422);
+    const body = parsedInput.data;
 
     // Recalc totals server-side to prevent price tampering
     const dbItems = await prisma.menuItem.findMany({

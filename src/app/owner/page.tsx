@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef, useCallback, memo } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -87,7 +87,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
 
 /* ---------- Stat Card ---------- */
 
-function StatCard({ label, value, icon: Icon, subtitle, color, bg, onClick }: {
+const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, color, bg, onClick }: {
   label: string; value: number; icon: typeof ShoppingCart; subtitle?: string
   color: string; bg: string; onClick?: () => void
 }) {
@@ -109,11 +109,11 @@ function StatCard({ label, value, icon: Icon, subtitle, color, bg, onClick }: {
       </div>
     </div>
   )
-}
+})
 
 /* ---------- Order Row ---------- */
 
-function OrderRow({ order }: { order: StatsData["recentOrders"][0] }) {
+const OrderRow = memo(function OrderRow({ order }: { order: StatsData["recentOrders"][0] }) {
   const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
 
   return (
@@ -134,7 +134,7 @@ function OrderRow({ order }: { order: StatsData["recentOrders"][0] }) {
       </div>
     </Link>
   )
-}
+})
 
 /* ================================================================
    PAGE

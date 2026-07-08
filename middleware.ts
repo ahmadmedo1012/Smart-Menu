@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { CSRF_COOKIE, CSRF_HEADER, generateToken, validateToken } from "@/lib/csrf";
+import { CSRF_COOKIE, generateToken } from "@/lib/csrf";
 
 const publicPrefixes = [
   "/_next", "/favicon.png",
@@ -26,17 +26,17 @@ function setHeaders(resp: NextResponse) {
   resp.headers.set("X-Content-Type-Options", "nosniff");
   resp.headers.set("X-Frame-Options", "DENY");
   resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  resp.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
+  // ponytail: in dev mode, React needs unsafe-eval. style-src-elem covers Google Fonts.
+  const isDev = process.env.NODE_ENV === "development";
+  const scriptSrc = `'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`;
+  resp.headers.set("Content-Security-Policy", `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`);
   resp.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
   resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 }
 
-const SAFE = new Set(["GET", "HEAD", "OPTIONS"]);
-
 export function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
-    const method = request.method;
     // Static/public — headers + CSRF cookie only
     if (publicPrefixes.some(p => pathname.startsWith(p)) || pathname === "/") {
       const resp = NextResponse.next();
@@ -49,16 +49,10 @@ export function middleware(request: NextRequest) {
     setHeaders(response);
     setCsrfCookie(response, request);
 
-    // API — CSRF validation (defense-in-depth, not a gate)
+    // CSRF protection: SameSite=Lax session cookie (set in login/createSession).
+    // No additional double-submit-cookie validation needed — that was removed as dead code.
+    // See: docs/csrf.md or PROJECT_ARCHITECTURE.md for the rationale.
     if (pathname.startsWith("/api")) {
-      if (!SAFE.has(method)) {
-        const header = request.headers.get(CSRF_HEADER);
-        const cookie = request.cookies.get(CSRF_COOKIE)?.value;
-        if (!validateToken(header, cookie)) {
-          // ponytail: don't block — SameSite=Lax session cookie is real CSRF protection.
-          // csrf-token just refreshes so next request works
-        }
-      }
       return response;
     }
 

@@ -24,6 +24,12 @@ export async function PATCH(
     const body = await request.json();
     const parsed = updateUserSchema.safeParse(body);
     if (!parsed.success) return apiError("بيانات غير صالحة", 400);
+
+    // Prevent privilege escalation: only super_admin can set "admin" role
+    if (parsed.data.role === "admin" && auth.role !== "super_admin") {
+      return apiError("غير مصرح — فقط المدير العام يمكنه تعيين مشرفين", 403);
+    }
+
     const updated = await prisma.user.update({
       where: { id: uid },
       data: parsed.data,
@@ -42,9 +48,15 @@ export async function DELETE(
   try {
     const auth = await requirePermission("MANAGE_USERS");
     if (!auth.authorized) return apiError(auth.error, auth.status);
+    if (auth.role !== "super_admin") return apiError("غير مصرح — فقط المدير العام يمكنه حذف المستخدمين", 403);
     const { id } = await params;
     const uid = Number(id);
     if (Number.isNaN(uid)) return apiError("Invalid ID", 400);
+
+    const target = await prisma.user.findUnique({ where: { id: uid }, select: { role: true } });
+    if (!target) return apiError("المستخدم غير موجود", 404);
+    if (target.role === "super_admin") return apiError("لا يمكن حذف مدير عام", 403);
+
     await prisma.user.delete({ where: { id: uid } });
     return success({ deleted: true });
   } catch (e) {

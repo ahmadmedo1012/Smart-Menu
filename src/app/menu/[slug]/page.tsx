@@ -63,7 +63,13 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
   ]);
 
   const popularIds = new Set(popularData.map((o) => o.itemId));
-  const serializedItems = items.map(({ price, discountedPrice, avgRating, ratingCount, ...rest }) => ({
+  const serializedCategories = categories.map(c => ({
+    ...c,
+    createdAt: c.createdAt.toISOString(),
+    updatedAt: c.updatedAt.toISOString(),
+  }));
+
+  const serializedItems = items.map(({ price, discountedPrice, avgRating, ratingCount, category, ...rest }) => ({
     ...rest,
     price: Number(price),
     discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
@@ -72,6 +78,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
     isPopular: popularIds.has(rest.id),
     isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
     createdAt: rest.createdAt.toISOString(),
+    category: { ...category, createdAt: category.createdAt.toISOString(), updatedAt: category.updatedAt.toISOString() },
   }));
 
   const hasContact = !!(restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address);
@@ -85,7 +92,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         restaurant={restaurant}
         slug={slug}
         origin={origin}
-        categories={categories}
+        categories={serializedCategories}
         serializedItems={serializedItems}
         hasContact={hasContact}
       />
