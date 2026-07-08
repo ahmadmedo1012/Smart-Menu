@@ -4,6 +4,7 @@ interface Props {
   src: string
   gradient: string
   opacity?: number
+  sceneIndex?: number
 }
 
 export function VideoBg({ src, gradient, opacity = 1 }: Props) {
