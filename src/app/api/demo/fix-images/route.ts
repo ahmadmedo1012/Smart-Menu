@@ -20,8 +20,10 @@ const FIX_IMAGES: Record<string, string> = {
   "سلطة": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd",
   "برجر": "https://images.unsplash.com/photo-1568902115-7b9f2a1c8e4d",
   "بازين": "https://images.unsplash.com/photo-1563379928-15a4f3f5f5b3",
+  "بازين (مطبوخ)": "https://images.unsplash.com/photo-1563379928-15a4f3f5f5b3",
   "مبكبكة": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
   "كُسكُسي": "https://images.unsplash.com/photo-1598866594230-9ae50a6c0e96",
+  "كسكسي": "https://images.unsplash.com/photo-1598866594230-9ae50a6c0e96",
   "شربة": "https://images.unsplash.com/photo-1547592166-23ac45744acd",
   "بريك": "https://images.unsplash.com/photo-1604382355076-af4b0eb60143",
   "بيتزا مارغريتا": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38",
@@ -34,7 +36,19 @@ const FIX_IMAGES: Record<string, string> = {
 export async function GET() {
   let updated = 0;
   let errors = 0;
-  const items = await prisma.menuItem.findMany({ where: { image: "" } });
+  let skipped = 0;
+
+  // Get ALL items from al-waha-cafe (our demo restaurant)
+  const demoRestaurant = await prisma.restaurant.findUnique({ where: { slug: "al-waha-cafe" } });
+  if (!demoRestaurant) {
+    return NextResponse.json({ success: false, message: "Demo restaurant not found" });
+  }
+
+  const items = await prisma.menuItem.findMany({
+    where: { category: { restaurantId: demoRestaurant.id } },
+    include: { category: true },
+  });
+
   for (const item of items) {
     const img = FIX_IMAGES[item.name];
     if (img) {
@@ -42,7 +56,25 @@ export async function GET() {
         await prisma.menuItem.update({ where: { id: item.id }, data: { image: img + "?w=400&q=85" } });
         updated++;
       } catch { errors++; }
+    } else {
+      // Use category-based fallback
+      const catFallbacks: Record<string, string> = {
+        "مشروبات ساخنة": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
+        "مشروبات باردة": "https://images.unsplash.com/photo-1544145945-f90425340c7e",
+        "حلويات": "https://images.unsplash.com/photo-1551024601-bec78aea704b",
+        "وجبات خفيفة": "https://images.unsplash.com/photo-1568902115-7b9f2a1c8e4d",
+      };
+      const fallback = catFallbacks[item.category?.name || ""] || "https://images.unsplash.com/photo-1504674900247-0877df9cc836";
+      try {
+        await prisma.menuItem.update({ where: { id: item.id }, data: { image: fallback + "?w=400&q=85" } });
+        skipped++;
+      } catch { errors++; }
     }
   }
-  return NextResponse.json({ success: true, message: "Updated " + updated + " items (" + errors + " errors)" });
+
+  return NextResponse.json({
+    success: true,
+    message: `Updated ${updated} items by name + ${skipped} by category fallback (${errors} errors)`,
+    total: items.length,
+  });
 }
