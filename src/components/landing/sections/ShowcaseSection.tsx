@@ -45,7 +45,7 @@ export default function ShowcaseSection() {
 						{/* Parallax scroll layer */}
 						<motion.div style={{ scale: imageScale, y: imageY }}>
 							<Image
-								src="https://images.unsplash.com/photo-1504312835578-c5866c0c8b34?w=1800&q=85"
+								src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1800&q=85"
 								alt=""
 								width={1800}
 								height={950}
