@@ -49,14 +49,14 @@ const MenuItemCard = memo(function MenuItemCard({
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-3.5 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted hover:shadow-glow active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
+      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-4 text-start cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted hover:shadow-glow active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
       {/* Image container */}
-      <div className="relative shrink-0 size-24 md:size-28 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
+      <div className="relative shrink-0 size-28 md:size-32 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-all duration-300">
         {item.image && !imageError ? (
           <OptimizedImage
             src={item.image}
@@ -115,7 +115,7 @@ const MenuItemCard = memo(function MenuItemCard({
       <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-between gap-1">
         <div>
           <div className="flex items-start justify-between gap-2 mb-0.5">
-            <h3 className="font-bold text-sm md:text-base leading-snug line-clamp-1">
+            <h3 className="font-bold text-base md:text-lg leading-snug line-clamp-1">
               {displayName}
             </h3>
             <button
@@ -151,7 +151,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
         <div className="flex items-center justify-between mt-auto pt-1">
           <div className="flex items-baseline gap-0.5">
-            <span className="text-base md:text-lg font-bold text-primary tabular-nums">
+            <span className="text-lg md:text-xl font-bold text-primary tabular-nums">
               {toArabicNumber(currentPrice.toFixed(1))}
             </span>
             <span className="text-[11px] text-muted-foreground">د.ل</span>
