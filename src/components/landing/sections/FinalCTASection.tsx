@@ -4,7 +4,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { springGentle, springDefault, springSnappy } from "@/lib/motion"
+import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
@@ -12,7 +12,7 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 export default function FinalCTASection() {
   return (
-    <SectionContainer className="border-t border-gold/10">
+    <SectionContainer className="border-t border-orange/10">
       {/* Background image — subtle */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <OptimizedImage
@@ -67,16 +67,6 @@ export default function FinalCTASection() {
             </Button>
           </Link>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ ...springDefault, delay: 0.5 }}
-          className="text-xs text-gold/60 mt-6"
-        >
-          انضم إلى أكثر من 500 مطعم
-        </motion.p>
 
         <motion.p
           initial={{ opacity: 0 }}

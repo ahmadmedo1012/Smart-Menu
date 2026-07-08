@@ -63,7 +63,7 @@ export function MenuClientSection(props: {
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">{restaurant.description}</p>
           )}
 
-          <div className="mx-auto mt-4 w-20 h-[2px] rounded-full bg-gradient-to-r from-gold/0 via-gold/60 to-gold/0" />
+          <div className="mx-auto mt-4 w-20 h-[2px] rounded-full bg-gradient-to-r from-orange/0 via-orange/60 to-orange/0" />
 
           <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
             {restaurant.workingHours && (

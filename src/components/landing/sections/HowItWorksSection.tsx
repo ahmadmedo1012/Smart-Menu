@@ -34,7 +34,7 @@ export default function HowItWorksSection() {
               </div>
 
               {/* Step badge */}
-              <div className="absolute -top-1 -right-1 size-6 rounded-full bg-gold text-gold-foreground text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-gold/40 animate-pulse-glow">
+              <div className="absolute -top-1 -right-1 size-6 rounded-full bg-orange text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/40 animate-pulse-glow">
                 {i + 1}
               </div>
 
@@ -59,7 +59,7 @@ export default function HowItWorksSection() {
               whileInView={{ opacity: 1, rotate: 45 }}
               viewport={{ once: true }}
               transition={{ ...springSnappy, delay: 0.25 + i * 0.15 }}
-              className="size-1.5 bg-gold/40 rounded-sm mb-3"
+              className="size-1.5 bg-orange/40 rounded-sm mb-3"
             />
 
             <h3 className="text-base sm:text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>

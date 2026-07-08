@@ -47,7 +47,7 @@ export default function HeroSection() {
 					</motion.span>
 				</motion.h1>
 
-				<div className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-gradient-to-r from-gold/0 via-gold to-gold/0" />
+				<div className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-gradient-to-r from-orange/0 via-orange to-orange/0" />
 
 				<motion.p
 					initial={{ opacity: 0, y: 20 }}
@@ -63,9 +63,9 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 10 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ ...springDefault, delay: 0.2 }}
-					className="inline-flex items-center gap-1.5 rounded-full border border-gold/20 bg-gold/5 px-3 py-1 text-[11px] font-medium text-gold mb-6"
+					className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mb-6"
 				>
-					<span className="size-1.5 rounded-full bg-gold animate-pulse-dot" />
+					<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
 					أكثر من 500 مطعم يثقون فينا
 				</motion.div>
 
@@ -96,7 +96,7 @@ export default function HeroSection() {
 			<div className="hidden lg:block absolute left-8 top-1/3 opacity-20 pointer-events-none">
 				<div className="size-24 grid grid-cols-3 gap-0.5">
 					{decorCells.map((on, i) => (
-						<div key={i} className={`size-1.5 ${on ? 'bg-gold/60' : 'bg-transparent'} rounded-[1px]`} />
+						<div key={i} className={`size-1.5 ${on ? 'bg-orange/60' : 'bg-transparent'} rounded-[1px]`} />
 					))}
 				</div>
 			</div>

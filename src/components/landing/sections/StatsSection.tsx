@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { springGentle, springSnappy } from "@/lib/motion";
+import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { GlowPool } from "@/components/ui/GlowPool";
 
@@ -44,7 +44,7 @@ export default function StatsSection({ stats }: { stats: { totalRestaurants: num
             >
               <div className="group rounded-sm bg-card border border-border/50 p-4 md:p-6 lg:p-8 shadow-sm hover:border-orange/30 hover:shadow-lg hover:shadow-orange/5 hover:-translate-y-1 transition-transform duration-300">
                 <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2">
-                  <span className={i === 0 ? "text-gold" : "text-orange"}>
+                  <span className={i === 0 ? "text-orange font-semibold" : "text-orange"}>
                     <AnimatedNumber value={item.value} />{item.suffix}
                   </span>
                 </div>
@@ -54,7 +54,7 @@ export default function StatsSection({ stats }: { stats: { totalRestaurants: num
             </motion.div>
           ))}
         </div>
-        <div className="mx-auto mt-6 w-16 h-[2px] rounded-full bg-gradient-to-r from-gold/0 via-gold to-gold/0" />
+        <div className="mx-auto mt-6 w-16 h-[2px] rounded-full bg-gradient-to-r from-orange/0 via-orange to-orange/0" />
       </div>
     </SectionContainer>
   );

@@ -28,7 +28,7 @@ interface TooltipState {
 const AreaChart = memo(function AreaChart({
   data,
   height = 200,
-  color = "oklch(0.72 0.14 75)", // gold stroke default
+  color = "oklch(0.55 0.19 45)", // orange stroke
   gradientId = "area-gradient",
   className,
   showAxis = true,

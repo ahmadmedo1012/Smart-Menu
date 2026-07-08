@@ -62,7 +62,7 @@ const CLIENT_TESTIMONIALS = [
 
 export default function ClientsSection() {
   return (
-    <SectionContainer className="bg-gradient-to-b from-background via-gold/[0.02] to-background">
+    <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.02] to-background">
       <GlowPool position="top-1/2 right-1/4" size="size-[50vmin]" color="orange/5" />
 
       <SectionHeader
@@ -77,7 +77,7 @@ export default function ClientsSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ ...springGentle, delay: 0.1 }}
-        className="ring-1 ring-gold/10 rounded-2xl p-6 sm:p-8"
+        className="ring-1 ring-orange/10 rounded-2xl p-6 sm:p-8"
       >
         <CircularTestimonials
           testimonials={CLIENT_TESTIMONIALS}

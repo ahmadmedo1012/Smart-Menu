@@ -81,7 +81,7 @@ const MenuItemCard = memo(function MenuItemCard({
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-gold text-white shadow-lg flex items-center gap-0.5"
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-orange text-white shadow-lg flex items-center gap-0.5"
               >
                 <Star className="size-2.5 fill-current" />
                 الأكثر طلباً
