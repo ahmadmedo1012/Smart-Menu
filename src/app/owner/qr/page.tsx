@@ -29,7 +29,7 @@ export default function OwnerQRPage() {
     fetch("/api/settings").then(r => r.json()).then(data => {
       const r = data.data?.restaurant ?? data.data
       if (r) { setSlug(r.slug); setName(r.name); setUrl(`${window.location.origin}/menu/${r.slug}`) }
-    }).catch(() => { premiumToast("error", "فشل تحميل الإعدادات"); setLoading(false) })
+    }).catch(() => {})
   }, [])
 
   const copy = () => {
