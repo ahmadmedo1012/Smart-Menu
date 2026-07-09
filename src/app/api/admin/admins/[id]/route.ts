@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
-import { AuditAction } from "@/generated/prisma/enums";
+import { AuditAction, Permission } from "@/generated/prisma/enums";
 import { logAudit } from "@/lib/audit";
 import { z } from "zod";
 
@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { permissions: body.permissions as any },
+      data: { permissions: body.permissions as Permission[] },
       select: { id: true, username: true, name: true, role: true, permissions: true },
     });
 

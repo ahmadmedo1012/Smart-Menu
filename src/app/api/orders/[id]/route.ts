@@ -94,7 +94,7 @@ export async function PUT(
           await prisma.$transaction([
             prisma.loyaltyCard.update({
               where: { id: card.id },
-              data: { points: { increment: ptsEarned }, totalOrders: { increment: 1 }, totalSpent: { increment: data.total }, tier: newTier as any },
+              data: { points: { increment: ptsEarned }, totalOrders: { increment: 1 }, totalSpent: { increment: data.total }, tier: newTier as "bronze" | "silver" | "gold" | "platinum" },
             }),
             prisma.rewardTransaction.create({
               data: { cardId: card.id, type: "earn", points: ptsEarned, description: `طلب ${data.orderNo}`, orderId: data.id, restaurantId: data.restaurantId },
