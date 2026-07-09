@@ -172,11 +172,9 @@ export default function AdminQRPage() {
               <Button variant="outline" size="icon" aria-label="نسخ الرابط" onClick={copyLink} className="size-11 shrink-0">
                 {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4" />}
               </Button>
-              <a href={menuUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="icon" aria-label="فتح الرابط" className="size-11 shrink-0">
-                  <ExternalLink className="size-4" />
-                </Button>
-              </a>
+              <Button variant="outline" size="icon" aria-label="فتح الرابط" className="size-11 shrink-0" onClick={() => window.open(menuUrl, "_blank", "noopener,noreferrer")}>
+                <ExternalLink className="size-4" />
+              </Button>
             </div>
           </div>
 

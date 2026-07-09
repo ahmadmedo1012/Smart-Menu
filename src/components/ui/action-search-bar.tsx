@@ -176,11 +176,11 @@ export function ActionSearchBar({ role = "all", className }: ActionSearchBarProp
                 />
                 {/* Icon pinned right inside input */}
                 <Search
-                  className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/40"
+                  className="pointer-events-none absolute end-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/40"
                   aria-hidden="true"
                 />
                 {/* ESC badge pinned left */}
-                <kbd className="absolute left-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border/30 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
+                <kbd className="absolute end-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border/30 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
                   ESC
                 </kbd>
               </div>

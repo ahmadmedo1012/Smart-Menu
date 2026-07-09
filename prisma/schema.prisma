@@ -34,7 +34,7 @@ model User {
   telegramApprovers TelegramApprover[]
   subscriptionPayments  SubscriptionPayment[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
-  restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id])
+  restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
 
   @@index([restaurantId])
   @@index([planId])
@@ -90,7 +90,7 @@ model Restaurant {
   plan               SubscriptionPlan?   @relation(fields: [planId], references: [id])
   rewardTransactions RewardTransaction[]
   settings           Setting[]
-  users              User[]
+  users              User[]  @relation("RestaurantUsers")
   whatsappTemplates  WhatsappTemplate[]
 
   @@index([isActive])
@@ -152,7 +152,7 @@ model Order {
   updatedAt          DateTime            @updatedAt
   pickupType         PickupType          @default(inside)
   status             OrderStatus         @default(new)
-  restaurant         Restaurant          @relation(fields: [restaurantId], references: [id])
+  restaurant         Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   items              OrderItem[]
   referrals          Referral[]
   rewardTransactions RewardTransaction[]

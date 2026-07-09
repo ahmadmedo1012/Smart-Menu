@@ -48,10 +48,13 @@ export default function MenuPageClient({
   const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
   const [sort, setSort] = useState<SortKey>("default");
   const [showSort, setShowSort] = useState(false);
-  const cart = useCart();
+  const cartItems = useCart(s => s.items);
+  const addItem = useCart(s => s.addItem);
+  const updateQuantity = useCart(s => s.updateQuantity);
+  const setRestaurantDetails = useCart(s => s.setRestaurantDetails);
 
   const handleQuickAdd = (item: MenuItemProp) => {
-    cart.addItem({
+    addItem({
       itemId: item.id,
       name: item.nameAr || item.name,
       price: item.discountedPrice ?? item.price,
@@ -62,14 +65,14 @@ export default function MenuPageClient({
   };
 
   const handleDecrement = (item: MenuItemProp) => {
-    const existing = cart.items.find((i) => i.itemId === item.id);
+    const existing = cartItems.find((i) => i.itemId === item.id);
     if (existing) {
-      cart.updateQuantity(existing.id, existing.quantity - 1);
+      updateQuantity(existing.id, existing.quantity - 1);
     }
   };
 
   const getCartQty = (itemId: number) => {
-    return cart.items.find((i) => i.itemId === itemId)?.quantity ?? 0;
+    return cartItems.find((i) => i.itemId === itemId)?.quantity ?? 0;
   };
 
   const handleScroll = useCallback(() => {
@@ -78,7 +81,7 @@ export default function MenuPageClient({
 
   // ponytail: cart omitted from deps — setRestaurantDetails is stable, including cart (full zustand store ref) causes infinite re-render loop
   useEffect(() => {
-    if (restaurantId) cart.setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
+    if (restaurantId) setRestaurantDetails(restaurantId, restaurantWhatsapp || "", restaurantName || "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantId, restaurantWhatsapp, restaurantName]);
 

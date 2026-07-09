@@ -102,7 +102,8 @@ ${items}
   )
 
   const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
-  const currentIdx = STATUS_FLOW.indexOf(order.status as typeof STATUS_FLOW[number])
+  const isCancelled = order.status === "cancelled"
+  const currentIdx = isCancelled ? -1 : STATUS_FLOW.indexOf(order.status as typeof STATUS_FLOW[number])
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">

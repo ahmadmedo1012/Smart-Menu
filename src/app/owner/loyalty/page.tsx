@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Users, Gift, TrendingUp, Award, Sparkles,
+  Users, Gift, TrendingUp, Award,
   AlertCircle, RefreshCw, Clock, ArrowRight, Copy, Check, MessageCircle, Share2,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -47,13 +47,15 @@ function AnimatedCount({ value, suffix = "" }: { value: number; suffix?: string 
   useEffect(() => {
     const start = prev.current; const end = value; const duration = 800; const startTime = performance.now()
     if (start === end) { setDisplay(end); return }
+    let rafId: number
     const tick = (now: number) => {
       const elapsed = now - startTime; const progress = Math.min(elapsed / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3)
       setDisplay(Math.round(start + (end - start) * eased))
-      if (progress < 1) requestAnimationFrame(tick)
+      if (progress < 1) rafId = requestAnimationFrame(tick)
     }
-    requestAnimationFrame(tick); prev.current = end
+    rafId = requestAnimationFrame(tick); prev.current = end
+    return () => cancelAnimationFrame(rafId)
   }, [value])
 
   return <span className="tabular-nums">{toArabicNumber(display)}{suffix}</span>

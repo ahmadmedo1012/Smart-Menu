@@ -31,7 +31,7 @@ export default function OwnerReviewsPage() {
       const res = await fetch(`/api/owner/reviews${params}`);
       const json = await res.json();
       if (json.success) setReviews(json.data);
-    } catch {} finally { setLoading(false); }
+    } catch { console.error("Failed to load reviews"); setReviews([]) } finally { setLoading(false); }
   }, [filterStar]);
 
   useEffect(() => { load(); }, [load]);

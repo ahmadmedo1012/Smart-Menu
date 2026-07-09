@@ -55,7 +55,7 @@ export default function OwnerMenuPage() {
   useEffect(() => { if (restaurantId) fetchCats() }, [restaurantId, fetchCats])
 
   const fetchItems = useCallback(async (catId: number) => {
-    try { const r = await fetch(`/api/items?categoryId=${catId}`); const j = await r.json(); setCategories(p => p.map(c => c.id === catId ? { ...c, items: Array.isArray(j.data ?? j) ? j.data ?? j : [] } : c)) } catch {}
+    try { const r = await fetch(`/api/items?categoryId=${catId}`); const j = await r.json(); setCategories(p => p.map(c => c.id === catId ? { ...c, items: Array.isArray(j.data ?? j) ? j.data ?? j : [] } : c)) } catch { premiumToast("error", "فشل تحميل الأصناف") }
   }, [])
 
   const toggleCat = (id: number) => { setExpandedCat(p => p === id ? null : id); if (expandedCat !== id) fetchItems(id) }

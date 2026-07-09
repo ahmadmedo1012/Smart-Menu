@@ -77,7 +77,8 @@ export default function AdminUsersPage() {
   const deleteUser = async () => {
     if (!deleteTarget) return
     try {
-      await csrfFetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
+      const res = await csrfFetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
       premiumToast("success", "تم حذف المستخدم")
       setDeleteTarget(null); fetchUsers()
     } catch { premiumToast("error", "فشل الحذف") }
