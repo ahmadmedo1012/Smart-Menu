@@ -86,7 +86,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
       // Notify via Telegram broadcast
       const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${result.restaurant.name}\n• الخطة: ${result.plan?.nameAr ?? existing!.planName}\n• المبلغ: ${existing!.amount} د.ل`;
       const { sendTelegramNotification } = await import("@/lib/telegram");
-      sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
+      sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => console.error("[subscription] telegram notify failed:", e));
 
       // Record system event
       prisma.systemEvent.create({
@@ -97,7 +97,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           severity: "info",
           metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
         },
-      }).catch(() => {});
+      }).catch((e) => console.error("[subscription] sys event failed:", e));
 
       return { ok: true, action: "verified", paymentId: existing!.id };
     } catch (e) {
@@ -169,7 +169,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     // Notify via Telegram broadcast
     const userPart = result.user ? `• المستخدم: ${result.user.username}\n` : "";
     const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المطعم: ${restaurantName}\n• الخطة: ${existing!.planName}\n• الرابط: ${restaurantSlug}`;
-    sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
+    sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => console.error("[subscription] telegram failed:", e));
 
     // Notify user directly
     const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
@@ -188,7 +188,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         severity: "info",
         metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
       },
-    }).catch(() => {});
+    }).catch((e) => console.error("[subscription] sys event create failed:", e));
 
     // Record user event in SystemEvent table
     if (existing!.userId) {
@@ -200,7 +200,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           severity: "info",
           metadata: { userId: existing!.userId, restaurantSlug },
         },
-      }).catch(() => {});
+      }).catch((e) => console.error("[subscription] sys event user failed:", e));
     }
 
     return { ok: true, action: "verified", paymentId: existing!.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
@@ -233,7 +233,7 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
 
   // Telegram broadcast
   const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing!.phone}\n• المبلغ: ${existing!.amount} د.ل\n• الخطة: ${existing!.planName}`;
-  sendTelegramNotification(msg, { parseMode: "Markdown" }).catch(() => {});
+  sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => console.error("[subscription] cancel telegram failed:", e));
 
   // Notify user directly
   const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
@@ -252,7 +252,7 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
       severity: "warning",
       metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
     },
-  }).catch(() => {});
+  }).catch((e) => console.error("[subscription] cancel sys event failed:", e));
 
   // Record user event in SystemEvent table
   if (existing!.userId) {
@@ -264,7 +264,7 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
         severity: "warning",
         metadata: { userId: existing!.userId, paymentId: existing!.id },
       },
-    }).catch(() => {});
+    }).catch((e) => console.error("[subscription] cancel user event failed:", e));
   }
 
   return { ok: true, action: "cancelled", paymentId: existing!.id };

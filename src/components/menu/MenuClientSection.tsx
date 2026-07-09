@@ -17,12 +17,20 @@ type Restaurant = {
   workingHours: string | null; gallery: string[]; id: number
 }
 
+type SerializedCategory = { id: number; name: string; nameAr: string | null; icon: string; sortOrder: number; isActive: boolean; restaurantId: number; createdAt: string; updatedAt: string }
+
+type SerializedItem = {
+  id: number; name: string; nameAr: string | null; description: string; descriptionAr: string; price: number
+  discountedPrice: number | null; image: string; sortOrder: number; categoryId: number; status: string; avgRating: number | null
+  ratingCount: number; isPopular: boolean; isNew: boolean; createdAt: string; category: { id: number; name: string; nameAr: string | null; icon: string; sortOrder: number; isActive: boolean; restaurantId: number; createdAt: string; updatedAt: string }
+}
+
 export function MenuClientSection(props: {
   restaurant: Restaurant
   slug: string
   origin: string
-  categories: any[]
-  serializedItems: any[]
+  categories: SerializedCategory[]
+  serializedItems: SerializedItem[]
   hasContact: boolean
 }) {
 
