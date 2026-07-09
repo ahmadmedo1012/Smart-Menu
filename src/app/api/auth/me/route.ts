@@ -20,8 +20,8 @@ export async function GET() {
       authenticated: true,
       role: auth.role,
       restaurantId: auth.restaurantId,
-      subscriptionStatus: (auth as any).subscriptionStatus ?? null,
-      permissions: (auth as any).permissions ?? [],
+      subscriptionStatus: auth.subscriptionStatus,
+      permissions: auth.permissions,
       roleLabel: getRoleLabel(auth.role ?? "USER"),
     });
   } catch (e) {

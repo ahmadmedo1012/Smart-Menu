@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import BackButton from "@/components/shared/BackButton"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -120,7 +120,7 @@ export default function OwnerOrdersPage() {
     return () => { es.close(); stopPolling() }
   }, [filter, fetchOrders, startPolling, stopPolling])
 
-  const updateStatus = async (orderId: number, newStatus: string) => {
+  const updateStatus = useCallback(async (orderId: number, newStatus: string) => {
     try {
       const res = await csrfFetch(`/api/orders/${orderId}`, {
         method: "PUT",
@@ -132,16 +132,16 @@ export default function OwnerOrdersPage() {
         premiumToast("save", `تم تغيير الحالة إلى ${STATUS_CONFIG[newStatus]?.label}`)
       }
     } catch { premiumToast("error", "فشل تحديث الحالة") }
-  }
+  }, [])
 
-  const filtered = orders.filter(o =>
+  const filtered = useMemo(() => orders.filter(o =>
     !search || o.orderNo.includes(search) || o.customerName.includes(search)
-  )
+  ), [orders, search])
 
-  const tabsWithCounts = TABS.map(tab => ({
+  const tabsWithCounts = useMemo(() => TABS.map(tab => ({
     ...tab,
     count: tab.value === "" ? orders.length : orders.filter(o => o.status === tab.value).length,
-  }))
+  })), [orders])
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in">

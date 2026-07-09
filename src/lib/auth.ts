@@ -1,7 +1,15 @@
 import { validateSession } from "./session";
 
-export async function requireAuth(opts?: { requireRestaurant?: boolean }) {
-  // Primary auth: session-based
+type AuthResult = {
+  authorized: true;
+  userId: number;
+  role: string;
+  restaurantId: number | null;
+  subscriptionStatus: string | null;
+  permissions: string[];
+};
+
+export async function requireAuth(opts?: { requireRestaurant?: boolean }): Promise<AuthResult | { authorized: false }> {
   const session = await validateSession();
   if (session.valid && session.userId) {
     const { getUserById } = await import("./db");
@@ -15,8 +23,8 @@ export async function requireAuth(opts?: { requireRestaurant?: boolean }) {
         userId: user.id,
         role: user.role,
         restaurantId: user.restaurantId,
-        subscriptionStatus: (user as any).subscriptionStatus ?? null,
-        permissions: (user as any).permissions ?? [],
+        subscriptionStatus: user.subscriptionStatus,
+        permissions: user.permissions,
       };
     }
   }
@@ -34,15 +42,14 @@ export async function requirePermission(
   permission: string,
   opts?: { requireRestaurant?: boolean }
 ): Promise<
-  | { authorized: true; userId: number | null; role: string; restaurantId: number | null; permissions: string[] }
+  AuthResult
   | { authorized: false; error: string; status: number }
 > {
   const auth = await requireAuth(opts);
   if (!auth.authorized) return { authorized: false, error: "غير مصرح", status: 401 };
-  // backward compat: treat legacy "admin" as super_admin
-  if (auth.role === "super_admin" || auth.role === "admin") return auth as any;
+  if (auth.role === "super_admin" || auth.role === "admin") return auth;
   if (auth.role === "sub_admin" && auth.permissions?.includes(permission)) {
-    return auth as any;
+    return auth;
   }
   return { authorized: false, error: "لا تملك الصلاحية", status: 403 };
 }
