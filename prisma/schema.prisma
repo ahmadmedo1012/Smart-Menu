@@ -34,7 +34,7 @@ model User {
   telegramApprovers TelegramApprover[]
   subscriptionPayments  SubscriptionPayment[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
-  restaurant   Restaurant?       @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  restaurant   Restaurant?       @relation("RestaurantUsers", fields: [restaurantId], references: [id], onDelete: SetNull)
 
   @@index([restaurantId])
   @@index([planId])
