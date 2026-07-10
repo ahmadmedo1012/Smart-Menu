@@ -13,13 +13,10 @@ type Props = {
     restaurants: FeaturedRestaurant[];
 };
 
-const AUTOPLAY_INTERVAL = 4500;
+const AUTOPLAY_INTERVAL = 5000;
 
-const slideVariants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 360 : -360, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -360 : 360, opacity: 0 }),
-};
+/* ponytail: fast cubic-bezier instead of spring — snappier, no bounce tail */
+const transition = { x: { ease: "easeOut" as const, duration: 0.4 }, opacity: { duration: 0.25 } };
 
 export default function FeaturedRestaurantsSection({ restaurants }: Props) {
     const [[slide, dir], setSlide] = useState([0, 0]);
@@ -53,23 +50,27 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
             />
 
             <div
-                className="relative max-w-[1000px] mx-auto"
+                className="relative max-w-[1060px] mx-auto px-1"
                 onMouseEnter={() => setPaused(true)}
                 onFocus={() => setPaused(true)}
                 onMouseLeave={() => setPaused(false)}
                 onBlur={() => setPaused(false)}
             >
                 {/* ── Slide ── */}
-                <div className="relative h-[360px] sm:h-[420px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-border/30 bg-card shadow-[0_8px_40px_-16px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_40px_-16px_rgba(0,0,0,0.4)]">
-                    <AnimatePresence custom={dir} mode="wait">
+                <div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-white/10 bg-card shadow-[0_8px_40px_-16px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_40px_-16px_rgba(0,0,0,0.5)]">
+                    <AnimatePresence custom={dir} mode="popLayout">
                         <motion.div
                             key={r.id}
                             custom={dir}
-                            variants={slideVariants}
+                            variants={{
+                                enter: (d: number) => ({ x: d > 0 ? 200 : -200, opacity: 0 }),
+                                center: { x: 0, opacity: 1 },
+                                exit: (d: number) => ({ x: d > 0 ? -160 : 160, opacity: 0 }),
+                            }}
                             initial="enter"
                             animate="center"
                             exit="exit"
-                            transition={{ x: { type: "spring", stiffness: 260, damping: 26 }, opacity: { duration: 0.3 } }}
+                            transition={transition}
                             className="absolute inset-0"
                         >
                             <Link href={`/menu/${r.slug}`} className="block size-full group">
@@ -81,63 +82,94 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
                                             alt=""
                                             fill
                                             className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                            sizes="1000px"
+                                            sizes="1060px"
                                         />
                                     )}
-                                    {/* Multi-layer gradient overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
-                                    <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
                                 </div>
 
                                 {/* Content */}
                                 <div className="relative z-10 flex flex-col justify-between size-full p-6 sm:p-10">
-                                    {/* Top section */}
+                                    {/* Top */}
                                     <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-14 sm:size-16 rounded-xl overflow-hidden bg-white/15 backdrop-blur-sm ring-1 ring-white/20 flex items-center justify-center shadow-lg">
+                                        <div className="flex items-center gap-3.5">
+                                            <motion.div
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                transition={{ delay: 0.1, duration: 0.3 }}
+                                                className="size-16 sm:size-20 rounded-2xl overflow-hidden bg-white/15 backdrop-blur-md ring-1 ring-white/20 flex items-center justify-center shadow-xl shrink-0"
+                                            >
                                                 {r.logo ? (
-                                                    <Image src={r.logo} alt={r.name} width={64} height={64} className="object-cover size-full" />
+                                                    <Image src={r.logo} alt={r.name} width={80} height={80} className="object-cover size-full" />
                                                 ) : (
-                                                    <span className="text-xl font-bold text-white/60">{r.name.charAt(0)}</span>
+                                                    <span className="text-2xl font-bold text-white/60">{r.name.charAt(0)}</span>
                                                 )}
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg sm:text-xl font-bold text-white drop-shadow-sm">{r.name}</h3>
+                                            </motion.div>
+                                            <div className="space-y-0.5">
+                                                <motion.h3
+                                                    initial={{ y: 12, opacity: 0 }}
+                                                    animate={{ y: 0, opacity: 1 }}
+                                                    transition={{ delay: 0.12, duration: 0.3 }}
+                                                    className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg"
+                                                >
+                                                    {r.name}
+                                                </motion.h3>
                                                 {r.city && (
-                                                    <span className="flex items-center gap-1 text-xs text-white/70 mt-0.5">
-                                                        <MapPin className="size-3" />
+                                                    <motion.span
+                                                        initial={{ y: 8, opacity: 0 }}
+                                                        animate={{ y: 0, opacity: 1 }}
+                                                        transition={{ delay: 0.15, duration: 0.3 }}
+                                                        className="flex items-center gap-1 text-xs sm:text-sm text-white/70"
+                                                    >
+                                                        <MapPin className="size-3.5" />
                                                         {r.city}
-                                                    </span>
+                                                    </motion.span>
                                                 )}
                                             </div>
                                         </div>
                                         {r.orderCount > 0 && (
-                                            <div className="flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white/80">
-                                                <Star className="size-3 text-yellow-400" />
+                                            <motion.div
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                transition={{ delay: 0.2, duration: 0.3 }}
+                                                className="flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white/90"
+                                            >
+                                                <Star className="size-3.5 text-yellow-400" />
                                                 {r.orderCount}
-                                            </div>
+                                            </motion.div>
                                         )}
                                     </div>
 
-                                    {/* Bottom section */}
-                                    <div className="space-y-3">
+                                    {/* Bottom */}
+                                    <div className="space-y-3.5 max-w-xl">
                                         {r.description && (
-                                            <p className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-2 max-w-xl drop-shadow-sm">
+                                            <motion.p
+                                                initial={{ y: 12, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                transition={{ delay: 0.15, duration: 0.3 }}
+                                                className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-2"
+                                            >
                                                 {r.description}
-                                            </p>
+                                            </motion.p>
                                         )}
-                                        <div className="flex items-center gap-4 text-xs text-white/60">
+                                        <motion.div
+                                            initial={{ y: 10, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.18, duration: 0.3 }}
+                                            className="flex flex-wrap items-center gap-x-5 gap-y-2"
+                                        >
                                             {r.phone && (
-                                                <span className="flex items-center gap-1.5" dir="ltr">
+                                                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-white/70" dir="ltr">
                                                     <Phone className="size-3.5" />
                                                     {r.phone}
                                                 </span>
                                             )}
-                                            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-400 hover:text-orange-300 transition-colors group/link">
+                                            <span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange-400 hover:text-orange-300 transition-colors group/link">
                                                 عرض المنيو
-                                                <ArrowLeft className="size-4 transition-transform group-hover/link:-translate-x-0.5" />
+                                                <ArrowLeft className="size-4 transition-transform duration-200 group-hover/link:-translate-x-1" />
                                             </span>
-                                        </div>
+                                        </motion.div>
                                     </div>
                                 </div>
                             </Link>
@@ -147,11 +179,15 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
                     {/* ── Arrows ── */}
                     {n > 1 && (
                         <>
-                            <button onClick={prev} type="button" className="absolute start-3 top-1/2 -translate-y-1/2 z-20 size-11 rounded-full bg-white/20 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/90 hover:bg-white/30 transition-all shadow-lg opacity-0 group-hover:opacity-100 md:opacity-60 md:hover:opacity-100" aria-label="السابق">
-                                <ArrowRight className="size-4" />
+                            <button onClick={prev} type="button"
+                                className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
+                                aria-label="السابق">
+                                <ArrowRight className="size-5" />
                             </button>
-                            <button onClick={next} type="button" className="absolute end-3 top-1/2 -translate-y-1/2 z-20 size-11 rounded-full bg-white/20 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/90 hover:bg-white/30 transition-all shadow-lg opacity-0 group-hover:opacity-100 md:opacity-60 md:hover:opacity-100" aria-label="التالي">
-                                <ArrowLeft className="size-4" />
+                            <button onClick={next} type="button"
+                                className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
+                                aria-label="التالي">
+                                <ArrowLeft className="size-5" />
                             </button>
                         </>
                     )}
@@ -173,14 +209,16 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
 
                 {/* ── Dots ── */}
                 {n > 1 && (
-                    <div className="flex items-center justify-center gap-2.5 mt-5">
+                    <div className="flex items-center justify-center gap-3 mt-5">
                         {restaurants.map((item, i) => (
                             <button
                                 key={item.id}
                                 type="button"
                                 onClick={() => go(i, i > slide ? 1 : -1)}
-                                className={`rounded-full transition-all duration-500 ${
-                                    i === slide ? "w-8 h-2.5 bg-orange shadow-sm shadow-orange/30" : "w-2 h-2.5 bg-muted-foreground/25 hover:bg-muted-foreground/40"
+                                className={`rounded-full transition-all duration-300 ${
+                                    i === slide
+                                        ? "w-9 h-3 bg-orange shadow-md shadow-orange/30"
+                                        : "w-3 h-3 bg-muted-foreground/20 hover:bg-muted-foreground/40"
                                 }`}
                                 aria-label={`الانتقال إلى ${item.name}`}
                             />
