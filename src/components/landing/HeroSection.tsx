@@ -40,8 +40,8 @@ export default function HeroSection() {
                         <OptimizedImage
                             src="/main21.png"
                             alt="واجهة المنيو الرقمي"
-                            className="w-full"
-                            imageClassName="object-cover w-full"
+                            className="w-full aspect-[3/2]"
+                            imageClassName="object-contain"
                             skeleton={false}
                             priority
                         />
