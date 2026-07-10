@@ -53,17 +53,21 @@ export async function POST(request: NextRequest) {
     });
     if (pendingPayment) return error("لديك طلب دفع معلق بالفعل", 400);
 
-    // Fetch plan name
+    // Server-side price validation — never trust client-reported amount
     const plan = await prisma.subscriptionPlan.findUnique({
-      where: { id: planId },
-      select: { nameAr: true },
+      where: { id: planId, isActive: true },
+      select: { nameAr: true, price: true },
     });
+    if (!plan) return error("الباقة غير صالحة", 400);
+    if (Number(amount) !== Number(plan.price)) {
+      return error("المبلغ لا يطابق سعر الباقة", 400);
+    }
 
     const payment = await prisma.subscriptionPayment.create({
       data: {
         userId: auth.userId,
         phone: String(phone),
-        amount,
+        amount: plan.price,
         provider: provider as "libyana" | "madar",
         planId,
         planName: plan?.nameAr ?? "",

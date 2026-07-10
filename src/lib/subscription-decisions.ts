@@ -179,8 +179,8 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: https://smart-menu-sigma.vercel.app/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
     }
 
-    // Record in SystemEvent table
-    prisma.systemEvent.create({
+    // Record in SystemEvent table (awaited — SSE poll depends on this)
+    await prisma.systemEvent.create({
       data: {
         eventType: "payment",
         title: "اشتراك جديد",
@@ -188,11 +188,11 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         severity: "info",
         metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
       },
-    }).catch((e) => console.error("[subscription] sys event create failed:", e));
+    });
 
     // Record user event in SystemEvent table
     if (existing!.userId) {
-      prisma.systemEvent.create({
+      await prisma.systemEvent.create({
         data: {
           eventType: "subscription_approved",
           title: "تم تفعيل الحساب",
@@ -200,7 +200,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           severity: "info",
           metadata: { userId: existing!.userId, restaurantSlug },
         },
-      }).catch((e) => console.error("[subscription] sys event user failed:", e));
+      });
     }
 
     return { ok: true, action: "verified", paymentId: existing!.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
@@ -243,8 +243,8 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
       `❌ *عذراً، تم رفض طلب تفعيل حسابك في Smart Menu.*\n\nإذا كنت تعتقد أن هناك خطأ، يرجى التواصل مع الدعم الفني.`);
   }
 
-  // Record admin event in SystemEvent table
-  prisma.systemEvent.create({
+  // Record admin event in SystemEvent table (awaited — SSE poll depends on this)
+  await prisma.systemEvent.create({
     data: {
       eventType: "payment_rejected",
       title: "رفض اشتراك",
@@ -252,11 +252,11 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
       severity: "warning",
       metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
     },
-  }).catch((e) => console.error("[subscription] cancel sys event failed:", e));
+  });
 
   // Record user event in SystemEvent table
   if (existing!.userId) {
-    prisma.systemEvent.create({
+    await prisma.systemEvent.create({
       data: {
         eventType: "subscription_rejected",
         title: "رفض طلب التفعيل",
@@ -264,7 +264,7 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
         severity: "warning",
         metadata: { userId: existing!.userId, paymentId: existing!.id },
       },
-    }).catch((e) => console.error("[subscription] cancel user event failed:", e));
+    });
   }
 
   return { ok: true, action: "cancelled", paymentId: existing!.id };

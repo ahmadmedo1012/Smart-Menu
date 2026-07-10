@@ -191,8 +191,13 @@ export default function PaymentDialog({
   );
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value);
-    setAmount(val > 99 ? 99 : val);
+    const raw = e.target.value
+    // Allow empty input for UX
+    if (raw === "") { setAmount(0); return }
+    const val = Number(raw)
+    if (isNaN(val) || val < 0) return
+    const maxPrice = price > 99 ? price : 99
+    setAmount(val > maxPrice ? maxPrice : Math.max(1, Math.round(val)))
   };
 
   return (
@@ -438,7 +443,7 @@ export default function PaymentDialog({
             </div>
           )}
 
-          {/* Success screen */}
+          {/* Success screen — just acknowledge, don't redirect (payment is still pending) */}
           {step === "success" && (
             <div className="flex flex-col items-center py-8 space-y-6">
               <div className="relative size-20">
@@ -450,14 +455,15 @@ export default function PaymentDialog({
               <div className="text-center space-y-1">
                 <p className="text-base font-bold">تم إرسال طلب الدفع</p>
                 <p className="text-xs text-muted-foreground">
-                  سيتم تفعيل اشتراكك بعد التحقق من الدفع
+                  سيتم تفعيل اشتراكك بعد موافقة الإدارة
                 </p>
               </div>
               <Button
                 className="w-full h-11 rounded-xl"
-                onClick={() => { onOpenChange(false); onSuccess(); }}
+                variant="outline"
+                onClick={() => { handleOpenChange(false); }}
               >
-                تم
+                إغلاق
               </Button>
             </div>
           )}

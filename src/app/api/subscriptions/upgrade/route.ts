@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
       select: { id: true, name: true, nameAr: true, isActive: true, price: true },
     });
     if (!plan || !plan.isActive) return error("الباقة غير موجودة أو غير نشطة", 400);
+    if (Number(amount) !== Number(plan.price)) {
+      return error("المبلغ لا يطابق سعر الباقة", 400);
+    }
 
     // Validate restaurant exists and check current plan isn't paid
     const restaurant = await prisma.restaurant.findUnique({
@@ -79,7 +82,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: auth.userId,
         phone: String(phone),
-        amount,
+        amount: plan.price,
         provider: provider as "libyana" | "madar",
         planId,
         planName: plan.nameAr ?? "",

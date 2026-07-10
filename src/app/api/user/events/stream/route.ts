@@ -12,7 +12,14 @@ export async function GET(request: NextRequest) {
 
     const userId = auth.userId;
     const encoder = new TextEncoder();
-    let lastId = 0;
+
+    // Start from the latest event to avoid replaying history
+    const latest = await prisma.systemEvent.findFirst({
+      orderBy: { id: "desc" },
+      select: { id: true },
+    });
+    let lastId = Number(request.headers.get("last-event-id") || latest?.id || 0);
+
     const stream = new ReadableStream({
       start(controller) {
         const poll = async () => {
@@ -25,10 +32,11 @@ export async function GET(request: NextRequest) {
             for (const ev of events) {
               const meta = ev.metadata as { userId?: number } | null;
               if (meta?.userId === userId) {
-                const msg = `data: ${JSON.stringify(ev)}\n\n`;
+                // Include event id for Last-Event-ID support
+                const msg = `id: ${ev.id}\nevent: ${ev.eventType}\ndata: ${JSON.stringify(ev)}\n\n`;
                 controller.enqueue(encoder.encode(msg));
-                lastId = ev.id;
               }
+              lastId = ev.id; // advance even for skipped events
             }
           } catch { /* poll failed */ }
         };

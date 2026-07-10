@@ -7,6 +7,7 @@ import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { cookies } from "next/headers";
 import { createSession } from "@/lib/session";
+import { verifyHash } from "@/lib/hash";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب"),
@@ -35,7 +36,6 @@ export async function POST(request: Request) {
       return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);
     }
 
-    const { verifyHash } = await import("@/lib/hash");
     const valid = verifyHash(password, user.password);
     if (!valid) {
       return error("اسم المستخدم أو كلمة المرور غير صحيحة", 401);

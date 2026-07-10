@@ -1,17 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Store, ArrowLeft, Loader2, Sparkles, Star, Crown, Building2, CreditCard } from "lucide-react";
+import { Store, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { csrfFetch } from "@/lib/csrf-client";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
-import { toArabicNumber } from "@/lib/format";
-import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { PlanSelector } from "./PlanSelector";
 import { SubscribeForm } from "./SubscribeForm";
@@ -32,7 +28,7 @@ function SubscribeContent() {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const submittedRef = useRef(false);
   const [step, setStep] = useState<"plan" | "form">(preselectedPlan ? "form" : "plan");
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [user, setUser] = useState<{ role: string; subscriptionStatus: string; restaurantId: number | null } | null>(null);
@@ -73,15 +69,20 @@ function SubscribeContent() {
       .catch(() => {});
   }, []);
 
-  // SSE for instant rejection
+  // SSE for instant rejection/approval
   useEffect(() => {
     const es = new EventSource("/api/user/events/stream");
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.eventType === "subscription_rejected") {
-          setPaymentOpen(false); setSubmitted(false); setSubmitting(false);
+          setPaymentOpen(false); submittedRef.current = false; setSubmitting(false);
           premiumToast("error", data.message || "عذراً، تم رفض طلب التفعيل");
+        }
+        if (data.eventType === "subscription_approved") {
+          setPaymentOpen(false);
+          premiumToast("success", "تم تفعيل حسابك بنجاح! جارِ نقلك إلى لوحة التحكم...");
+          setTimeout(() => window.location.replace("/owner"), 500);
         }
       } catch { /* parse error */ }
     };
@@ -97,7 +98,7 @@ function SubscribeContent() {
     form.password.trim().length >= 4;
 
   const handleSubmit = async () => {
-    setSubmitted(true);
+    submittedRef.current = true;
     if (!selectedPlan || !isFormValid) return;
 
     // Pre-flight
