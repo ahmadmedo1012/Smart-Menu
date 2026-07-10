@@ -1,10 +1,9 @@
 "use client"
 
-import { ExternalLink, Pencil, Trash2, ShoppingCart, RefreshCw, FilterX, Plus, Store } from "lucide-react"
+import { ExternalLink, Pencil, Trash2, ShoppingCart, Crown, Star, Sparkles, Building2, ChevronLeft, ChevronRight, Plus, Store, FilterX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
-import { ChevronLeft, ChevronRight, AlertCircle, Crown, Star, Sparkles, Building2 } from "lucide-react"
 
 interface Plan {
   id: number; name: string; nameAr: string; price: number;
@@ -15,6 +14,7 @@ interface Restaurant {
   phone: string; whatsapp: string; email: string; address: string;
   workingHours: string; planId: number | null;
   plan: Plan | null;
+  city: string; showOnLanding: boolean;
   _count: { orders: number; categories: number };
 }
 
@@ -83,6 +83,7 @@ interface RestaurantListItemProps {
   onToggle: (id: number) => void
   onEdit: (r: Restaurant) => void
   onDelete: (r: Restaurant) => void
+  onToggleShowOnLanding: (id: number, show: boolean) => void
 }
 
 const PLAN_ICONS: Record<string, typeof Sparkles> = {
@@ -95,7 +96,7 @@ const PLAN_COLORS: Record<string, string> = {
   "Enterprise": "from-orange to-orange/80",
 }
 
-export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete }: RestaurantListItemProps) {
+export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, onToggleShowOnLanding }: RestaurantListItemProps) {
   const PlanIcon = (r.plan?.name && PLAN_ICONS[r.plan.name]) || Sparkles
   const planGrad = (r.plan?.name && PLAN_COLORS[r.plan.name]) || "from-gray-400 to-gray-500"
 
@@ -124,6 +125,9 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete }
                 <ShoppingCart className="size-3" aria-hidden="true" />
                 {toArabicNumber(r._count.orders)} طلب
               </span>
+              <span className={cn("text-[11px] px-1.5 py-0.5 rounded", r.showOnLanding ? "text-orange bg-orange/10" : "text-muted-foreground/40")}>
+                {r.city || (r.showOnLanding ? "مميز" : "")}
+              </span>
             </div>
           </div>
         </div>
@@ -133,6 +137,16 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete }
             title="عرض المنيو" aria-label={`عرض منيو ${r.name}`}>
             <ExternalLink className="size-4" aria-hidden="true" />
           </a>
+          <button type="button" onClick={() => onToggleShowOnLanding(r.id, !r.showOnLanding)}
+            className={cn("size-9 rounded-xl border flex items-center justify-center transition-colors",
+              r.showOnLanding
+                ? "border-orange/30 bg-orange/10 text-orange hover:bg-orange/20"
+                : "border-border/30 text-muted-foreground/40 hover:text-muted-foreground hover:bg-accent"
+            )}
+            title={r.showOnLanding ? "إخفاء من الرئيسية" : "عرض في الرئيسية"}
+            aria-label={r.showOnLanding ? `إخفاء ${r.name} من الرئيسية` : `عرض ${r.name} في الرئيسية`}>
+            <Sparkles className="size-3.5" aria-hidden="true" />
+          </button>
           <button type="button" onClick={() => onEdit(r)}
             className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
             title="تعديل" aria-label={`تعديل ${r.name}`}>

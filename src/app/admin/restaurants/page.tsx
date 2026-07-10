@@ -13,10 +13,9 @@ import {
 import { SearchInput } from "@/components/ui/search-input";
 import { premiumToast } from "@/lib/premium-toast";
 import {
-  Store, Plus, Trash2, Crown, Star, Sparkles, Building2, ShoppingCart,
-  RefreshCw, AlertCircle, AlertTriangle, FilterX,
+  Plus, Trash2,
+  RefreshCw, AlertCircle, AlertTriangle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./RestaurantTable";
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
@@ -30,6 +29,7 @@ interface Restaurant {
   phone: string; whatsapp: string; email: string; address: string;
   workingHours: string; planId: number | null;
   plan: Plan | null;
+  city: string; showOnLanding: boolean;
   _count: { orders: number; categories: number };
 }
 
@@ -102,6 +102,18 @@ export default function AdminRestaurantsPage() {
     if (selectedIds.size === restaurants.length) setSelectedIds(new Set());
     else setSelectedIds(new Set(restaurants.map(r => r.id)));
   };
+
+  const toggleShowOnLanding = async (id: number, show: boolean) => {
+    try {
+      const res = await csrfFetch(`/api/restaurants/${id}`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ showOnLanding: show }),
+      })
+      if (!res.ok) throw new Error()
+      premiumToast("save", show ? "تم تفعيل الظهور في الرئيسية" : "تم إخفاء المطعم من الرئيسية")
+      fetchData()
+    } catch { premiumToast("error", "فشل التحديث") }
+  }
 
   const bulkDelete = async () => {
     const count = selectedIds.size;
@@ -195,6 +207,7 @@ export default function AdminRestaurantsPage() {
               <RestaurantListItem
                 key={r.id} r={r} isSelected={selectedIds.has(r.id)}
                 onToggle={toggleSelect} onEdit={openEdit} onDelete={setDeleteTarget}
+                onToggleShowOnLanding={toggleShowOnLanding}
               />
             ))}
           </div>

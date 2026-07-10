@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils"
 
 /* ── ContainerScroll ───────────────────────────────────────────
  * Scroll-driven card reveal.
- *   Desktop: gentle 3D un-rotate (6→0°) + breathing scale (1.03→1)
- *   Mobile:  opacity fade (0.92→1) + translateY only — zero 3D
- * Container height sized to effect length, not arbitrary.
+ *   Desktop: gentle 3D un-rotate (5→0°) + translateY lift (0→-120)
+ *   Mobile:  opacity fade (0.9→1) + translateY lift (0→-40) only
+ * Container height grows with content via min-height.
  * ponytail: single-axis rotation, add z-layers when marketing demands depth
  */
 
@@ -38,28 +38,34 @@ export function ContainerScroll({
   }, [])
 
   /* ── Motion values ──
-   * Ranges wrapped in useMemo so resize does not recreate MotionValues.
+   * Desktop: rotate + lift. Mobile: lift + opacity only, no 3D.
    */
-  const scaleRange = useMemo(() => isMobile ? [0.97, 1] : [1.03, 1], [isMobile])
-  const translateYRange = useMemo(() => isMobile ? [0, -30] : [0, -100], [isMobile])
-  const opacityRange = useMemo(() => isMobile ? [0.9, 1, 1] : [1, 1, 1], [isMobile])
+  const scaleRange = useMemo(() => [1, 1] as number[], [])
+  const translateYRange = useMemo(
+    () => (isMobile ? [0, -40] : [0, -120]),
+    [isMobile],
+  )
+  const opacityRange = useMemo(
+    () => (isMobile ? [0.9, 1, 1] : [1, 1, 1]),
+    [isMobile],
+  )
 
-  const rotateX = useTransform(scrollYProgress, [0, 1], [6, 0])
+  const rotateX = useTransform(scrollYProgress, [0, 1], [5, 0])
   const scale = useTransform(scrollYProgress, [0, 1], scaleRange)
   const translateY = useTransform(scrollYProgress, [0, 1], translateYRange)
-  const cardOpacity = useTransform(scrollYProgress, [0, 0.15, 1], opacityRange)
+  const cardOpacity = useTransform(scrollYProgress, [0, 0.2, 1], opacityRange)
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "relative min-h-dvh md:h-[65rem] flex items-start justify-center pt-16",
+        "relative min-h-dvh md:min-h-[80rem] flex items-start justify-center pt-16",
         className,
       )}
     >
       <div
         className="w-full max-w-[1220px] mx-auto px-4 sm:px-6 relative"
-        style={!isMobile ? { perspective: "800px" } : undefined}
+        style={!isMobile ? { perspective: "1000px" } : undefined}
       >
         <Header translateY={translateY}>{titleComponent}</Header>
         <Card
@@ -76,8 +82,6 @@ export function ContainerScroll({
   )
 }
 
-/* ── Internal sub-components ── */
-
 function Header({
   translateY,
   children,
@@ -89,7 +93,7 @@ function Header({
   return (
     <motion.div
       style={{ translateY }}
-      className="text-center mb-4 md:mb-10 px-2"
+      className="text-center mb-6 md:mb-12 px-2"
     >
       {children}
     </motion.div>
@@ -111,23 +115,19 @@ function Card({
 }) {
   return (
     <motion.div
-      style={{
-        /* rotateX only applied on desktop */
-        ...(isMobile ? {} : { rotateX }),
-        scale,
-        opacity: isMobile ? opacity : 1,
-        willChange: "transform",
-      }}
+      // ponytail: MotionValue pass-through for framer-motion's style prop
+      style={isMobile
+        ? { scale, opacity } as unknown as React.CSSProperties
+        : { rotateX, scale } as unknown as React.CSSProperties
+      }
       className={cn(
-        "relative w-full overflow-hidden",
-        "rounded-[18px] md:rounded-[28px]",
-        "ring-1 ring-border/40",
-        "bg-card",
+        "relative w-full overflow-hidden rounded-[20px] md:rounded-[28px]",
+        "ring-1 ring-border/40 bg-card",
       )}
     >
-      {/* Static shadow overlay — separate layer, no repaint cost */}
+      {/* Static shadow overlay — one-time paint, not per frame */}
       <div
-        className="absolute inset-0 z-10 pointer-events-none rounded-[18px] md:rounded-[28px]"
+        className="absolute inset-0 z-10 pointer-events-none rounded-[20px] md:rounded-[28px]"
         style={{
           boxShadow:
             "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.08)",

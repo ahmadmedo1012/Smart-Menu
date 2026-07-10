@@ -56,12 +56,14 @@ export default function HeroSection() {
                     </>
                 }
             >
-                <div className="flex justify-center scale-[0.55] sm:scale-[0.72] md:scale-[0.88] lg:scale-100 origin-top -mt-4 sm:-mt-2 md:mt-0">
+                <div className="flex justify-center sm:px-4 md:px-0">
                     <IPhoneMockup
                         model="15-pro"
                         color="natural-titanium"
                         wallpaper="/main21.png"
                         wallpaperFit="cover"
+                        scale={1}
+                        className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[400px] lg:max-w-[417px]"
                     />
                 </div>
             </ContainerScroll>
