@@ -25,15 +25,17 @@ interface RestaurantData {
   logo: string; gallery: string[];
   plan: Plan | null; planId: number | null; maxItems: number; maxOrders: number;
   pickupTypes: string;
-  _count: { orders: number; items: number; categories: number };
+  city: string; showOnLanding: boolean;
+  _count: { orders: number; categories: number };
 }
 
 export default function OwnerSettingsPage() {
   const [restaurant, setRestaurant] = useState<RestaurantData | null>(null)
   const [, setPlans] = useState<Plan[]>([])
-  const [form, setForm] = useState({ name: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "" })
+  const [form, setForm] = useState({ name: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "", city: "" })
   const [logo, setLogo] = useState("")
   const [gallery, setGallery] = useState<string[]>([])
+  const [showOnLanding, setShowOnLanding] = useState(false)
   const [pickupTypes, setPickupTypes] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -53,11 +55,12 @@ export default function OwnerSettingsPage() {
         setForm({
           name: r.name ?? "", description: r.description ?? "", phone: r.phone ?? "",
           whatsapp: r.whatsapp ?? "", email: r.email ?? "", address: r.address ?? "",
-          workingHours: r.workingHours ?? "",
+          workingHours: r.workingHours ?? "", city: r.city ?? "",
         })
         setLogo(r.logo ?? "")
         setGallery(r.gallery ?? [])
         setPickupTypes(r.pickupTypes ? r.pickupTypes.split(",") : ["inside", "takeaway", "delivery"])
+        setShowOnLanding(r.showOnLanding ?? false)
       }
       setPlans(plansData.data ?? [])
     }).catch(() => premiumToast("error", "فشل تحميل الإعدادات"))
@@ -124,6 +127,8 @@ export default function OwnerSettingsPage() {
         { key: "restaurant_logo", value: logo },
         { key: "restaurant_gallery", value: JSON.stringify(gallery) },
         { key: "restaurant_pickupTypes", value: pickupTypes.join(",") },
+        { key: "restaurant_city", value: form.city },
+        { key: "restaurant_showOnLanding", value: showOnLanding ? "true" : "false" },
       ]
       const res = await csrfFetch("/api/settings", {
         method: "PUT",
@@ -144,10 +149,6 @@ export default function OwnerSettingsPage() {
   }
 
   const currentPlan = restaurant?.plan
-  const itemUsage = restaurant?._count?.items ?? 0
-  const maxItems = restaurant?.maxItems ?? 50
-  const usagePercent = Math.min(100, Math.round((itemUsage / maxItems) * 100))
-
   if (loading) return (
     <div className="space-y-5 animate-fade-in">
       <div className="h-36 skeleton rounded-md" />
@@ -184,17 +185,6 @@ export default function OwnerSettingsPage() {
                 <Sparkles className="size-3" /> ترقية
               </Button>
             </Link>
-          </div>
-
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">استخدام الأصناف</span>
-              <span className="font-medium">{toArabicNumber(itemUsage)} / {maxItems === 9999 ? "غير محدود" : toArabicNumber(maxItems)}</span>
-            </div>
-            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-all duration-700", usagePercent > 80 ? "bg-destructive" : "bg-orange")}
-                style={{ width: `${Math.min(usagePercent, 100)}%` }} />
-            </div>
           </div>
         </div>
       </div>
@@ -329,14 +319,36 @@ export default function OwnerSettingsPage() {
             <Label className="text-xs">البريد</Label>
             <Input type="email" dir="ltr" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="h-10 rounded-xl mt-1 text-sm text-left" />
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">المدينة</Label>
+              <Input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} placeholder="طرابلس، بنغازي..." className="h-10 rounded-xl mt-1 text-sm" />
+            </div>
+            <div>
+              <Label className="text-xs">ساعات العمل</Label>
+              <Input value={form.workingHours} onChange={e => setForm({ ...form, workingHours: e.target.value })} placeholder="8:00 صباحاً - 12:00 منتصف الليل" className="h-10 rounded-xl mt-1 text-sm" />
+            </div>
+          </div>
           <div>
             <Label className="text-xs">العنوان</Label>
             <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="h-10 rounded-xl mt-1 text-sm" />
           </div>
+        </div>
+      </div>
+
+      {/* Landing visibility */}
+      <div className="rounded-md bg-card/40 border border-border/20 p-5">
+        <div className="flex items-center justify-between">
           <div>
-            <Label className="text-xs">ساعات العمل</Label>
-            <Input value={form.workingHours} onChange={e => setForm({ ...form, workingHours: e.target.value })} placeholder="8:00 صباحاً - 12:00 منتصف الليل" className="h-10 rounded-xl mt-1 text-sm" />
+            <h2 className="text-sm font-bold">عرض في الصفحة الرئيسية</h2>
+            <p className="text-[11px] text-muted-foreground mt-0.5">ظهور مطعمك ضمن قائمة المطاعم المميزة في الصفحة الرئيسية</p>
           </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked={showOnLanding}
+              onChange={(e) => setShowOnLanding(e.target.checked)}
+              className="sr-only peer" />
+            <div className="w-9 h-5 bg-muted-foreground/30 rounded-full peer peer-checked:bg-orange transition-colors after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:size-4 after:transition-all peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full" />
+          </label>
         </div>
       </div>
 
