@@ -31,11 +31,11 @@ export default function ShowcaseSection() {
 					<div className="relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2rem-0.375rem)] sm:rounded-[calc(2rem-0.5rem)]">
 						<motion.div style={{ scale: imageScale, y: imageY }}>
 							<Image
-								src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1800&q=85"
+								src="/main21.png"
 								alt=""
-								width={1800}
-								height={950}
-								className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover saturate-[0.85] dark:saturate-[0.4] dark:brightness-[0.55]"
+								width={1536}
+								height={1024}
+								className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover"
 								priority
 							/>
 						</motion.div>
