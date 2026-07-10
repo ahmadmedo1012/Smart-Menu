@@ -25,7 +25,7 @@ export function CategoryTabs({
     <LayoutGroup>
       <div
         className={cn(
-          "flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0",
+          "flex gap-1 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0",
           /* sticky on desktop only (below StickyMenuHeader), normal on mobile */
           "md:sticky md:top-14 md:z-20 md:bg-background/85 md:backdrop-blur-sm md:pt-3 md:-mx-6 md:px-6",
           className,
@@ -67,18 +67,18 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "relative snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm font-medium transition-colors duration-200",
+        "relative snap-start shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-colors duration-200",
         isActive
           ? "text-orange-foreground"
-          : "bg-card/50 border border-border/30 hover:bg-orange-muted hover:border-orange/30",
+          : "hover:bg-orange-muted/40",
       )}
     >
       {isActive && (
         <motion.div
           layoutId="active-tab"
-          className="absolute inset-0 rounded-sm bg-orange"
-          style={{ boxShadow: "0 4px 14px rgba(246,109,15,0.35)" }}
-          transition={{ type: "spring", stiffness: 300, damping: 28 }}
+          className="absolute inset-1 rounded-full bg-orange"
+          style={{ boxShadow: "0 4px 18px rgba(246,109,15,0.4)" }}
+          transition={{ type: "spring", stiffness: 400, damping: 28 }}
         />
       )}
       <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">

@@ -45,11 +45,12 @@ export default function CartSlideOver() {
             onClick={() => setOpen(true)}
             aria-label={`السلة - ${toArabicNumber(totalItems)} أصناف`}
             className={cn(
-              buttonVariants({ variant: "orange" }),
-              "flex items-center gap-3 rounded-md px-4 sm:px-5 py-3 h-auto",
-              "shadow-xl shadow-orange/20",
+              "flex items-center gap-3 rounded-full px-5 py-3.5 h-auto",
+              "bg-gradient-to-b from-orange to-orange/95",
+              "shadow-lg shadow-orange/20 ring-1 ring-white/10 dark:ring-white/5",
+              "backdrop-blur-xl",
               "hover:shadow-2xl hover:shadow-orange/30",
-              "active:scale-95 transition-all duration-300",
+              "active:scale-95 transition-all duration-300 ease-out",
               bounce && "scale-110",
             )}
           >

@@ -8,6 +8,9 @@ import { Plus, Minus, Star } from "lucide-react";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import ReviewSheet from "./ReviewSheet";
 
+/* ponytail: shared spring config — deduped from 3 inline copies */
+const CARD_SPRING = { type: "spring" as const, stiffness: 500, damping: 25 };
+
 export type MenuItemProp = {
   id: number;
   name: string;
@@ -53,8 +56,8 @@ const MenuItemCard = memo(function MenuItemCard({
   return (
     <div
       className={cn(
-        "group relative flex w-full rounded-sm bg-card p-4 text-start cursor-pointer transition-transform duration-300",
-        "hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98]",
+        "group relative flex w-full rounded-sm bg-card p-4 text-start cursor-pointer transition-transform duration-200",
+        "hover:[transform:translateY(-0.375rem)_scale(1.02)] hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98]",
         "border border-border/20 hover:border-orange/30 overflow-hidden",
         isFeatured ? "gap-4 sm:gap-6 sm:p-5" : "gap-3.5",
       )}
@@ -86,33 +89,27 @@ const MenuItemCard = memo(function MenuItemCard({
 
         {/* Badges — start (RTL-aware) */}
         <div className="absolute top-1.5 start-1.5 flex flex-col gap-1">
-          <AnimatePresence>
-            {item.isPopular && (
-              <motion.span
-                key="popular"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-orange text-white shadow-lg flex items-center gap-0.5"
-              >
-                <Star className="size-2.5 fill-current" />
-                الأكثر طلباً
-              </motion.span>
-            )}
-          </AnimatePresence>
-          <AnimatePresence>
-            {item.isNew && !item.isPopular && (
-              <motion.span
-                key="new"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25, delay: 0.1 }}
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-emerald-500 text-white shadow-lg"
-              >
-                🆕 جديد
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {item.isPopular && (
+            <motion.span
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={CARD_SPRING}
+              className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-orange text-white shadow-lg flex items-center gap-0.5"
+            >
+              <Star className="size-2.5 fill-current" />
+              الأكثر طلباً
+            </motion.span>
+          )}
+          {item.isNew && !item.isPopular && (
+            <motion.span
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ ...CARD_SPRING, delay: 0.1 }}
+              className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-emerald-500 text-white shadow-lg"
+            >
+              🆕 جديد
+            </motion.span>
+          )}
         </div>
 
         {/* Discount badge — end (RTL-aware) */}
@@ -178,7 +175,7 @@ const MenuItemCard = memo(function MenuItemCard({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  transition={CARD_SPRING}
                   onClick={(e) => {
                     e.stopPropagation();
                     onAddToCart(item);
@@ -195,7 +192,7 @@ const MenuItemCard = memo(function MenuItemCard({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  transition={CARD_SPRING}
                   className="flex items-center gap-0 rounded-sm overflow-hidden border border-orange bg-orange"
                 >
                   <button

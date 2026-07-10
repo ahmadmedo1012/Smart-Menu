@@ -80,7 +80,7 @@ export function MenuToolbar({
           value={search}
           onChange={(e) => { onSearchChange(e.target.value); setShowSuggestions(true) }}
           onFocus={() => { if (hasSuggestions) setShowSuggestions(true) }}
-          className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
+          className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:animate-pulse-glow shadow-sm"
         />
         {search && (
           <button
