@@ -26,11 +26,15 @@ export async function POST(request: Request) {
       return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     }
 
-    const parsed = registerSchema.safeParse(await request.json());
+    const body = await request.json().catch(() => { throw new Error("JSON parse error") });
+    const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
       return error(parsed.error.issues[0].message, 400);
     }
-    const { username, password, name, email } = parsed.data;
+    const { username: rawUsername, password, name: rawName, email } = parsed.data;
+    // Sanitize: strip HTML tags from user-submitted text fields to prevent stored XSS
+    const username = rawUsername.replace(/<[^>]*>/g, "");
+    const name = rawName.replace(/<[^>]*>/g, "");
 
     // Check username uniqueness
     const existing = await prisma.user.findUnique({ where: { username } });

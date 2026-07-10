@@ -47,6 +47,11 @@ export function handleError(e: unknown) {
   const msg = e instanceof Error ? e.message : String(e);
   logError("handleError", { error: msg });
 
+  // JSON parse errors (invalid request body)
+  if (msg.includes("JSON") || msg.includes("Unexpected token") || msg.includes("parse")) {
+    return error("بيانات غير صالحة — خطأ في صيغة JSON", 400);
+  }
+
   // Prisma known request errors — safe, user-facing messages
   if (msg.includes("Unique constraint failed")) {
     return error("بيانات مكررة — هذا الاسم موجود مسبقاً", 409);
