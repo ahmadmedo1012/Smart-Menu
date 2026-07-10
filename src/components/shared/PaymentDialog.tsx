@@ -324,7 +324,7 @@ export default function PaymentDialog({
                   onChange={handleAmountChange}
                   className="h-11 rounded-xl mt-1.5"
                   min={1}
-                  max={99}
+                  max={price > 99 ? price : 99}
                 />
               </div>
 
