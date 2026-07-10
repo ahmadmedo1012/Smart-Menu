@@ -88,8 +88,12 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((d) => {
-        if (!d.success) router.push("/login")
-        else setAuthLoaded(true)
+        if (!d.success) { router.push("/login"); return }
+        if (d.data?.role !== "owner") {
+          router.push(d.data?.role === "USER" || d.data?.subscriptionStatus === "UNPAID" ? "/subscribe" : "/login")
+          return
+        }
+        setAuthLoaded(true)
       })
       .catch(() => router.push("/login"))
   }, [router])

@@ -5,9 +5,11 @@ import { useScroll, useTransform, motion, type MotionValue } from "framer-motion
 import { cn } from "@/lib/utils"
 
 /* ── ContainerScroll ───────────────────────────────────────────
- * Scroll-driven 3D card reveal. Title rises, card un-rotates.
- * Adapted from aceternity/container-scroll-animation for RTL + project tokens.
- * ponytail: single-axis rotation + scale, add z/parallax layers if marketing needs it
+ * Scroll-driven card reveal.
+ *   Desktop: gentle 3D un-rotate (6→0°) + breathing scale (1.03→1)
+ *   Mobile:  opacity fade (0.92→1) + translateY only — zero 3D
+ * Container height sized to effect length, not arbitrary.
+ * ponytail: single-axis rotation, add z-layers when marketing demands depth
  */
 
 interface ContainerScrollProps {
@@ -32,28 +34,45 @@ export function ContainerScroll({
     return () => globalThis.removeEventListener("resize", check)
   }, [])
 
-  const rotate = useTransform(scrollYProgress, [0, 1], [15, 0])
+  /* ── Motion values ──
+   * rotateX computed for desktop; on mobile it's never applied to DOM.
+   */
+  const rotateX = useTransform(scrollYProgress, [0, 1], [6, 0])
   const scale = useTransform(
     scrollYProgress,
     [0, 1],
-    isMobile ? [0.72, 0.92] : [1.08, 1],
+    isMobile ? [0.97, 1] : [1.03, 1],
   )
-  const translateY = useTransform(scrollYProgress, [0, 1], [0, -100])
+  const translateY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [0, isMobile ? -30 : -100],
+  )
+  const cardOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.15, 1],
+    [0.9, 1, 1],
+  )
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "relative h-[55rem] md:h-[75rem] flex items-start justify-center pt-12 md:pt-20",
+        "relative h-[28rem] md:h-[65rem] flex items-start justify-center pt-8 md:pt-16",
         className,
       )}
     >
       <div
         className="w-full max-w-[1220px] mx-auto px-4 sm:px-6 relative"
-        style={{ perspective: "1000px" }}
+        style={!isMobile ? { perspective: "800px" } : undefined}
       >
         <Header translateY={translateY}>{titleComponent}</Header>
-        <Card rotate={rotate} scale={scale}>
+        <Card
+          rotateX={rotateX}
+          scale={scale}
+          opacity={cardOpacity}
+          isMobile={isMobile}
+        >
           {children}
         </Card>
       </div>
@@ -74,7 +93,7 @@ function Header({
   return (
     <motion.div
       style={{ translateY }}
-      className="text-center mb-6 md:mb-10"
+      className="text-center mb-4 md:mb-10 px-2"
     >
       {children}
     </motion.div>
@@ -82,28 +101,43 @@ function Header({
 }
 
 function Card({
-  rotate,
+  rotateX,
   scale,
+  opacity,
+  isMobile,
   children,
 }: {
-  rotate: MotionValue<number>
+  rotateX: MotionValue<number>
   scale: MotionValue<number>
+  opacity: MotionValue<number>
+  isMobile: boolean
   children: ReactNode
 }) {
   return (
     <motion.div
-      style={{ rotateX: rotate, scale }}
+      style={{
+        /* rotateX only applied on desktop */
+        ...(isMobile ? {} : { rotateX }),
+        scale,
+        opacity: isMobile ? opacity : 1,
+        willChange: "transform",
+      }}
       className={cn(
         "relative w-full overflow-hidden",
-        "rounded-[20px] md:rounded-[32px]",
-        "ring-1 ring-border/50",
-        "shadow-[0_8px_48px_-16px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_48px_-16px_rgba(0,0,0,0.6)]",
+        "rounded-[18px] md:rounded-[28px]",
+        "ring-1 ring-border/40",
         "bg-card",
       )}
     >
+      {/* Static shadow overlay — separate layer, no repaint cost */}
+      <div
+        className="absolute inset-0 z-10 pointer-events-none rounded-[18px] md:rounded-[28px]"
+        style={{
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.08)",
+        }}
+      />
       {children}
-      {/* Floor glow */}
-      <div className="absolute -bottom-4 left-[15%] right-[15%] h-10 blur-3xl bg-orange/10 dark:bg-orange/15 rounded-full pointer-events-none" />
     </motion.div>
   )
 }
