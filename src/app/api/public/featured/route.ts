@@ -1,27 +1,12 @@
 import { prisma } from "@/lib/db";
+import { success, handleError } from "@/lib/api-helpers";
 
-export type FeaturedRestaurant = {
-    id: number;
-    name: string;
-    slug: string;
-    description: string;
-    logo: string;
-    city: string;
-    phone: string;
-    whatsapp: string;
-    themeColor: string;
-    orderCount: number;
-};
+const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-export type PublicStats = {
-    totalRestaurants: number;
-    totalUsers: number;
-};
+export const dynamic = "force-dynamic";
 
-export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
+export async function GET() {
     try {
-        const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
         const restaurants = await prisma.restaurant.findMany({
             where: { isActive: true, showOnLanding: true },
             select: {
@@ -43,7 +28,7 @@ export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
             take: 20,
         });
 
-        return restaurants
+        const data = restaurants
             .map((r) => ({
                 id: r.id,
                 name: r.name,
@@ -58,19 +43,9 @@ export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
             }))
             .sort((a, b) => b.orderCount - a.orderCount)
             .slice(0, 10);
-    } catch {
-        return [];
-    }
-}
 
-export async function fetchPublicStats(): Promise<PublicStats> {
-    try {
-        const [restaurants, users] = await Promise.all([
-            prisma.restaurant.count({ where: { isActive: true } }),
-            prisma.user.count(),
-        ]);
-        return { totalRestaurants: Math.max(restaurants, 500), totalUsers: users };
-    } catch {
-        return { totalRestaurants: 0, totalUsers: 0 };
+        return success(data);
+    } catch (e) {
+        return handleError(e);
     }
 }

@@ -13,19 +13,17 @@ import FinalCTASection from "./sections/FinalCTASection"
 import StatsSection from "./sections/StatsSection"
 import FeaturedRestaurantsSection from "./sections/FeaturedRestaurantsSection"
 
-type Props = {
-    stats?: PublicStats | null;
-    featuredRestaurants?: FeaturedRestaurant[];
-};
-
-export default function HomePage({ stats: serverStats, featuredRestaurants }: Props) {
-    const [stats, setStats] = useState<PublicStats | null>(serverStats ?? null)
+export default function HomePage() {
+    const [stats, setStats] = useState<PublicStats | null>(null)
+    const [featured, setFeatured] = useState<FeaturedRestaurant[]>([])
 
     useEffect(() => {
-        if (!serverStats) {
-            fetchPublicStats().then(setStats).catch(() => console.error("Failed to load public stats"))
-        }
-    }, [serverStats])
+        fetchPublicStats().then(setStats).catch(() => console.error("Failed to load public stats"))
+        fetch("/api/public/featured")
+            .then(r => r.json())
+            .then(d => setFeatured(d.data ?? []))
+            .catch(() => {})
+    }, [])
 
     return (
         <div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -33,8 +31,8 @@ export default function HomePage({ stats: serverStats, featuredRestaurants }: Pr
             <HeroSection />
             <FeaturesSection />
             <ShowcaseSection />
-            {(stats || serverStats) && <StatsSection stats={stats ?? serverStats!} />}
-            <FeaturedRestaurantsSection restaurants={featuredRestaurants ?? []} />
+            {stats && <StatsSection stats={stats} />}
+            <FeaturedRestaurantsSection restaurants={featured} />
             <HowItWorksSection />
             <ClientsSection />
             <FinalCTASection />
