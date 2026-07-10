@@ -82,7 +82,9 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
                                             alt=""
                                             fill
                                             className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                            sizes="1060px"
+                                            sizes="(max-width: 768px) 100vw, 1060px"
+                                            quality={85}
+                                            priority
                                         />
                                     )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
