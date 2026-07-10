@@ -76,7 +76,7 @@ export async function PUT(
     const body = await request.json();
 
     let data;
-    if (auth.role === "admin") {
+    if (auth.role === "super_admin" || auth.role === "sub_admin" || auth.role === "admin") {
       // Admin can update everything
       const parsed = adminUpdateSchema.parse(body);
       data = await prisma.restaurant.update({
