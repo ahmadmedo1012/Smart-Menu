@@ -31,12 +31,14 @@ const MenuItemCard = memo(function MenuItemCard({
   onAddToCart,
   onDecrementCart,
   cartQty = 0,
+  variant,
 }: {
   item: MenuItemProp;
   onOrder: (item: MenuItemProp) => void;
   onAddToCart: (item: MenuItemProp) => void;
   onDecrementCart?: (item: MenuItemProp) => void;
   cartQty?: number;
+  variant?: "default" | "featured";
 }) {
   const displayName = item.nameAr || item.name;
   const displayDesc = item.descriptionAr || item.description;
@@ -46,17 +48,27 @@ const MenuItemCard = memo(function MenuItemCard({
   const [imageError, setImageError] = useState(false);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const [reviewSheetItem, setReviewSheetItem] = useState<{id: number; name: string} | null>(null);
+  const isFeatured = variant === "featured";
 
   return (
     <div
-      className="group relative flex gap-3.5 w-full rounded-sm bg-card p-4 text-start cursor-pointer transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted hover:shadow-glow active:scale-[0.98] border border-border/20 hover:border-orange/30 overflow-hidden"
+      className={cn(
+        "group relative flex w-full rounded-sm bg-card p-4 text-start cursor-pointer transition-transform duration-300",
+        "hover:-translate-y-1.5 hover:shadow-xl hover:shadow-orange-muted active:scale-[0.98]",
+        "border border-border/20 hover:border-orange/30 overflow-hidden",
+        isFeatured ? "gap-4 sm:gap-6 sm:p-5" : "gap-3.5",
+      )}
       onClick={() => onOrder(item)}
       tabIndex={0}
       role="button"
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOrder(item); } }}
     >
       {/* Image container */}
-      <div className="relative shrink-0 size-28 md:size-32 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5 group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-transform duration-300">
+      <div className={cn(
+        "relative shrink-0 rounded-[4px] overflow-hidden shadow-sm ring-1 ring-foreground/5",
+        "group-hover:ring-orange/30 group-hover:shadow-lg group-hover:shadow-orange-muted transition-transform duration-300",
+        isFeatured ? "size-36 md:size-44" : "size-28 md:size-32",
+      )}>
         {item.image && !imageError ? (
           <OptimizedImage
             src={item.image}
