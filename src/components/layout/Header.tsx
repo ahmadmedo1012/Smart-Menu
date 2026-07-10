@@ -47,6 +47,48 @@ const mobileLinkVariants = {
 }
 
 function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () => void; pathname: string }) {
+  const panelRef = useRef<HTMLDivElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement | null>(null)
+
+  // Focus trap: on open, trap focus in panel; on close, restore to hamburger
+  useEffect(() => {
+    if (open) {
+      // Store reference to currently active element (hamburger button)
+      hamburgerRef.current = document.activeElement as HTMLButtonElement
+      // Focus first focusable element inside panel after a tick for mount
+      requestAnimationFrame(() => {
+        const panel = panelRef.current
+        if (!panel) return
+        const focusable = panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length) focusable[0]?.focus()
+      })
+    } else {
+      hamburgerRef.current?.focus()
+    }
+  }, [open])
+
+  // Trap Tab/Shift+Tab within panel
+  useEffect(() => {
+    if (!open) return
+    const panel = panelRef.current
+    if (!panel) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) { e.preventDefault(); return }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+    panel.addEventListener("keydown", handleKeyDown)
+    return () => panel.removeEventListener("keydown", handleKeyDown)
+  }, [open])
+
   return (
     <AnimatePresence>
       {open && (
@@ -62,6 +104,10 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
           />
           <motion.div
             key="menu"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="قائمة التصفح"
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
@@ -87,6 +133,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
                     exit="exit"
                   >
                     <Link href={link.href} onClick={onClose}
+                      aria-current={isActive ? "page" : undefined}
                       className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200", isActive ? "bg-orange/15 text-orange" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground")}
                     >
                       {link.label}
@@ -156,6 +203,7 @@ export function Header({ className }: HeaderProps) {
                     {i > 0 && <div className="w-px h-5 bg-border" />}
                     <Link
                       href={link.href}
+                      aria-current={linkActive ? "page" : undefined}
                       className={cn(
                         "relative z-10 px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-full",
                         linkActive ? "text-white dark:text-white" : "text-foreground/70 hover:text-foreground"

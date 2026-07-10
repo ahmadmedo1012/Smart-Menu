@@ -40,11 +40,9 @@ export default function ShowcaseSection() {
 							/>
 						</motion.div>
 
-						<div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
-						<div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/60 pointer-events-none" />
 
 						<div className="absolute inset-0 pointer-events-none"
-							style={{ background: "radial-gradient(ellipse at center, transparent 35%, var(--background) 100%)" }}
+							style={{ background: "radial-gradient(ellipse at center, transparent 50%, var(--background) 100%)" }}
 						/>
 					</div>
 				</div>

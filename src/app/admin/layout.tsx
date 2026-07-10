@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { AdminSidebar, allNavItems, hasItemPermission } from "@/components/layout/AdminSidebar"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { NavLink } from "@/components/shared/NavLink"
 import { Store, LogOut, X } from "lucide-react"
-import { useRouter } from "next/navigation"
 import PageFade from "@/components/shared/PageFade"
 import { AdminEventNotifier } from "@/components/admin/AdminEventNotifier"
 
@@ -59,9 +59,11 @@ function MobileNav({ onNavClick, role, permissions }: { onNavClick: () => void; 
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [role, setRole] = useState<string | null>(null)
   const [permissions, setPermissions] = useState<string[]>([])
+  const [authLoaded, setAuthLoaded] = useState(false)
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -70,10 +72,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (d.success) {
           setRole(d.data.role)
           setPermissions(d.data.permissions ?? [])
+          setAuthLoaded(true)
+        } else {
+          router.push("/login")
         }
       })
-      .catch(() => {})
-  }, [])
+      .catch(() => { router.push("/login") })
+  }, [router])
+
+  if (!authLoaded) return null
 
   return (
     <div className="flex min-h-screen">

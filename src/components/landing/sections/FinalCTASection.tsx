@@ -26,11 +26,11 @@ export default function FinalCTASection() {
       </div>
 
       {/* Glow pools */}
-      <GlowPool position="top-0 start-0" size="size-80 sm:size-96" color="orange/20" />
-      <GlowPool position="bottom-0 end-0" size="size-80 sm:size-96" color="orange/15" />
+      <GlowPool position="top-0 start-0" size="size-80 sm:size-96" color="orange/30" />
+      <GlowPool position="bottom-0 end-0" size="size-80 sm:size-96" color="orange/25" />
 
       {/* Ring accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[60vmin] rounded-full border border-orange/5 pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[60vmin] rounded-full border border-orange/10 pointer-events-none z-0" />
 
       <div className="relative z-10 text-center">
         <SectionHeader

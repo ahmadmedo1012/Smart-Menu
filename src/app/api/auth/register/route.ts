@@ -73,11 +73,14 @@ export async function POST(request: Request) {
     await logAudit({ action: "create", actorId: user.id, targetType: "user", targetId: user.id, ip });
     await notifyEvent("user_registered", { username: user.username, name: user.name }, { adminOnly: true });
 
-    return Response.json({
+    // CSRF readiness header
+    const response = Response.json({
       success: true,
       message: "تم إنشاء الحساب بنجاح",
       user: { id: user.id, username: user.username, name: user.name, role: user.role, subscriptionStatus: user.subscriptionStatus },
     });
+    response.headers.set("X-CSRF-Enabled", "true");
+    return response;
   } catch (e) {
     // Prisma unique constraint
     if (e instanceof Error && e.message.includes("Unique constraint failed")) {

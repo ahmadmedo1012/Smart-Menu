@@ -62,10 +62,10 @@
 	--color-overlay: var(--overlay);
 
 	/* ── Radius scale ── */
-	--radius-sm: 16px;
-	--radius-md: 12px;
-	--radius-lg: 24px;
-	--radius-xl: 28px;
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 16px;
+	--radius-xl: 24px;
 	/* ── Easing tokens ── */
 	--ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
 	--ease-smooth: cubic-bezier(0.16, 1, 0.2, 1);
@@ -77,7 +77,6 @@
 	/* ── Shadow tokens ── */
 	--shadow-glass: var(--glass-shadow);
 	--shadow-glass-lg: var(--glass-shadow-lg);
-	--shadow-glow: 0 0 25px oklch(0.55 0.19 45 / 0.3);
 }
 
 :root {
@@ -122,7 +121,6 @@
 	--border: oklch(0.22 0.005 0);
 	--input: oklch(0.22 0.005 0);
 	--ring: oklch(0.55 0.19 45);
-	--radius: 0.5rem;
 
 	/* Success */
 	--success: oklch(0.62 0.18 145);
@@ -170,7 +168,7 @@
 	--shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
 	--shadow-lg: 0 12px 40px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
 	--shadow-xl: 0 24px 60px rgba(0,0,0,0.45), 0 8px 16px rgba(0,0,0,0.35);
-	--shadow-glow: 0 0 25px oklch(0.55 0.19 45 / 0.3);
+		--shadow-glow: 0 0 25px oklch(0.55 0.19 45 / 0.3);
 }
 
 /* ── Light theme ── */
@@ -233,7 +231,7 @@
 	--shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
 	--shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.05);
 	--shadow-xl: 0 24px 60px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.06);
-	--shadow-glow: 0 0 20px oklch(0.55 0.19 45 / 0.18);
+		--shadow-glow: 0 0 20px oklch(0.55 0.19 45 / 0.18);
 }
 
 @utility font-arabic {
@@ -244,7 +242,7 @@
 [dir="rtl"] {
 	--font-sans: var(--font-arabic);
 	font-family: var(--font-arabic);
-	font-size: 17px;
+
 }
 
 @layer base {
@@ -311,7 +309,7 @@
 
 	[dir="rtl"] p, [dir="rtl"] li, [dir="rtl"] .body-text {
 		font-family: var(--font-arabic);
-		font-size: 17px;
+	
 	}
 
 	a {
@@ -436,13 +434,13 @@
 .skeleton {
 	background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
 	background-size: 200% 100%;
-	border-radius: var(--radius);
+	border-radius: var(--radius-sm);
 	animation: shimmer 1.8s ease-in-out infinite;
 }
 .shimmer {
 	background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
 	background-size: 200% 100%;
-	border-radius: var(--radius);
+	border-radius: var(--radius-sm);
 	animation: shimmer 2s ease-in-out infinite;
 }
 .light .shimmer {

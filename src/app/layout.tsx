@@ -85,6 +85,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased overflow-x-hidden bg-[var(--background-radial),var(--background)]">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-sm focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none">
+          تخطى إلى المحتوى الرئيسي
+        </a>
         <div className="grain-overlay" />
         <ThemeProvider
           attribute="class"
@@ -100,7 +103,7 @@ export default function RootLayout({
           <ScrollToTop />
           <ServiceWorkerInit />
           <MotionProvider>
-            {children}
+            <main id="main-content">{children}</main>
           </MotionProvider>
           <FloatingWhatsApp />
           <Toaster

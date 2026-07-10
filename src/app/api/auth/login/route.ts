@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
+import { cookies } from "next/headers";
 import { createSession } from "@/lib/session";
 
 const loginSchema = z.object({
@@ -50,6 +51,15 @@ export async function POST(request: Request) {
 
     // Create server-side session
     await createSession(user.id);
+
+    // Set auth cookies for client-side checks
+    const cookieStore = await cookies()
+    const secure = process.env.NODE_ENV === "production"
+    const SEVEN_DAYS = 60 * 60 * 24 * 7
+    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
+    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
+    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
+    cookieStore.set("smart-menu-subscription-status", user.subscriptionStatus ?? "UNPAID", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
 
     return Response.json({
       success: true,

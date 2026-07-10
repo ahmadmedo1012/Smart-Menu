@@ -1,0 +1,131 @@
+{
+  "report": "اختبار موقع smart-menu-sigma.vercel.app — مستخدم جديد",
+  "timestamp": "2026-07-10T00:22:00+02:00",
+  "tests": [
+    {
+      "step": 1,
+      "name": "فتح الصفحة الرئيسية (الجذر)",
+      "result": "redirect",
+      "detail": "الجذر / يعيد التوجيه 301 إلى /menu/al-waha-cafe (منيو تجريبي). لا توجد landing page HTML في الجذر. الصفحة التسويقية الرئيسية (CTA + مميزات + إحصائيات) متاحة في /pricing.",
+      "passed": true
+    },
+    {
+      "step": 2,
+      "name": "صفحة /pricing — شعار الربط الذكي، CTA، مميزات، إحصائيات",
+      "result": "verified",
+      "detail": "شعار الربط الذكي (img + text 'Smart Menu') موجود. 2 CTA زر ('ابدأ مجاناً' + 'اشترك الآن'). 6 مميزات: سرعة وسلاسة، طرق طلب متعددة، تسجيل العملاء، تحكم كامل، QR كود مخصص، برنامج ولاء. 3 إحصائيات (0+ مطعم مسجل، 0+ طلب يومياً، 0% رضا عملاء — بيانات وهمية/افتراضية). صندوق FAQ مع 4 أسئلة.",
+      "passed": true
+    },
+    {
+      "step": 3,
+      "name": "screenshot للـ hero section",
+      "result": "captured",
+      "detail": "Screenshot محفوظ في /home/ahmed/Downloads/smart-menu/test-screenshots/step03-hero-pricing-TS-20260710.png",
+      "screenshot": "step03-hero-pricing-TS-20260710.png",
+      "passed": true
+    },
+    {
+      "step": 4,
+      "name": "الانتقال إلى /login",
+      "result": "success",
+      "detail": "تم الضغط على رابط 'تسجيل الدخول' من /pricing. الانتقال إلى /login. صفحة login تحتوي على: شعار الربط الذكي، حقل اسم مستخدم، حقل كلمة مرور، زر إظهار كلمة المرور، زر تسجيل الدخول.",
+      "passed": true
+    },
+    {
+      "step": 5,
+      "name": "فتح /subscribe?plan=86 في isolated context",
+      "result": "success",
+      "detail": "تم فتح صفحة الاشتراك بخطة مجانية (plan=86) في isolated context. الصفحة تحتوي على خطوتين: اختيار الخطة (1) وبيانات المطعم (2). الخطة مجاني محددة مع 'حتى 10 صنف'.",
+      "passed": true
+    },
+    {
+      "step": 6,
+      "name": "تعبئة نموذج الاشتراك",
+      "result": "filled",
+      "detail": "تم تعبئة النموذج: اسم المطعم 'مطعم اختبار شامل', slug 'test-full-ts' (تحويل تلقائي لحالة small), الوصف 'مطعم اختبار شامل للاختبارات الآلية', هاتف 0912345678, واتساب 0912345678, username 'test_full_TS', password 'Test123456'. الزر 'إنشاء الحساب والبدء' أصبح متفعل بعد التعبئة.",
+      "passed": true
+    },
+    {
+      "step": 7,
+      "name": "تقديم طلب الاشتراك",
+      "result": "submitted",
+      "detail": "تم النقر على 'إنشاء الحساب والبدء'. التوجيه تم إلى /owner (لوحة التحكم). لكن dashboard أظهرت 'حدث خطأ في لوحة التحكم' مع زر إعادة المحاولة. الاشتراك تم إنشاؤه والحساب سُجل دخوله تلقائياً (كوكيز الجلسة).",
+      "passed": true
+    },
+    {
+      "step": 8,
+      "name": "صفحة التأكيد",
+      "result": "error_on_dashboard",
+      "detail": "بعد الاشتراك تم التوجيه إلى /owner مباشرة (وليس صفحة تأكيد منفصلة). الـ dashboard أظهر: 'حدث خطأ في لوحة التحكم. تعذر تحميل هذه الصفحة. يرجى المحاولة مرة أخرى.' الأرجح أن البيانات لم تُربط كاملاً (تحتاج إعادة محاولة أو أن dashboard تحتوي على بيانات account افتراضية). الاشتراك نجح من ناحية API.",
+      "passed": false
+    },
+    {
+      "step": 9,
+      "name": "تسجيل الدخول بـ username/password الجديد",
+      "result": "failed_login",
+      "detail": "محاولة تسجيل الدخول بـ test_full_TS / Test123456 من isolated context جديد فشلت مع رسالة 'فشل تسجيل الدخول'. هذا يشير إلى أن الـ API لم ينشئ الحساب بالبيانات المدخلة، أو أن الـ slug test-full-ts موجود مسبقاً، أو أن النموذج أرسل بيانات مختلفة. من ناحية أخرى، جلسة موجودة سابقاً (smart-menu-test context) كانت مسجلة الدخول إلى /owner/settings مما يشير إلى وجود كوكيز جلسة سابقة. الحساب الذي تم تسجيل الدخول به فعلياً (عبر Playwright في isolated session) نجح وظهر dashboard.",
+      "passed": false
+    },
+    {
+      "step": 10,
+      "name": "screenshot للـ dashboard",
+      "result": "captured",
+      "detail": "Screenshot محفوظ. الـ dashboard يظهر (حساب مسجل الدخول) مع الشريط الجانبي: لوحة التحكم، الطلبات، المنيو، رمز QR، الولاء، التقييمات، الإعدادات، تسجيل الخروج. المحتوى الرئيسي يظهر 'حدث خطأ' في /owner لكن الصفحات الفرعية (menu, orders, qr, reviews) تعمل. لوحة التحكم لديها خطأ في تحميل بيانات الإحصائيات.",
+      "screenshot": "step10-dashboard-TS-20260710.png",
+      "passed": false
+    },
+    {
+      "step": 11,
+      "name": "اختبار /owner/menu",
+      "result": "success",
+      "detail": "صفحة إدارة المنيو تعمل بشكل طبيعي. تحتوي على زر 'تصنيف جديد'، حقل بحث، عداد الأصناف (0 / 50)، ورسالة 'لا توجد تصنيفات' (متوقع لحساب جديد).",
+      "passed": true
+    },
+    {
+      "step": 12,
+      "name": "اختبار /owner/orders",
+      "result": "success",
+      "detail": "صفحة الطلبات تعمل بشكل طبيعي. تحتوي على: إجمالي 0 طلب، زر تصدير CSV (معطل)، فلاتر (الكل/جديد/قيد التحضير/جاهز/مكتمل)، بحث وتاريخ، ورسالة 'لا توجد طلبات'.",
+      "passed": true
+    },
+    {
+      "step": 13,
+      "name": "اختبار /owner/qr",
+      "result": "success",
+      "detail": "صفحة رمز QR تعمل بشكل طبيعي. تعرض QR code للمنيو (اسم المطعم الظاهر: 'Loyalty Test' مع رابط /menu/loyalty-test-ts). خيارات: حجم (صغير/متوسط/كبير/طباعة)، نسخ الرابط، تحميل QR، مشاركة.",
+      "screenshot": "step13-qr-TS-20260710.png",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "passed": 10,
+    "failed": 3,
+    "critical_issues": [
+      {
+        "severity": "high",
+        "area": "/owner dashboard",
+        "issue": "لوحة التحكم /owner تظهر خطأ فور إنشاء الحساب الجديد. 'حدث خطأ في لوحة التحكم. تعذر تحميل هذه الصفحة.'",
+        "possible_cause": "Dashboard يعتمد على API endpoint بطيء أو أن حساب الـ free plan لا يحمل بيانات dashboard في البداية. أو أن الكاش من حساب سابق يسبب مشكلة."
+      },
+      {
+        "severity": "high",
+        "area": "تسجيل الدخول",
+        "issue": "تسجيل الدخول بـ test_full_TS/Test123456 فشل بعد إنشاء الحساب مباشرة. رسالة 'فشل تسجيل الدخول'.",
+        "possible_cause": "إما أن API إنشاء الحساب لم يُنشئ الحساب بهذه البيانات (slug موجود مسبقاً أو username مأخوذ)، أو أن النموذج أرسل بقيم مختلفة عما تم تعبئته في الواجهة."
+      },
+      {
+        "severity": "medium",
+        "area": "الجذر (/)",
+        "issue": "الجذر يعيد توجيه إلى /menu/al-waha-cafe بدلاً من عرض landing page. /pricing هي landing page الفعلية.",
+        "possible_cause": "توجيه افتراضي إلى منيو تجريبي بدلاً من صفحة تسويقية."
+      }
+    ],
+    "screenshots": [
+      "step03-hero-pricing-TS-20260710.png",
+      "step10-dashboard-TS-20260710.png",
+      "step13-qr-TS-20260710.png",
+      "step08-confirmation-page-TS-20260710.png"
+    ]
+  }
+}

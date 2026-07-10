@@ -20,7 +20,7 @@ export default function FeaturesSection() {
 		<SectionContainer>
 			<SectionHeader eyebrow="إليك ما يمكنك تحقيقه معنا" title="ميزات متكاملة لمطعمك" />
 
-			<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+			<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				{features.map((feat, i) => (
 					<motion.div
 						key={i}
@@ -31,7 +31,7 @@ export default function FeaturesSection() {
 						whileHover={{ y: -5, transition: springSnappy }}
 						className={`group rounded-sm bg-card border p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
 							i === 0
-								? "lg:col-span-3 md:col-span-2 border-orange/30"
+								? "border-orange/30"
 								: "border-border/50 hover:border-orange/30"
 						}`}
 					>

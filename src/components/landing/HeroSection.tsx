@@ -31,7 +31,7 @@ export default function HeroSection() {
 					initial="hidden"
 					animate="visible"
 					variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-					className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-medium leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
+					className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-semibold leading-[1.15] text-balance mb-5 max-w-4xl mx-auto"
 				>
 					<motion.span
 						variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: springGentle } }}

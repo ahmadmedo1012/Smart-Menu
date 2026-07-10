@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { LayoutHeader } from "@/components/layout/LayoutHeader"
 import { Store, LayoutDashboard, ClipboardList, Settings, LogOut, QrCode, Gift, Star, X } from "lucide-react"
 import { csrfFetch } from "@/lib/csrf-client"
-import { useRouter } from "next/navigation"
 import { premiumToast } from "@/lib/premium-toast"
 import { cn } from "@/lib/utils"
 import { NavLink } from "@/components/shared/NavLink"
@@ -80,7 +80,21 @@ function LogoutButton() {
 }
 
 export default function OwnerLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [authLoaded, setAuthLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success) router.push("/login")
+        else setAuthLoaded(true)
+      })
+      .catch(() => router.push("/login"))
+  }, [router])
+
+  if (!authLoaded) return null
 
   return (
     <div className="flex min-h-screen">
