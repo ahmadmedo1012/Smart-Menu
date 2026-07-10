@@ -60,9 +60,9 @@ function SubscribeContent() {
         if (d.success && d.data) {
           const u = d.data;
           if (u.role === "owner" && u.restaurantId) {
-            if (u.subscriptionStatus === "PAID") { router.push("/owner"); return; }
+            // Allow PAID owners to see the page (they may want to upgrade)
             setUser({ role: u.role, subscriptionStatus: u.subscriptionStatus, restaurantId: u.restaurantId });
-            setUpgradeMode(true);
+            if (u.subscriptionStatus === "UNPAID") setUpgradeMode(true);
           }
         }
       })

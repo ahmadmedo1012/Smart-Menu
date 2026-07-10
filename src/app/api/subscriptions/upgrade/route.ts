@@ -47,14 +47,22 @@ export async function POST(request: NextRequest) {
     });
     if (!restaurant) return error("المطعم غير موجود", 404);
 
-    // Check current plan — if it has a price > 0, restaurant is already paid
+    // Check current plan — only block if the new plan is not higher
     if (restaurant.planId !== null) {
       const currentPlan = await prisma.subscriptionPlan.findUnique({
         where: { id: restaurant.planId },
-        select: { price: true },
+        select: { price: true, sortOrder: true },
       });
       if (currentPlan && Number(currentPlan.price) > 0) {
-        return error("صاحب المطعم مشترك حالياً في خطة مدفوعة", 400);
+        const newPlan = await prisma.subscriptionPlan.findUnique({
+          where: { id: planId },
+          select: { price: true, sortOrder: true },
+        });
+        if (!newPlan) return error("الباقة غير موجودة", 400);
+        // Allow upgrade only if new plan has higher sortOrder (higher tier)
+        if (newPlan.sortOrder <= currentPlan.sortOrder) {
+          return error("الباقة المحددة ليست أعلى من باقتك الحالية", 400);
+        }
       }
     }
 
