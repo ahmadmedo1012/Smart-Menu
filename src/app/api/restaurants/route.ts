@@ -18,6 +18,9 @@ const createSchema = z.object({
   planId: z.number().int().optional(),
   username: z.string().min(3).optional(),
   password: z.string().min(4).optional(),
+  city: z.string().optional(),
+  showOnLanding: z.boolean().optional(),
+  featuredRank: z.number().int().optional(),
 });
 
 export async function GET(request: NextRequest) {

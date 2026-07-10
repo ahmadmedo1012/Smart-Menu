@@ -28,6 +28,7 @@ interface Restaurant {
 interface FormState {
   name: string; slug: string; description: string; phone: string; whatsapp: string;
   email: string; address: string; workingHours: string; planId: string;
+  city: string; showOnLanding: boolean; featuredRank: string;
 }
 
 export function RestaurantFormDialog({
@@ -39,7 +40,7 @@ export function RestaurantFormDialog({
   plans: Plan[]
   onSaved: () => void
 }) {
-  const [form, setForm] = useState<FormState>({ name: "", slug: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "", planId: "" })
+  const [form, setForm] = useState<FormState>({ name: "", slug: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "", planId: "", city: "", showOnLanding: false, featuredRank: "" })
   const [saving, setSaving] = useState(false)
 
   // Sync form when dialog opens with editing data
@@ -51,9 +52,11 @@ export function RestaurantFormDialog({
         phone: editing.phone, whatsapp: editing.whatsapp, email: editing.email || "",
         address: editing.address || "", workingHours: editing.workingHours || "",
         planId: editing.planId ? String(editing.planId) : "",
+        city: (editing as any).city || "", showOnLanding: (editing as any).showOnLanding ?? false,
+        featuredRank: (editing as any).featuredRank != null ? String((editing as any).featuredRank) : "",
       })
     } else if (o && !editing) {
-      setForm({ name: "", slug: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "", planId: "" })
+      setForm({ name: "", slug: "", description: "", phone: "", whatsapp: "", email: "", address: "", workingHours: "", planId: "", city: "", showOnLanding: false, featuredRank: "" })
     }
     onOpenChange(o)
   }
@@ -73,6 +76,9 @@ export function RestaurantFormDialog({
         email: form.email.trim(),
         address: form.address.trim(),
         workingHours: form.workingHours.trim(),
+        city: form.city.trim(),
+        showOnLanding: form.showOnLanding,
+        featuredRank: form.featuredRank ? Number(form.featuredRank) : null,
       }
       if (form.planId) body.planId = Number(form.planId)
       if (editing) {
@@ -153,6 +159,27 @@ export function RestaurantFormDialog({
           <div>
             <Label htmlFor="restaurant-hours">ساعات العمل</Label>
             <Input id="restaurant-hours" value={form.workingHours} onChange={(e) => setForm({ ...form, workingHours: e.target.value })} className="h-11 rounded-xl mt-1.5" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="restaurant-city">المدينة</Label>
+              <Input id="restaurant-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="h-11 rounded-xl mt-1.5" />
+            </div>
+            <div>
+              <Label htmlFor="restaurant-rank">ترتيب الظهور</Label>
+              <Input id="restaurant-rank" type="number" value={form.featuredRank} onChange={(e) => setForm({ ...form, featuredRank: e.target.value })} className="h-11 rounded-xl mt-1.5" placeholder="1-999" />
+            </div>
+          </div>
+          <div>
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-border/20 cursor-pointer hover:bg-accent/30 transition-colors">
+              <input type="checkbox" checked={form.showOnLanding}
+                onChange={(e) => setForm({ ...form, showOnLanding: e.target.checked })}
+                className="size-4 accent-orange" />
+              <div>
+                <p className="text-sm font-medium">عرض في الصفحة الرئيسية</p>
+                <p className="text-xs text-muted-foreground">ظهور المطعم في قائمة المطاعم المميزة بالصفحة الرئيسية</p>
+              </div>
+            </label>
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-4">

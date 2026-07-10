@@ -33,6 +33,9 @@ const adminUpdateSchema = z.object({
   planEnd: z.string().datetime().optional(),
   maxItems: z.number().int().positive().optional(),
   maxOrders: z.number().int().positive().optional(),
+  city: z.string().optional(),
+  showOnLanding: z.boolean().optional(),
+  featuredRank: z.number().int().optional(),
 });
 
 export async function GET(
