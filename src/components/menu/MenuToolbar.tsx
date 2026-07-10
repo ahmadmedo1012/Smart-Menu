@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useDeferredValue, useMemo, useEffect } from "react"
 import { Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from "@/lib/format"
 
 interface MenuToolbarProps {
   search: string
   onSearchChange: (value: string) => void
   sort: string
   onSortChange: (value: string) => void
-  suggestionItems?: { id: number; name: string; price: number; image?: string }[]
+  /** Raw items for suggestion dropdown — always pass, dropdown manages visibility */
+  items?: { id: number; name: string; nameAr?: string | null; price: number; image?: string }[]
   onSuggestionClick?: (id: number) => void
   className?: string
 }
@@ -26,13 +28,48 @@ export function MenuToolbar({
   onSearchChange,
   sort,
   onSortChange,
+  items = [],
+  onSuggestionClick,
   className,
 }: MenuToolbarProps) {
   const [showSort, setShowSort] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  /* ── Deferred suggestions (low-priority, interruptible) ── */
+  const deferredSearch = useDeferredValue(search)
+  const suggestions = useMemo(() => {
+    const q = deferredSearch.trim().toLowerCase()
+    if (!q || q.length < 1) return []
+    return items
+      .filter(
+        (i) =>
+          (i.nameAr || i.name).toLowerCase().includes(q) ||
+          i.name.toLowerCase().includes(q),
+      )
+      .slice(0, 5)
+    // ponytail: flat search across all items, no category filter on suggestions
+  }, [items, deferredSearch])
+
+  /* ── Close suggestions on outside click ── */
+  useEffect(() => {
+    if (!showSuggestions) return
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    // defer to avoid same-event cancel
+    const id = setTimeout(() => document.addEventListener("click", handler), 0)
+    return () => { clearTimeout(id); document.removeEventListener("click", handler) }
+  }, [showSuggestions])
+
+  const hasSuggestions = search.trim().length >= 1 && suggestions.length > 0
+  const dropdownVisible = hasSuggestions && showSuggestions
 
   return (
-    <div className={cn("relative mb-4 flex gap-2 items-start", className)}>
+    <div ref={containerRef} className={cn("relative mb-4 flex gap-2 items-start", className)}>
       {/* Search input */}
       <div className="flex-1 relative">
         <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
@@ -41,19 +78,47 @@ export function MenuToolbar({
           type="text"
           placeholder="ابحث في القائمة..."
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(e) => { onSearchChange(e.target.value); setShowSuggestions(true) }}
+          onFocus={() => { if (hasSuggestions) setShowSuggestions(true) }}
           className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 shadow-sm"
         />
         {search && (
           <button
             type="button"
             aria-label="مسح البحث"
-            onClick={() => { onSearchChange(""); inputRef.current?.focus() }}
+            onClick={() => { onSearchChange(""); setShowSuggestions(false); inputRef.current?.focus() }}
             className="absolute end-3 top-1/2 -translate-y-1/2 size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
           >
             <X className="size-3" />
           </button>
         )}
+
+        {/* Suggestions dropdown — always-mounted DOM */}
+        <div
+          className={cn(
+            "absolute top-full mt-1 start-0 end-0 z-50 rounded-sm border border-border/30 bg-card shadow-xl overflow-hidden transition-all duration-200",
+            dropdownVisible ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1 pointer-events-none",
+          )}
+        >
+          {suggestions.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => { onSuggestionClick?.(s.id); setShowSuggestions(false) }}
+              className="flex items-center gap-3 w-full px-3 py-2.5 text-start text-sm hover:bg-accent transition-colors first:pt-3 last:pb-3"
+            >
+              {s.image && (
+                <div className="size-9 rounded-sm overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
+                  <img src={s.image} alt="" className="size-full object-cover" />
+                </div>
+              )}
+              <span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
+              <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
+                {toArabicNumber(s.price.toFixed(1))} د.ل
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Sort button */}

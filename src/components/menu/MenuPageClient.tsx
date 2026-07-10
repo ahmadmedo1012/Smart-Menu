@@ -117,6 +117,11 @@ export default function MenuPageClient({
 
   const handleScroll = useCallback(() => {}, [])
 
+  const handleSuggestionClick = useCallback((id: number) => {
+    const found = items.find((i) => i.id === id)
+    if (found) setOrderItem(found)
+  }, [items])
+
   useEffect(() => {
     globalThis.addEventListener("scroll", handleScroll, { passive: true })
     return () => globalThis.removeEventListener("scroll", handleScroll)
@@ -126,7 +131,7 @@ export default function MenuPageClient({
 
   return (
     <>
-      <MenuToolbar search={search} onSearchChange={setSearch} sort={sort} onSortChange={setSort} />
+      <MenuToolbar search={search} onSearchChange={setSearch} sort={sort} onSortChange={setSort} items={items} onSuggestionClick={handleSuggestionClick} />
 
       {hasActiveFilter && (
         <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
