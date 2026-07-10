@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 			prisma.setting.findMany({ where: { restaurantId }, select: { key: true, value: true } }),
 			prisma.restaurant.findUnique({
 				where: { id: restaurantId },
-				include: { plan: true, _count: { select: { orders: true, categories: true, items: true } } },
+				include: { plan: true, _count: { select: { orders: true, categories: true } } },
 			}),
 		]);
 

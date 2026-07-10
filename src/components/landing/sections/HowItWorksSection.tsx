@@ -22,7 +22,7 @@ export default function HowItWorksSection() {
             key={step.title}
             initial={{ opacity: 0, y: 32, rotate: -3, scale: 0.95 }}
             whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
-            viewport={{ once: false, margin: "-60px" }}
+            viewport={{ once: true, margin: "-60px" }}
             transition={{ ...springGentle, delay: i * 0.15 }}
             className="relative flex flex-col items-center text-center group"
           >

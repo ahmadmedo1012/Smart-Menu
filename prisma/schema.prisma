@@ -74,6 +74,9 @@ model Restaurant {
   themeColor         String              @default("amber")
   currency           String              @default("LYD")
   isActive           Boolean             @default(true)
+  city               String              @default("") @db.VarChar(80)
+  showOnLanding      Boolean             @default(false)
+  featuredRank       Int?
   planId             Int?
   planStart          DateTime?
   planEnd            DateTime?
@@ -94,6 +97,7 @@ model Restaurant {
   whatsappTemplates  WhatsappTemplate[]
 
   @@index([isActive])
+  @@index([showOnLanding, isActive])
   @@index([planId])
 }
 

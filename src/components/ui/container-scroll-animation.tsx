@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useEffect, type ReactNode } from "react"
+import { useRef, useState, useEffect, useMemo, type ReactNode } from "react"
 import { useScroll, useTransform, motion, type MotionValue } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -28,37 +28,32 @@ export function ContainerScroll({
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768)
+    const check = () => {
+      const mobile = window.innerWidth <= 768
+      setIsMobile(prev => prev !== mobile ? mobile : prev)
+    }
     check()
     globalThis.addEventListener("resize", check)
     return () => globalThis.removeEventListener("resize", check)
   }, [])
 
   /* ── Motion values ──
-   * rotateX computed for desktop; on mobile it's never applied to DOM.
+   * Ranges wrapped in useMemo so resize does not recreate MotionValues.
    */
+  const scaleRange = useMemo(() => isMobile ? [0.97, 1] : [1.03, 1], [isMobile])
+  const translateYRange = useMemo(() => isMobile ? [0, -30] : [0, -100], [isMobile])
+  const opacityRange = useMemo(() => isMobile ? [0.9, 1, 1] : [1, 1, 1], [isMobile])
+
   const rotateX = useTransform(scrollYProgress, [0, 1], [6, 0])
-  const scale = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isMobile ? [0.97, 1] : [1.03, 1],
-  )
-  const translateY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [0, isMobile ? -30 : -100],
-  )
-  const cardOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.15, 1],
-    [0.9, 1, 1],
-  )
+  const scale = useTransform(scrollYProgress, [0, 1], scaleRange)
+  const translateY = useTransform(scrollYProgress, [0, 1], translateYRange)
+  const cardOpacity = useTransform(scrollYProgress, [0, 0.15, 1], opacityRange)
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "relative h-[28rem] md:h-[65rem] flex items-start justify-center pt-8 md:pt-16",
+        "relative min-h-dvh md:h-[65rem] flex items-start justify-center pt-16",
         className,
       )}
     >
@@ -68,6 +63,7 @@ export function ContainerScroll({
       >
         <Header translateY={translateY}>{titleComponent}</Header>
         <Card
+          key={isMobile ? "mobile" : "desktop"}
           rotateX={rotateX}
           scale={scale}
           opacity={cardOpacity}
