@@ -90,7 +90,11 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
       .then((d) => {
         if (!d.success) { router.push("/login"); return }
         if (d.data?.role !== "owner") {
-          router.push(d.data?.role === "USER" || d.data?.subscriptionStatus === "UNPAID" ? "/subscribe" : "/login")
+          const redirectTarget =
+            d.data?.role === "USER" || d.data?.subscriptionStatus === "UNPAID" ? "/subscribe" :
+            ["super_admin", "sub_admin", "admin"].includes(d.data?.role) ? "/admin" :
+            "/login"
+          router.push(redirectTarget)
           return
         }
         setAuthLoaded(true)

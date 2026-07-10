@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { premiumToast } from "@/lib/premium-toast";
 import { Button } from "@/components/ui/button";
@@ -52,8 +52,39 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  async function handleSubmit(e: React.FormEvent) {
+  // Redirect already-authenticated users to their dashboard
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data) {
+          const role = d.data.role;
+          const target =
+            role === "owner" ? "/owner" :
+            ["super_admin", "sub_admin", "admin"].includes(role) ? (safeRedirect(rawRedirect) || "/admin") :
+            "/subscribe";
+          window.location.replace(target);
+        } else {
+          setCheckingAuth(false);
+        }
+      })
+      .catch(() => setCheckingAuth(false));
+  }, []);
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background dark:from-zinc-900 dark:via-zinc-900 dark:to-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="size-10 animate-pulse rounded-full bg-orange/40" />
+          <span className="animate-breath font-arabic text-sm text-muted-foreground">جاري التحميل...</span>
+        </div>
+      </div>
+    );
+  }
+
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setLoading(true);
 

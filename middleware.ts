@@ -29,7 +29,7 @@ function setHeaders(resp: NextResponse) {
   // ponytail: in dev mode, React needs unsafe-eval. style-src-elem covers Google Fonts.
   const isDev = process.env.NODE_ENV === "development";
   const scriptSrc = `'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`;
-  resp.headers.set("Content-Security-Policy", `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`);
+  resp.headers.set("Content-Security-Policy", `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self' blob:`);
   resp.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
   resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 }
