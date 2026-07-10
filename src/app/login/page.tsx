@@ -38,9 +38,15 @@ function FloatingShapes() {
   );
 }
 
+function safeRedirect(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return null
+  return value
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/admin";
+  const rawRedirect = searchParams.get("redirect");
+  const redirect = safeRedirect(rawRedirect) || "/admin";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -69,7 +75,13 @@ function LoginForm() {
 
       // ponytail: window.location.replace avoids router.push + router.refresh race
       // that causes blank screen in Next.js 16 App Router (rehydration mismatch)
-      const target = data.user?.role === "owner" ? "/owner" : redirect;
+      const role = data.user?.role;
+      const status = data.user?.subscriptionStatus;
+      const target =
+        role === "owner" ? (redirect && redirect.startsWith("/") ? redirect : "/owner") :
+        ["super_admin", "sub_admin", "admin"].includes(role) ? (safeRedirect(rawRedirect) || "/admin") :
+        status === "UNPAID" || role === "USER" ? "/subscribe" :
+        "/login";
       setTimeout(() => window.location.replace(target), 150);
     } catch {
       premiumToast("error", "خطأ في الاتصال بالخادم");

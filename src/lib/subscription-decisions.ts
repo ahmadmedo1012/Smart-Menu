@@ -83,13 +83,13 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         return { restaurant, plan };
       });
 
-      // Notify via Telegram broadcast
+      // Notify via Telegram broadcast (fire-and-forget — never block payment on Telegram)
       const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${result.restaurant.name}\n• الخطة: ${result.plan?.nameAr ?? existing!.planName}\n• المبلغ: ${existing!.amount} د.ل`;
       const { sendTelegramNotification } = await import("@/lib/telegram");
       sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => console.error("[subscription] telegram notify failed:", e));
 
-      // Record system event
-      prisma.systemEvent.create({
+      // Record system event (awaited — SSE poll depends on this)
+      await prisma.systemEvent.create({
         data: {
           eventType: "payment",
           title: "ترقية اشتراك",
@@ -97,7 +97,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           severity: "info",
           metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
         },
-      }).catch((e) => console.error("[subscription] sys event failed:", e));
+      });
 
       return { ok: true, action: "verified", paymentId: existing!.id };
     } catch (e) {

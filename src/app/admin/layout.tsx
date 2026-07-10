@@ -70,7 +70,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .then((r) => r.json())
       .then((d) => {
         if (d.success) {
-          setRole(d.data.role)
+          const userRole = d.data.role
+          const adminRoles = ["super_admin", "sub_admin", "admin"]
+          if (!adminRoles.includes(userRole)) {
+            router.push(userRole === "owner" ? "/owner" : "/subscribe")
+            return
+          }
+          setRole(userRole)
           setPermissions(d.data.permissions ?? [])
           setAuthLoaded(true)
         } else {
