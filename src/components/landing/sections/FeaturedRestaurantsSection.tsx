@@ -1,10 +1,10 @@
 "use client";
 
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { MapPin, Star, Phone, ArrowLeft } from "lucide-react";
-import { springGentle } from "@/lib/motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Star, Phone, ArrowLeft, ArrowRight } from "lucide-react";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import type { FeaturedRestaurant } from "@/lib/landing";
@@ -13,96 +13,55 @@ type Props = {
     restaurants: FeaturedRestaurant[];
 };
 
-function RestaurantCard({
-    restaurant,
-    index,
-}: {
-    restaurant: FeaturedRestaurant;
-    index: number;
-}) {
-    const initial = restaurant.logo
-        ? restaurant.logo.charAt(0).toUpperCase()
-        : restaurant.name.charAt(0);
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ ...springGentle, delay: index * 0.04 }}
-            className="shrink-0 w-[280px] sm:w-[320px] snap-start"
-        >
-            <Link
-                href={`/menu/${restaurant.slug}`}
-                className="group block relative bg-card rounded-2xl ring-1 ring-border/40 overflow-hidden transition-shadow duration-300 hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.4)]"
-            >
-                {/* Logo / placeholder */}
-                <div className="relative h-36 sm:h-40 bg-gradient-to-br from-orange-muted/40 to-orange/5 flex items-center justify-center overflow-hidden">
-                    {restaurant.logo ? (
-                        <Image
-                            src={restaurant.logo}
-                            alt={restaurant.name}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="320px"
-                        />
-                    ) : (
-                        <span className="text-4xl font-semibold text-orange/30 select-none">
-                            {initial}
-                        </span>
-                    )}
-                    {/* Order count badge */}
-                    {restaurant.orderCount > 0 && (
-                        <div className="absolute top-2.5 start-2.5 flex items-center gap-1 rounded-full bg-background/80 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-foreground/60">
-                            <Star className="size-2.5 text-orange" />
-                            {restaurant.orderCount}
-                        </div>
-                    )}
-                    {/* View menu arrow */}
-                    <div className="absolute bottom-2.5 end-2.5 flex items-center gap-1 rounded-full bg-orange/90 text-white px-2.5 py-1 text-[10px] font-medium opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                        عرض المنيو
-                        <ArrowLeft className="size-3" />
-                    </div>
-                </div>
-
-                {/* Info */}
-                <div className="p-3.5">
-                    <h3 className="text-sm font-semibold leading-tight truncate">
-                        {restaurant.name}
-                    </h3>
-                    {restaurant.description && (
-                        <p className="mt-1 text-[11px] text-muted-foreground/70 leading-relaxed line-clamp-2">
-                            {restaurant.description}
-                        </p>
-                    )}
-
-                    {/* City + phone */}
-                    <div className="mt-2.5 flex items-center gap-2 text-[10px] text-muted-foreground/50">
-                        {(restaurant.city || restaurant.phone || restaurant.whatsapp) && (
-                            <>
-                                {restaurant.city && (
-                                    <span className="flex items-center gap-1">
-                                        <MapPin className="size-2.5" />
-                                        {restaurant.city}
-                                    </span>
-                                )}
-                                {(restaurant.phone || restaurant.whatsapp) && (
-                                    <span className="flex items-center gap-1">
-                                        <Phone className="size-2.5" />
-                                        {restaurant.phone || restaurant.whatsapp}
-                                    </span>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </Link>
-        </motion.div>
-    );
-}
+const AUTOPLAY_INTERVAL = 4000;
+const SLIDE_VARIANTS = {
+    enter: (dir: number) => ({
+        x: dir > 0 ? 300 : -300,
+        opacity: 0,
+        scale: 0.96,
+    }),
+    center: {
+        x: 0,
+        opacity: 1,
+        scale: 1,
+    },
+    exit: (dir: number) => ({
+        x: dir > 0 ? -300 : 300,
+        opacity: 0,
+        scale: 0.96,
+    }),
+};
 
 export default function FeaturedRestaurantsSection({ restaurants }: Props) {
-    if (restaurants.length === 0) return null;
+    const [[current, dir], setSlide] = useState([0, 0]);
+    const [isPaused, setIsPaused] = useState(false);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const total = restaurants.length;
+
+    const goTo = useCallback(
+        (index: number, direction?: number) => {
+            const d = direction ?? (index > current ? 1 : -1);
+            setSlide([((index % total) + total) % total, d]);
+        },
+        [current, total],
+    );
+
+    const next = useCallback(() => goTo(current + 1, 1), [current, goTo]);
+    const prev = useCallback(() => goTo(current - 1, -1), [current, goTo]);
+
+    // Autoplay
+    useEffect(() => {
+        if (isPaused || total <= 1) return;
+        intervalRef.current = setInterval(next, AUTOPLAY_INTERVAL);
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, [isPaused, next, total]);
+
+    if (total === 0) return null;
+
+    const r = restaurants[current];
 
     return (
         <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
@@ -113,13 +72,155 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
                 subtitle="تصفح منيو مطاعم حقيقية تستخدم المنصة وشاهد تجربة الزبائن"
             />
 
-            {/* Scroll-snap rail */}
-            <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 scroll-smooth" dir="ltr">
-                <div className="flex gap-4 sm:gap-5 w-max" dir="rtl">
-                    {restaurants.map((r, i) => (
-                        <RestaurantCard key={r.id} restaurant={r} index={i} />
-                    ))}
+            <div
+                className="relative max-w-[1000px] mx-auto"
+                onMouseEnter={() => setIsPaused(true)}
+                onFocus={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+                onBlur={() => setIsPaused(false)}
+            >
+                {/* ── Slide container ── */}
+                <div className="relative h-[340px] sm:h-[380px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-border/40 bg-card shadow-[0_8px_32px_-12px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.3)]">
+                    <AnimatePresence custom={dir} mode="wait">
+                        <motion.div
+                            key={r.id}
+                            custom={dir}
+                            variants={SLIDE_VARIANTS}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{
+                                x: { type: "spring", stiffness: 280, damping: 28 },
+                                opacity: { duration: 0.35 },
+                                scale: { duration: 0.35 },
+                            }}
+                            className="absolute inset-0"
+                        >
+                            <Link
+                                href={`/menu/${r.slug}`}
+                                className="block size-full group"
+                            >
+                                {/* Background image */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-orange-muted/30 to-orange/5">
+                                    {r.logo ? (
+                                        <Image
+                                            src={r.logo}
+                                            alt=""
+                                            fill
+                                            className="object-cover opacity-20 dark:opacity-10"
+                                            sizes="1000px"
+                                        />
+                                    ) : null}
+                                </div>
+
+                                {/* Content */}
+                                <div className="relative z-10 flex flex-col justify-between size-full p-6 sm:p-10">
+                                    <div className="flex items-start justify-between gap-4">
+                                        {/* Logo badge */}
+                                        <div className="size-16 sm:size-20 rounded-2xl overflow-hidden bg-gradient-to-br from-orange-muted/50 to-orange/10 ring-1 ring-border/30 shrink-0 flex items-center justify-center">
+                                            {r.logo ? (
+                                                <Image
+                                                    src={r.logo}
+                                                    alt={r.name}
+                                                    width={80}
+                                                    height={80}
+                                                    className="object-cover size-full"
+                                                />
+                                            ) : (
+                                                <span className="text-2xl font-bold text-orange/40">
+                                                    {r.name.charAt(0)}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Order count */}
+                                        {r.orderCount > 0 && (
+                                            <div className="flex items-center gap-1 rounded-full bg-background/60 backdrop-blur-sm px-3 py-1 text-xs font-medium text-foreground/60">
+                                                <Star className="size-3 text-orange" />
+                                                {r.orderCount}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2.5">
+                                        <h3 className="text-xl sm:text-2xl font-bold leading-tight">
+                                            {r.name}
+                                        </h3>
+                                        {r.description && (
+                                            <p className="text-sm text-muted-foreground/80 leading-relaxed line-clamp-2 max-w-lg">
+                                                {r.description}
+                                            </p>
+                                        )}
+
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground/60">
+                                            {r.city && (
+                                                <span className="flex items-center gap-1">
+                                                    <MapPin className="size-3" />
+                                                    {r.city}
+                                                </span>
+                                            )}
+                                            {r.phone && (
+                                                <span className="flex items-center gap-1" dir="ltr">
+                                                    <Phone className="size-3" />
+                                                    {r.phone}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-orange group-hover:underline underline-offset-4 decoration-orange/40">
+                                            عرض المنيو
+                                            <ArrowLeft className="size-4 rtl:rotate-0" />
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Gradient overlay at bottom for readability */}
+                                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
+                            </Link>
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* ── Arrows ── */}
+                    {total > 1 && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={prev}
+                                className="absolute start-3 top-1/2 -translate-y-1/2 z-20 size-10 rounded-full bg-background/70 backdrop-blur-sm border border-border/30 flex items-center justify-center text-foreground/70 hover:bg-background hover:text-foreground transition-all shadow-sm"
+                                aria-label="السابق"
+                            >
+                                <ArrowRight className="size-4" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={next}
+                                className="absolute end-3 top-1/2 -translate-y-1/2 z-20 size-10 rounded-full bg-background/70 backdrop-blur-sm border border-border/30 flex items-center justify-center text-foreground/70 hover:bg-background hover:text-foreground transition-all shadow-sm"
+                                aria-label="التالي"
+                            >
+                                <ArrowLeft className="size-4" />
+                            </button>
+                        </>
+                    )}
                 </div>
+
+                {/* ── Dots ── */}
+                {total > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-5">
+                        {restaurants.map((item, i) => (
+                            <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => goTo(i, i > current ? 1 : -1)}
+                                className={`h-2 rounded-full transition-all duration-500 ${
+                                    i === current
+                                        ? "w-7 bg-orange"
+                                        : "w-2 bg-muted-foreground/25 hover:bg-muted-foreground/40"
+                                }`}
+                                aria-label={`الانتقال إلى ${item.name}`}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </SectionContainer>
     );
