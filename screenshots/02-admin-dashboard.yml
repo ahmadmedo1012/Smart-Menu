@@ -1,0 +1,280 @@
+- generic [active] [ref=f17e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f17e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f17e6]:
+    - generic [ref=f17e8]:
+      - generic [ref=f17e10]:
+        - generic [ref=f17e11]:
+          - button "فتح القائمة" [ref=f17e12]
+          - heading "لوحة التحكم" [level=1] [ref=f17e14]
+        - button "بحث سريع (⌘K)" [ref=f17e15]:
+          - generic [ref=f17e19]: بحث سريع...
+          - generic [ref=f17e20]:
+            - generic [ref=f17e21]: ⌘
+            - text: K
+        - button "الوضع الليلي" [ref=f17e22] [cursor=pointer]
+      - main "محتوى الصفحة" [ref=f17e27]:
+        - generic [ref=f17e50]:
+          - generic [ref=f17e30]:
+            - generic [ref=f17e31]:
+              - heading "لوحة التحكم" [level=2] [ref=f17e51]
+              - paragraph [ref=f17e52]: نظرة عامة على شبكة المطاعم
+            - generic [ref=f17e53]:
+              - button "تحديث" [ref=f17e54] [cursor=pointer]
+              - generic [ref=f17e55]: مباشر
+          - generic [ref=f17e34]:
+            - generic [ref=f17e58]:
+              - paragraph [ref=f17e59]: إجمالي المطاعم
+              - paragraph [ref=f17e60]: "133"
+              - generic [ref=f17e61]: ↑ 0%
+            - generic [ref=f17e70]:
+              - paragraph [ref=f17e71]: إجمالي المستخدمين
+              - paragraph [ref=f17e72]: "172"
+              - generic [ref=f17e73]: ↑ 0%
+            - generic [ref=f17e83]:
+              - paragraph [ref=f17e84]: الإيراد الشهري
+              - paragraph [ref=f17e85]: 1981 د.ل
+            - generic [ref=f17e91]:
+              - paragraph [ref=f17e92]: إجمالي الطلبات
+              - paragraph [ref=f17e93]: "36"
+              - img "Trending up" [ref=f17e95]
+          - generic [ref=f17e39]:
+            - generic [ref=f17e40]:
+              - heading "اتجاه الإيرادات (30 يوم)" [level=3] [ref=f17e108]
+              - img "Area chart" [ref=f17e110]:
+                - generic [ref=f17e149]: 06-28T00:00:00.000Z
+                - generic [ref=f17e150]: 06-30T00:00:00.000Z
+                - generic [ref=f17e151]: 07-04T00:00:00.000Z
+                - generic [ref=f17e152]: 07-06T00:00:00.000Z
+                - generic [ref=f17e153]: 07-08T00:00:00.000Z
+                - generic [ref=f17e154]: 07-10T00:00:00.000Z
+                - generic [ref=f17e155]: 07-11T00:00:00.000Z
+            - generic [ref=f17e41]:
+              - heading "حجم الطلبات (30 يوم)" [level=3] [ref=f17e162]
+              - img "Area chart" [ref=f17e164]:
+                - generic [ref=f17e203]: 06-28T00:00:00.000Z
+                - generic [ref=f17e204]: 06-30T00:00:00.000Z
+                - generic [ref=f17e205]: 07-04T00:00:00.000Z
+                - generic [ref=f17e206]: 07-06T00:00:00.000Z
+                - generic [ref=f17e207]: 07-08T00:00:00.000Z
+                - generic [ref=f17e208]: 07-10T00:00:00.000Z
+                - generic [ref=f17e209]: 07-11T00:00:00.000Z
+          - generic [ref=f17e42]:
+            - generic [ref=f17e210]:
+              - heading "الأصناف الأكثر طلباً" [level=3] [ref=f17e214]
+              - generic [ref=f17e215]:
+                - generic [ref=f17e216]:
+                  - generic [ref=f17e217]: "1"
+                  - generic [ref=f17e219]:
+                    - generic [ref=f17e220]: قهوة تركي
+                    - generic [ref=f17e221]: "45"
+                - generic [ref=f17e224]:
+                  - generic [ref=f17e225]: "2"
+                  - generic [ref=f17e227]:
+                    - generic [ref=f17e228]: تشيز كيك
+                    - generic [ref=f17e229]: "15"
+                - generic [ref=f17e232]:
+                  - generic [ref=f17e233]: "3"
+                  - generic [ref=f17e235]:
+                    - generic [ref=f17e236]: بطاطس مقلية
+                    - generic [ref=f17e237]: "6"
+                - generic [ref=f17e240]:
+                  - generic [ref=f17e241]: "4"
+                  - generic [ref=f17e243]:
+                    - generic [ref=f17e244]: كابتشينو اختبار 2
+                    - generic [ref=f17e245]: "6"
+                - generic [ref=f17e248]:
+                  - generic [ref=f17e249]: "5"
+                  - generic [ref=f17e251]:
+                    - generic [ref=f17e252]: كنافة
+                    - generic [ref=f17e253]: "5"
+                - generic [ref=f17e256]:
+                  - generic [ref=f17e257]: "6"
+                  - generic [ref=f17e259]:
+                    - generic [ref=f17e260]: Fk
+                    - generic [ref=f17e261]: "5"
+                - generic [ref=f17e264]:
+                  - generic [ref=f17e265]: "7"
+                  - generic [ref=f17e267]:
+                    - generic [ref=f17e268]: ليموناضة
+                    - generic [ref=f17e269]: "5"
+                - generic [ref=f17e272]:
+                  - generic [ref=f17e273]: "8"
+                  - generic [ref=f17e275]:
+                    - generic [ref=f17e276]: rerqeq
+                    - generic [ref=f17e277]: "4"
+                - generic [ref=f17e280]:
+                  - generic [ref=f17e281]: "9"
+                  - generic [ref=f17e283]:
+                    - generic [ref=f17e284]: كريب
+                    - generic [ref=f17e285]: "4"
+                - generic [ref=f17e288]:
+                  - generic [ref=f17e289]: "10"
+                  - generic [ref=f17e291]:
+                    - generic [ref=f17e292]: ساندويتش
+                    - generic [ref=f17e293]: "4"
+            - generic [ref=f17e296]:
+              - heading "مؤشرات سريعة" [level=3] [ref=f17e300]
+              - generic [ref=f17e301]:
+                - generic [ref=f17e302]:
+                  - paragraph [ref=f17e303]: معدل الطلب
+                  - paragraph [ref=f17e304]: 73.66666666666667 د.ل
+                  - paragraph [ref=f17e305]: متوسط قيمة الطلب
+                - generic [ref=f17e306]:
+                  - paragraph [ref=f17e307]: مدفوع
+                  - paragraph [ref=f17e308]: "69"
+                  - paragraph [ref=f17e309]: اشتراك مدفوع
+                - generic [ref=f17e310]:
+                  - paragraph [ref=f17e311]: مرتبط
+                  - paragraph [ref=f17e312]: "129"
+                  - paragraph [ref=f17e313]: مطعم مرتبط
+                - generic [ref=f17e314]:
+                  - paragraph [ref=f17e315]: طلبات اليوم
+                  - paragraph [ref=f17e316]: "2"
+                  - paragraph [ref=f17e317]: 34 د.ل إيراد
+          - generic [ref=f17e318]:
+            - generic [ref=f17e319]:
+              - heading "آخر الاشتراكات" [level=3] [ref=f17e325]
+              - generic [ref=f17e326]:
+                - generic [ref=f17e327]:
+                  - generic [ref=f17e334]:
+                    - paragraph [ref=f17e335]: ينني
+                    - paragraph [ref=f17e336]: ينني11 يوليو 2026 11:53
+                  - link "عرض منيو ينني" [ref=f17e337] [cursor=pointer]:
+                    - /url: /menu/sjj
+                - generic [ref=f17e341]:
+                  - generic [ref=f17e348]:
+                    - paragraph [ref=f17e349]: wsw
+                    - paragraph [ref=f17e350]: wsw11 يوليو 2026 01:28
+                  - link "عرض منيو wsw" [ref=f17e351] [cursor=pointer]:
+                    - /url: /menu/wssqws
+                - generic [ref=f17e355]:
+                  - generic [ref=f17e362]:
+                    - paragraph [ref=f17e363]: فلافل عربية
+                    - paragraph [ref=f17e364]: صصصص10 يوليو 2026 20:08
+                  - link "عرض منيو فلافل عربية" [ref=f17e365] [cursor=pointer]:
+                    - /url: /menu/23sas
+                - generic [ref=f17e369]:
+                  - generic [ref=f17e376]:
+                    - paragraph [ref=f17e377]: دجاج وأكثر
+                    - paragraph [ref=f17e378]: يشسش10 يوليو 2026 19:32
+                  - link "عرض منيو دجاج وأكثر" [ref=f17e379] [cursor=pointer]:
+                    - /url: /menu/-----
+                - generic [ref=f17e383]:
+                  - generic [ref=f17e390]:
+                    - paragraph [ref=f17e391]: معجنات الضيعة
+                    - paragraph [ref=f17e392]: Fif10 يوليو 2026 19:10
+                  - link "عرض منيو معجنات الضيعة" [ref=f17e393] [cursor=pointer]:
+                    - /url: /menu/jjhhdhd
+                - generic [ref=f17e397]:
+                  - generic [ref=f17e404]:
+                    - paragraph [ref=f17e405]: مطعم الموجة
+                    - paragraph [ref=f17e406]: qaq10 يوليو 2026 15:42
+                  - link "عرض منيو مطعم الموجة" [ref=f17e407] [cursor=pointer]:
+                    - /url: /menu/ssss
+                - generic [ref=f17e411]:
+                  - generic [ref=f17e418]:
+                    - paragraph [ref=f17e419]: مطبخ سبها
+                    - paragraph [ref=f17e420]: شضس10 يوليو 2026 06:31
+                  - link "عرض منيو مطبخ سبها" [ref=f17e421] [cursor=pointer]:
+                    - /url: /menu/sas
+                - generic [ref=f17e425]:
+                  - generic [ref=f17e432]:
+                    - paragraph [ref=f17e433]: برغر هاوس
+                    - paragraph [ref=f17e434]: ede10 يوليو 2026 03:40
+                  - link "عرض منيو برغر هاوس" [ref=f17e435] [cursor=pointer]:
+                    - /url: /menu/ede
+                - generic [ref=f17e439]:
+                  - generic [ref=f17e446]:
+                    - paragraph [ref=f17e447]: بيتزا روما
+                    - paragraph [ref=f17e448]: —10 يوليو 2026 02:17
+                  - link "عرض منيو بيتزا روما" [ref=f17e449] [cursor=pointer]:
+                    - /url: /menu/test-full-ts
+                - generic [ref=f17e453]:
+                  - generic [ref=f17e460]:
+                    - paragraph [ref=f17e461]: مطعم المرسى
+                    - paragraph [ref=f17e462]: Settings Test10 يوليو 2026 02:16
+                  - link "عرض منيو مطعم المرسى" [ref=f17e463] [cursor=pointer]:
+                    - /url: /menu/settings-test-ts
+            - generic [ref=f17e467]:
+              - heading "آخر تسجيلات الدخول" [level=3] [ref=f17e473]
+              - generic [ref=f17e474]:
+                - generic [ref=f17e483]:
+                  - paragraph [ref=f17e484]: مدير النظام
+                  - paragraph [ref=f17e485]: —11 يوليو 2026 12:35
+                - generic [ref=f17e494]:
+                  - paragraph [ref=f17e495]: مالك مقهى الواحة
+                  - paragraph [ref=f17e496]: مقهى الواحة11 يوليو 2026 12:30
+                - generic [ref=f17e505]:
+                  - paragraph [ref=f17e506]: ahmadmedo1012
+                  - paragraph [ref=f17e507]: —11 يوليو 2026 00:55
+                - generic [ref=f17e516]:
+                  - paragraph [ref=f17e517]: يشسش
+                  - paragraph [ref=f17e518]: دجاج وأكثر10 يوليو 2026 19:32
+                - generic [ref=f17e527]:
+                  - paragraph [ref=f17e528]: ede
+                  - paragraph [ref=f17e529]: برغر هاوس10 يوليو 2026 17:49
+                - generic [ref=f17e538]:
+                  - paragraph [ref=f17e539]: qaq
+                  - paragraph [ref=f17e540]: مطعم الموجة10 يوليو 2026 15:42
+                - generic [ref=f17e549]:
+                  - paragraph [ref=f17e550]: شضس
+                  - paragraph [ref=f17e551]: مطبخ سبها10 يوليو 2026 06:31
+                - generic [ref=f17e560]:
+                  - paragraph [ref=f17e561]: Loyalty Test
+                  - paragraph [ref=f17e562]: Loyalty Test10 يوليو 2026 02:19
+                - generic [ref=f17e571]:
+                  - paragraph [ref=f17e572]: Settings Test
+                  - paragraph [ref=f17e573]: مطعم المرسى10 يوليو 2026 02:16
+                - generic [ref=f17e582]:
+                  - paragraph [ref=f17e583]: Final Test Restaurant
+                  - paragraph [ref=f17e584]: Final Test Restaurant10 يوليو 2026 02:05
+            - generic [ref=f17e585]:
+              - heading "المطاعم الأكثر طلباً" [level=3] [ref=f17e590]
+              - generic [ref=f17e591]:
+                - generic [ref=f17e592]:
+                  - generic [ref=f17e593]: "1"
+                  - generic [ref=f17e595]:
+                    - generic [ref=f17e596]: مقهى الواحة
+                    - generic [ref=f17e597]: "30"
+                - generic [ref=f17e600]:
+                  - generic [ref=f17e601]: "2"
+                  - generic [ref=f17e603]:
+                    - generic [ref=f17e604]: Free Rest 1783368824
+                    - generic [ref=f17e605]: "2"
+                - generic [ref=f17e608]:
+                  - generic [ref=f17e609]: "3"
+                  - generic [ref=f17e611]:
+                    - generic [ref=f17e612]: Ahmed
+                    - generic [ref=f17e613]: "2"
+                - generic [ref=f17e616]:
+                  - generic [ref=f17e617]: "4"
+                  - generic [ref=f17e619]:
+                    - generic [ref=f17e620]: dsdsdd
+                    - generic [ref=f17e621]: "1"
+                - generic [ref=f17e624]:
+                  - generic [ref=f17e625]: "5"
+                  - generic [ref=f17e627]:
+                    - generic [ref=f17e628]: Test
+                    - generic [ref=f17e629]: "1"
+          - generic [ref=f17e632]:
+            - heading "إجراءات سريعة" [level=3] [ref=f17e633]
+            - generic [ref=f17e634]:
+              - link [ref=f17e635] [cursor=pointer]:
+                - /url: /admin/restaurants
+                - button "إضافة مطعم" [ref=f17e636]
+              - link [ref=f17e642] [cursor=pointer]:
+                - /url: /admin/orders
+                - button "الطلبات" [ref=f17e643]
+              - link [ref=f17e649] [cursor=pointer]:
+                - /url: /admin/users
+                - button "المستخدمين" [ref=f17e650]
+              - link [ref=f17e657] [cursor=pointer]:
+                - /url: /admin/audit-logs
+                - button "سجل التدقيق" [ref=f17e658]
+          - generic [ref=f17e662]: يتم التحديث تلقائياً كل 30 ثانية
+  - link "تواصل عبر واتساب" [ref=f17e46] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f17e49]

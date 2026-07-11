@@ -1,0 +1,177 @@
+- generic [active] [ref=f23e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f23e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f23e9]:
+    - generic [ref=f23e11]:
+      - generic [ref=f23e13]:
+        - generic [ref=f23e14]:
+          - button "فتح القائمة" [ref=f23e15]
+          - heading "لوحة التحكم" [level=1] [ref=f23e17]
+        - button "بحث سريع (⌘K)" [ref=f23e18]:
+          - generic [ref=f23e22]: بحث سريع...
+          - generic [ref=f23e23]:
+            - generic [ref=f23e24]: ⌘
+            - text: K
+        - button "الوضع الليلي" [ref=f23e25] [cursor=pointer]
+      - main "محتوى الصفحة" [ref=f23e30]:
+        - generic [ref=f23e32]:
+          - heading "إعدادات تليجرام" [level=2] [ref=f23e33]
+          - generic [ref=f23e34]:
+            - generic [ref=f23e35]:
+              - heading "إعدادات البوت" [level=3] [ref=f23e39]
+              - generic [ref=f23e40]: نشط
+            - generic [ref=f23e42]:
+              - generic [ref=f23e43]:
+                - generic [ref=f23e44] [cursor=pointer]: تفعيل إشعارات تليجرام
+                - switch "تفعيل إشعارات تليجرام" [checked] [ref=f23e48]
+                - checkbox [checked] [ref=f23e49]
+              - generic [ref=f23e50]:
+                - generic [ref=f23e51]: رمز البوت (Bot Token)
+                - generic [ref=f23e52]:
+                  - textbox "رمز البوت (Bot Token)" [ref=f23e53]:
+                    - /placeholder: 123456789:ABCdefGHIjklmNOPqrstUVwxyz
+                    - text: "***3CHo"
+                  - button "إظهار الرمز" [ref=f23e54]
+                - paragraph [ref=f23e58]:
+                  - text: احصل على الرمز من
+                  - link "@BotFather" [ref=f23e59] [cursor=pointer]:
+                    - /url: https://t.me/BotFather
+              - generic [ref=f23e60]:
+                - generic [ref=f23e61]: معرف المحادثة (Chat ID)
+                - textbox "معرف المحادثة (Chat ID)" [ref=f23e62]:
+                  - /placeholder: "-1001234567890"
+                  - text: "6926512460"
+                - paragraph [ref=f23e63]:
+                  - text: أرسل /start إلى
+                  - link "@userinfobot" [ref=f23e64] [cursor=pointer]:
+                    - /url: https://t.me/userinfobot
+                  - text: لمعرفة المعرف
+              - generic [ref=f23e65]:
+                - generic [ref=f23e66]: الأحداث المرسلة (مفصولة بفاصلة)
+                - textbox "الأحداث المرسلة (مفصولة بفاصلة)" [ref=f23e67]:
+                  - /placeholder: user_signup, restaurant_created, system_alert
+                  - text: user_signup, restaurant_created, system_alert
+                - paragraph [ref=f23e68]: "أمثلة: user_signup, restaurant_created, system_alert"
+              - generic [ref=f23e69]:
+                - button "حفظ الإعدادات" [ref=f23e70] [cursor=pointer]
+                - button "اختبار الإرسال" [ref=f23e71] [cursor=pointer]
+                - button "تشخيص" [ref=f23e72] [cursor=pointer]
+          - generic [ref=f23e73]:
+            - heading "جهات الإرسال (Broadcast Targets)" [level=3] [ref=f23e78]
+            - generic [ref=f23e80]:
+              - generic [ref=f23e81]:
+                - generic [ref=f23e82]:
+                  - generic [ref=f23e83]: تسمية
+                  - textbox "تسمية" [ref=f23e84]:
+                    - /placeholder: "مثال: قناة الإشعارات"
+                - generic [ref=f23e85]:
+                  - generic [ref=f23e86]: معرف المحادثة
+                  - textbox "معرف المحادثة" [ref=f23e87]:
+                    - /placeholder: "-100xxxx"
+                - button "إضافة" [disabled]
+              - generic [ref=f23e88]:
+                - generic [ref=f23e89]:
+                  - generic [ref=f23e90]:
+                    - paragraph [ref=f23e91]: SmartLink Group
+                    - paragraph [ref=f23e92]: "-100...838"
+                  - switch [checked] [ref=f23e93]
+                  - checkbox [checked] [ref=f23e94]
+                  - button [ref=f23e95] [cursor=pointer]
+                - generic [ref=f23e96]:
+                  - generic [ref=f23e97]:
+                    - paragraph [ref=f23e98]: SmartLink
+                    - paragraph [ref=f23e99]: "-100...117"
+                  - switch [checked] [ref=f23e100]
+                  - checkbox [checked] [ref=f23e101]
+                  - button [ref=f23e102] [cursor=pointer]
+                - generic [ref=f23e103]:
+                  - generic [ref=f23e104]:
+                    - paragraph [ref=f23e105]: الإعدادات القديمة (مُهاجر)
+                    - paragraph [ref=f23e106]: 6926...460
+                  - switch [checked] [ref=f23e107]
+                  - checkbox [checked] [ref=f23e108]
+                  - button [ref=f23e109] [cursor=pointer]
+              - paragraph [ref=f23e110]: "عدد المشرفين المرتبطين: 0"
+          - generic [ref=f23e116]:
+            - heading "الموافقون على الاشتراكات" [level=3] [ref=f23e122]
+            - generic [ref=f23e124]:
+              - paragraph [ref=f23e125]: أضف معرفات تليجرام لأشخاص إضافيين يمكنهم الموافقة أو رفض طلبات الاشتراك عبر البوت
+              - generic [ref=f23e126]:
+                - generic [ref=f23e127]:
+                  - generic [ref=f23e128]: معرف تليجرام (User ID)
+                  - spinbutton "معرف تليجرام (User ID)" [ref=f23e129]
+                - generic [ref=f23e130]:
+                  - generic [ref=f23e131]: تسمية
+                  - textbox "تسمية" [ref=f23e132]:
+                    - /placeholder: "مثال: أحمد"
+                - button "إضافة" [disabled]
+              - generic [ref=f23e133]:
+                - generic [ref=f23e134]:
+                  - generic [ref=f23e139]:
+                    - paragraph [ref=f23e140]: ارم البرعصي
+                    - paragraph [ref=f23e141]:
+                      - text: "8738389843"
+                      - generic [ref=f23e142]: · أضيف بواسطة ahmadmedo1012
+                  - button [ref=f23e143] [cursor=pointer]
+                - generic [ref=f23e144]:
+                  - generic [ref=f23e149]:
+                    - paragraph [ref=f23e150]: خليفة
+                    - paragraph [ref=f23e151]:
+                      - text: "8417620911"
+                      - generic [ref=f23e152]: · أضيف بواسطة ahmadmedo1012
+                  - button [ref=f23e153] [cursor=pointer]
+          - generic [ref=f23e154]:
+            - heading "نتيجة التشخيص" [level=3] [ref=f23e160]
+            - generic [ref=f23e162]:
+              - generic [ref=f23e163]:
+                - generic [ref=f23e164]: الإعدادات موجودة
+                - generic [ref=f23e165]: نعم
+              - generic [ref=f23e166]:
+                - generic [ref=f23e167]: البوت نشط
+                - generic [ref=f23e168]: نعم
+              - generic [ref=f23e169]:
+                - generic [ref=f23e170]: رمز البوت
+                - generic [ref=f23e171]: 8949...
+              - generic [ref=f23e172]:
+                - generic [ref=f23e173]: الأحداث
+                - generic [ref=f23e174]: user_signup, restaurant_created, system_alert
+              - paragraph [ref=f23e179]: اتصال API سليم — البوت يعمل بشكل صحيح
+              - generic [ref=f23e180]:
+                - heading "نتائج جهات الإرسال" [level=4] [ref=f23e181]
+                - generic [ref=f23e182]:
+                  - generic [ref=f23e183]:
+                    - generic [ref=f23e184]: الإعدادات القديمة (مُهاجر)
+                    - generic [ref=f23e185]: ⏳ لم يُختبر
+                  - generic [ref=f23e186]:
+                    - generic [ref=f23e187]: SmartLink
+                    - generic [ref=f23e188]: ⏳ لم يُختبر
+                  - generic [ref=f23e189]:
+                    - generic [ref=f23e190]: SmartLink Group
+                    - generic [ref=f23e191]: ⏳ لم يُختبر
+          - generic [ref=f23e193]:
+            - heading "💡 خطوات التفعيل" [level=3] [ref=f23e194]
+            - list [ref=f23e195]:
+              - listitem [ref=f23e196]: قم بإضافة البوت الخاص بالمنصة كمشرف (Admin) داخل قناتك أو مجموعتك الخاصة.
+              - listitem [ref=f23e197]: تأكد من تفعيل صلاحية "نشر الرسائل" (Post Messages).
+              - listitem [ref=f23e198]: الصق معرف القناة (تبدأ بـ -100) هنا لحفظ الإعدادات.
+          - generic [ref=f23e200]:
+            - heading "كيفية الإعداد" [level=3] [ref=f23e201]
+            - list [ref=f23e202]:
+              - listitem [ref=f23e203]:
+                - text: افتح
+                - link "@BotFather" [ref=f23e204] [cursor=pointer]:
+                  - /url: https://t.me/BotFather
+                - text: في تليجرام وأنشئ بوت جديد
+              - listitem [ref=f23e205]: انسخ الرمز (token) والصقه في حقل رمز البوت
+              - listitem [ref=f23e206]:
+                - text: أرسل أي رسالة إلى بوتك الجديد، ثم افتح
+                - link "@userinfobot" [ref=f23e207] [cursor=pointer]:
+                  - /url: https://t.me/userinfobot
+                - text: لمعرفة معرف المحادثة
+              - listitem [ref=f23e208]: أدخل المعرف في حقل معرف المحادثة واحفظ الإعدادات
+              - listitem [ref=f23e209]: اضغط اختبار الإرسال للتحقق من العمل
+  - link "تواصل عبر واتساب" [ref=f23e4] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f23e7]

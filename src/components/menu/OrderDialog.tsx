@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Minus, Plus, MessageCircle, X, Check, Store } from "lucide-react";
-import { csrfFetch } from "@/lib/csrf-client";
+import { useState, useEffect, useCallback } from "react";
+import { Minus, Plus, X, Check, Store, MessageCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +15,6 @@ import type { MenuItemProp } from "./MenuItemCard";
 import { toArabicNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
-import { buildReceiptMessage } from "@/lib/receipt";
 import { useCart } from "@/store/cart";
 
 type OrderDialogProps = {
@@ -27,7 +25,6 @@ type OrderDialogProps = {
   restaurantName?: string;
   restaurantId: number;
   restaurantLogo?: string;
-  restaurantSlug?: string;
 };
 
 const QUICK_NOTES = [
@@ -42,7 +39,6 @@ export default function OrderDialog({
   restaurantName,
   restaurantId,
   restaurantLogo,
-  restaurantSlug,
 }: OrderDialogProps) {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => { setIsMobile(window.innerWidth < 640); }, []);
@@ -66,53 +62,44 @@ export default function OrderDialog({
   const totalPrice = currentPrice * quantity;
   const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(() => {
     if (!restaurantWhatsapp) return;
     setSubmitting(true);
 
-    // Save order to DB (best-effort — WhatsApp receipt is primary)
-    try {
-      const orderRes = await csrfFetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: [{ itemId: item.id, quantity, notes: notes.trim(), price: currentPrice }],
-          customerName: customerName.trim(),
-          customerPhone: customerPhone.trim(),
-          notes,
-          pickupType: orderType,
-          subtotal: totalPrice,
-          total: totalPrice,
-          restaurantId,
-        }),
+    // Sync item to cart store (unified path with MenuPageClient)
+    const addItem = useCart.getState().addItem;
+    const setCustomerInfo = () => {
+      const s = useCart.getState();
+      if (customerName.trim()) s.setCustomerName(customerName.trim());
+      if (customerPhone.trim()) s.setCustomerPhone(customerPhone.trim());
+      s.setPickupType(orderType);
+      s.setOrderNotes(notes.trim());
+    };
+    // Add item with quantity matching dialog selection
+    for (let i = 0; i < quantity; i++) {
+      addItem({
+        itemId: item.id,
+        name: displayName,
+        price: currentPrice,
+        image: item.image || undefined,
+        restaurantId,
       });
-      if (!orderRes.ok) await orderRes.text().catch(() => {});
-    } catch { /* silent — WhatsApp receipt is primary */ }
-
-    const origin = window.location.origin;
-    const menuUrl = restaurantSlug ? `${origin}/menu/${restaurantSlug}` : undefined;
-
-    const receipt = buildReceiptMessage({
-      restaurantName: restaurantName || "المطعم",
-      items: [{ name: displayName, qty: quantity, price: currentPrice, notes: notes.trim() || undefined }],
-      totalPrice,
-      notes: notes.trim() || undefined,
-      customerName: customerName.trim() || undefined,
-      customerPhone: customerPhone.trim() || undefined,
-      pickupType: orderType,
-      menuUrl: menuUrl,
-    });
-
-    const encoded = encodeURIComponent(receipt);
-    const waNumber = restaurantWhatsapp.replace(/^\+/, "");
-    window.open(`https://wa.me/${waNumber}?text=${encoded}`, "_blank");
+    }
+    // Set notes on the cart item(s)
+    const cartItem = useCart.getState().items.find(i => i.itemId === item.id);
+    if (cartItem && notes.trim()) {
+      useCart.getState().updateNotes(cartItem.id, notes.trim());
+    }
+    setCustomerInfo();
 
     setSubmitting(false);
     setConfirmed(true);
     setTimeout(() => {
       onOpenChange(false);
-    }, 1500);
-  };
+      // Redirect to unified cart page where user reviews + sends WhatsApp
+      window.location.href = "/cart";
+    }, 800);
+  }, [item, restaurantWhatsapp, customerName, customerPhone, orderType, notes, quantity, displayName, currentPrice, restaurantId, onOpenChange]);
 
   const toggleQuickNote = (note: string) => {
     setNotes((prev) => {

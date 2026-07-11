@@ -1,0 +1,238 @@
+- generic [active] [ref=f18e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f18e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f18e9]:
+    - generic [ref=f18e11]:
+      - generic [ref=f18e13]:
+        - generic [ref=f18e14]:
+          - button "فتح القائمة" [ref=f18e15]
+          - heading "لوحة التحكم" [level=1] [ref=f18e17]
+        - button "بحث سريع (⌘K)" [ref=f18e18]:
+          - generic [ref=f18e22]: بحث سريع...
+          - generic [ref=f18e23]:
+            - generic [ref=f18e24]: ⌘
+            - text: K
+        - button "الوضع الليلي" [ref=f18e25] [cursor=pointer]
+      - main "محتوى الصفحة" [ref=f18e30]:
+        - generic [ref=f18e32]:
+          - generic [ref=f18e33]:
+            - generic [ref=f18e34]:
+              - heading "إدارة المطاعم" [level=2] [ref=f18e35]
+              - paragraph [ref=f18e36]: 133 مطعم
+            - button "إضافة مطعم" [ref=f18e37] [cursor=pointer]
+          - generic [ref=f18e38]:
+            - textbox "ابحث عن مطعم" [ref=f18e40]:
+              - /placeholder: ابحث باسم أو رابط أو هاتف...
+            - combobox "فلتر الخطة" [ref=f18e41]:
+              - generic [ref=f18e42]: all
+              - img: ▼
+            - textbox [ref=f18e43]: all
+          - generic [ref=f18e44]:
+            - generic [ref=f18e45]:
+              - paragraph [ref=f18e46]: إجمالي المطاعم
+              - paragraph [ref=f18e47]: "133"
+            - generic [ref=f18e48]:
+              - paragraph [ref=f18e49]: على الخطة المدفوعة
+              - paragraph [ref=f18e50]: "8"
+            - generic [ref=f18e51]:
+              - paragraph [ref=f18e52]: إجمالي الطلبات
+              - paragraph [ref=f18e53]: "0"
+            - generic [ref=f18e54]:
+              - paragraph [ref=f18e55]: مجاني
+              - paragraph [ref=f18e56]: "2"
+          - generic [ref=f18e57]:
+            - checkbox "تحديد الكل" [ref=f18e58]
+            - generic [ref=f18e59] [cursor=pointer]: تحديد الكل
+          - generic [ref=f18e60]:
+            - generic [ref=f18e62]:
+              - generic [ref=f18e63]:
+                - checkbox "تحديد ينني" [ref=f18e64]
+                - generic [ref=f18e70]:
+                  - generic [ref=f18e71]:
+                    - heading "ينني" [level=3] [ref=f18e72]
+                    - generic [ref=f18e73]: شركات
+                  - generic [ref=f18e74]:
+                    - generic [ref=f18e75]: /sjj
+                    - generic [ref=f18e76]: "2872722727"
+                    - generic [ref=f18e77]: 0 طلب
+              - generic [ref=f18e83]:
+                - link "عرض منيو ينني" [ref=f18e84] [cursor=pointer]:
+                  - /url: /menu/sjj
+                - button "عرض ينني في الرئيسية" [ref=f18e89]
+                - button "تعديل ينني" [ref=f18e93]
+                - button "حذف ينني" [ref=f18e97]
+            - generic [ref=f18e102]:
+              - generic [ref=f18e103]:
+                - checkbox "تحديد wsw" [ref=f18e104]
+                - generic [ref=f18e108]:
+                  - generic [ref=f18e109]:
+                    - heading "wsw" [level=3] [ref=f18e110]
+                    - generic [ref=f18e111]: أساسي
+                  - generic [ref=f18e112]:
+                    - generic [ref=f18e113]: /wssqws
+                    - generic [ref=f18e114]: "323232323"
+                    - generic [ref=f18e115]: 0 طلب
+              - generic [ref=f18e121]:
+                - link "عرض منيو wsw" [ref=f18e122] [cursor=pointer]:
+                  - /url: /menu/wssqws
+                - button "عرض wsw في الرئيسية" [ref=f18e127]
+                - button "تعديل wsw" [ref=f18e131]
+                - button "حذف wsw" [ref=f18e135]
+            - generic [ref=f18e140]:
+              - generic [ref=f18e141]:
+                - checkbox "تحديد فلافل عربية" [ref=f18e142]
+                - generic [ref=f18e146]:
+                  - generic [ref=f18e147]:
+                    - heading "فلافل عربية" [level=3] [ref=f18e148]
+                    - generic [ref=f18e149]: أساسي
+                  - generic [ref=f18e150]:
+                    - generic [ref=f18e151]: /23sas
+                    - generic [ref=f18e152]: "323232434"
+                    - generic [ref=f18e153]: 0 طلب
+                    - generic [ref=f18e158]: الخمس
+              - generic [ref=f18e159]:
+                - link "عرض منيو فلافل عربية" [ref=f18e160] [cursor=pointer]:
+                  - /url: /menu/23sas
+                - button "عرض فلافل عربية في الرئيسية" [ref=f18e165]
+                - button "تعديل فلافل عربية" [ref=f18e169]
+                - button "حذف فلافل عربية" [ref=f18e173]
+            - generic [ref=f18e178]:
+              - generic [ref=f18e179]:
+                - checkbox "تحديد دجاج وأكثر" [ref=f18e180]
+                - generic [ref=f18e184]:
+                  - generic [ref=f18e185]:
+                    - heading "دجاج وأكثر" [level=3] [ref=f18e186]
+                    - generic [ref=f18e187]: أساسي
+                  - generic [ref=f18e188]:
+                    - generic [ref=f18e189]: /-----
+                    - generic [ref=f18e190]: "3232323"
+                    - generic [ref=f18e191]: 0 طلب
+                    - generic [ref=f18e196]: طرابلس
+              - generic [ref=f18e197]:
+                - link "عرض منيو دجاج وأكثر" [ref=f18e198] [cursor=pointer]:
+                  - /url: /menu/-----
+                - button "عرض دجاج وأكثر في الرئيسية" [ref=f18e203]
+                - button "تعديل دجاج وأكثر" [ref=f18e207]
+                - button "حذف دجاج وأكثر" [ref=f18e211]
+            - generic [ref=f18e216]:
+              - generic [ref=f18e217]:
+                - checkbox "تحديد معجنات الضيعة" [ref=f18e218]
+                - generic [ref=f18e222]:
+                  - generic [ref=f18e223]:
+                    - heading "معجنات الضيعة" [level=3] [ref=f18e224]
+                    - generic [ref=f18e225]: أساسي
+                  - generic [ref=f18e226]:
+                    - generic [ref=f18e227]: /jjhhdhd
+                    - generic [ref=f18e228]: "929292"
+                    - generic [ref=f18e229]: 0 طلب
+                    - generic [ref=f18e234]: مصراتة
+              - generic [ref=f18e235]:
+                - link "عرض منيو معجنات الضيعة" [ref=f18e236] [cursor=pointer]:
+                  - /url: /menu/jjhhdhd
+                - button "عرض معجنات الضيعة في الرئيسية" [ref=f18e241]
+                - button "تعديل معجنات الضيعة" [ref=f18e245]
+                - button "حذف معجنات الضيعة" [ref=f18e249]
+            - generic [ref=f18e254]:
+              - generic [ref=f18e255]:
+                - checkbox "تحديد مطعم الموجة" [ref=f18e256]
+                - generic [ref=f18e260]:
+                  - generic [ref=f18e261]:
+                    - heading "مطعم الموجة" [level=3] [ref=f18e262]
+                    - generic [ref=f18e263]: أساسي
+                  - generic [ref=f18e264]:
+                    - generic [ref=f18e265]: /ssss
+                    - generic [ref=f18e266]: "121212"
+                    - generic [ref=f18e267]: 0 طلب
+                    - generic [ref=f18e272]: بنغازي
+              - generic [ref=f18e273]:
+                - link "عرض منيو مطعم الموجة" [ref=f18e274] [cursor=pointer]:
+                  - /url: /menu/ssss
+                - button "عرض مطعم الموجة في الرئيسية" [ref=f18e279]
+                - button "تعديل مطعم الموجة" [ref=f18e283]
+                - button "حذف مطعم الموجة" [ref=f18e287]
+            - generic [ref=f18e292]:
+              - generic [ref=f18e293]:
+                - checkbox "تحديد مطبخ سبها" [ref=f18e294]
+                - generic [ref=f18e298]:
+                  - generic [ref=f18e299]:
+                    - heading "مطبخ سبها" [level=3] [ref=f18e300]
+                    - generic [ref=f18e301]: احترافي
+                  - generic [ref=f18e302]:
+                    - generic [ref=f18e303]: /sas
+                    - generic [ref=f18e304]: "21212"
+                    - generic [ref=f18e305]: 0 طلب
+                    - generic [ref=f18e310]: سبها
+              - generic [ref=f18e311]:
+                - link "عرض منيو مطبخ سبها" [ref=f18e312] [cursor=pointer]:
+                  - /url: /menu/sas
+                - button "عرض مطبخ سبها في الرئيسية" [ref=f18e317]
+                - button "تعديل مطبخ سبها" [ref=f18e321]
+                - button "حذف مطبخ سبها" [ref=f18e325]
+            - generic [ref=f18e330]:
+              - generic [ref=f18e331]:
+                - checkbox "تحديد برغر هاوس" [ref=f18e332]
+                - generic [ref=f18e336]:
+                  - generic [ref=f18e337]:
+                    - heading "برغر هاوس" [level=3] [ref=f18e338]
+                    - generic [ref=f18e339]: أساسي
+                  - generic [ref=f18e340]:
+                    - generic [ref=f18e341]: /ede
+                    - generic [ref=f18e342]: "0942119637"
+                    - generic [ref=f18e343]: 0 طلب
+                    - generic [ref=f18e348]: الزاوية
+              - generic [ref=f18e349]:
+                - link "عرض منيو برغر هاوس" [ref=f18e350] [cursor=pointer]:
+                  - /url: /menu/ede
+                - button "إخفاء برغر هاوس من الرئيسية" [ref=f18e355]
+                - button "تعديل برغر هاوس" [ref=f18e359]
+                - button "حذف برغر هاوس" [ref=f18e363]
+            - generic [ref=f18e368]:
+              - generic [ref=f18e369]:
+                - checkbox "تحديد بيتزا روما" [ref=f18e370]
+                - generic [ref=f18e375]:
+                  - generic [ref=f18e376]:
+                    - heading "بيتزا روما" [level=3] [ref=f18e377]
+                    - generic [ref=f18e378]: مجاني
+                  - generic [ref=f18e379]:
+                    - generic [ref=f18e380]: /test-full-ts
+                    - generic [ref=f18e381]: "0912345678"
+                    - generic [ref=f18e382]: 0 طلب
+                    - generic [ref=f18e387]: طرابلس
+              - generic [ref=f18e388]:
+                - link "عرض منيو بيتزا روما" [ref=f18e389] [cursor=pointer]:
+                  - /url: /menu/test-full-ts
+                - button "إخفاء بيتزا روما من الرئيسية" [ref=f18e394]
+                - button "تعديل بيتزا روما" [ref=f18e398]
+                - button "حذف بيتزا روما" [ref=f18e402]
+            - generic [ref=f18e407]:
+              - generic [ref=f18e408]:
+                - checkbox "تحديد مطعم المرسى" [ref=f18e409]
+                - generic [ref=f18e414]:
+                  - generic [ref=f18e415]:
+                    - heading "مطعم المرسى" [level=3] [ref=f18e416]
+                    - generic [ref=f18e417]: بدون خطة
+                  - generic [ref=f18e418]:
+                    - generic [ref=f18e419]: /settings-test-ts
+                    - generic [ref=f18e420]: "+21890000002"
+                    - generic [ref=f18e421]: 0 طلب
+                    - generic [ref=f18e426]: مصراتة
+              - generic [ref=f18e427]:
+                - link "عرض منيو مطعم المرسى" [ref=f18e428] [cursor=pointer]:
+                  - /url: /menu/settings-test-ts
+                - button "إخفاء مطعم المرسى من الرئيسية" [ref=f18e433]
+                - button "تعديل مطعم المرسى" [ref=f18e437]
+                - button "حذف مطعم المرسى" [ref=f18e441]
+          - generic [ref=f18e445]:
+            - button "الصفحة السابقة" [disabled]
+            - button "الصفحة 1" [ref=f18e446] [cursor=pointer]: "1"
+            - button "الصفحة 2" [ref=f18e447] [cursor=pointer]: "2"
+            - button "الصفحة 3" [ref=f18e448] [cursor=pointer]: "3"
+            - button "الصفحة 4" [ref=f18e449] [cursor=pointer]: "4"
+            - button "الصفحة 5" [ref=f18e450] [cursor=pointer]: "5"
+            - button "الصفحة التالية" [ref=f18e451] [cursor=pointer]
+            - generic [ref=f18e452]: الصفحة 1 من 14
+  - link "تواصل عبر واتساب" [ref=f18e4] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f18e7]

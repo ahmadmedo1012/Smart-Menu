@@ -1,0 +1,74 @@
+- generic [active] [ref=f22e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f22e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f22e9]:
+    - generic [ref=f22e11]:
+      - generic [ref=f22e13]:
+        - generic [ref=f22e14]:
+          - button "فتح القائمة" [ref=f22e15]
+          - heading "لوحة التحكم" [level=1] [ref=f22e17]
+        - button "بحث سريع (⌘K)" [ref=f22e18]:
+          - generic [ref=f22e22]: بحث سريع...
+          - generic [ref=f22e23]:
+            - generic [ref=f22e24]: ⌘
+            - text: K
+        - button "الوضع الليلي" [ref=f22e25] [cursor=pointer]
+      - main "محتوى الصفحة" [ref=f22e30]:
+        - generic [ref=f22e32]:
+          - heading "الإعدادات" [level=2] [ref=f22e33]
+          - generic [ref=f22e34]:
+            - button "المطاعم" [ref=f22e35]
+            - button "الملف الشخصي" [ref=f22e40]
+            - button "إعدادات النظام" [ref=f22e44]
+          - generic [ref=f22e48]:
+            - heading "إعدادات المطاعم" [level=3] [ref=f22e54]
+            - generic [ref=f22e55]:
+              - button "ينني" [ref=f22e56]
+              - button "wsw" [ref=f22e61]
+              - button "فلافل عربية" [ref=f22e66]
+              - button "دجاج وأكثر" [ref=f22e71]
+              - button "معجنات الضيعة" [ref=f22e76]
+              - button "مطعم الموجة" [ref=f22e81]
+              - button "مطبخ سبها" [ref=f22e86]
+              - button "برغر هاوس" [ref=f22e91]
+              - button "بيتزا روما" [ref=f22e96]
+              - button "مطعم المرسى" [ref=f22e101]
+            - generic [ref=f22e106]:
+              - generic [ref=f22e114]:
+                - heading "ينني" [level=3] [ref=f22e115]
+                - paragraph [ref=f22e116]: /sjj
+              - generic [ref=f22e117]:
+                - generic [ref=f22e118]:
+                  - generic [ref=f22e119]: الاسم
+                  - textbox "الاسم" [ref=f22e120]: ينني
+                - generic [ref=f22e121]:
+                  - generic [ref=f22e122]: الوصف
+                  - textbox "الوصف" [ref=f22e123]
+                - generic [ref=f22e124]:
+                  - generic [ref=f22e125]:
+                    - generic [ref=f22e126]: الهاتف
+                    - textbox "الهاتف" [ref=f22e129]: "2872722727"
+                  - generic [ref=f22e130]:
+                    - generic [ref=f22e131]: واتساب
+                    - textbox "واتساب" [ref=f22e134]
+                - generic [ref=f22e135]:
+                  - generic [ref=f22e136]:
+                    - generic [ref=f22e137]: البريد
+                    - textbox "البريد" [ref=f22e141]
+                  - generic [ref=f22e142]:
+                    - generic [ref=f22e143]: العنوان
+                    - textbox "العنوان" [ref=f22e147]
+                - generic [ref=f22e148]:
+                  - generic [ref=f22e149]:
+                    - generic [ref=f22e150]: ساعات العمل
+                    - textbox "ساعات العمل" [ref=f22e154]
+                  - generic [ref=f22e155]:
+                    - generic [ref=f22e156]: رابط الشعار
+                    - textbox "رابط الشعار" [ref=f22e161]:
+                      - /placeholder: https://...
+                - button "حفظ" [ref=f22e163] [cursor=pointer]
+  - link "تواصل عبر واتساب" [ref=f22e4] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f22e7]

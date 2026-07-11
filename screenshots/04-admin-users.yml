@@ -1,0 +1,220 @@
+- generic [active] [ref=f19e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f19e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f19e9]:
+    - generic [ref=f19e11]:
+      - generic [ref=f19e13]:
+        - generic [ref=f19e14]:
+          - button "فتح القائمة" [ref=f19e15]
+          - heading "لوحة التحكم" [level=1] [ref=f19e17]
+        - button "بحث سريع (⌘K)" [ref=f19e18]:
+          - generic [ref=f19e22]: بحث سريع...
+          - generic [ref=f19e23]:
+            - generic [ref=f19e24]: ⌘
+            - text: K
+        - button "الوضع الليلي" [ref=f19e25] [cursor=pointer]
+      - main "محتوى الصفحة" [ref=f19e30]:
+        - generic [ref=f19e32]:
+          - generic [ref=f19e34]:
+            - heading "إدارة المستخدمين" [level=2] [ref=f19e35]
+            - paragraph [ref=f19e36]: 139 مستخدم
+          - generic [ref=f19e37]:
+            - generic [ref=f19e38]:
+              - paragraph [ref=f19e39]: إجمالي
+              - paragraph [ref=f19e40]: "139"
+            - generic [ref=f19e41]:
+              - paragraph [ref=f19e42]: مديرون
+              - paragraph [ref=f19e43]: "0"
+            - generic [ref=f19e44]:
+              - paragraph [ref=f19e45]: أصحاب مطاعم
+              - paragraph [ref=f19e46]: "15"
+            - generic [ref=f19e47]:
+              - paragraph [ref=f19e48]: مرتبط بمطعم
+              - paragraph [ref=f19e49]: "15"
+          - generic [ref=f19e50]:
+            - textbox "ابحث عن مستخدم" [ref=f19e52]:
+              - /placeholder: ابحث باسم المستخدم أو المطعم...
+            - combobox "فلتر الدور" [ref=f19e53]:
+              - generic [ref=f19e54]: all
+              - img: ▼
+            - textbox [ref=f19e55]: all
+          - generic [ref=f19e56]:
+            - generic [ref=f19e58]:
+              - generic [ref=f19e64]:
+                - generic [ref=f19e65]:
+                  - paragraph [ref=f19e66]: ينني
+                  - generic [ref=f19e67]: مالك
+                - paragraph [ref=f19e68]:
+                  - text: "@kkkkii"
+                  - generic [ref=f19e69]: ينني
+              - generic [ref=f19e74]:
+                - button "إعادة تعيين كلمة مرور ينني" [ref=f19e75]
+                - button "حذف ينني" [ref=f19e80]
+            - generic [ref=f19e85]:
+              - generic [ref=f19e91]:
+                - generic [ref=f19e92]:
+                  - paragraph [ref=f19e93]: wsw
+                  - generic [ref=f19e94]: مالك
+                - paragraph [ref=f19e95]:
+                  - text: "@wwswsw"
+                  - generic [ref=f19e96]: wsw
+              - generic [ref=f19e101]:
+                - button "إعادة تعيين كلمة مرور wsw" [ref=f19e102]
+                - button "حذف wsw" [ref=f19e107]
+            - generic [ref=f19e112]:
+              - generic [ref=f19e118]:
+                - generic [ref=f19e119]:
+                  - paragraph [ref=f19e120]: صصصص
+                  - generic [ref=f19e121]: مالك
+                - paragraph [ref=f19e122]:
+                  - text: "@223322"
+                  - generic [ref=f19e123]: فلافل عربية
+              - generic [ref=f19e128]:
+                - button "إعادة تعيين كلمة مرور صصصص" [ref=f19e129]
+                - button "حذف صصصص" [ref=f19e134]
+            - generic [ref=f19e139]:
+              - generic [ref=f19e145]:
+                - generic [ref=f19e146]:
+                  - paragraph [ref=f19e147]: يشسش
+                  - generic [ref=f19e148]: مالك
+                - paragraph [ref=f19e149]:
+                  - text: "@eewwee"
+                  - generic [ref=f19e150]: دجاج وأكثر
+              - generic [ref=f19e155]:
+                - button "إعادة تعيين كلمة مرور يشسش" [ref=f19e156]
+                - button "حذف يشسش" [ref=f19e161]
+            - generic [ref=f19e166]:
+              - generic [ref=f19e172]:
+                - generic [ref=f19e173]:
+                  - paragraph [ref=f19e174]: Fif
+                  - generic [ref=f19e175]: مالك
+                - paragraph [ref=f19e176]:
+                  - text: "@Jjjjj"
+                  - generic [ref=f19e177]: معجنات الضيعة
+              - generic [ref=f19e182]:
+                - button "إعادة تعيين كلمة مرور Fif" [ref=f19e183]
+                - button "حذف Fif" [ref=f19e188]
+            - generic [ref=f19e193]:
+              - generic [ref=f19e199]:
+                - generic [ref=f19e200]:
+                  - paragraph [ref=f19e201]: qaq
+                  - generic [ref=f19e202]: مالك
+                - paragraph [ref=f19e203]:
+                  - text: "@fffrr"
+                  - generic [ref=f19e204]: مطعم الموجة
+              - generic [ref=f19e209]:
+                - button "إعادة تعيين كلمة مرور qaq" [ref=f19e210]
+                - button "حذف qaq" [ref=f19e215]
+            - generic [ref=f19e220]:
+              - generic [ref=f19e226]:
+                - generic [ref=f19e227]:
+                  - paragraph [ref=f19e228]: شضس
+                  - generic [ref=f19e229]: مالك
+                - paragraph [ref=f19e230]:
+                  - text: "@swsw"
+                  - generic [ref=f19e231]: مطبخ سبها
+              - generic [ref=f19e236]:
+                - button "إعادة تعيين كلمة مرور شضس" [ref=f19e237]
+                - button "حذف شضس" [ref=f19e242]
+            - generic [ref=f19e247]:
+              - generic [ref=f19e253]:
+                - generic [ref=f19e254]:
+                  - paragraph [ref=f19e255]: ede
+                  - generic [ref=f19e256]: مالك
+                - paragraph [ref=f19e257]:
+                  - text: "@medo"
+                  - generic [ref=f19e258]: برغر هاوس
+              - generic [ref=f19e263]:
+                - button "إعادة تعيين كلمة مرور ede" [ref=f19e264]
+                - button "حذف ede" [ref=f19e269]
+            - generic [ref=f19e274]:
+              - generic [ref=f19e280]:
+                - generic [ref=f19e281]:
+                  - paragraph [ref=f19e282]: Settings Test
+                  - generic [ref=f19e283]: مالك
+                - paragraph [ref=f19e284]:
+                  - text: "@settings_ts"
+                  - generic [ref=f19e285]: مطعم المرسى
+              - generic [ref=f19e290]:
+                - button "إعادة تعيين كلمة مرور Settings Test" [ref=f19e291]
+                - button "حذف Settings Test" [ref=f19e296]
+            - generic [ref=f19e301]:
+              - generic [ref=f19e307]:
+                - generic [ref=f19e308]:
+                  - paragraph [ref=f19e309]: Loyalty Test
+                  - generic [ref=f19e310]: مالك
+                - paragraph [ref=f19e311]:
+                  - text: "@loyalty_ts"
+                  - generic [ref=f19e312]: Loyalty Test
+              - generic [ref=f19e317]:
+                - button "إعادة تعيين كلمة مرور Loyalty Test" [ref=f19e318]
+                - button "حذف Loyalty Test" [ref=f19e323]
+            - generic [ref=f19e328]:
+              - generic [ref=f19e334]:
+                - generic [ref=f19e335]:
+                  - paragraph [ref=f19e336]: Final Test Restaurant
+                  - generic [ref=f19e337]: مالك
+                - paragraph [ref=f19e338]:
+                  - text: "@fin_1783641551"
+                  - generic [ref=f19e339]: Final Test Restaurant
+              - generic [ref=f19e344]:
+                - button "إعادة تعيين كلمة مرور Final Test Restaurant" [ref=f19e345]
+                - button "حذف Final Test Restaurant" [ref=f19e350]
+            - generic [ref=f19e355]:
+              - generic [ref=f19e361]:
+                - generic [ref=f19e362]:
+                  - paragraph [ref=f19e363]: Active Restaurant
+                  - generic [ref=f19e364]: مالك
+                - paragraph [ref=f19e365]:
+                  - text: "@act2_1783641539"
+                  - generic [ref=f19e366]: Active Restaurant
+              - generic [ref=f19e371]:
+                - button "إعادة تعيين كلمة مرور Active Restaurant" [ref=f19e372]
+                - button "حذف Active Restaurant" [ref=f19e377]
+            - generic [ref=f19e382]:
+              - generic [ref=f19e388]:
+                - generic [ref=f19e389]:
+                  - paragraph [ref=f19e390]: Test Restaurant Active
+                  - generic [ref=f19e391]: مالك
+                - paragraph [ref=f19e392]:
+                  - text: "@act_1783641488"
+                  - generic [ref=f19e393]: Test Restaurant Active
+              - generic [ref=f19e398]:
+                - button "إعادة تعيين كلمة مرور Test Restaurant Active" [ref=f19e399]
+                - button "حذف Test Restaurant Active" [ref=f19e404]
+            - generic [ref=f19e409]:
+              - generic [ref=f19e415]:
+                - generic [ref=f19e416]:
+                  - paragraph [ref=f19e417]: مطعم الاختبار
+                  - generic [ref=f19e418]: مالك
+                - paragraph [ref=f19e419]:
+                  - text: "@owner_1783641378"
+                  - generic [ref=f19e420]: مطعم الاختبار
+              - generic [ref=f19e425]:
+                - button "إعادة تعيين كلمة مرور مطعم الاختبار" [ref=f19e426]
+                - button "حذف مطعم الاختبار" [ref=f19e431]
+            - generic [ref=f19e436]:
+              - generic [ref=f19e442]:
+                - generic [ref=f19e443]:
+                  - paragraph [ref=f19e444]: aqaa
+                  - generic [ref=f19e445]: مالك
+                - paragraph [ref=f19e446]:
+                  - text: "@22222"
+                  - generic [ref=f19e447]: aqaa
+              - generic [ref=f19e452]:
+                - button "إعادة تعيين كلمة مرور aqaa" [ref=f19e453]
+                - button "حذف aqaa" [ref=f19e458]
+          - generic [ref=f19e462]:
+            - button "الصفحة السابقة" [disabled]
+            - button "الصفحة 1" [ref=f19e463] [cursor=pointer]: "1"
+            - button "الصفحة 2" [ref=f19e464] [cursor=pointer]: "2"
+            - button "الصفحة 3" [ref=f19e465] [cursor=pointer]: "3"
+            - button "الصفحة 4" [ref=f19e466] [cursor=pointer]: "4"
+            - button "الصفحة 5" [ref=f19e467] [cursor=pointer]: "5"
+            - button "الصفحة التالية" [ref=f19e468] [cursor=pointer]
+            - generic [ref=f19e469]: الصفحة 1 من 10
+  - link "تواصل عبر واتساب" [ref=f19e4] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f19e7]

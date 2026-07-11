@@ -1,0 +1,93 @@
+- generic [active] [ref=f24e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f24e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f24e9]:
+    - generic [ref=f24e11]:
+      - generic [ref=f24e13]:
+        - generic [ref=f24e14]:
+          - button "فتح القائمة" [ref=f24e15]
+          - heading "لوحة التحكم" [level=1] [ref=f24e17]
+        - button "بحث سريع (⌘K)" [ref=f24e18]:
+          - generic [ref=f24e22]: بحث سريع...
+          - generic [ref=f24e23]:
+            - generic [ref=f24e24]: ⌘
+            - text: K
+        - button "الوضع الليلي" [ref=f24e25] [cursor=pointer]
+      - main "محتوى الصفحة" [ref=f24e30]:
+        - generic [ref=f24e32]:
+          - generic [ref=f24e33]:
+            - generic [ref=f24e34]:
+              - heading "إدارة المسؤولين" [level=2] [ref=f24e35]
+              - paragraph [ref=f24e36]: 5 مسؤول
+            - button "إضافة مسؤول" [ref=f24e37] [cursor=pointer]
+          - generic [ref=f24e38]:
+            - generic [ref=f24e39]:
+              - paragraph [ref=f24e40]: إجمالي
+              - paragraph [ref=f24e41]: "5"
+            - generic [ref=f24e42]:
+              - paragraph [ref=f24e43]: مدير عام
+              - paragraph [ref=f24e44]: "3"
+            - generic [ref=f24e45]:
+              - paragraph [ref=f24e46]: مسؤول
+              - paragraph [ref=f24e47]: "2"
+            - generic [ref=f24e48]:
+              - paragraph [ref=f24e49]: نشط اليوم
+              - paragraph [ref=f24e50]: "2"
+          - generic [ref=f24e51]:
+            - heading "المدراء العامون" [level=3] [ref=f24e52]
+            - generic [ref=f24e55]:
+              - generic [ref=f24e57]:
+                - generic [ref=f24e62]:
+                  - paragraph [ref=f24e63]: suuperadmin
+                  - paragraph [ref=f24e64]: "@suuperadmin"
+                - generic [ref=f24e65]: مدير عام
+              - generic [ref=f24e67]:
+                - generic [ref=f24e72]:
+                  - paragraph [ref=f24e73]: ahmadmedo1012
+                  - paragraph [ref=f24e74]: "@ahmadmedo1012"
+                - generic [ref=f24e75]: مدير عام
+              - generic [ref=f24e77]:
+                - generic [ref=f24e82]:
+                  - paragraph [ref=f24e83]: مدير النظام
+                  - paragraph [ref=f24e84]: "@admin"
+                - generic [ref=f24e85]: مدير عام
+          - generic [ref=f24e86]:
+            - heading "المسؤولون" [level=3] [ref=f24e87]
+            - generic [ref=f24e91]:
+              - generic [ref=f24e93]:
+                - generic [ref=f24e98]:
+                  - generic [ref=f24e99]:
+                    - paragraph [ref=f24e100]: ارم البرعصي
+                    - generic [ref=f24e101]: "@Eram"
+                  - generic [ref=f24e102]:
+                    - generic [ref=f24e103]: الموافقة على الطلبات
+                    - generic [ref=f24e104]: إدارة الاشتراكات
+                    - generic [ref=f24e105]: مشاهدة الإحصائيات
+                    - generic [ref=f24e106]: إدارة المطاعم
+                    - generic [ref=f24e107]: إدارة المستخدمين
+                  - paragraph [ref=f24e108]: أنشئ 5 يوليو 2026 19:16
+                - generic [ref=f24e109]:
+                  - button "تعديل الصلاحيات" [ref=f24e110]
+                  - button "إلغاء الجلسات" [ref=f24e115]
+                  - button "حذف" [ref=f24e119]
+              - generic [ref=f24e124]:
+                - generic [ref=f24e129]:
+                  - generic [ref=f24e130]:
+                    - paragraph [ref=f24e131]: خليفة اميثق
+                    - generic [ref=f24e132]: "@khalifa"
+                  - generic [ref=f24e133]:
+                    - generic [ref=f24e134]: الموافقة على الطلبات
+                    - generic [ref=f24e135]: إدارة الاشتراكات
+                    - generic [ref=f24e136]: مشاهدة الإحصائيات
+                    - generic [ref=f24e137]: إدارة المطاعم
+                    - generic [ref=f24e138]: إدارة المستخدمين
+                  - paragraph [ref=f24e139]: أنشئ 5 يوليو 2026 19:15 • آخر دخول 5 يوليو 2026 23:27
+                - generic [ref=f24e140]:
+                  - button "تعديل الصلاحيات" [ref=f24e141]
+                  - button "إلغاء الجلسات" [ref=f24e146]
+                  - button "حذف" [ref=f24e150]
+  - link "تواصل عبر واتساب" [ref=f24e4] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f24e7]
