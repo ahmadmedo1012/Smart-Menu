@@ -55,16 +55,13 @@ export default function OrderDialog({
     if (open) { setNotes(""); setQuantity(1); setSubmitting(false); setConfirmed(false); setOrderType(cartPickupType ?? "inside"); setCustomerName(""); setCustomerPhone(""); }
   }, [open, item?.id, cartPickupType]);
 
-  if (!item) return null;
-
-  const displayName = item.nameAr || item.name;
-  const currentPrice = item.discountedPrice ?? item.price;
-  const totalPrice = currentPrice * quantity;
-  const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
-
   const handleConfirm = useCallback(() => {
+    if (!item) return null;
     if (!restaurantWhatsapp) return;
     setSubmitting(true);
+
+    const displayName = item.nameAr || item.name;
+    const currentPrice = item.discountedPrice ?? item.price;
 
     // Sync item to cart store (unified path with MenuPageClient)
     const addItem = useCart.getState().addItem;
@@ -99,7 +96,7 @@ export default function OrderDialog({
       // Redirect to unified cart page where user reviews + sends WhatsApp
       window.location.href = "/cart";
     }, 800);
-  }, [item, restaurantWhatsapp, customerName, customerPhone, orderType, notes, quantity, displayName, currentPrice, restaurantId, onOpenChange]);
+  }, [item, restaurantWhatsapp, customerName, customerPhone, orderType, notes, quantity, restaurantId, onOpenChange]);
 
   const toggleQuickNote = (note: string) => {
     setNotes((prev) => {
@@ -107,6 +104,13 @@ export default function OrderDialog({
       return prev ? `${prev}، ${note}` : note;
     });
   };
+
+  if (!item) return null;
+
+  const displayName = item.nameAr || item.name;
+  const currentPrice = item.discountedPrice ?? item.price;
+  const totalPrice = currentPrice * quantity;
+  const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 
   const innerContent = (
     <>
