@@ -120,7 +120,7 @@ export default async function PrintMenuPage({
         </div>
 
         <div className="actions" style={{marginTop:"1rem"}}>
-          <a href="javascript:window.print()" className="print-btn">🖨️ حفظ كـ PDF / طباعة</a>
+          <button onClick={() => window.print()} className="print-btn">🖨️ حفظ كـ PDF / طباعة</button>
         </div>
       </body>
     </html>

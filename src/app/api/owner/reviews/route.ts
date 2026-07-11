@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
-import { handleError } from "@/lib/api-helpers";
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,7 +12,13 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const minRating = searchParams.get("minRating");
 
-    const where: any = { menuItem: { restaurantId: auth.restaurantId } };
+    const where: any = {};
+    // Get all item IDs for this restaurant (relation doesn't allow nested restaurantId)
+    const itemIds = await prisma.menuItem.findMany({
+      where: { category: { restaurantId: auth.restaurantId } },
+      select: { id: true },
+    });
+    where.menuItemId = { in: itemIds.map(i => i.id) };
     if (minRating) {
       const min = Number(minRating);
       if (!Number.isNaN(min) && min >= 1 && min <= 5) {

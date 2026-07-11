@@ -17,7 +17,7 @@ export function SystemEventsClient() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    csrfFetch("/api/admin/events")
+    csrfFetch("/api/admin/system-events")
       .then((r) => r.json())
       .then((d) => setEvents(d.data ?? d ?? []))
       .catch(() => setError("فشل تحميل أحداث النظام"))
