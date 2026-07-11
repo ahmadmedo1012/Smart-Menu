@@ -15,9 +15,9 @@ const updateSchema = z.object({
   image: z.string().max(7000000).optional(),
   status: z.string().optional(),
   sortOrder: z.number().int().optional(),
-tallergens: z.array(z.string()).optional(),
-tdietaryTags: z.array(z.string()).optional(),
   categoryId: z.number().int().positive().optional(),
+  dietaryTags: z.array(z.string()).optional().default([]),
+  allergens: z.array(z.string()).optional().default([]),
 });
 
 export async function PUT(

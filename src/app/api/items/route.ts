@@ -15,9 +15,9 @@ const createSchema = z.object({
   image: z.string().max(7000000).optional(),
   status: z.string().optional(),
   sortOrder: z.number().int().optional(),
-tallergens: z.array(z.string()).optional(),
-tdietaryTags: z.array(z.string()).optional(),
   categoryId: z.number().int().positive(),
+  dietaryTags: z.array(z.string()).optional().default([]),
+  allergens: z.array(z.string()).optional().default([]),
 });
 
 export async function GET(request: NextRequest) {
@@ -49,8 +49,6 @@ export async function GET(request: NextRequest) {
       prisma.menuItem.findMany({
         where,
         orderBy: { sortOrder: "asc" },
-tallergens: z.array(z.string()).optional(),
-tdietaryTags: z.array(z.string()).optional(),
         include: { category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } } },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -107,8 +105,6 @@ export async function POST(request: NextRequest) {
         image: body.image ?? "",
         status: (body.status ?? "available") as ItemStatus,
         sortOrder: body.sortOrder ?? 0,
-tallergens: z.array(z.string()).optional(),
-tdietaryTags: z.array(z.string()).optional(),
         categoryId: body.categoryId,
         dietaryTags: body.dietaryTags ?? [],
         allergens: body.allergens ?? [],

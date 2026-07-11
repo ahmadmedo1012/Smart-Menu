@@ -137,7 +137,6 @@ export function MenuClientSection(props: {
           restaurantWhatsapp={restaurant.whatsapp ?? undefined}
           restaurantName={restaurant.name}
           restaurantId={restaurant.id}
-          restaurantSlug={slug}
           restaurantLogo={restaurant.logo}
         />
       </div>
@@ -145,8 +144,8 @@ export function MenuClientSection(props: {
       <LoyaltyWidget
         restaurantId={restaurant.id}
         restaurantName={restaurant.name}
-        restaurantSlug={slug}
         whatsapp={restaurant.whatsapp ?? undefined}
+        restaurantSlug={slug}
       />
     </>
   )
