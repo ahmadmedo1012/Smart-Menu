@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || "https://smart-menu-sigma.vercel.app"
+const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || "https://smart-link.ly"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

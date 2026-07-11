@@ -176,7 +176,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     const userChatId = existingUser.user?.telegramChatId;
     if (userChatId) {
       await notifyUserViaTelegram(String(userChatId),
-        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: https://smart-menu-sigma.vercel.app/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
+        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: https://smart-link.ly/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
     }
 
     // Record in SystemEvent table (awaited — SSE poll depends on this)

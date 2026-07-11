@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب، برنامج ولاء، وإحصائيات متقدمة",
   keywords: ["منيو رقمي", "Smart Menu", "مطعم", "مقهى", "طلب اونلاين", "واتساب", "قائمة طعام", "الربط الذكي"],
   authors: [{ name: "الربط الذكي" }],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_DOMAIN || "https://smart-menu-sigma.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_DOMAIN || "https://smart-link.ly"),
   openGraph: {
     title: "الربط الذكي | Smart Menu",
     description: "منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب",

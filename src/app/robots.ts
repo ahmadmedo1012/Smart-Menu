@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/owner/", "/api/"],
     },
-    sitemap: `${process.env.NEXT_PUBLIC_DOMAIN || "https://smart-menu-sigma.vercel.app"}/sitemap.xml`,
+    sitemap: `${process.env.NEXT_PUBLIC_DOMAIN || "https://smart-link.ly"}/sitemap.xml`,
   }
 }
