@@ -65,7 +65,7 @@ function SubscribeContent() {
           if (u.role === "owner" && u.restaurantId) {
             // Allow PAID owners to see the page (they may want to upgrade)
             setUser({ role: u.role, subscriptionStatus: u.subscriptionStatus, restaurantId: u.restaurantId });
-            if (u.subscriptionStatus === "UNPAID") setUpgradeMode(true);
+            setUpgradeMode(true);
           }
         }
       })
