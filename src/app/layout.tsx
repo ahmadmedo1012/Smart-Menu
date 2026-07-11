@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Cairo } from "next/font/google";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
@@ -9,6 +10,14 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { MotionProvider } from "@/components/shared/MotionProvider";
 import "./globals.css";
+
+/* ponytail: next/font replaces Google Fonts CSS link — eliminates render-blocking external CSS round-trip */
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-cairo",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -50,7 +59,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className=""
+      className={cairo.variable}
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
@@ -66,9 +75,7 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/noto-naskh-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/noto-sans-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/readex-pro.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        {/* Cairo handles via next/font/google — no render-blocking external CSS */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

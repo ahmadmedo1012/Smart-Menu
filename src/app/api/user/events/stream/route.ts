@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
           } catch { /* poll failed */ }
         };
         poll();
-        const interval = setInterval(poll, 5000);
+        // ponytail: 30s poll — subscription approval takes minutes, not seconds
+        const interval = setInterval(poll, 30000);
         const hb = setInterval(() => {
           try { controller.enqueue(encoder.encode(": heartbeat\n\n")); } catch {}
         }, 30000);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+// ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
 import Link from "next/link";
 import { Store, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,9 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { PlanSelector } from "./PlanSelector";
 import { SubscribeForm } from "./SubscribeForm";
-import { UpgradePlanSummary, PaymentDialogWrapper } from "./PaymentSection";
+import dynamic from "next/dynamic";
+const PaymentDialogWrapper = dynamic(() => import("./PaymentSection").then(m => ({ default: m.PaymentDialogWrapper })), { ssr: false });
+const UpgradePlanSummary = dynamic(() => import("./PaymentSection").then(m => ({ default: m.UpgradePlanSummary })), { ssr: false });
 
 type Plan = {
   id: number; name: string; nameAr: string; price: number;
@@ -69,8 +72,10 @@ function SubscribeContent() {
       .catch(() => {});
   }, []);
 
-  // SSE for instant rejection/approval
+  // SSE for instant rejection/approval — opens only after user submits
+  const [sseOpen, setSseOpen] = useState(false);
   useEffect(() => {
+    if (!sseOpen) return;
     const es = new EventSource("/api/user/events/stream");
     es.onmessage = (event) => {
       try {
@@ -88,7 +93,7 @@ function SubscribeContent() {
     };
     es.onerror = () => {};
     return () => es.close();
-  }, []);
+  }, [sseOpen]);
 
   const currentPlan = plans.find((p) => p.id === selectedPlan);
   const isFormValid =
@@ -128,6 +133,7 @@ function SubscribeContent() {
         const regJson = await regRes.json();
         if (!regRes.ok) throw new Error(regJson.error ?? "فشل إنشاء الحساب");
         setPaymentOpen(true);
+        setSseOpen(true);
       } catch (e: any) { premiumToast("error", e.message); }
       finally { setSubmitting(false); }
       return;
@@ -164,6 +170,7 @@ function SubscribeContent() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "فشل إنشاء الحساب");
       if (currentPlan && Number(currentPlan.price) === 0) {
+        setSseOpen(true);
         const loginRes = await fetch("/api/auth/login", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: form.username.trim(), password: form.password.trim() }),

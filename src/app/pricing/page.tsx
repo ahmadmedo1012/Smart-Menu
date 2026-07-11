@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Check, Sparkles, Star, Crown, Building2, Loader2 } from "lucide-react";
+import { Check, Sparkles, Star, Crown, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -197,8 +197,30 @@ export default function PricingPage() {
       <section className="pb-16 sm:pb-24">
         <div className="max-w-6xl mx-auto px-4">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="size-8 animate-spin text-orange" />
+            <div className="flex flex-col-reverse sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="rounded-sm border border-border/30 p-6 sm:p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="size-11 rounded-sm skeleton" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-3/4 skeleton rounded-sm" />
+                      <div className="h-3 w-1/2 skeleton rounded-sm" />
+                    </div>
+                  </div>
+                  <div className="h-8 w-1/2 skeleton rounded-sm mb-6" />
+                  <div className="space-y-2 mb-6">
+                    {[...Array(3)].map((_, j) => (
+                      <div key={j} className="h-7 skeleton rounded-sm" />
+                    ))}
+                  </div>
+                  <div className="space-y-2 mb-8">
+                    {[...Array(4)].map((_, j) => (
+                      <div key={j} className="h-4 w-4/5 skeleton rounded-sm" />
+                    ))}
+                  </div>
+                  <div className="h-12 skeleton rounded-sm" />
+                </div>
+              ))}
             </div>
           ) : error ? (
             <div className="flex flex-col items-center gap-4 py-20 text-muted-foreground">
