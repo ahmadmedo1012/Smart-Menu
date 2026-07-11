@@ -127,7 +127,7 @@ export default function CartSlideOver() {
                     type="button"
                     onClick={() => removeItem(item.id)}
                     aria-label={`حذف ${item.name}`}
-                    className="size-7 flex items-center justify-center rounded-sm text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
+                    className="size-7 flex items-center justify-center rounded-sm text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
