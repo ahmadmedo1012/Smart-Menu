@@ -62,8 +62,8 @@ export function CategoryTabs({
       <div
         className={cn(
           "flex gap-1 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0",
-          /* sticky on desktop only (below StickyMenuHeader), normal on mobile */
-          "md:sticky md:top-14 md:z-20 md:bg-background/85 md:backdrop-blur-sm md:pt-3 md:-mx-6 md:px-6",
+          /* sticky below StickyMenuHeader (z-30). bg-background prevents visual bleed */
+          "md:sticky md:top-14 md:z-20 md:bg-background md:pt-3 md:-mx-6 md:px-6",
           className,
         )}
       >

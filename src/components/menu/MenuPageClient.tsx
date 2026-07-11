@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Sparkles } from "lucide-react"
 import { useCart } from "@/store/cart"
 import { premiumToast } from "@/lib/premium-toast"
@@ -11,6 +12,13 @@ import OrderDialog from "./OrderDialog"
 import { toArabicNumber } from "@/lib/format"
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string }
+
+const SORT_VALUES = ["default", "price-asc", "price-desc", "name"] as const
+type SortValue = (typeof SORT_VALUES)[number]
+
+function isValidSort(v: string | null): v is SortValue {
+  return v !== null && (SORT_VALUES as readonly string[]).includes(v)
+}
 
 export default function MenuPageClient({
   categories,
@@ -27,14 +35,47 @@ export default function MenuPageClient({
   restaurantId: number
   restaurantLogo?: string
 }) {
-  const [search, setSearch] = useState("")
-  const [activeCategory, setActiveCategory] = useState<number | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // Read state from URL params
+  const search = searchParams.get("q") || ""
+  const activeCategory = (() => {
+    const raw = searchParams.get("cat")
+    if (!raw) return null
+    const n = Number(raw)
+    if (isNaN(n) || !categories.some((c) => c.id === n)) return null
+    return n
+  })()
+  const sort = isValidSort(searchParams.get("sort")) ? searchParams.get("sort")! : "default"
+
   const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null)
-  const [sort, setSort] = useState<string>("default")
   const cartItems = useCart((s) => s.items)
   const addItem = useCart((s) => s.addItem)
   const updateQuantity = useCart((s) => s.updateQuantity)
   const setRestaurantDetails = useCart((s) => s.setRestaurantDetails)
+
+  // Update URL params (replace, not push, to avoid history spam)
+  const updateURL = useCallback(
+    (updates: { q?: string; cat?: number | null; sort?: string }) => {
+      const p = new URLSearchParams(searchParams.toString())
+      if (updates.q !== undefined) {
+        if (updates.q) p.set("q", updates.q)
+        else p.delete("q")
+      }
+      if (updates.cat !== undefined) {
+        if (updates.cat !== null) p.set("cat", String(updates.cat))
+        else p.delete("cat")
+      }
+      if (updates.sort !== undefined) {
+        if (updates.sort !== "default") p.set("sort", updates.sort)
+        else p.delete("sort")
+      }
+      const qs = p.toString()
+      router.replace(qs ? `?${qs}` : "", { scroll: false })
+    },
+    [searchParams, router],
+  )
 
   const handleQuickAdd = useCallback(
     (item: MenuItemProp) => {
@@ -93,7 +134,7 @@ export default function MenuPageClient({
     return result
   }, [items, search, activeCategory, sort])
 
-  /* ── Popular items (rendered separately, filtered out of normal grid) ── */
+  /* ── Popular items ── */
   const popularItems = useMemo(
     () => (activeCategory === null && search === "" ? items.filter((i) => i.isPopular) : []),
     [items, activeCategory, search],
@@ -113,23 +154,25 @@ export default function MenuPageClient({
     return counts
   }, [items, categories])
 
-  const handleScroll = useCallback(() => {}, [])
+  // ponytail: dead scroll listener removed — it was an empty useCallback doing nothing
 
   const handleSuggestionClick = useCallback((id: number) => {
     const found = items.find((i) => i.id === id)
     if (found) setOrderItem(found)
   }, [items])
 
-  useEffect(() => {
-    globalThis.addEventListener("scroll", handleScroll, { passive: true })
-    return () => globalThis.removeEventListener("scroll", handleScroll)
-  }, [handleScroll])
-
   const hasActiveFilter = search !== "" || activeCategory !== null
 
   return (
     <>
-      <MenuToolbar search={search} onSearchChange={setSearch} sort={sort} onSortChange={setSort} items={items} onSuggestionClick={handleSuggestionClick} />
+      <MenuToolbar
+        search={search}
+        onSearchChange={(v) => updateURL({ q: v })}
+        sort={sort}
+        onSortChange={(v) => updateURL({ sort: v })}
+        items={items}
+        onSuggestionClick={handleSuggestionClick}
+      />
 
       {hasActiveFilter && (
         <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
@@ -142,7 +185,7 @@ export default function MenuPageClient({
           {activeCategory !== null && (
             <button
               type="button"
-              onClick={() => setActiveCategory(null)}
+              onClick={() => updateURL({ cat: null })}
               className="text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
             >
               إعادة تعيين
@@ -154,11 +197,11 @@ export default function MenuPageClient({
       <CategoryTabs
         categories={categories}
         activeCategory={activeCategory}
-        onSelect={setActiveCategory}
+        onSelect={(id) => updateURL({ cat: id })}
         itemCounts={itemCounts}
       />
 
-      {/* ── Featured popular horizontal scroll ── */}
+      {/* Featured popular horizontal scroll */}
       {popularItems.length >= 2 && (
         <section id="menu-popular" className="mb-8">
           <div className="flex items-center gap-2 mb-3 px-1">
@@ -182,7 +225,7 @@ export default function MenuPageClient({
         </section>
       )}
 
-      {/* ── Normal grid ── */}
+      {/* Normal grid */}
       {normalItems.length === 0 ? (
         <div className="text-center py-16 sm:py-20 animate-fade-in">
           <div className="empty-state-icon">
@@ -197,7 +240,7 @@ export default function MenuPageClient({
           {hasActiveFilter && (
             <button
               type="button"
-              onClick={() => { setSearch(""); setActiveCategory(null) }}
+              onClick={() => { updateURL({ q: "", cat: null }) }}
               className="mt-4 text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-all"
             >
               عرض الكل
