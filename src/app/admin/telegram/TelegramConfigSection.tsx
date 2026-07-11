@@ -9,6 +9,7 @@ import { Bot, Save, Send, Stethoscope, Eye, EyeOff, Loader2 } from "lucide-react
 
 interface Config {
   botToken: string
+  botTokenMasked?: boolean
   chatId: string
   events: string[]
   isActive: boolean

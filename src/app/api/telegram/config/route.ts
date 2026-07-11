@@ -18,10 +18,15 @@ export async function GET() {
     const config = await prisma.telegramConfig.findFirst({
       select: { id: true, botToken: true, chatId: true, events: true, isActive: true },
     });
-    if (config?.botToken && config.botToken.length > 4) {
-      config.botToken = "***" + config.botToken.slice(-4);
-    }
-    return success(config ?? {});
+    // Never expose the bot token — only indicate whether it's configured
+    return success({
+      id: config?.id,
+      chatId: config?.chatId,
+      events: config?.events,
+      isActive: config?.isActive,
+      botTokenMasked: config?.botToken ? true : false,
+      botToken: undefined,
+    });
   } catch (e) {
     return handleError(e);
   }

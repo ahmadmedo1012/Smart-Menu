@@ -14,6 +14,7 @@ import { DiagnosticsSection } from "./DiagnosticsSection"
 
 interface TelegramConfig {
   botToken: string
+  botTokenMasked?: boolean
   chatId: string
   events: string[]
   isActive: boolean
@@ -74,7 +75,7 @@ export default function AdminTelegramPage() {
       .then((json) => {
         if (json.data) {
           const d = json.data
-          setConfig({ botToken: d.botToken ?? "", chatId: d.chatId ?? "", events: d.events ?? [], isActive: d.isActive ?? false })
+          setConfig({ botToken: d.botTokenMasked ? "••••••••" : "", botTokenMasked: d.botTokenMasked ?? false, chatId: d.chatId ?? "", events: d.events ?? [], isActive: d.isActive ?? false })
           setEventsInput((d.events ?? []).join(", "))
         }
       })
