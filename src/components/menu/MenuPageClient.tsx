@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback } from "react"
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Sparkles } from "lucide-react"
 import { useCart } from "@/store/cart"
@@ -20,7 +20,7 @@ function isValidSort(v: string | null): v is SortValue {
   return v !== null && (SORT_VALUES as readonly string[]).includes(v)
 }
 
-export default function MenuPageClient({
+function MenuPageClientInner({
   categories,
   items,
   restaurantWhatsapp,
@@ -277,5 +277,22 @@ export default function MenuPageClient({
         restaurantLogo={restaurantLogo}
       />
     </>
+  )
+}
+
+// ponytail: dedicated Suspense boundary for useSearchParams
+// The dynamic() in MenuClientSection can't reliably catch re-suspension during React 19 transitions
+export default function MenuPageClient(props: {
+  categories: CategoryProp[]
+  items: (MenuItemProp & { category: CategoryProp })[]
+  restaurantWhatsapp?: string
+  restaurantName?: string
+  restaurantId: number
+  restaurantLogo?: string
+}) {
+  return (
+    <Suspense fallback={<div className="py-20 text-center text-sm text-muted-foreground animate-pulse">جاري تحميل المنيو...</div>}>
+      <MenuPageClientInner {...props} />
+    </Suspense>
   )
 }
