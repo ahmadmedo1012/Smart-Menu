@@ -133,6 +133,9 @@ model MenuItem {
   status          ItemStatus   @default(available)
   avgRating       Decimal?     @db.Decimal(3, 2)
   ratingCount     Int          @default(0)
+  dietaryTags     String[]     @default([])
+  allergens       String[]     @default([])
+  modifierGroups  ModifierGroup[]
   category        MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems      OrderItem[]
   reviews         Review[]
@@ -167,15 +170,48 @@ model Order {
   @@index([createdAt])
 }
 
+model ModifierGroup {
+  id              Int            @id @default(autoincrement())
+  nameAr          String
+  name            String         @default("")
+  minSelect       Int            @default(0)
+  maxSelect       Int            @default(1)
+  required        Boolean        @default(false)
+  sortOrder       Int            @default(0)
+  menuItemId      Int
+  menuItem        MenuItem       @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  options         ModifierOption[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([menuItemId])
+}
+
+model ModifierOption {
+  id              Int            @id @default(autoincrement())
+  nameAr          String
+  name            String         @default("")
+  priceDelta      Decimal        @default(0) @db.Decimal(10, 2)
+  isAvailable     Boolean        @default(true)
+  sortOrder       Int            @default(0)
+  groupId         Int
+  group           ModifierGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([groupId])
+}
+
 model OrderItem {
-  id       Int      @id @default(autoincrement())
-  quantity Int      @default(1)
-  notes    String   @default("")
-  price    Decimal  @db.Decimal(10, 2)
-  orderId  Int
-  itemId   Int
-  item     MenuItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
-  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id             Int             @id @default(autoincrement())
+  quantity       Int             @default(1)
+  notes          String          @default("")
+  price          Decimal         @db.Decimal(10, 2)
+  modifiersJson  String          @default("[]")
+  orderId        Int
+  itemId         Int
+  item           MenuItem        @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([itemId])

@@ -11,9 +11,16 @@ import { cn } from "@/lib/utils";
 import { OptimizedImage } from "@/components/ui/OptimizedImage";
 import { csrfFetch } from "@/lib/csrf-client";
 
-interface Item { id: number; name: string; nameAr?: string; description: string; descriptionAr?: string; price: number; discountedPrice: number | null; image: string; status: string; categoryId: number }
+interface Item { id: number; name: string; nameAr?: string; description: string; descriptionAr?: string; price: number; discountedPrice: number | null; image: string; status: string; categoryId: number; dietaryTags?: string[]; allergens?: string[] }
 
-const initForm = (catId: number) => ({ name: "", nameAr: "", description: "", descriptionAr: "", price: 0, discountedPrice: "", status: "available", categoryId: catId, image: "" });
+const DIETARY_OPTIONS = ["vegetarian", "vegan", "gluten_free", "dairy_free", "halal", "keto", "sugar_free", "organic", "spicy"]
+const ALLERGEN_OPTIONS = ["gluten", "dairy", "eggs", "fish", "shellfish", "tree_nuts", "peanuts", "soy", "sesame"]
+const DIETARY_ICONS: Record<string, string> = {
+  vegetarian: "🌿", vegan: "🌱", gluten_free: "🌾", dairy_free: "🧀",
+  halal: "☪️", keto: "🥑", sugar_free: "🚫", organic: "🌍", spicy: "🌶️",
+}
+
+const initForm = (catId: number) => ({ name: "", nameAr: "", description: "", descriptionAr: "", price: 0, discountedPrice: "", status: "available", categoryId: catId, image: "", dietaryTags: [] as string[], allergens: [] as string[] });
 
 const IMAGE_URL_RE = /^(https?:\/\/|data:image\/)/i;
 
@@ -54,6 +61,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
         descriptionAr: editing.descriptionAr || "", price: editing.price,
         discountedPrice: editing.discountedPrice ? String(editing.discountedPrice) : "",
         status: editing.status, categoryId: editing.categoryId, image: editing.image,
+        dietaryTags: editing.dietaryTags ?? [], allergens: editing.allergens ?? [],
       } : initForm(categoryId));
     }
   }, [open, editing, categoryId]);
@@ -64,7 +72,7 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
     if (form.image && !IMAGE_URL_RE.test(form.image)) { premiumToast("error", "رابط الصورة غير صالح"); return; }
     setSaving(true);
     try {
-      const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, image: form.image || undefined, status: form.status, categoryId: form.categoryId };
+      const body = { name: form.name.trim(), nameAr: form.nameAr.trim() || undefined, description: form.description.trim() || undefined, descriptionAr: form.descriptionAr.trim() || undefined, price: Number(form.price), discountedPrice: form.discountedPrice ? Number(form.discountedPrice) : undefined, image: form.image || undefined, status: form.status, categoryId: form.categoryId, dietaryTags: form.dietaryTags, allergens: form.allergens, modifierGroups: undefined };
       const res = editing
         ? await csrfFetch(`/api/items/${editing.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         : await csrfFetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -141,6 +149,38 @@ export default function ItemDialog({ open, onOpenChange, editing, categoryId, on
                   {s === "available" ? "متوفر" : "غير متوفر"}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Dietary tags */}
+          <div>
+            <Label>شارات الطعام</Label>
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {DIETARY_OPTIONS.map(t => {
+                const active = form.dietaryTags?.includes(t)
+                return (
+                  <button key={t} type="button" onClick={() => setForm({...form, dietaryTags: active ? (form.dietaryTags ?? []).filter(x => x !== t) : [...(form.dietaryTags ?? []), t] })}
+                    className={cn("text-[11px] px-2 py-1 rounded-sm border transition-all", active ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300" : "border-border/30 hover:border-emerald-300/50 text-muted-foreground")}>
+                    {DIETARY_ICONS[t] || "🌿"} {t}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Allergens */}
+          <div>
+            <Label>مسببات الحساسية</Label>
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {ALLERGEN_OPTIONS.map(t => {
+                const active = form.allergens?.includes(t)
+                return (
+                  <button key={t} type="button" onClick={() => setForm({...form, allergens: active ? (form.allergens ?? []).filter(x => x !== t) : [...(form.allergens ?? []), t] })}
+                    className={cn("text-[11px] px-2 py-1 rounded-sm border transition-all", active ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300" : "border-border/30 hover:border-amber-300/50 text-muted-foreground")}>
+                    ⚠️ {t}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>

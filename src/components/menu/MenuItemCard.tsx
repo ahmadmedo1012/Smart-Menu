@@ -11,6 +11,12 @@ import ReviewSheet from "./ReviewSheet";
 /* ponytail: shared spring config — deduped from 3 inline copies */
 const CARD_SPRING = { type: "spring" as const, stiffness: 500, damping: 25 };
 
+const DIETARY_ICONS: Record<string, string> = {
+  vegetarian: "🌿", vegan: "🌱", gluten_free: "🌾", dairy_free: "🧀",
+  halal: "☪️", keto: "🥑", sugar_free: "🚫", organic: "🌍",
+  spicy: "🌶️", sugarconscious: "🍃",
+};
+
 export type MenuItemProp = {
   id: number;
   name: string;
@@ -26,6 +32,8 @@ export type MenuItemProp = {
   createdAt?: string;
   avgRating?: number | null;
   ratingCount?: number;
+  dietaryTags?: string[];
+  allergens?: string[];
 };
 
 const MenuItemCard = memo(function MenuItemCard({
@@ -148,6 +156,22 @@ const MenuItemCard = memo(function MenuItemCard({
               {displayDesc}
             </p>
           ) : null}
+
+          {/* Dietary tags + allergens */}
+          {((item.dietaryTags && item.dietaryTags.length > 0) || (item.allergens && item.allergens.length > 0)) && (
+            <div className="flex flex-wrap gap-1 mb-1.5">
+              {item.dietaryTags?.map((tag) => (
+                <span key={tag} className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-sm bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/30">
+                  {DIETARY_ICONS[tag] || "🌿"} {tag}
+                </span>
+              ))}
+              {item.allergens?.map((tag) => (
+                <span key={tag} className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-sm bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/30">
+                  ⚠️ {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-center gap-1.5 flex-wrap">
             {hasDiscount && (
