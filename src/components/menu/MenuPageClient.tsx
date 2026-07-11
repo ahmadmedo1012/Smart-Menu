@@ -160,16 +160,16 @@ export default function MenuPageClient({
         itemCounts={itemCounts}
       />
 
-      {/* ── Featured popular grid ── */}
+      {/* ── Featured popular horizontal scroll ── */}
       {popularItems.length >= 2 && (
         <section id="menu-popular" className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 px-1">
             <span className="size-2 rounded-full bg-orange animate-pulse" />
             <span className="text-sm font-semibold text-foreground">الأكثر طلباً</span>
           </div>
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-            {popularItems.slice(0, 4).map((item) => (
-              <div key={item.id} className="sm:col-span-2 animate-reveal">
+          <div className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+            {popularItems.slice(0, 6).map((item) => (
+              <div key={item.id} className="snap-start shrink-0 w-[85vw] sm:w-[420px] max-w-full animate-reveal">
                 <MenuItemCard
                   item={item}
                   onOrder={setOrderItem}

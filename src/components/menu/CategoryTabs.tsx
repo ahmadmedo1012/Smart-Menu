@@ -3,8 +3,44 @@
 import { motion, LayoutGroup } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import {
+  Coffee, CupSoda, Pizza, Beef, Milk, Apple, Cookie, Soup, Package,
+  type LucideIcon,
+} from "lucide-react"
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string }
+
+// Map stored icon strings to lucide icons + known emoji
+const ICON_MAP: Record<string, { icon: LucideIcon; fallback: string }> = {
+  coffee: { icon: Coffee, fallback: "☕" },
+  "soft-drink": { icon: CupSoda, fallback: "🥤" },
+  cup: { icon: CupSoda, fallback: "🥤" },
+  cupsoda: { icon: CupSoda, fallback: "🥤" },
+  pizza: { icon: Pizza, fallback: "🍕" },
+  beef: { icon: Beef, fallback: "🥩" },
+  milk: { icon: Milk, fallback: "🥛" },
+  apple: { icon: Apple, fallback: "🍎" },
+  cake: { icon: Cookie, fallback: "🍰" },
+  bread: { icon: Cookie, fallback: "🍞" },
+  soup: { icon: Soup, fallback: "🍲" },
+  package: { icon: Package, fallback: "📦" },
+}
+
+function TabIcon({ icon }: { icon: string }) {
+  if (!icon) return null
+  // Direct emoji render
+  if (/^\p{Emoji}/u.test(icon)) {
+    return <span className="size-3.5 sm:size-4 flex items-center justify-center text-sm">{icon}</span>
+  }
+  // Try lucide icon map
+  const mapped = ICON_MAP[icon.toLowerCase().replace(/[-_\s]/g, "")]
+  if (mapped) {
+    const Icon = mapped.icon
+    return <Icon className="size-3.5 sm:size-4" />
+  }
+  // Fallback to rendering the raw string as text
+  return <span className="text-[10px] sm:text-xs">{icon.slice(0, 2)}</span>
+}
 
 interface CategoryTabsProps {
   categories: CategoryProp[]
@@ -41,6 +77,7 @@ export function CategoryTabs({
           <TabButton
             key={cat.id}
             label={cat.nameAr || cat.name}
+            icon={cat.icon}
             count={itemCounts.get(cat.id) ?? 0}
             isActive={activeCategory === cat.id}
             onClick={() => onSelect(cat.id)}
@@ -53,11 +90,13 @@ export function CategoryTabs({
 
 function TabButton({
   label,
+  icon,
   count,
   isActive,
   onClick,
 }: {
   label: string
+  icon?: string
   count: number
   isActive: boolean
   onClick: () => void
@@ -82,6 +121,7 @@ function TabButton({
         />
       )}
       <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
+        {icon && <TabIcon icon={icon} />}
         {label}
         <span
           className={cn(
