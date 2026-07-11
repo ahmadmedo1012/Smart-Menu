@@ -37,6 +37,7 @@ function SubscribeContent() {
   const [user, setUser] = useState<{ role: string; subscriptionStatus: string; restaurantId: number | null } | null>(null);
   const [upgradeMode, setUpgradeMode] = useState(false);
 
+  const [authLoaded, setAuthLoaded] = useState(false);
   const [form, setForm] = useState({
     name: "", slug: "", description: "", phone: "", whatsapp: "", username: "", password: "",
   });
@@ -69,7 +70,8 @@ function SubscribeContent() {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setAuthLoaded(true));
   }, []);
 
   // SSE for instant rejection/approval — opens only after user submits
@@ -104,7 +106,7 @@ function SubscribeContent() {
 
   const handleSubmit = async () => {
     submittedRef.current = true;
-    if (!selectedPlan || !isFormValid) return;
+    if (!selectedPlan || !isFormValid || upgradeMode) return;
 
     // Pre-flight
     try {
@@ -230,8 +232,15 @@ function SubscribeContent() {
           />
         )}
 
+        {/* Loading state while checking auth (upgrade mode detection) */}
+        {step === "form" && !authLoaded && (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="size-6 animate-spin text-primary" />
+          </div>
+        )}
+
         {/* Step 2: New registration form */}
-        {step === "form" && !upgradeMode && (
+        {step === "form" && authLoaded && !upgradeMode && (
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
             <SubscribeForm
               plans={plans} selectedPlan={selectedPlan} form={form}
