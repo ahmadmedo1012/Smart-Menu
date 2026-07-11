@@ -99,6 +99,19 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         },
       });
 
+      // Record user event — frontend SSE listener redirects on subscription_approved
+      if (existing!.userId) {
+        await prisma.systemEvent.create({
+          data: {
+            eventType: "subscription_approved",
+            title: "تم تفعيل الترقية",
+            message: "تم ترقية خطتك بنجاح!",
+            severity: "info",
+            metadata: { userId: existing!.userId, upgradeRestaurantId: meta.upgradeRestaurantId },
+          },
+        });
+      }
+
       return { ok: true, action: "verified", paymentId: existing!.id };
     } catch (e) {
       console.error("[subscription-decisions] upgrade error:", e);
@@ -176,7 +189,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     const userChatId = existingUser.user?.telegramChatId;
     if (userChatId) {
       await notifyUserViaTelegram(String(userChatId),
-        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: https://smart-link.ly/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
+        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: ${process.env.NEXT_PUBLIC_DOMAIN || "https://menu.smart-link.ly"}/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`);
     }
 
     // Record in SystemEvent table (awaited — SSE poll depends on this)
