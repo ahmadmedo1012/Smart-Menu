@@ -5,6 +5,27 @@ import { success, notFound, handleError, error } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { ItemStatus } from "@/generated/prisma/enums";
 
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const itemId = Number(id);
+    if (Number.isNaN(itemId)) return error("Invalid ID", 400);
+
+    const item = await prisma.menuItem.findUnique({
+      where: { id: itemId },
+      include: { category: true, reviews: { take: 10, orderBy: { createdAt: "desc" }, select: { id: true, rating: true, comment: true } } },
+    });
+    if (!item) return notFound("MenuItem");
+
+    return success(item);
+  } catch (e) {
+    return handleError(e);
+  }
+}
+
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
   nameAr: z.string().nullable().optional(),
