@@ -28,14 +28,14 @@ export function PlanSelector({
   onSelect: (id: number) => void
   onContinue: () => void
 }) {
-  const visiblePlans = plans.filter(p => !upgradeMode ? true : Number(p.price) > 0).slice(0, 2)
+  const visiblePlans = plans.filter(p => !upgradeMode ? true : Number(p.price) > 0)
 
   return (
     <div className="animate-fade-in">
       <h2 className="text-2xl font-bold text-center mb-8">
         {upgradeMode ? "اختر خطة للترقية إليها" : "اختر خطة تناسب مطعمك"}
       </h2>
-      <div className="grid md:grid-cols-2 gap-4 mb-8 max-w-lg mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 max-w-4xl mx-auto">
         {visiblePlans.map((plan, i) => {
           const Icon = PLAN_ICONS[i] || Sparkles
           const isSelected = selectedPlan === plan.id
