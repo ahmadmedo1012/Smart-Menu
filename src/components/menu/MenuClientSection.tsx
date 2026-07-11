@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { Suspense } from "react"
 import { Store, Clock } from "lucide-react"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
@@ -131,7 +132,8 @@ export function MenuClientSection(props: {
       )}
 
       <div className="max-w-4xl mx-auto px-4 -mt-1 relative z-20">
-        <MenuPageClient
+        <Suspense fallback={<div className="py-20 text-center text-sm text-muted-foreground animate-pulse">جاري تحميل المنيو...</div>}>
+          <MenuPageClient
           categories={categories}
           items={serializedItems}
           restaurantWhatsapp={restaurant.whatsapp ?? undefined}
@@ -139,6 +141,7 @@ export function MenuClientSection(props: {
           restaurantId={restaurant.id}
           restaurantLogo={restaurant.logo}
         />
+        </Suspense>
       </div>
 
       <LoyaltyWidget
