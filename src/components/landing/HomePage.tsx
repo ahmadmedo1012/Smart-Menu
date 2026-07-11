@@ -9,6 +9,7 @@ import FeaturesSection from "./sections/FeaturesSection"
 import HowItWorksSection from "./sections/HowItWorksSection"
 import ClientsSection from "./sections/ClientsSection"
 import ShowcaseSection from "./sections/ShowcaseSection"
+import FaqSection from "./sections/FaqSection"
 import FinalCTASection from "./sections/FinalCTASection"
 import StatsSection from "./sections/StatsSection"
 import FeaturedRestaurantsSection from "./sections/FeaturedRestaurantsSection"
@@ -35,6 +36,7 @@ export default function HomePage() {
             <FeaturedRestaurantsSection restaurants={featured} />
             <HowItWorksSection />
             <ClientsSection />
+            <FaqSection />
             <FinalCTASection />
             <Footer />
         </div>

@@ -9,16 +9,14 @@ import { GlowPool } from "@/components/ui/GlowPool";
 function AnimatedNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  useInView(ref, { once: true }); // trigger re-render when visible
+  const inView = useInView(ref, { once: true });
   useEffect(() => {
-    // Start animation immediately if value > 0
-    if (value > 0) {
-      const step = Math.max(1, Math.ceil(value / 30));
-      const timer = setInterval(() => {
-        setCount(prev => Math.min(prev + step, value));
-      }, 30);
-      return () => clearInterval(timer);
-    }
+    if (!inView || value <= 0) return;
+    const step = Math.max(1, Math.ceil(value / 30));
+    const timer = setInterval(() => {
+      setCount(prev => Math.min(prev + step, value));
+    }, 30);
+    return () => clearInterval(timer);
   }, [value]);
   return <span ref={ref} dir="ltr">{count.toLocaleString()}</span>;
 }
