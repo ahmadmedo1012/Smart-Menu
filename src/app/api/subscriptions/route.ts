@@ -101,15 +101,25 @@ export async function POST(request: NextRequest) {
         }
         if (chatIds.size > 0) {
           const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? "غير معروف"}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
+          const telegramMessages: { chatId: number; messageId: number }[] = [];
           for (const chatId of chatIds) {
             try {
-              await sendMessageWithKeyboard(botToken, chatId, msg, [
+              const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
                 [{ text: "🟢 موافقة على التفعيل", callbackData: `sub_app:${payment.id}` }],
                 [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
               ], { parseMode: "Markdown" });
+              if (sent) telegramMessages.push({ chatId: Number(chatId), messageId: sent.message_id });
             } catch (singleErr) {
               console.error("[subscriptions] send to", chatId, "failed:", singleErr);
             }
+          }
+          // Store message references so webhook cleanup can remove keyboards from all copies
+          if (telegramMessages.length > 0) {
+            const existingMeta = typeof payment.metadata === "object" && payment.metadata ? payment.metadata as Record<string, unknown> : {};
+            prisma.subscriptionPayment.update({
+              where: { id: payment.id },
+              data: { metadata: { ...existingMeta, telegramMessages } },
+            }).catch((e: unknown) => console.error("[subscriptions] failed to store telegramMessages", e));
           }
         }
       }

@@ -129,15 +129,24 @@ export async function POST(request: NextRequest) {
             `• الهاتف: ${String(phone)}`,
             `• المبلغ: ${String(amount)} د.ل`,
           ].join("\n");
+          const telegramMessages: { chatId: number; messageId: number }[] = [];
           for (const chatId of chatIds) {
             try {
-              await sendMessageWithKeyboard(botToken, chatId, msg, [
+              const sent = await sendMessageWithKeyboard(botToken, chatId, msg, [
                 [{ text: "🟢 موافقة على الترقية", callbackData: `sub_app:${payment.id}` }],
                 [{ text: "🔴 رفض الطلب", callbackData: `sub_rej:${payment.id}` }],
               ], { parseMode: "Markdown" });
+              if (sent) telegramMessages.push({ chatId: Number(chatId), messageId: sent.message_id });
             } catch (singleErr) {
               console.error("[upgrade] send to", chatId, "failed:", singleErr);
             }
+          }
+          if (telegramMessages.length > 0) {
+            const existingMeta = typeof payment.metadata === "object" && payment.metadata ? payment.metadata as Record<string, unknown> : {};
+            prisma.subscriptionPayment.update({
+              where: { id: payment.id },
+              data: { metadata: { ...existingMeta, telegramMessages } },
+            }).catch((e: unknown) => console.error("[upgrade] failed to store telegramMessages", e));
           }
         }
       }

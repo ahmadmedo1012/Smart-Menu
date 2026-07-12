@@ -40,6 +40,7 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
   // Gate 1: only allowlisted admin Telegram IDs may act
   const adminIds = await getAdminTelegramIds();
   if (!adminIds.includes(cq.from.id)) {
+    console.warn("[webhook] unauthorized callback attempt", { fromId: cq.from.id, callbackData: cq.data, adminIds });
     await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
     return new Response("OK", { status: 200 });
   }
@@ -153,9 +154,23 @@ export async function POST(request: NextRequest) {
       console.log(`[webhook] msg from chat_id=${chatId} type=${chatType} username=${username ?? "N/A"}`);
     }
 
-    // Handle /start verify_<token> (account linking)
+    // Handle plain /start — tell user their Telegram ID so admins can whitelist it
     const text = update.message?.text ?? "";
+    if (text === "/start") {
+      const startBotToken = await getBotToken();
+      const chatIdNum = update.message?.chat?.id;
+      if (chatIdNum && startBotToken) {
+        const msg = `مرحباً! 👋\n\nمعرف التليجرام الخاص بك:\n\`${chatIdNum}\`\n\nإذا كنت بحاجة لإضافة هذا المعرف كموافٍ على الاشتراكات، يرجى التواصل مع مدير النظام.\n\nلربط حسابك بالمنصة (/start verify_الرمز_الخاص_بك).`;
+        await fetch(`https://api.telegram.org/bot${startBotToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: chatIdNum, text: msg, parse_mode: "Markdown" }),
+        });
+      }
+      return new Response("OK", { status: 200 });
+    }
 
+    // Handle /start verify_<token> (account linking)
     if (!chatId || !text.startsWith("/start verify_")) {
       return new Response("OK", { status: 200 });
     }
