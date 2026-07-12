@@ -122,17 +122,19 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
 
 export async function POST(request: NextRequest) {
   // Gate 0: verify request came from Telegram via shared secret
-  const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (expectedSecret) {
+  const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
+  const allowUnverified =
+    process.env.NODE_ENV !== "production" ||
+    process.env.TELEGRAM_WEBHOOK_ALLOW_UNVERIFIED === "true";
+
+  if (!expectedSecret) {
+    console.error("[webhook] TELEGRAM_WEBHOOK_SECRET not set");
+    if (!allowUnverified) return new Response("Misconfigured", { status: 503 });
+  } else {
     const incomingSecret = request.headers.get("x-telegram-bot-api-secret-token");
     if (incomingSecret !== expectedSecret) {
       return new Response("Forbidden", { status: 403 });
     }
-  } else {
-    // ponytail: secret not configured — skip verification. Safe because
-    // custom domain is outside Vercel SSO protection scope.
-    // Add env var and redeploy to enable full verification.
-    console.warn("[webhook] TELEGRAM_WEBHOOK_SECRET not set — verification disabled");
   }
 
   try {
