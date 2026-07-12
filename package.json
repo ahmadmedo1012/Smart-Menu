@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "npx tsx tests/unit/telegram-broadcast.test.ts && npx tsx tests/unit/review-action.test.ts",
+    "test": "npx tsx tests/unit/*.test.ts",
     "test:e2e": "npx playwright test tests/e2e tests/security tests/visual",
     "setup:hooks": "git config core.hooksPath .githooks",
     "webhook:register": "node scripts/register-webhook.mjs",
