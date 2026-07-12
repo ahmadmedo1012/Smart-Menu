@@ -2,12 +2,12 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 import { z } from "zod";
 
-const subscriptionLimiter = createRateLimiter({ windowMs: 60_000, max: 5 });
+const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 const createPaymentSchema = z.object({
   phone: z.string().min(1),
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
           // Store message references so webhook cleanup can remove keyboards from all copies
           if (telegramMessages.length > 0) {
             const existingMeta = typeof payment.metadata === "object" && payment.metadata ? payment.metadata as Record<string, unknown> : {};
-            prisma.subscriptionPayment.update({
+            await prisma.subscriptionPayment.update({
               where: { id: payment.id },
               data: { metadata: { ...existingMeta, telegramMessages } },
             }).catch((e: unknown) => console.error("[subscriptions] failed to store telegramMessages", e));

@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
           }
           if (telegramMessages.length > 0) {
             const existingMeta = typeof payment.metadata === "object" && payment.metadata ? payment.metadata as Record<string, unknown> : {};
-            prisma.subscriptionPayment.update({
+            await prisma.subscriptionPayment.update({
               where: { id: payment.id },
               data: { metadata: { ...existingMeta, telegramMessages } },
             }).catch((e: unknown) => console.error("[upgrade] failed to store telegramMessages", e));

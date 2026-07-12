@@ -40,7 +40,7 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
   // Gate 1: only allowlisted admin Telegram IDs may act
   const adminIds = await getAdminTelegramIds();
   if (!adminIds.includes(cq.from.id)) {
-    console.warn("[webhook] unauthorized callback attempt", { fromId: cq.from.id, callbackData: cq.data, adminIds });
+    console.warn("[webhook] unauthorized callback attempt", { fromId: cq.from.id, callbackData: cq.data, adminCount: adminIds.length });
     await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
     return new Response("OK", { status: 200 });
   }
@@ -124,9 +124,7 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
 export async function POST(request: NextRequest) {
   // Gate 0: verify request came from Telegram via shared secret
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
-  const allowUnverified =
-    process.env.NODE_ENV !== "production" ||
-    process.env.TELEGRAM_WEBHOOK_ALLOW_UNVERIFIED === "true";
+  const allowUnverified = process.env.TELEGRAM_WEBHOOK_ALLOW_UNVERIFIED === "true";
 
   if (!expectedSecret) {
     console.error("[webhook] TELEGRAM_WEBHOOK_SECRET not set");
