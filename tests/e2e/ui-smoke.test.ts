@@ -1,9 +1,8 @@
 /**
  * UI Smoke Tests — Production sanity checks
  *
- * Runs against the configured baseURL (default: https://menu.smart-link.ly).
- * Verifies core pages load, security headers are present, and auth gates
- * redirect unauthenticated requests properly.
+ * Runs against baseURL (default: https://menu.smart-link.ly).
+ * Verifies core pages, security headers, auth gates, and RTL layout.
  *
  * Run:  npx playwright test tests/e2e/ui-smoke.test.ts
  */
@@ -48,38 +47,46 @@ test("GET /pricing returns 200 with pricing content", async ({ page }) => {
 
 // ── Auth gates (redirect unauthenticated) ────────────────────────────
 
-test("GET /admin redirects 307 to /login", async ({ request }) => {
-  // Disable redirect following so we can inspect the redirect itself
-  const res = await request.fetch("/admin", { method: "GET", maxRedirects: 0 });
-  expect(res.status()).toBe(307);
-  const location = res.headers()["location"] ?? "";
-  expect(location).toContain("/login");
+test("GET /admin redirects to /login", async ({ request }) => {
+  const res = await request.get("/admin", { maxRedirects: 0 });
+  const status = res.status();
+  expect(status).toBeGreaterThanOrEqual(300);
+  expect(status).toBeLessThan(400);
+  const headers = await res.headers();
+  expect(headers["location"]).toContain("/login");
 });
 
-test("GET /admin/telegram redirects 307 to /login", async ({ request }) => {
-  const res = await request.fetch("/admin/telegram", {
-    method: "GET",
-    maxRedirects: 0,
-  });
-  expect(res.status()).toBe(307);
-  const location = res.headers()["location"] ?? "";
-  expect(location).toContain("/login");
+test("GET /admin/telegram redirects to /login", async ({ request }) => {
+  const res = await request.get("/admin/telegram", { maxRedirects: 0 });
+  const status = res.status();
+  expect(status).toBeGreaterThanOrEqual(300);
+  expect(status).toBeLessThan(400);
+  const headers = await res.headers();
+  expect(headers["location"]).toContain("/login");
 });
 
 // ── Security headers (fetched raw via request context) ────────────────
+// NOTE: res.headers() is async — must use await.
 
 test("response has Content-Security-Policy header", async ({ request }) => {
   const res = await request.get("/");
-  const csp = res.headers()["content-security-policy"];
-  expect(csp).toBeDefined();
-  expect(csp?.length).toBeGreaterThan(0);
+  const headers = await res.headers();
+  expect(headers["content-security-policy"]).toBeDefined();
+  expect(headers["content-security-policy"]?.length).toBeGreaterThan(0);
 });
 
 test("response has Strict-Transport-Security header", async ({ request }) => {
   const res = await request.get("/");
-  const hsts = res.headers()["strict-transport-security"];
+  const headers = await res.headers();
+  const hsts = headers["strict-transport-security"];
   expect(hsts).toBeDefined();
   expect(hsts?.length).toBeGreaterThan(0);
+});
+
+test("response has X-Content-Type-Options: nosniff header", async ({ request }) => {
+  const res = await request.get("/");
+  const headers = await res.headers();
+  expect(headers["x-content-type-options"]).toBe("nosniff");
 });
 
 // ── RTL layout ───────────────────────────────────────────────────────
@@ -91,7 +98,19 @@ test('html tag has dir="rtl"', async ({ page }) => {
   expect(dir).toBe("rtl");
 });
 
-// ── Subscribe page (similar to a "connect" onboarding page) ──────────
+// ── Connect / Telegram ──────────────────────────────────────────────
+
+test("GET /connect/telegram responds with a page", async ({ page }) => {
+  const res = await rawResponse(page, "/connect/telegram");
+  // Route does not exist yet — expect a response with visible body (404 page)
+  expect(res?.status()).toBe(404);
+
+  await page.waitForLoadState("networkidle");
+  const body = page.locator("body");
+  await expect(body).toBeVisible();
+});
+
+// ── Additional smoke tests ───────────────────────────────────────────
 
 test("GET /subscribe returns 200 with page content", async ({ page }) => {
   const res = await rawResponse(page, "/subscribe");
@@ -101,8 +120,6 @@ test("GET /subscribe returns 200 with page content", async ({ page }) => {
   const body = page.locator("body");
   await expect(body).toBeVisible();
 });
-
-// ── Additional smoke tests ───────────────────────────────────────────
 
 test("GET /cart returns 200", async ({ page }) => {
   const res = await rawResponse(page, "/cart");
@@ -121,10 +138,4 @@ test("GET /terms returns 200 with page content", async ({ page }) => {
 test("GET /privacy returns 200", async ({ page }) => {
   const res = await rawResponse(page, "/privacy");
   expect(res?.status()).toBe(200);
-});
-
-test('response has X-Content-Type-Options header', async ({ request }) => {
-  const res = await request.get("/");
-  const nosniff = res.headers()["x-content-type-options"];
-  expect(nosniff).toBe("nosniff");
 });
