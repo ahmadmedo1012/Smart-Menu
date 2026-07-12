@@ -62,7 +62,10 @@ export function handleError(e: unknown) {
   if (msg.includes("Record to update not found") || msg.includes("Record to delete not found")) {
     return error("السجل غير موجود", 404);
   }
-  if (msg.includes("connection") || msg.includes("timeout")) {
+  if (
+    msg.toLowerCase().includes("connection") ||
+    msg.toLowerCase().includes("timeout")
+  ) {
     return error("خطأ في الاتصال بقاعدة البيانات. حاول مرة أخرى", 503);
   }
   if (msg.includes("Invalid `")) {
