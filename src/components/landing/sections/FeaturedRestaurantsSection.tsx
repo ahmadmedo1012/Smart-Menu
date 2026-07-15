@@ -10,7 +10,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import type { FeaturedRestaurant } from "@/lib/landing";
 
 type Props = {
-    restaurants: FeaturedRestaurant[];
+    restaurants: FeaturedRestaurant[] | null;
 };
 
 const AUTOPLAY_INTERVAL = 5000;
@@ -23,13 +23,32 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
     const [paused, setPaused] = useState(false);
     const timer = useRef<ReturnType<typeof setInterval>>(undefined);
 
+    if (restaurants === null) {
+        return (
+            <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
+                <SectionHeader
+                    icon={<Store className="size-3" />}
+                    eyebrow="منيو حقيقي"
+                    title="اطلع على منيو هذه المطاعم"
+                    subtitle="تصفح منيو مطاعم حقيقية تستخدم المنصة وشاهد تجربة الزبائن"
+                />
+                <div className="max-w-[1060px] mx-auto px-1">
+                    <div className="h-[380px] sm:h-[460px] rounded-2xl sm:rounded-3xl bg-card/50 animate-pulse" />
+                </div>
+            </SectionContainer>
+        );
+    }
+
     const n = restaurants.length;
-    const go = useCallback(
-        (i: number, d?: number) => setSlide([((i % n) + n) % n, d ?? (i > slide ? 1 : -1)]),
-        [slide, n],
-    );
-    const next = useCallback(() => go(slide + 1, 1), [slide, go]);
-    const prev = useCallback(() => go(slide - 1, -1), [slide, go]);
+    const go = useCallback((i: number, d?: number) => {
+        setSlide(([cur]) => [((i % n) + n) % n, d ?? (i > cur ? 1 : -1)]);
+    }, [n]);
+    const next = useCallback(() => {
+        setSlide(([cur]) => [((cur + 1) % n + n) % n, 1]);
+    }, [n]);
+    const prev = useCallback(() => {
+        setSlide(([cur]) => [((cur - 1) % n + n) % n, -1]);
+    }, [n]);
 
     useEffect(() => {
         if (paused || n <= 1) return;

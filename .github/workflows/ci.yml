@@ -57,12 +57,19 @@ jobs:
           TELEGRAM_BOT_TOKEN: "test"
           TELEGRAM_CHAT_ID: "0"
 
-      # E2E tests require DB — skip in PRs without DB creds;
-      # run on main push where env vars are available from GitHub Secrets.
-      - name: E2E tests (main push only)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      # Start dev server for E2E tests (always runs, uses CI Postgres service)
+      - name: Start dev server
+        run: |
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      # E2E tests against localhost (not production).
+      # DB-backed via the CI Postgres service at top of this job.
+      - name: E2E tests
         run: npx playwright install --with-deps chromium && npm run test:e2e
         env:
+          BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
           NEXT_PUBLIC_DOMAIN: http://localhost:3000

@@ -20,7 +20,7 @@ const registerLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 export async function POST(request: Request) {
   try {
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const { success: allowed } = await registerLimiter.check(`register:${ip}`);
     if (!allowed) {
       return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);

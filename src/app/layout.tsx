@@ -4,6 +4,7 @@ import ScrollToTop from "@/components/shared/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
+import { ReactScanInit } from "@/components/shared/ReactScanInit";
 import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -109,6 +110,7 @@ export default function RootLayout({
           />
           <ScrollToTop />
           <ServiceWorkerInit />
+          <ReactScanInit />
           <MotionProvider>
             <main id="main-content">{children}</main>
           </MotionProvider>

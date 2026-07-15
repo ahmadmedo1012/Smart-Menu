@@ -368,6 +368,12 @@ model Session {
   @@index([expiresAt])
 }
 
+enum PaymentStatus {
+  pending
+  verified
+  cancelled
+}
+
 model SubscriptionPayment {
   id        Int      @id @default(autoincrement())
   userId    Int?
@@ -376,7 +382,7 @@ model SubscriptionPayment {
   provider  String   @default("libyana")
   planId    Int
   planName  String   @default("")
-  status    String   @default("pending")
+  status    PaymentStatus @default(pending)
   metadata  Json     @default("{}")
   createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id])

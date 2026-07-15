@@ -47,6 +47,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Menu API: stale-while-revalidate — cached menu available offline
+  if (url.pathname.match(/^\/api\/(items|categories)(\/|$)/)) {
+    event.respondWith(staleWhileRevalidate(request));
+    return;
+  }
+
   // Navigations: network-first
   if (url.pathname.match(/^\/([^.]*|$)/)) {
     event.respondWith(networkFirst(request));
@@ -69,6 +75,18 @@ async function cacheFirst(request) {
   } catch {
     return caches.match("/offline.html");
   }
+}
+
+async function staleWhileRevalidate(request) {
+  const cached = await caches.match(request);
+  try {
+    const res = await fetch(request);
+    if (res.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, res.clone());
+    }
+  } catch { /* offline — serve stale */ }
+  return cached || caches.match("/offline.html");
 }
 
 async function networkFirst(request) {

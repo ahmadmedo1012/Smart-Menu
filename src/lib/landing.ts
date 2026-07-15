@@ -34,9 +34,12 @@ export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
                 phone: true,
                 whatsapp: true,
                 themeColor: true,
-                orders: {
-                    where: { createdAt: { gte: since }, status: "completed" },
-                    select: { id: true },
+                _count: {
+                    select: {
+                        orders: {
+                            where: { createdAt: { gte: since }, status: "completed" },
+                        },
+                    },
                 },
             },
             orderBy: { featuredRank: { sort: "asc", nulls: "last" } },
@@ -54,7 +57,7 @@ export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
                 phone: r.phone,
                 whatsapp: r.whatsapp,
                 themeColor: r.themeColor,
-                orderCount: r.orders.length,
+                orderCount: r._count.orders,
             }))
             .sort((a, b) => b.orderCount - a.orderCount)
             .slice(0, 10);

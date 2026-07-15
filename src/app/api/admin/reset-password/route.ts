@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       data: { password: hashPassword(body.newPassword) },
     });
 
-    const ip = request.headers.get("x-forwarded-for") || "";
+    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
     await logAudit({ action: "update", targetType: "user", targetId: body.userId, actorId: auth.userId!, ip });
 
     return success({ updated: true });

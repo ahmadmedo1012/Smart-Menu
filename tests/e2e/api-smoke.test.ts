@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-const BASE = "https://menu.smart-link.ly";
+// BASE defaults to Playwright config baseURL (localhost in CI, production in manual runs)
+const BASE = process.env.BASE_URL || "";
 
 test.describe("API Smoke Tests — Public Endpoints", () => {
   test("GET /api/plans returns 200", async ({ request }) => {

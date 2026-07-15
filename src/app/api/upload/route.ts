@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
+import { put } from "@vercel/blob";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
@@ -26,11 +27,14 @@ export async function POST(request: NextRequest) {
 		const isAvif = hex.startsWith("0000001c6674797061766966") || (hex.startsWith("00000020") && hex.includes("6674797061766966"));
 		if (!isJpeg && !isPng && !isWebp && !isAvif) return error("محتويات الملف لا تطابق صيغة صورة صالحة", 400);
 
-		// Return as base64 data URL — works on Vercel (no filesystem writes)
-		const base64 = buffer.toString("base64");
-		const dataUrl = `data:${file.type};base64,${base64}`;
+		// Upload to Vercel Blob — CDN-cached, no DB bloat
+		const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
+		const { url } = await put(filename, buffer, {
+			access: "public",
+			contentType: file.type,
+		});
 
-		return success({ url: dataUrl, size: buffer.length }, 201);
+		return success({ url, size: buffer.length }, 201);
 	} catch (e) {
 		return handleError(e);
 	}

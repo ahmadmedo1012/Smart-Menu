@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
 
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const { success: allowed } = await subscriptionLimiter.check(`sub:${ip}`);
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 

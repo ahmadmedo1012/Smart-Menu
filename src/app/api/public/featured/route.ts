@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
 
-const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
 export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
+        const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
         const restaurants = await prisma.restaurant.findMany({
             where: { isActive: true, showOnLanding: true },
             select: {
@@ -19,9 +19,12 @@ export async function GET() {
                 phone: true,
                 whatsapp: true,
                 themeColor: true,
-                orders: {
-                    where: { createdAt: { gte: since }, status: "completed" },
-                    select: { id: true },
+                _count: {
+                    select: {
+                        orders: {
+                            where: { createdAt: { gte: since }, status: "completed" },
+                        },
+                    },
                 },
             },
             orderBy: { featuredRank: { sort: "asc", nulls: "last" } },
@@ -39,7 +42,7 @@ export async function GET() {
                 phone: r.phone,
                 whatsapp: r.whatsapp,
                 themeColor: r.themeColor,
-                orderCount: r.orders.length,
+                orderCount: r._count.orders,
             }))
             .sort((a, b) => b.orderCount - a.orderCount)
             .slice(0, 10);

@@ -16,14 +16,14 @@ import FeaturedRestaurantsSection from "./sections/FeaturedRestaurantsSection"
 
 export default function HomePage() {
     const [stats, setStats] = useState<PublicStats | null>(null)
-    const [featured, setFeatured] = useState<FeaturedRestaurant[]>([])
+    const [featured, setFeatured] = useState<FeaturedRestaurant[] | null>(null)
 
     useEffect(() => {
         fetchPublicStats().then(setStats).catch(() => console.error("Failed to load public stats"))
         fetch("/api/public/featured")
             .then(r => r.json())
             .then(d => setFeatured(d.data ?? []))
-            .catch(() => {})
+            .catch(() => setFeatured([]))
     }, [])
 
     return (

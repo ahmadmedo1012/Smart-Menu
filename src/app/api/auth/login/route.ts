@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     const parsed = loginSchema.safeParse(await request.json());
     if (!parsed.success) return error("يرجى إدخال اسم المستخدم وكلمة المرور", 400);
     const { username, password } = parsed.data;
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const lockKey = `${ip}:${username}`;
     const { success: allowed } = await loginLimiter.check(lockKey);
     if (!allowed) {

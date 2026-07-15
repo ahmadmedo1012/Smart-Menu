@@ -4,10 +4,10 @@ import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
 import { randomBytes } from "crypto";
 import { z } from "zod";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getNextTierInfo } from "@/lib/loyalty-tiers";
 
-const loyaltyLimiter = createRateLimiter({ windowMs: 60_000, max: 20 });
+const loyaltyDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 const PHONE_RE = /^\+?[0-9]{7,15}$/;
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       ?? request.headers.get("x-real-ip")
       ?? "unknown";
-    const rateCheck = await loyaltyLimiter.check(ip);
+    const rateCheck = await loyaltyDbLimiter.check(ip);
     if (!rateCheck.success) return error("Too many requests", 429);
 
     const body = createSchema.parse(await request.json());

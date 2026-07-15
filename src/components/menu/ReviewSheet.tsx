@@ -202,7 +202,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus-visible:border-orange/50 transition-colors"
               />
               {/* Error */}
-              {submitError && <p className="text-xs text-red-500">{submitError}</p>}
+              {submitError && <p className="text-xs text-red-500" role="alert">{submitError}</p>}
               {/* Submit */}
               <button
                 onClick={handleSubmit}
@@ -232,7 +232,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                   <div className="size-6 rounded-full border-2 border-border border-t-orange animate-spin" />
                 </div>
               ) : fetchError ? (
-                <div className="text-center py-10">
+                <div className="text-center py-10" role="alert" aria-live="assertive">
                   <MessageCircle className="size-8 text-destructive/50 mx-auto mb-3" />
                   <p className="text-sm text-destructive mb-3">فشل تحميل التقييمات. تحقق من اتصالك بالإنترنت.</p>
                   <button

@@ -22,8 +22,12 @@ export default defineConfig({
       testMatch: "tests/security/*.test.ts",
     },
     {
+      name: "api",
+      testMatch: ["tests/e2e/api-smoke.test.ts", "tests/e2e/api-sweep.test.ts", "tests/e2e/full-sweep.test.ts"],
+    },
+    {
       name: "ui",
-      testMatch: "tests/e2e/*.test.ts",
+      testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/ui-sweep.test.ts"],
     },
   ],
 });

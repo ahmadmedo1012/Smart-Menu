@@ -3,16 +3,16 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error as apiError, handleError, paginated } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
-import { createRateLimiter } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 
-// ponytail: per-IP rate limiter for public order creation, use Redis if scaling
-const orderRateLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
+const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
 const orderItemSchema = z.object({
   itemId: z.number().int().positive(),
   quantity: z.number().int().positive().default(1),
   notes: z.string().optional(),
   price: z.number().positive(),
+  modifierOptionIds: z.array(z.number().int().positive()).optional(),
 });
 
 const createSchema = z.object({
@@ -91,8 +91,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Rate limit order creation (public endpoint)
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    const { success: allowed } = await orderRateLimiter.check(`order:${ip}`);
+    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const { success: allowed } = await orderDbLimiter.check(`order:${ip}`);
     if (!allowed) return apiError("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 
     const parsedInput = createSchema.safeParse(await request.json());
@@ -105,6 +105,33 @@ export async function POST(request: NextRequest) {
       select: { id: true, price: true, discountedPrice: true },
     });
     const priceMap = new Map(dbItems.map(i => [i.id, i]));
+
+    // Fetch modifier prices for any selected options and verify ownership
+    const allModIds = body.items.flatMap(i => i.modifierOptionIds ?? []);
+    const modOptionMap = new Map<number, number>();
+    if (allModIds.length > 0) {
+      const modOptions = await prisma.modifierOption.findMany({
+        where: { id: { in: allModIds } },
+        select: { id: true, priceDelta: true, group: { select: { menuItemId: true } } },
+      });
+      // Build set of valid (itemId → optionId) pairs
+      const validForItem = new Map<number, Set<number>>();
+      for (const mo of modOptions) {
+        const g = validForItem.get(mo.group.menuItemId) ?? new Set();
+        g.add(mo.id);
+        validForItem.set(mo.group.menuItemId, g);
+        modOptionMap.set(mo.id, Number(mo.priceDelta));
+      }
+      for (const item of body.items) {
+        const allowed = validForItem.get(item.itemId);
+        for (const mid of item.modifierOptionIds ?? []) {
+          if (!allowed?.has(mid)) {
+            return apiError(`الخيار ${mid} غير متاح للصنف ${item.itemId}`, 400);
+          }
+        }
+      }
+    }
+
     let recalcSubtotal = 0;
     for (const item of body.items) {
       const db = priceMap.get(item.itemId);
@@ -112,12 +139,21 @@ export async function POST(request: NextRequest) {
         return apiError(`الصنف ${item.itemId} غير موجود`, 400);
       }
       const eff = db.discountedPrice ? Number(db.discountedPrice) : Number(db.price);
-      recalcSubtotal += eff * item.quantity;
+      const modTotal = (item.modifierOptionIds ?? []).reduce((s, mid) => s + (modOptionMap.get(mid) ?? 0), 0);
+      recalcSubtotal += (eff + modTotal) * item.quantity;
     }
 
     const orderNo = body.idempotencyKey
       ? `ORD-${body.idempotencyKey.toUpperCase().slice(0, 40)}`
       : `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+
+    // Idempotency — return existing order if this orderNo was already created
+    if (body.idempotencyKey) {
+      const existing = await prisma.order.findUnique({ where: { orderNo } });
+      if (existing) {
+        return success(existing, 200);
+      }
+    }
 
     const restaurant = await prisma.restaurant.findUnique({ where: { id: body.restaurantId } });
     if (!restaurant) {
@@ -152,6 +188,7 @@ export async function POST(request: NextRequest) {
               quantity: i.quantity,
               notes: i.notes ?? "",
               price: db.discountedPrice ? Number(db.discountedPrice) : Number(db.price),
+              modifiersJson: JSON.stringify(i.modifierOptionIds ?? []),
             };
           }),
         },

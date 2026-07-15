@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import { createHmac } from "crypto";
 import { prisma } from "@/lib/db";
+import { createDbRateLimiter } from "@/lib/rate-limit";
+import { error as logError, warn as logWarn, info as logInfo } from "@/lib/logger";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { resolveSubscriptionPayment } from "@/lib/subscription-decisions";
 import {
@@ -8,6 +10,8 @@ import {
   editMessageText,
   answerCallbackQuery,
 } from "@/lib/telegram-api";
+
+const webhookDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
 interface TelegramUpdate {
   message?: {
@@ -33,14 +37,14 @@ async function getBotToken(): Promise<string | null> {
 async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_query"]>): Promise<Response> {
   const botToken = await getBotToken();
   if (!botToken) {
-    console.error("[webhook] no bot token configured");
+    logError("[webhook] no bot token configured");
     return new Response("OK", { status: 200 });
   }
 
   // Gate 1: only allowlisted admin Telegram IDs may act
   const adminIds = await getAdminTelegramIds();
   if (!adminIds.includes(cq.from.id)) {
-    console.warn("[webhook] unauthorized callback attempt", { fromId: cq.from.id, callbackData: cq.data, adminCount: adminIds.length });
+    logWarn("[webhook] unauthorized callback attempt", { fromId: cq.from.id, callbackData: cq.data, adminCount: adminIds.length });
     await answerCallbackQuery(botToken, cq.id, "عذراً، لا تمتلك الصلاحية لتنفيذ هذا الإجراء.", true);
     return new Response("OK", { status: 200 });
   }
@@ -115,25 +119,29 @@ async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_quer
     }
   } catch (e) {
     // Best-effort cleanup — non-critical
-    console.error("[webhook] keyboard cleanup error:", e);
+    logError("[webhook] keyboard cleanup error:", { error: String(e) });
   }
 
   return new Response("OK", { status: 200 });
 }
 
 export async function POST(request: NextRequest) {
+  // Gate -1: rate limit webhook calls
+  const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const { success: rlAllowed } = await webhookDbLimiter.check(`webhook:${ip}`);
+  if (!rlAllowed) return new Response("Too Many Requests", { status: 429 });
+
   // Gate 0: verify request came from Telegram via shared secret
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
-  const allowUnverified = process.env.TELEGRAM_WEBHOOK_ALLOW_UNVERIFIED === "true";
 
   if (!expectedSecret) {
-    console.error("[webhook] TELEGRAM_WEBHOOK_SECRET not set");
-    if (!allowUnverified) return new Response("Misconfigured", { status: 503 });
-  } else {
-    const incomingSecret = request.headers.get("x-telegram-bot-api-secret-token");
-    if (incomingSecret !== expectedSecret) {
-      return new Response("Forbidden", { status: 403 });
-    }
+    logWarn("[webhook] TELEGRAM_WEBHOOK_SECRET not set");
+    return new Response("Misconfigured", { status: 503 });
+  }
+
+  const incomingSecret = request.headers.get("x-telegram-bot-api-secret-token");
+  if (incomingSecret !== expectedSecret) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   try {
@@ -149,7 +157,7 @@ export async function POST(request: NextRequest) {
     const username = update.message?.chat?.username;
     const chatType = update.message?.chat?.type;
     if (chatId) {
-      console.log(`[webhook] msg from chat_id=${chatId} type=${chatType} username=${username ?? "N/A"}`);
+      logInfo("[webhook] msg", { chatId, chatType, username });
     }
 
     // Handle plain /start — tell user their Telegram ID so admins can whitelist it
@@ -176,7 +184,7 @@ export async function POST(request: NextRequest) {
     const token = text.slice("/start verify_".length);
     const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
     if (!secret) {
-      console.error("webhook: AUTH_SECRET not set");
+      logError("webhook: AUTH_SECRET not set");
       return new Response("OK", { status: 200 });
     }
 
@@ -202,6 +210,17 @@ export async function POST(request: NextRequest) {
       return new Response("OK", { status: 200 });
     }
     if (!data.userId || data.exp < Math.floor(Date.now() / 1000)) {
+      return new Response("OK", { status: 200 });
+    }
+
+    // Anti-replay: mark token as spent. Atomic create-or-die prevents race.
+    const tokenHash = createHmac("sha256", secret).update(token).digest("hex");
+    try {
+      await prisma.rateLimitEntry.create({
+        data: { key: `link-token:${tokenHash}`, windowEnd: new Date(data.exp * 1000) },
+      });
+    } catch {
+      // Unique constraint = token already spent by concurrent request
       return new Response("OK", { status: 200 });
     }
 
@@ -235,7 +254,7 @@ export async function POST(request: NextRequest) {
 
     return new Response("OK", { status: 200 });
   } catch (e) {
-    console.error("webhook error:", e);
+    logError("webhook error:", { error: String(e) });
     return new Response("OK", { status: 200 });
   }
 }

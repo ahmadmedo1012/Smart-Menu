@@ -13,11 +13,18 @@ async function apiCall(
   method: string,
   body: Record<string, unknown>,
 ): Promise<Response> {
-  return fetch(`https://api.telegram.org/bot${botToken}/${method}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+  try {
+    return await fetch(`https://api.telegram.org/bot${botToken}/${method}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 /** Coerce numeric-looking strings to numbers (Telegram API expects numeric IDs) */
@@ -41,7 +48,7 @@ export async function sendMessageWithKeyboard(
   const res = await apiCall(botToken, "sendMessage", payload);
   if (!res.ok) {
     const err = await res.text();
-    console.error("[telegram-api] sendMessage failed", { chatId, status: res.status, error: err.slice(0, 300) });
+    console.warn("[telegram-api] sendMessage failed", { chatId, status: res.status, error: err.slice(0, 300) });
     return null;
   }
   return res.json();
@@ -59,7 +66,7 @@ export async function editMessageReplyMarkup(
   });
   if (!res.ok) {
     const err = await res.text();
-    console.error("[telegram-api] editMessageReplyMarkup failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
+    console.warn("[telegram-api] editMessageReplyMarkup failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
   }
 }
 
@@ -75,7 +82,7 @@ export async function editMessageText(
   const res = await apiCall(botToken, "editMessageText", payload);
   if (!res.ok) {
     const err = await res.text();
-    console.error("[telegram-api] editMessageText failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
+    console.warn("[telegram-api] editMessageText failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
   }
 }
 
@@ -91,6 +98,6 @@ export async function answerCallbackQuery(
   const res = await apiCall(botToken, "answerCallbackQuery", payload);
   if (!res.ok) {
     const err = await res.text();
-    console.error("[telegram-api] answerCallbackQuery failed", { status: res.status, error: err.slice(0, 200) });
+    console.warn("[telegram-api] answerCallbackQuery failed", { status: res.status, error: err.slice(0, 200) });
   }
 }
