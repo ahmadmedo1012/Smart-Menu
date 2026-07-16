@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth";
+import { error } from "@/lib/api-helpers";
 
 const FIX_IMAGES: Record<string, string> = {
   "قهوة تركي": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
@@ -33,12 +35,14 @@ const FIX_IMAGES: Record<string, string> = {
   "عصير طازج": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8",
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = await requireAuth();
+  if (!auth.authorized) return error("غير مصرح", 401);
+
   let updated = 0;
   let errors = 0;
   let skipped = 0;
 
-  // Get ALL items from al-waha-cafe (our demo restaurant)
   const demoRestaurant = await prisma.restaurant.findUnique({ where: { slug: "al-waha-cafe" } });
   if (!demoRestaurant) {
     return NextResponse.json({ success: false, message: "Demo restaurant not found" });
@@ -57,7 +61,6 @@ export async function GET() {
         updated++;
       } catch { errors++; }
     } else {
-      // Use category-based fallback
       const catFallbacks: Record<string, string> = {
         "مشروبات ساخنة": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
         "مشروبات باردة": "https://images.unsplash.com/photo-1544145945-f90425340c7e",

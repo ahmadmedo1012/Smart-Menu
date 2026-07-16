@@ -1,4 +1,5 @@
 import { validateSession } from "./session";
+import { getUserById } from "./db";
 
 type AuthResult = {
   authorized: true;
@@ -12,7 +13,6 @@ type AuthResult = {
 export async function requireAuth(opts?: { requireRestaurant?: boolean }): Promise<AuthResult | { authorized: false }> {
   const session = await validateSession();
   if (session.valid && session.userId) {
-    const { getUserById } = await import("./db");
     const user = await getUserById(session.userId);
     if (user) {
       if (opts?.requireRestaurant && !user.restaurantId) {
@@ -32,6 +32,7 @@ export async function requireAuth(opts?: { requireRestaurant?: boolean }): Promi
   return { authorized: false } as const;
 }
 
+/** @deprecated Use requirePermission() with specific permission instead */
 export async function requireAdmin() {
   const r = await requireAuth();
   if (!r.authorized || (r.role !== "super_admin" && r.role !== "sub_admin" && r.role !== "admin")) return { authorized: false } as const;

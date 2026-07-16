@@ -6,7 +6,7 @@ import { requirePermission } from "@/lib/auth";
 
 const schema = z.object({
   username: z.string().min(3),
-  password: z.string().min(4),
+  password: z.string().min(8),
   name: z.string().min(1),
   restaurantId: z.number().int().positive(),
 });

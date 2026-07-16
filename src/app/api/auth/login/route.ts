@@ -5,7 +5,6 @@ import { z } from "zod";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
-import { cookies } from "next/headers";
 import { createSession } from "@/lib/session";
 import { verifyHash } from "@/lib/hash";
 
@@ -15,6 +14,8 @@ const loginSchema = z.object({
 });
 
 const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
+// Account-level limiter — protects against distributed brute force across IPs
+const accountLimiter = createDbRateLimiter({ windowMs: 15 * 60_000, max: 20 });
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +27,12 @@ export async function POST(request: Request) {
     const { success: allowed } = await loginLimiter.check(lockKey);
     if (!allowed) {
       return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
+    }
+    // Account-level throttle — protects against distributed brute force across IPs
+    // Generous 20/15min window to avoid blocking legitimate multi-device use
+    const { success: acctAllowed } = await accountLimiter.check(`acct:${username}`);
+    if (!acctAllowed) {
+      return error("تم قفل الحساب مؤقتاً لكثرة المحاولات الفاشلة. حاول لاحقاً.", 429);
     }
 
     const user = await prisma.user.findUnique({
@@ -51,15 +58,6 @@ export async function POST(request: Request) {
 
     // Create server-side session
     await createSession(user.id);
-
-    // Set auth cookies for client-side checks
-    const cookieStore = await cookies()
-    const secure = process.env.NODE_ENV === "production"
-    const SEVEN_DAYS = 60 * 60 * 24 * 7
-    cookieStore.set("smart-menu-auth", "true", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
-    cookieStore.set("smart-menu-user-id", String(user.id), { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
-    cookieStore.set("smart-menu-role", user.role, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
-    cookieStore.set("smart-menu-subscription-status", user.subscriptionStatus ?? "UNPAID", { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: SEVEN_DAYS })
 
     return Response.json({
       success: true,

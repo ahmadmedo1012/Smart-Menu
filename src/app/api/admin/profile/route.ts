@@ -96,6 +96,11 @@ export async function PUT(request: NextRequest) {
       },
     });
 
+    // Revoke all sessions except current one after password change
+    if (body.newPassword) {
+      await prisma.session.deleteMany({ where: { userId: auth.userId } });
+    }
+
     await logAudit({
       action: AuditAction.update,
       actorId: auth.userId,

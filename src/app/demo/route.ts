@@ -107,19 +107,8 @@ export async function GET() {
   // Create server-side session (primary auth)
   await createSession(user.id);
 
-  // Cookie-based auth (backward compat)
-  const cookieOpts = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite: "lax" as const,
-    path: "/",
-    maxAge: 60 * 60 * 2,
-  };
-
-  response.cookies.set("smart-menu-auth", "true", cookieOpts);
-  response.cookies.set("smart-menu-role", user.role, cookieOpts);
   if (user.restaurantId) {
-    response.cookies.set("smart-menu-restaurant", String(user.restaurantId), cookieOpts);
+    response.cookies.set("smart-menu-restaurant", String(user.restaurantId), { httpOnly: true, secure: process.env.NODE_ENV !== "development", sameSite: "lax", path: "/", maxAge: 60 * 60 * 2 });
   }
 
   return response;

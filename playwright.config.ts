@@ -29,5 +29,10 @@ export default defineConfig({
       name: "ui",
       testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/ui-sweep.test.ts"],
     },
+    {
+      name: "auth-verify",
+      testMatch: "tests/e2e/auth-fix-verification.spec.ts",
+      use: { baseURL: "http://localhost:3000" },
+    },
   ],
 });

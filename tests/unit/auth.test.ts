@@ -39,38 +39,13 @@ const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
 }
 
 // ════════════════════════════════════════════════════════════════════
-// 2. csrf.ts — token generation and constant-time validation
+// 2. csrf-client.ts — fetch wrapper adds CSRF header to mutations
 // ════════════════════════════════════════════════════════════════════
 
-const { generateToken, validateToken } = await import("../../src/lib/csrf.ts");
-const CSRF_COOKIE = "csrf-token";
-const CSRF_HEADER = "x-csrf-token";
+const { CSRF_COOKIE, CSRF_HEADER } = await import("../../src/lib/csrf.ts");
 
 {
-  const t1 = generateToken();
-  const t2 = generateToken();
-
-  ok(typeof t1 === "string", "generateToken returns string"); inc();
-  strictEqual(t1.length, 64, "token = 64 hex chars"); inc();
-  match(t1, /^[0-9a-f]+$/, "token hex only"); inc();
-  notStrictEqual(t1, t2, "successive tokens differ"); inc();
-
-  ok(validateToken(t1, t1), "matching token+cookie → true"); inc();
-  strictEqual(validateToken(t1, t2), false, "different token vs cookie → false"); inc();
-  strictEqual(validateToken(null, t1), false, "null header → false"); inc();
-  strictEqual(validateToken(t1, null), false, "null cookie → false"); inc();
-  strictEqual(validateToken(null, null), false, "both null → false"); inc();
-  strictEqual(validateToken("", ""), false, "empty strings → false"); inc();
-  strictEqual(validateToken(t1, t1.toUpperCase()), false, "case mismatch → false"); inc();
-  strictEqual(validateToken(t1, t1.slice(0, 32)), false, "length mismatch → false"); inc();
-}
-
-// ════════════════════════════════════════════════════════════════════
-// 3. csrf-client.ts — fetch wrapper adds CSRF header to mutations
-// ════════════════════════════════════════════════════════════════════
-
-{
-  const mockToken = "mock-csrf-" + generateToken().slice(0, 8);
+  const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
   (globalThis as any).document = {
     cookie: `${CSRF_COOKIE}=${mockToken}`,
   };

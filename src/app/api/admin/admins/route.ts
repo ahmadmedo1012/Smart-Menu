@@ -11,7 +11,7 @@ const permissionValues = Object.values(Permission) as [string, ...string[]];
 
 const inviteSchema = z.object({
   username: z.string().min(3).max(50),
-  password: z.string().min(4).max(100),
+  password: z.string().min(8).max(100),
   name: z.string().min(1).max(100),
   permissions: z.array(z.enum(permissionValues)).default([]),
 });
