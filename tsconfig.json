@@ -41,6 +41,7 @@
     "node_modules",
     "prisma",
     "docs",
-    "open-design"
+    "open-design",
+    "scripts"
   ]
 }

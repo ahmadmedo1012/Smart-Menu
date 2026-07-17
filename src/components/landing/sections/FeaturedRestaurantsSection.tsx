@@ -23,23 +23,7 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
     const [paused, setPaused] = useState(false);
     const timer = useRef<ReturnType<typeof setInterval>>(undefined);
 
-    if (restaurants === null) {
-        return (
-            <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
-                <SectionHeader
-                    icon={<Store className="size-3" />}
-                    eyebrow="منيو حقيقي"
-                    title="اطلع على منيو هذه المطاعم"
-                    subtitle="تصفح منيو مطاعم حقيقية تستخدم المنصة وشاهد تجربة الزبائن"
-                />
-                <div className="max-w-[1060px] mx-auto px-1">
-                    <div className="h-[380px] sm:h-[460px] rounded-2xl sm:rounded-3xl bg-card/50 animate-pulse" />
-                </div>
-            </SectionContainer>
-        );
-    }
-
-    const n = restaurants.length;
+    const n = restaurants?.length ?? 0;
     const go = useCallback((i: number, d?: number) => {
         setSlide(([cur]) => [((i % n) + n) % n, d ?? (i > cur ? 1 : -1)]);
     }, [n]);
@@ -55,6 +39,22 @@ export default function FeaturedRestaurantsSection({ restaurants }: Props) {
         timer.current = setInterval(next, AUTOPLAY_INTERVAL);
         return () => clearInterval(timer.current);
     }, [paused, next, n]);
+
+    if (restaurants === null) {
+        return (
+            <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
+                <SectionHeader
+                    icon={<Store className="size-3" />}
+                    eyebrow="منيو حقيقي"
+                    title="اطلع على منيو هذه المطاعم"
+                    subtitle="تصفح منيو مطاعم حقيقية تستخدم المنصة وشاهد تجربة الزبائن"
+                />
+                <div className="max-w-[1060px] mx-auto px-1">
+                    <div className="h-[380px] sm:h-[460px] rounded-2xl sm:rounded-3xl bg-card/50 animate-pulse" />
+                </div>
+            </SectionContainer>
+        );
+    }
 
     if (n === 0) return null;
     const r = restaurants[slide];
