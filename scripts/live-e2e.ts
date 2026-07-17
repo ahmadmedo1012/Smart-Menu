@@ -24,23 +24,22 @@ const BASE = process.env.BASE_URL || "https://menu.smart-link.ly";
     const page = await ctx.newPage();
 
     await check("Landing page loads", async () => {
-      await page.goto(BASE, { waitUntil: "networkidle" });
+      await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 60000 });
       const title = await page.title();
       if (!title) throw new Error("No page title");
     });
 
     await check("Menu page loads for demo restaurant", async () => {
-      await page.goto(`${BASE}/menu/al-waha-cafe`, { waitUntil: "networkidle" });
-      const ok = await page.locator("text=قهوة تركي").isVisible();
-      if (!ok) throw new Error("Menu items not visible");
+      await page.goto(`${BASE}/menu/al-waha-cafe`, { waitUntil: "domcontentloaded", timeout: 60000 });
+      await page.waitForSelector("text=قهوة تركي", { timeout: 30000 });
     });
 
     await check("Cart page loads", async () => {
-      await page.goto(`${BASE}/cart`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/cart`, { waitUntil: "domcontentloaded", timeout: 60000 });
     });
 
     await check("Subscribe page loads", async () => {
-      await page.goto(`${BASE}/subscribe`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/subscribe`, { waitUntil: "domcontentloaded", timeout: 60000 });
     });
 
     await page.close();
@@ -53,7 +52,7 @@ const BASE = process.env.BASE_URL || "https://menu.smart-link.ly";
     const page = await ctx.newPage();
 
     await check("Login page loads", async () => {
-      await page.goto(`${BASE}/login`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded", timeout: 60000 });
     });
 
     await page.close();
@@ -66,13 +65,13 @@ const BASE = process.env.BASE_URL || "https://menu.smart-link.ly";
     const page = await ctx.newPage();
 
     await check("Middleware: /admin redirects to /login", async () => {
-      await page.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded", timeout: 60000 });
       const url = page.url();
       if (!url.includes("/login")) throw new Error(`Expected /login redirect, got: ${url}`);
     });
 
     await check("Middleware: /owner redirects to /login", async () => {
-      await page.goto(`${BASE}/owner`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/owner`, { waitUntil: "domcontentloaded", timeout: 60000 });
       const url = page.url();
       if (!url.includes("/login")) throw new Error(`Expected /login redirect, got: ${url}`);
     });
@@ -136,7 +135,7 @@ const BASE = process.env.BASE_URL || "https://menu.smart-link.ly";
     });
 
     await check("Middleware does NOT block authenticated /admin", async () => {
-      await page.goto(`${BASE}/admin`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/admin`, { waitUntil: "domcontentloaded", timeout: 60000 });
       const url = page.url();
       if (url.includes("/login")) throw new Error(`Middleware redirected authenticated user: ${url}`);
     });
@@ -185,15 +184,15 @@ const BASE = process.env.BASE_URL || "https://menu.smart-link.ly";
     const tab3 = await ctx.newPage();
 
     await check("Tab 1: Landing page loads", async () => {
-      await tab1.goto(BASE, { waitUntil: "networkidle" });
+      await tab1.goto(BASE, { waitUntil: "domcontentloaded", timeout: 60000 });
     });
 
     await check("Tab 2: Menu page loads", async () => {
-      await tab2.goto(`${BASE}/al-waha-cafe`, { waitUntil: "networkidle" });
+      await tab2.goto(`${BASE}/menu/al-waha-cafe`, { waitUntil: "domcontentloaded", timeout: 60000 });
     });
 
     await check("Tab 3: Login page loads", async () => {
-      await tab3.goto(`${BASE}/login`, { waitUntil: "networkidle" });
+      await tab3.goto(`${BASE}/login`, { waitUntil: "domcontentloaded", timeout: 60000 });
     });
 
     await tab1.close();
