@@ -281,7 +281,7 @@ export default function PricingPage() {
               <Link href="/subscribe">
                 <Button size="lg">ابدأ الآن مجاناً</Button>
               </Link>
-              <Link href="/demo">
+              <Link href="/subscribe">
                 <Button size="lg" variant="outline">جرب لوحة التحكم</Button>
               </Link>
             </div>
