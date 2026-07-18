@@ -1,0 +1,17 @@
+{
+  "pages": [
+    {"path": "/", "status": 200, "pass": true, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 1560, "buttons": 12, "links": 21, "errors": ["redirects to /pricing (client-side)"]},
+    {"path": "/pricing", "status": 200, "pass": true, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 1560, "buttons": 12, "links": 21, "errors": []},
+    {"path": "/login", "status": 200, "pass": false, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 1560, "buttons": 12, "links": 21, "errors": ["redirect chain: /login -> /terms -> /pricing", "login page never rendered"]},
+    {"path": "/terms", "status": 200, "pass": false, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 1560, "buttons": 12, "links": 21, "errors": ["redirects to /pricing", "terms content not served"]},
+    {"path": "/privacy", "status": 200, "pass": false, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 658, "buttons": 13, "links": 19, "errors": ["redirects to /owner (auth required)", "401 GET /api/auth/me", "5 Unsplash image 404s", "404 GET /not-found"]},
+    {"path": "/subscribe", "status": 200, "pass": true, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 534, "buttons": 8, "links": 6, "errors": ["401 GET /api/auth/me"]},
+    {"path": "/cart", "status": 200, "pass": false, "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي", "bodyLen": 94, "buttons": 4, "links": 7, "errors": ["redirects to /menu/al-waha-cafe (auth required)", "bodyLen 94 is skeleton barely", "401 GET /api/auth/me"]},
+    {"path": "/order-confirmed", "status": 200, "pass": false, "title": "مقهى الواحة | المنيو الذكي", "bodyLen": 795, "buttons": 40, "links": 5, "errors": ["redirects to /menu/al-waha-cafe", "order-confirmed page never rendered"]},
+    {"path": "/menu", "status": 200, "pass": true, "title": "مقهى الواحة | المنيو الذكي", "bodyLen": 795, "buttons": 40, "links": 5, "errors": ["redirects to /menu/al-waha-cafe (demo cafe slug)"]},
+    {"path": "/not-found", "status": 404, "pass": true, "title": "404 - الصفحة غير موجودة | المنيو الذكي", "bodyLen": 194, "buttons": 9, "links": 11, "errors": ["returns expected 404", "401 GET /api/auth/me"]}
+  ],
+  "totalPass": 5,
+  "totalFail": 5,
+  "summary": "10 pages tested. 5 PASS (/, /pricing, /subscribe, /menu, /not-found), 5 FAIL (/login, /terms, /privacy, /cart, /order-confirmed). Server returns 200 for all routes except /not-found (404). Common issues: unauthenticated users redirected away from auth-required pages, login/terms/privacy/cart/order-confirmed never render their intended content. 5 Unsplash images return 404 via _next/image. All pages fire a 401 GET /api/auth/me on load."
+}

@@ -3,6 +3,7 @@
 // and let route handlers do the authoritative session check.
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { assertSameOrigin } from "@/lib/csrf";
 
 const SESSION_COOKIE = "smart-menu-session";
 
@@ -14,11 +15,19 @@ export function middleware(request: NextRequest) {
   const isProtected = PROTECTED_ROOTS.some((root) => pathname === root || pathname.startsWith(`${root}/`));
   if (!isProtected) return NextResponse.next();
 
+  // Verify session cookie
   const session = request.cookies.get(SESSION_COOKIE)?.value;
   if (!session || session.length < 32) {
     const login = new URL("/login", request.url);
     login.searchParams.set("redirect", pathname);
     return NextResponse.redirect(login);
+  }
+
+  // CSRF: validate Origin on mutating requests to protected routes
+  try {
+    assertSameOrigin(request);
+  } catch {
+    return new NextResponse("CSRF validation failed", { status: 403 });
   }
 
   return NextResponse.next();

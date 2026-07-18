@@ -1,0 +1,87 @@
+- generic [active] [ref=f2e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f2e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f2e5]:
+    - generic [ref=f2e6]:
+      - navigation "الرئيسية" [ref=f2e14]:
+        - generic [ref=f2e15]:
+          - button "فتح القائمة" [ref=f2e16]
+          - link "الربط الذكي Smart Menu" [ref=f2e21] [cursor=pointer]:
+            - /url: /
+            - img "الربط الذكي" [ref=f2e22]
+            - generic [ref=f2e23]: Smart Menu
+        - button "الوضع الليلي" [ref=f2e25] [cursor=pointer]
+      - generic [ref=f2e30]:
+        - generic [ref=f2e31]:
+          - generic [ref=f2e32]: اشترك الآن
+          - heading "انضم إلى الربط الذكي" [level=1] [ref=f2e37]
+          - paragraph [ref=f2e38]: وأنشئ منيو رقمي لمطعمك في دقائق
+        - generic [ref=f2e39]:
+          - generic [ref=f2e40]:
+            - generic [ref=f2e41]: "1"
+            - text: اختر الخطة
+          - generic [ref=f2e43]:
+            - generic [ref=f2e44]: "2"
+            - text: بيانات المطعم
+        - generic [ref=f2e45]:
+          - heading "اختر خطة تناسب مطعمك" [level=2] [ref=f2e46]
+          - generic [ref=f2e47]:
+            - button "مجاني مجاني منيو رقمي تفاعلي 10 أصناف طلبات واتساب إحصائيات أساسية" [ref=f2e48]:
+              - heading "مجاني" [level=3] [ref=f2e53]
+              - generic [ref=f2e54]: مجاني
+              - generic [ref=f2e56]:
+                - generic [ref=f2e57]: منيو رقمي تفاعلي
+                - generic [ref=f2e61]: 10 أصناف
+                - generic [ref=f2e65]: طلبات واتساب
+                - generic [ref=f2e69]: إحصائيات أساسية
+            - button "أساسي 19 د.ل/شهر منيو رقمي 50 صنف طلقات غير محدودة برنامج ولاء +2 ميزات أخرى" [ref=f2e73]:
+              - heading "أساسي" [level=3] [ref=f2e77]
+              - generic [ref=f2e78]:
+                - generic [ref=f2e79]: "19"
+                - generic [ref=f2e80]: د.ل/شهر
+              - generic [ref=f2e81]:
+                - generic [ref=f2e82]: منيو رقمي
+                - generic [ref=f2e86]: 50 صنف
+                - generic [ref=f2e90]: طلقات غير محدودة
+                - generic [ref=f2e94]: برنامج ولاء
+                - paragraph [ref=f2e98]: +2 ميزات أخرى
+            - button "المدفوعة 29 د.ل/شهر جميع ميزات المجانية أصناف غير محدودة برنامج ولاء متكامل QR كود مخصص +3 ميزات أخرى" [ref=f2e99]:
+              - heading "المدفوعة" [level=3] [ref=f2e103]
+              - generic [ref=f2e104]:
+                - generic [ref=f2e105]: "29"
+                - generic [ref=f2e106]: د.ل/شهر
+              - generic [ref=f2e107]:
+                - generic [ref=f2e108]: جميع ميزات المجانية
+                - generic [ref=f2e112]: أصناف غير محدودة
+                - generic [ref=f2e116]: برنامج ولاء متكامل
+                - generic [ref=f2e120]: QR كود مخصص
+                - paragraph [ref=f2e124]: +3 ميزات أخرى
+            - button "احترافي 129 د.ل/شهر حتى 3 منيوهات 200 صنف طلبات غير محدودة ولاء متقدم +4 ميزات أخرى" [ref=f2e125]:
+              - heading "احترافي" [level=3] [ref=f2e131]
+              - generic [ref=f2e132]:
+                - generic [ref=f2e133]: "129"
+                - generic [ref=f2e134]: د.ل/شهر
+              - generic [ref=f2e135]:
+                - generic [ref=f2e136]: حتى 3 منيوهات
+                - generic [ref=f2e140]: 200 صنف
+                - generic [ref=f2e144]: طلبات غير محدودة
+                - generic [ref=f2e148]: ولاء متقدم
+                - paragraph [ref=f2e152]: +4 ميزات أخرى
+            - button "شركات 299 د.ل/شهر منيوهات غير محدودة أصناف غير محدودة طلبات غير محدودة ولاء كامل +2 ميزات أخرى" [ref=f2e153]:
+              - heading "شركات" [level=3] [ref=f2e158]
+              - generic [ref=f2e159]:
+                - generic [ref=f2e160]: "299"
+                - generic [ref=f2e161]: د.ل/شهر
+              - generic [ref=f2e162]:
+                - generic [ref=f2e163]: منيوهات غير محدودة
+                - generic [ref=f2e167]: أصناف غير محدودة
+                - generic [ref=f2e171]: طلبات غير محدودة
+                - generic [ref=f2e175]: ولاء كامل
+                - paragraph [ref=f2e179]: +2 ميزات أخرى
+          - generic [ref=f2e180]:
+            - button "اختر خطة أولاً" [disabled]
+  - link "تواصل عبر واتساب" [ref=f2e9] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f2e12]

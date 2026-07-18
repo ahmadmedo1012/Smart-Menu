@@ -48,6 +48,10 @@ export async function destroySession() {
   const c = await cookies();
   const token = c.get(SESSION_COOKIE)?.value;
   if (token) {
+    if (!/^[0-9a-f-]{36}$/i.test(token)) {
+      c.set(SESSION_COOKIE, "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
+      return;
+    }
     await prisma.session.deleteMany({ where: { token } }).catch(() => {});
   }
   c.set(SESSION_COOKIE, "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });

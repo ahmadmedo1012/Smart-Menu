@@ -19,7 +19,7 @@ export default function HomePage() {
     const [featured, setFeatured] = useState<FeaturedRestaurant[] | null>(null)
 
     useEffect(() => {
-        fetchPublicStats().then(setStats).catch(() => console.error("Failed to load public stats"))
+        fetchPublicStats().then(setStats).catch(() => {});
         fetch("/api/public/featured")
             .then(r => r.json())
             .then(d => setFeatured(d.data ?? []))

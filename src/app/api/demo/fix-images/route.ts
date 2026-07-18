@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { error } from "@/lib/api-helpers";
+// ponytail: demo-only route — changes to POST to avoid HTTP semantics violation
 
 const FIX_IMAGES: Record<string, string> = {
   "قهوة تركي": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
@@ -35,7 +36,7 @@ const FIX_IMAGES: Record<string, string> = {
   "عصير طازج": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8",
 };
 
-export async function GET(request: Request) {
+export async function POST() {
   const auth = await requireAuth();
   if (!auth.authorized) return error("غير مصرح", 401);
 

@@ -10,52 +10,56 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  const itemId = Number(id);
-  if (Number.isNaN(itemId)) {
-    return NextResponse.json({ success: false, error: "Invalid ID" }, { status: 400 });
-  }
-
-  const { searchParams } = new URL(req.url);
-  const minRating = searchParams.get("minRating");
-
-  const where: any = { menuItemId: itemId };
-  if (minRating) {
-    const min = Number(minRating);
-    if (!Number.isNaN(min) && min >= 1 && min <= 5) {
-      where.rating = { gte: min };
+  try {
+    const { id } = await params;
+    const itemId = Number(id);
+    if (Number.isNaN(itemId)) {
+      return NextResponse.json({ success: false, error: "Invalid ID" }, { status: 400 });
     }
+
+    const { searchParams } = new URL(req.url);
+    const minRating = searchParams.get("minRating");
+
+    const where: any = { menuItemId: itemId };
+    if (minRating) {
+      const min = Number(minRating);
+      if (!Number.isNaN(min) && min >= 1 && min <= 5) {
+        where.rating = { gte: min };
+      }
+    }
+
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
+
+    const auth = await requireAuth().catch(() => ({ authorized: false as const }));
+    const isOwner = auth.authorized && (["super_admin","sub_admin","admin"].includes(auth.role ?? "") || auth.role === "owner");
+
+    const [reviews, stats] = await Promise.all([
+      prisma.review.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: { id: true, rating: true, comment: true, menuItemId: true, createdAt: true, ...(isOwner ? { customerName: true, customerPhone: true } : {}) },
+      }),
+      prisma.review.aggregate({
+        where: { menuItemId: itemId },
+        _avg: { rating: true },
+        _count: true,
+      }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: reviews,
+      stats: {
+        avgRating: stats._avg.rating,
+        totalCount: stats._count,
+      },
+    });
+  } catch (e) {
+    return handleError(e);
   }
-
-  const page = Math.max(1, Number(searchParams.get("page")) || 1);
-  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
-
-  const auth = await requireAuth().catch(() => ({ authorized: false as const }));
-  const isOwner = auth.authorized && (["super_admin","sub_admin","admin"].includes(auth.role ?? "") || auth.role === "owner");
-
-  const [reviews, stats] = await Promise.all([
-    prisma.review.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      select: { id: true, rating: true, comment: true, menuItemId: true, createdAt: true, ...(isOwner ? { customerName: true, customerPhone: true } : {}) },
-    }),
-    prisma.review.aggregate({
-      where: { menuItemId: itemId },
-      _avg: { rating: true },
-      _count: true,
-    }),
-  ]);
-
-  return NextResponse.json({
-    success: true,
-    data: reviews,
-    stats: {
-      avgRating: stats._avg.rating,
-      totalCount: stats._count,
-    },
-  });
 }
 
 export async function POST(

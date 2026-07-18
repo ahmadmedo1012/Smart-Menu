@@ -1,0 +1,254 @@
+- generic [active] [ref=f11e1]:
+  - link "تخطى إلى المحتوى الرئيسي" [ref=f11e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - button "العودة للأعلى"
+  - main [ref=f11e6]:
+    - generic [ref=f11e8]:
+      - generic [ref=f11e9]:
+        - generic [ref=f11e14]: مقهى الواحة
+        - button "الوضع الليلي" [ref=f11e17] [cursor=pointer]
+      - generic [ref=f11e25]:
+        - generic:
+          - generic:
+            - generic:
+              - figure
+        - generic:
+          - generic:
+            - generic:
+              - figure
+        - generic [ref=f11e26]:
+          - heading "مقهى الواحة" [level=1] [ref=f11e32]
+          - paragraph [ref=f11e33]: مقهى ومطعم يقدم أشهى المشروبات والحلويات والوجبات الخفيفة
+          - generic [ref=f11e35]:
+            - generic [ref=f11e36]: 8:00 صباحاً - 12:00 منتصف الليل
+            - button "شارك المنيو" [ref=f11e40]
+            - link "طباعة" [ref=f11e47] [cursor=pointer]:
+              - /url: /menu/al-waha-cafe/print
+          - generic [ref=f11e50]:
+            - link "+218911111111" [ref=f11e51] [cursor=pointer]:
+              - /url: tel:+218911111111
+            - link "218910089975" [ref=f11e54] [cursor=pointer]:
+              - /url: https://wa.me/218910089975
+      - generic [ref=f11e57]:
+        - generic [ref=f11e58]:
+          - textbox "ابحث في القائمة..." [ref=f11e60]
+          - button "ترتيب" [ref=f11e62]
+        - generic [ref=f11e65]:
+          - button "الكل 17" [ref=f11e66]:
+            - generic [ref=f11e68]:
+              - text: الكل
+              - generic [ref=f11e69]: "17"
+          - button "☕ مشروبات ساخنة 5" [ref=f11e70]:
+            - generic [ref=f11e71]:
+              - generic [ref=f11e72]: ☕
+              - text: مشروبات ساخنة
+              - generic [ref=f11e73]: "5"
+          - button "🧃 مشروبات باردة 4" [ref=f11e74]:
+            - generic [ref=f11e75]:
+              - generic [ref=f11e76]: 🧃
+              - text: مشروبات باردة
+              - generic [ref=f11e77]: "4"
+          - button "🍰 حلويات 4" [ref=f11e78]:
+            - generic [ref=f11e79]:
+              - generic [ref=f11e80]: 🍰
+              - text: حلويات
+              - generic [ref=f11e81]: "4"
+          - button "🍔 وجبات خفيفة 4" [ref=f11e82]:
+            - generic [ref=f11e83]:
+              - generic [ref=f11e84]: 🍔
+              - text: وجبات خفيفة
+              - generic [ref=f11e85]: "4"
+        - generic [ref=f11e86]:
+          - generic [ref=f11e87]: الأكثر طلباً
+          - generic [ref=f11e90]:
+            - button "كابتشينو اختبار 2 الأكثر طلباً كابتشينو اختبار 2 تقييم كابتشينو اختبار 2 15.0 د.ل إضافة كابتشينو اختبار 2 إلى السلة" [ref=f11e92] [cursor=pointer]:
+              - generic [ref=f11e93]:
+                - img "كابتشينو اختبار 2" [ref=f11e95]
+                - generic [ref=f11e96]: الأكثر طلباً
+              - generic [ref=f11e100]:
+                - generic [ref=f11e102]:
+                  - heading "كابتشينو اختبار 2" [level=3] [ref=f11e103]
+                  - button "تقييم كابتشينو اختبار 2" [ref=f11e104]: "4.5"
+                - generic [ref=f11e107]:
+                  - generic [ref=f11e108]:
+                    - generic [ref=f11e109]: "15.0"
+                    - generic [ref=f11e110]: د.ل
+                  - button "إضافة كابتشينو اختبار 2 إلى السلة" [ref=f11e112]: أضف
+            - button "🍽️ الأكثر طلباً ساندويتش تقييم ساندويتش 5.0 د.ل إضافة ساندويتش إلى السلة" [ref=f11e430] [cursor=pointer]:
+              - generic [ref=f11e116]:
+                - generic [ref=f11e431]: 🍽️
+                - generic [ref=f11e120]: الأكثر طلباً
+              - generic [ref=f11e124]:
+                - generic [ref=f11e126]:
+                  - heading "ساندويتش" [level=3] [ref=f11e127]
+                  - button "تقييم ساندويتش" [ref=f11e128]: قيّم
+                - generic [ref=f11e131]:
+                  - generic [ref=f11e132]:
+                    - generic [ref=f11e133]: "5.0"
+                    - generic [ref=f11e134]: د.ل
+                  - button "إضافة ساندويتش إلى السلة" [ref=f11e136]: أضف
+            - button "تشيز كيك الأكثر طلباً تشيز كيك تقييم تشيز كيك 7.0 د.ل إضافة تشيز كيك إلى السلة" [ref=f11e139] [cursor=pointer]:
+              - generic [ref=f11e140]:
+                - img "تشيز كيك" [ref=f11e142]
+                - generic [ref=f11e143]: الأكثر طلباً
+              - generic [ref=f11e147]:
+                - generic [ref=f11e149]:
+                  - heading "تشيز كيك" [level=3] [ref=f11e150]
+                  - button "تقييم تشيز كيك" [ref=f11e151]: قيّم
+                - generic [ref=f11e154]:
+                  - generic [ref=f11e155]:
+                    - generic [ref=f11e156]: "7.0"
+                    - generic [ref=f11e157]: د.ل
+                  - button "إضافة تشيز كيك إلى السلة" [ref=f11e159]: أضف
+            - button "قهوة تركي الأكثر طلباً قهوة تركي تقييم قهوة تركي 3.0 د.ل إضافة قهوة تركي إلى السلة" [ref=f11e162] [cursor=pointer]:
+              - generic [ref=f11e163]:
+                - img "قهوة تركي" [ref=f11e165]
+                - generic [ref=f11e166]: الأكثر طلباً
+              - generic [ref=f11e170]:
+                - generic [ref=f11e172]:
+                  - heading "قهوة تركي" [level=3] [ref=f11e173]
+                  - button "تقييم قهوة تركي" [ref=f11e174]: قيّم
+                - generic [ref=f11e177]:
+                  - generic [ref=f11e178]:
+                    - generic [ref=f11e179]: "3.0"
+                    - generic [ref=f11e180]: د.ل
+                  - button "إضافة قهوة تركي إلى السلة" [ref=f11e182]: أضف
+            - button "إسبريسو الأكثر طلباً إسبريسو تقييم إسبريسو 4.0 د.ل إضافة إسبريسو إلى السلة" [ref=f11e185] [cursor=pointer]:
+              - generic [ref=f11e186]:
+                - img "إسبريسو" [ref=f11e189]
+                - generic [ref=f11e190]: الأكثر طلباً
+              - generic [ref=f11e194]:
+                - generic [ref=f11e196]:
+                  - heading "إسبريسو" [level=3] [ref=f11e197]
+                  - button "تقييم إسبريسو" [ref=f11e198]: قيّم
+                - generic [ref=f11e201]:
+                  - generic [ref=f11e202]:
+                    - generic [ref=f11e203]: "4.0"
+                    - generic [ref=f11e204]: د.ل
+                  - button "إضافة إسبريسو إلى السلة" [ref=f11e206]: أضف
+            - button "سموثي الأكثر طلباً سموثي تقييم سموثي 6.0 د.ل إضافة سموثي إلى السلة" [ref=f11e209] [cursor=pointer]:
+              - generic [ref=f11e210]:
+                - img "سموثي" [ref=f11e213]
+                - generic [ref=f11e214]: الأكثر طلباً
+              - generic [ref=f11e218]:
+                - generic [ref=f11e220]:
+                  - heading "سموثي" [level=3] [ref=f11e221]
+                  - button "تقييم سموثي" [ref=f11e222]: قيّم
+                - generic [ref=f11e225]:
+                  - generic [ref=f11e226]:
+                    - generic [ref=f11e227]: "6.0"
+                    - generic [ref=f11e228]: د.ل
+                  - button "إضافة سموثي إلى السلة" [ref=f11e230]: أضف
+        - generic [ref=f11e232]:
+          - button "ليموناضة ليموناضة تقييم ليموناضة 4.0 د.ل إضافة ليموناضة إلى السلة" [ref=f11e234] [cursor=pointer]:
+            - img "ليموناضة" [ref=f11e237]
+            - generic [ref=f11e238]:
+              - generic [ref=f11e240]:
+                - heading "ليموناضة" [level=3] [ref=f11e241]
+                - button "تقييم ليموناضة" [ref=f11e242]: قيّم
+              - generic [ref=f11e245]:
+                - generic [ref=f11e246]:
+                  - generic [ref=f11e247]: "4.0"
+                  - generic [ref=f11e248]: د.ل
+                - button "إضافة ليموناضة إلى السلة" [ref=f11e250]: أضف
+          - button "🍽️ كنافة تقييم كنافة 6.0 د.ل إضافة كنافة إلى السلة" [ref=f11e433] [cursor=pointer]:
+            - generic [ref=f11e254]: 🍽️
+            - generic [ref=f11e258]:
+              - generic [ref=f11e260]:
+                - heading "كنافة" [level=3] [ref=f11e261]
+                - button "تقييم كنافة" [ref=f11e262]: قيّم
+              - generic [ref=f11e265]:
+                - generic [ref=f11e266]:
+                  - generic [ref=f11e267]: "6.0"
+                  - generic [ref=f11e268]: د.ل
+                - button "إضافة كنافة إلى السلة" [ref=f11e270]: أضف
+          - button "🍽️ بطاطس مقلية تقييم بطاطس مقلية 3.0 د.ل إضافة بطاطس مقلية إلى السلة" [ref=f11e436] [cursor=pointer]:
+            - generic [ref=f11e274]: 🍽️
+            - generic [ref=f11e278]:
+              - generic [ref=f11e280]:
+                - heading "بطاطس مقلية" [level=3] [ref=f11e281]
+                - button "تقييم بطاطس مقلية" [ref=f11e282]: قيّم
+              - generic [ref=f11e285]:
+                - generic [ref=f11e286]:
+                  - generic [ref=f11e287]: "3.0"
+                  - generic [ref=f11e288]: د.ل
+                - button "إضافة بطاطس مقلية إلى السلة" [ref=f11e290]: أضف
+          - button "موهيتو موهيتو تقييم موهيتو 5.0 د.ل إضافة موهيتو إلى السلة" [ref=f11e293] [cursor=pointer]:
+            - img "موهيتو" [ref=f11e296]
+            - generic [ref=f11e297]:
+              - generic [ref=f11e299]:
+                - heading "موهيتو" [level=3] [ref=f11e300]
+                - button "تقييم موهيتو" [ref=f11e301]: قيّم
+              - generic [ref=f11e304]:
+                - generic [ref=f11e305]:
+                  - generic [ref=f11e306]: "5.0"
+                  - generic [ref=f11e307]: د.ل
+                - button "إضافة موهيتو إلى السلة" [ref=f11e309]: أضف
+          - button "كابتشينو كابتشينو تقييم كابتشينو 5.0 د.ل إضافة كابتشينو إلى السلة" [ref=f11e312] [cursor=pointer]:
+            - img "كابتشينو" [ref=f11e315]
+            - generic [ref=f11e316]:
+              - generic [ref=f11e318]:
+                - heading "كابتشينو" [level=3] [ref=f11e319]
+                - button "تقييم كابتشينو" [ref=f11e320]: قيّم
+              - generic [ref=f11e323]:
+                - generic [ref=f11e324]:
+                  - generic [ref=f11e325]: "5.0"
+                  - generic [ref=f11e326]: د.ل
+                - button "إضافة كابتشينو إلى السلة" [ref=f11e328]: أضف
+          - button "🍽️ برجر تقييم برجر 7.0 د.ل إضافة برجر إلى السلة" [ref=f11e439] [cursor=pointer]:
+            - generic [ref=f11e332]: 🍽️
+            - generic [ref=f11e336]:
+              - generic [ref=f11e338]:
+                - heading "برجر" [level=3] [ref=f11e339]
+                - button "تقييم برجر" [ref=f11e340]: قيّم
+              - generic [ref=f11e343]:
+                - generic [ref=f11e344]:
+                  - generic [ref=f11e345]: "7.0"
+                  - generic [ref=f11e346]: د.ل
+                - button "إضافة برجر إلى السلة" [ref=f11e348]: أضف
+          - button "آيس كوفي آيس كوفي تقييم آيس كوفي 5.0 د.ل إضافة آيس كوفي إلى السلة" [ref=f11e351] [cursor=pointer]:
+            - img "آيس كوفي" [ref=f11e354]
+            - generic [ref=f11e355]:
+              - generic [ref=f11e357]:
+                - heading "آيس كوفي" [level=3] [ref=f11e358]
+                - button "تقييم آيس كوفي" [ref=f11e359]: قيّم
+              - generic [ref=f11e362]:
+                - generic [ref=f11e363]:
+                  - generic [ref=f11e364]: "5.0"
+                  - generic [ref=f11e365]: د.ل
+                - button "إضافة آيس كوفي إلى السلة" [ref=f11e367]: أضف
+          - button "شاي شاي تقييم شاي 2.0 د.ل إضافة شاي إلى السلة" [ref=f11e370] [cursor=pointer]:
+            - img "شاي" [ref=f11e373]
+            - generic [ref=f11e374]:
+              - generic [ref=f11e376]:
+                - heading "شاي" [level=3] [ref=f11e377]
+                - button "تقييم شاي" [ref=f11e378]: قيّم
+              - generic [ref=f11e381]:
+                - generic [ref=f11e382]:
+                  - generic [ref=f11e383]: "2.0"
+                  - generic [ref=f11e384]: د.ل
+                - button "إضافة شاي إلى السلة" [ref=f11e386]: أضف
+          - button "🍽️ بسبوسة تقييم بسبوسة 4.0 د.ل إضافة بسبوسة إلى السلة" [ref=f11e442] [cursor=pointer]:
+            - generic [ref=f11e390]: 🍽️
+            - generic [ref=f11e394]:
+              - generic [ref=f11e396]:
+                - heading "بسبوسة" [level=3] [ref=f11e397]
+                - button "تقييم بسبوسة" [ref=f11e398]: قيّم
+              - generic [ref=f11e401]:
+                - generic [ref=f11e402]:
+                  - generic [ref=f11e403]: "4.0"
+                  - generic [ref=f11e404]: د.ل
+                - button "إضافة بسبوسة إلى السلة" [ref=f11e406]: أضف
+      - generic [ref=f11e409]:
+        - generic [ref=f11e417]:
+          - heading "برنامج الولاء جديد" [level=2] [ref=f11e418]:
+            - text: برنامج الولاء
+            - generic [ref=f11e419]: جديد
+          - paragraph [ref=f11e420]: اكسب نقاط مع كل طلب
+        - generic [ref=f11e422]:
+          - textbox "رقم هاتفك للولاء" [ref=f11e424]
+          - button "تحقق" [ref=f11e425]
+  - link "تواصل عبر واتساب" [ref=f11e426] [cursor=pointer]:
+    - /url: https://wa.me/218910089975
+  - region "Notifications alt+T"
+  - alert [ref=f11e429]
