@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -49,32 +49,36 @@ export default function LoyaltySettings({ onSaved }: Props) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    try {
-      const res = await fetch("/api/settings")
-      const json = await res.json()
-      const s = json.data?.settings ?? {}
-      setForm({
-        loyalty_enabled: s.loyalty_enabled ?? DEFAULTS.loyalty_enabled,
-        loyalty_points_per_lyd: s.loyalty_points_per_lyd ?? DEFAULTS.loyalty_points_per_lyd,
-        loyalty_referral_discount_pct: s.loyalty_referral_discount_pct ?? DEFAULTS.loyalty_referral_discount_pct,
-        loyalty_referrer_reward_pct: s.loyalty_referrer_reward_pct ?? DEFAULTS.loyalty_referrer_reward_pct,
-        loyalty_referral_reward_points: s.loyalty_referral_reward_points ?? DEFAULTS.loyalty_referral_reward_points,
-        loyalty_referral_max_per_customer: s.loyalty_referral_max_per_customer ?? DEFAULTS.loyalty_referral_max_per_customer,
-        loyalty_referral_expiry_days: s.loyalty_referral_expiry_days ?? DEFAULTS.loyalty_referral_expiry_days,
-        loyalty_tier_silver: s.loyalty_tier_silver ?? DEFAULTS.loyalty_tier_silver,
-        loyalty_tier_gold: s.loyalty_tier_gold ?? DEFAULTS.loyalty_tier_gold,
-        loyalty_tier_platinum: s.loyalty_tier_platinum ?? DEFAULTS.loyalty_tier_platinum,
-      })
-    } catch {
-      premiumToast("error", "Failed to load settings")
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    const controller = new AbortController();
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/settings", { signal: controller.signal })
+        const json = await res.json()
+        const s = json.data?.settings ?? {}
+        setForm({
+          loyalty_enabled: s.loyalty_enabled ?? DEFAULTS.loyalty_enabled,
+          loyalty_points_per_lyd: s.loyalty_points_per_lyd ?? DEFAULTS.loyalty_points_per_lyd,
+          loyalty_referral_discount_pct: s.loyalty_referral_discount_pct ?? DEFAULTS.loyalty_referral_discount_pct,
+          loyalty_referrer_reward_pct: s.loyalty_referrer_reward_pct ?? DEFAULTS.loyalty_referrer_reward_pct,
+          loyalty_referral_reward_points: s.loyalty_referral_reward_points ?? DEFAULTS.loyalty_referral_reward_points,
+          loyalty_referral_max_per_customer: s.loyalty_referral_max_per_customer ?? DEFAULTS.loyalty_referral_max_per_customer,
+          loyalty_referral_expiry_days: s.loyalty_referral_expiry_days ?? DEFAULTS.loyalty_referral_expiry_days,
+          loyalty_tier_silver: s.loyalty_tier_silver ?? DEFAULTS.loyalty_tier_silver,
+          loyalty_tier_gold: s.loyalty_tier_gold ?? DEFAULTS.loyalty_tier_gold,
+          loyalty_tier_platinum: s.loyalty_tier_platinum ?? DEFAULTS.loyalty_tier_platinum,
+        })
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        premiumToast("error", "Failed to load settings")
+      } finally {
+        setLoading(false)
+      }
     }
+    load();
+    return () => controller.abort();
   }, [])
-
-  useEffect(() => { load() }, [load])
 
   const set = (key: keyof LoyaltySettingsData, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))

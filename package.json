@@ -12,7 +12,6 @@
     "test:legacy": "npx tsx tests/unit/**/*.test.ts",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "npx playwright test tests/e2e tests/security",
-    "setup:hooks": "git config core.hooksPath .githooks",
     "webhook:register": "node scripts/register-webhook.mjs",
     "postbuild": "cp -r .next/static .next/standalone/.next/ 2>/dev/null || true"
   },

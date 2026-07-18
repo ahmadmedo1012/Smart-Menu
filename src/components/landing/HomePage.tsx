@@ -19,11 +19,16 @@ export default function HomePage() {
     const [featured, setFeatured] = useState<FeaturedRestaurant[] | null>(null)
 
     useEffect(() => {
+        const controller = new AbortController();
         fetchPublicStats().then(setStats).catch(() => {});
-        fetch("/api/public/featured")
+        fetch("/api/public/featured", { signal: controller.signal })
             .then(r => r.json())
             .then(d => setFeatured(d.data ?? []))
-            .catch(() => setFeatured([]))
+            .catch(error => {
+                if (error instanceof DOMException && error.name === "AbortError") return;
+                setFeatured([])
+            })
+        return () => controller.abort();
     }, [])
 
     return (

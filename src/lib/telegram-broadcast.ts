@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { error } from "@/lib/logger";
 
 interface BroadcastResult {
   sent: number;
@@ -87,7 +88,7 @@ export async function broadcastToAll(
     if (r.status === "fulfilled") {
       sent++;
     } else {
-      console.error("[Telegram Broadcast] Failed:", chatIds[i], r.reason);
+      error("[Telegram Broadcast] Failed:", { chatId: chatIds[i], reason: r.reason?.message ?? "Unknown" });
       failed.push({ chatId: chatIds[i], reason: r.reason?.message ?? "Unknown" });
     }
   }

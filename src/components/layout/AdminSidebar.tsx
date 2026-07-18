@@ -68,7 +68,8 @@ export function AdminSidebar() {
   const [permissions, setPermissions] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    const controller = new AbortController();
+    fetch("/api/auth/me", { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => {
         if (d.success) {
@@ -76,7 +77,10 @@ export function AdminSidebar() {
           setPermissions(d.data.permissions ?? []);
         }
       })
-      .catch(() => {});
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      });
+    return () => controller.abort();
   }, []);
 
   const visible = role === "super_admin" || role === "admin"

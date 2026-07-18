@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
+import { error as logError } from "@/lib/logger";
 import { z } from "zod";
 
 const upgradeSchema = z.object({
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
               ], { parseMode: "Markdown" });
               if (sent) telegramMessages.push({ chatId: Number(chatId), messageId: sent.message_id });
             } catch (singleErr) {
-              console.error("[upgrade] send to", chatId, "failed:", singleErr);
+              logError("[upgrade] send failed", { chatId, error: singleErr instanceof Error ? singleErr.message : String(singleErr) });
             }
           }
           if (telegramMessages.length > 0) {
@@ -146,12 +147,12 @@ export async function POST(request: NextRequest) {
             await prisma.subscriptionPayment.update({
               where: { id: payment.id },
               data: { metadata: { ...existingMeta, telegramMessages } },
-            }).catch((e: unknown) => console.error("[upgrade] failed to store telegramMessages", e));
+            }).catch((e: unknown) => logError("[upgrade] failed to store telegramMessages", { error: e instanceof Error ? e.message : String(e) }));
           }
         }
       }
     } catch (keyboardErr) {
-      console.error("[upgrade] keyboard error:", keyboardErr);
+      logError("[upgrade] keyboard error", { error: keyboardErr instanceof Error ? keyboardErr.message : String(keyboardErr) });
     }
 
     return success({ id: payment.id }, 201);

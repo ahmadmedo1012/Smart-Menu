@@ -5,6 +5,15 @@ import { requireAdmin } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { z } from "zod";
+import { createDbRateLimiter } from "@/lib/rate-limit";
+
+const registrationLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
+
+function getClientIp(request: NextRequest): string {
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || request.headers.get("x-real-ip")
+    || "127.0.0.1";
+}
 
 const createSchema = z.object({
   name: z.string().min(1),
@@ -66,6 +75,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const { success: allowed, remaining } = await registrationLimiter.check(`register:${ip}`);
+    if (!allowed) return error("طلبات كثيرة جدًا، حاول بعد 60 ثانية", 429);
+
     const body = createSchema.parse(await request.json());
     // Allow public registration when username/password provided (new account)
     let actorId: number | undefined;

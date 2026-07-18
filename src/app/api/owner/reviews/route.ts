@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
+import { error as logError } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   try {
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: reviews, total, page, pageSize });
   } catch (e) {
-    console.error("[reviews] error:", e);
+    logError("[reviews] error", { error: e instanceof Error ? e.message : String(e) });
     return NextResponse.json({ success: false, error: e instanceof Error ? e.message : "Internal error" }, { status: 500 });
   }
 }

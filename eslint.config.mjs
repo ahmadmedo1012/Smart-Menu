@@ -16,7 +16,6 @@ const eslintConfig = defineConfig([
     "open-design/**",
     "public/**",
     "scripts/**",
-    "tests/**",
     "facebook-workspace/**",
     "obsidian-vault/**",
     "smart-menu/**",

@@ -47,6 +47,7 @@ prisma/.env
 public/uploads/*
 !public/uploads/.gitkeep
 remotion/node_modules
+screenshots/
 # Screenshots / debug
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 *.sqlite

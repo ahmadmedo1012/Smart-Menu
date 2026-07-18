@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
+import { error as logError } from "@/lib/logger";
 import { z } from "zod";
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
               ], { parseMode: "Markdown" });
               if (sent) telegramMessages.push({ chatId: Number(chatId), messageId: sent.message_id });
             } catch (singleErr) {
-              console.error("[subscriptions] send to", chatId, "failed:", singleErr);
+              logError("[subscriptions] send failed", { chatId, error: singleErr instanceof Error ? singleErr.message : String(singleErr) });
             }
           }
           // Store message references so webhook cleanup can remove keyboards from all copies
@@ -119,12 +120,12 @@ export async function POST(request: NextRequest) {
             await prisma.subscriptionPayment.update({
               where: { id: payment.id },
               data: { metadata: { ...existingMeta, telegramMessages } },
-            }).catch((e: unknown) => console.error("[subscriptions] failed to store telegramMessages", e));
+            }).catch((e: unknown) => logError("[subscriptions] failed to store telegramMessages", { error: e instanceof Error ? e.message : String(e) }));
           }
         }
       }
     } catch (keyboardErr) {
-      console.error("[subscriptions] keyboard error:", keyboardErr);
+      logError("[subscriptions] keyboard error", { error: keyboardErr instanceof Error ? keyboardErr.message : String(keyboardErr) });
     }
 
     return success({ id: payment.id }, 201);

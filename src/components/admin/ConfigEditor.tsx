@@ -48,19 +48,24 @@ export default function ConfigEditor() {
   const [editing, setEditing] = useState<Record<string, unknown>>({})
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
-  const load = async () => {
+  useEffect(() => {
+    const controller = new AbortController();
+    loadConfig(controller.signal);
+    return () => controller.abort();
+  }, [])
+
+  async function loadConfig(signal?: AbortSignal) {
     try {
-      const res = await fetch("/api/admin/config")
+      const res = await fetch("/api/admin/config", signal ? { signal } : undefined)
       const json = await res.json()
       if (json.success) setConfigs(json.data)
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       premiumToast("error", "فشل تحميل الإعدادات")
     } finally {
       setLoading(false)
     }
   }
-
-  useEffect(() => { load() }, [])
 
   const filtered = configs.filter((c) => c.category === activeCategory)
 
@@ -80,7 +85,7 @@ export default function ConfigEditor() {
       const json = await res.json()
       if (!json.success) throw new Error()
       premiumToast("save", "تم الحفظ")
-      load()
+      loadConfig()
     } catch {
       premiumToast("error", "فشل الحفظ")
     }
@@ -93,7 +98,7 @@ export default function ConfigEditor() {
       if (!json.success) throw new Error()
       premiumToast("trash", "تم الحذف")
       setDeleteTarget(null)
-      load()
+      loadConfig()
     } catch {
       premiumToast("error", "فشل الحذف")
     }
