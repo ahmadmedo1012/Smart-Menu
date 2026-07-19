@@ -74,9 +74,9 @@ describe("assertSameOrigin", () => {
       expect(() => assertSameOrigin(req)).not.toThrow();
     });
 
-    it("sub-path under exempt path also passes (startsWith check)", () => {
+    it("sub-path under exempt path is blocked (exact match only)", () => {
       const req = makeRequest("POST", "/api/auth/login/extra", "https://phish.com", "example.com");
-      expect(() => assertSameOrigin(req)).not.toThrow();
+      expect(() => assertSameOrigin(req)).toThrow("Origin mismatch");
     });
   });
 

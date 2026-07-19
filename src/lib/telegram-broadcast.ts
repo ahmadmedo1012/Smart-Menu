@@ -64,17 +64,10 @@ async function gatherTargets(opts?: BroadcastOpts): Promise<Set<string>> {
 export async function broadcastToAll(
   message: string,
   opts?: BroadcastOpts,
-  existingConfig?: { botToken: string; isActive: boolean },
 ): Promise<BroadcastResult> {
-  let botToken: string | null;
-  if (existingConfig?.botToken) {
-    botToken = existingConfig.botToken;
-  } else {
-    const config = await prisma.telegramConfig.findFirst();
-    if (!config || !config.isActive) return { sent: 0, failed: [] };
-    botToken = config.botToken;
-    try { botToken = await getDecryptedBotToken(); } catch { /* plaintext fallback */ }
-  }
+  const config = await prisma.telegramConfig.findFirst();
+  if (!config || !config.isActive) return { sent: 0, failed: [] };
+  const botToken = await getDecryptedBotToken();
   if (!botToken) return { sent: 0, failed: [] };
 
   const targetIds = await gatherTargets(opts);

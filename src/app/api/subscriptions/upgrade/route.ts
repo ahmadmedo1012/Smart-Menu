@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     // Send interactive keyboard to admins
     try {
-      const botToken = process.env.TELEGRAM_BOT_TOKEN || await getDecryptedBotToken();
+      const botToken = await getDecryptedBotToken();
       if (botToken) {
         const adminIds = await getAdminTelegramIds();
         const chatIds = new Set<string>();

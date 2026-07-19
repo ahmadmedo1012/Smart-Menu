@@ -23,7 +23,7 @@ interface TelegramConfig {
 interface DiagnoseResult {
   configExists: boolean
   isActive: boolean
-  botTokenPreview: string | null
+  hasToken: boolean
   events: string[]
   linkedAdmins: number
   broadcastTargets?: {

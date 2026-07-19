@@ -13,7 +13,7 @@ import { csrfFetch } from "@/lib/csrf-client"
 interface DiagnoseResult {
   configExists: boolean
   isActive: boolean
-  botTokenPreview: string | null
+  hasToken: boolean
   events: string[]
   linkedAdmins: number
   broadcastTargets?: {
@@ -159,7 +159,7 @@ export function DiagnosticsSection({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">رمز البوت</span>
-                <span className="text-sm font-mono text-muted-foreground" dir="ltr">{diagnose.botTokenPreview ?? "—"}</span>
+                <span className="text-sm font-mono text-muted-foreground" dir="ltr">{diagnose.hasToken ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">الأحداث</span>

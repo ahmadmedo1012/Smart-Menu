@@ -6,7 +6,7 @@ import { encryptValue } from "@/lib/config";
 import { z } from "zod";
 
 const upsertSchema = z.object({
-  botToken: z.string(),
+  botToken: z.string().min(1),
   chatId: z.string(),
   events: z.array(z.string()),
   isActive: z.boolean().default(true),
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     if (!auth.authorized) return error(auth.error, auth.status);
     const body = upsertSchema.parse(await request.json());
     const encryptedToken = await encryptValue(body.botToken);
-    const config = await prisma.telegramConfig.upsert({
+    await prisma.telegramConfig.upsert({
       where: { id: 1 },
       create: {
         botToken: encryptedToken,
@@ -54,7 +54,11 @@ export async function POST(request: NextRequest) {
         isActive: body.isActive,
       },
     });
-    return success(config);
+    // Re-read so return reflects saved state without leaking ciphertext
+    const saved = await prisma.telegramConfig.findFirst({
+      select: { id: true, chatId: true, events: true, isActive: true },
+    });
+    return success(saved);
   } catch (e) {
     return handleError(e);
   }

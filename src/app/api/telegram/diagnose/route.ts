@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
+import { getDecryptedBotToken } from "@/lib/config";
 
 async function testChatId(
   botToken: string,
@@ -42,21 +43,23 @@ export async function GET(request: NextRequest) {
       return success({
         configExists: false,
         isActive: false,
-        botTokenPreview: null,
+        hasToken: false,
         events: [],
         broadcastTargets: [],
         linkedAdmins: 0,
       });
     }
 
+    const botToken = await getDecryptedBotToken();
+
     const broadcastTargets = await prisma.telegramBroadcastTarget.findMany();
     const targetResults = await Promise.allSettled(
       broadcastTargets.map(async (t) => {
-        const test = config.botToken && config.isActive
+        const test = botToken && config.isActive
           ? dryRun
             ? { ok: null as boolean | null, error: null as string | null }
-            : await testChatId(config.botToken, t.chatId)
-          : { ok: false as boolean | null, error: "Bot inactive" };
+            : await testChatId(botToken, t.chatId)
+          : { ok: false as boolean | null, error: "Bot inactive or token unavailable" };
         return { id: t.id, label: t.label || t.chatId, chatId: t.chatId, isActive: t.isActive, ...test };
       }),
     );
@@ -68,7 +71,7 @@ export async function GET(request: NextRequest) {
     return success({
       configExists: true,
       isActive: config.isActive,
-      botTokenPreview: config.botToken ? config.botToken.slice(0, 4) + "..." : null,
+      hasToken: !!botToken,
       events: (config.events as string[]) ?? [],
       broadcastTargets: targetResults.map((r) => (r.status === "fulfilled" ? r.value : { error: "Test failed" })),
       linkedAdmins,

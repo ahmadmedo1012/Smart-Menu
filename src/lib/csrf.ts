@@ -14,16 +14,19 @@ const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 export function assertSameOrigin(request: Request): void {
   if (!MUTATING.has(request.method)) return;
   const pathname = new URL(request.url).pathname;
-  for (const exempt of CSRF_EXEMPT) {
-    if (pathname === exempt || pathname.startsWith(exempt)) return;
-  }
+  if (CSRF_EXEMPT.has(pathname)) return;
 
   const origin = request.headers.get("origin");
   const host = request.headers.get("host");
   if (!origin || !host) {
     throw new Error("CSRF check failed: missing Origin or Host");
   }
-  const originHost = new URL(origin).host;
+  let originHost: string;
+  try {
+    originHost = new URL(origin).host;
+  } catch {
+    throw new Error("CSRF check failed: Origin mismatch");
+  }
   if (originHost !== host) {
     throw new Error("CSRF check failed: Origin mismatch");
   }
