@@ -4,6 +4,7 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
+import { getDecryptedBotToken } from "@/lib/config";
 import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 import { error as logError } from "@/lib/logger";
 import { z } from "zod";
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     // Send interactive keyboard to admins
     try {
-      const botToken = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
+      const botToken = process.env.TELEGRAM_BOT_TOKEN || await getDecryptedBotToken();
       if (botToken) {
         const adminIds = await getAdminTelegramIds();
         const chatIds = new Set<string>();

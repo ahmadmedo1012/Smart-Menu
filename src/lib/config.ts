@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { getAesGcmKeyRaw } from "./keys";
 
 export async function getConfig(key: string): Promise<unknown> {
   const entry = await prisma.systemConfig.findUnique({ where: { key } });
@@ -28,6 +29,18 @@ export async function getAllConfigs() {
 
 // Config encryption helpers for secret values
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const raw = getAesGcmKeyRaw();
+  return crypto.subtle.importKey(
+    "raw",
+    raw,
+    "AES-GCM",
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
 
 export async function encryptValue(plaintext: string): Promise<string> {
   const key = await getEncryptionKey();
@@ -35,7 +48,7 @@ export async function encryptValue(plaintext: string): Promise<string> {
   const encrypted = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
-    encoder.encode(plaintext)
+    encoder.encode(plaintext),
   );
   const combined = new Uint8Array(iv.length + encrypted.byteLength);
   combined.set(iv);
@@ -43,17 +56,29 @@ export async function encryptValue(plaintext: string): Promise<string> {
   return Buffer.from(combined).toString("base64");
 }
 
-async function getEncryptionKey(): Promise<CryptoKey> {
-  const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error("AUTH_SECRET or JWT_SECRET must be set");
-  }
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret.padEnd(32, "x").slice(0, 32)),
-    "AES-GCM",
-    false,
-    ["encrypt", "decrypt"]
+export async function decryptValue(encoded: string): Promise<string> {
+  const key = await getEncryptionKey();
+  const combined = Buffer.from(encoded, "base64");
+  const iv = combined.subarray(0, 12);
+  const ciphertext = combined.subarray(12);
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    ciphertext,
   );
-  return keyMaterial;
+  return decoder.decode(decrypted);
+}
+
+/** Shared helper: get bot token from env var (priority) or decrypted from DB. */
+export async function getDecryptedBotToken(): Promise<string | null> {
+  const envToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (envToken) return envToken;
+  const config = await prisma.telegramConfig.findFirst();
+  if (!config?.botToken) return null;
+  try {
+    return await decryptValue(config.botToken);
+  } catch {
+    // Fallback for legacy plaintext tokens still in DB
+    return config.botToken;
+  }
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { error } from "@/lib/logger";
+import { getDecryptedBotToken } from "@/lib/config";
 
 interface BroadcastResult {
   sent: number;
@@ -65,17 +66,23 @@ export async function broadcastToAll(
   opts?: BroadcastOpts,
   existingConfig?: { botToken: string; isActive: boolean },
 ): Promise<BroadcastResult> {
-  const config = existingConfig ?? await prisma.telegramConfig.findFirst();
-  if (!config || !config.isActive || !config.botToken) {
-    return { sent: 0, failed: [] };
+  let botToken: string | null;
+  if (existingConfig?.botToken) {
+    botToken = existingConfig.botToken;
+  } else {
+    const config = await prisma.telegramConfig.findFirst();
+    if (!config || !config.isActive) return { sent: 0, failed: [] };
+    botToken = config.botToken;
+    try { botToken = await getDecryptedBotToken(); } catch { /* plaintext fallback */ }
   }
+  if (!botToken) return { sent: 0, failed: [] };
 
   const targetIds = await gatherTargets(opts);
   if (targetIds.size === 0) return { sent: 0, failed: [] };
 
   const results = await Promise.allSettled(
     Array.from(targetIds).map((chatId) =>
-      sendToChat(config.botToken, chatId, message, opts),
+      sendToChat(botToken, chatId, message, opts),
     ),
   );
 

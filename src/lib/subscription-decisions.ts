@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/db";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { error } from "@/lib/logger";
+import { getDecryptedBotToken } from "@/lib/config";
 
 async function notifyUserViaTelegram(chatId: string | null, text: string) {
   if (!chatId) return;
   // Dynamic token — supports both env var and DB-configured token
-  const token = process.env.TELEGRAM_BOT_TOKEN || (await prisma.telegramConfig.findFirst())?.botToken;
+  const token = process.env.TELEGRAM_BOT_TOKEN || await getDecryptedBotToken();
   if (!token) return;
   try {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {

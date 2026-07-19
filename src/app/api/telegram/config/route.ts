@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
+import { encryptValue } from "@/lib/config";
 import { z } from "zod";
 
 const upsertSchema = z.object({
@@ -37,16 +38,17 @@ export async function POST(request: NextRequest) {
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
     const body = upsertSchema.parse(await request.json());
+    const encryptedToken = await encryptValue(body.botToken);
     const config = await prisma.telegramConfig.upsert({
       where: { id: 1 },
       create: {
-        botToken: body.botToken,
+        botToken: encryptedToken,
         chatId: body.chatId,
         events: body.events,
         isActive: body.isActive,
       },
       update: {
-        botToken: body.botToken,
+        botToken: encryptedToken,
         chatId: body.chatId,
         events: body.events,
         isActive: body.isActive,

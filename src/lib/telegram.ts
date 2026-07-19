@@ -25,7 +25,7 @@ export async function notifyEvent(
   for (const [k, v] of Object.entries(data)) {
     lines.push(`• ${k}: ${v}`);
   }
-  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown", adminOnly: opts?.adminOnly }, config);
+  return broadcastToAll(lines.join("\n"), { parseMode: "Markdown", adminOnly: opts?.adminOnly });
 }
 
 /** Alias for backward compatibility */

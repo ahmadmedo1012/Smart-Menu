@@ -5,6 +5,8 @@ import { createDbRateLimiter } from "@/lib/rate-limit";
 import { error as logError, warn as logWarn, info as logInfo } from "@/lib/logger";
 import { getAdminTelegramIds } from "@/lib/telegram-admin";
 import { resolveSubscriptionPayment } from "@/lib/subscription-decisions";
+import { getHmacKey } from "@/lib/keys";
+import { getDecryptedBotToken } from "@/lib/config";
 import {
   editMessageReplyMarkup,
   editMessageText,
@@ -27,11 +29,7 @@ interface TelegramUpdate {
 }
 
 async function getBotToken(): Promise<string | null> {
-  // Priority: env var first (Vercel), then DB config (admin panel)
-  const envToken = process.env.TELEGRAM_BOT_TOKEN;
-  if (envToken) return envToken;
-  const config = await prisma.telegramConfig.findFirst();
-  return config?.botToken || null;
+  return getDecryptedBotToken();
 }
 
 async function handleCallbackQuery(cq: NonNullable<TelegramUpdate["callback_query"]>): Promise<Response> {
@@ -182,11 +180,6 @@ export async function POST(request: NextRequest) {
     }
 
     const token = text.slice("/start verify_".length);
-    const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
-    if (!secret) {
-      logError("webhook: AUTH_SECRET not set");
-      return new Response("OK", { status: 200 });
-    }
 
     // Decode and validate HMAC token (same format as verify/route.ts)
     let decoded: string;
@@ -200,7 +193,10 @@ export async function POST(request: NextRequest) {
 
     const payload = decoded.slice(0, dotIdx);
     const sig = decoded.slice(dotIdx + 1);
-    const expectedSig = createHmac("sha256", secret).update(payload).digest("hex");
+    let hmacKey: Buffer;
+    try { hmacKey = Buffer.from(getHmacKey()); }
+    catch { return new Response("OK", { status: 200 }); }
+    const expectedSig = createHmac("sha256", hmacKey).update(payload).digest("hex");
     if (sig !== expectedSig) return new Response("OK", { status: 200 });
 
     let data: { userId: number; exp: number };
@@ -214,7 +210,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Anti-replay: mark token as spent. Atomic create-or-die prevents race.
-    const tokenHash = createHmac("sha256", secret).update(token).digest("hex");
+    const tokenHash = createHmac("sha256", hmacKey).update(token).digest("hex");
     try {
       await prisma.rateLimitEntry.create({
         data: { key: `link-token:${tokenHash}`, windowEnd: new Date(data.exp * 1000) },

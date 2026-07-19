@@ -1,6 +1,7 @@
 import { createHmac } from "crypto";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
+import { getHmacKey } from "@/lib/keys";
 
 export async function POST() {
   try {
@@ -8,12 +9,13 @@ export async function POST() {
     if (!auth.authorized) return error(auth.error, auth.status);
     if (!auth.userId) return error("غير مصرح", 401);
 
-    const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
-    if (!secret) return error("AUTH_SECRET غير مضبوط", 500);
+    let hmacKey: Buffer;
+    try { hmacKey = Buffer.from(getHmacKey()); }
+    catch { return error("AUTH_SECRET غير مضبوط", 500); }
 
     const exp = Math.floor(Date.now() / 1000) + 300; // 5 min
     const payload = JSON.stringify({ userId: auth.userId, exp });
-    const sig = createHmac("sha256", secret).update(payload).digest("hex");
+    const sig = createHmac("sha256", hmacKey).update(payload).digest("hex");
     const token = Buffer.from(payload + "." + sig).toString("base64url");
 
     const botUsername = process.env.TELEGRAM_BOT_USERNAME || "your_bot";

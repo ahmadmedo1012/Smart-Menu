@@ -5,6 +5,7 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
+import { getHmacKey } from "@/lib/keys";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,8 +21,9 @@ export async function POST(request: NextRequest) {
       return error("token و chatId مطلوبان", 400);
     }
 
-    const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET;
-    if (!secret) return error("AUTH_SECRET غير مضبوط", 500);
+    let hmacKey: Buffer;
+    try { hmacKey = Buffer.from(getHmacKey()); }
+    catch { return error("AUTH_SECRET غير مضبوط", 500); }
 
     // Decode and split payload.sig
     let decoded: string;
@@ -35,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const payload = decoded.slice(0, dotIdx);
     const sig = decoded.slice(dotIdx + 1);
-    const expectedSig = createHmac("sha256", secret).update(payload).digest("hex");
+    const expectedSig = createHmac("sha256", hmacKey).update(payload).digest("hex");
     if (sig !== expectedSig) return error("رمز غير صالح", 400);
 
     let data: { userId: number; exp: number };
