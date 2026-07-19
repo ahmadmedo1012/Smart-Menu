@@ -13,9 +13,20 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtected = PROTECTED_ROOTS.some((root) => pathname === root || pathname.startsWith(`${root}/`));
+  const isApiRoute = pathname.startsWith("/api/");
+
+  // CSRF: validate Origin on mutating requests (API + protected pages)
+  if (isApiRoute || isProtected) {
+    try {
+      assertSameOrigin(request);
+    } catch {
+      return new NextResponse("CSRF validation failed", { status: 403 });
+    }
+  }
+
+  // Session check only for protected page routes
   if (!isProtected) return NextResponse.next();
 
-  // Verify session cookie
   const session = request.cookies.get(SESSION_COOKIE)?.value;
   if (!session || session.length < 32) {
     const login = new URL("/login", request.url);
@@ -23,16 +34,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
-  // CSRF: validate Origin on mutating requests to protected routes
-  try {
-    assertSameOrigin(request);
-  } catch {
-    return new NextResponse("CSRF validation failed", { status: 403 });
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/owner/:path*"],
+  matcher: ["/admin/:path*", "/owner/:path*", "/api/:path*"],
 };
