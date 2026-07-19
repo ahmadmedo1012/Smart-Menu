@@ -1,116 +1,242 @@
-/**
- * Auth module unit tests — hash, csrf, csrf-client, auth logic
- * Run: npx tsx tests/unit/auth.test.ts
- */
-import { ok, strictEqual, notStrictEqual, match } from "node:assert";
-
-let total = 0;
-function inc(n = 1) { total += n; }
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 // ════════════════════════════════════════════════════════════════════
 // 1. hash.ts — PBKDF2 password hashing (stand-in for bcrypt)
 // ════════════════════════════════════════════════════════════════════
 
-const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+describe("hash.ts", () => {
+  it("hashPassword returns string", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed = hashPassword(pwd);
+    expect(typeof hashed).toBe("string");
+  });
 
-{
-  const pwd = "correct-horse-battery-staple";
-  const hashed = hashPassword(pwd);
+  it("hashPassword format salt:hash", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const hashed = hashPassword("correct-horse-battery-staple");
+    expect(hashed).toContain(":");
+  });
 
-  ok(typeof hashed === "string", "hashPassword returns string"); inc();
-  ok(hashed.includes(":"), "hashPassword format salt:hash"); inc();
+  it("salt = 64 hex chars (32 bytes)", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [salt] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(salt).toHaveLength(64);
+  });
 
-  const [salt, hash] = hashed.split(":");
-  strictEqual(salt.length, 64, "salt = 64 hex chars (32 bytes)"); inc();
-  strictEqual(hash.length, 128, "hash = 128 hex chars (64 bytes)"); inc();
-  match(salt, /^[0-9a-f]+$/, "salt hex only"); inc();
-  match(hash, /^[0-9a-f]+$/, "hash hex only"); inc();
+  it("hash = 128 hex chars (64 bytes)", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(hash).toHaveLength(128);
+  });
 
-  ok(verifyHash(pwd, hashed), "verifyHash correct password → true"); inc();
-  strictEqual(verifyHash("wrong-password", hashed), false, "wrong password → false"); inc();
-  strictEqual(verifyHash("", hashed), false, "empty password → false"); inc();
-  strictEqual(verifyHash("anything", ""), false, "empty stored → false"); inc();
-  strictEqual(verifyHash("anything", "no-colon"), false, "no-colon stored → false"); inc();
-  strictEqual(verifyHash("anything", "a:b:c"), false, "multi-colon stored → false"); inc();
-  ok(verifyHash(pwd, hashed), "verifyHash idempotent for same password"); inc();
+  it("salt hex only", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [salt] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(salt).toMatch(/^[0-9a-f]+$/);
+  });
 
-  const hashed2 = hashPassword(pwd);
-  notStrictEqual(hashed.split(":")[0], hashed2.split(":")[0], "unique salt per call"); inc();
-}
+  it("hash hex only", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(hash).toMatch(/^[0-9a-f]+$/);
+  });
+
+  it("verifyHash correct password → true", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed = hashPassword(pwd);
+    expect(verifyHash(pwd, hashed)).toBe(true);
+  });
+
+  it("wrong password → false", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed = hashPassword(pwd);
+    expect(verifyHash("wrong-password", hashed)).toBe(false);
+  });
+
+  it("empty password → false", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const hashed = hashPassword("correct-horse-battery-staple");
+    expect(verifyHash("", hashed)).toBe(false);
+  });
+
+  it("empty stored → false", async () => {
+    const { verifyHash } = await import("../../src/lib/hash.ts");
+    expect(verifyHash("anything", "")).toBe(false);
+  });
+
+  it("no-colon stored → false", async () => {
+    const { verifyHash } = await import("../../src/lib/hash.ts");
+    expect(verifyHash("anything", "no-colon")).toBe(false);
+  });
+
+  it("multi-colon stored → false", async () => {
+    const { verifyHash } = await import("../../src/lib/hash.ts");
+    expect(verifyHash("anything", "a:b:c")).toBe(false);
+  });
+
+  it("verifyHash idempotent for same password", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed = hashPassword(pwd);
+    expect(verifyHash(pwd, hashed)).toBe(true);
+  });
+
+  it("unique salt per call", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed1 = hashPassword(pwd);
+    const hashed2 = hashPassword(pwd);
+    expect(hashed1.split(":")[0]).not.toBe(hashed2.split(":")[0]);
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
 // 2. csrf-client.ts — fetch wrapper adds CSRF header to mutations
 // ════════════════════════════════════════════════════════════════════
 
-const { CSRF_COOKIE, CSRF_HEADER } = await import("../../src/lib/csrf.ts");
+describe("csrf-client.ts", () => {
+  const CSRF_COOKIE = "csrf-token";
 
-{
-  const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
-  (globalThis as any).document = {
-    cookie: `${CSRF_COOKIE}=${mockToken}`,
-  };
+  beforeEach(() => {
+    (globalThis as any).document = {
+      cookie: "",
+    };
+  });
 
-  const calls: Array<{ input: RequestInfo | URL; init?: RequestInit }> = [];
-  const origFetch = globalThis.fetch;
-  globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
-    calls.push({ input, init });
-    return Promise.resolve(new Response(null, { status: 200 }));
-  };
+  afterEach(() => {
+    delete (globalThis as any).document;
+  });
 
-  const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
+  it("GET — no CSRF header added", async () => {
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `${CSRF_COOKIE}=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
 
-  // GET — no CSRF header added
-  await csrfFetch("/api/test");
-  strictEqual(calls.length, 1, "GET triggers fetch"); inc();
-  ok(!calls[0].init || !(calls[0].init as any).headers, "GET no CSRF header"); inc();
+    await csrfFetch("/api/test");
+    expect(calls).toHaveLength(1);
+    expect(calls[0].init?.headers).toBeFalsy();
+    globalThis.fetch = origFetch;
+  });
 
-  // POST — adds CSRF header
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "POST" });
-  const hPOST = (calls[0].init as any).headers as Record<string, string>;
-  strictEqual(hPOST[CSRF_HEADER], mockToken, "POST adds x-csrf-token"); inc();
+  it("POST — adds CSRF header", async () => {
+    const CSRF_COOKIE = "csrf-token";
+    const CSRF_HEADER = "x-csrf-token";
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `${CSRF_COOKIE}=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
 
-  // PUT
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "PUT" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "PUT adds x-csrf-token"); inc();
+    await csrfFetch("/api/test", { method: "POST" });
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe(mockToken);
+    globalThis.fetch = origFetch;
+  });
 
-  // DELETE
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "DELETE" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "DELETE adds x-csrf-token"); inc();
+  it("PUT adds CSRF header", async () => {
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `csrf-token=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
 
-  // PATCH
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "PATCH" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "PATCH adds x-csrf-token"); inc();
+    await csrfFetch("/api/test", { method: "PUT" });
+    expect((calls[0].init as any).headers["x-csrf-token"]).toBe(mockToken);
+    globalThis.fetch = origFetch;
+  });
 
-  // Preserves original headers while adding CSRF
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "POST", headers: { "Content-Type": "application/json" } });
-  const hComb = (calls[0].init as any).headers as Record<string, string>;
-  strictEqual(hComb["Content-Type"], "application/json", "preserves original header"); inc();
-  strictEqual(hComb[CSRF_HEADER], mockToken, "adds CSRF alongside original header"); inc();
+  it("DELETE adds CSRF header", async () => {
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `csrf-token=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
 
-  // Lowercase method still matches (csrfFetch uppercases it)
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "post" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "lowercase POST still adds header"); inc();
+    await csrfFetch("/api/test", { method: "DELETE" });
+    expect((calls[0].init as any).headers["x-csrf-token"]).toBe(mockToken);
+    globalThis.fetch = origFetch;
+  });
 
-  globalThis.fetch = origFetch;
-}
+  it("PATCH adds CSRF header", async () => {
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `csrf-token=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
+
+    await csrfFetch("/api/test", { method: "PATCH" });
+    expect((calls[0].init as any).headers["x-csrf-token"]).toBe(mockToken);
+    globalThis.fetch = origFetch;
+  });
+
+  it("preserves original headers while adding CSRF", async () => {
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `csrf-token=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
+
+    await csrfFetch("/api/test", { method: "POST", headers: { "Content-Type": "application/json" } });
+    expect((calls[0].init as any).headers["Content-Type"]).toBe("application/json");
+    expect((calls[0].init as any).headers["x-csrf-token"]).toBe(mockToken);
+    globalThis.fetch = origFetch;
+  });
+
+  it("lowercase POST still adds header", async () => {
+    const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
+    (globalThis as any).document = { cookie: `csrf-token=${mockToken}` };
+    const origFetch = globalThis.fetch;
+    const calls: any[] = [];
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
+
+    await csrfFetch("/api/test", { method: "post" });
+    expect((calls[0].init as any).headers["x-csrf-token"]).toBe(mockToken);
+    globalThis.fetch = origFetch;
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
-// 4. auth.ts — requireAuth / requireAdmin / requirePermission logic
+// 3. auth.ts — requireAuth / requireAdmin / requirePermission logic
 // ════════════════════════════════════════════════════════════════════
 
-{
+describe("auth.ts", () => {
   type AuthResult = {
     authorized: true; userId: number; role: string;
     restaurantId: number | null; subscriptionStatus: string | null; permissions: string[];
   };
 
-  // Mirror auth.ts logic with injected deps (same branching, no Next.js/prisma)
   async function mockRequireAuth(
     session: { valid: boolean; userId: number | null },
     user: AuthResult | null,
@@ -119,20 +245,20 @@ const { CSRF_COOKIE, CSRF_HEADER } = await import("../../src/lib/csrf.ts");
     if (session.valid && session.userId) {
       if (user) {
         if (opts?.requireRestaurant && !user.restaurantId) {
-          return { authorized: false } as const;
+          return { authorized: false as const };
         }
         return user;
       }
     }
-    return { authorized: false } as const;
+    return { authorized: false as const };
   }
 
   function mockRequireAdmin(
     auth: AuthResult | { authorized: false },
   ): AuthResult | { authorized: false } {
-    if (!auth.authorized) return { authorized: false } as const;
+    if (!auth.authorized) return { authorized: false as const };
     if (!["super_admin", "sub_admin", "admin"].includes(auth.role)) {
-      return { authorized: false } as const;
+      return { authorized: false as const };
     }
     return auth;
   }
@@ -171,67 +297,86 @@ const { CSRF_COOKIE, CSRF_HEADER } = await import("../../src/lib/csrf.ts");
     restaurantId: null, subscriptionStatus: "active", permissions: [],
   };
 
-  // ── requireAuth ─────────────────────────────────────────
+  describe("requireAuth", () => {
+    it("invalid session → unauthorized", async () => {
+      expect((await mockRequireAuth(badSession, null)).authorized).toBe(false);
+    });
+    it("user null → unauthorized", async () => {
+      expect((await mockRequireAuth(validSession, null)).authorized).toBe(false);
+    });
+    it("valid session + user → authorized", async () => {
+      const r = await mockRequireAuth(validSession, admin);
+      expect(r.authorized).toBe(true);
+      if (r.authorized) {
+        expect(r.userId).toBe(1);
+        expect(r.role).toBe("admin");
+        expect(r.restaurantId).toBe(5);
+        expect(r.subscriptionStatus).toBe("active");
+      }
+    });
+    it("requireRestaurant blocks null restaurantId", async () => {
+      const noRest = { ...member, restaurantId: null };
+      expect((await mockRequireAuth(validSession, noRest, { requireRestaurant: true })).authorized).toBe(false);
+    });
+    it("requireRestaurant allows with restaurantId", async () => {
+      const hasRest = { ...member, restaurantId: 7 };
+      expect((await mockRequireAuth(validSession, hasRest, { requireRestaurant: true })).authorized).toBe(true);
+    });
+    it("expired session → unauthorized", async () => {
+      expect((await mockRequireAuth({ valid: false, userId: 1 }, admin)).authorized).toBe(false);
+    });
+    it("valid but no userId → unauthorized", async () => {
+      expect((await mockRequireAuth({ valid: true, userId: null }, admin)).authorized).toBe(false);
+    });
+  });
 
-  // Invalid/missing session → unauthorized
-  strictEqual((await mockRequireAuth(badSession, null)).authorized, false, "invalid session → unauthorized"); inc();
-  // Session valid but user lookup returns null → unauthorized
-  strictEqual((await mockRequireAuth(validSession, null)).authorized, false, "user null → unauthorized"); inc();
-  // Valid session + user → authorized with expected fields
-  const r3 = await mockRequireAuth(validSession, admin);
-  ok(r3.authorized, "valid session + user → authorized"); inc();
-  if (r3.authorized) {
-    strictEqual(r3.userId, 1, "userId matches"); inc();
-    strictEqual(r3.role, "admin", "role matches"); inc();
-    strictEqual(r3.restaurantId, 5, "restaurantId matches"); inc();
-    strictEqual(r3.subscriptionStatus, "active", "subscriptionStatus matches"); inc();
-  }
-  // requireRestaurant: blocks user with null restaurantId
-  const noRest = { ...member, restaurantId: null };
-  strictEqual((await mockRequireAuth(validSession, noRest, { requireRestaurant: true })).authorized, false, "requireRestaurant blocks null restaurantId"); inc();
-  // requireRestaurant: allows user with restaurantId
-  const hasRest = { ...member, restaurantId: 7 };
-  ok((await mockRequireAuth(validSession, hasRest, { requireRestaurant: true })).authorized, "requireRestaurant allows with restaurantId"); inc();
-  // Expired session (valid=false) → unauthorized
-  strictEqual((await mockRequireAuth({ valid: false, userId: 1 }, admin)).authorized, false, "expired session → unauthorized"); inc();
-  // Valid=true but userId=null → unauthorized
-  strictEqual((await mockRequireAuth({ valid: true, userId: null }, admin)).authorized, false, "valid but no userId → unauthorized"); inc();
+  describe("requireAdmin", () => {
+    it("admin role → authorized", () => {
+      expect(mockRequireAdmin(admin).authorized).toBe(true);
+    });
+    it("super_admin role → authorized", () => {
+      expect(mockRequireAdmin(superAdmin).authorized).toBe(true);
+    });
+    it("sub_admin role → authorized", () => {
+      expect(mockRequireAdmin(subYes).authorized).toBe(true);
+    });
+    it("member role → unauthorized", () => {
+      expect(mockRequireAdmin(member).authorized).toBe(false);
+    });
+    it("unauthenticated → unauthorized", () => {
+      expect(mockRequireAdmin({ authorized: false }).authorized).toBe(false);
+    });
+  });
 
-  // ── requireAdmin ────────────────────────────────────────
-
-  const ra1 = mockRequireAdmin(admin);
-  ok(ra1.authorized, "admin role → authorized"); inc();
-  ok(mockRequireAdmin(superAdmin).authorized, "super_admin role → authorized"); inc();
-  ok(mockRequireAdmin(subYes).authorized, "sub_admin role → authorized"); inc();
-  strictEqual(mockRequireAdmin(member).authorized, false, "member role → unauthorized"); inc();
-  strictEqual(mockRequireAdmin({ authorized: false }).authorized, false, "unauthenticated → unauthorized"); inc();
-
-  // ── requirePermission ───────────────────────────────────
-
-  // Unauthenticated → 401
-  const rp1 = mockRequirePermission({ authorized: false }, "manage_orders");
-  strictEqual(rp1.authorized, false, "unauthenticated → unauthorized"); inc();
-  if (!rp1.authorized) strictEqual(rp1.status, 401, "unauthenticated → 401 status"); inc();
-
-  // super_admin bypasses permission check
-  ok(mockRequirePermission(superAdmin, "anything").authorized, "super_admin bypasses permission"); inc();
-  // admin bypasses permission check
-  ok(mockRequirePermission(admin, "anything").authorized, "admin bypasses permission"); inc();
-  // sub_admin with matching permission → allowed
-  ok(mockRequirePermission(subYes, "manage_orders").authorized, "sub_admin with matching permission → allowed"); inc();
-  // sub_admin without matching permission → 403
-  const rp5 = mockRequirePermission(subNo, "manage_orders");
-  strictEqual(rp5.authorized, false, "sub_admin missing permission → unauthorized"); inc();
-  if (!rp5.authorized) strictEqual(rp5.status, 403, "sub_admin missing permission → 403"); inc();
-  // sub_admin with wrong permission → 403
-  const rp6 = mockRequirePermission(subYes, "manage_users");
-  strictEqual(rp6.authorized, false, "sub_admin wrong permission → unauthorized"); inc();
-  if (!rp6.authorized) strictEqual(rp6.status, 403, "sub_admin wrong permission → 403"); inc();
-  // member (non-admin role) → 403
-  const rp7 = mockRequirePermission(member, "anything");
-  strictEqual(rp7.authorized, false, "member → unauthorized"); inc();
-  if (!rp7.authorized) strictEqual(rp7.status, 403, "member → 403"); inc();
-}
-
-// ── Summary ────────────────────────────────────────────────────
-console.log(`\nAll auth module tests passed — ${total} assertions.`);
+  describe("requirePermission", () => {
+    it("unauthenticated → 401", () => {
+      const r = mockRequirePermission({ authorized: false }, "manage_orders");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(401);
+    });
+    it("super_admin bypasses permission", () => {
+      expect(mockRequirePermission(superAdmin, "anything").authorized).toBe(true);
+    });
+    it("admin bypasses permission", () => {
+      expect(mockRequirePermission(admin, "anything").authorized).toBe(true);
+    });
+    it("sub_admin with matching permission → allowed", () => {
+      expect(mockRequirePermission(subYes, "manage_orders").authorized).toBe(true);
+    });
+    it("sub_admin missing permission → 403", () => {
+      const r = mockRequirePermission(subNo, "manage_orders");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(403);
+    });
+    it("sub_admin wrong permission → 403", () => {
+      const r = mockRequirePermission(subYes, "manage_users");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(403);
+    });
+    it("member → 403", () => {
+      const r = mockRequirePermission(member, "anything");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(403);
+    });
+  });
+});

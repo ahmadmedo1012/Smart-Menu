@@ -1,5 +1,3 @@
-const { chromium } = require('playwright');
-
 const BASE_URL = 'https://menu.smart-link.ly';
 
 const PAGES = [
@@ -27,6 +25,7 @@ function fail(label, details) {
 }
 
 async function run() {
+  const { chromium } = await import("playwright");
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
@@ -55,7 +54,6 @@ async function run() {
 
       // Check if page loaded meaningful content
       const bodyText = await page.evaluate(() => document.body.innerText.trim());
-      const bodyHtml = await page.evaluate(() => document.body.innerHTML);
       const pageTitle = await page.title();
 
       if (statusCode === 404) {

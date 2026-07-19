@@ -1,49 +1,95 @@
-/**
- * Core modules unit tests — hash, jwt mock, csrf, csrf-client, auth, subscription-decisions, telegram-admin
- * Run: npx tsx tests/unit/core.test.ts
- */
-import { ok, strictEqual, notStrictEqual, match, deepStrictEqual } from "node:assert";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-let total = 0;
-function inc(n = 1) { total += n; }
+describe("hash.ts", () => {
+  it("hashPassword returns string", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    expect(typeof hashPassword("correct-horse-battery-staple")).toBe("string");
+  });
 
-// ════════════════════════════════════════════════════════════════════
-// 1. hash.ts — PBKDF2 password hashing
-// ════════════════════════════════════════════════════════════════════
+  it("hashPassword format salt:hash", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    expect(hashPassword("correct-horse-battery-staple")).toContain(":");
+  });
 
-const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+  it("salt = 64 hex chars (32 bytes)", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [salt] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(salt).toHaveLength(64);
+  });
 
-{
-  const pwd = "correct-horse-battery-staple";
-  const hashed = hashPassword(pwd);
+  it("hash = 128 hex chars (64 bytes)", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(hash).toHaveLength(128);
+  });
 
-  ok(typeof hashed === "string", "hashPassword returns string"); inc();
-  ok(hashed.includes(":"), "hashPassword format salt:hash"); inc();
+  it("salt hex only", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [salt] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(salt).toMatch(/^[0-9a-f]+$/);
+  });
 
-  const [salt, hash] = hashed.split(":");
-  strictEqual(salt.length, 64, "salt = 64 hex chars (32 bytes)"); inc();
-  strictEqual(hash.length, 128, "hash = 128 hex chars (64 bytes)"); inc();
-  match(salt, /^[0-9a-f]+$/, "salt hex only"); inc();
-  match(hash, /^[0-9a-f]+$/, "hash hex only"); inc();
+  it("hash hex only", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
+    expect(hash).toMatch(/^[0-9a-f]+$/);
+  });
 
-  ok(verifyHash(pwd, hashed), "verifyHash correct password -> true"); inc();
-  strictEqual(verifyHash("wrong-password", hashed), false, "wrong password -> false"); inc();
-  strictEqual(verifyHash("", hashed), false, "empty password -> false"); inc();
-  strictEqual(verifyHash("anything", ""), false, "empty stored -> false"); inc();
-  strictEqual(verifyHash("anything", "no-colon"), false, "no-colon stored -> false"); inc();
-  strictEqual(verifyHash("anything", "a:b:c"), false, "multi-colon stored -> false"); inc();
-  ok(verifyHash(pwd, hashed), "verifyHash idempotent for same password"); inc();
+  it("verifyHash correct password -> true", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed = hashPassword(pwd);
+    expect(verifyHash(pwd, hashed)).toBe(true);
+  });
 
-  const hashed2 = hashPassword(pwd);
-  notStrictEqual(hashed.split(":")[0], hashed2.split(":")[0], "unique salt per call"); inc();
-}
+  it("wrong password -> false", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const hashed = hashPassword("correct-horse-battery-staple");
+    expect(verifyHash("wrong-password", hashed)).toBe(false);
+  });
+
+  it("empty password -> false", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const hashed = hashPassword("correct-horse-battery-staple");
+    expect(verifyHash("", hashed)).toBe(false);
+  });
+
+  it("empty stored -> false", async () => {
+    const { verifyHash } = await import("../../src/lib/hash.ts");
+    expect(verifyHash("anything", "")).toBe(false);
+  });
+
+  it("no-colon stored -> false", async () => {
+    const { verifyHash } = await import("../../src/lib/hash.ts");
+    expect(verifyHash("anything", "no-colon")).toBe(false);
+  });
+
+  it("multi-colon stored -> false", async () => {
+    const { verifyHash } = await import("../../src/lib/hash.ts");
+    expect(verifyHash("anything", "a:b:c")).toBe(false);
+  });
+
+  it("verifyHash idempotent for same password", async () => {
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const pwd = "correct-horse-battery-staple";
+    const hashed = hashPassword(pwd);
+    expect(verifyHash(pwd, hashed)).toBe(true);
+  });
+
+  it("unique salt per call", async () => {
+    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const h1 = hashPassword("correct-horse-battery-staple");
+    const h2 = hashPassword("correct-horse-battery-staple");
+    expect(h1.split(":")[0]).not.toBe(h2.split(":")[0]);
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
 // 2. Mock JWT — HMAC-SHA256 session token round-trip
 // ════════════════════════════════════════════════════════════════════
 
-{
+describe("Mock JWT", () => {
   const SECRET = "test-secret-key-12345";
 
   function createSessionToken(payload: Record<string, unknown>, secret: string, expiresInSec = 86400): string {
@@ -70,123 +116,141 @@ const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
   }
 
   const payload = { userId: 42, role: "owner" };
-
   const token = createSessionToken(payload, SECRET);
-  ok(typeof token === "string", "createSessionToken returns string"); inc();
-  strictEqual(token.split(".").length, 3, "token has 3 dot-separated parts"); inc();
 
-  const decoded = verifySessionToken(token, SECRET);
-  ok(decoded !== null, "verifySessionToken round-trips"); inc();
-  if (decoded) {
-    strictEqual(decoded.userId, 42, "userId payload survives round-trip"); inc();
-    strictEqual(decoded.role, "owner", "role payload survives round-trip"); inc();
-    ok(typeof decoded.iat === "number", "iat present in payload"); inc();
-    ok(typeof decoded.exp === "number", "exp present in payload"); inc();
-  }
+  it("createSessionToken returns string with 3 dot-separated parts", () => {
+    expect(typeof token).toBe("string");
+    expect(token.split(".")).toHaveLength(3);
+  });
 
-  // Wrong secret -> null
-  strictEqual(verifySessionToken(token, "wrong-secret"), null, "wrong secret -> null"); inc();
+  it("round-trips userId and role", () => {
+    const decoded = verifySessionToken(token, SECRET);
+    expect(decoded).not.toBeNull();
+    if (decoded) {
+      expect(decoded.userId).toBe(42);
+      expect(decoded.role).toBe("owner");
+      expect(typeof decoded.iat).toBe("number");
+      expect(typeof decoded.exp).toBe("number");
+    }
+  });
 
-  // Tampered payload -> null
-  const parts = token.split(".");
-  const tamperedBody = Buffer.from(JSON.stringify({ userId: 999 })).toString("base64url");
-  const forged = `${parts[0]}.${tamperedBody}.${parts[2]}`;
-  strictEqual(verifySessionToken(forged, SECRET), null, "tampered payload -> null"); inc();
+  it("wrong secret -> null", () => {
+    expect(verifySessionToken(token, "wrong-secret")).toBeNull();
+  });
 
-  // Malformed token -> null
-  strictEqual(verifySessionToken("not-a-jwt", SECRET), null, "malformed token -> null"); inc();
-  strictEqual(verifySessionToken("a.b", SECRET), null, "2-part token -> null"); inc();
-  strictEqual(verifySessionToken("", SECRET), null, "empty token -> null"); inc();
+  it("tampered payload -> null", () => {
+    const parts = token.split(".");
+    const tampered = Buffer.from(JSON.stringify({ userId: 999 })).toString("base64url");
+    const forged = `${parts[0]}.${tampered}.${parts[2]}`;
+    expect(verifySessionToken(forged, SECRET)).toBeNull();
+  });
 
-  // Expired token -> null
-  const expired = createSessionToken(payload, SECRET, -1);
-  strictEqual(verifySessionToken(expired, SECRET), null, "expired token -> null"); inc();
+  it("malformed/empty token -> null", () => {
+    expect(verifySessionToken("not-a-jwt", SECRET)).toBeNull();
+    expect(verifySessionToken("a.b", SECRET)).toBeNull();
+    expect(verifySessionToken("", SECRET)).toBeNull();
+  });
 
-  // Second token with same payload is valid (structure check, not identity)
-  const t2 = createSessionToken(payload, SECRET);
-  ok(typeof t2 === "string", "second token is string"); inc();
-  ok(t2.split(".").length === 3, "second token has 3 parts"); inc();
-  ok(verifySessionToken(t2, SECRET) !== null, "second token verifies"); inc();
+  it("expired token -> null", () => {
+    expect(verifySessionToken(createSessionToken(payload, SECRET, -1), SECRET)).toBeNull();
+  });
 
-  // Custom extra fields survive round-trip
-  const custom = createSessionToken({ userId: 7, role: "admin", restaurantId: 3 }, SECRET);
-  const decCustom = verifySessionToken(custom, SECRET);
-  ok(decCustom !== null, "custom payload round-trips"); inc();
-  if (decCustom) {
-    strictEqual(decCustom.restaurantId, 3, "extra field survives round-trip"); inc();
-  }
-}
+  it("second token is valid", () => {
+    const t2 = createSessionToken(payload, SECRET);
+    expect(typeof t2).toBe("string");
+    expect(t2.split(".")).toHaveLength(3);
+    expect(verifySessionToken(t2, SECRET)).not.toBeNull();
+  });
+
+  it("custom extra fields survive round-trip", () => {
+    const custom = createSessionToken({ userId: 7, role: "admin", restaurantId: 3 }, SECRET);
+    const dec = verifySessionToken(custom, SECRET);
+    expect(dec).not.toBeNull();
+    if (dec) expect(dec.restaurantId).toBe(3);
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
 // 3. csrf-client.ts — fetch wrapper adds CSRF header to mutations
 // ════════════════════════════════════════════════════════════════════
 
-{
+describe("csrf-client.ts", () => {
   const CSRF_COOKIE = "csrf-token";
   const CSRF_HEADER = "x-csrf-token";
-  const mockToken = "mock-csrf-" + Math.random().toString(16).slice(2, 10);
-  const origCookie = (globalThis as any).document?.cookie;
-  const origFetch = globalThis.fetch;
+  let origFetch: typeof globalThis.fetch;
+  let origCookie: string | undefined;
+  const calls: any[] = [];
 
-  (globalThis as any).document = {
-    cookie: `${CSRF_COOKIE}=${mockToken}`,
-  };
+  beforeEach(() => {
+    origFetch = globalThis.fetch;
+    origCookie = (globalThis as any).document?.cookie;
+    calls.length = 0;
+  });
 
-  const calls: Array<{ input: RequestInfo | URL; init?: RequestInit }> = [];
-  globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
-    calls.push({ input, init });
-    return Promise.resolve(new Response(null, { status: 200 }));
-  };
+  afterEach(() => {
+    globalThis.fetch = origFetch;
+    (globalThis as any).document = { cookie: origCookie ?? "" };
+  });
 
-  const { csrfFetch } = await import("../../src/lib/csrf-client.ts");
+  async function setupFetch(mockToken: string) {
+    (globalThis as any).document = { cookie: `${CSRF_COOKIE}=${mockToken}` };
+    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ input, init });
+      return Promise.resolve(new Response(null, { status: 200 }));
+    };
+    return (await import("../../src/lib/csrf-client.ts")).csrfFetch;
+  }
 
-  // GET — no CSRF header added
-  await csrfFetch("/api/test");
-  strictEqual(calls.length, 1, "GET triggers fetch"); inc();
-  ok(!calls[0].init || !(calls[0].init as any).headers, "GET no CSRF header"); inc();
+  it("GET — no CSRF header added", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test");
+    expect(calls).toHaveLength(1);
+    expect(!calls[0].init || !(calls[0].init as any).headers).toBe(true);
+  });
 
-  // POST — adds CSRF header
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "POST" });
-  const hPOST = (calls[0].init as any).headers as Record<string, string>;
-  strictEqual(hPOST[CSRF_HEADER], mockToken, "POST adds x-csrf-token"); inc();
+  it("POST adds CSRF header", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test", { method: "POST" });
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
+  });
 
-  // PUT
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "PUT" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "PUT adds x-csrf-token"); inc();
+  it("PUT adds CSRF header", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test", { method: "PUT" });
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
+  });
 
-  // DELETE
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "DELETE" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "DELETE adds x-csrf-token"); inc();
+  it("DELETE adds CSRF header", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test", { method: "DELETE" });
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
+  });
 
-  // PATCH
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "PATCH" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "PATCH adds x-csrf-token"); inc();
+  it("PATCH adds CSRF header", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test", { method: "PATCH" });
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
+  });
 
-  // Preserves original headers while adding CSRF
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "POST", headers: { "Content-Type": "application/json" } });
-  const hComb = (calls[0].init as any).headers as Record<string, string>;
-  strictEqual(hComb["Content-Type"], "application/json", "preserves original header"); inc();
-  strictEqual(hComb[CSRF_HEADER], mockToken, "adds CSRF alongside original header"); inc();
+  it("preserves original headers while adding CSRF", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test", { method: "POST", headers: { "Content-Type": "application/json" } });
+    expect((calls[0].init as any).headers["Content-Type"]).toBe("application/json");
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
+  });
 
-  // Lowercase method still matches (csrfFetch uppercases it)
-  calls.length = 0;
-  await csrfFetch("/api/test", { method: "post" });
-  strictEqual((calls[0].init as any).headers[CSRF_HEADER], mockToken, "lowercase POST still adds header"); inc();
-
-  globalThis.fetch = origFetch;
-  (globalThis as any).document = { cookie: origCookie ?? "" };
-}
+  it("lowercase POST still adds header", async () => {
+    const csrfFetch = await setupFetch("mock-token");
+    await csrfFetch("/api/test", { method: "post" });
+    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
-// 5. auth.ts — requireAuth / requireAdmin / requirePermission logic
+// 4. auth.ts — requireAuth / requireAdmin / requirePermission logic
 // ════════════════════════════════════════════════════════════════════
 
-{
+describe("auth.ts", () => {
   type AuthResult = {
     authorized: true; userId: number; role: string;
     restaurantId: number | null; subscriptionStatus: string | null; permissions: string[];
@@ -199,28 +263,21 @@ const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
   ): Promise<AuthResult | { authorized: false }> {
     if (session.valid && session.userId) {
       if (user) {
-        if (opts?.requireRestaurant && !user.restaurantId) {
-          return { authorized: false } as const;
-        }
+        if (opts?.requireRestaurant && !user.restaurantId) return { authorized: false as const };
         return user;
       }
     }
-    return { authorized: false } as const;
+    return { authorized: false as const };
   }
 
-  function mockRequireAdmin(
-    auth: AuthResult | { authorized: false },
-  ): AuthResult | { authorized: false } {
-    if (!auth.authorized) return { authorized: false } as const;
-    if (!["super_admin", "sub_admin", "admin"].includes(auth.role)) {
-      return { authorized: false } as const;
-    }
+  function mockRequireAdmin(auth: AuthResult | { authorized: false }): AuthResult | { authorized: false } {
+    if (!auth.authorized) return { authorized: false as const };
+    if (!["super_admin", "sub_admin", "admin"].includes(auth.role)) return { authorized: false as const };
     return auth;
   }
 
   function mockRequirePermission(
-    auth: AuthResult | { authorized: false },
-    permission: string,
+    auth: AuthResult | { authorized: false }, permission: string,
   ): AuthResult | { authorized: false; error: string; status: number } {
     if (!auth.authorized) return { authorized: false, error: "غير مصرح", status: 401 };
     if (auth.role === "super_admin" || auth.role === "admin") return auth;
@@ -252,76 +309,91 @@ const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
     restaurantId: null, subscriptionStatus: "active", permissions: [],
   };
 
-  // ── requireAuth ─────────────────────────────────────────
+  describe("requireAuth", () => {
+    it("invalid session -> unauthorized", async () => {
+      expect((await mockRequireAuth(badSession, null)).authorized).toBe(false);
+    });
+    it("user null -> unauthorized", async () => {
+      expect((await mockRequireAuth(validSession, null)).authorized).toBe(false);
+    });
+    it("valid session + user -> authorized", async () => {
+      const r = await mockRequireAuth(validSession, admin);
+      expect(r.authorized).toBe(true);
+      if (r.authorized) {
+        expect(r.userId).toBe(1);
+        expect(r.role).toBe("admin");
+        expect(r.restaurantId).toBe(5);
+        expect(r.subscriptionStatus).toBe("active");
+      }
+    });
+    it("requireRestaurant blocks null restaurantId", async () => {
+      expect((await mockRequireAuth(validSession, { ...member, restaurantId: null }, { requireRestaurant: true })).authorized).toBe(false);
+    });
+    it("requireRestaurant allows with restaurantId", async () => {
+      expect((await mockRequireAuth(validSession, { ...member, restaurantId: 7 }, { requireRestaurant: true })).authorized).toBe(true);
+    });
+    it("expired session -> unauthorized", async () => {
+      expect((await mockRequireAuth({ valid: false, userId: 1 }, admin)).authorized).toBe(false);
+    });
+    it("valid but no userId -> unauthorized", async () => {
+      expect((await mockRequireAuth({ valid: true, userId: null }, admin)).authorized).toBe(false);
+    });
+  });
 
-  strictEqual((await mockRequireAuth(badSession, null)).authorized, false, "invalid session -> unauthorized"); inc();
-  strictEqual((await mockRequireAuth(validSession, null)).authorized, false, "user null -> unauthorized"); inc();
-  const r3 = await mockRequireAuth(validSession, admin);
-  ok(r3.authorized, "valid session + user -> authorized"); inc();
-  if (r3.authorized) {
-    strictEqual(r3.userId, 1, "userId matches"); inc();
-    strictEqual(r3.role, "admin", "role matches"); inc();
-    strictEqual(r3.restaurantId, 5, "restaurantId matches"); inc();
-    strictEqual(r3.subscriptionStatus, "active", "subscriptionStatus matches"); inc();
-  }
-  const noRest = { ...member, restaurantId: null };
-  strictEqual((await mockRequireAuth(validSession, noRest, { requireRestaurant: true })).authorized, false, "requireRestaurant blocks null restaurantId"); inc();
-  const hasRest = { ...member, restaurantId: 7 };
-  ok((await mockRequireAuth(validSession, hasRest, { requireRestaurant: true })).authorized, "requireRestaurant allows with restaurantId"); inc();
-  strictEqual((await mockRequireAuth({ valid: false, userId: 1 }, admin)).authorized, false, "expired session -> unauthorized"); inc();
-  strictEqual((await mockRequireAuth({ valid: true, userId: null }, admin)).authorized, false, "valid but no userId -> unauthorized"); inc();
+  describe("requireAdmin", () => {
+    it("admin role -> authorized", () => expect(mockRequireAdmin(admin).authorized).toBe(true));
+    it("super_admin role -> authorized", () => expect(mockRequireAdmin(superAdmin).authorized).toBe(true));
+    it("sub_admin role -> authorized", () => expect(mockRequireAdmin(subYes).authorized).toBe(true));
+    it("member role -> unauthorized", () => expect(mockRequireAdmin(member).authorized).toBe(false));
+    it("unauthenticated -> unauthorized", () => expect(mockRequireAdmin({ authorized: false }).authorized).toBe(false));
+  });
 
-  // ── requireAdmin ────────────────────────────────────────
-
-  ok(mockRequireAdmin(admin).authorized, "admin role -> authorized"); inc();
-  ok(mockRequireAdmin(superAdmin).authorized, "super_admin role -> authorized"); inc();
-  ok(mockRequireAdmin(subYes).authorized, "sub_admin role -> authorized"); inc();
-  strictEqual(mockRequireAdmin(member).authorized, false, "member role -> unauthorized"); inc();
-  strictEqual(mockRequireAdmin({ authorized: false }).authorized, false, "unauthenticated -> unauthorized"); inc();
-
-  // ── requirePermission ───────────────────────────────────
-
-  const rp0 = mockRequirePermission({ authorized: false }, "manage_orders");
-  strictEqual(rp0.authorized, false, "unauthenticated -> unauthorized"); inc();
-  if (!rp0.authorized) strictEqual(rp0.status, 401, "unauthenticated -> 401 status"); inc();
-
-  ok(mockRequirePermission(superAdmin, "anything").authorized, "super_admin bypasses permission"); inc();
-  ok(mockRequirePermission(admin, "anything").authorized, "admin bypasses permission"); inc();
-  ok(mockRequirePermission(subYes, "manage_orders").authorized, "sub_admin matching permission -> allowed"); inc();
-
-  const rp5 = mockRequirePermission(subNo, "manage_orders");
-  strictEqual(rp5.authorized, false, "sub_admin missing permission -> unauthorized"); inc();
-  if (!rp5.authorized) strictEqual(rp5.status, 403, "sub_admin missing permission -> 403"); inc();
-
-  const rp6 = mockRequirePermission(subYes, "manage_users");
-  strictEqual(rp6.authorized, false, "sub_admin wrong permission -> unauthorized"); inc();
-  if (!rp6.authorized) strictEqual(rp6.status, 403, "sub_admin wrong permission -> 403"); inc();
-
-  const rp7 = mockRequirePermission(member, "anything");
-  strictEqual(rp7.authorized, false, "member -> unauthorized"); inc();
-  if (!rp7.authorized) strictEqual(rp7.status, 403, "member -> 403"); inc();
-
-  ok(mockRequirePermission(superAdmin, "anything").authorized, "super_admin with no-restaurant check passes"); inc();
-
-  const rpErr = mockRequirePermission(subNo, "manage_orders") as { authorized: false; error: string; status: number };
-  strictEqual(typeof rpErr.error, "string", "403 error message is string"); inc();
-  ok(rpErr.error.length > 0, "403 error message non-empty"); inc();
-
-  const rpAuthErr = mockRequirePermission({ authorized: false }, "x") as { authorized: false; error: string; status: number };
-  strictEqual(typeof rpAuthErr.error, "string", "401 error message is string"); inc();
-  ok(rpAuthErr.error.length > 0, "401 error message non-empty"); inc();
-}
+  describe("requirePermission", () => {
+    it("unauthenticated -> 401", () => {
+      const r = mockRequirePermission({ authorized: false }, "manage_orders");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(401);
+    });
+    it("super_admin bypasses permission", () => expect(mockRequirePermission(superAdmin, "anything").authorized).toBe(true));
+    it("admin bypasses permission", () => expect(mockRequirePermission(admin, "anything").authorized).toBe(true));
+    it("sub_admin matching permission -> allowed", () => expect(mockRequirePermission(subYes, "manage_orders").authorized).toBe(true));
+    it("sub_admin missing permission -> 403", () => {
+      const r = mockRequirePermission(subNo, "manage_orders");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(403);
+    });
+    it("sub_admin wrong permission -> 403", () => {
+      const r = mockRequirePermission(subYes, "manage_users");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(403);
+    });
+    it("member -> 403", () => {
+      const r = mockRequirePermission(member, "anything");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) expect(r.status).toBe(403);
+    });
+    it("super_admin with no-restaurant check passes", () => {
+      expect(mockRequirePermission(superAdmin, "anything").authorized).toBe(true);
+    });
+    it("403 error message is string and non-empty", () => {
+      const r = mockRequirePermission(subNo, "manage_orders") as { authorized: false; error: string; status: number };
+      expect(typeof r.error).toBe("string");
+      expect(r.error.length).toBeGreaterThan(0);
+    });
+    it("401 error message is string and non-empty", () => {
+      const r = mockRequirePermission({ authorized: false }, "x") as { authorized: false; error: string; status: number };
+      expect(typeof r.error).toBe("string");
+      expect(r.error.length).toBeGreaterThan(0);
+    });
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
-// 6. subscription-decisions.ts — resolveSubscriptionPayment gates + decision map
+// 5. subscription-decisions.ts — resolveSubscriptionPayment gates + decision map
 // ════════════════════════════════════════════════════════════════════
 
-{
-  type MockPayment = {
-    id: number;
-    status: string;
-    userId: number | null;
-  };
+describe("subscription-decisions.ts", () => {
+  type MockPayment = { id: number; status: string; userId: number | null };
 
   function mockResolveSubscriptionPayment(
     payment: MockPayment | null,
@@ -329,108 +401,85 @@ const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
   ): { ok: boolean; action?: string; paymentId?: number; reason?: string } {
     if (!payment) return { ok: false, reason: "الطلب غير موجود" };
     if (payment.status !== "pending") return { ok: false, reason: "تمت معالجة هذا الطلب مسبقاً" };
-    if (decision === "verified") {
-      return { ok: true, action: "verified", paymentId: payment.id };
-    }
-    if (decision === "cancelled") {
-      return { ok: true, action: "cancelled", paymentId: payment.id };
-    }
+    if (decision === "verified") return { ok: true, action: "verified", paymentId: payment.id };
+    if (decision === "cancelled") return { ok: true, action: "cancelled", paymentId: payment.id };
     return { ok: false, reason: "قرار غير معروف" };
   }
 
-  // Not found gate
-  const rNotFound = mockResolveSubscriptionPayment(null, "verified");
-  strictEqual(rNotFound.ok, false, "null payment -> ok false"); inc();
-  strictEqual(rNotFound.reason, "الطلب غير موجود", "null payment -> not-found reason"); inc();
+  it("null payment -> not-found reason", () => {
+    const r = mockResolveSubscriptionPayment(null, "verified");
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe("الطلب غير موجود");
+  });
 
-  // Already processed — verified
-  const processed: MockPayment = { id: 1, status: "verified", userId: 1 };
-  const rProcessed = mockResolveSubscriptionPayment(processed, "verified");
-  strictEqual(rProcessed.ok, false, "non-pending payment -> ok false"); inc();
-  strictEqual(rProcessed.reason, "تمت معالجة هذا الطلب مسبقاً", "non-pending -> already-processed reason"); inc();
+  it("non-pending payment -> already-processed reason", () => {
+    const verified = mockResolveSubscriptionPayment({ id: 1, status: "verified", userId: 1 }, "verified");
+    expect(verified.ok).toBe(false);
+    expect(verified.reason).toBe("تمت معالجة هذا الطلب مسبقاً");
 
-  // Already processed — cancelled
-  const prevCancelled: MockPayment = { id: 2, status: "cancelled", userId: 1 };
-  const rPrevCan = mockResolveSubscriptionPayment(prevCancelled, "verified");
-  strictEqual(rPrevCan.ok, false, "cancelled payment -> ok false"); inc();
+    const cancelled = mockResolveSubscriptionPayment({ id: 2, status: "cancelled", userId: 1 }, "verified");
+    expect(cancelled.ok).toBe(false);
+  });
 
-  // Decision "verified" -> action verified
-  const pending1: MockPayment = { id: 10, status: "pending", userId: 5 };
-  const rVer = mockResolveSubscriptionPayment(pending1, "verified");
-  ok(rVer.ok, "verified decision -> ok true"); inc();
-  strictEqual(rVer.action, "verified", "verified decision maps to 'verified' action"); inc();
-  strictEqual(rVer.paymentId, 10, "verified returns correct paymentId"); inc();
+  it('decision "verified" -> action verified', () => {
+    const r = mockResolveSubscriptionPayment({ id: 10, status: "pending", userId: 5 }, "verified");
+    expect(r.ok).toBe(true);
+    expect(r.action).toBe("verified");
+    expect(r.paymentId).toBe(10);
+  });
 
-  // Decision "cancelled" -> action cancelled
-  const pending2: MockPayment = { id: 20, status: "pending", userId: 6 };
-  const rCan = mockResolveSubscriptionPayment(pending2, "cancelled");
-  ok(rCan.ok, "cancelled decision -> ok true"); inc();
-  strictEqual(rCan.action, "cancelled", "cancelled decision maps to 'cancelled' action"); inc();
-  strictEqual(rCan.paymentId, 20, "cancelled returns correct paymentId"); inc();
+  it('decision "cancelled" -> action cancelled', () => {
+    const r = mockResolveSubscriptionPayment({ id: 20, status: "pending", userId: 6 }, "cancelled");
+    expect(r.ok).toBe(true);
+    expect(r.action).toBe("cancelled");
+    expect(r.paymentId).toBe(20);
+  });
 
-  // Pending with null userId still resolves
-  const pendingNoUser: MockPayment = { id: 30, status: "pending", userId: null };
-  const rNoUser = mockResolveSubscriptionPayment(pendingNoUser, "cancelled");
-  ok(rNoUser.ok, "pending with null userId still resolves"); inc();
-  strictEqual(rNoUser.action, "cancelled", "null userId -> cancelled"); inc();
+  it("pending with null userId still resolves", () => {
+    const r = mockResolveSubscriptionPayment({ id: 30, status: "pending", userId: null }, "cancelled");
+    expect(r.ok).toBe(true);
+    expect(r.action).toBe("cancelled");
+  });
 
-  // Multiple payments get independent results
-  const pA: MockPayment = { id: 100, status: "pending", userId: 1 };
-  const pB: MockPayment = { id: 200, status: "pending", userId: 2 };
-  const rA = mockResolveSubscriptionPayment(pA, "verified");
-  const rB = mockResolveSubscriptionPayment(pB, "cancelled");
-  strictEqual(rA.action, "verified", "independent payment A -> verified"); inc();
-  strictEqual(rB.action, "cancelled", "independent payment B -> cancelled"); inc();
-  strictEqual(rA.paymentId, 100, "independent paymentId A"); inc();
-  strictEqual(rB.paymentId, 200, "independent paymentId B"); inc();
-}
+  it("multiple payments get independent results", () => {
+    const a = mockResolveSubscriptionPayment({ id: 100, status: "pending", userId: 1 }, "verified");
+    const b = mockResolveSubscriptionPayment({ id: 200, status: "pending", userId: 2 }, "cancelled");
+    expect(a.action).toBe("verified");
+    expect(b.action).toBe("cancelled");
+    expect(a.paymentId).toBe(100);
+    expect(b.paymentId).toBe(200);
+  });
+});
 
 // ════════════════════════════════════════════════════════════════════
-// 7. telegram-admin.ts — getAdminTelegramIds parses env, merges DB, deduplicates
+// 6. telegram-admin.ts — getAdminTelegramIds parses env, merges DB, deduplicates
 // ════════════════════════════════════════════════════════════════════
 
-{
+describe("telegram-admin.ts — getAdminTelegramIds", () => {
   function mockGetAdminTelegramIds(envVar: string, dbApprovers: Array<{ telegramId: bigint | number }>): number[] {
     const envIds = (envVar ?? "")
       .split(",")
       .map((s) => Number(s.trim()))
       .filter((n: number) => Number.isFinite(n) && n > 0);
-
     const dbIds = dbApprovers
       .map((a) => Number(a.telegramId))
       .filter((n: number) => Number.isFinite(n) && n > 0);
-
     return [...new Set([...envIds, ...dbIds])];
   }
 
-  deepStrictEqual(mockGetAdminTelegramIds("123456", []), [123456], "single env ID parsed"); inc();
-  deepStrictEqual(mockGetAdminTelegramIds("111,222,333", []), [111, 222, 333], "multiple env IDs parsed"); inc();
-  deepStrictEqual(mockGetAdminTelegramIds("", [{ telegramId: BigInt(999) }]), [999], "DB BigInt ID included"); inc();
-  deepStrictEqual(mockGetAdminTelegramIds("100", [{ telegramId: BigInt(200) }, { telegramId: BigInt(300) }]), [100, 200, 300], "env + DB merged"); inc();
-
-  // Deduplication
-  const r5 = mockGetAdminTelegramIds("500,600", [{ telegramId: BigInt(600) }, { telegramId: BigInt(700) }]);
-  deepStrictEqual(r5, [500, 600, 700], "overlapping IDs deduplicated"); inc();
-  strictEqual(r5.length, 3, "dedup reduces length"); inc();
-
-  // Empty
-  deepStrictEqual(mockGetAdminTelegramIds("", []), [], "empty env + empty DB -> []"); inc();
-
-  // Invalid env values filtered
-  deepStrictEqual(mockGetAdminTelegramIds("abc,0,-5,42,NaN", []), [42], "invalid env IDs filtered out"); inc();
-
-  // Invalid DB BigInt filtered (0, negative)
-  deepStrictEqual(mockGetAdminTelegramIds("", [{ telegramId: BigInt(0) }, { telegramId: BigInt(-1) }, { telegramId: BigInt(77) }]), [77], "invalid DB IDs filtered out"); inc();
-
-  // Whitespace
-  deepStrictEqual(mockGetAdminTelegramIds(" 10 , 20 ,30", []), [10, 20, 30], "whitespace in env var handled"); inc();
-
-  // Large safe integer
-  deepStrictEqual(mockGetAdminTelegramIds("9007199254740991", []), [9007199254740991], "large safe integer passes"); inc();
-
-  // Duplicates within env var deduplicated
-  deepStrictEqual(mockGetAdminTelegramIds("1,2,2,3", []), [1, 2, 3], "duplicates within env var deduplicated"); inc();
-}
-
-// ── Summary ────────────────────────────────────────────────────
-console.log(`\nAll core module tests passed — ${total} assertions.`);
+  it("single env ID parsed", () => expect(mockGetAdminTelegramIds("123456", [])).toEqual([123456]));
+  it("multiple env IDs parsed", () => expect(mockGetAdminTelegramIds("111,222,333", [])).toEqual([111, 222, 333]));
+  it("DB BigInt ID included", () => expect(mockGetAdminTelegramIds("", [{ telegramId: BigInt(999) }])).toEqual([999]));
+  it("env + DB merged", () => expect(mockGetAdminTelegramIds("100", [{ telegramId: BigInt(200) }, { telegramId: BigInt(300) }])).toEqual([100, 200, 300]));
+  it("overlapping IDs deduplicated", () => {
+    const r = mockGetAdminTelegramIds("500,600", [{ telegramId: BigInt(600) }, { telegramId: BigInt(700) }]);
+    expect(r).toEqual([500, 600, 700]);
+    expect(r).toHaveLength(3);
+  });
+  it("empty env + empty DB -> []", () => expect(mockGetAdminTelegramIds("", [])).toEqual([]));
+  it("invalid env IDs filtered out", () => expect(mockGetAdminTelegramIds("abc,0,-5,42,NaN", [])).toEqual([42]));
+  it("invalid DB IDs filtered out", () => expect(mockGetAdminTelegramIds("", [{ telegramId: BigInt(0) }, { telegramId: BigInt(-1) }, { telegramId: BigInt(77) }])).toEqual([77]));
+  it("whitespace in env var handled", () => expect(mockGetAdminTelegramIds(" 10 , 20 ,30", [])).toEqual([10, 20, 30]));
+  it("large safe integer passes", () => expect(mockGetAdminTelegramIds("9007199254740991", [])).toEqual([9007199254740991]));
+  it("duplicates within env var deduplicated", () => expect(mockGetAdminTelegramIds("1,2,2,3", [])).toEqual([1, 2, 3]));
+});
