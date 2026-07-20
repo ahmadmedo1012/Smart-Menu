@@ -6,6 +6,7 @@ import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { z } from "zod";
 import { createDbRateLimiter } from "@/lib/rate-limit";
+import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 
 const registrationLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -26,7 +27,7 @@ const createSchema = z.object({
   workingHours: z.string().optional(),
   planId: z.number().int().optional(),
   username: z.string().min(3).optional(),
-  password: z.string().min(4).optional(),
+  password: z.string().min(PASSWORD_MIN_LENGTH).optional(),
   city: z.string().optional(),
   showOnLanding: z.boolean().optional(),
   featuredRank: z.number().int().optional(),

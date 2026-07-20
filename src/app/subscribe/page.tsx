@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { PlanSelector } from "./PlanSelector";
 import { SubscribeForm } from "./SubscribeForm";
+import { PASSWORD_MIN_LENGTH } from "@/lib/constants";
 import dynamic from "next/dynamic";
 const PaymentDialogWrapper = dynamic(() => import("./PaymentSection").then(m => ({ default: m.PaymentDialogWrapper })), { ssr: false });
 const UpgradePlanSummary = dynamic(() => import("./PaymentSection").then(m => ({ default: m.UpgradePlanSummary })), { ssr: false });
@@ -102,7 +103,7 @@ function SubscribeContent() {
     form.name.trim().length >= 2 &&
     form.slug.trim().length >= 2 &&
     form.username.trim().length >= 3 &&
-    form.password.trim().length >= 4;
+    form.password.trim().length >= PASSWORD_MIN_LENGTH;
 
   const handleSubmit = async () => {
     submittedRef.current = true;

@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
 		const cl = request.headers.get("content-length");
 		if (cl && Number(cl) > MAX_SIZE) return error("الملف كبير جداً (الحد الأقصى 5MB)", 413);
 
+		if (!process.env.BLOB_READ_WRITE_TOKEN) {
+			return error("خدمة رفع الملفات غير مضبوطة — يرجى إعداد BLOB_READ_WRITE_TOKEN", 500);
+		}
+
 		const auth = await requireAuth();
 		if (!auth.authorized) return error("غير مصرح", 401);
 
@@ -48,6 +52,8 @@ export async function POST(request: NextRequest) {
 
 		return success({ url, size: buffer.length }, 201);
 	} catch (e) {
+		// Ponytail: blob upload failures (missing token, network, quota) surface as 500 with a generic message.
+		// The client now reads the error body, so the user sees context-relevant messages.
 		return handleError(e);
 	}
 }

@@ -6,10 +6,11 @@ import { createDbRateLimiter } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit";
 import { notifyEvent } from "@/lib/telegram";
 import { createSession } from "@/lib/session";
+import { PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE } from "@/lib/constants";
 
 const registerSchema = z.object({
   username: z.string().min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل").max(30),
-  password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"),
+  password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE),
   name: z.string().min(1, "الاسم مطلوب"),
   email: z.string().email("البريد الإلكتروني غير صحيح").optional().or(z.literal("")),
 });

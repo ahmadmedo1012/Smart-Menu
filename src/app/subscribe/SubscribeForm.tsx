@@ -8,6 +8,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import { Check, Sparkles, Crown, Building2, Star, Loader2, Store } from "lucide-react"
+import { PASSWORD_MIN_LENGTH } from "@/lib/constants"
 
 type Plan = {
   id: number; name: string; nameAr: string; price: number
@@ -49,7 +50,7 @@ export function SubscribeForm({
       case "name": return form.name.trim().length < 2
       case "slug": return form.slug.trim().length < 2
       case "username": return form.username.trim().length < 3
-      case "password": return form.password.trim().length < 4
+      case "password": return form.password.trim().length < PASSWORD_MIN_LENGTH
       default: return false
     }
   }
@@ -155,10 +156,10 @@ export function SubscribeForm({
             <Label>كلمة المرور *</Label>
             <Input type="password" value={form.password}
               onChange={(e) => { onFormChange({ ...form, password: e.target.value }); setSubmitted(false) }}
-              onBlur={() => touchField("password")} placeholder="كلمة المرور (4 أحرف على الأقل)"
+              onBlur={() => touchField("password")} placeholder={`كلمة المرور (${PASSWORD_MIN_LENGTH} أحرف على الأقل)`}
               className={cn("h-11 mt-1.5", fieldError("password") && "border-destructive ring-1 ring-destructive/30")}
               aria-invalid={fieldError("password") || undefined} required />
-            {fieldError("password") && <p className="text-xs text-destructive mt-1">كلمة المرور مطلوبة (4 أحرف على الأقل)</p>}
+            {fieldError("password") && <p className="text-xs text-destructive mt-1">كلمة المرور مطلوبة ({PASSWORD_MIN_LENGTH} أحرف على الأقل)</p>}
           </div>
         </div>
 

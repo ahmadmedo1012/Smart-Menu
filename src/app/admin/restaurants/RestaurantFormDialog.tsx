@@ -91,7 +91,7 @@ export function RestaurantFormDialog({
       } else {
         const res = await csrfFetch("/api/restaurants", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...body, username: form.slug, password: `${form.slug}123` }),
+          body: JSON.stringify({ ...body, username: form.slug, password: `${form.slug}@${Date.now() % 1000}` }),
         })
         const json = await res.json()
         if (!res.ok) throw new Error(json.error ?? "فشل إنشاء المطعم")

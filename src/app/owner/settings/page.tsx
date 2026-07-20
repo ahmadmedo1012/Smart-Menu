@@ -70,11 +70,14 @@ export default function OwnerSettingsPage() {
       const formData = new FormData()
       formData.append("file", file)
       const res = await csrfFetch("/api/upload", { method: "POST", body: formData })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const body = await res.json().catch(() => null)
+        throw new Error(body?.error ?? `فشل رفع الصورة (${res.status})`)
+      }
       const data = await res.json()
       return data.data?.url ?? data.url
-    } catch {
-      premiumToast("error", "فشل رفع الصورة")
+    } catch (e) {
+      premiumToast("error", e instanceof Error ? e.message : "فشل رفع الصورة")
       return null
     } finally {
       setUploading((prev) => ({ ...prev, [type]: false }))
