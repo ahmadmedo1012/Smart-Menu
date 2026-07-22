@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Sparkles } from "lucide-react"
+import { motion } from "framer-motion"
 import { useCart } from "@/store/cart"
 import { premiumToast } from "@/lib/premium-toast"
 import MenuItemCard, { type MenuItemProp } from "./MenuItemCard"
@@ -10,6 +11,7 @@ import { CategoryTabs } from "./CategoryTabs"
 import { MenuToolbar } from "./MenuToolbar"
 import OrderDialog from "./OrderDialog"
 import { toArabicNumber } from "@/lib/format"
+import { fadeUp } from "@/lib/motion"
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string }
 
@@ -201,16 +203,25 @@ function MenuPageClientInner({
         itemCounts={itemCounts}
       />
 
-      {/* Featured popular horizontal scroll */}
+      {/* Popular grid with stagger entrance + fadeUp */}
       {popularItems.length >= 2 && (
         <section id="menu-popular" className="mb-8">
           <div className="flex items-center gap-2 mb-3 px-1">
             <span className="size-2 rounded-full bg-orange animate-pulse" />
             <span className="text-sm font-semibold text-foreground">الأكثر طلباً</span>
           </div>
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {popularItems.slice(0, 6).map((item) => (
-              <div key={item.id} className="snap-start shrink-0 w-[85vw] sm:w-[420px] max-w-full animate-reveal">
+          <motion.div
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
+            initial="hidden"
+            animate="visible"
+            className="grid gap-4 sm:grid-cols-2"
+          >
+            {popularItems.slice(0, 6).map((item, index) => (
+              <motion.div
+                key={item.id}
+                variants={fadeUp}
+                transition={{ delay: (index % 6) * 0.06 }}
+              >
                 <MenuItemCard
                   item={item}
                   onOrder={setOrderItem}
@@ -219,15 +230,15 @@ function MenuPageClientInner({
                   cartQty={getCartQty(item.id)}
                   variant="featured"
                 />
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </section>
       )}
 
       {/* Normal grid */}
       {normalItems.length === 0 ? (
-        <div className="text-center py-16 sm:py-20 animate-fade-in">
+        <div className="glass-card text-center py-16 sm:py-20 rounded-sm">
           <div className="empty-state-icon">
             <Sparkles className="size-8 text-muted-foreground/30" />
           </div>

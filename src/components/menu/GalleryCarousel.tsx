@@ -21,17 +21,17 @@ export default function GalleryCarousel({
 
   const next = useCallback(() => {
     setCurrent((prev) => {
-      const next = (prev + 1) % images.length;
-      setLoaded((s) => new Set(s).add(next));
-      return next;
+      const nextIdx = (prev + 1) % images.length;
+      setLoaded((s) => new Set(s).add(nextIdx));
+      return nextIdx;
     });
   }, [images.length]);
 
   const prev = useCallback(() => {
     setCurrent((prev) => {
-      const next = (prev - 1 + images.length) % images.length;
-      setLoaded((s) => new Set(s).add(next));
-      return next;
+      const nextIdx = (prev - 1 + images.length) % images.length;
+      setLoaded((s) => new Set(s).add(nextIdx));
+      return nextIdx;
     });
   }, [images.length]);
 
@@ -83,7 +83,7 @@ export default function GalleryCarousel({
 
   return (
     <>
-      <div className="group relative rounded-md overflow-hidden bg-card/50 border border-border/20 shadow-lg">
+      <div className="glass-card rounded-xl overflow-hidden">
         <div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
           {images.map((img, i) => (
             <div
@@ -110,23 +110,25 @@ export default function GalleryCarousel({
 
         {images.length > 1 && (
           <>
+            {/* glass-pill arrows */}
             <button type="button" onClick={(e) => { e.stopPropagation(); prev(); }}
               aria-label="الصورة السابقة"
-              className="absolute start-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-orange/20 hover:text-orange hover:scale-110 shadow-lg">
+              className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg">
               <ChevronLeft className="size-4" aria-hidden="true" />
             </button>
             <button type="button" onClick={(e) => { e.stopPropagation(); next(); }}
               aria-label="الصورة التالية"
-              className="absolute end-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-background/60 backdrop-blur-sm text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-orange/20 hover:text-orange hover:scale-110 shadow-lg">
+              className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg">
               <ChevronRight className="size-4" aria-hidden="true" />
             </button>
 
             <button type="button" onClick={(e) => { e.stopPropagation(); setPaused((p) => !p); }}
               aria-label={paused ? "تشغيل العرض التلقائي" : "إيقاف العرض التلقائي"}
-              className="absolute bottom-3 right-3 size-8 rounded-full bg-background/40 backdrop-blur-sm text-foreground/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/70">
+              className="absolute bottom-3 end-3 size-8 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
               {paused ? <Play className="size-3.5" aria-hidden="true" /> : <Pause className="size-3.5" aria-hidden="true" />}
             </button>
 
+            {/* dot indicators — active w-6 bg-orange */}
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
               {images.map((_, i) => (
                 <button key={i} type="button" onClick={(e) => { e.stopPropagation(); goTo(i); }}
@@ -140,19 +142,20 @@ export default function GalleryCarousel({
         )}
 
         <button type="button" onClick={(e) => { e.stopPropagation(); openLightbox(current); }}
-          className="absolute top-3 start-3 size-8 rounded-full bg-background/40 backdrop-blur-sm text-foreground/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background/70"
+          className="absolute top-3 start-3 size-8 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
           aria-label="تكبير الصورة">
           <Maximize2 className="size-3.5" aria-hidden="true" />
         </button>
       </div>
 
+      {/* Lightbox */}
       {lightbox && (
         <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
           onClick={closeLightbox}
           onKeyDown={trapFocus}>
           <button ref={closeRef} type="button" onClick={closeLightbox}
             aria-label="إغلاق"
-            className="absolute top-4 start-4 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+            className="absolute top-4 start-4 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
             <X className="size-5" aria-hidden="true" />
           </button>
 
@@ -165,16 +168,17 @@ export default function GalleryCarousel({
 
             {images.length > 1 && (
               <>
+                {/* glass-pill lightbox nav */}
                 <button type="button" ref={lightboxPrevRef}
                   onClick={() => setLightboxIdx((prev) => (prev - 1 + images.length) % images.length)}
                   aria-label="الصورة السابقة"
-                  className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
+                  className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg">
                   <ChevronLeft className="size-5" aria-hidden="true" />
                 </button>
                 <button type="button" ref={lightboxNextRef}
                   onClick={() => setLightboxIdx((prev) => (prev + 1) % images.length)}
                   aria-label="الصورة التالية"
-                  className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg backdrop-blur-sm">
+                  className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg">
                   <ChevronRight className="size-5" aria-hidden="true" />
                 </button>
 

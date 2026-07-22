@@ -70,15 +70,35 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
   }));
 
   const serializedItems = items.map(({ price, discountedPrice, avgRating, ratingCount, category, ...rest }) => ({
-    ...rest,
+    id: rest.id,
+    name: rest.name,
+    nameAr: rest.nameAr,
+    description: rest.description,
+    descriptionAr: rest.descriptionAr,
+    image: rest.image,
+    sortOrder: rest.sortOrder,
+    categoryId: rest.categoryId,
+    createdAt: rest.createdAt.toISOString(),
+    status: rest.status,
+    dietaryTags: rest.dietaryTags,
+    allergens: rest.allergens,
     price: Number(price),
     discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
     avgRating: avgRating !== null ? Number(avgRating) : null,
     ratingCount,
     isPopular: popularIds.has(rest.id),
     isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
-    createdAt: rest.createdAt.toISOString(),
-    category: { ...category, createdAt: category.createdAt.toISOString(), updatedAt: category.updatedAt.toISOString() },
+    category: {
+      id: category.id,
+      name: category.name,
+      nameAr: category.nameAr,
+      icon: category.icon,
+      sortOrder: category.sortOrder,
+      isActive: category.isActive,
+      restaurantId: category.restaurantId,
+      createdAt: category.createdAt.toISOString(),
+      updatedAt: category.updatedAt.toISOString(),
+    },
   }));
 
   const hasContact = !!(restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address);

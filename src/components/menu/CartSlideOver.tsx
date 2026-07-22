@@ -34,48 +34,60 @@ export default function CartSlideOver() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] end-4 sm:end-6 z-[63]"
+      {/* Floating trigger — glass orb */}
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="fixed bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] end-4 sm:end-6 z-[63]"
+      >
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={`السلة - ${toArabicNumber(totalItems)} أصناف`}
+          className={cn(
+            "flex items-center justify-center size-14 rounded-full",
+            "bg-orange/90 backdrop-blur-xl",
+            "shadow-2xl shadow-orange/30 ring-1 ring-white/10",
+            "hover:shadow-orange/40 hover:scale-105",
+            "active:scale-95 transition-all duration-300 ease-out",
+            bounce && "scale-110",
+          )}
         >
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label={`السلة - ${toArabicNumber(totalItems)} أصناف`}
-            className={cn(
-              "flex items-center gap-3 rounded-full px-5 py-3.5 h-auto",
-              "bg-gradient-to-b from-orange to-orange/95",
-              "shadow-lg shadow-orange/20 ring-1 ring-white/10 dark:ring-white/5",
-              "backdrop-blur-xl",
-              "hover:shadow-2xl hover:shadow-orange/30",
-              "active:scale-95 transition-all duration-300 ease-out",
-              bounce && "scale-110",
-            )}
-          >
-            <div className="relative">
-              <ShoppingCart className="size-5" />
-              <span
-                className={cn(
-                  "absolute -top-2 -end-2 size-4 rounded-full bg-orange text-orange-foreground text-[10px] font-bold flex items-center justify-center transition-all duration-300",
-                  bounce && "scale-125",
-                )}
-              >
-                {totalItems > 9 ? "9+" : toArabicNumber(totalItems)}
-              </span>
-            </div>
-            <span className="text-sm font-semibold tabular-nums">
-              {toArabicNumber(subtotal.toFixed(1))} د.ل
+          <div className="relative">
+            <ShoppingCart className="size-5 text-orange-foreground" />
+            <span
+              className={cn(
+                "absolute -top-2.5 -end-2.5 min-w-[18px] h-[18px] rounded-full",
+                "bg-orange-foreground text-orange text-[10px] font-bold",
+                "flex items-center justify-center px-1",
+                "transition-all duration-300",
+                bounce && "scale-125",
+              )}
+            >
+              {totalItems > 9 ? "9+" : toArabicNumber(totalItems)}
             </span>
-          </button>
-        </motion.div>
+          </div>
+        </button>
+      </motion.div>
 
-      <SheetContent side="left" showCloseButton={false} className="flex flex-col gap-0 p-0 w-[85vw] sm:max-w-sm">
-        {/* Header */}
-        <SheetHeader className="flex-row items-center justify-between gap-2 border-b border-border/30 px-4 py-3">
+      <SheetContent
+        side="left"
+        showCloseButton={false}
+        className={cn(
+          "flex flex-col gap-0 p-0 w-[85vw] sm:max-w-sm",
+          "bg-background/95 backdrop-blur-2xl border-s border-white/5",
+        )}
+      >
+        {/* Glass-strong header */}
+        <SheetHeader className="flex-row items-center justify-between gap-2 border-b border-white/5 px-4 py-3 bg-background/80 backdrop-blur-xl">
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="size-8 flex items-center justify-center rounded-sm hover:bg-accent transition-colors -ms-2" aria-label="إغلاق">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="size-8 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
+              aria-label="إغلاق"
+            >
               <ArrowLeft className="size-4" />
             </button>
             <SheetTitle className="text-base">سلة الطلبات</SheetTitle>
@@ -83,12 +95,18 @@ export default function CartSlideOver() {
           <span className="text-xs text-muted-foreground">{toArabicNumber(totalItems)} أصناف</span>
         </SheetHeader>
 
-        {/* Items */}
+        {/* Glass-card items */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
           {items.map((item) => (
-            <div key={item.id} className="flex gap-3 items-start group">
+            <div
+              key={item.id}
+              className={cn(
+                "flex gap-3 items-start p-2.5 rounded-lg",
+                "bg-background/50 backdrop-blur-lg border border-white/5",
+              )}
+            >
               {item.image && (
-                <div className="size-14 rounded-sm overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
+                <div className="size-14 rounded-md overflow-hidden shrink-0 bg-muted/30 ring-1 ring-white/10">
                   <img src={item.image} alt={item.name} className="size-full object-cover" />
                 </div>
               )}
@@ -97,14 +115,13 @@ export default function CartSlideOver() {
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {toArabicNumber(item.price.toFixed(1))} د.ل
                 </p>
-                {/* Quantity controls */}
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="flex items-center rounded-sm overflow-hidden border border-border/30">
+                  <div className="flex items-center rounded-md overflow-hidden border border-white/10 bg-background/30">
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       aria-label="إنقاص الكمية"
-                      className="size-7 flex items-center justify-center hover:bg-accent transition-colors"
+                      className="size-7 flex items-center justify-center hover:bg-white/10 transition-colors"
                     >
                       <Minus className="size-3" />
                     </button>
@@ -115,7 +132,7 @@ export default function CartSlideOver() {
                       type="button"
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       aria-label="زيادة الكمية"
-                      className="size-7 flex items-center justify-center hover:bg-accent transition-colors"
+                      className="size-7 flex items-center justify-center hover:bg-white/10 transition-colors"
                     >
                       <Plus className="size-3" />
                     </button>
@@ -137,24 +154,21 @@ export default function CartSlideOver() {
           ))}
         </div>
 
-        {/* Footer — total + CTA */}
-        <div className="border-t border-border/30 px-4 py-4 space-y-3">
+        {/* Glass-strong footer */}
+        <div className="border-t border-white/5 px-4 py-4 space-y-3 bg-background/80 backdrop-blur-xl">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">الإجمالي</span>
-            <span className="font-bold tabular-nums text-base">{toArabicNumber(subtotal.toFixed(1))} د.ل</span>
+            <span className="font-bold tabular-nums text-base">
+              {toArabicNumber(subtotal.toFixed(1))} د.ل
+            </span>
           </div>
-          <div className="flex gap-2">
-            <Link
-              href="/cart"
-              onClick={() => setOpen(false)}
-              className={cn(
-                buttonVariants({ variant: "orange" }),
-                "flex-1 text-sm",
-              )}
-            >
-              إتمام الطلب
-            </Link>
-          </div>
+          <Link
+            href="/cart"
+            onClick={() => setOpen(false)}
+            className={cn(buttonVariants({ variant: "orange" }), "w-full text-sm")}
+          >
+            إتمام الطلب
+          </Link>
         </div>
       </SheetContent>
     </Sheet>

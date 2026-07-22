@@ -70,33 +70,35 @@ export function MenuToolbar({
 
   return (
     <div ref={containerRef} className={cn("relative mb-4 flex gap-2 items-start", className)}>
-      {/* Search input */}
+      {/* Search input — glass card wrapper */}
       <div className="flex-1 relative">
-        <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="ابحث في القائمة..."
-          value={search}
-          onChange={(e) => { onSearchChange(e.target.value); setShowSuggestions(true) }}
-          onFocus={() => { if (hasSuggestions) setShowSuggestions(true) }}
-          className="w-full h-11 sm:h-12 pr-10 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm px-4 text-sm outline-none transition-all duration-300 focus-visible:border-orange focus-visible:animate-pulse-glow shadow-sm"
-        />
-        {search && (
-          <button
-            type="button"
-            aria-label="مسح البحث"
-            onClick={() => { onSearchChange(""); setShowSuggestions(false); inputRef.current?.focus() }}
-            className="absolute end-3 top-1/2 -translate-y-1/2 size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <X className="size-3" />
-          </button>
-        )}
+        <div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-all duration-300">
+          <Search className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="ابحث في القائمة..."
+            value={search}
+            onChange={(e) => { onSearchChange(e.target.value); setShowSuggestions(true) }}
+            onFocus={() => { if (hasSuggestions) setShowSuggestions(true) }}
+            className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground/50"
+          />
+          {search && (
+            <button
+              type="button"
+              aria-label="مسح البحث"
+              onClick={() => { onSearchChange(""); setShowSuggestions(false); inputRef.current?.focus() }}
+              className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+            >
+              <X className="size-3" />
+            </button>
+          )}
+        </div>
 
-        {/* Suggestions dropdown — always-mounted DOM */}
+        {/* Suggestions dropdown — glass-strong */}
         <div
           className={cn(
-            "absolute top-full mt-1 start-0 end-0 z-50 rounded-sm border border-border/30 bg-card shadow-xl overflow-hidden transition-all duration-200",
+            "glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-all duration-200",
             dropdownVisible ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1 pointer-events-none",
           )}
         >
@@ -105,10 +107,10 @@ export function MenuToolbar({
               key={s.id}
               type="button"
               onClick={() => { onSuggestionClick?.(s.id); setShowSuggestions(false) }}
-              className="flex items-center gap-3 w-full px-3 py-2.5 text-start text-sm hover:bg-accent transition-colors first:pt-3 last:pb-3"
+              className="flex items-center gap-3 w-full px-4 py-3 text-start text-sm hover:bg-accent transition-colors first:pt-3.5 last:pb-3.5"
             >
               {s.image && (
-                <div className="size-9 rounded-sm overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
+                <div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
                   <img src={s.image} alt="" className="size-full object-cover" />
                 </div>
               )}
@@ -121,7 +123,7 @@ export function MenuToolbar({
         </div>
       </div>
 
-      {/* Sort button */}
+      {/* Sort button — glass-card trigger */}
       <div className="relative">
         <button
           type="button"
@@ -135,7 +137,7 @@ export function MenuToolbar({
               setShowSort(true)
             }
           }}
-          className="h-11 sm:h-12 px-3 sm:px-4 rounded-sm border border-border/30 bg-card/70 backdrop-blur-sm text-sm font-medium hover:bg-accent transition-all flex items-center gap-2"
+          className="glass-card rounded-xl h-12 sm:h-14 w-12 sm:w-14 flex items-center justify-center transition-all duration-300 focus-within:ring-2 focus-within:ring-orange/30"
         >
           <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
@@ -145,7 +147,7 @@ export function MenuToolbar({
           <>
             <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
             <div
-              className="absolute end-0 sm:end-auto sm:start-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-sm border border-border/30 bg-card shadow-xl animate-scale-in origin-top-right"
+              className="absolute end-0 sm:end-auto sm:start-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-xl shadow-glass-lg overflow-hidden origin-top-right animate-scale-in"
               role="listbox"
               aria-label="خيارات الترتيب"
               onKeyDown={(e) => {
@@ -164,7 +166,7 @@ export function MenuToolbar({
                   aria-selected={sort === opt.value}
                   onClick={() => { onSortChange(opt.value); setShowSort(false) }}
                   className={cn(
-                    "w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-sm last:rounded-b-sm hover:bg-accent",
+                    "glass-strong w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none",
                     sort === opt.value && "bg-accent font-medium text-primary",
                   )}
                 >

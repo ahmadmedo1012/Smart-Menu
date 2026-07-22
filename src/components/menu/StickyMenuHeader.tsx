@@ -31,9 +31,10 @@ export default function StickyMenuHeader({
           scrolled ? "glass-strong" : "bg-transparent",
         )}
       >
+        {/* logo — rounded-lg */}
         <div
           className={cn(
-            "size-8 rounded-xl flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-300",
+            "size-8 rounded-lg flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-300",
             scrolled
               ? logo
                 ? "ring-1 ring-border/30"

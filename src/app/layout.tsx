@@ -4,10 +4,9 @@ import ScrollToTop from "@/components/shared/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import ServiceWorkerInit from "@/components/shared/ServiceWorkerInit";
-import { ReactScanInit } from "@/components/shared/ReactScanInit";
 import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { MotionProvider } from "@/components/shared/MotionProvider";
 import "./globals.css";
@@ -110,7 +109,6 @@ export default function RootLayout({
           />
           <ScrollToTop />
           <ServiceWorkerInit />
-          <ReactScanInit />
           <MotionProvider>
             <main id="main-content">{children}</main>
           </MotionProvider>
@@ -129,7 +127,6 @@ export default function RootLayout({
             }}
           />
           <Analytics />
-          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

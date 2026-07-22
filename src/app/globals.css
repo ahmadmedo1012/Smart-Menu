@@ -464,6 +464,16 @@
 	animation: hero-glow-pulse 4s var(--ease-smooth) infinite;
 }
 
+@keyframes orb-float {
+	0%, 100% { transform: translate(0, 0) rotate(0deg); }
+	25% { transform: translate(18px, -24px) rotate(2deg); }
+	50% { transform: translate(-12px, -6px) rotate(-1deg); }
+	75% { transform: translate(22px, -12px) rotate(3deg); }
+}
+.animate-orb-float { animation: orb-float 14s ease-in-out infinite; }
+.animate-orb-float-delayed { animation: orb-float 16s ease-in-out infinite 4s; }
+.animate-orb-float-slow { animation: orb-float 20s ease-in-out infinite 8s; }
+
 .empty-state-icon {
 	width: 3.5rem; height: 3.5rem; border-radius: var(--radius-md); background: var(--muted);
 	display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;
@@ -533,3 +543,22 @@
 .animate-pulse-dot {
   animation: pulse-dot 1.4s ease-in-out infinite;
 }
+
+@utility glass-card { @apply bg-card/60 backdrop-blur-sm border border-white/5 shadow-lg; }
+@utility glass-strong { @apply bg-background/80 backdrop-blur-lg border-b border-white/5; }
+@keyframes shimmer-sweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes breathe { 0%,100% { transform: scale(1); opacity:0.5; } 50% { transform: scale(1.05); opacity:0.8; } }
+@utility animate-shimmer { background: linear-gradient(90deg, transparent 0%, oklch(1 0 0/0.05) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer-sweep 2s infinite linear; }
+@utility animate-breathe { animation: breathe 3s ease-in-out infinite; }
+
+@utility text-gradient-orange { background: linear-gradient(135deg, oklch(0.58 0.19 45), oklch(0.65 0.18 50)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+@utility text-gradient-hero { background: linear-gradient(135deg, oklch(0.93 0.005 0) 0%, oklch(0.7 0.19 45/0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+@utility card-3d { transform-style: preserve-3d; perspective: 1000px; }
+@keyframes tilt-in { 0% { opacity:0; transform: rotateX(-10deg) translateY(30px) scale(0.95); } 100% { opacity:1; transform: rotateX(0) translateY(0) scale(1); } }
+@keyframes float-slow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes scale-glow { 0%,100% { box-shadow:0 0 20px oklch(0.55 0.19 45/0.2); } 50% { box-shadow:0 0 50px oklch(0.55 0.19 45/0.4); } }
+@utility animate-tilt-in { animation: tilt-in 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+@utility animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+@utility animate-scale-glow { animation: scale-glow 2.5s ease-in-out infinite; }
+@utility shimmer-advanced { background: linear-gradient(90deg, transparent 0%, oklch(1 0 0/0.06) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer-advanced 2s infinite linear; }
+@keyframes shimmer-advanced { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
