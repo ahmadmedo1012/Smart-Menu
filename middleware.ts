@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import * as crypto from "crypto";
 
 const publicPrefixes = [
   "/_next", "/favicon.png",
@@ -12,6 +11,13 @@ const publicPrefixes = [
   "/pricing", "/subscribe", "/demo",
 ];
 
+function generateNonce(): string {
+  // Use Web Crypto API (Edge Runtime compatible)
+  const array = new Uint8Array(16);
+  globalThis.crypto.getRandomValues(array);
+  return btoa(String.fromCharCode.apply(null, [...array]));
+}
+
 function setHeaders(resp: NextResponse) {
   resp.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   resp.headers.set("X-Content-Type-Options", "nosniff");
@@ -21,7 +27,7 @@ function setHeaders(resp: NextResponse) {
   // receive nonce via x-nonce header; client components use React's built-in
   // nonce support. Dev mode keeps 'unsafe-eval' for React Fast Refresh.
   const isDev = process.env.NODE_ENV === "development";
-  const nonce = crypto.randomBytes(16).toString("base64");
+  const nonce = generateNonce();
   const scriptSrc = `'self' 'nonce-${nonce}' https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ""}`;
   resp.headers.set("Content-Security-Policy", `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self' blob:`);
   resp.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");

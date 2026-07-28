@@ -10,7 +10,7 @@ const updateSchema = z.object({
 	permissions: z.array(z.string()),
 });
 
-export async function PUT(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		const auth = await requirePermission('MANAGE_USERS');
 		if (!auth.authorized) return error(auth.error, auth.status);
@@ -47,7 +47,7 @@ export async function PUT(_request: NextRequest, { params }: { params: Promise<{
 }
 
 export async function DELETE(
-	_request: NextRequest,
+	_: NextRequest,
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
@@ -78,7 +78,10 @@ export async function DELETE(
 	}
 }
 
-export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+	_: NextRequest,
+	{ params }: { params: Promise<{ id: string }> }
+) {
 	try {
 		const auth = await requirePermission('MANAGE_USERS');
 		if (!auth.authorized) return error(auth.error, auth.status);
