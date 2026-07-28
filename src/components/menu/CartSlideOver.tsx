@@ -107,7 +107,7 @@ export function CartSlideOver() {
 						>
 							{item.image && (
 								<div className="size-14 rounded-md overflow-hidden shrink-0 bg-muted/30 ring-1 ring-white/10">
-									<img src={item.image} alt={item.name} className="size-full object-cover" />
+									<img src={item.image} alt={item.name} loading="lazy" className="size-full object-cover" />
 								</div>
 							)}
 							<div className="flex-1 min-w-0">

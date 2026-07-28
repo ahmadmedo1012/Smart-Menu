@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { Check, CreditCard } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { PaymentDialog } from '@/components/shared/PaymentDialog';
 
 type Plan = {

@@ -113,7 +113,7 @@ export function MenuToolbar({
             >
               {s.image && (
                 <div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
-                  <img src={s.image} alt="" className="size-full object-cover" />
+                  <img src={s.image} alt="" loading="lazy" className="size-full object-cover" />
                 </div>
               )}
               <span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
