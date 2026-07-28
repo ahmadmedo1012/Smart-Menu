@@ -76,6 +76,8 @@ export function MenuToolbar({
           <Search className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
           <input
             ref={inputRef}
+            id="menu-search"
+            name="search"
             type="text"
             placeholder="ابحث في القائمة..."
             value={search}

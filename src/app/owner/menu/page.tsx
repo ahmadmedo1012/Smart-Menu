@@ -48,8 +48,8 @@ export default function OwnerMenuPage() {
 
   const fetchCats = useCallback(async () => {
     if (!restaurantId) return
-    try { setLoading(true); setError(null); const r = await fetch(`/api/categories?restaurantId=${restaurantId}`); const j = await r.json(); setCategories(Array.isArray(j.data ?? j) ? j.data ?? j : []) }
-    catch { setError("فشل تحميل التصنيفات"); premiumToast("error", "فشل تحميل التصنيفات") } finally { setLoading(false) }
+    try { setLoading(true); setError(null); const r = await fetch(`/api/categories?restaurantId=${restaurantId}`); if (!r.ok) throw Error(`${r.status}`); const j = await r.json(); const cats = j.events ?? j.data ?? j; setCategories(Array.isArray(cats) ? cats : []) }
+    catch (e) { setError("فشل تحميل التصنيفات"); premiumToast("error", "فشل تحميل التصنيفات"); /* ponytail: auto-retry once after 3s */ setTimeout(() => { if (restaurantId) fetchCats() }, 3000) } finally { setLoading(false) }
   }, [restaurantId])
 
   useEffect(() => { if (restaurantId) fetchCats() }, [restaurantId, fetchCats])

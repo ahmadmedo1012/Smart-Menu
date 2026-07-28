@@ -1,0 +1,50 @@
+{
+  "pages": [
+    {
+      "path": "/",
+      "title": "الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي",
+      "status": 200,
+      "errors": [
+        "Preloaded CSS chunk unused (1iz8kmo2kjqks.css)",
+        "500 error loading resource",
+        "503 error loading resource"
+      ]
+    },
+    {
+      "path": "/pricing",
+      "title": "الباقات والأسعار | المنيو الذكي",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "path": "/login",
+      "title": "تسجيل الدخول | المنيو الذكي",
+      "status": 200,
+      "errors": [
+        "401 error loading resource"
+      ]
+    },
+    {
+      "path": "/menu/al-waha-cafe",
+      "title": "مقهى الواحة | المنيو الذكي",
+      "status": 200,
+      "errors": [
+        "404 error loading resource (x2)",
+        "Accessibility: 2 form fields missing id/name attribute"
+      ]
+    },
+    {
+      "path": "/terms",
+      "title": "شروط الاستخدام | المنيو الذكي",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "path": "/this-page-does-not-exist-xyz",
+      "title": "404 - الصفحة غير موجودة | المنيو الذكي",
+      "status": 404,
+      "errors": []
+    }
+  ],
+  "summary": "3 of 6 pages have console errors. Homepage reports 500 and 503 on some resources (likely external API or analytics scripts failing). /login has a 401 (likely an auth-check endpoint called before login). /menu/al-waha-cafe has a 404 resource load (possibly a missing image or API call) plus 2 a11y issues (form fields without id/name). The 404 page is well-implemented with clear messaging and navigation options. /pricing and /terms are clean — no console errors."
+}

@@ -1,0 +1,104 @@
+{
+  "dbIssues": [
+    {
+      "category": "startup-validation",
+      "failure_scenario": "DATABASE_URL unset in dev (validateEnv skipped) → db.ts line 8 process.env.DATABASE_URL! yields undefined → `new pg.Pool({connectionString: undefined})` throws opaque TypeError at first DB access instead of a clear startup error",
+      "file": "src/lib/db.ts",
+      "line": 8,
+      "short_summary": "Dev env validation skipped, non-null assertion hides missing DATABASE_URL",
+      "summary": "validateEnv() only runs in production, so a missing DATABASE_URL in dev causes an opaque crash at first DB access rather than a clear startup error. The `!` assertion on line 8 produces no runtime guard."
+    },
+    {
+      "category": "error-detection",
+      "failure_scenario": "Postgres connection error returned in Arabic locale with msg 'انتهت مهلة الاتصال' → withRetry string checks fail → error surfaces as non-transient → no retry attempted",
+      "file": "src/lib/db.ts",
+      "line": 60,
+      "short_summary": "withRetry string-matching misses locale-specific error messages",
+      "summary": "withRetry detects transient errors via brittle substring matching on `.message` (\"connection\", \"timeout\", \"deadlock\", \"500\"). Localized or non-standard error messages bypass the retry logic entirely."
+    },
+    {
+      "category": "precision-loss",
+      "failure_scenario": "MenuItem price = 0.0123456789 stored as Decimal → Number() in compute → truncated to ~0.01234568 → downstream math diverges from database value",
+      "file": "src/lib/db.ts",
+      "line": 31,
+      "short_summary": "Prisma Decimal → Number loses precision on high-precision values",
+      "summary": "The $extends block converts all Prisma Decimal fields to JavaScript Number. For currency values in this domain (prices/orders have ~2-4 decimal places) the precision loss is negligible, but this is an implicit semantic change from the DB schema type."
+    }
+  ],
+  "hookIssues": [
+    {
+      "category": "error-handling",
+      "failure_scenario": "useConfig() used while /api/config is down (network error, server 500) → .catch(() => {}) absorbs the error → config stays {} → consumers silently operate with empty defaults — broken delivery fee or feature flags with no user feedback",
+      "file": "src/hooks/useConfig.ts",
+      "line": 26,
+      "short_summary": "Silent catch swallows all config fetch errors",
+      "summary": "useConfig silently swallows all fetch errors via .catch(() => {}). Consumers cannot distinguish 'config fetched and empty' from 'config fetch failed' — both produce the same loaded=true + empty config object."
+    },
+    {
+      "category": "memory-leak",
+      "failure_scenario": "Component using useConfig() unmounts before fetch resolves → setConfig/setLoaded fires on unmounted component → React state update warning (memory leak path in React <19)",
+      "file": "src/hooks/useConfig.ts",
+      "line": 14,
+      "short_summary": "No AbortController, setState on unmount possible",
+      "summary": "No AbortController or mounted ref guard. If the component unmounts before the fetch resolves, setConfig/setLoaded fire on an unmounted component (React state update warning)."
+    },
+    {
+      "category": "code-quality",
+      "failure_scenario": "useConfig() used in 3 separate components → each fires its own independent GET /api/config → 3 network requests for the same data",
+      "file": "src/hooks/useConfig.ts",
+      "line": 14,
+      "short_summary": "useConfig fires a new fetch per consumer with no dedup",
+      "summary": "useConfig fires a new fetch from every component that calls it. No request deduplication, no cached response — N consumers = N identical fetches."
+    }
+  ],
+  "pagesWithError": [
+    "admin/system-events"
+  ],
+  "pagesWithLoading": [
+    "admin/system-events"
+  ],
+  "routingIssues": [
+    {
+      "category": "layout-boundary",
+      "failure_scenario": "admin/system-events page throws during render → no error.tsx in route segment → bubbles to parent admin/error.tsx → entire admin section loses its context (sidebar, navigation)",
+      "file": "src/app/admin/system-events",
+      "line": 0,
+      "short_summary": "admin/system-events route is missing error.tsx",
+      "summary": "admin/system-events has only loading.tsx, no error.tsx. While it inherits admin's error boundary, the error would take down the entire admin layout rather than just the affected route."
+    },
+    {
+      "category": "font-performance",
+      "failure_scenario": "Page load triggers preload of 3 custom woff2 fonts + Cairo via next/font/google → 4 font families compete for bandwidth → LCP delayed on slow connections",
+      "file": "src/app/layout.tsx",
+      "line": 75,
+      "short_summary": "Three custom fonts preloaded plus Cairo, up to 4 families",
+      "summary": "Root layout preloads noto-naskh-arabic, noto-sans-arabic, and readex-pro woff2 files, plus Cairo via next/font/google. Four font families is heavy — likely only 2-3 are used per page view."
+    },
+    {
+      "category": "analytics-suspense",
+      "failure_scenario": "<Analytics> from @vercel/analytics/react internally calls useSearchParams() in production build → no Suspense boundary above it → throws an error on dynamic-rendered routes",
+      "file": "src/app/layout.tsx",
+      "line": 129,
+      "short_summary": "Analytics component outside Suspense boundary",
+      "summary": "<Analytics /> is rendered directly in the root layout with no wrapping <Suspense> boundary. Next.js requires Suspense around any component that calls useSearchParams() in production — if @vercel/analytics does so internally (its \"/\" script injection path does not, but its advanced modes may), this would throw."
+    }
+  ],
+  "storeIssues": [
+    {
+      "category": "correctness",
+      "failure_scenario": "User loads cart page, items exist in localStorage from prior session → skipHydration prevents rehydrate → cart appears empty → user thinks order is lost, leaves frustrated",
+      "file": "src/store/cart.ts",
+      "line": 111,
+      "short_summary": "skipHydration:true without manual rehydration — persisted cart never restores",
+      "summary": "Zustand persist has skipHydration: true but no component ever calls useCart.persist.rehydrate(). Cart data IS written to localStorage on every state change, but is NEVER read back on page reload. Cart is effectively session-only."
+    },
+    {
+      "category": "code-quality",
+      "failure_scenario": "totalItems() / subtotal() called via get() inside store → each call creates a new store subscription → unnecessary re-renders on the calling component when unrelated state fields change",
+      "file": "src/store/cart.ts",
+      "line": 105,
+      "short_summary": "totalItems/subtotal use get() creating full-store subscriptions",
+      "summary": "totalItems() and subtotal() use get().items inside the store rather than being selectors. Consumers calling these get the entire store's state, re-rendering on any change rather than only on item changes."
+    }
+  ]
+}

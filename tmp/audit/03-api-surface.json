@@ -1,0 +1,128 @@
+{
+  "telegramIssues": [
+    {
+      "file": "src/lib/config.ts",
+      "line": 78,
+      "summary": "Bot token decryption fail silently returns ciphertext as token",
+      "detail": "getDecryptedBotToken(): catch block returns raw ciphertext with `Fallback for legacy plaintext` comment. If AES-GCM key rotates, system sends base64 garbage to Telegram API for every request. Each call fails with auth error, logged only. Ponytail: add a token-validation ping on first failure and surface an admin alert.",
+      "severity": "medium"
+    },
+    {
+      "file": "src/app/api/telegram/webhook/route.ts",
+      "line": 127,
+      "summary": "Webhook rate-limited by IP but Telegram sends from limited pool of IPs",
+      "detail": "webhookDbLimiter keys on client IP, not a Telegram-specific identifier. Telegram webhooks originate from a small set of IPs; under high traffic, legitimate updates from different chats could collide on the same rate-limit bucket. Ponytail: key on chat_id or update_id instead.",
+      "severity": "low"
+    },
+    {
+      "file": "src/lib/telegram.ts",
+      "line": 9,
+      "summary": "getDecryptedBotToken() called on every notifyEvent — no in-memory cache",
+      "detail": "Every notifyEvent call queries telegramConfig from DB and potentially decrypts the token. For high-frequency events, this adds unnecessary DB + crypto overhead. Ponytail: lazy-cache in module-scoped variable with expiry.",
+      "severity": "low"
+    },
+    {
+      "file": "src/lib/subscription-decisions.ts",
+      "line": 117,
+      "summary": "All Telegram notifications are fire-and-forget with no backpressure",
+      "detail": "sendTelegramNotification/subscription-decisions uses .catch() everywhere. broadcastToAll returns {sent, failed} but callers never inspect it. A broken bot token goes undetected — admins see payment approval succeed but never get the Telegram notification.",
+      "severity": "medium"
+    },
+    {
+      "file": "src/lib/telegram-admin.ts",
+      "line": 14,
+      "summary": "BigInt telegram IDs converted to Number — potential precision loss above 2^53",
+      "detail": "getAdminTelegramIds converts Prisma BigInt to Number for admin ID matching in webhook. Telegram user IDs are currently within 53-bit safe integer range, but this is a latent bug if Telegram ever issues larger IDs. Ponytail: use string comparison instead.",
+      "severity": "low"
+    },
+    {
+      "file": "src/app/api/telegram/webhook/route.ts",
+      "line": 50,
+      "summary": "Callback data parsing uses indexOf(':') with no length validation on action segment",
+      "detail": "action string is everything before first colon. No max-length check. While the comparison is strict equality against known strings (sub_app, sub_rej), a malformed callback could produce a very large action string in memory. Not exploitable but fails the fail-fast principle.",
+      "severity": "low"
+    },
+    {
+      "file": "src/app/api/telegram/webhook/route.ts",
+      "line": 214,
+      "summary": "Token anti-replay uses rateLimitEntry.create with potential for write amplification",
+      "detail": "Invalid link tokens still cause a DB write attempt (rateLimitEntry.create fails on unique constraint, but the insert attempt still consumes DB connection). With 60 req/min rate limit, this is low impact but unnecessary.",
+      "severity": "low"
+    },
+    {
+      "file": "src/app/api/telegram/webhook/route.ts",
+      "line": 43,
+      "summary": "Callback approval uses adminIds from env var + DB but no session/context about WHICH payment",
+      "detail": "Any admin Telegram ID can approve any payment. No context about which restaurant or amount is shown in the callback toast. Admin sees only 'تم التفعيل'. The full context is in the message text above the buttons, but the callback answer doesn't echo details back.",
+      "severity": "info"
+    }
+  ],
+  "ssePatterns": "Three SSE endpoints: orders/stream (5s poll, order count only), user/events/stream (30s poll, last-event-id, maxDuration=300), admin/events/stream (5s poll, maxDuration=300). Shared patterns: all use setInterval polling over ReadableStream, heartbeat every 30s, Content-Type text/event-stream. Gaps: (1) None send `retry:` directive — browser default ~1-3s reconnect could cause reconnect storms. (2) admin/events/stream lacks `id:` fields in events so Last-Event-ID reconnection is ineffective — every reconnect replays events from id=0 (capped at 50). (3) orders/stream has `X-Accel-Buffering: no` for Nginx — missing from user and admin streams. (4) Poll failure catch blocks silently swallow errors in user/stream and admin/stream; orders/stream properly emits `event: error`.",
+  "subscriptionIssues": [
+    {
+      "file": "src/lib/subscription-decisions.ts",
+      "line": 73,
+      "summary": "Subscription duration hardcoded to 30 days regardless of plan config",
+      "detail": "planEnd = Date.now() + 30*24*60*60*1000 — all plans get exactly 30 days. The subscriptionPlan table likely supports variable durations, but they're never read. Admin approving a 'yearly' plan still grants 30 days.",
+      "severity": "medium"
+    },
+    {
+      "file": "src/lib/subscription-decisions.ts",
+      "line": 80,
+      "summary": "User subscriptionStatus set to PAID on payment but never expires",
+      "detail": "Restaurant gets planEnd but user.subscriptionStatus is set to PAID permanently. No cron/check to revert to UNPAID when planEnd passes. If plan expiry is checked elsewhere (e.g., middleware), this inconsistency may cause confusion.",
+      "severity": "medium"
+    },
+    {
+      "file": "src/lib/subscription-decisions.ts",
+      "line": 56,
+      "summary": "Upgrade branch: existing.userId used without null guard",
+      "detail": "Line 80-86 passes existing!.userId! to tx.user.update. If an upgrade payment record somehow lacks userId (data anomaly), this throws a Prisma foreign key error caught by the outer catch. The new-user branch correctly guards with `if (existing.userId)`. The upgrade route always sets userId, so this is safe in practice but inconsistent with the new-user branch's defensive style.",
+      "severity": "low"
+    },
+    {
+      "file": "src/app/api/subscriptions/route.ts",
+      "line": 45,
+      "summary": "TOCTOU race on tempRestaurantSlug between validation and transaction",
+      "detail": "Route checks slug availability via findFirst. Transaction in subscription-decisions.ts checks again via findUnique inside transaction. Two concurrent verified payments for same slug: both pass checks, first create succeeds, second hits unique constraint P2002 and returns confusing Arabic error to admin. Gracefully handled by catch block but produces a poor UX for the second admin.",
+      "severity": "medium"
+    },
+    {
+      "file": "src/app/api/subscriptions/route.ts",
+      "line": 64,
+      "summary": "Server-side price validation uses Number() comparison on Decimal values",
+      "detail": "Number(amount) !== Number(plan.price). For integer Dinar amounts this is safe, but floating-point plans could introduce comparison errors due to Decimal-to-Number conversion. Consider using Decimal comparison from Prisma or a tolerance-based check.",
+      "severity": "low"
+    },
+    {
+      "file": "src/app/api/admin/subscriptions/route.ts",
+      "line": 24,
+      "summary": "Admin verify API casts status from searchParams without Zod validation on GET",
+      "detail": "Line 23 casts status param directly: `status as \"pending\" | \"verified\" | \"cancelled\"`. If an invalid status string is passed, Prisma query would throw — caught by handleError but should be Zod-validated.",
+      "severity": "low"
+    }
+  ],
+  "paymentIssues": [
+    {
+      "file": "src/app/api/subscriptions/route.ts",
+      "line": 53,
+      "summary": "No payment-provider webhook verification flow exists",
+      "detail": "Payment verification is purely manual via Telegram admin approval. There is no webhook endpoint for Libyana/Madar payment confirmation. Admin approves based on trust/report outside the system. This is an architectural choice, not a code bug, but means no automated fraud detection or payment reconciliation.",
+      "severity": "info"
+    },
+    {
+      "file": "src/app/api/subscriptions/upgrade/route.ts",
+      "line": 58,
+      "summary": "Upgrade price comparison uses Number(plan.price) which may mismatch Decimal",
+      "detail": "Same as subscription route: Number() comparison on Prisma Decimal for price validation. For plans with fractional prices (e.g., 49.99), Number('49.99') === 49.99 may not equal plan.price due to Decimal precision.",
+      "severity": "low"
+    },
+    {
+      "file": "src/lib/subscription-decisions.ts",
+      "line": 220,
+      "summary": "Prisma error code detection uses string includes on meta for slug conflict",
+      "detail": "Line 220: `String(prismaErr.meta ?? \"\").includes(\"slug\")` — fragile string matching on Prisma error metadata. The error meta is an object that gets stringified, so 'slug' could match a field name in any table's constraint. More precise: check `prismaErr.meta?.target?.[0] === 'slug'` when available.",
+      "severity": "low"
+    }
+  ]
+}

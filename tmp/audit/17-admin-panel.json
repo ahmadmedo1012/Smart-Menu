@@ -1,0 +1,61 @@
+{
+  "pages": [
+    {
+      "path": "/admin",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/restaurants",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/users",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/subscriptions",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/admins",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/telegram",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/orders",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/audit-logs",
+      "renders": true,
+      "errors": []
+    },
+    {
+      "path": "/admin/system-events",
+      "renders": false,
+      "errors": [
+        "TypeError: events.map is not a function in <SystemEventsClient> caught by ErrorBoundaryHandler — API response shape mismatch, component expects array but receives non-iterable"
+      ]
+    },
+    {
+      "path": "/admin/settings",
+      "renders": true,
+      "errors": []
+    }
+  ],
+  "adminPagesTotal": 10,
+  "brokenPages": [
+    "/admin/system-events -- TypeError: events.map is not a function. The <SystemEventsClient> component expects the API to return an array but receives a non-iterable value (likely a paginated wrapper object: { events, total, page, ... } instead of a flat array). Error caught by ErrorBoundaryHandler, page shows fallback UI."
+  ],
+  "summary": "10 of 11 admin pages render correctly with 200 API responses and no console errors. 1 broken page: /admin/system-events crashes with `events.map is not a function` — the API response shape (e.g., `{ events: [...], total, page }`) arrives as an object, not the flat array the component expects. Need to unwrap `events` from the paginated response in SystemEventsClient. Minor: accessibility warnings (form fields missing id/name) on 4 pages, and 1 verbose DOM warning on /admin/telegram (password field outside form). Login as admin/admin123 succeeded, session persisted across all navigations."
+}

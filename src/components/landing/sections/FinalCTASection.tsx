@@ -8,22 +8,13 @@ import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
-import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 export default function FinalCTASection() {
   return (
     <SectionContainer className="border-t border-orange/10">
-      {/* Background image — subtle */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <OptimizedImage
-          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=85"
-          alt=""
-          className="absolute inset-0"
-          imageClassName="object-cover opacity-[0.03]"
-          skeleton={false}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
-      </div>
+      {/* ponytail: removed Unsplash external image (caused 500/503 from Next.js Image Optimization).
+           Replaced with pure CSS subtle pattern. Upgrade to a localized blurred photo if marketing needs it. */}
+      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-orange/[0.02] via-transparent to-orange/[0.01]" />
 
       {/* Glow pools */}
       <GlowPool position="top-0 start-0" size="size-80 sm:size-96" color="orange/30" />

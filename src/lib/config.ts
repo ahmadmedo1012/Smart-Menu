@@ -69,6 +69,8 @@ export async function decryptValue(encoded: string): Promise<string> {
   return decoder.decode(decrypted);
 }
 
+const TELEGRAM_TOKEN_RE = /^\d+:[\w-]+$/;
+
 /** Shared helper: get bot token from env var (priority) or decrypted from DB. */
 export async function getDecryptedBotToken(): Promise<string | null> {
   const envToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -76,9 +78,16 @@ export async function getDecryptedBotToken(): Promise<string | null> {
   const config = await prisma.telegramConfig.findFirst();
   if (!config?.botToken) return null;
   try {
-    return await decryptValue(config.botToken);
+    const token = await decryptValue(config.botToken);
+    if (!TELEGRAM_TOKEN_RE.test(token)) {
+      console.error("Decrypted bot token has invalid format");
+      return null;
+    }
+    return token;
   } catch {
     // Fallback for legacy plaintext tokens still in DB
-    return config.botToken;
+    if (TELEGRAM_TOKEN_RE.test(config.botToken)) return config.botToken;
+    console.error("Bot token decryption failed and fallback has invalid format");
+    return null;
   }
 }

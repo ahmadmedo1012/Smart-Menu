@@ -1,0 +1,15 @@
+{
+  "manifestIssues": [
+    "icons: missing 48x48, 72x72, 96x96, 144x144, 384x384 sizes -- only 192 and 512 present, limiting install-time rendering across devices/OS",
+    "theme_color (#000000) inconsistent with offline.html meta tag (#d97706) -- OS chrome color changes between install and offline browsing states",
+    "screenshots array is empty -- no preview imagery for install dialogs or Play Store listing (optional but recommended)"
+  ],
+  "swIssues": [
+    "static cache regex misses .avif and .json extensions -- .avif has growing browser support; non-manifest JSON responses use network-first without stale cache fallback",
+    "API cache strategy limited to /api/(items|categories) -- additional menu endpoints (/api/menu, /api/restaurants, etc.) get network-first with no offline stale fallback if they exist"
+  ],
+  "offlineIssues": [
+    "theme-color meta tag (#d97706) mismatches manifest.json theme_color (#000000) -- status bar/tab color will differ between online (black) and offline (amber) states"
+  ],
+  "score": "88/100 — Solid PWA setup. SW strategies are correct and well-structured. No blocking issues. Minor polish items: wider icon set, theme_color consistency, broader API coverage, .avif support."
+}

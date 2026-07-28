@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import * as crypto from "crypto";
 
 const publicPrefixes = [
   "/_next", "/favicon.png",
@@ -16,14 +17,16 @@ function setHeaders(resp: NextResponse) {
   resp.headers.set("X-Content-Type-Options", "nosniff");
   resp.headers.set("X-Frame-Options", "DENY");
   resp.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  // ponytail: Next.js injects inline <script> for hydration bootstrap + RSC payload.
-  // Full protection needs per-request nonce plumbing; 'unsafe-inline' is the
-  // practical bridge. dev mode also needs 'unsafe-eval' for React Fast Refresh.
+  // ponytail: nonce per request removes 'unsafe-inline' — server components
+  // receive nonce via x-nonce header; client components use React's built-in
+  // nonce support. Dev mode keeps 'unsafe-eval' for React Fast Refresh.
   const isDev = process.env.NODE_ENV === "development";
-  const scriptSrc = `'self' 'unsafe-inline' https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ""}`;
+  const nonce = crypto.randomBytes(16).toString("base64");
+  const scriptSrc = `'self' 'nonce-${nonce}' https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ""}`;
   resp.headers.set("Content-Security-Policy", `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self' blob:`);
   resp.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
   resp.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  resp.headers.set("x-nonce", nonce);
 }
 
 export function middleware(request: NextRequest) {

@@ -1,0 +1,18 @@
+{
+  "anyCount": 133,
+  "nonNullAssertions": 2,
+  "strictIssues": [
+    "skipLibCheck: true (disables .d.ts checking)",
+    "allowJs: true (allows JS without type checking)",
+    "133 'any' usages in src/ weaken strict coverage",
+    "24 type assertions (as T) bypass the type checker",
+    "2 non-null assertions (!) bypass strictNullChecks",
+    "3 TS18046 errors: unknown type not narrowed (api-sweep.test.ts)",
+    "1 TS7006 error: implicit any on parameter (ui-smoke.test.ts)",
+    "36 TS5097 errors: .ts imports without allowImportingTsExtensions",
+    "5 TS2790 errors: delete on non-optional properties (lib.test.ts)"
+  ],
+  "strictMode": true,
+  "tsErrors": 45,
+  "typeAssertions": 24
+}

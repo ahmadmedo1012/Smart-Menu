@@ -1,0 +1,190 @@
+{
+  "todos": [
+    {
+      "description": "@deprecated annotation in lib/auth.ts line 35 — requireAdmin() is marked deprecated in favor of requirePermission()",
+      "file": "/home/ahmed/Downloads/smart-menu/src/lib/auth.ts",
+      "line": 35
+    }
+  ],
+  "consoleLogs": [
+    {
+      "description": "Error boundary component — intentional console.error(error) for error reporting",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/admin/admins/error.tsx",
+      "line": 8,
+      "severity": "info"
+    },
+    {
+      "description": "Global error boundary",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/global-error.tsx",
+      "line": 14,
+      "severity": "info"
+    },
+    {
+      "description": "Error boundary component",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/owner/reviews/error.tsx",
+      "line": 8,
+      "severity": "info"
+    },
+    {
+      "description": "Log-and-continue pattern in catch — swallowed error object",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/owner/reviews/page.tsx",
+      "line": 34,
+      "severity": "warning"
+    },
+    {
+      "description": "Startup env validation (intentional)",
+      "file": "/home/ahmed/Downloads/smart-menu/src/lib/env.ts",
+      "line": 25,
+      "severity": "info"
+    },
+    {
+      "description": "Logging library internals — intentional",
+      "file": "/home/ahmed/Downloads/smart-menu/src/lib/logger.ts",
+      "line": 33,
+      "severity": "info"
+    },
+    {
+      "description": "Rate limit library — warn/debug (intentional)",
+      "file": "/home/ahmed/Downloads/smart-menu/src/lib/rate-limit.ts",
+      "line": 47,
+      "severity": "info"
+    },
+    {
+      "description": "Telegram API library — warn on failures (intentional)",
+      "file": "/home/ahmed/Downloads/smart-menu/src/lib/telegram-api.ts",
+      "line": 51,
+      "severity": "info"
+    }
+  ],
+  "mutatingCode": [
+    {
+      "description": "as any cast — AudioContext compatibility fallback",
+      "file": "/home/ahmed/Downloads/smart-menu/src/components/layout/OrderNotifier.tsx",
+      "line": 10,
+      "pattern": "window as any"
+    },
+    {
+      "description": "as any cast — AudioContext compatibility fallback",
+      "file": "/home/ahmed/Downloads/smart-menu/src/components/admin/AdminEventNotifier.tsx",
+      "line": 8,
+      "pattern": "window as any"
+    },
+    {
+      "description": "as any cast — spreading typed object as any",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/admin/system-events/route.ts",
+      "line": 57,
+      "pattern": "as any"
+    },
+    {
+      "description": "as any cast — data coercion",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/admin/system-events/route.ts",
+      "line": 78,
+      "pattern": "as any"
+    },
+    {
+      "description": "as any cast — type erasure on notification matrix",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/admin/notification-preferences/route.ts",
+      "line": 73,
+      "pattern": "as any"
+    },
+    {
+      "description": "as any cast — ref type hack",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/owner/orders/page.tsx",
+      "line": 52,
+      "pattern": "null as any"
+    },
+    {
+      "description": "as any cast — string type coercion",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/owner/page.tsx",
+      "line": 159,
+      "pattern": "as any"
+    },
+    {
+      "description": "as any cast — type narrowing workaround",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/cart/page.tsx",
+      "line": 81,
+      "pattern": "as any"
+    },
+    {
+      "description": "as any cast — RestaurantFormDialog extends base type with extra fields",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/admin/restaurants/RestaurantFormDialog.tsx",
+      "line": 55,
+      "pattern": "editing as any"
+    },
+    {
+      "description": "any type — Zod schema allowing arbitrary value in config",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/admin/config/route.ts",
+      "line": 13,
+      "pattern": "z.any()"
+    },
+    {
+      "description": "any type — Prisma where clause bypasses type safety",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/items/[id]/reviews/route.ts",
+      "line": 23,
+      "pattern": "const where: any"
+    },
+    {
+      "description": "any type — Prisma where clause bypasses type safety",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/owner/reviews/route.ts",
+      "line": 16,
+      "pattern": "const where: any"
+    },
+    {
+      "description": "catch (e: any) — 12 instances across codebase, all losing error type info",
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/admin/telegram/page.tsx",
+      "line": 113,
+      "pattern": "catch (e: any)"
+    }
+  ],
+  "largeFiles": [],
+  "smells": [
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/items/[id]/reviews/route.ts",
+      "issue": "Prisma where clause typed as `any` defeats type safety on query filters",
+      "line": 23,
+      "severity": "medium"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/owner/reviews/route.ts",
+      "issue": "Prisma where clause typed as `any` defeats type safety on query filters",
+      "line": 16,
+      "severity": "medium"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/api/admin/system-events/route.ts",
+      "issue": "as any cast on Prisma create/update data bypasses type checking",
+      "line": 57,
+      "severity": "medium"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/admin/restaurants/RestaurantFormDialog.tsx",
+      "issue": "as any cast on editing object — component extends dialog type with extra fields, missing proper discriminated type",
+      "line": 55,
+      "severity": "medium"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/owner/reviews/page.tsx",
+      "issue": "console.error in catch block without error metadata — error details silently discarded",
+      "line": 34,
+      "severity": "low"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/lib/auth.ts",
+      "issue": "@deprecated requireAdmin() still used in codebase — callers not migrated to requirePermission()",
+      "line": 35,
+      "severity": "low"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/admin/telegram/page.tsx",
+      "issue": "6 sequential catch (e: any) blocks with consistent any pattern — could use typed error handler",
+      "line": 113,
+      "severity": "low"
+    },
+    {
+      "file": "/home/ahmed/Downloads/smart-menu/src/app/owner/orders/page.tsx",
+      "issue": "null as any on useRef creates unsound type — ref initialized to null but typed as function",
+      "line": 52,
+      "severity": "medium"
+    }
+  ]
+}

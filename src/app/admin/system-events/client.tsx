@@ -19,7 +19,7 @@ export function SystemEventsClient() {
   useEffect(() => {
     csrfFetch("/api/admin/system-events")
       .then((r) => r.json())
-      .then((d) => setEvents(d.data ?? d ?? []))
+      .then((d) => setEvents(d.events ?? d.data ?? []))
       .catch(() => setError("فشل تحميل أحداث النظام"))
       .finally(() => setLoading(false))
   }, [])

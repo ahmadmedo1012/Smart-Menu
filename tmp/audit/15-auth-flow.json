@@ -1,0 +1,8 @@
+{
+  "loginWorks": true,
+  "sessionSet": true,
+  "ownerDashboard": true,
+  "logoutWorks": true,
+  "unauthorizedBlocked": true,
+  "errors": []
+}

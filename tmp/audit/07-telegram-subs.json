@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "category": "csrf",
+      "issue": "assertSameOrigin() imported in middleware.ts (line 6) but never called — API routes return early at line 47 before any CSRF check. Server-side CSRF is entirely absent for all mutation endpoints."
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "csrf",
+      "issue": "csrf-token cookie is never set by any server code. csrfFetch() client helper reads it from document.cookie but the cookie doesn't exist, so every mutating request sends x-csrf-token: '' which no handler validates. Entire double-submit CSRF layer is dead code."
+    },
+    {
+      "severity": "HIGH",
+      "category": "csrf",
+      "issue": "Upload endpoint /api/upload (multipart/form-data POST) lacks CSRF protection. Relies on SameSite=Lax + httpOnly cookie, but SameSite=Lax allows top-level POST navigations from external origins, enabling cross-site form uploads."
+    },
+    {
+      "severity": "HIGH",
+      "category": "password_hashing",
+      "issue": "Uses PBKDF2-SHA512 with 100,000 iterations (hash.ts). Not GPU/ASIC-resistant. OWASP now recommends Argon2id. PBKDF2 is acceptable but suboptimal against offline brute force post-leak."
+    },
+    {
+      "severity": "HIGH",
+      "category": "session_management",
+      "issue": "Sliding window extends session indefinitely — validateSession() resets TTL to full 24h on every request. No absolute max session lifetime. Active sessions never expire."
+    },
+    {
+      "severity": "HIGH",
+      "category": "rate_limiting",
+      "issue": "createDbRateLimiter.check() has a race condition: entry create (line 52) and count (line 63) are not atomic. Under concurrent requests, a burst can exceed max by N-1 before entries are counted."
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "csp",
+      "issue": "CSP script-src includes 'unsafe-inline' (middleware.ts:22). Documented ponytail tradeoff for Next.js hydration, but allows arbitrary script injection if an attacker controls any HTML content. No nonce-based CSP."
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "rate_limiting",
+      "issue": "12+ DB-backed rate limiter instances each run cleanup intervals every 120s. Rate-limit check() issues up to 3 DB queries (delete + create + count). Under high traffic this creates significant DB write pressure and contention on the rate_limit_entry table."
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "session_management",
+      "issue": "Silent error swallowing in session DB operations (session.ts:55,69,75,88). .catch(() => {}) and empty catch blocks hide transient DB failures."
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "rate_limiting",
+      "issue": "IP-based rate limiting key uses x-forwarded-for/x-real-ip headers which are trivially spoofed when behind a reverse proxy without proper trust configuration."
+    },
+    {
+      "severity": "LOW",
+      "category": "session_management",
+      "issue": "Session cookie lacks __Host- prefix. Cookie scoped to path=/ on entire domain instead of being host-bound. Subdomain XSS could access it."
+    },
+    {
+      "severity": "LOW",
+      "category": "crypto",
+      "issue": "AUTH_SECRET and JWT_SECRET are separate env vars (keys.ts:8) with AUTH_SECRET preferred as fallback. But if JWT_SECRET is short (env.ts requires min 16 chars), it weakens the HKDF derivation. No documented requirement for AUTH_SECRET to be set explicitly."
+    }
+  ],
+  "criticalIssues": [
+    "CSRF protection is completely non-functional: assertSameOrigin() is imported but never invoked for API routes, the csrf-token cookie is never set server-side, and x-csrf-token header is never validated. Every mutation endpoint relies solely on SameSite=Lax which is insufficient for POST form-based attacks (e.g., /api/upload). The entire double-submit CSRF layer in csrf.ts and csrf-client.ts is dead code providing zero protection with a misleading veneer of security."
+  ],
+  "overall": "The auth & security surface is built on a solid foundation (PBKDF2, httpOnly cookies, DB-backed rate limiting, session management via Prisma) but has a critical blind spot: CSRF protection exists in name only. No server-side code validates any CSRF token or origin. Priority fix: wire assertSameOrigin() into the API route path in middleware.ts, set the csrf-token cookie on new sessions, and validate x-csrf-token on the server. Secondary concerns: upgrade to Argon2id, add an absolute session cap (e.g., 7-day max regardless of activity), and fix the rate limiter's create-then-count race condition with an atomic approach. The rate limiter's DB-backed design also presents a scalability ceiling under high traffic — consider Redis or an in-memory window with DB fallback."
+}

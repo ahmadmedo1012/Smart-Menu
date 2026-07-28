@@ -185,7 +185,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 ))}
               </div>
               {/* Comment */}
-              <textarea
+              <textarea id="review-comment" name="comment"
                 placeholder="اكتب تعليقك (اختياري)"
                 value={formComment}
                 onChange={(e) => setFormComment(e.target.value)}
@@ -194,7 +194,7 @@ export default function ReviewSheet({ menuItemId, menuItemName, open, onOpenChan
                 className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus-visible:border-orange/50 transition-colors"
               />
               {/* Name */}
-              <input
+              <input id="review-name" name="name"
                 placeholder="الاسم (اختياري)"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}

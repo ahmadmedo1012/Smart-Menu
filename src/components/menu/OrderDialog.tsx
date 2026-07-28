@@ -173,10 +173,10 @@ export default function OrderDialog({
 
           {/* Customer info — glass-pill inputs */}
           <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
-            <input value={customerName} onChange={e => setCustomerName(e.target.value)}
+            <input id="customer-name" name="customerName" value={customerName} onChange={e => setCustomerName(e.target.value)}
               placeholder="الاسم (اختياري)" maxLength={30} aria-label="الاسم"
               className={glassPillInput} />
-            <input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
+            <input id="customer-phone" name="customerPhone" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
               placeholder="رقم الهاتف (اختياري)" maxLength={15} dir="ltr" aria-label="رقم الهاتف"
               className={cn(glassPillInput, "text-left")} />
           </div>
@@ -235,7 +235,7 @@ export default function OrderDialog({
           </div>
 
           {/* Notes textarea — glass-pill */}
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+          <textarea id="order-notes" name="notes" value={notes} onChange={(e) => setNotes(e.target.value)}
             placeholder="ملاحظات إضافية للطلب..."
             rows={2} aria-label="ملاحظات إضافية"
             className={cn(glassPillInput, "h-auto py-3 resize-none")} />

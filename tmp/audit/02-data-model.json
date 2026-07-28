@@ -1,0 +1,279 @@
+{
+  "issues": [
+    {
+      "file": "prisma/schema.prisma",
+      "line": 256,
+      "model": "TelegramApprover",
+      "severity": "high",
+      "summary": "Missing onDelete cascade on `addedBy → User`",
+      "detail": "`addedById Int?` is nullable but has no `onDelete: SetNull`. Deleting a User who added approvers raises a FK violation."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 309,
+      "model": "Referral",
+      "severity": "high",
+      "summary": "Missing onDelete cascade on `order → Order`",
+      "detail": "`orderId Int?` is nullable but no `onDelete: SetNull`. Deleting an Order with referrals raises FK violation."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 331,
+      "model": "RewardTransaction",
+      "severity": "high",
+      "summary": "Missing onDelete cascade on `order → Order`",
+      "detail": "`orderId Int?` is nullable but no `onDelete: SetNull`. Deleting an Order with reward transactions raises FK violation."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 383,
+      "model": "SubscriptionPayment",
+      "severity": "high",
+      "summary": "Missing onDelete cascade on `user → User`",
+      "detail": "`userId Int?` is nullable but no `onDelete: SetNull`. Deleting a User with payments raises FK violation."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 349,
+      "model": "AuditLog",
+      "severity": "medium",
+      "summary": "Missing onDelete cascade on `actor → User`",
+      "detail": "`actorId Int?` is nullable but no `onDelete: SetNull`. Deleting a User would orphan audit logs (or raise error depending on DB constraint)."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 426,
+      "model": "Review",
+      "severity": "low",
+      "summary": "onDelete: Restrict on `menuItem → MenuItem` may be intentional but prevents cleanup",
+      "detail": "`onDelete: Restrict` means MenuItem with reviews cannot be deleted. Cascade would auto-clean; Restrict preserves historical data. Verify intent."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 259,
+      "model": "TelegramApprover",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Model has `createdAt` but no `updatedAt` field."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 407,
+      "model": "RateLimitEntry",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Model has `createdAt` but no `updatedAt` field."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 341,
+      "model": "AuditLog",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Append-only log — omitted intentionally OK, but noted."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 418,
+      "model": "Review",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Model has `createdAt` but no `updatedAt` field."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 432,
+      "model": "SystemEvent",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Append-only event log — omitted intentionally OK, but noted."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 377,
+      "model": "SubscriptionPayment",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Payment records may benefit from tracking status changes."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 299,
+      "model": "Referral",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Referral status (`pending→converted/expired`) would benefit from `updatedAt` for status-change tracking."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 323,
+      "model": "RewardTransaction",
+      "severity": "low",
+      "summary": "Missing @updatedAt",
+      "detail": "Append-only log — omitted intentionally OK, but noted."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 307,
+      "model": "Referral",
+      "severity": "medium",
+      "summary": "Missing index on FK `orderId`",
+      "detail": "`orderId Int?` is FK to Order but no `@@index([orderId])` — potential sequential scan on order joins."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 328,
+      "model": "RewardTransaction",
+      "severity": "medium",
+      "summary": "Missing index on FK `orderId`",
+      "detail": "`orderId Int?` is FK to Order but no `@@index([orderId])` — potential sequential scan on order joins."
+    },
+    {
+      "file": "prisma/schema.prisma",
+      "line": 256,
+      "model": "TelegramApprover",
+      "severity": "medium",
+      "summary": "Missing index on FK `addedById`",
+      "detail": "`addedById Int?` is FK to User but no `@@index([addedById])`."
+    }
+  ],
+  "missingIndexes": [
+    {
+      "model": "Referral",
+      "field": "orderId",
+      "suggestion": "@@index([orderId])"
+    },
+    {
+      "model": "RewardTransaction",
+      "field": "orderId",
+      "suggestion": "@@index([orderId])"
+    },
+    {
+      "model": "TelegramApprover",
+      "field": "addedById",
+      "suggestion": "@@index([addedById])"
+    }
+  ],
+  "models": [
+    {
+      "fields": "id, username, password, subscriptionStatus, name, email, phone, restaurantId, planId, createdAt, updatedAt, role, permissions, lastLoginAt, telegramChatId, telegramUsername, telegramLinkedAt, telegramNotifyOrders, telegramNotifyPayments, telegramNotifySettings, notificationPrefs",
+      "name": "User",
+      "relations": "auditLogs AuditLog[], sessions Session[], telegramApprovers TelegramApprover[], subscriptionPayments SubscriptionPayment[], plan SubscriptionPlan?, restaurant Restaurant?"
+    },
+    {
+      "fields": "id, name, nameAr, price, periodDays, maxMenus, maxItems, maxOrders, sortOrder, isActive, createdAt, updatedAt, features",
+      "name": "SubscriptionPlan",
+      "relations": "restaurants Restaurant[], users User[]"
+    },
+    {
+      "fields": "id, name, slug, description, logo, phone, whatsapp, email, address, workingHours, themeColor, currency, isActive, city, showOnLanding, featuredRank, planId, planStart, planEnd, createdAt, updatedAt, gallery, maxItems, maxOrders, pickupTypes",
+      "name": "Restaurant",
+      "relations": "loyaltyCards LoyaltyCard[], categories MenuCategory[], orders Order[], referrals Referral[], plan SubscriptionPlan?, rewardTransactions RewardTransaction[], settings Setting[], users User[], whatsappTemplates WhatsappTemplate[]"
+    },
+    {
+      "fields": "id, name, nameAr, icon, sortOrder, isActive, restaurantId, createdAt, updatedAt",
+      "name": "MenuCategory",
+      "relations": "restaurant Restaurant, items MenuItem[]"
+    },
+    {
+      "fields": "id, name, nameAr, description, descriptionAr, price, discountedPrice, image, sortOrder, categoryId, createdAt, updatedAt, status, avgRating, ratingCount, dietaryTags, allergens",
+      "name": "MenuItem",
+      "relations": "modifierGroups ModifierGroup[], category MenuCategory, orderItems OrderItem[], reviews Review[]"
+    },
+    {
+      "fields": "id, orderNo, customerName, customerPhone, notes, subtotal, discount, total, whatsappSent, restaurantId, createdAt, updatedAt, pickupType, status",
+      "name": "Order",
+      "relations": "restaurant Restaurant, items OrderItem[], referrals Referral[], rewardTransactions RewardTransaction[]"
+    },
+    {
+      "fields": "id, nameAr, name, minSelect, maxSelect, required, sortOrder, menuItemId, createdAt, updatedAt",
+      "name": "ModifierGroup",
+      "relations": "menuItem MenuItem, options ModifierOption[]"
+    },
+    {
+      "fields": "id, nameAr, name, priceDelta, isAvailable, sortOrder, groupId, createdAt, updatedAt",
+      "name": "ModifierOption",
+      "relations": "group ModifierGroup"
+    },
+    {
+      "fields": "id, quantity, notes, price, modifiersJson, orderId, itemId",
+      "name": "OrderItem",
+      "relations": "item MenuItem, order Order"
+    },
+    {
+      "fields": "id, key, value, restaurantId, createdAt, updatedAt",
+      "name": "Setting",
+      "relations": "restaurant Restaurant"
+    },
+    {
+      "fields": "id, botToken, chatId, events, isActive, createdAt, updatedAt",
+      "name": "TelegramConfig",
+      "relations": "none"
+    },
+    {
+      "fields": "id, label, chatId, isActive, createdAt, updatedAt",
+      "name": "TelegramBroadcastTarget",
+      "relations": "none"
+    },
+    {
+      "fields": "id, telegramId, label, addedById, createdAt",
+      "name": "TelegramApprover",
+      "relations": "addedBy User?"
+    },
+    {
+      "fields": "id, name, template, isActive, restaurantId, createdAt, updatedAt",
+      "name": "WhatsappTemplate",
+      "relations": "restaurant Restaurant"
+    },
+    {
+      "fields": "id, customerPhone, customerName, totalOrders, totalSpent, points, referralCode, restaurantId, createdAt, updatedAt, tier",
+      "name": "LoyaltyCard",
+      "relations": "restaurant Restaurant, referrals Referral[], rewardTransactions RewardTransaction[]"
+    },
+    {
+      "fields": "id, referralCode, referrerId, referredPhone, referredName, discountPercent, referrerRewardPct, orderId, createdAt, convertedAt, restaurantId, status",
+      "name": "Referral",
+      "relations": "order Order?, referrer LoyaltyCard, restaurant Restaurant"
+    },
+    {
+      "fields": "id, cardId, points, description, orderId, restaurantId, createdAt, type",
+      "name": "RewardTransaction",
+      "relations": "card LoyaltyCard, order Order?, restaurant Restaurant"
+    },
+    {
+      "fields": "id, action, actorId, targetType, targetId, metadata, ip, createdAt",
+      "name": "AuditLog",
+      "relations": "actor User?"
+    },
+    {
+      "fields": "id, userId, token, expiresAt, createdAt",
+      "name": "Session",
+      "relations": "user User"
+    },
+    {
+      "fields": "id, userId, phone, amount, provider, planId, planName, status, metadata, createdAt",
+      "name": "SubscriptionPayment",
+      "relations": "user User?"
+    },
+    {
+      "fields": "id, key, value, category, isSecret, description, updatedAt, updatedBy",
+      "name": "SystemConfig",
+      "relations": "none"
+    },
+    {
+      "fields": "id, key, count, windowEnd, createdAt",
+      "name": "RateLimitEntry",
+      "relations": "none"
+    },
+    {
+      "fields": "id, rating, comment, customerName, customerPhone, menuItemId, createdAt",
+      "name": "Review",
+      "relations": "menuItem MenuItem"
+    },
+    {
+      "fields": "id, eventType, title, message, severity, metadata, read, createdAt",
+      "name": "SystemEvent",
+      "relations": "none"
+    }
+  ]
+}

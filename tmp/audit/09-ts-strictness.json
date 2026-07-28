@@ -1,0 +1,9 @@
+{
+  "menuRendered": true,
+  "categoriesVisible": true,
+  "cartWorks": true,
+  "orderConfirmed": true,
+  "errors": [
+    "2 image 404s on /order-confirmed — Unsplash URLs returning 404: photo-1630409346822-4b0b7c8249e7 and photo-1579631552-1c4a1c8e9f0d"
+  ]
+}

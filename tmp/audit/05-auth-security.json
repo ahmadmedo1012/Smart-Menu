@@ -1,0 +1,368 @@
+{
+  "missingErrorBoundaries": [
+    "src/app/admin/system-events"
+  ],
+  "missingLoading": [],
+  "serverClientMix": [],
+  "structure": [
+    {
+      "dir": "src/app/root",
+      "fileCount": 14,
+      "dirs": [
+        "admin",
+        "api",
+        "cart",
+        "demo",
+        "login",
+        "menu",
+        "order-confirmed",
+        "owner",
+        "pricing",
+        "privacy",
+        "subscribe",
+        "terms"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin",
+      "fileCount": 45,
+      "dirs": [
+        "admins",
+        "audit-logs",
+        "menu",
+        "orders",
+        "qr",
+        "restaurants",
+        "settings",
+        "subscriptions",
+        "system-events",
+        "telegram",
+        "users"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/admins",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/audit-logs",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/menu",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/orders",
+      "fileCount": 2,
+      "dirs": [
+        "[id]"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/orders/[id]",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/qr",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/restaurants",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/settings",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/subscriptions",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/system-events",
+      "fileCount": 3,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/telegram",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/admin/users",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/api",
+      "fileCount": 60,
+      "dirs": [
+        "admin",
+        "auth",
+        "categories",
+        "config",
+        "demo",
+        "health",
+        "items",
+        "loyalty",
+        "orders",
+        "owner",
+        "plans",
+        "public",
+        "restaurants",
+        "seed",
+        "settings",
+        "stats",
+        "subscriptions",
+        "telegram",
+        "upload",
+        "user",
+        "users",
+        "whatsapp"
+      ],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "src/app/cart",
+      "fileCount": 4,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/demo",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/login",
+      "fileCount": 4,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/menu",
+      "fileCount": 10,
+      "dirs": [
+        "[slug]"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/menu/[slug]",
+      "fileCount": 4,
+      "dirs": [
+        "print"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/menu/[slug]/print",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/order-confirmed",
+      "fileCount": 4,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner",
+      "fileCount": 32,
+      "dirs": [
+        "loyalty",
+        "menu",
+        "orders",
+        "qr",
+        "reviews",
+        "settings"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/loyalty",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/menu",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/orders",
+      "fileCount": 2,
+      "dirs": [
+        "[id]"
+      ],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/orders/[id]",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/qr",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/reviews",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/owner/settings",
+      "fileCount": 2,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/pricing",
+      "fileCount": 4,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/privacy",
+      "fileCount": 3,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/subscribe",
+      "fileCount": 7,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/app/terms",
+      "fileCount": 3,
+      "dirs": [],
+      "errorTsx": true,
+      "loadingTsx": true
+    },
+    {
+      "dir": "src/components",
+      "fileCount": 81,
+      "dirs": [
+        "admin",
+        "landing",
+        "layout",
+        "loyalty",
+        "menu",
+        "owner",
+        "shared",
+        "ui"
+      ],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "src/hooks",
+      "fileCount": 1,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "src/lib",
+      "fileCount": 26,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "src/store",
+      "fileCount": 1,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "src/generated",
+      "fileCount": 32,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "prisma",
+      "fileCount": 8,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": false
+    },
+    {
+      "dir": "public",
+      "fileCount": 38,
+      "dirs": [],
+      "errorTsx": false,
+      "loadingTsx": false
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "featureComponents": 38,
+  "issues": [
+    "badge.tsx: missing \"use client\" directive but uses `useRender` hook from @base-ui/react/use-render — will break in server components",
+    "No ErrorBoundary wrapper component exists — project only relies on app-level error.tsx/global-error.tsx, no per-component error isolation",
+    "PaymentDialog.tsx (474 lines), ShareAfterOrder.tsx (310 lines), MenuPageClient.tsx (309 lines), MenuItemCard.tsx (308 lines) exceed 300 lines — extraction candidates"
+  ],
+  "largest": [
+    "payment-dialog",
+    "share-after-order",
+    "menu-page-client",
+    "menu-item-card",
+    "order-dialog",
+    "review-sheet",
+    "loyalty-settings",
+    "circular-testimonials",
+    "action-search-bar",
+    "featured-restaurants-section"
+  ],
+  "missingUseClient": [
+    "badge.tsx"
+  ],
+  "sharedComponents": 17,
+  "uiComponents": 26
+}

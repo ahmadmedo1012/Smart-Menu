@@ -1,0 +1,137 @@
+{
+  "styleIssues": [
+    {
+      "file": "src/**/*.ts, src/**/*.tsx",
+      "line": 0,
+      "summary": "Semicolons inconsistent across codebase: 56% of imports (689) omit semicolons, 44% (541) include them. No project-wide convention enforced.",
+      "short_summary": "Import semicolons 56/44 split",
+      "failure_scenario": "Bulk format does not converge; user cannot predict whether editing a file needs semicolons. Linter/formatter config needed.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/**/*.tsx",
+      "line": 0,
+      "summary": "Quote style inconsistent: ~30 files use double quotes in imports (BackButton.tsx, HorizontalBar.tsx, Footer.tsx, dialog.tsx, button.tsx, etc.) while majority uses single quotes. No project-wide convention.",
+      "short_summary": "Double vs single quotes in imports inconsistent",
+      "failure_scenario": "Adding imports to a file may break the file's existing quote convention. Without a config, tooling auto-fix cycles.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/**/*.ts, src/**/*.tsx",
+      "line": 0,
+      "summary": "Import ordering inconsistent: third-party and internal imports not grouped consistently. Some files separate with blank line (dialog.tsx), others intermingle (DefaultError.tsx, route files). react/lucide/next imports appear in varying order.",
+      "short_summary": "Import grouping order varies file-to-file",
+      "failure_scenario": "Developer reading unfamiliar file cannot predict where an import lives; automated sorting disabled.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 483,
+      "summary": "Dead CSS: `.motion-safe *` selector at line 483 will never match -- no `.motion-safe` ancestor exists in the DOM. The block at 485-493 covers the same reduced-motion intent correctly.",
+      "short_summary": "Dead .motion-safe selector in reduced-motion block",
+      "failure_scenario": "Developer adds .motion-safe class expecting it to work; it silently does nothing because only the direct-* rules at 485-493 fire.",
+      "category": "correctness"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 0,
+      "summary": "Indentation inconsistent: lines 171, 234 use extra indent (3 levels vs 2); .gpu-layer block (496-500) and .animate-ring-drain (519-525), .animate-confetti (527-537), .animate-pulse-dot (539-545) use 2-space indent while the rest uses tabs.",
+      "short_summary": "Mixed indentation (tabs vs spaces)",
+      "failure_scenario": "Format-on-save churns unrelated lines; diff noise on PRs.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 378,
+      "summary": "Conflict: `.animate-shimmer` class (line 378) defined as inline CSS and also as @utility animate-shimmer (line 551). Both define shimmer but animate differently (shimmer vs shimmer-sweep keyframes).",
+      "short_summary": "Duplicate .animate-shimmer with different keyframes",
+      "failure_scenario": "Using class animate-shimmer on an element may apply different animation depending on CSS cascade order. Confusing to debug.",
+      "category": "correctness"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 356,
+      "summary": "Duplicate glass classes: .glass-card/.glass (356) and .glass-strong (363) as plain CSS, then @utility glass-card and @utility glass-strong (547-548) redefining similar but not identical styles. No clear canonical source.",
+      "short_summary": "Duplicate glass utilities (plain CSS + @utility)",
+      "failure_scenario": "Using @utility glass-card vs class glass-card produces slightly different results (backdrop-blur-sm vs backdrop-blur-32px). Developer confusion.",
+      "category": "consistency"
+    }
+  ],
+  "importIssues": [
+    {
+      "file": "src/**/*.ts, src/**/*.tsx",
+      "line": 0,
+      "summary": "No consistent import group separation: 21% of files separate third-party imports from internal imports with blank lines, the rest do not. `dialog.tsx` separates, `DefaultError.tsx` does not.",
+      "short_summary": "Import group separation inconsistent",
+      "failure_scenario": "Adding a new import to a file requires checking whether the file separates groups. No automated enforcement.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/app/api/**/route.ts",
+      "line": 0,
+      "summary": "API route imports not ordered: `next/server`, `zod`, `@/lib/db`, `@/lib/api-helpers`, `@/lib/auth` appear in varying order across route files. No grouping standard.",
+      "short_summary": "API route import ordering varies",
+      "failure_scenario": "Code review cannot rely on consistent import pattern for API route files.",
+      "category": "consistency"
+    }
+  ],
+  "exportIssues": [
+    {
+      "file": "src/components/shared/*.tsx, src/components/menu/*.tsx, src/components/ui/*.tsx",
+      "line": 0,
+      "summary": "Mixed export strategies: default exports in shared/ and menu/, named exports in ui/ for some (Skeleton, Eyebrow, SectionHeader) but re-export-group at bottom for others (dialog, card, select, sheet). No consistent pattern across component directories.",
+      "short_summary": "No consistent named-vs-default export convention",
+      "failure_scenario": "Consumer must check each file to know whether to `import X` or `import { X }`. Re-export barrel files harder to maintain.",
+      "category": "consistency"
+    }
+  ],
+  "cssIssues": [
+    {
+      "file": "src/app/globals.css",
+      "line": 483,
+      "summary": "Dead CSS: `.motion-safe *` selector never matches — no .motion-safe ancestor in the DOM. Reduced-motion block at 485-493 already handles the intent.",
+      "short_summary": "Dead .motion-safe selector",
+      "failure_scenario": "Developer adds .motion-safe class expecting reduced-motion suppression, but it does nothing.",
+      "category": "correctness"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 378,
+      "summary": "Duplicate .animate-shimmer with different keyframes: line 378 uses `shimmer` keyframe (2.5s), @utility at line 551 uses `shimmer-sweep` keyframe (2s) with different direction. Cascade winner unpredictable.",
+      "short_summary": "Shimmer definition conflict",
+      "failure_scenario": "Element with animate-shimmer class may get wrong animation depending on load order. Hard to debug.",
+      "category": "correctness"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 0,
+      "summary": "Indentation inconsistent: 5 blocks use 2-space indent while rest uses tabs. Lines 171, 234 have extra leading tab.",
+      "short_summary": "Mixed tabs/spaces indentation",
+      "failure_scenario": "Auto-formatters churn these lines; PR diff noise.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 356,
+      "summary": "Duplicate glass utilities: .glass-card class (line 356, backdrop-blur-32px) and @utility glass-card (line 547, backdrop-blur-sm). Similar duplicate for glass-strong. No canonical source.",
+      "short_summary": "Glass-card duplicated with different blur",
+      "failure_scenario": "Element using utility class may look different than element using plain class. Visual inconsistency.",
+      "category": "consistency"
+    },
+    {
+      "file": "src/app/globals.css",
+      "line": 547,
+      "summary": "@utility definitions (547-563) placed among keyframes (549, 557-559) in a disorganized section. @utility glass-card/glass-strong (547-548) separated from the earlier .glass-card/.glass-strong (356-369) by 180 lines of keyframes.",
+      "short_summary": "@utility definitions in disorganized section",
+      "failure_scenario": "Finding all glass-related CSS requires scanning non-adjacent blocks. Maintainability friction.",
+      "category": "maintainability"
+    }
+  ],
+  "recommendations": [
+    "Add Prettier config with semi:true, singleQuote:true, organizeImports:true to normalize semicolons, quotes, and import grouping across all 329 TS files.",
+    "Adopt a project-wide convention: named exports (export function) for all components, default exports only for Next.js page/layout files. Convert the ~8 mixed-export files.",
+    "In globals.css: remove dead .motion-safe selector, deduplicate shimmer keyframes, consolidate glass-* into one source (@utility or plain CSS, not both), normalize all indentation to tabs.",
+    "Move @utility glass-card and glass-strong next to their .glass-card/.glass class definitions (around line 369) for co-location. Move utility/keyframes to a dedicated section after base styles.",
+    "Standardize components/ui/ file naming: pick kebab-case (shadcn convention) for all, or PascalCase (ECC web convention) for all. Currently 7 PascalCase + 16 kebab-case files coexist."
+  ]
+}

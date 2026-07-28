@@ -9,6 +9,10 @@ const envSchema = z.object({
   TELEGRAM_CHAT_ID: z.string().optional().default(""),
   AUTH_SECRET: z.string().min(1, "AUTH_SECRET is required"),
   DATABASE_SCHEMA: z.string().optional().default("public"),
+  SKIP_ENV_CHECK: z
+    .string()
+    .optional()
+    .transform((v) => v === "true" || v === "1"),
 });
 
 declare global {

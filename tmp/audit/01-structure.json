@@ -1,0 +1,200 @@
+{
+  "deprecations": [],
+  "outdated": [
+    {
+      "current": "1.61.1",
+      "latest": "1.62.0",
+      "name": "@playwright/test",
+      "type": "patch"
+    },
+    {
+      "current": "7.8.0",
+      "latest": "7.9.1",
+      "name": "@prisma/adapter-pg",
+      "type": "minor"
+    },
+    {
+      "current": "7.8.0",
+      "latest": "7.9.1",
+      "name": "@prisma/client",
+      "type": "minor"
+    },
+    {
+      "current": "4.3.2",
+      "latest": "4.3.3",
+      "name": "@tailwindcss/postcss",
+      "type": "patch"
+    },
+    {
+      "current": "20.19.43",
+      "latest": "26.1.2",
+      "name": "@types/node",
+      "type": "major"
+    },
+    {
+      "current": "9.39.5",
+      "latest": "10.8.0",
+      "name": "eslint",
+      "type": "major"
+    },
+    {
+      "current": "16.2.9",
+      "latest": "16.2.12",
+      "name": "eslint-config-next",
+      "type": "patch"
+    },
+    {
+      "current": "1.24.0",
+      "latest": "1.27.0",
+      "name": "lucide-react",
+      "type": "minor"
+    },
+    {
+      "current": "16.2.9",
+      "latest": "16.2.12",
+      "name": "next",
+      "type": "patch"
+    },
+    {
+      "current": "7.8.0",
+      "latest": "7.9.1",
+      "name": "prisma",
+      "type": "minor"
+    },
+    {
+      "current": "19.2.4",
+      "latest": "19.2.8",
+      "name": "react",
+      "type": "patch"
+    },
+    {
+      "current": "19.2.4",
+      "latest": "19.2.8",
+      "name": "react-dom",
+      "type": "patch"
+    },
+    {
+      "current": "0.33.5",
+      "latest": "0.35.3",
+      "name": "sharp",
+      "type": "major"
+    },
+    {
+      "current": "4.3.2",
+      "latest": "4.3.3",
+      "name": "tailwindcss",
+      "type": "patch"
+    },
+    {
+      "current": "4.23.0",
+      "latest": "4.23.1",
+      "name": "tsx",
+      "type": "patch"
+    },
+    {
+      "current": "5.9.3",
+      "latest": "7.0.2",
+      "name": "typescript",
+      "type": "major"
+    },
+    {
+      "current": "4.3.6",
+      "latest": "4.4.3",
+      "name": "zod",
+      "type": "minor"
+    }
+  ],
+  "recommendations": [
+    "Fix dual lockfile: delete pnpm-lock.yaml + pnpm-workspace.yaml (project uses npm, not pnpm)",
+    "Run `npm update` for all in-range patch/minor updates (no breakage expected)",
+    "Update next@16.2.12 as priority — 9 high-severity advisories in current 16.2.9",
+    "Update sharp to 0.35.3 to fix 4 libvips CVEs; breaking change in @dotlottie/react-player, test after",
+    "Add dotenv to devDependencies (used in prisma.config.ts, installed orphan)",
+    "Add playwright to devDependencies (used in scan.js, scripts/live-e2e.ts; installed orphan)",
+    "Defer typescript@7.0.2 and eslint@10.8.0 — major-breaking, test separately",
+    "Defer @types/node@26 major bump — confirm no type conflicts with project code first",
+    "Review @dotlottie/react-player transitive valibot vuln — possible replacement candidate"
+  ],
+  "unusedPackages": [
+    "dotenv (in node_modules but absent from package.json; used in prisma.config.ts)",
+    "playwright (in node_modules but absent from package.json; used in scan.js, scripts/live-e2e.ts, tmp scripts)",
+    "tailwindcss (depcheck false positive — Tailwind v4 uses @tailwindcss/postcss plugin, no direct import)"
+  ],
+  "vulnerabilities": [
+    {
+      "cvss": 8.6,
+      "name": "next - multiple high-severity",
+      "paths": [
+        "next@16.2.9"
+      ],
+      "severity": "high",
+      "summary": "9 advisories: middleware bypass via Turbopack, DoS via Server Actions, SSRF in custom servers/rewrites, cache confusion, Edge unbounded payload, image optimization XSS, internal function endpoint disclosure"
+    },
+    {
+      "cvss": 7.5,
+      "name": "brace-expansion - DoS",
+      "paths": [
+        "@typescript-eslint/typescript-estree → brace-expansion"
+      ],
+      "severity": "high",
+      "summary": "DoS via exponential-time expansion and unbounded expansion length"
+    },
+    {
+      "cvss": 7.5,
+      "name": "fast-uri - host confusion",
+      "paths": [
+        "fast-uri (transitive)"
+      ],
+      "severity": "high",
+      "summary": "Host confusion via backslash and failed IDN canonicalization"
+    },
+    {
+      "cvss": 7.5,
+      "name": "js-yaml - quadratic CPU consumption",
+      "paths": [
+        "js-yaml (transitive)"
+      ],
+      "severity": "high",
+      "summary": "Merge-key chains cause O(n^2) CPU"
+    },
+    {
+      "cvss": 6.1,
+      "name": "postcss - XSS and path traversal",
+      "paths": [
+        "next → postcss",
+        "@tailwindcss/postcss → postcss"
+      ],
+      "severity": "high",
+      "summary": "XSS via unescaped </style>, arbitrary file read via sourceMappingURL"
+    },
+    {
+      "cvss": 7.5,
+      "name": "sharp - libvips CVEs",
+      "paths": [
+        "next → sharp",
+        "@dotlottie/react-player → sharp"
+      ],
+      "severity": "high",
+      "summary": "4 libvips CVEs: CVE-2026-33327/8, CVE-2026-35590/1"
+    },
+    {
+      "cvss": 5.9,
+      "name": "hono - multiple moderate",
+      "paths": [
+        "@prisma/dev → @hono/node-server → hono"
+      ],
+      "severity": "moderate",
+      "summary": "API Gateway header dedup, JSX context isolation bypass, JSX XSS in cx()"
+    },
+    {
+      "cvss": 5.9,
+      "name": "valibot - flatten() throw",
+      "paths": [
+        "@dotlottie/dotlottie-js → valibot",
+        "@prisma/dev → valibot"
+      ],
+      "severity": "moderate",
+      "summary": "record() issue paths make flatten() throw for inherited Object property names"
+    }
+  ]
+}

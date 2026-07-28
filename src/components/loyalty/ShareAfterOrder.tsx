@@ -193,13 +193,13 @@ ${referralUrl}
 
               {/* Phone field */}
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <label htmlFor="shareafter-phone" className="block text-sm font-medium text-muted-foreground mb-2">
                   رقم الهاتف
                 </label>
                 <div className="flex gap-2">
                   <div className="flex-1 relative glow-within rounded-xl border border-border/40 bg-white/70 dark:bg-card/70 backdrop-blur-xl">
                     <Phone className="absolute end-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-                    <input
+                    <input id="shareafter-phone" name="phone"
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
@@ -248,7 +248,7 @@ ${referralUrl}
             <div className="space-y-5 animate-fade-in">
               {/* Referral link */}
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5 text-center">
+                <label htmlFor="shareafter-phone" className="block text-xs font-medium text-muted-foreground mb-1.5 text-center">
                   رابط الإحالة الخاص بك
                 </label>
                 <div className="flex items-center gap-2">
