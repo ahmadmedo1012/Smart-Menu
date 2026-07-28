@@ -107,7 +107,7 @@ function NavPill({
 }
 
 /* ── Root ── */
-export default function ClientsSection() {
+export function ClientsSection() {
   const [active, setActive] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const n = TESTIMONIALS.length

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { IPhoneMockup } from "@/components/ui/iphone-mockup"
 
-export default function HeroSection() {
+export function HeroSection() {
     return (
         <>
             <div

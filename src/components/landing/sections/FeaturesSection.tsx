@@ -15,7 +15,7 @@ const features = [
 	{ title: "برنامج ولاء", icon: Gift, desc: "برنامج ولاء ومكافآت لعملائك الأوفياء" },
 ]
 
-export default function FeaturesSection() {
+export function FeaturesSection() {
 	return (
 		<SectionContainer>
 			<SectionHeader eyebrow="إليك ما يمكنك تحقيقه معنا" title="ميزات متكاملة لمطعمك" />

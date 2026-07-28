@@ -30,7 +30,7 @@ interface ConfettiProps {
 
 const DEFAULT_CLASS = "fixed inset-0 pointer-events-none z-50 overflow-hidden";
 
-export default function Confetti({
+export function Confetti({
   active,
   variant = "shapes",
   count = 50,

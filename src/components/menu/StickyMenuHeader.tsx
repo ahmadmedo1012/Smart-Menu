@@ -1,84 +1,84 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useScroll, useTransform, useMotionValueEvent, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { OptimizedImage } from "@/components/ui/OptimizedImage";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { useState } from 'react';
+import { useScroll, useTransform, useMotionValueEvent, motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 
-export default function StickyMenuHeader({
-  name,
-  logo,
-}: {
-  name: string;
-  logo?: string;
-}) {
-  /* ponytail: single scroll source — useScroll replaces native scroll listener */
-  const { scrollYProgress } = useScroll();
-  const [scrolled, setScrolled] = useState(false);
-  const progress = useTransform(scrollYProgress, [0, 1], [0, 1]);
+export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }) {
+	/* ponytail: single scroll source — useScroll replaces native scroll listener */
+	const { scrollYProgress } = useScroll();
+	const [scrolled, setScrolled] = useState(false);
+	const progress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setScrolled(v > 0.02);
-  });
+	useMotionValueEvent(scrollYProgress, 'change', (v) => {
+		setScrolled(v > 0.02);
+	});
 
-  return (
-    <>
-      <div
-        className={cn(
-          "fixed inset-x-0 top-0 z-30 h-14 flex items-center px-4 gap-3 transition-all duration-300",
-          scrolled ? "glass-strong" : "bg-transparent",
-        )}
-      >
-        {/* logo — rounded-lg */}
-        <div
-          className={cn(
-            "size-8 rounded-lg flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-300",
-            scrolled
-              ? logo
-                ? "ring-1 ring-border/30"
-                : "bg-gradient-to-br from-orange to-orange/80"
-              : logo
-                ? "ring-1 ring-white/20"
-                : "bg-gradient-to-br from-orange/80 to-orange/60",
-          )}
-        >
-          {logo ? (
-            <OptimizedImage src={logo} alt="" className="size-full" skeleton={false} />
-          ) : (
-            <svg className="size-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <span
-            className={cn(
-              "font-bold text-sm truncate block transition-all duration-300",
-              scrolled ? "opacity-100" : "opacity-0",
-            )}
-          >
-            {name}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          {!scrolled && (
-            <div className="animate-float">
-              <ChevronDown className="size-5 text-muted-foreground" />
-            </div>
-          )}
-        </div>
-      </div>
+	return (
+		<>
+			<div
+				className={cn(
+					'fixed inset-x-0 top-0 z-30 h-14 flex items-center px-4 gap-3 transition-all duration-300',
+					scrolled ? 'glass-strong' : 'bg-transparent'
+				)}
+			>
+				{/* logo — rounded-lg */}
+				<div
+					className={cn(
+						'size-8 rounded-lg flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-all duration-300',
+						scrolled
+							? logo
+								? 'ring-1 ring-border/30'
+								: 'bg-gradient-to-br from-orange to-orange/80'
+							: logo
+								? 'ring-1 ring-white/20'
+								: 'bg-gradient-to-br from-orange/80 to-orange/60'
+					)}
+				>
+					{logo ? (
+						<OptimizedImage src={logo} alt="" className="size-full" skeleton={false} />
+					) : (
+						<svg
+							className="size-4 text-white"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+						>
+							<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+							<polyline points="9 22 9 12 15 12 15 22" />
+						</svg>
+					)}
+				</div>
+				<div className="flex-1 min-w-0">
+					<span
+						className={cn(
+							'font-bold text-sm truncate block transition-all duration-300',
+							scrolled ? 'opacity-100' : 'opacity-0'
+						)}
+					>
+						{name}
+					</span>
+				</div>
+				<div className="flex items-center gap-2">
+					<ThemeToggle />
+					{!scrolled && (
+						<div className="animate-float">
+							<ChevronDown className="size-5 text-muted-foreground" />
+						</div>
+					)}
+				</div>
+			</div>
 
-      {/* Scroll progress bar — RTL-aware origin-right */}
-      <motion.div
-        className="fixed inset-x-0 top-14 z-30 h-[2px] origin-right bg-gradient-to-r from-orange/60 to-orange"
-        style={{ scaleX: progress }}
-        aria-hidden
-      />
-    </>
-  );
+			{/* Scroll progress bar — RTL-aware origin-right */}
+			<motion.div
+				className="fixed inset-x-0 top-14 z-30 h-[2px] origin-right bg-gradient-to-r from-orange/60 to-orange"
+				style={{ scaleX: progress }}
+				aria-hidden
+			/>
+		</>
+	);
 }

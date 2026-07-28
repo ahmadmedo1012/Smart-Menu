@@ -17,7 +17,7 @@ interface HorizontalBarProps {
   barHeight?: number
 }
 
-export default function HorizontalBar({
+export function HorizontalBar({
   data,
   maxItems = 10,
   className,

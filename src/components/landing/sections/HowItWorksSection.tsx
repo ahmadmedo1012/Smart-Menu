@@ -7,7 +7,7 @@ import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
 
-export default function HowItWorksSection() {
+export function HowItWorksSection() {
   return (
     <SectionContainer>
       <GlowPool position="top-1/3 right-1/4 rtl:left-1/4" size="size-[50vmin]" color="orange/4" />

@@ -21,7 +21,7 @@ function AnimatedNumber({ value }: { value: number }) {
   return <span ref={ref} dir="ltr">{count.toLocaleString()}</span>;
 }
 
-export default function StatsSection({ stats }: { stats: { totalRestaurants: number } }) {
+export function StatsSection({ stats }: { stats: { totalRestaurants: number } }) {
   const items = [
     { value: Math.max(stats.totalRestaurants, 500), suffix: "+", label: "مطعم مسجل", sub: "ينضمون إلينا شهرياً" },
     { value: 10000, suffix: "+", label: "طلب يومياً", sub: "يتم إدارتها عبر المنصة" },

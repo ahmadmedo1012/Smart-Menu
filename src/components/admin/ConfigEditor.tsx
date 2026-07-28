@@ -40,7 +40,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   fees: "الرسوم",
 }
 
-export default function ConfigEditor() {
+export function ConfigEditor() {
   const [configs, setConfigs] = useState<ConfigItem[]>([])
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState("general")

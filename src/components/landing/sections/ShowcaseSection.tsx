@@ -7,7 +7,7 @@ import { springGentle } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 
-export default function ShowcaseSection() {
+export function ShowcaseSection() {
 	const ref = useRef<HTMLDivElement>(null)
 	const { scrollYProgress } = useScroll({
 		target: ref,

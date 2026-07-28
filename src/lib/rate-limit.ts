@@ -1,6 +1,7 @@
 // DB-backed rate limiter stores state in PostgreSQL via Prisma (RateLimitEntry model).
 // All public mutation endpoints use this — single source of truth across Vercel instances.
 import { prisma } from "./db";
+import { warn as logWarn } from "./logger";
 
 interface RateLimiterConfig {
   windowMs: number;
@@ -44,7 +45,7 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
           where: { key, windowEnd: { lte: new Date(now) } },
         });
       } catch (e) {
-        console.warn("[rate-limit] cleanup error:", e);
+        logWarn("cleanup error", { error: String(e) });
       }
 
       // Record this attempt
@@ -54,7 +55,7 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
         });
       } catch (e) {
         // unique-constraint race is expected under concurrency
-        console.debug("[rate-limit] create race:", e);
+        logWarn("create race", { error: String(e) });
       }
 
       // Count attempts in current window
@@ -64,7 +65,7 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
           where: { key, windowEnd: { gt: new Date(now) } },
         });
       } catch (e) {
-        console.warn("[rate-limit] count error — failing closed:", e);
+        logWarn("count error — failing closed", { error: String(e) });
       }
 
       return {

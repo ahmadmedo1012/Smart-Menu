@@ -10,7 +10,7 @@ const pageSpring = {
   mass: 0.9,
 };
 
-export default function PageFade({ children }: { children: ReactNode }) {
+export function PageFade({ children }: { children: ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}

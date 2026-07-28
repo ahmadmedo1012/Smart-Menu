@@ -2,6 +2,7 @@ import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import { validateEnv } from "./env";
+import { warn } from "./logger";
 
 // ponytail: safe Decimal→Number ceiling. All schema Decimal fields use @db.Decimal(10,2)
 // (max 99,999,999.99) or Decimal(3,2) (max 9.99), well within Number.MAX_SAFE_INTEGER
@@ -12,7 +13,7 @@ function toNumber(v: unknown, label?: string): number {
   if (v == null) return 0;
   const n = typeof v === "number" ? v : Number(String(v));
   if (label && (n > MAX_SAFE_DECIMAL || n < -MAX_SAFE_DECIMAL)) {
-    console.warn(`[db] Decimal→Number precision loss risk on ${label}: ${v}`);
+    warn(`Decimal→Number precision loss risk on ${label}: ${v}`);
   }
   return n;
 }

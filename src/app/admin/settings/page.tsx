@@ -11,7 +11,7 @@ import {
   Save, Store, Phone, Mail, MapPin, Clock, Image,
   Settings, User, AlertTriangle,
 } from "lucide-react"
-import ConfigEditor from "@/components/admin/ConfigEditor"
+import { ConfigEditor } from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 

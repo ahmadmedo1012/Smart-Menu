@@ -13,7 +13,7 @@ const FAQS = [
   { q: "ماذا لو احتجت مساعدة؟", a: "فريق الدعم الفني متواجد طوال أيام العمل. نوفر لك تعليمات مصورة ودعماً مباشراً عبر واتساب." },
 ]
 
-export default function FaqSection() {
+export function FaqSection() {
   return (
     <SectionContainer>
       <SectionHeader icon={<MessageCircle className="size-3" />} eyebrow=""

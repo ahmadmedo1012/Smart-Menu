@@ -5,7 +5,7 @@ import { error as logError } from "@/lib/logger";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function DefaultError({
+export function DefaultError({
   error,
   reset,
 }: {

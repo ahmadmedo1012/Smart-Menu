@@ -9,7 +9,7 @@ import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
 
-export default function FinalCTASection() {
+export function FinalCTASection() {
   return (
     <SectionContainer className="border-t border-orange/10">
       {/* ponytail: removed Unsplash external image (caused 500/503 from Next.js Image Optimization).

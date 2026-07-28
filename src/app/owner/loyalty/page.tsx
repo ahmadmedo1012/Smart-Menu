@@ -17,7 +17,7 @@ import { ReferrerList } from "./ReferrerList"
 import { TransactionTable } from "./TransactionTable"
 import { ReferralQR } from "./ReferralQR"
 
-const LoyaltySettings = dynamic(() => import("@/components/loyalty/LoyaltySettings"), { ssr: false })
+const LoyaltySettings = dynamic(() => import("@/components/loyalty/LoyaltySettings").then(m => ({ default: m.LoyaltySettings })), { ssr: false })
 
 /* ---------- Types ---------- */
 

@@ -18,7 +18,7 @@ const AUTOPLAY_INTERVAL = 5000;
 /* ponytail: fast cubic-bezier instead of spring — snappier, no bounce tail */
 const transition = { x: { ease: "easeOut" as const, duration: 0.4 }, opacity: { duration: 0.25 } };
 
-export default function FeaturedRestaurantsSection({ restaurants }: Props) {
+export function FeaturedRestaurantsSection({ restaurants }: Props) {
     const [[slide, dir], setSlide] = useState([0, 0]);
     const [paused, setPaused] = useState(false);
     const timer = useRef<ReturnType<typeof setInterval>>(undefined);

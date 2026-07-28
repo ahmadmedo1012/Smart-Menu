@@ -9,7 +9,7 @@ interface BackButtonProps {
   href?: string
 }
 
-export default function BackButton({ href }: BackButtonProps) {
+export function BackButton({ href }: BackButtonProps) {
   const router = useRouter()
 
   if (href) {

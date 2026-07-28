@@ -5,12 +5,12 @@ import { Suspense } from "react"
 import { Store, Clock, MapPin } from "lucide-react"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
-const StickyMenuHeader = dynamic(() => import("./StickyMenuHeader"), { ssr: false })
-const MenuPageClient = dynamic(() => import("./MenuPageClient"), { ssr: false })
-const LoyaltyWidget = dynamic(() => import("../loyalty/LoyaltyWidget"), { ssr: false })
+const StickyMenuHeader = dynamic(() => import("./StickyMenuHeader").then(m => ({ default: m.StickyMenuHeader })), { ssr: false })
+const MenuPageClient = dynamic(() => import("./MenuPageClient").then(m => ({ default: m.MenuPageClient })), { ssr: false })
+const LoyaltyWidget = dynamic(() => import("../loyalty/LoyaltyWidget").then(m => ({ default: m.LoyaltyWidget })), { ssr: false })
 const LottieAnimation = dynamic(() => import("@/components/shared/LottieAnimation").then(m => ({ default: m.LottieAnimation })), { ssr: false })
-const ShareButton = dynamic(() => import("@/components/shared/ShareButton"), { ssr: false })
-const GalleryCarousel = dynamic(() => import("@/components/menu/GalleryCarousel"), { ssr: false })
+const ShareButton = dynamic(() => import("@/components/shared/ShareButton").then(m => ({ default: m.ShareButton })), { ssr: false })
+const GalleryCarousel = dynamic(() => import("@/components/menu/GalleryCarousel").then(m => ({ default: m.GalleryCarousel })), { ssr: false })
 
 type Restaurant = {
   name: string; logo: string; description: string | null; phone: string | null

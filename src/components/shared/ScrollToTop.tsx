@@ -54,7 +54,7 @@ function ScrollButton() {
   );
 }
 
-export default function ScrollToTop() {
+export function ScrollToTop() {
   return (
     <Suspense fallback={null}>
       <ProgressBar />

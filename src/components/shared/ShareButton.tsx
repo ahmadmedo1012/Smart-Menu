@@ -3,7 +3,7 @@
 import { Share2 } from "lucide-react";
 import { premiumToast } from "@/lib/premium-toast";
 
-export default function ShareButton({ url, title }: { url: string; title: string }) {
+export function ShareButton({ url, title }: { url: string; title: string }) {
   const handleShare = async () => {
     if (navigator.share) {
       try {

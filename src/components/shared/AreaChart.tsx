@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, memo } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,7 @@ interface TooltipState {
   value: number
 }
 
-const AreaChart = memo(function AreaChart({
+export function AreaChart({
   data,
   height = 200,
   color = "oklch(0.55 0.19 45)", // orange stroke
@@ -165,6 +165,4 @@ const AreaChart = memo(function AreaChart({
       )}
     </div>
   )
-})
-
-export default AreaChart
+}

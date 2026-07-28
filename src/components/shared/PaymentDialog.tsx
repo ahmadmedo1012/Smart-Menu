@@ -33,7 +33,7 @@ interface PaymentDialogProps {
   upgradeRestaurantId?: number;
 }
 
-export default function PaymentDialog({
+export function PaymentDialog({
   open,
   onOpenChange,
   planId,

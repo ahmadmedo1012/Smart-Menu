@@ -1,3 +1,5 @@
+import { warn as logWarn } from "./logger";
+
 interface SendMsgOpts {
   parseMode?: "Markdown" | "HTML";
   replyMarkup?: Record<string, unknown>;
@@ -48,7 +50,7 @@ export async function sendMessageWithKeyboard(
   const res = await apiCall(botToken, "sendMessage", payload);
   if (!res.ok) {
     const err = await res.text();
-    console.warn("[telegram-api] sendMessage failed", { chatId, status: res.status, error: err.slice(0, 300) });
+    logWarn("sendMessage failed", { chatId, status: res.status, error: err.slice(0, 300) });
     return null;
   }
   return res.json();
@@ -66,7 +68,7 @@ export async function editMessageReplyMarkup(
   });
   if (!res.ok) {
     const err = await res.text();
-    console.warn("[telegram-api] editMessageReplyMarkup failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
+    logWarn("editMessageReplyMarkup failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
   }
 }
 
@@ -82,7 +84,7 @@ export async function editMessageText(
   const res = await apiCall(botToken, "editMessageText", payload);
   if (!res.ok) {
     const err = await res.text();
-    console.warn("[telegram-api] editMessageText failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
+    logWarn("editMessageText failed", { chatId, messageId, status: res.status, error: err.slice(0, 200) });
   }
 }
 
