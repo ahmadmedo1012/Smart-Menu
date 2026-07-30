@@ -23,6 +23,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { compressImage } from '@/lib/image-compress';
 
 interface Plan {
 	id: number;
@@ -128,7 +129,12 @@ export default function OwnerSettingsPage() {
 	const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		const url = await uploadImage(file, 'logo');
+		const compressed = await compressImage(file, 400, 0.7);
+		const compressedFile = new File([compressed], file.name, { type: 'image/jpeg' });
+		if (logo) {
+			try { await fetch('/api/upload/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: logo }) }); } catch { /* best effort */ }
+		}
+		const url = await uploadImage(compressedFile, 'logo');
 		if (url) setLogo(url);
 		if (logoInputRef.current) logoInputRef.current.value = '';
 	};

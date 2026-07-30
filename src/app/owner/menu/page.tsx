@@ -108,7 +108,7 @@ export default function OwnerMenuPage() {
 	} | null>(null);
 	const [usageKey, setUsageKey] = useState(0);
 	const [error, setError] = useState<string | null>(null);
-		const fetchCatsRef = useRef<() => Promise<void>>(undefined);
+	const fetchCatsRef = useRef<() => Promise<void>>(undefined);
 
 	const fetchCats = useCallback(async () => {
 		if (!restaurantId) return;
@@ -130,7 +130,7 @@ export default function OwnerMenuPage() {
 			setLoading(false);
 		}
 	}, [restaurantId]);
-		fetchCatsRef.current = fetchCats;
+	fetchCatsRef.current = fetchCats;
 
 	useEffect(() => {
 		fetch('/api/auth/me')

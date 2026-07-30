@@ -244,7 +244,7 @@ describe('auth.ts', () => {
 		it('sub_admin with matching permission → authorized', async () => {
 			vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 4 });
 			vi.mocked(db.getUserById).mockResolvedValue(subAdminPermRow);
-			const r = await requirePermission('manage_orders');
+			const r = await requirePermission('MANAGE_USERS');
 			expect(r.authorized).toBe(true);
 		});
 
