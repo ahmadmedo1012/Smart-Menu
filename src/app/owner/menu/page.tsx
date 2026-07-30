@@ -130,7 +130,7 @@ export default function OwnerMenuPage() {
 			setLoading(false);
 		}
 	}, [restaurantId]);
-	fetchCatsRef.current = fetchCats;
+	useEffect(() => { fetchCatsRef.current = fetchCats; }, [fetchCats]);
 
 	useEffect(() => {
 		fetch('/api/auth/me')

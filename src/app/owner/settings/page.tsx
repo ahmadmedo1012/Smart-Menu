@@ -75,6 +75,7 @@ export default function OwnerSettingsPage() {
 	const [uploading, setUploading] = useState({ logo: false, gallery: false });
 	const logoInputRef = useRef<HTMLInputElement>(null);
 	const galleryInputRef = useRef<HTMLInputElement>(null);
+	const prevLogoRef = useRef('');
 
 	useEffect(() => {
 		Promise.all([
@@ -131,9 +132,7 @@ export default function OwnerSettingsPage() {
 		if (!file) return;
 		const compressed = await compressImage(file, 400, 0.7);
 		const compressedFile = new File([compressed], file.name, { type: 'image/jpeg' });
-		if (logo) {
-			try { await fetch('/api/upload/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: logo }) }); } catch { /* best effort */ }
-		}
+		if (logo) prevLogoRef.current = logo;
 		const url = await uploadImage(compressedFile, 'logo');
 		if (url) setLogo(url);
 		if (logoInputRef.current) logoInputRef.current.value = '';
