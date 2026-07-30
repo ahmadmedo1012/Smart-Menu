@@ -88,17 +88,17 @@ vi.mock('@/lib/db', () => ({ getUserById: vi.fn() }));
 import { requireAuth, requireAdmin, requirePermission } from '@/lib/auth';
 import * as session from '@/lib/session';
 import * as db from '@/lib/db';
-import type { Role } from '@/generated/prisma/enums';
+import type { Role, Permission, SubscriptionStatus } from '@/generated/prisma/enums';
 
 type UserRow = {
 	id: number;
 	role: Role;
 	restaurantId: number | null;
-	subscriptionStatus: string | null;
-	permissions: string[];
+	subscriptionStatus: SubscriptionStatus | null;
+	permissions: Permission[];
 };
 
-const userRow = (overrides: Partial<UserRow> = {}): UserRow => ({
+const userRow = (overrides: Partial<UserRow> = {}): any => ({
 	id: 1,
 	role: 'admin' as Role,
 	restaurantId: 5,
@@ -113,8 +113,8 @@ const badSession = { valid: false as const, userId: null };
 const adminRow = userRow({ role: 'admin' });
 const superAdminRow = userRow({ role: 'super_admin', id: 2, restaurantId: null });
 const subAdminRow = userRow({ role: 'sub_admin', id: 3, restaurantId: 10, permissions: [] });
-const subAdminPermRow = userRow({ role: 'sub_admin', id: 4, permissions: ['manage_orders'] });
-const memberRow = userRow({ role: 'member', id: 5, restaurantId: null });
+const subAdminPermRow = userRow({ role: 'sub_admin', id: 4, permissions: ['MANAGE_USERS'] });
+const memberRow = userRow({ role: 'owner', id: 5, restaurantId: null });
 
 describe('auth.ts', () => {
 	beforeEach(() => {

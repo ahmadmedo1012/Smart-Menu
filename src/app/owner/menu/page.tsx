@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -108,7 +108,7 @@ export default function OwnerMenuPage() {
 	} | null>(null);
 	const [usageKey, setUsageKey] = useState(0);
 	const [error, setError] = useState<string | null>(null);
-		const fetchCatsRef = useRef<() => Promise<void>>();
+		const fetchCatsRef = useRef<() => Promise<void>>(undefined);
 
 	const fetchCats = useCallback(async () => {
 		if (!restaurantId) return;
