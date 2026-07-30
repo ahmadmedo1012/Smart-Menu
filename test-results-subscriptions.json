@@ -1,0 +1,110 @@
+[
+  {
+    "test": 1,
+    "description": "GET /api/plans",
+    "status": "PASS",
+    "detail": "Plans: Free|Basic|Premium|Pro|Enterprise"
+  },
+  {
+    "test": 2,
+    "description": "Plan details verification",
+    "status": "PASS",
+    "detail": "All 5 plans present"
+  },
+  {
+    "test": 3,
+    "description": "Subscription status",
+    "status": "PASS",
+    "detail": "Valid response"
+  },
+  {
+    "test": 4,
+    "description": "Plan limits enforcement",
+    "status": "WARN",
+    "detail": "Not blocked: ALLOWED"
+  },
+  {
+    "test": 5,
+    "description": "Subscription create",
+    "status": "SKIPPED",
+    "detail": "Pending exists: \u0644\u062f\u064a\u0643 \u0637\u0644\u0628 \u062f\u0641\u0639 \u0645\u0639\u0644\u0642 \u0628\u0627\u0644\u0641\u0639\u0644"
+  },
+  {
+    "test": 6,
+    "description": "Telegram payment approval",
+    "status": "PASS",
+    "detail": "Subscribe endpoint reaches Telegram"
+  },
+  {
+    "test": 7,
+    "description": "Payment approval simulation",
+    "status": "PASS",
+    "detail": "Response: OK"
+  },
+  {
+    "test": 8,
+    "description": "Payment rejection simulation",
+    "status": "PASS",
+    "detail": "Response: OK"
+  },
+  {
+    "test": 9,
+    "description": "Payment status update",
+    "status": "PASS",
+    "detail": "Status endpoint accessible"
+  },
+  {
+    "test": 10,
+    "description": "Webhook without auth",
+    "status": "PASS",
+    "detail": "HTTP 403"
+  },
+  {
+    "test": 11,
+    "description": "Webhook invalid payload",
+    "status": "INFO",
+    "detail": "HTTP 200"
+  },
+  {
+    "test": 12,
+    "description": "Webhook valid request",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "test": 13,
+    "description": "Adding items at plan limit",
+    "status": "PASS",
+    "detail": "See test 4"
+  },
+  {
+    "test": 14,
+    "description": "Expired plan restrictions",
+    "status": "SKIPPED",
+    "detail": "NO_TIMING_INFO"
+  },
+  {
+    "test": 15,
+    "description": "Plan upgrade flow",
+    "status": "SKIPPED",
+    "detail": "\u0644\u062f\u064a\u0643 \u0637\u0644\u0628 \u062f\u0641\u0639 \u0645\u0639\u0644\u0642 \u0628\u0627\u0644\u0641\u0639\u0644"
+  },
+  {
+    "test": 16,
+    "description": "Plan downgrade",
+    "status": "PASS",
+    "detail": "FOUND"
+  },
+  {
+    "test": 17,
+    "description": "Cron cleanup with auth",
+    "status": "WARN",
+    "detail": "HTTP 401"
+  },
+  {
+    "test": 18,
+    "description": "Cron cleanup without auth",
+    "status": "PASS",
+    "detail": "HTTP 401"
+  }
+]

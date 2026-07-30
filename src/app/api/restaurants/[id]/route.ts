@@ -122,21 +122,24 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 		const { id } = await params;
 		const rId = Number(id);
 		if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
-		// Delete related images from blob
+		// Collect image URLs before deletion (blob URLs needed after DB delete)
 		const items = await prisma.menuItem.findMany({
 			where: { category: { restaurantId: rId } },
 			select: { image: true },
 		});
-		for (const item of items) deleteBlob(item.image);
 		const restRow = await prisma.restaurant.findUnique({
 			where: { id: rId },
 			select: { logo: true, gallery: true },
 		});
+
+		await prisma.restaurant.delete({ where: { id: rId } });
+
+		// Delete images from blob only after DB delete succeeds
+		for (const item of items) deleteBlob(item.image);
 		if (restRow) {
 			deleteBlob(restRow.logo);
 			if (Array.isArray(restRow.gallery)) restRow.gallery.forEach((u: string) => deleteBlob(u));
 		}
-		await prisma.restaurant.delete({ where: { id: rId } });
 		return success({ deleted: true });
 	} catch (e) {
 		return handleError(e);

@@ -190,6 +190,15 @@ export default function OwnerSettingsPage() {
 				const err = await res.json();
 				throw new Error(err.error ?? 'فشل الحفظ');
 			}
+			// Delete old logo from blob after successful save
+			if (prevLogoRef.current) {
+				fetch('/api/upload/delete', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ url: prevLogoRef.current }),
+				}).catch(() => {});
+				prevLogoRef.current = '';
+			}
 			premiumToast('save', 'تم حفظ الإعدادات');
 			const settingsRes = await fetch('/api/settings');
 			const settingsData = await settingsRes.json();

@@ -67,16 +67,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			return error('غير مصرح', 401);
 		}
 
-		// Delete old image from blob if it was replaced
-		if (body.image && existing.image && body.image !== existing.image) {
-			deleteBlob(existing.image);
-		}
-
 		const data = await prisma.menuItem.update({
 			where: { id: itemId },
 			data: { ...body, status: body.status as ItemStatus },
 			include: { category: { select: { id: true, name: true, nameAr: true } } },
 		});
+
+		// Delete old image from blob only after DB update succeeds
+		if (body.image && existing.image && body.image !== existing.image) {
+			deleteBlob(existing.image);
+		}
 		return success(data);
 	} catch (e) {
 		return handleError(e);
@@ -104,10 +104,10 @@ export async function DELETE(
 			return error('غير مصرح', 401);
 		}
 
-		// Delete item image from blob
-		if (existing.image) deleteBlob(existing.image);
-
 		await prisma.menuItem.delete({ where: { id: delId } });
+
+		// Delete item image from blob only after DB delete succeeds
+		if (existing.image) deleteBlob(existing.image);
 		return success({ id: delId });
 	} catch (e) {
 		return handleError(e);

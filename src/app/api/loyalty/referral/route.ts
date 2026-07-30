@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
 
     if (!referrerCard) return error("Invalid referral code", 404);
 
+    // Enforce referral usage limit (max 10 converted referrals per code)
+    const convertedCount = await prisma.referral.count({
+      where: { referralCode, status: "converted" },
+    });
+    const MAX_REFERRAL_USES = 10;
+    if (convertedCount >= MAX_REFERRAL_USES) {
+      return error("لقد وصل كود الإحالة إلى الحد الأقصى من الاستخدامات", 400);
+    }
+
     const referral = await prisma.referral.create({
       data: {
         referralCode,

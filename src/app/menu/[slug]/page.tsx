@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
