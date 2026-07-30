@@ -1,17 +1,65 @@
-import type { MetadataRoute } from "next"
+import type { MetadataRoute } from 'next';
+import { prisma } from '@/lib/db';
 
-const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || "https://smart-link.ly"
+const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || 'https://smart-link.ly';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    { url: BASE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
-    { url: `${BASE_URL}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${BASE_URL}/login`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE_URL}/terms`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
-    { url: `${BASE_URL}/privacy`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
-    { url: `${BASE_URL}/subscribe`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/cart`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE_URL}/order-confirmed`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
-    // ponytail: /menu/* pages are dynamic — add when static generation or ISR is configured
-  ]
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	const restaurants = await prisma.restaurant.findMany({
+		where: { isActive: true },
+		select: { slug: true, updatedAt: true },
+	});
+
+	const menuPages: MetadataRoute.Sitemap = restaurants.map((r) => ({
+		url: `${BASE_URL}/menu/${r.slug}`,
+		lastModified: r.updatedAt,
+		changeFrequency: 'daily',
+		priority: 0.8,
+	}));
+
+	return [
+		{ url: BASE_URL, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+		{
+			url: `${BASE_URL}/pricing`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.8,
+		},
+		{
+			url: `${BASE_URL}/login`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.3,
+		},
+		{
+			url: `${BASE_URL}/terms`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.4,
+		},
+		{
+			url: `${BASE_URL}/privacy`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.4,
+		},
+		{
+			url: `${BASE_URL}/subscribe`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.5,
+		},
+		{
+			url: `${BASE_URL}/cart`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.3,
+		},
+		{
+			url: `${BASE_URL}/order-confirmed`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.3,
+		},
+		...menuPages,
+	];
 }

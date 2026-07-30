@@ -46,10 +46,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 	}
 }
 
-export async function DELETE(
-	_: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		const auth = await requirePermission('MANAGE_USERS');
 		if (!auth.authorized) return error(auth.error, auth.status);
@@ -78,10 +75,7 @@ export async function DELETE(
 	}
 }
 
-export async function POST(
-	_: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		const auth = await requirePermission('MANAGE_USERS');
 		if (!auth.authorized) return error(auth.error, auth.status);

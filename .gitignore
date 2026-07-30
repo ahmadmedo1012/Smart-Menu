@@ -48,6 +48,9 @@ public/uploads/*
 !public/uploads/.gitkeep
 remotion/node_modules
 screenshots/
+# tmp — secrets safety
+tmp/*
+!tmp/.gitkeep
 # Screenshots / debug
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 *.sqlite

@@ -4,6 +4,8 @@ import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 import { ServiceWorkerInit } from '@/components/shared/ServiceWorkerInit';
+import { InstallPrompt } from '@/components/shared/InstallPrompt';
+import { CartHydrator } from '@/components/shared/CartHydrator';
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -70,6 +72,8 @@ export default function RootLayout({
 				<link rel="icon" type="image/png" href="/favicon.png" />
 				<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
 				<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+				{/* ponytail: generate /apple-touch-icon.png (180x180) from public/icon-512.png via any image resizer */}
+				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 				<meta name="theme-color" content="#000000" />
 				<meta name="mobile-web-app-capable" content="yes" />
 				<meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -116,7 +120,7 @@ export default function RootLayout({
 			<body className="min-h-screen flex flex-col antialiased overflow-x-hidden bg-[var(--background-radial),var(--background)]">
 				<a
 					href="#main-content"
-					className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-sm focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none"
+					className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:end-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-sm focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none"
 				>
 					تخطى إلى المحتوى الرئيسي
 				</a>
@@ -135,6 +139,8 @@ export default function RootLayout({
 					/>
 					<ScrollToTop />
 					<ServiceWorkerInit />
+					<InstallPrompt />
+					<CartHydrator />
 					<MotionProvider>
 						<main id="main-content">{children}</main>
 					</MotionProvider>

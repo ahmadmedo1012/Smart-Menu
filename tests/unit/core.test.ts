@@ -3,82 +3,82 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 describe("hash.ts", () => {
   it("hashPassword returns string", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     expect(typeof hashPassword("correct-horse-battery-staple")).toBe("string");
   });
 
   it("hashPassword format salt:hash", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     expect(hashPassword("correct-horse-battery-staple")).toContain(":");
   });
 
   it("salt = 64 hex chars (32 bytes)", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     const [salt] = hashPassword("correct-horse-battery-staple").split(":");
     expect(salt).toHaveLength(64);
   });
 
   it("hash = 128 hex chars (64 bytes)", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
     expect(hash).toHaveLength(128);
   });
 
   it("salt hex only", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     const [salt] = hashPassword("correct-horse-battery-staple").split(":");
     expect(salt).toMatch(/^[0-9a-f]+$/);
   });
 
   it("hash hex only", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
     expect(hash).toMatch(/^[0-9a-f]+$/);
   });
 
   it("verifyHash correct password -> true", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
     const pwd = "correct-horse-battery-staple";
     const hashed = hashPassword(pwd);
     expect(verifyHash(pwd, hashed)).toBe(true);
   });
 
   it("wrong password -> false", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
     const hashed = hashPassword("correct-horse-battery-staple");
     expect(verifyHash("wrong-password", hashed)).toBe(false);
   });
 
   it("empty password -> false", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
     const hashed = hashPassword("correct-horse-battery-staple");
     expect(verifyHash("", hashed)).toBe(false);
   });
 
   it("empty stored -> false", async () => {
-    const { verifyHash } = await import("../../src/lib/hash.ts");
+    const { verifyHash } = await import("../../src/lib/hash");
     expect(verifyHash("anything", "")).toBe(false);
   });
 
   it("no-colon stored -> false", async () => {
-    const { verifyHash } = await import("../../src/lib/hash.ts");
+    const { verifyHash } = await import("../../src/lib/hash");
     expect(verifyHash("anything", "no-colon")).toBe(false);
   });
 
   it("multi-colon stored -> false", async () => {
-    const { verifyHash } = await import("../../src/lib/hash.ts");
+    const { verifyHash } = await import("../../src/lib/hash");
     expect(verifyHash("anything", "a:b:c")).toBe(false);
   });
 
   it("verifyHash idempotent for same password", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash.ts");
+    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
     const pwd = "correct-horse-battery-staple";
     const hashed = hashPassword(pwd);
     expect(verifyHash(pwd, hashed)).toBe(true);
   });
 
   it("unique salt per call", async () => {
-    const { hashPassword } = await import("../../src/lib/hash.ts");
+    const { hashPassword } = await import("../../src/lib/hash");
     const h1 = hashPassword("correct-horse-battery-staple");
     const h2 = hashPassword("correct-horse-battery-staple");
     expect(h1.split(":")[0]).not.toBe(h2.split(":")[0]);
@@ -198,7 +198,7 @@ describe("csrf-client.ts", () => {
       calls.push({ input, init });
       return Promise.resolve(new Response(null, { status: 200 }));
     };
-    return (await import("../../src/lib/csrf-client.ts")).csrfFetch;
+    return (await import("../../src/lib/csrf-client")).csrfFetch;
   }
 
   it("GET — no CSRF header added", async () => {

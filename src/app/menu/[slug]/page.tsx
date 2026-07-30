@@ -1,122 +1,183 @@
-import { notFound } from "next/navigation";
-export const dynamic = "force-dynamic";
-import { prisma } from "@/lib/db";
-import type { Metadata } from "next";
-import { MenuClientSection } from "@/components/menu/MenuClientSection";
+import { notFound } from 'next/navigation';
+export const revalidate = 60;
+import { prisma } from '@/lib/db';
+import type { Metadata } from 'next';
+import { MenuClientSection } from '@/components/menu/MenuClientSection';
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
-  const restaurant = await prisma.restaurant.findUnique({ where: { slug }, select: { id: true, name: true, description: true, logo: true } });
-  if (!restaurant) notFound();
-  return {
-    title: restaurant.name,
-    openGraph: {
-      title: restaurant.name,
-      description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
-      url: `${origin}/menu/${slug}`,
-      siteName: "الربط الذكي",
-      images: restaurant.logo ? [{ url: restaurant.logo, width: 512, height: 512 }] : [],
-      locale: "ar_LY",
-      type: "website",
-    },
-  };
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+	const { slug } = await params;
+	const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+	const restaurant = await prisma.restaurant.findUnique({
+		where: { slug },
+		select: { id: true, name: true, description: true, logo: true },
+	});
+	if (!restaurant) notFound();
+	return {
+		title: restaurant.name,
+		openGraph: {
+			title: restaurant.name,
+			description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+			url: `${origin}/menu/${slug}`,
+			siteName: 'الربط الذكي',
+			images: restaurant.logo ? [{ url: restaurant.logo, width: 512, height: 512 }] : [],
+			locale: 'ar_LY',
+			type: 'website',
+		},
+	};
 }
 
 export default async function PublicMenuPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+	const { slug } = await params;
+	const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
 
-  const restaurant = await prisma.restaurant.findUnique({
-    where: { slug },
-    select: {
-      id: true, name: true, description: true, logo: true, phone: true, whatsapp: true,
-      slug: true, address: true, workingHours: true, gallery: true, email: true,
-    },
-  });
-  if (!restaurant) notFound();
+	const restaurant = await prisma.restaurant.findUnique({
+		where: { slug, isActive: true },
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			logo: true,
+			phone: true,
+			whatsapp: true,
+			slug: true,
+			address: true,
+			workingHours: true,
+			gallery: true,
+			email: true,
+		},
+	});
+	if (!restaurant) notFound();
 
-  // Server component, runs once per request — Date.now is safe here
-  // eslint-disable-next-line react-hooks/purity
-  const SEVEN_DAYS_MS = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const SEVEN_DAYS_AGO = new Date(SEVEN_DAYS_MS);
+	// Server component, runs once per request — Date.now is safe here
+	// eslint-disable-next-line react-hooks/purity
+	const SEVEN_DAYS_MS = Date.now() - 7 * 24 * 60 * 60 * 1000;
+	const SEVEN_DAYS_AGO = new Date(SEVEN_DAYS_MS);
 
-  const [categories, items, popularData] = await Promise.all([
-    prisma.menuCategory.findMany({
-      where: { isActive: true, restaurantId: restaurant.id },
-      orderBy: { sortOrder: "asc" },
-    }),
-    prisma.menuItem.findMany({
-      where: { status: "available", category: { restaurantId: restaurant.id } },
-      include: { category: true },
-      orderBy: { sortOrder: "asc" },
-    }),
-    prisma.orderItem.groupBy({
-      by: ["itemId"],
-      _sum: { quantity: true },
-      where: {
-        order: { restaurantId: restaurant.id, createdAt: { gte: SEVEN_DAYS_AGO }, status: { not: "cancelled" } },
-      },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 10,
-    }),
-  ]);
+	const [categories, items, popularData] = await Promise.all([
+		prisma.menuCategory.findMany({
+			where: { isActive: true, restaurantId: restaurant.id },
+			orderBy: { sortOrder: 'asc' },
+		}),
+		prisma.menuItem.findMany({
+			where: { status: 'available', category: { restaurantId: restaurant.id } },
+			include: { category: true },
+			orderBy: { sortOrder: 'asc' },
+		}),
+		prisma.orderItem.groupBy({
+			by: ['itemId'],
+			_sum: { quantity: true },
+			where: {
+				order: {
+					restaurantId: restaurant.id,
+					createdAt: { gte: SEVEN_DAYS_AGO },
+					status: { not: 'cancelled' },
+				},
+			},
+			orderBy: { _sum: { quantity: 'desc' } },
+			take: 10,
+		}),
+	]);
 
-  const popularIds = new Set(popularData.map((o) => o.itemId));
-  const serializedCategories = categories.map(c => ({
-    ...c,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
-  }));
+	const popularIds = new Set(popularData.map((o) => o.itemId));
+	const serializedCategories = categories.map((c) => ({
+		...c,
+		createdAt: c.createdAt.toISOString(),
+		updatedAt: c.updatedAt.toISOString(),
+	}));
 
-  const serializedItems = items.map(({ price, discountedPrice, avgRating, ratingCount, category, ...rest }) => ({
-    id: rest.id,
-    name: rest.name,
-    nameAr: rest.nameAr,
-    description: rest.description,
-    descriptionAr: rest.descriptionAr,
-    image: rest.image,
-    sortOrder: rest.sortOrder,
-    categoryId: rest.categoryId,
-    createdAt: rest.createdAt.toISOString(),
-    status: rest.status,
-    dietaryTags: rest.dietaryTags,
-    allergens: rest.allergens,
-    price: Number(price),
-    discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
-    avgRating: avgRating !== null ? Number(avgRating) : null,
-    ratingCount,
-    isPopular: popularIds.has(rest.id),
-    isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
-    category: {
-      id: category.id,
-      name: category.name,
-      nameAr: category.nameAr,
-      icon: category.icon,
-      sortOrder: category.sortOrder,
-      isActive: category.isActive,
-      restaurantId: category.restaurantId,
-      createdAt: category.createdAt.toISOString(),
-      updatedAt: category.updatedAt.toISOString(),
-    },
-  }));
+	const serializedItems = items.map(
+		({ price, discountedPrice, avgRating, ratingCount, category, ...rest }) => ({
+			id: rest.id,
+			name: rest.name,
+			nameAr: rest.nameAr,
+			description: rest.description,
+			descriptionAr: rest.descriptionAr,
+			image: rest.image,
+			sortOrder: rest.sortOrder,
+			categoryId: rest.categoryId,
+			createdAt: rest.createdAt.toISOString(),
+			status: rest.status,
+			dietaryTags: rest.dietaryTags,
+			allergens: rest.allergens,
+			price: Number(price),
+			discountedPrice: discountedPrice !== null ? Number(discountedPrice) : null,
+			avgRating: avgRating !== null ? Number(avgRating) : null,
+			ratingCount,
+			isPopular: popularIds.has(rest.id),
+			isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
+			category: {
+				id: category.id,
+				name: category.name,
+				nameAr: category.nameAr,
+				icon: category.icon,
+				sortOrder: category.sortOrder,
+				isActive: category.isActive,
+				restaurantId: category.restaurantId,
+				createdAt: category.createdAt.toISOString(),
+				updatedAt: category.updatedAt.toISOString(),
+			},
+		})
+	);
 
-  const hasContact = !!(restaurant.phone || restaurant.whatsapp || restaurant.email || restaurant.address);
+	const jsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'Restaurant',
+		name: restaurant.name,
+		description: restaurant.description,
+		url: `${origin}/menu/${slug}`,
+		telephone: restaurant.phone || restaurant.whatsapp || undefined,
+		servesCuisine: 'Libyan',
+		hasMenu: {
+			'@type': 'Menu',
+			name: `قائمة ${restaurant.name}`,
+			hasMenuSection: categories.map((c) => ({
+				'@type': 'MenuSection',
+				name: c.name,
+				hasMenuItem: items
+					.filter((i) => i.categoryId === c.id)
+					.map((i) => ({
+						'@type': 'MenuItem',
+						name: i.name,
+						description: i.description,
+						offers: {
+							'@type': 'Offer',
+							price: Number(i.price),
+							priceCurrency: 'LYD',
+						},
+					})),
+			})),
+		},
+	};
 
-  return (
-    <div className="min-h-screen relative overflow-x-hidden">
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.08),transparent_70%)] pointer-events-none" />
+	const hasContact = !!(
+		restaurant.phone ||
+		restaurant.whatsapp ||
+		restaurant.email ||
+		restaurant.address
+	);
 
-      {/* Hero + Menu + Loyalty — fully client-rendered to avoid hydration mismatch */}
-      <MenuClientSection
-        restaurant={restaurant}
-        slug={slug}
-        origin={origin}
-        categories={serializedCategories}
-        serializedItems={serializedItems}
-        hasContact={hasContact}
-      />
+	return (
+		<div className="min-h-screen relative overflow-x-hidden">
+			<div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.08),transparent_70%)] pointer-events-none" />
 
-    </div>
-  );
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+			/>
+
+			{/* Hero + Menu + Loyalty — fully client-rendered to avoid hydration mismatch */}
+			<MenuClientSection
+				restaurant={restaurant}
+				slug={slug}
+				origin={origin}
+				categories={serializedCategories}
+				serializedItems={serializedItems}
+				hasContact={hasContact}
+			/>
+		</div>
+	);
 }

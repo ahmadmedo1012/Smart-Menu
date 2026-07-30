@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /owner
+Disallow: /api
+
+Sitemap: https://menu.smart-link.ly/sitemap.xml

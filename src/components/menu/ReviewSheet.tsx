@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, X, MessageCircle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -65,6 +65,42 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 		return () => abort.abort();
 	}, [open, menuItemId, filterStar, retryKey]);
 
+	const sheetRef = useRef<HTMLDivElement>(null);
+
+	const trapFocus = useCallback((e: KeyboardEvent) => {
+		if (e.key !== 'Tab' || !sheetRef.current) return;
+		const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
+			'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+		);
+		if (focusable.length === 0) return;
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		if (e.shiftKey) {
+			if (document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			}
+		} else {
+			if (document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	}, []);
+
+	useEffect(() => {
+		if (!open || !sheetRef.current) return;
+		const firstFocusable = sheetRef.current.querySelector<HTMLElement>(
+			'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+		);
+		firstFocusable?.focus();
+		const raf = requestAnimationFrame(() => document.addEventListener('keydown', trapFocus));
+		return () => {
+			cancelAnimationFrame(raf);
+			document.removeEventListener('keydown', trapFocus);
+		};
+	}, [open, trapFocus]);
+
 	async function handleSubmit() {
 		if (formRating < 1) return;
 		setSubmitting(true);
@@ -112,6 +148,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 
 					{/* Sheet */}
 					<motion.div
+						ref={sheetRef}
 						initial={{ y: '100%' }}
 						animate={{ y: 0 }}
 						exit={{ y: '100%' }}

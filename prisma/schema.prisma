@@ -40,6 +40,7 @@ model User {
   @@index([planId])
   @@index([role])
   @@index([lastLoginAt])
+  @@index([createdAt])
 }
 
 model SubscriptionPlan {
@@ -166,6 +167,7 @@ model Order {
 
   @@index([status, createdAt])
   @@index([restaurantId, status])
+  @@index([restaurantId, status, createdAt])
   @@index([customerPhone])
   @@index([createdAt])
 }

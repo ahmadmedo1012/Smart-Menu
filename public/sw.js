@@ -40,7 +40,7 @@ self.addEventListener('fetch', (event) => {
 	// API calls: network-only — never cache API responses, prevents
 	// stale offline.html being served as JSON on first load after SW update
 	if (url.pathname.startsWith('/api/')) {
-		event.respondWith(networkFirst(request));
+		event.respondWith(networkOnly(request));
 		return;
 	}
 
@@ -65,6 +65,14 @@ async function cacheFirst(request) {
 		return res;
 	} catch {
 		return caches.match('/offline.html');
+	}
+}
+
+async function networkOnly(request) {
+	try {
+		return await fetch(request);
+	} catch {
+		return new Response(null, { status: 503 });
 	}
 }
 

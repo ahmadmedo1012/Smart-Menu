@@ -245,6 +245,34 @@ export default function OwnerLoyaltyPage() {
 			</div>
 		);
 
+	/* ---------- Empty state (no data at all) ---------- */
+	const isEmpty =
+		stats &&
+		stats.totalLoyaltyCards === 0 &&
+		stats.recentReferrals.length === 0 &&
+		stats.recentTransactions.length === 0;
+
+	if (isEmpty)
+		return (
+			<div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
+				<Button variant="ghost" size="sm" onClick={() => router.push('/owner')} className="mb-2">
+					<ArrowRight className="size-4 me-1" /> العودة
+				</Button>
+				<div className="card-premium flex flex-col items-center justify-center rounded-md bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
+					<div className="mb-4 flex size-16 items-center justify-center rounded-md bg-orange/10">
+						<Gift className="size-7 text-orange" />
+					</div>
+					<p className="text-lg font-semibold">لا توجد عناصر</p>
+					<p className="mt-1 text-sm text-muted-foreground">
+						لم يتم إضافة أي بيانات ولاء بعد. ابدأ بإعداد برنامج الولاء من الإعدادات.
+					</p>
+					<Button variant="outline" className="mt-5" onClick={() => setShowSettings(true)}>
+						<Award className="size-4 me-2" /> الإعدادات
+					</Button>
+				</div>
+			</div>
+		);
+
 	const statCards = [
 		{
 			label: 'إجمالي الأعضاء',

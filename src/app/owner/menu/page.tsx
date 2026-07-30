@@ -109,18 +109,6 @@ export default function OwnerMenuPage() {
 	const [usageKey, setUsageKey] = useState(0);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		fetch('/api/auth/me')
-			.then((r) => {
-				if (!r.ok) throw Error();
-				return r.json();
-			})
-			.then((d) => {
-				if (d.data?.restaurantId) setRestaurantId(d.data.restaurantId);
-			})
-			.catch(() => router.push('/login'));
-	}, [router]);
-
 	const fetchCats = useCallback(async () => {
 		if (!restaurantId) return;
 		try {
@@ -141,6 +129,18 @@ export default function OwnerMenuPage() {
 			setLoading(false);
 		}
 	}, [restaurantId]);
+
+	useEffect(() => {
+		fetch('/api/auth/me')
+			.then((r) => {
+				if (!r.ok) throw Error();
+				return r.json();
+			})
+			.then((d) => {
+				if (d.data?.restaurantId) setRestaurantId(d.data.restaurantId);
+			})
+			.catch(() => router.push('/login'));
+	}, [router]);
 
 	useEffect(() => {
 		if (restaurantId) fetchCats();

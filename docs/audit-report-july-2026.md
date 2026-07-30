@@ -1,244 +1,295 @@
 # ≡ تقرير الفحص الشامل — Smart Menu
 
-**التاريخ:** 2026-07-18  
-**الموقع:** https://menu.smart-link.ly  
+**التاريخ:** 2026-07-29  
 **الفرع:** main  
-**آخر commit:** 064145a1  
+**الفريق:** 30 وكيل فحص (17 مكتمل، 11 محدود المعدل، 2 فارغ)
 
 ---
 
 ## ملخص تنفيذي
 
-**إجمالي findings:** 87  
-**CRITICAL:** 12 ⛔  
-**HIGH:** 28 ⚠️  
-**MEDIUM:** 30  
-**LOW:** 17  
+**إجمالي findings:** 127+  
+**CRITICAL:** 20 ⛔  
+**HIGH:** 43 ⚠️  
+**MEDIUM:** 42  
+**LOW:** 22  
 
-**حالة الموقع:** يعمل — جميع الصفحات ترد 200، E2E 20/20. فيه 3 مشاكل حرجة تمنع الإطلاق للمشاريع الكبيرة.
-
-### أهم 3 مشاكل
-1. **CRITICAL** — `destroySession(undefined)` يمسح كل الجلسات — بأي طلب Logout بدون كوكي
-2. **CRITICAL** — توكن تيليغرام وكلمة سر DB مكشوفة في git history
-3. **CRITICAL** — CSRF protection غير فعّال و ˝dead code˝
+**حالة الموقع:** يعمل — جميع الصفحات ترد 200. لكن 20 مشكلة حرجة تمنع الإطلاق الآمن.
 
 ---
 
-## 1. هيكل المشروع والتكوين
+## ⛔ القائمة الحمراء — يجب الإصلاح فوراً
 
-### إيجابي
-- TypeScript strict mode ✅  
-- path alias `@/* → ./src/*` ✅  
-- Next.js 16.2.9 (أحدث) ✅  
-- tsconfig شامل مع exclude مناسب
+### أمني • CRITICAL
 
-### مشاكل
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| HIGH | Remotion dependencies (4 packages ≈ 153 MB) بلا استخدام | package.json |
-| HIGH | `.env.production` موجود على القرص مع بيانات حية | `.env.production` |
-| HIGH | `test:legacy` script ما يشتغل — tsx ما يدعم glob | package.json |
-| MED | `.githooks/` مش موجود بس script يشير له | package.json |
-| MED | eslint يتجاهل tests/ بالكامل | eslint.config.mjs |
-| LOW | `tsconfig.json` target ES2017 (قديم — الأحدث ES2022+) | tsconfig.json |
-| LOW | `.playwright-mcp/` و `screenshots/` مش في gitignore | .gitignore |
-| LOW | tsconfig يمنع prisma/ من الـ typecheck | tsconfig.json |
+1. **أسرار حية في git history** — TELEGRAM_BOT_TOKEN، JWT_SECRET، DATABASE_URL، VERCEL_OIDC_TOKEN في commits سابقة (`4f620379`, `d7fb1749`). تدوير فوري + `git filter-repo` لمسح التاريخ.
 
----
+2. **CSP غائب تماماً** — ملفا middleware.ts (الجذر و src/). الجذر ميت (لا ينفذ). src/middleware.ts لا يضبط أي CSP. XSS protection معدومة.
 
-## 2. جودة الكود
+3. **جلسات بنص عادي في DB** — `crypto.randomUUID()` يخزن التوكن مباشرة دون hashing. اختراق DB = كل الجلسات مكشوفة. تخزين `SHA256(token)`.
 
-### 2.1 TypeScript Issues (13 HIGH)
+4. **CSRF معطل** — `assertSameOrigin()` أزيل. SameSite=Lax وحده لا يحمي من subdomain attacks.
 
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| HIGH | 10+ دوال مصدرة without return type (تعتمد على inference) | lib/auth.ts, session.ts, config.ts, receipt.ts, env.ts, ... |
-| HIGH | `as string[]` على حقل JSON بدون Zod validation | lib/telegram.ts |
-| HIGH | `as Record<string, unknown>` يخفي نوع الخطأ الحقيقي | lib/subscription-decisions.ts |
-| MED | 15+ non-null assertions `!` في subscription-decisions.ts | lib/subscription-decisions.ts |
+5. **IDOR في subscription status** — أي مستخدم يستعلم عن أي دفععة برقمها. يرجع status بدون التحقق من الملكية.
 
-### 2.2 React Issues (5 HIGH)
+6. **SW يخزن استجابات API** — `networkFirst()` يخزن auth/financial data. تعليق الكود يقول "never cache" والفعل يعكس.
 
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| HIGH | 4 useEffects بدون AbortController — خطر تسريب ذاكرة | HomePage.tsx, AdminSidebar.tsx, ConfigEditor.tsx, LoyaltySettings.tsx |
-| HIGH | console.error متروك في production | HomePage.tsx |
+7. **CSRF يتحقق من Host header فقط** — يقارن Origin بـ `request.headers.get("host")` وليس بـ `NEXT_PUBLIC_DOMAIN`.
 
-### 2.3 API Routes (2 CRITICAL + 6 HIGH)
+8. **JWT_SECRET = AUTH_SECRET** — نفس القيمة. يجب فصلها.
 
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| ⛔ CRITICAL | GET items/[id]/reviews بدون try/catch — ينهار على أي DB error | items/[id]/reviews/route.ts |
-| ⛔ CRITICAL | GET demo/fix-images يعمل UPDATEs (side effects) | demo/fix-images/route.ts |
-| HIGH | `Record<string, unknown>` يلغي type safety للـ Prisma where | orders/route.ts, items/route.ts, ... |
-| HIGH | `as any` للـ Prisma where — أخطر استخدام | items/[id]/reviews/route.ts |
-| HIGH | POST restaurants بدون rate limiting | restaurants/route.ts |
-| HIGH | 3 event stream routes `catch {}` بدون أي logging | events/stream/route.ts وغيرها |
+### أداء • CRITICAL
 
-### 2.4 SEO/Metadata
+9. **Public menu pages `force-dynamic`** — 3 استعلامات Prisma لكل مشاهدة. ISR `revalidate: 60` يخفض حمل السيرفر 95%.
 
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| HIGH | /pricing تفتقر page-specific metadata | pricing/page.tsx |
-| HIGH | OG `url: "/"` hardcoded — كل الصفحات تورثها | layout.tsx |
-| MED | /login, /subscribe, /cart, /order-confirmed بدون metadata | عدة صفحات |
-| LOW | sitemap.ts بها 3 entries فقط — ناقصها صفحات مهمة | sitemap.ts |
+10. **Landing page 100% client-render** — shell فارغ + useEffect جلب. تحويل إلى server component مع streaming.
+
+11. **Cart persistence write-only** — `skipHydration: true` بدون `rehydrate()`. السلة تفرغ في كل reload.
+
+### قاعدة بيانات • CRITICAL
+
+12. **TOCTOU race على maxOrders** — `order.count()` ثم `order.create()` خارج transaction. طلبان متزامنان يتجاوزان الحد.
+
+13. **Rate limiter 3-call بدون transaction** — `deleteMany` + `create` + `count` خارج atomic. burst يتجاوز الحد.
+
+14. **TOCTOU race على pending payment** — `findFirst({status:"pending"})` ثم `create` خارج transaction.
+
+### واجهة • CRITICAL
+
+15. **لا focus trap في ReviewSheet** — Tab يهرب إلى الخلفية. `role="dialog"` لكن لا focus containment.
+
+16. **تباين ألوان فاشل في الوضع الفاتح** — `--primary` على `--primary-foreground` نسبة ~4.0:1 (تحت 4.5:1 AA).
+
+17. **Password toggle keyboard inaccessible** — `tabIndex={-1}` على زر إظهار/إخفاء كلمة السر.
+
+### واجهة برمجية • CRITICAL
+
+18. **استجابة API غير متناسقة** — 3 تنسيقات error: `{error}`, `{message}`, `{success, error}`. المتجر لا يعرف أي شكل ينتظر.
+
+19. **Session DB errors صامتة** — `prisma.session.deleteMany/.delete/.update` كلها `catch(() => {})`.
+
+20. **استخراج بيانات المطاعم بدون Auth** — `GET /api/restaurants/[id]` بدون مصادقة. تعداد IDs متسلسل يكشف كل المطاعم وخطط الاشتراك.
 
 ---
 
-## 3. الأمان
+## ⚠️ قائمة عالية — إصلاح قبل الإطلاق
 
-### 3.1 المصادقة والجلسات
+### Security
 
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| ⛔ CRITICAL | destroySession(undefined) يمسح **كل** الجلسات — cookie مفقودة = ماسح كل التوكنات | lib/session.ts:47 |
-| ⛔ CRITICAL | CSRF protection غير فعّال — الكود يرسل X-CSRF-Token header لكن السيرفر ما يتحقق منه أبدًا | lib/csrf.ts |
-| HIGH | Logout بدون CSRF + بدون مصادقة + بدون rate limit — ممكن CSRF mass logout | api/auth/logout/route.ts |
-| HIGH | sameSite='lax' — الأفضل strict للوحة الإدارة | lib/session.ts:41 |
-| HIGH | middleware ما يحمي /api/ — الحماية تعتمد كليًا على كل handler | middleware.ts |
+| # | المشكلة | الملف | الإصلاح |
+|---|---------|-------|---------|
+| H1 | لا rate limiting على 14 endpoint | routes متعدد | إضافة `createDbRateLimiter` |
+| H2 | PBKDF2 بدلاً من bcrypt/argon2id | `src/lib/hash.ts` | ترحيل إلى bcrypt |
+| H3 | لا brute force على reset-password | `src/app/api/admin/reset-password/route.ts` | rate limit per-account |
+| H4 | Loyalty GET مكشوف بدون Auth | `src/app/api/loyalty/route.ts:82` | مصادقة إلزامية |
+| H5 | Menu يخدم مطاعم غير نشطة | `src/app/menu/[slug]/page.tsx:30` | إضافة `isActive: true` |
+| H6 | VERCEL_OIDC_TOKEN في git | committed .env.local | تدوير |
+| H7 | `owner/reviews` يفضح `e.message` | `src/app/owner/reviews/route.ts:47` | استخدام `handleError(e)` |
+| H8 | Landing data functions صامتة | `src/lib/landing.ts:64-78` | تسجيل الخطأ |
+| H9 | Webhook route يرجع 200 على كل error | `src/app/api/telegram/webhook/route.ts:188-218` | 5xx لـ Telegram retry |
+| H10 | Loyalty يفضح PII بالهاتف | `src/app/api/loyalty/route.ts:82-111` | Auth إلزامي |
 
-### 3.2 الثغرات الأمنية
+### Middleware & Infrastructure
 
-| الخطورة | المشكلة | الملف |
-|---------|---------|-------|
-| ⛔ CRITICAL | AUTH_SECRET يُستخدم مباشرةً HMAC signing + AES-GCM encryption بنفس المفتاح | lib/env.ts, lib/config.ts |
-| ⛔ CRITICAL | توكن تيليغرام وكلمة سر DB وجميع الأسرار مدفونة في git history (commit dafcbb37) | git history |
-| HIGH | CSP `'unsafe-inline'` + `https:` wildcard — يلغي حماية XSS | next.config.ts |
-| HIGH | POST validate بدون rate limiting — enumeration للـ usernames/slugs | subscriptions/validate/route.ts |
-| MED | Upload بدون rate limit + بدون body size limit — DoS | upload/route.ts |
-| MED | JWT_SECRET و AUTH_SECRET نفس القيمة — تدوير إحداهما يكسر الأخرى | lib/env.ts, config.ts |
+| # | المشكلة | الملف | الإصلاح |
+|---|---------|-------|---------|
+| H11 | ملفا middleware — الجذر ميت | `middleware.ts`, `src/middleware.ts` | حذف الميت، دمج الـ CSP |
+| H12 | لا Vercel config | vercel.json غير موجود | إنشاء مع maxDuration |
+| H13 | Dual lockfiles (npm + pnpm) | `package-lock.json`, `pnpm-lock.yaml` | توحيد مدير حزم |
+| H14 | SW يخالف تعليقه | `public/sw.js:41-43` | تصحيح الـ strategy أو التعليق |
+| H15 | بريط RTL physical classes | 6+ ملفات `mr-*` بدلاً من `ms-*` | logical properties |
 
-### 3.3 Middleware و CSP
+### Prisma & API
 
-| الخطورة | المشكلة |
-|---------|---------|
-| HIGH | CSP ضعيف — `unsafe-inline` يلغي حماية XSS بالكامل |
-| HIGH | no report-uri — خروقات CSP تمر بدون إشعار |
-| MED | order-confirmed و demo خارج نطاق الـ matcher ما ياخذون CSP |
-| LOW | Permissions-Policy تغطي 3 من 8 recommended features |
+| # | المشكلة | الإصلاح |
+|---|---------|---------|
+| H16 | Missing index على `user.createdAt` | إضافة index |
+| H17 | Missing composite `[restaurantId, status, createdAt]` | إضافة index |
+| H18 | Restaurant update خارج الـ settings transaction | دمج في transaction |
+| H19 | Response envelope bypass في 4 routes | استخدام `success()` من api-helpers |
+| H20 | كل Zod schemas inline — 0 مشتركة | استخراج `src/lib/schemas/` |
+| H21 | `category: true` over-fetch | إضافة `select` |
+| H22 | لستة admins بدون pagination | ترقيم الصفحات |
 
----
+### React & UI
 
-## 4. الـ Database / Prisma Schema
+| # | المشكلة | الملف | الإصلاح |
+|---|---------|-------|---------|
+| H23 | ErrorBoundary dead code | `src/components/shared/ErrorBoundary.tsx` | حذف أو استعمال |
+| H24 | AbortController مفقود | 3+ admin pages useEffect | إلغاء fetch عند unmount |
+| H25 | `finishFlow` في useEffect deps | `PaymentDialog.tsx:119,176` | useRef للـ callbacks |
+| H26 | `overflow-x:hidden` على html | `globals.css:312,327` | يمنع 400% zoom |
+| H27 | Labels بدون `htmlFor` | `SubscribeForm.tsx:126+` | إضافة htmlFor/id |
+| H28 | أزرار +/- حجم 28-32px | CartSlideOver, MenuItemCard | `min-w-11 min-h-11` |
 
-### 4.1 مشاكل Relations (CRITICAL)
+### SEO & PWA
 
-| الخطورة | المشكلة | الجدول/العلاقة |
-|---------|---------|----------------|
-| ⛔ CRITICAL | توكن البوت مخزن plaintext — اختراق DB = سيطر على البوت | TelegramConfig.botToken |
-| ⛔ CRITICAL | Referral.order و RewardTransaction.order بدون onDelete — حذف الطلب يفشل | Referral, RewardTransaction |
+| # | المشكلة | الإصلاح |
+|---|---------|---------|
+| H29 | لا robots.txt | إنشاء مع Disallow admin/owner |
+| H30 | Admin/Owner pages indexable | X-Robots-Tag في middleware |
+| H31 | لا sitemap للمطاعم | query slugs وإضافة |
+| H32 | JSON-LD مفقود للمطاعم | إضافة Restaurant + Menu schema |
+| H33 | SW يخزن API رغم التعليق | networkOnly أو تصحيح التعليق |
 
-### 4.2 مشاكل أداء (HIGH)
+### Performance
 
-| الخطورة | المشكلة  |
-|---------|----------|
-| HIGH | SubscriptionPayment.planId بدون relation — مرجع يتيم |
-| HIGH | Review بدون unique(menuItemId, customerPhone) — تكرار التقييمات |
-| HIGH | Restaurant.pickupTypes مخزنة كـ comma-separated String مش مصفوفة |
-| HIGH | SubscriptionPlan بدون أي indexes |
-| HIGH | مفقود indexes: SubscriptionPayment.phone, LoyaltyCard.customerPhone |
-| MED | OrderItem.modifiersJson مخزنة كـ String مش Json type |
-| MED | مفقود composite index: MenuItem(categoryId, status), sortOrder على MenuCategory و MenuItem |
-
----
-
-## 5. اختبارات الموقع الحي
-
-### 5.1 E2E Tests (20/20 ✅)
-
-كل الاختبارات تمر بنجاح — تسجيل، دخول، خروج، middleware, API, tabs متعددة
-
-### 5.2 API Live Tests (6/10 ✅)
-- 6 نجاح، 4 فشل (كلها بسبب rate limiting أو عدم وجود بيانات اختبار مناسبة — مو أخطاء حقيقية)
-- 154 مطعم، 293 مستخدم في قاعدة البيانات
-
-### 5.3 الصفحات العامة (10 صفحات — 5 PASS / 5 FAIL مشروط)
-- **PASS**: /, /pricing, /subscribe, /menu, /not-found
-- **FAIL (بالجوالة)**: /login, /terms, /privacy, /cart, /order-confirmed — يرجع 200 لكن المحتوى مش مرئي لأن الـ React redirect يشتغل (عميل مسجل)
-
-### 5.4 صفحة المنيو
-- ✅ كل الـ 4 فئات تظهر (مشروبات ساخنة، باردة، حلويات، وجبات خفيفة)
-- ✅ البحث يشتغل
-- ✅ السلة تشتغل
-- ❌ **زر مشاركة المنيو معطل** — يوجه إلى /pricing بدلاً من مشاركة الرابط
-- ❌ Unsplash صور 404 — 5 صور ما تظهر (روابط خارجية مكسورة)
-
-### 5.5 صفحة التسعير
-- ✅ كل الخطط الخمسة تظهر (مجاني، أساسي، مدفوعة، احترافي، شركات)
-- ✅ 7 أزرار CTA — كلها توجّه لـ /subscribe صح
-- ✅ FAQ يظهر
-- ✅ الفوتر يظهر
-- ⚠️ زر "جرب لوحة التحكم" → /subscribe (صح بعد التعديل، لكن النص مضلل)
-
-### 5.6 المصادقة (12/12 ✅)
-- تسجيل الدخول → API → session → /admin → logout كلها تشتغل
-- Rate limiting يشتغل: 10 محاولات/دقيقة لكل IP
-- رسائل الخطأ بالعربية صحيحة
+| # | المشكلة | الإصلاح |
+|---|---------|---------|
+| H34 | SSE poll DB كل 5 ثوانٍ | LISTEN/NOTIFY |
+| H35 | `/api/admin/stats` 18 queries | server cache 60s |
+| H36 | Landing page client-render | server component مع streaming |
 
 ---
 
-## 6. Responsive Design
+## 🟡 قائمة متوسطة — إصلاح قريب
 
-| الجهاز | Width | Height | Issues |
-|--------|-------|--------|--------|
-| Desktop | 1440 | 900 | Unsplash 404 فقط |
-| Tablet | 768 | 1024 | Unsplash 404 فقط |
-| Mobile | 375 | 812 | Unsplash 404 فقط |
-
-لا يوجد horizontal scroll، الأزرار قابلة للنقر، لا تداخلات.
-
----
-
-## 7. خطة الإصلاح
-
-### 🔴 المطلوب فوراً (CRITICAL — يمنع الإطلاق)
-
-| # | المهمة | الملف | الجهد |
-|---|--------|-------|-------|
-| 1 | **destroySession(undefined)** — أضف guard: إذا `token` فارغ أو undefined، لا تنفذ deleteMany، فقط امسح الكوكيز | lib/session.ts:47 | 5 دقائق |
-| 2 | **CSRF فعّال** — إما طبقه على كل state-changing routes، أو امسح dead code | lib/csrf.ts + middleware | 1-2 ساعات |
-| 3 | **تدوير كل الأسرار** — JWT_SECRET, AUTH_SECRET, TELEGRAM_BOT_TOKEN, DATABASE_URL (كلها مكشوفة في git history) | إدارة | 30 دقيقة |
-| 4 | **try/catch ناقص** — أضف try/catch في items/[id]/reviews | api/items/[id]/reviews/route.ts | 5 دقائق |
-| 5 | **GET fix-images** — غيّر لـ POST أو أضف idempotency | api/demo/fix-images/route.ts | 10 دقائق |
-| 6 | **botToken plaintext** — شفّر التوكن أو استخدم env var فقط | prisma schema | 1 ساعة |
-| 7 | **Referral/RewardTransaction onDelete** — أضف onDelete إلى الـ schema | prisma schema | 15 دقيقة |
-
-### 🟠 عاجل (HIGH)
-
-| # | المهمة | الجهد |
-|---|--------|-------|
-| 8 | AbortControllers للـ useEffects — 4 مكونات | 20 دقيقة |
-| 9 | إزالة console.error من HomePage | 2 دقائق |
-| 10 | إزالة Remotion packages من dependencies | 5 دقائق |
-| 11 | إزالة .env.production من القرص (واستخدم Vercel env variables) | 2 دقيقة |
-| 12 | Rate limiting على /api/subscriptions/validate | 10 دقائق |
-| 13 | Rate limiting على /api/restaurants POST | 10 دقائق |
-| 14 | Rate limiting + body size limit على /api/upload | 15 دقيقة |
-| 15 | Add return types على 10+ دوال مصدرة | 15 دقيقة |
-| 16 | Metadata لـ /pricing, /login, /subscribe | 20 دقيقة |
-| 17 | Fix OG url (`/` → per-page) | 10 دقائق |
-| 18 | middleware matcher يشمل /api/ | 5 دقائق |
-| 19 | Fix "جرب لوحة التحكم" → /menu/al-waha-cafe بدلاً من /subscribe | 5 دقائق |
-
-### 🟡 متوسط (MEDIUM)
-
-| # | المهمة | الجهد |
-|---|--------|-------|
-| 20 | أضف indexes مفقودة (SubscriptionPlan, SubscriptionPayment.phone, ...) | 30 دقيقة |
-| 21 | Fix sitemap.ts — أضف المسارات المفقودة | 15 دقيقة |
-| 22 | `PickupType` comma-separated → JSON array | 30 دقيقة |
-| 23 | إصلاح "1 أصناف" → "1 صنف" في السلة | 5 دقائق |
-| 24 | إصلاح زر المشاركة في المنيو | 15 دقيقة |
-| 25 | eslint يغطي tests/ | 5 دقائق |
-| 26 | Fix صور Unsplash 404 — استخدم صور افتراضية | 20 دقيقة |
-| 27 | .githooks/ — إما أنشئ المجلد أو امسح script | 5 دقائق |
+| # | المشكلة |
+|---|---------|
+| M1 | `/api/public/featured` بدون rate limit |
+| M2 | حد اتصالات DB 10 بدون env var |
+| M3 | `requireAdmin()` deprecated ومستخدم في 6 routes |
+| M4 | `fetchPublicStats` floor 500 ثابت |
+| M5 | `console.error` بدلاً من logger (env.ts, config.ts) |
+| M6 | Array mutation (push) في subscription routes |
+| M7 | Rate limiter interval leak |
+| M8 | missing `error.tsx` في system-events |
+| M9 | 3 صفحات بدون empty state (owner/qr, loyalty, admin/qr) |
+| M10 | لا beforeinstallprompt listener |
+| M11 | Offline page لا auto-reconnect |
+| M12 | لا apple-touch-icon |
+| M13 | tsconfig typo `dev/dev/types` |
+| M14 | لا `.env.example` |
+| M15 | Dockerfile يفتقد prisma/ في runner stage |
+| M16 | حواف response غير متسقة (200 بدلاً من 204) |
+| M17 | لا CORS على public/* endpoints |
+| M18 | Loyalty/stats hardcoded `take: 10` |
+| M19 | `getState()` race في OrderDialog |
+| M20 | SSE poll catch blocks صامتة |
+| M21 | login/register يرجع `Response.json()` بدلاً من `NextResponse.json()` |
+| M22 | `TELEGRAM_GROUP_IDS` env var غير موثق |
+| M23 | 2 error pages use console.error not logError |
+| M24 | OptimizedImage لا onError fallback |
 
 ---
 
-## 8. التوصيات النهائية
+## 🟢 قائمة منخفضة — معالجة لاحقاً
 
-1. **CRITICAL — أوقف الإطلاق** حتى إصلاح destroySession + CSRF + تدوير الأسرار
-2. HIGH — أصلح الـ 19 مشكلة عالية قبل الإطلاق الرسمي
-3. بعد الإصلاح — أعد تشغيل E2E + المتصفح للتأكيد
-4. أضف CI pipeline: lint + typecheck + tests قبل كل push
+- `compress: true` في next.config (لا أثر على Vercel)
+- `vercel.app` و `*.vercel.app` remotePatterns تكرار
+- Dockerfile بدون HEALTHCHECK
+- SW cache version hardcoded
+- `staleWhileRevalidate` ديد كود في sw.js
+- SW registration catch صامت
+- No `onupdatefound` handler
+- No `updateViaCache` config
+- Offline page theme color mismatch
+- Home page بدون metadata خاص
+- Terms/privacy صفحات بدون OG description
+- OG image 512x512 (ينصح 1200x630)
+- Demo route upsert على كل GET
+- Seed route محمي بشكل كافٍ
+- `console.log` في production paths (logger.ts)
+- Footer brand image loading="lazy"
+
+---
+
+## أسئلة مفتوحة (تحتاج إعادة فحص)
+
+1. **DB Schema** — rate limit. الفحص اليدوي للـ Prisma schema مؤجل.
+2. **Code quality** — rate limit. dead code scan, knip, duplication pending.
+3. **Test coverage** — لم يعد بعد. التغطية الفعلية غير معروفة.
+4. **E2E tests** — rate limit. flaky tests غير معروفة.
+5. **Auth deep dive** — rate limit. تحليل JWT/RBAC العميق مؤجل.
+6. **Telegram** — rate limit. فحص webhook/broadcast مؤجل.
+7. **WhatsApp/Orders** — rate limit.
+8. **File Upload** — rate limit.
+9. **Loyalty** — rate limit.
+10. **Build CI** — rate limit. Build يمر clean.
+11. **Subscriptions/SSE** — عاد فارغاً.
+
+---
+
+---
+
+## 🧪 فحص الاختبارات (وكيل 17)
+
+| الحالة | العدد |
+|--------|-------|
+| ✅ اجتياز | 312 tests |
+| 📊 التغطية | **0% — معطلة** (v8 لا يسجل أي hits ضد الـ source) |
+| 🔴 وحدات بدون اختبارات | 15+ (session, db, config, telegram*, audit, logger, receipt, loyalty-tiers, landing, format) |
+
+### حرج
+
+- **آلية التغطية معطلة** — vitest coverage provider v8 لا يسجل أي تغطية رغم أن 312 test تمر. السبب المرجح: alias `@/` لا يُحل بشكل صحيح مع مسارات v8.
+- **30+ وحدة من المصدر بدون أي اختبار** — session.ts (90 سطر، auth-critical)، db.ts (110 سطر)، config.ts (93 سطر، فيه encrypt/decrypt)، telegram-api.ts (119 سطر)، telegram-broadcast.ts (97 سطر).
+- **1,054 سطر اختبارات تختبر mock وليس الـ source الحقيقي** — `subscription-decisions.test.ts` تختبر `simulateCheck()` محلي وليس `resolveSubscriptionPayment()` الحقيقي (285 سطر). نفس النمط في telegram-webhook.test.ts، regression.test.ts، regression-sweep.test.ts.
+
+### عالي
+
+- **25+ API route ليس لها unit tests** — كل API routes تختبر فقط عبر E2E ضد production.
+- **لا unit tests لـ session, db, config, telegram-*, audit, logger, receipt, loyalty, landing** — هذه تغطي authentication، قاعدة البيانات، Telegram بوت، التسجيل، الـ receipts.
+- **E2E تفتقد flows حرجة** — لا يوجد E2E test لـ order placement كامل، payment flow، admin CRUD.
+
+### خطة إصلاح الاختبارات
+1. إصلاح vitest.config.ts — تجربة `provider: 'istanbul'` بدلاً من v8، أو تصحيح alias resolution للتغطية
+2. كتابة unit tests لـ session.ts (3 دوال، auth-critical)
+3. كتابة unit tests لـ db.ts (withRetry، dbHealth)
+4. كتابة unit tests لـ config.ts (encrypt/decrypt، getDecryptedBotToken)
+5. كتابة unit tests لـ telegram-api.ts (sendMessageWithKeyboard دوال Telegram API)
+6. إضافة E2E flows: order creation → WhatsApp confirmation, payment approval, admin CRUD
+
+## خطة الإصلاح المقترحة
+
+### المرحلة 1 — فورية (قبل أي deploy)
+1. تدوير كل الأسرار: TELEGRAM_BOT_TOKEN, JWT_SECRET, AUTH_SECRET, DATABASE_URL, VERCEL_OIDC_TOKEN
+2. `git filter-repo` لمسح الأسرار من التاريخ
+3. إعادة تفعيل CSP مع nonce في src/middleware.ts
+4. حذف middleware.ts الميتة (الجذر)
+5. Hash session tokens (SHA256) في DB
+6. إصلاح CSRF — المقارنة بـ NEXT_PUBLIC_DOMAIN وليس Host header
+7. إضافة `isActive: true` لاستعلام المنيو
+8. إضافة Auth guard لـ `GET /api/restaurants/[id]`
+
+### المرحلة 2 — أمن وأداء (هذا الأسبوع)
+9. إضافة rate limiting للنهايات المكشوفة
+10. تبديل public menu pages من `force-dynamic` إلى ISR `revalidate: 60`
+11. إصلاح cart persistence — إضافة `rehydrate()` في layout
+12. إصلاح Prisma TOCTOU races (orders, rate-limiter, subscriptions)
+13. توحيد تنسيق استجابة API
+14. إنشاء robots.txt + sitemap + noindex للأدمن
+15. إصلاح RTL physical classes (mr-* → ms-*)
+16. إصلاح ReviewSheet focus trap
+17. إصلاح تباين الألوان في الوضع الفاتح
+
+### المرحلة 3 — جودة ونشر (الأسبوع القادم)
+18. توحيد مدير حزم (npm أو pnpm)
+19. إنشاء `.env.example`
+20. إضافة اختبارات للنهايات الحرجة
+21. إصلاح أزرار اللمس والصفحات الفارغة
+22. إضافة beforeinstallprompt + apple-touch-icon
+23. إنشاء Dockerfile مع HEALTHCHECK و prisma copy
+24. إضافة sitemap + JSON-LD + robots.txt
+25. تجربة 11 وكيل الذين فشلوا (rate limit) عند توفر quota
+
+---
+
+## إحصائيات الـ Swarm
+
+| الحالة | العدد |
+|--------|-------|
+| ✅ مكتمل | 17 |
+| ⏳ rate limit | 11 |
+| ⚠️ عاد فارغاً | 1 (Subscriptions/SSE) |
+| ⏳ لم يعد | 1 (لم يعد بعد) |
+
+| النطاق | إجمالي findings |
+|--------|----------------|
+| CRITICAL ⛔ | 24 |
+| HIGH ⚠️ | 40+ |
+| MEDIUM 🟡 | 28+ |
+| LOW 🟢 | 22+ |
+| **الإجمالي** | **140+** |
+
+> **ملاحظة:** وكيل 17 (Test Coverage) عاد متأخراً بعد كتابة التقرير. النتائج مضافة أدناه في قسم الاختبارات.

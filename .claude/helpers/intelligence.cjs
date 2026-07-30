@@ -17,17 +17,40 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(process.cwd(), '.claude-flow', 'data');
+function resolveProjectRoot(startDir) {
+  if (process.env.CLAUDE_PROJECT_DIR) {
+    return path.resolve(process.env.CLAUDE_PROJECT_DIR);
+  }
+  let dir = path.resolve(startDir || process.cwd());
+  while (true) {
+    if (fs.existsSync(path.join(dir, '.git')) ||
+        fs.existsSync(path.join(dir, '.claude-flow'))) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) return path.resolve(startDir || process.cwd());
+    dir = parent;
+  }
+}
+
+const PROJECT_ROOT = resolveProjectRoot(process.cwd());
+const DATA_DIR = path.join(PROJECT_ROOT, '.claude-flow', 'data');
 const STORE_PATH = path.join(DATA_DIR, 'auto-memory-store.json');
 const GRAPH_PATH = path.join(DATA_DIR, 'graph-state.json');
 const RANKED_PATH = path.join(DATA_DIR, 'ranked-context.json');
 const PENDING_PATH = path.join(DATA_DIR, 'pending-insights.jsonl');
-const SESSION_DIR = path.join(process.cwd(), '.claude-flow', 'sessions');
+const LEGACY_PENDING_PATH = path.join(process.cwd(), '.claude-flow', 'data', 'pending-insights.jsonl');
+const SESSION_DIR = path.join(PROJECT_ROOT, '.claude-flow', 'sessions');
 const SESSION_FILE = path.join(SESSION_DIR, 'current.json');
 
 // ── Safety limits (fixes #1530, #1531) ─────────────────────────────────────
 const MAX_DATA_FILE_SIZE = 10 * 1024 * 1024; // 10 MB — skip files larger than this
 const MAX_GRAPH_NODES = 5000;                 // skip PageRank if graph exceeds this
+// #2628: similarity edges used to compare every pair in every category.
+// Keep exact graph behavior for normal stores, but never let a session-end
+// hook enter an unbounded O(n²) pass. Temporal edges remain linear and are
+// always retained when the similarity pass is skipped.
+const MAX_SIMILARITY_COMPARISONS = 100000;
 
 // ── Stop words for trigram matching ──────────────────────────────────────────
 
@@ -47,6 +70,22 @@ const STOP_WORDS = new Set([
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  // Recover signal written by older helpers under a subdirectory cwd. Keep
+  // the legacy file intact and append only lines not already present.
+  if (path.resolve(LEGACY_PENDING_PATH) !== path.resolve(PENDING_PATH) &&
+      fs.existsSync(LEGACY_PENDING_PATH)) {
+    try {
+      const existing = fs.existsSync(PENDING_PATH)
+        ? new Set(fs.readFileSync(PENDING_PATH, 'utf-8').split('\n').filter(Boolean))
+        : new Set();
+      const recovered = fs.readFileSync(LEGACY_PENDING_PATH, 'utf-8')
+        .split('\n')
+        .filter(line => line && !existing.has(line));
+      if (recovered.length > 0) {
+        fs.appendFileSync(PENDING_PATH, recovered.join('\n') + '\n', 'utf-8');
+      }
+    } catch { /* migration is best-effort; never block hook execution */ }
+  }
 }
 
 function readJSON(filePath) {
@@ -135,7 +174,14 @@ function deduplicateByContent(entries) {
   const seen = new Map();
   for (const entry of entries) {
     const content = entry.content || entry.summary || entry.value || '';
-    const fp = fingerprintContent(typeof content === 'string' ? content : JSON.stringify(content));
+    const normalizedContent = typeof content === 'string' ? content : JSON.stringify(content);
+    // Content-less records can still represent distinct graph nodes. There is
+    // no content identity to prove they are duplicates, so preserve them.
+    if (!normalizedContent || !normalizedContent.trim()) {
+      seen.set(`__no_content_${seen.size}`, entry);
+      continue;
+    }
+    const fp = fingerprintContent(normalizedContent);
     if (!seen.has(fp)) {
       seen.set(fp, entry);
     } else {
@@ -258,10 +304,28 @@ function buildEdges(entries) {
     }
   }
 
+  let similarityComparisons = 0;
+  for (const group of Object.values(byCategory)) {
+    similarityComparisons += (group.length * (group.length - 1)) / 2;
+    if (similarityComparisons > MAX_SIMILARITY_COMPARISONS) break;
+  }
+
   // Similarity edges within categories (Jaccard > 0.3).
   // ADR-095 G6 perf: hoist the trigram computation outside the inner
   // loop. Previously we re-tokenized + re-trigrammed group[j] for every
   // i — O(n²) extra work for nothing. Now compute once per entry.
+  // #2628: the old unconditional nested loop blocked session exit for tens
+  // of seconds on accumulated stores. Skip only the quadratic similarity
+  // layer when its deterministic pair count exceeds the budget; the linear
+  // temporal graph above is still complete.
+  if (similarityComparisons > MAX_SIMILARITY_COMPARISONS) {
+    process.stderr.write(
+      `[INTELLIGENCE] WARN: Similarity graph needs >${MAX_SIMILARITY_COMPARISONS} comparisons; ` +
+      'skipping similarity edges (temporal edges retained)\n'
+    );
+    return edges;
+  }
+
   for (const cat of Object.keys(byCategory)) {
     const group = byCategory[cat];
     if (group.length < 2) continue;
@@ -300,7 +364,7 @@ function buildEdges(entries) {
  */
 function bootstrapFromMemoryFiles() {
   const entries = [];
-  const cwd = process.cwd();
+  const cwd = PROJECT_ROOT;
 
   // Search for auto-memory directories
   const candidates = [
@@ -318,7 +382,11 @@ function bootstrapFromMemoryFiles() {
     // For the projects dir, scope to CURRENT project only (not all 51+ dirs)
     if (base.endsWith('projects')) {
       try {
-        const projectSlug = cwd.replace(/^\//, '').replace(/\//g, '-');
+        // Match Claude Code's project-dir slug: every non-alphanumeric char -> '-'
+        // (e.g. "G:\\My Drive\\TJ_Vault" -> "G--My-Drive-TJ-Vault"). The old version
+        // only handled POSIX '/', so on Windows the slug kept ':' and '\\' and never
+        // matched the real <projects>/<slug>/memory dir — bootstrap found nothing (FIX 5).
+        const projectSlug = cwd.replace(/[^a-zA-Z0-9]/g, '-');
         const memDir = path.join(base, projectSlug, 'memory');
         if (fs.existsSync(memDir)) {
           parseMemoryDir(memDir, entries);
@@ -330,6 +398,16 @@ function bootstrapFromMemoryFiles() {
   }
 
   return entries;
+}
+
+// Truncation transparency (FIX 4): mark the cut with an ellipsis and warn under
+// debug, so later reasoning isn't silently built on severed text.
+const CLIP_DEBUG = !!(process.env.RUFLO_DEBUG || process.env.DEBUG);
+function clip(text, max, label) {
+  text = text == null ? '' : String(text);
+  if (text.length <= max) return text;
+  if (CLIP_DEBUG) process.stderr.write(`[INTELLIGENCE] WARN: truncated ${label || 'value'} from ${text.length} to ${max} chars\n`);
+  return text.slice(0, max - 1) + '…';
 }
 
 function parseMemoryDir(dir, entries) {
@@ -353,7 +431,7 @@ function parseMemoryDir(dir, entries) {
         entries.push({
           id,
           key: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50),
-          content: body.slice(0, 500),
+          content: clip(body, 500, 'memory content'),
           summary: title,
           namespace: file === 'MEMORY.md' ? 'core' : file.replace('.md', ''),
           type: 'semantic',
@@ -561,15 +639,28 @@ function getContext(prompt) {
  * recordEdit(file) — Called from post-edit. Budget: <2ms.
  * Appends to pending-insights.jsonl.
  */
-function recordEdit(file) {
+function recordEdit(file, success) {
   ensureDataDir();
   const entry = JSON.stringify({
     type: 'edit',
     file: file || 'unknown',
+    // ADR-174: record failures too, not just successes — the learning substrate
+    // needs negative examples. Defaults true; an explicit false is a failed edit.
+    success: success !== false,
     timestamp: Date.now(),
     sessionId: sessionGet('sessionId') || null,
   });
   fs.appendFileSync(PENDING_PATH, entry + '\n', 'utf-8');
+  // Runaway-storage guard: pending-insights is append-only and only drained by
+  // consolidation. If it grows past ~512KB (thousands of un-consolidated edits
+  // — e.g. the daemon never ran), keep only the most recent 2000 lines so it
+  // can never grow unbounded. Cheap (a statSync per edit; rewrite only when over).
+  try {
+    if (fs.statSync(PENDING_PATH).size > 512 * 1024) {
+      const lines = fs.readFileSync(PENDING_PATH, 'utf-8').split('\n').filter(Boolean);
+      if (lines.length > 2000) fs.writeFileSync(PENDING_PATH, lines.slice(-2000).join('\n') + '\n', 'utf-8');
+    }
+  } catch (e) { /* non-fatal */ }
 }
 
 /**
@@ -627,6 +718,11 @@ function consolidate() {
   // Deduplicate store entries by ID before processing (fixes #1518)
   const preDedupCount = store.length;
   store = deduplicateById(store);
+  // #2628: imports assign fresh IDs to repeated MEMORY.md content, so ID
+  // dedup alone never shrinks the store. Consolidate is the session-end path:
+  // content-dedup here before edge construction and persist the compacted
+  // store so subsequent sessions stay bounded.
+  store = deduplicateByContent(store);
 
   // 1. Process pending insights
   let newEntries = 0;
@@ -1005,7 +1101,16 @@ function stats(outputJson) {
   return report;
 }
 
-module.exports = { init, getContext, recordEdit, feedback, consolidate, stats };
+module.exports = {
+  init,
+  getContext,
+  recordEdit,
+  feedback,
+  consolidate,
+  stats,
+  resolveProjectRoot,
+  projectRoot: PROJECT_ROOT,
+};
 
 // ── CLI entrypoint ──────────────────────────────────────────────────────────
 if (require.main === module) {
