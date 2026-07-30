@@ -1,4 +1,3 @@
-// @ts-nocheck — vitest tests use string role/permissions vs Prisma enums; works at runtime
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 
 // ════════════════════════════════════════════════════════════════════
@@ -89,10 +88,11 @@ vi.mock('@/lib/db', () => ({ getUserById: vi.fn() }));
 import { requireAuth, requireAdmin, requirePermission } from '@/lib/auth';
 import * as session from '@/lib/session';
 import * as db from '@/lib/db';
+import type { Role } from '@/generated/prisma/enums';
 
 type UserRow = {
 	id: number;
-	role: string;
+	role: Role;
 	restaurantId: number | null;
 	subscriptionStatus: string | null;
 	permissions: string[];
@@ -100,7 +100,7 @@ type UserRow = {
 
 const userRow = (overrides: Partial<UserRow> = {}): UserRow => ({
 	id: 1,
-	role: 'admin' as string,
+	role: 'admin' as Role,
 	restaurantId: 5,
 	subscriptionStatus: 'active' as string,
 	permissions: [],

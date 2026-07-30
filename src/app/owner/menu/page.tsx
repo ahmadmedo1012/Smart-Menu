@@ -108,6 +108,7 @@ export default function OwnerMenuPage() {
 	} | null>(null);
 	const [usageKey, setUsageKey] = useState(0);
 	const [error, setError] = useState<string | null>(null);
+		const fetchCatsRef = useRef<() => Promise<void>>();
 
 	const fetchCats = useCallback(async () => {
 		if (!restaurantId) return;
@@ -123,12 +124,13 @@ export default function OwnerMenuPage() {
 			setError('فشل تحميل التصنيفات');
 			premiumToast('error', 'فشل تحميل التصنيفات');
 			/* ponytail: auto-retry once after 3s */ setTimeout(() => {
-				if (restaurantId) fetchCats();
+				if (restaurantId && fetchCatsRef.current) fetchCatsRef.current();
 			}, 3000);
 		} finally {
 			setLoading(false);
 		}
 	}, [restaurantId]);
+		fetchCatsRef.current = fetchCats;
 
 	useEffect(() => {
 		fetch('/api/auth/me')
