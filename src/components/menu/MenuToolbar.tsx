@@ -2,16 +2,27 @@
 
 import { useState, useRef, useDeferredValue, useMemo, useEffect } from 'react';
 
-/** Debounce a value change — returns a stable fn that fires `fn` 275ms after last call */
+/** Debounce a value change — returns a stable fn that fires `fn` 275ms after last call.
+ *  `fn` is held in a ref so an unstable identity (inline closure per render) can't
+ *  recreate the callback and cancel the pending timer on every keystroke. */
 function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
+	const fnRef = useRef(fn);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+	useEffect(() => {
+		fnRef.current = fn;
+	});
+	useEffect(
+		() => () => {
+			if (timer.current) clearTimeout(timer.current);
+		},
+		[]
+	);
 	return useMemo(
 		() => (v: string) => {
 			if (timer.current) clearTimeout(timer.current);
-			timer.current = setTimeout(() => fn(v), delay);
+			timer.current = setTimeout(() => fnRef.current(v), delay);
 		},
-		[fn, delay]
+		[delay]
 	);
 }
 import { Search, X } from 'lucide-react';
