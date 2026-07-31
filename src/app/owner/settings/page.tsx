@@ -75,7 +75,6 @@ export default function OwnerSettingsPage() {
 	const [uploading, setUploading] = useState({ logo: false, gallery: false });
 	const logoInputRef = useRef<HTMLInputElement>(null);
 	const galleryInputRef = useRef<HTMLInputElement>(null);
-	const prevLogoRef = useRef('');
 
 	useEffect(() => {
 		Promise.all([
@@ -132,7 +131,6 @@ export default function OwnerSettingsPage() {
 		if (!file) return;
 		const compressed = await compressImage(file, 400, 0.7);
 		const compressedFile = new File([compressed], file.name, { type: 'image/jpeg' });
-		if (logo) prevLogoRef.current = logo;
 		const url = await uploadImage(compressedFile, 'logo');
 		if (url) setLogo(url);
 		if (logoInputRef.current) logoInputRef.current.value = '';
@@ -190,15 +188,8 @@ export default function OwnerSettingsPage() {
 				const err = await res.json();
 				throw new Error(err.error ?? 'فشل الحفظ');
 			}
-			// Delete old logo from blob after successful save
-			if (prevLogoRef.current) {
-				fetch('/api/upload/delete', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ url: prevLogoRef.current }),
-				}).catch(() => {});
-				prevLogoRef.current = '';
-			}
+			// Old-logo cleanup now happens server-side inside PUT /api/settings
+			// (after the DB write succeeds, tenant-bound) — no client-side delete call
 			premiumToast('save', 'تم حفظ الإعدادات');
 			const settingsRes = await fetch('/api/settings');
 			const settingsData = await settingsRes.json();

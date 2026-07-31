@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
+import { deleteBlob } from '@/lib/blob';
 
 const singleSchema = z.object({
 	key: z.string().min(1),
@@ -102,8 +103,10 @@ export async function PUT(request: NextRequest) {
 			const restaurantFields = items.filter((i) =>
 				RESTAURANT_FIELDS.includes(i.key.replace('restaurant_', ''))
 			);
+			let oldLogo: string | null = null;
+			let updateData: Record<string, unknown> = {};
 			if (restaurantFields.length > 0) {
-				const updateData: Record<string, unknown> = {};
+				updateData = {};
 				for (const f of restaurantFields) {
 					const fieldName = f.key.replace('restaurant_', '');
 					if (RESTAURANT_FIELDS.includes(fieldName)) {
@@ -111,8 +114,22 @@ export async function PUT(request: NextRequest) {
 					}
 				}
 				if (Object.keys(updateData).length > 0) {
+					// Snapshot the previous logo before overwriting, so we can clean it
+					// from Blob after the update succeeds. restaurantId is already bound
+					// to the caller's own restaurant above, so this is tenant-safe.
+					if ('logo' in updateData) {
+						const prev = await prisma.restaurant.findUnique({
+							where: { id: restaurantId },
+							select: { logo: true },
+						});
+						oldLogo = prev?.logo ?? null;
+					}
 					await prisma.restaurant.update({ where: { id: restaurantId }, data: updateData });
 				}
+			}
+			// Clean up the replaced logo only after the DB write succeeded
+			if (oldLogo && oldLogo !== updateData.logo) {
+				await deleteBlob(oldLogo);
 			}
 			return success({ updated: items.length });
 		}
