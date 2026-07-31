@@ -242,7 +242,7 @@ esac
 
 # ============ 6-9. Telegram Payment Flow ============
 echo -e "\n${CYAN}--- Telegram Payment Flow ---${NC}"
-WEBHOOK_SECRET="rWw1bozjGEj01qv2XGpzJS9BjdQf0OqZVhNgt4XE"
+WEBHOOK_SECRET="${TELEGRAM_WEBHOOK_SECRET:-}"
 
 pass 6 "Telegram approval request — subscribe endpoint sends notifications"
 append_result 6 "Telegram payment approval" "PASS" "Subscribe endpoint reaches Telegram"
@@ -360,7 +360,7 @@ append_result 16 "Plan downgrade" "$([ "$DOWNGRADE_DATA" = "FOUND" ] && echo PAS
 # ============ 17-18. Cron Cleanup ============
 echo -e "\n${CYAN}--- Cron Cleanup ---${NC}"
 CRON_R="unknown"
-for secret in "dQad12DchCcH3MQC3CVmH6T4FLAUhYBSkOBsPk5GP1gUCdBrvC4FLAUfBqQADfqZ7D" "secret" "cron-secret" "cleanup-secret"; do
+for secret in "${CRON_SECRET:-}" "secret" "cron-secret" "cleanup-secret"; do
   CHECK=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/cron/cleanup" \
     -H "Authorization: Bearer $secret" 2>/dev/null || echo "000")
   if [ "$CHECK" = "200" ]; then CRON_R="200"; break; fi
