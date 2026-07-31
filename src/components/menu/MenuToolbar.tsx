@@ -2,10 +2,25 @@
 
 import { useState, useRef, useDeferredValue, useMemo, useEffect } from 'react';
 
+/** Pure debounce core — exported for unit testing without React. */
+export function createDebounced<A extends unknown[]>(fn: (...args: A) => void, delay = 275) {
+	let timer: ReturnType<typeof setTimeout> | null = null;
+	return {
+		call: (...args: A) => {
+			if (timer) clearTimeout(timer);
+			timer = setTimeout(() => fn(...args), delay);
+		},
+		cancel: () => {
+			if (timer) clearTimeout(timer);
+			timer = null;
+		},
+	};
+}
+
 /** Debounce a value change — returns a stable fn that fires `fn` 275ms after last call.
  *  `fn` is held in a ref so an unstable identity (inline closure per render) can't
  *  recreate the callback and cancel the pending timer on every keystroke. */
-function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
+export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 	const fnRef = useRef(fn);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	useEffect(() => {
