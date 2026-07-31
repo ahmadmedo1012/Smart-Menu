@@ -11,7 +11,10 @@ const StickyMenuHeader = dynamic(
 );
 const MenuPageClient = dynamic(
 	() => import('./MenuPageClient').then((m) => ({ default: m.MenuPageClient })),
-	{ ssr: false }
+	// ponytail: SSR enabled — menu content renders server-side with the page (faster
+	// first paint, no blank-until-hydrate). The component handles useSearchParams via
+	// its own Suspense boundary, so server rendering is safe.
+	{ ssr: true }
 );
 const LoyaltyWidget = dynamic(
 	() => import('../loyalty/LoyaltyWidget').then((m) => ({ default: m.LoyaltyWidget })),
@@ -100,16 +103,11 @@ export function MenuClientSection(props: {
 			<StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
 			<header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,oklch(0.55_0.19_45/0.15),transparent_70%)]">
-				{/* ── Ambient floating orbs ── */}
-				<div className="absolute inset-0 overflow-hidden pointer-events-none">
+				{/* ── Ambient floating orbs — 2 max: blur layers are expensive on mobile
+				     GPUs; reduced-motion users get them fully disabled via globals.css ── */}
+				<div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">
 					<div className="absolute top-1/4 left-1/6 w-72 h-72 rounded-full bg-orange/6 blur-[120px] animate-orb-float" />
 					<div className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full bg-orange/4 blur-[140px] animate-orb-float-delayed" />
-					<div className="absolute top-2/3 left-1/3 w-64 h-64 rounded-full bg-orange/3 blur-[100px] animate-orb-float-slow" />
-					<div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-orange/5 blur-[100px] animate-breathe" />
-					<div
-						className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-orange/3 blur-[120px] animate-breathe"
-						style={{ animationDelay: '2s' }}
-					/>
 				</div>
 
 				{/* ── Decorative corner Lottie ── */}

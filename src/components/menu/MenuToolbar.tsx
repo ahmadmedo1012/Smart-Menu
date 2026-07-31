@@ -1,6 +1,19 @@
 'use client';
 
 import { useState, useRef, useDeferredValue, useMemo, useEffect } from 'react';
+
+/** Debounce a value change — returns a stable fn that fires `fn` 275ms after last call */
+function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
+	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+	return useMemo(
+		() => (v: string) => {
+			if (timer.current) clearTimeout(timer.current);
+			timer.current = setTimeout(() => fn(v), delay);
+		},
+		[fn, delay]
+	);
+}
 import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
@@ -36,6 +49,14 @@ export function MenuToolbar({
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+
+	// Local input value updates instantly while typing; URL sync is debounced
+	// so router.replace doesn't fire per keystroke (history spam + re-render churn)
+	const [inputValue, setInputValue] = useState(search);
+	const debouncedSearchChange = useDebouncedCallback(onSearchChange);
+	useEffect(() => {
+		setInputValue(search);
+	}, [search]);
 
 	/* ── Deferred suggestions (low-priority, interruptible) ── */
 	const deferredSearch = useDeferredValue(search);
@@ -81,9 +102,10 @@ export function MenuToolbar({
 						name="search"
 						type="text"
 						placeholder="ابحث في القائمة..."
-						value={search}
+						value={inputValue}
 						onChange={(e) => {
-							onSearchChange(e.target.value);
+							setInputValue(e.target.value);
+							debouncedSearchChange(e.target.value);
 							setShowSuggestions(true);
 						}}
 						onFocus={() => {
@@ -96,7 +118,8 @@ export function MenuToolbar({
 							type="button"
 							aria-label="مسح البحث"
 							onClick={() => {
-								onSearchChange('');
+								setInputValue('');
+								debouncedSearchChange('');
 								setShowSuggestions(false);
 								inputRef.current?.focus();
 							}}
