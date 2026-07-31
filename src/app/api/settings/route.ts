@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { z } from "zod";
-import { prisma } from "@/lib/db";
-import { success, error as apiError, handleError } from "@/lib/api-helpers";
-import { requireAuth } from "@/lib/auth";
+import { NextRequest } from 'next/server';
+import { z } from 'zod';
+import { prisma } from '@/lib/db';
+import { success, error as apiError, handleError } from '@/lib/api-helpers';
+import { requireAuth } from '@/lib/auth';
 
 const singleSchema = z.object({
 	key: z.string().min(1),
@@ -11,16 +11,41 @@ const singleSchema = z.object({
 
 const batchSchema = z.array(singleSchema);
 
-const RESTAURANT_FIELDS = ["name", "slug", "description", "logo", "gallery", "phone", "whatsapp", "email", "address", "workingHours", "themeColor", "pickupTypes"];
+const RESTAURANT_FIELDS = [
+	'name',
+	'slug',
+	'description',
+	'logo',
+	'gallery',
+	'phone',
+	'whatsapp',
+	'email',
+	'address',
+	'workingHours',
+	'themeColor',
+	'pickupTypes',
+];
 
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireAuth();
-		if (!auth.authorized) return apiError("غير مصرح", 401);
+		if (!auth.authorized) return apiError('غير مصرح', 401);
 
 		const { searchParams } = new URL(request.url);
-		const restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
-		if (!restaurantId) return apiError("معرف المطعم مطلوب", 400);
+		const requestedId = Number(searchParams.get('restaurantId')) || 0;
+
+		// Regular users can't read another restaurant's settings; only owner (own) or admin (any)
+		let restaurantId: number;
+		if (auth.role === 'owner') {
+			if (!auth.restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
+			if (requestedId && requestedId !== auth.restaurantId) return apiError('غير مصرح', 403);
+			restaurantId = auth.restaurantId;
+		} else if (auth.role === 'admin' || auth.role === 'super_admin' || auth.role === 'sub_admin') {
+			if (!requestedId) return apiError('معرف المطعم مطلوب', 400);
+			restaurantId = requestedId;
+		} else {
+			return apiError('غير مصرح', 403);
+		}
 
 		const [settings, restaurant] = await Promise.all([
 			prisma.setting.findMany({ where: { restaurantId }, select: { key: true, value: true } }),
@@ -42,14 +67,22 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
 	try {
 		const auth = await requireAuth();
-		if (!auth.authorized) return apiError("غير مصرح", 401);
+		if (!auth.authorized) return apiError('غير مصرح', 401);
 
 		const { searchParams } = new URL(request.url);
-		const restaurantId = Number(searchParams.get("restaurantId")) || auth.restaurantId || 0;
-		if (!restaurantId) return apiError("معرف المطعم مطلوب", 400);
+		const requestedId = Number(searchParams.get('restaurantId')) || 0;
 
-		if (auth.role === "owner" && auth.restaurantId !== restaurantId) {
-			return apiError("غير مصرح", 401);
+		// Regular users can't modify another restaurant's settings; only owner (own) or admin (any)
+		let restaurantId: number;
+		if (auth.role === 'owner') {
+			if (!auth.restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
+			if (requestedId && requestedId !== auth.restaurantId) return apiError('غير مصرح', 403);
+			restaurantId = auth.restaurantId;
+		} else if (auth.role === 'admin' || auth.role === 'super_admin' || auth.role === 'sub_admin') {
+			if (!requestedId) return apiError('معرف المطعم مطلوب', 400);
+			restaurantId = requestedId;
+		} else {
+			return apiError('غير مصرح', 403);
 		}
 
 		const body = await request.json();
@@ -66,13 +99,15 @@ export async function PUT(request: NextRequest) {
 				)
 			);
 
-			const restaurantFields = items.filter((i) => RESTAURANT_FIELDS.includes(i.key.replace("restaurant_", "")));
+			const restaurantFields = items.filter((i) =>
+				RESTAURANT_FIELDS.includes(i.key.replace('restaurant_', ''))
+			);
 			if (restaurantFields.length > 0) {
 				const updateData: Record<string, unknown> = {};
 				for (const f of restaurantFields) {
-					const fieldName = f.key.replace("restaurant_", "");
+					const fieldName = f.key.replace('restaurant_', '');
 					if (RESTAURANT_FIELDS.includes(fieldName)) {
-						updateData[fieldName] = fieldName === "gallery" ? safeJsonParse(f.value, []) : f.value;
+						updateData[fieldName] = fieldName === 'gallery' ? safeJsonParse(f.value, []) : f.value;
 					}
 				}
 				if (Object.keys(updateData).length > 0) {
@@ -95,5 +130,9 @@ export async function PUT(request: NextRequest) {
 }
 
 function safeJsonParse(val: string, fallback: unknown) {
-	try { return JSON.parse(val); } catch { return fallback; }
+	try {
+		return JSON.parse(val);
+	} catch {
+		return fallback;
+	}
 }

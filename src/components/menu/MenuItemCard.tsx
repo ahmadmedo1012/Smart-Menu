@@ -122,14 +122,9 @@ const MenuItemCard = memo(function MenuItemCard({
 				isFeatured && 'md:col-span-2'
 			)}
 			onClick={() => onOrder(item)}
-			tabIndex={0}
-			role="button"
-			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault();
-					onOrder(item);
-				}
-			}}
+			// a11y: no role="button"/tabIndex on the card — it would hijack Space/Enter
+			// from the nested add-to-cart and quantity buttons. Card click is a
+			// progressive enhancement; keyboard users operate the real buttons.
 		>
 			{/* Image — aspect-4/3 with zoom */}
 			<div className="relative w-full aspect-[4/3] overflow-hidden">

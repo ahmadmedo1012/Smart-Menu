@@ -4,6 +4,7 @@
  * and is NEVER called when prisma rejects.
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { NextRequest } from 'next/server';
 
 // ── Hoisted mocks ───────────────────────────────────────────────────────
 
@@ -33,8 +34,8 @@ vi.mock('@/lib/auth', () => ({
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
-function makeRequest(method: string, body?: unknown): Request {
-	const req = new Request('http://localhost/api/items/1', {
+function makeRequest(method: string, body?: unknown): NextRequest {
+	const req = new NextRequest('http://localhost/api/items/1', {
 		method,
 		headers: body ? { 'Content-Type': 'application/json' } : undefined,
 		body: body ? JSON.stringify(body) : undefined,

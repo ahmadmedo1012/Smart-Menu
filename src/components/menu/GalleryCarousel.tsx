@@ -93,11 +93,22 @@ export function GalleryCarousel({
 
 	return (
 		<>
-			<div className="glass-card rounded-xl overflow-hidden">
+			<div className="group glass-card rounded-xl overflow-hidden">
 				<div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
 					{images.map((img, i) => (
 						<div
 							key={i}
+							role="group"
+							aria-roledescription="شريحة"
+							aria-label={`صورة ${i + 1} من ${images.length}`}
+							aria-hidden={i !== current}
+							tabIndex={i === current ? 0 : -1}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									openLightbox(i);
+								}
+							}}
 							className={cn(
 								'absolute inset-0 transition-all duration-700 ease-out cursor-pointer',
 								i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
@@ -199,6 +210,9 @@ export function GalleryCarousel({
 			{/* Lightbox */}
 			{lightbox && (
 				<div
+					role="dialog"
+					aria-modal="true"
+					aria-label={restaurantName ? `معرض صور ${restaurantName}` : 'معرض الصور'}
 					className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
 					onClick={closeLightbox}
 					onKeyDown={trapFocus}

@@ -20,6 +20,5 @@ export const cardHover: TargetAndTransition = { scale: 1.03, y: -8, transition: 
 export const cardTap: TargetAndTransition = { scale: 0.97, transition: { type: "spring", stiffness: 400 } }
 export const btnTap: TargetAndTransition = { scale: 0.92, transition: { type: "spring", stiffness: 500 } }
 export const floatSlow: Variants = { rest: { y: 0 }, float: { y: [-6, 6, -6], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } } }
-export const pageVariants: Variants = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -4 } }
 export const shimmerVariants: Variants = { hidden: { x: "-100%" }, visible: { x: "200%", transition: { duration: 2, repeat: Infinity, ease: "linear" } } }
 export const badgePop: Variants = { hidden: { scale: 0 }, visible: { scale: 1, transition: { type: "spring", stiffness: 600, damping: 10 } } }

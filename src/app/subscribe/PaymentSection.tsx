@@ -51,7 +51,7 @@ export function UpgradePlanSummary({
 				بيانات مطعمك الحالية ستبقى كما هي — فقط سيتم ترقية خطتك.
 			</p>
 			<Button className="w-full h-14 text-base font-semibold rounded-sm" size="lg" onClick={onPay}>
-				<CreditCard className="size-5 ml-2" />
+				<CreditCard className="size-5 ms-2" />
 				ادفع الآن {`(${currentPlan.price} د.ل)`}
 			</Button>
 		</div>
