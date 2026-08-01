@@ -71,7 +71,7 @@ describe('settings PUT — tenant isolation', () => {
 
 		expect(res.status).toBe(200);
 		expect(mockFindUnique).toHaveBeenCalledWith(
-			expect.objectContaining({ where: { id: 1 }, select: { logo: true } })
+			expect.objectContaining({ where: { id: 1 }, select: { logo: true, gallery: true } })
 		);
 		expect(mockUpdate).toHaveBeenCalledWith(
 			expect.objectContaining({

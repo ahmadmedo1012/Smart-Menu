@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { csrfFetch } from '@/lib/csrf-client';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -92,7 +93,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 		setSaving(true);
 		try {
 			const body = Object.entries(form).map(([key, value]) => ({ key, value }));
-			const res = await fetch('/api/settings', {
+			const res = await csrfFetch('/api/settings', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),

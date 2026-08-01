@@ -104,6 +104,7 @@ export async function PUT(request: NextRequest) {
 				RESTAURANT_FIELDS.includes(i.key.replace('restaurant_', ''))
 			);
 			let oldLogo: string | null = null;
+			let oldGallery: string[] = [];
 			let updateData: Record<string, unknown> = {};
 			if (restaurantFields.length > 0) {
 				updateData = {};
@@ -114,22 +115,27 @@ export async function PUT(request: NextRequest) {
 					}
 				}
 				if (Object.keys(updateData).length > 0) {
-					// Snapshot the previous logo before overwriting, so we can clean it
-					// from Blob after the update succeeds. restaurantId is already bound
-					// to the caller's own restaurant above, so this is tenant-safe.
-					if ('logo' in updateData) {
-						const prev = await prisma.restaurant.findUnique({
-							where: { id: restaurantId },
-							select: { logo: true },
-						});
-						oldLogo = prev?.logo ?? null;
-					}
+					// Snapshot previous logo + gallery BEFORE overwriting, so replaced/removed
+					// assets can be cleaned from Blob after the update succeeds. restaurantId
+					// is already bound to the caller's own restaurant — tenant-safe.
+					const prev = await prisma.restaurant.findUnique({
+						where: { id: restaurantId },
+						select: { logo: true, gallery: true },
+					});
+					oldLogo = prev?.logo ?? null;
+					oldGallery = prev?.gallery ?? [];
 					await prisma.restaurant.update({ where: { id: restaurantId }, data: updateData });
 				}
 			}
 			// Clean up the replaced logo only after the DB write succeeded
 			if (oldLogo && oldLogo !== updateData.logo) {
 				await deleteBlob(oldLogo);
+			}
+			// Removed gallery images orphan Blob objects — delete the ones that
+			// were in the old gallery but are gone from the new one
+			if ('gallery' in updateData && Array.isArray(updateData.gallery)) {
+				const removed = oldGallery.filter((g) => !(updateData.gallery as string[]).includes(g));
+				for (const url of removed) await deleteBlob(url);
 			}
 			return success({ updated: items.length });
 		}

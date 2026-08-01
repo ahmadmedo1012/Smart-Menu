@@ -42,8 +42,10 @@ const updateSchema = z.object({
 	status: z.string().optional(),
 	sortOrder: z.number().int().optional(),
 	categoryId: z.number().int().positive().optional(),
-	dietaryTags: z.array(z.string()).optional().default([]),
-	allergens: z.array(z.string()).optional().default([]),
+	// No .default([]) — omitted fields must not overwrite stored values.
+	// A status-only toggle (no tags in body) would wipe them via ...body.
+	dietaryTags: z.array(z.string()).optional(),
+	allergens: z.array(z.string()).optional(),
 });
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -67,9 +69,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			return error('غير مصرح', 401);
 		}
 
+		// Spread only the keys actually present — undefined fields in the payload
+		// must not overwrite stored values (e.g. a status-only toggle).
+		const updateData: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(body)) {
+			if (v !== undefined) updateData[k] = v;
+		}
+		if (updateData.status !== undefined) updateData.status = updateData.status as ItemStatus;
+
 		const data = await prisma.menuItem.update({
 			where: { id: itemId },
-			data: { ...body, status: body.status as ItemStatus },
+			data: updateData,
 			include: { category: { select: { id: true, name: true, nameAr: true } } },
 		});
 
