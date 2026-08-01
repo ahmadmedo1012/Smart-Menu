@@ -8,6 +8,9 @@ export const CSRF_EXEMPT = new Set([
 	'/api/health',
 	'/api/auth/login',
 	'/api/auth/register',
+	// Pre-flight validation runs before signup and has no side effects — the
+	// signup POSTs themselves still require the token.
+	'/api/subscriptions/validate',
 ]);
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
