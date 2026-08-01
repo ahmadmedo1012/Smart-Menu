@@ -19,6 +19,11 @@ function makeRequest(
 	const url = new URL(pathname, 'https://' + host);
 	const headers: Record<string, string> = { host };
 	if (origin) headers['origin'] = origin;
+	// Double-submit token: matching cookie + header for legit same-origin requests
+	if (origin && new URL(origin).host === host) {
+		headers['cookie'] = 'csrf-token=test-token-123';
+		headers['x-csrf-token'] = 'test-token-123';
+	}
 	return new Request(url, { method, headers });
 }
 
@@ -52,6 +57,24 @@ describe('assertSameOrigin', () => {
 		it('DELETE with mismatched origin → throws', () => {
 			const req = makeRequest('DELETE', '/api/restaurants/1', 'https://evil.com', 'example.com');
 			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+
+		it('POST with matching origin but missing CSRF token → throws', () => {
+			const req = makeRequest('POST', '/api/restaurants', 'https://example.com', 'example.com');
+			// strip the auto-added token to simulate a non-browser attacker
+			const headers = new Headers(req.headers);
+			headers.delete('cookie');
+			headers.delete('x-csrf-token');
+			const stripped = new Request(req.url, { method: 'POST', headers });
+			expect(() => assertSameOrigin(stripped)).toThrow('CSRF check failed: token mismatch');
+		});
+
+		it('POST with matching origin but mismatched CSRF token → throws', () => {
+			const req = makeRequest('POST', '/api/restaurants', 'https://example.com', 'example.com');
+			const headers = new Headers(req.headers);
+			headers.set('x-csrf-token', 'wrong-token');
+			const stripped = new Request(req.url, { method: 'POST', headers });
+			expect(() => assertSameOrigin(stripped)).toThrow('CSRF check failed: token mismatch');
 		});
 	});
 

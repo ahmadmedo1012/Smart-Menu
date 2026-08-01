@@ -34,4 +34,19 @@ export function assertSameOrigin(request: Request): void {
 	if (originHost !== expectedHost) {
 		throw new Error('CSRF check failed: Origin mismatch');
 	}
+
+	// Double-submit token: mutating requests must carry X-CSRF-Token matching the
+	// csrf-token cookie. Origin alone is spoofable (attacker-controlled server can
+	// send any Origin); a cross-site attacker cannot read this cookie to forge the
+	// header. Public review/loyalty POSTs are still CSRF-safe without auth.
+	const cookie = request.headers.get('cookie') ?? '';
+	const cookieToken = cookie
+		.split(';')
+		.map((c) => c.trim())
+		.find((c) => c.startsWith(`${CSRF_COOKIE}=`))
+		?.slice(CSRF_COOKIE.length + 1);
+	const headerToken = request.headers.get(CSRF_HEADER);
+	if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+		throw new Error('CSRF check failed: token mismatch');
+	}
 }

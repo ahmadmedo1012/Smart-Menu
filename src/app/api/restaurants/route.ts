@@ -40,6 +40,11 @@ const createSchema = z.object({
 
 export async function GET(request: NextRequest) {
 	try {
+		// Admin-only: exposes plans, PII (phone/whatsapp/email), counts for every
+		// restaurant. The public directory uses /api/public/featured instead.
+		const auth = await requireAdmin();
+		if (!auth.authorized) return error('غير مصرح', 401);
+
 		const { searchParams } = new URL(request.url);
 		const page = Math.max(1, Number(searchParams.get('page')) || 1);
 		const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 10));

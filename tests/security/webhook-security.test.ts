@@ -5,7 +5,9 @@
  */
 import { test, expect } from "@playwright/test";
 
-const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? "rWw1bozjGEj01qv2XGpzJS9BjdQf0OqZVhNgt4XE";
+// Secret must come from env — never commit a real webhook secret (repo is public).
+// Tests that need the real secret skip when TELEGRAM_WEBHOOK_SECRET is unset.
+const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
 const BASE_URL = process.env.BASE_URL ?? "https://menu.smart-link.ly/";
 const WEBHOOK_URL = `${BASE_URL}api/telegram/webhook`;
 

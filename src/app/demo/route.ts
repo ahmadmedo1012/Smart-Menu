@@ -5,8 +5,11 @@ import { createSession } from "@/lib/session";
 import { hashPassword } from "@/lib/hash";
 
 export async function GET() {
-  // Block demo route in production — safety guard
-  if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEMO !== "true") {
+  // Block demo route in production — always. The demo session is a real PAID owner
+  // session that can POST /api/subscriptions and mint real pending payments in the
+  // production approval queue (verified live). If a demo is needed, build a
+  // read-only sandbox tenant instead — never a writable production session.
+  if (process.env.NODE_ENV === "production") {
     return NextResponse.json({ error: "Not available in production" }, { status: 404 });
   }
   // Upsert demo owner user so it works on any DB (production or local)

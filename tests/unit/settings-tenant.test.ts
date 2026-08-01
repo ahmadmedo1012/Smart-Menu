@@ -43,7 +43,9 @@ describe('settings PUT — tenant isolation', () => {
 		authHolder.value = { authorized: true, role: 'owner', restaurantId: 1 };
 		mockFindUnique.mockResolvedValue({ logo: 'https://old-logo.com/a.png' });
 		mockUpdate.mockResolvedValue({});
-		mockTransaction.mockImplementation((fn) => (typeof fn === 'function' ? fn(mockPrisma) : Promise.all(fn)));
+		mockTransaction.mockImplementation((fn) =>
+			typeof fn === 'function' ? fn(mockPrisma) : Promise.all(fn)
+		);
 		mockUpsert.mockResolvedValue({});
 	});
 
@@ -51,9 +53,7 @@ describe('settings PUT — tenant isolation', () => {
 		const { PUT } = await import('@/app/api/settings/route');
 
 		// owner A (restaurantId=1) tries to write restaurant B (restaurantId=99)
-		const res = await PUT(
-			makePutRequest([{ key: 'restaurant_name', value: 'hacked' }], 99)
-		);
+		const res = await PUT(makePutRequest([{ key: 'restaurant_name', value: 'hacked' }], 99));
 
 		expect(res.status).toBe(403);
 		// no DB writes, no blob deletes for the foreign restaurant
@@ -74,7 +74,10 @@ describe('settings PUT — tenant isolation', () => {
 			expect.objectContaining({ where: { id: 1 }, select: { logo: true } })
 		);
 		expect(mockUpdate).toHaveBeenCalledWith(
-			expect.objectContaining({ where: { id: 1 }, data: expect.objectContaining({ logo: 'https://new-logo.com/b.png' }) })
+			expect.objectContaining({
+				where: { id: 1 },
+				data: expect.objectContaining({ logo: 'https://new-logo.com/b.png' }),
+			})
 		);
 		// old logo cleaned after successful update
 		expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-logo.com/a.png');

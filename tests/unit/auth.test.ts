@@ -314,26 +314,41 @@ describe('csrf.ts', () => {
 		expect(() => assertSameOrigin(req)).not.toThrow();
 	});
 
-	it('POST — passes when origin matches host', () => {
+	it('POST — passes when origin matches host and CSRF token matches', () => {
 		const req = new Request('http://example.com/api/orders', {
 			method: 'POST',
-			headers: { origin: 'http://example.com', host: 'example.com' },
+			headers: {
+				origin: 'http://example.com',
+				host: 'example.com',
+				cookie: 'csrf-token=tok1',
+				'x-csrf-token': 'tok1',
+			},
 		});
 		expect(() => assertSameOrigin(req)).not.toThrow();
 	});
 
-	it('PUT — passes when origin matches host', () => {
+	it('PUT — passes when origin matches host and CSRF token matches', () => {
 		const req = new Request('http://example.com/api/items', {
 			method: 'PUT',
-			headers: { origin: 'http://example.com', host: 'example.com' },
+			headers: {
+				origin: 'http://example.com',
+				host: 'example.com',
+				cookie: 'csrf-token=tok1',
+				'x-csrf-token': 'tok1',
+			},
 		});
 		expect(() => assertSameOrigin(req)).not.toThrow();
 	});
 
-	it('DELETE — passes when origin matches host', () => {
+	it('DELETE — passes when origin matches host and CSRF token matches', () => {
 		const req = new Request('http://example.com/api/items/1', {
 			method: 'DELETE',
-			headers: { origin: 'http://example.com', host: 'example.com' },
+			headers: {
+				origin: 'http://example.com',
+				host: 'example.com',
+				cookie: 'csrf-token=tok1',
+				'x-csrf-token': 'tok1',
+			},
 		});
 		expect(() => assertSameOrigin(req)).not.toThrow();
 	});
