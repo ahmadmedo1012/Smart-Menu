@@ -263,8 +263,14 @@ export default function AdminOrdersPage() {
             const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
             const next = nextStatus[order.status]
             return (
-              <div key={order.id} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer"
-                onClick={() => router.push(`/admin/orders/${order.id}`)}>
+              <div key={order.id} role="link" tabIndex={0} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => router.push(`/admin/orders/${order.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    router.push(`/admin/orders/${order.id}`);
+                  }
+                }}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn("size-11 rounded-xl flex items-center justify-center shrink-0", config.bg)}>

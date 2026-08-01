@@ -323,7 +323,7 @@ export default function AdminAdminsPage() {
                       type="button"
                       onClick={() => openEdit(admin)}
                       className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
-                      title="تعديل الصلاحيات"
+                      title="تعديل الصلاحيات" aria-label="تعديل الصلاحيات"
                     >
                       <Key className="size-4" />
                     </button>
@@ -331,7 +331,7 @@ export default function AdminAdminsPage() {
                       type="button"
                       onClick={() => handleRevokeSessions(admin)}
                       className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
-                      title="إلغاء الجلسات"
+                      title="إلغاء الجلسات" aria-label="إلغاء الجلسات"
                     >
                       <LogOut className="size-4" />
                     </button>
@@ -339,7 +339,7 @@ export default function AdminAdminsPage() {
                       type="button"
                       onClick={() => setDeleteTarget(admin)}
                       className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors"
-                      title="حذف"
+                      title="حذف" aria-label="حذف"
                     >
                       <Trash2 className="size-4" />
                     </button>

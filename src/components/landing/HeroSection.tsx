@@ -21,7 +21,7 @@ export function HeroSection() {
                 className="bg-background"
                 titleComponent={
                     <>
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.15] text-balance max-w-4xl mx-auto">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.3] text-balance max-w-4xl mx-auto">
                             <span className="block">
                                 منيو رقمي لمطعمك
                             </span>

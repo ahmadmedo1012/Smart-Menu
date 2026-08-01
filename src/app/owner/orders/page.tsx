@@ -415,8 +415,16 @@ export default function OwnerOrdersPage() {
 						return (
 							<div
 								key={order.id}
-								className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer"
+								role="link"
+								tabIndex={0}
+								className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
 								onClick={() => router.push(`/owner/orders/${order.id}`)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										router.push(`/owner/orders/${order.id}`);
+									}
+								}}
 							>
 								<div className="flex items-start justify-between gap-4">
 									<div className="flex items-center gap-3">

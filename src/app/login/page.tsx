@@ -162,7 +162,7 @@ function LoginForm() {
 							priority
 						/>
 					</div>
-					<CardTitle className="font-arabic text-2xl font-bold tracking-tight">
+					<CardTitle className="font-arabic text-2xl font-bold">
 						الربط الذكي
 					</CardTitle>
 					<CardDescription className="font-arabic text-base text-muted-foreground/80">

@@ -152,7 +152,7 @@ export function MenuClientSection(props: {
 					)}
 
 					{/* Text-gradient hero name */}
-					<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-3 text-balance leading-[1.1] bg-gradient-to-l from-orange via-orange/80 to-orange/40 bg-clip-text text-transparent drop-shadow-sm">
+					<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-3 text-balance leading-[1.25] bg-gradient-to-l from-orange via-orange/80 to-orange/40 bg-clip-text text-transparent drop-shadow-sm">
 						{restaurant.name}
 					</h1>
 

@@ -78,7 +78,7 @@ export function BroadcastTargetsSection({
                     <p className="text-xs font-mono text-muted-foreground" dir="ltr">{maskChatId(t.chatId)}</p>
                   </div>
                   <Switch checked={t.isActive} onCheckedChange={(v) => onToggle(t.id, v)} />
-                  <Button variant="destructive" size="sm" onClick={() => onDelete(t.id)} className="rounded-xl">
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(t.id)} className="rounded-xl" aria-label="حذف جهة الإرسال">
                     <Trash2 className="size-4" />
                   </Button>
                 </div>

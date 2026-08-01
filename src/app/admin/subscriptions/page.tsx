@@ -268,7 +268,7 @@ export default function AdminSubscriptionsPage() {
                           type="button"
                           onClick={() => { setActionTarget(p); setActionType("verified"); }}
                           className="size-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/30 flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
-                          title="تأكيد الدفع"
+                          title="تأكيد الدفع" aria-label="تأكيد الدفع"
                         >
                           <Check className="size-4 text-emerald-600" />
                         </button>
@@ -276,7 +276,7 @@ export default function AdminSubscriptionsPage() {
                           type="button"
                           onClick={() => { setActionTarget(p); setActionType("cancelled"); }}
                           className="size-9 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200/30 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                          title="إلغاء"
+                          title="إلغاء" aria-label="إلغاء"
                         >
                           <X className="size-4 text-red-500" />
                         </button>

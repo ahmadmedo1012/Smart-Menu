@@ -185,7 +185,7 @@ const MenuItemCard = memo(function MenuItemCard({
 			<div className="relative z-10 p-4 flex flex-col gap-2">
 				{/* Name + Rating glass-pill */}
 				<div className="flex items-start justify-between gap-2">
-					<h3 className="font-bold text-lg leading-snug line-clamp-1">{displayName}</h3>
+					<h3 className="font-bold text-lg leading-[1.4] line-clamp-1">{displayName}</h3>
 					<button
 						type="button"
 						onClick={(e) => {

@@ -94,6 +94,7 @@ export default function OwnerMenuPage() {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [expandedCat, setExpandedCat] = useState<number | null>(null);
+	const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [catDialog, setCatDialog] = useState(false);
 	const [catEditing, setCatEditing] = useState<Category | null>(null);
@@ -218,7 +219,9 @@ export default function OwnerMenuPage() {
 	};
 
 	const toggleStatus = async (item: Item) => {
+		if (pendingToggleId === item.id) return; // in-flight — prevent double-toggle race
 		const ns = item.status === 'available' ? 'unavailable' : 'available';
+		setPendingToggleId(item.id);
 		try {
 			await csrfFetch(`/api/items/${item.id}`, {
 				method: 'PUT',
@@ -229,6 +232,8 @@ export default function OwnerMenuPage() {
 			if (expandedCat) fetchItems(expandedCat);
 		} catch {
 			premiumToast('error', 'فشل التحديث');
+		} finally {
+			setPendingToggleId(null);
 		}
 	};
 
@@ -359,7 +364,7 @@ export default function OwnerMenuPage() {
 											setItemEditing(null);
 											setItemDialogOpen(true);
 										}}
-										title="إضافة صنف"
+										title="إضافة صنف" aria-label="إضافة صنف"
 									>
 										<Plus className="size-4" />
 									</Button>
@@ -373,7 +378,7 @@ export default function OwnerMenuPage() {
 											setCatForm({ name: cat.name, nameAr: cat.nameAr || '', icon: cat.icon });
 											setCatDialog(true);
 										}}
-										title="تعديل"
+										title="تعديل" aria-label="تعديل"
 									>
 										<Pencil className="size-4" />
 									</Button>
@@ -385,7 +390,7 @@ export default function OwnerMenuPage() {
 											e.stopPropagation();
 											setDeleteTarget({ type: 'category', id: cat.id, name: cat.name });
 										}}
-										title="حذف"
+										title="حذف" aria-label="حذف"
 									>
 										<Trash2 className="size-4" />
 									</Button>
@@ -451,6 +456,7 @@ export default function OwnerMenuPage() {
 														<Switch
 															size="sm"
 															checked={item.status === 'available'}
+															disabled={pendingToggleId === item.id}
 															onCheckedChange={() => toggleStatus(item)}
 														/>
 														<span
