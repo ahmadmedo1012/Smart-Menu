@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
 
@@ -41,85 +41,32 @@ function showOrderToast(newOrders: number) {
 
 export function useOrderNotifier(restaurantId?: number) {
   const hasNotified = useRef(false);
-  const retryCount = useRef(0);
-  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const esRef = useRef<EventSource | null>(null);
-  const [pollMode, setPollMode] = useState(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const lastOrderCountRef = useRef(0);
 
+  // ponytail: client polling — Vercel kills SSE streams at 300s.
   useEffect(() => {
     if (!restaurantId) return;
 
-    function connectSSE() {
-      esRef.current?.close();
-      if (pollMode) return;
-
-      const url = `/api/orders/stream?restaurantId=${restaurantId}`;
-      const eventSource = new EventSource(url);
-      esRef.current = eventSource;
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.newOrders && data.newOrders > 0 && !hasNotified.current) {
-            showOrderToast(data.newOrders);
-            hasNotified.current = true;
-            setTimeout(() => { hasNotified.current = false; }, 30000);
-          }
-        } catch {}
-      };
-
-      eventSource.onopen = () => {
-        retryCount.current = 0;
-      };
-
-      eventSource.onerror = () => {
-        eventSource.close();
-        retryCount.current += 1;
-        if (retryCount.current >= 3) {
-          // Fallback to polling after 3 SSE failures
-          setPollMode(true);
-          return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/orders?status=new&restaurantId=${restaurantId}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const count = Array.isArray(json) ? json.length : (json?.data?.length ?? 0);
+        if (count > lastOrderCountRef.current && !hasNotified.current) {
+          showOrderToast(count - lastOrderCountRef.current);
+          hasNotified.current = true;
+          setTimeout(() => { hasNotified.current = false; }, 30000);
         }
-        if (retryCount.current === 1) {
-          toast.warning("انقطع الاتصال بالطلبات الجديدة، جار إعادة الاتصال...", { duration: 4000 });
-        }
-        const delay = Math.min(1000 * Math.pow(2, retryCount.current), 60000);
-        retryTimer.current = setTimeout(connectSSE, delay);
-      };
-    }
-
-    function startPolling() {
-      if (!restaurantId) return;
-      const poll = async () => {
-        try {
-          const res = await fetch(`/api/orders?status=new&restaurantId=${restaurantId}`);
-          if (!res.ok) return;
-          const json = await res.json();
-          const count = Array.isArray(json) ? json.length : (json?.data?.length ?? 0);
-          if (count > lastOrderCountRef.current && !hasNotified.current) {
-            showOrderToast(count - lastOrderCountRef.current);
-            hasNotified.current = true;
-            setTimeout(() => { hasNotified.current = false; }, 30000);
-          }
-          lastOrderCountRef.current = count;
-        } catch { /* poll failed */ }
-      };
-      poll();
-      pollIntervalRef.current = setInterval(poll, 5000);
-    }
-
-    if (pollMode) {
-      startPolling();
-    } else {
-      connectSSE();
-    }
+        lastOrderCountRef.current = count;
+      } catch { /* poll failed */ }
+    };
+    poll();
+    pollIntervalRef.current = setInterval(poll, 5000);
 
     return () => {
-      esRef.current?.close();
-      if (retryTimer.current) clearTimeout(retryTimer.current);
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
-  }, [restaurantId, pollMode]);
+  }, [restaurantId]);
 }

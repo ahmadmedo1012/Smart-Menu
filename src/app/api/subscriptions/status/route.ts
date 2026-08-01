@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 		const id = searchParams.get('id');
 		if (!id) return error('id is required', 400);
 
-		const payment = await prisma.subscriptionPayment.findUnique({
+		const payment = await prisma.subscriptionPayment.findFirst({
 			where: { id: Number(id), userId: auth.userId },
 			select: { id: true, status: true },
 		});

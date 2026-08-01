@@ -30,10 +30,16 @@ function createPool(): pg.Pool {
   const url = process.env.DATABASE_URL!;
   return new pg.Pool({
     connectionString: url,
-    max: 10,
+    // Serverless: many concurrent function instances × pool size must stay under
+    // Neon's connection cap (10). 5 × instances is a safer ceiling than 10.
+    max: 5,
     connectionTimeoutMillis: 10_000,
     idleTimeoutMillis: 30_000,
     maxUses: 1000,
+    // Kill runaway queries so a slow statement can't hog a pooled connection
+    // (live: "Connection terminated due to connection timeout" on /menu).
+    query_timeout: 15_000,
+    statement_timeout: 15_000,
   });
 }
 

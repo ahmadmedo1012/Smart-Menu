@@ -58,6 +58,32 @@ export async function POST(request: NextRequest) {
     const saved = await prisma.telegramConfig.findFirst({
       select: { id: true, chatId: true, events: true, isActive: true },
     });
+
+    // Register the webhook so Telegram actually delivers updates to us.
+    // Without this the bot never receives messages (live: bot silent).
+    const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+    const domain = process.env.NEXT_PUBLIC_DOMAIN;
+    if (secret && domain && body.isActive) {
+      try {
+        const webhookUrl = `${domain}/api/telegram/webhook`;
+        const res = await fetch(`https://api.telegram.org/bot${body.botToken}/setWebhook`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: webhookUrl,
+            secret_token: secret,
+            allowed_updates: ["message", "callback_query"],
+          }),
+        });
+        const json = (await res.json()) as { ok?: boolean; description?: string };
+        if (!json.ok) {
+          return error(`تم الحفظ لكن فشل تسجيل الويب هوك: ${json.description ?? "unknown"}`, 400);
+        }
+      } catch {
+        return error("تم الحفظ لكن فشل الاتصال بـ Telegram", 500);
+      }
+    }
+
     return success(saved);
   } catch (e) {
     return handleError(e);

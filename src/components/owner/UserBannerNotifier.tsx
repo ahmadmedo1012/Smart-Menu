@@ -11,48 +11,34 @@ interface RejectionEvent {
   timestamp: string;
 }
 
+// ponytail: client polling replaces SSE — Vercel kills server streams at 300s.
+const POLL_MS = 15_000;
+
 export function UserBannerNotifier() {
   const [rejected, setRejected] = useState<RejectionEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
-  const esRef = useRef<EventSource | null>(null);
-  const retryCount = useRef(0);
-  const retryTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const connectRef = useRef<() => void>(() => {});
+  const lastIdRef = useRef(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
-    const connect = () => {
-      esRef.current?.close();
-      const es = new EventSource("/api/user/events/stream");
-      esRef.current = es;
-
-      es.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "subscription_rejected") {
-            setRejected(data);
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/user/events?sinceId=${lastIdRef.current}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const events = json.data ?? [];
+        for (const ev of events) {
+          if (ev.id > lastIdRef.current) lastIdRef.current = ev.id;
+          if (ev.eventType === "subscription_rejected") {
+            setRejected({ type: ev.eventType, message: ev.message ?? "", timestamp: ev.createdAt });
             setDismissed(false);
           }
-        } catch {}
-      };
-
-      es.onopen = () => { retryCount.current = 0; };
-      es.onerror = () => {
-        es.close();
-        if (retryCount.current < 5) {
-          const delay = Math.min(1000 * Math.pow(2, retryCount.current), 60000);
-          retryCount.current += 1;
-          retryTimer.current = setTimeout(() => connectRef.current(), delay);
         }
-      };
+      } catch { /* transient — next tick retries */ }
     };
-
-    connectRef.current = connect;
-    connect();
-
-    return () => {
-      esRef.current?.close();
-      if (retryTimer.current) clearTimeout(retryTimer.current);
-    };
+    poll();
+    intervalRef.current = setInterval(poll, POLL_MS);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
   if (!rejected || dismissed) return null;

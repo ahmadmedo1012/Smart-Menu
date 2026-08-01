@@ -93,22 +93,7 @@ export default function OwnerOrdersPage() {
 	const [dateTo, setDateTo] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
-	const eventSourceRef = useRef<EventSource | null>(null);
-	const sseErrorCountRef = useRef(0);
-	const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
-	const fetchOrdersRef = useRef<typeof fetchOrders>(null as any);
-
-	const startPolling = useCallback((status: string) => {
-		if (pollingRef.current) return;
-		pollingRef.current = setInterval(() => fetchOrdersRef.current?.(status, 1, false), 15000);
-	}, []);
-
-	const stopPolling = useCallback(() => {
-		if (pollingRef.current) {
-			clearInterval(pollingRef.current);
-			pollingRef.current = null;
-		}
-	}, []);
+	const ordersRef = useRef<Order[]>([]);
 
 	const fetchOrders = useCallback(
 		async (status: string, pageNum = 1, append = false, dateF?: string, dateT?: string) => {
@@ -130,9 +115,14 @@ export default function OwnerOrdersPage() {
 				const json = await res.json();
 				const newOrders = json.data ?? json ?? [];
 				if (append) {
-					setOrders((prev) => [...prev, ...newOrders]);
+					setOrders((prev) => {
+						const merged = [...prev, ...newOrders];
+						ordersRef.current = merged;
+						return merged;
+					});
 				} else {
 					setOrders(newOrders);
+					ordersRef.current = newOrders;
 				}
 				setHasMore(newOrders.length === 20);
 				setPage(pageNum);
@@ -146,44 +136,32 @@ export default function OwnerOrdersPage() {
 		},
 		[dateFrom, dateTo]
 	);
-	useEffect(() => {
-		fetchOrdersRef.current = fetchOrders;
-	}, [fetchOrders]);
-
 	const loadMore = () => fetchOrders(filter, page + 1, true);
 
 	useEffect(() => {
 		fetchOrders(filter, 1, false);
 	}, [filter, fetchOrders]);
 
-	// Auto-refresh via SSE for new orders
+	// Auto-refresh — client polling replaces SSE (Vercel kills streams at 300s).
 	useEffect(() => {
-		const es = new EventSource('/api/orders/stream');
-		eventSourceRef.current = es;
-		sseErrorCountRef.current = 0;
-		es.onmessage = (event) => {
+		const poll = async () => {
 			try {
-				const data = JSON.parse(event.data);
-				if (data.newOrders && data.newOrders > 0) {
+				const res = await fetch(`/api/orders?status=${filter}&page=1&pageSize=20`);
+				if (!res.ok) return;
+				const json = await res.json();
+				const fresh = json.data ?? json ?? [];
+				const current = JSON.stringify(ordersRef.current?.map((o: { id: number }) => o.id) ?? []);
+				const freshIds = JSON.stringify(fresh.map((o: { id: number }) => o.id));
+				if (current !== freshIds && current !== '[]') {
 					fetchOrders(filter, 1, false);
-					premiumToast('success', `📦 ${data.newOrders} طلب جديد!`, undefined, { duration: 5000 });
+					premiumToast('success', `📦 تحديث الطلبات`, undefined, { duration: 3000 });
 				}
-			} catch {}
+			} catch { /* transient */ }
 		};
-		es.onerror = () => {
-			sseErrorCountRef.current += 1;
-			// ponytail: count is implicitly visible via reconnect behavior
-			if (sseErrorCountRef.current >= 3) {
-				es.close();
-				premiumToast('refresh', 'فقدان الاتصال المباشر. جاري التحديث الدوري...');
-				startPolling(filter);
-			}
-		};
-		return () => {
-			es.close();
-			stopPolling();
-		};
-	}, [filter, fetchOrders, startPolling, stopPolling]);
+		poll();
+		const interval = setInterval(poll, 15_000);
+		return () => clearInterval(interval);
+	}, [filter, fetchOrders]);
 
 	const updateStatus = useCallback(async (orderId: number, newStatus: string) => {
 		try {

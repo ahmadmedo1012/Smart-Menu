@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { error } from "@/lib/logger";
+import { error, warn } from "@/lib/logger";
 import { getDecryptedBotToken } from "@/lib/config";
 
 interface BroadcastResult {
@@ -88,8 +88,19 @@ export async function broadcastToAll(
     if (r.status === "fulfilled") {
       sent++;
     } else {
-      error("[Telegram Broadcast] Failed:", { chatId: chatIds[i], reason: r.reason?.message ?? "Unknown" });
-      failed.push({ chatId: chatIds[i], reason: r.reason?.message ?? "Unknown" });
+      const reason = r.reason?.message ?? "Unknown";
+      error("[Telegram Broadcast] Failed:", { chatId: chatIds[i], reason });
+      // Stale target: bot was removed from the group/channel — stop retrying
+      // it forever. Only prune when the failure is a hard chat-not-found.
+      if (/chat not found|chat not accessible|bot was kicked/i.test(reason)) {
+        try {
+          await prisma.telegramBroadcastTarget.deleteMany({
+            where: { chatId: String(chatIds[i]) },
+          });
+          warn("[Telegram Broadcast] Pruned stale target:", { chatId: chatIds[i] });
+        } catch { /* prune is best-effort */ }
+      }
+      failed.push({ chatId: chatIds[i], reason });
     }
   }
 

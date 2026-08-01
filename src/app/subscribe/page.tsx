@@ -75,27 +75,37 @@ function SubscribeContent() {
       .finally(() => setAuthLoaded(true));
   }, []);
 
-  // SSE for instant rejection/approval — opens only after user submits
+  // Poll for rejection/approval after submit — SSE streams die at Vercel's
+  // 300s cap, so poll the user's events instead.
   const [sseOpen, setSseOpen] = useState(false);
   useEffect(() => {
     if (!sseOpen) return;
-    const es = new EventSource("/api/user/events/stream");
-    es.onmessage = (event) => {
+    let lastId = 0;
+    let cancelled = false;
+    const poll = async () => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.eventType === "subscription_rejected") {
-          setPaymentOpen(false); submittedRef.current = false; setSubmitting(false);
-          premiumToast("error", data.message || "عذراً، تم رفض طلب التفعيل");
+        const res = await fetch(`/api/user/events?sinceId=${lastId}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const events = json.data ?? [];
+        for (const data of events) {
+          if (data.id > lastId) lastId = data.id;
+          if (data.eventType === "subscription_rejected") {
+            setPaymentOpen(false); submittedRef.current = false; setSubmitting(false);
+            premiumToast("error", data.message || "عذراً، تم رفض طلب التفعيل");
+          }
+          if (data.eventType === "subscription_approved") {
+            setPaymentOpen(false);
+            premiumToast("success", "تم تفعيل حسابك بنجاح! جارِ نقلك إلى لوحة التحكم...");
+            setTimeout(() => window.location.replace("/owner"), 500);
+            return;
+          }
         }
-        if (data.eventType === "subscription_approved") {
-          setPaymentOpen(false);
-          premiumToast("success", "تم تفعيل حسابك بنجاح! جارِ نقلك إلى لوحة التحكم...");
-          setTimeout(() => window.location.replace("/owner"), 500);
-        }
-      } catch { /* parse error */ }
+      } catch { /* transient */ }
     };
-    es.onerror = () => {};
-    return () => es.close();
+    poll();
+    const interval = setInterval(() => { if (!cancelled) poll(); }, 15_000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [sseOpen]);
 
   const currentPlan = plans.find((p) => p.id === selectedPlan);

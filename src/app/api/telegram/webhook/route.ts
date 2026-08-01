@@ -142,6 +142,13 @@ export async function POST(request: NextRequest) {
     return new Response("Forbidden", { status: 403 });
   }
 
+  // Telegram's setWebhook call and its URL-check probe send non-JSON bodies —
+  // ack them so Telegram doesn't retry and log noise stops.
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return new Response("OK", { status: 200 });
+  }
+
   try {
     const update: TelegramUpdate = await request.json();
 
