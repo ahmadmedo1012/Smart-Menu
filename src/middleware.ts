@@ -47,10 +47,14 @@ export function middleware(request: NextRequest) {
 			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
 		);
 	} else {
-		const nonce = crypto.randomUUID();
+		// Next.js streams inline hydration scripts without nonce attributes, so a
+		// nonce-only script-src blocks them and the app hangs on the loading shell
+		// (verified: CSP violation "Executing inline script violates ... nonce").
+		// 'unsafe-inline' is required for Next hydration; script-src 'self' still
+		// blocks remote/external scripts. TODO: wire real nonces via next.config.
 		const csp = [
 			"default-src 'self'",
-			`script-src 'self' 'nonce-${nonce}' https://va.vercel-scripts.com`,
+			"script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
 			"style-src 'self' 'unsafe-inline'",
 			"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"img-src 'self' data: blob: https:",
@@ -64,7 +68,6 @@ export function middleware(request: NextRequest) {
 			"manifest-src 'self' blob:",
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
-		resp.headers.set('x-nonce', nonce);
 	}
 
 	// CSRF: validate Origin on mutating requests (API + protected pages)
