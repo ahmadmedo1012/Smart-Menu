@@ -44,6 +44,23 @@ export async function PUT(request: NextRequest) {
 
     const body = upsertSchema.parse(await request.json());
 
+    // Mask placeholder means "unchanged" for secret fields — never write the bullets
+    // back over the real value (that silently destroyed the stored secret).
+    if (body.isSecret && body.value === "••••••••") {
+      const existing = await prisma.systemConfig.findUnique({ where: { key: body.key } });
+      if (existing) {
+        return success({
+          id: existing.id,
+          key: existing.key,
+          category: existing.category,
+          isSecret: existing.isSecret,
+          description: existing.description,
+          updatedAt: existing.updatedAt,
+          value: "••••••••",
+        });
+      }
+    }
+
     // Encrypt secret values at rest — serialize non-strings so encryption always runs
     const value = body.isSecret
       ? await encryptValue(typeof body.value === "string" ? body.value : JSON.stringify(body.value))
