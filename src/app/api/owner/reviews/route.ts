@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 		const where: Prisma.ReviewWhereInput = {};
 		// Get all item IDs for this restaurant (relation doesn't allow nested restaurantId)
 		const itemIds = await prisma.menuItem.findMany({
-			where: { category: { restaurantId: auth.restaurantId } },
+			where: { category: { is: { restaurantId: auth.restaurantId } } },
 			select: { id: true },
 		});
 		where.menuItemId = { in: itemIds.map((i) => i.id) };

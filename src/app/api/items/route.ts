@@ -42,10 +42,10 @@ export async function GET(request: NextRequest) {
 			}
 			// Unauthenticated: only available items
 			if (!auth.authorized) {
-				where.category = { restaurantId };
+				where.category = { is: { restaurantId } };
 				where.status = 'available';
 			} else {
-				where.category = { restaurantId };
+				where.category = { is: { restaurantId } };
 			}
 		} else if (categoryId) {
 			if (!auth.authorized) {
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
 		// Count existing items for this restaurant
 		const existingCount = await prisma.menuItem.count({
-			where: { category: { restaurantId: category.restaurant.id } },
+			where: { category: { is: { restaurantId: category.restaurant.id } } },
 		});
 
 		const maxItems = category.restaurant.maxItems;

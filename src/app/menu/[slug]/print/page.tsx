@@ -1,42 +1,49 @@
-import { notFound } from "next/navigation";
-export const dynamic = "force-dynamic";
-import { prisma } from "@/lib/db";
-import { toArabicNumber } from "@/lib/format";
-import type { Metadata } from "next";
+import { notFound } from 'next/navigation';
+export const dynamic = 'force-dynamic';
+import { prisma } from '@/lib/db';
+import { toArabicNumber } from '@/lib/format';
+import { PrintButton } from './print-button';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "طباعة المنيو",
+	title: 'طباعة المنيو',
 };
 
-export default async function PrintMenuPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default async function PrintMenuPage({ params }: { params: Promise<{ slug: string }> }) {
+	const { slug } = await params;
 
-  const restaurant = await prisma.restaurant.findUnique({ where: { slug }, select: { id: true, name: true, logo: true, description: true, phone: true, workingHours: true } });
-  if (!restaurant) notFound();
+	const restaurant = await prisma.restaurant.findUnique({
+		where: { slug },
+		select: {
+			id: true,
+			name: true,
+			logo: true,
+			description: true,
+			phone: true,
+			workingHours: true,
+		},
+	});
+	if (!restaurant) notFound();
 
-  const categories = await prisma.menuCategory.findMany({
-    where: { isActive: true, restaurantId: restaurant.id },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      items: {
-        where: { status: "available" },
-        orderBy: { sortOrder: "asc" },
-      },
-    },
-  });
+	const categories = await prisma.menuCategory.findMany({
+		where: { isActive: true, restaurantId: restaurant.id },
+		orderBy: { sortOrder: 'asc' },
+		include: {
+			items: {
+				where: { status: 'available' },
+				orderBy: { sortOrder: 'asc' },
+			},
+		},
+	});
 
-  const totalItems = categories.reduce((a, c) => a + c.items.length, 0);
+	const totalItems = categories.reduce((a, c) => a + c.items.length, 0);
 
-  return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <meta charSet="utf-8" />
-        <title>{`${restaurant.name} - المنيو | للطباعة`}</title>
-        <style>{`
+	return (
+		<html lang="ar" dir="rtl">
+			<head>
+				<meta charSet="utf-8" />
+				<title>{`${restaurant.name} - المنيو | للطباعة`}</title>
+				<style>{`
           :root {
             --print-foreground: oklch(0.2 0.02 85);
             --print-background: oklch(1 0 0);
@@ -71,58 +78,66 @@ export default async function PrintMenuPage({
           .print-btn { background: var(--print-amber-500); color: var(--print-background) !important; text-decoration: none !important; padding: 8px 24px; border-radius: 8px; display: inline-block; margin-top: 0.5rem; font-size: 1rem !important; }
           @media print { .actions { display: none; } body { padding: 0; } @page { margin: 1.5cm; } }
         `}</style>
-      </head>
-      <body>
-        <div className="actions">
-          <a href={`/menu/${slug}`}>← العودة للمنيو الرقمي</a>
-        </div>
+			</head>
+			<body>
+				<div className="actions">
+					<a href={`/menu/${slug}`}>← العودة للمنيو الرقمي</a>
+				</div>
 
-        <h1>{restaurant.name}</h1>
-        {restaurant.description && <p className="sub">{restaurant.description}</p>}
-        <p className="sub">
-          {restaurant.phone && <> 📞 {restaurant.phone}  </>}
-          {restaurant.workingHours && <>  🕐 {restaurant.workingHours}</>}
-        </p>
-        <p className="sub" style={{fontSize:"0.8rem",color:"var(--print-footer)"}}>
-          {toArabicNumber(categories.length)} قسم · {toArabicNumber(totalItems)} صنف
-        </p>
-        <hr className="divider" />
+				<h1>{restaurant.name}</h1>
+				{restaurant.description && <p className="sub">{restaurant.description}</p>}
+				<p className="sub">
+					{restaurant.phone && <> 📞 {restaurant.phone} </>}
+					{restaurant.workingHours && <> 🕐 {restaurant.workingHours}</>}
+				</p>
+				<p className="sub" style={{ fontSize: '0.8rem', color: 'var(--print-footer)' }}>
+					{toArabicNumber(categories.length)} قسم · {toArabicNumber(totalItems)} صنف
+				</p>
+				<hr className="divider" />
 
-        {categories.map(cat => (
-          <div key={cat.id} className="cat">
-            <h2>{cat.nameAr || cat.name}</h2>
-            {cat.items.length === 0 ? (
-              <p style={{color:"var(--print-footer)",fontSize:"0.85rem"}}>لا توجد أصناف</p>
-            ) : (
-              cat.items.map(item => (
-                <div key={item.id}>
-                  <div className="item">
-                    <span className="nm">{item.nameAr || item.name}</span>
-                    <span className="pr">
-                      {item.discountedPrice ? (
-                        <><span className="old">{toArabicNumber(Number(item.price).toFixed(1))}</span> {toArabicNumber(Number(item.discountedPrice).toFixed(1))}</>
-                      ) : (
-                        toArabicNumber(Number(item.price).toFixed(1))
-                      )} د.ل
-                    </span>
-                  </div>
-                  {(item.descriptionAr || item.description) && (
-                    <p className="desc">{item.descriptionAr || item.description}</p>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        ))}
+				{categories.map((cat) => (
+					<div key={cat.id} className="cat">
+						<h2>{cat.nameAr || cat.name}</h2>
+						{cat.items.length === 0 ? (
+							<p style={{ color: 'var(--print-footer)', fontSize: '0.85rem' }}>لا توجد أصناف</p>
+						) : (
+							cat.items.map((item) => (
+								<div key={item.id}>
+									<div className="item">
+										<span className="nm">{item.nameAr || item.name}</span>
+										<span className="pr">
+											{item.discountedPrice ? (
+												<>
+													<span className="old">
+														{toArabicNumber(Number(item.price).toFixed(1))}
+													</span>{' '}
+													{toArabicNumber(Number(item.discountedPrice).toFixed(1))}
+												</>
+											) : (
+												toArabicNumber(Number(item.price).toFixed(1))
+											)}{' '}
+											د.ل
+										</span>
+									</div>
+									{(item.descriptionAr || item.description) && (
+										<p className="desc">{item.descriptionAr || item.description}</p>
+									)}
+								</div>
+							))
+						)}
+					</div>
+				))}
 
-        <div className="footer">
-          <p>مدعوم من <strong>الربط الذكي</strong></p>
-        </div>
+				<div className="footer">
+					<p>
+						مدعوم من <strong>الربط الذكي</strong>
+					</p>
+				</div>
 
-        <div className="actions" style={{marginTop:"1rem"}}>
-          <button onClick={() => window.print()} className="print-btn">🖨️ حفظ كـ PDF / طباعة</button>
-        </div>
-      </body>
-    </html>
-  );
+				<div className="actions" style={{ marginTop: '1rem' }}>
+					<PrintButton />
+				</div>
+			</body>
+		</html>
+	);
 }

@@ -124,7 +124,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 		if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
 		// Collect image URLs before deletion (blob URLs needed after DB delete)
 		const items = await prisma.menuItem.findMany({
-			where: { category: { restaurantId: rId } },
+			where: { category: { is: { restaurantId: rId } } },
 			select: { image: true },
 		});
 		const restRow = await prisma.restaurant.findUnique({
