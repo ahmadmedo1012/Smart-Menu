@@ -86,7 +86,7 @@ function PlanCard({
             <Icon className="size-5 text-white" />
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-bold">{plan.nameAr}</h3>
+            <h2 className="text-base sm:text-lg font-bold">{plan.nameAr}</h2>
             <p className="text-xs text-muted-foreground">{plan.name}</p>
           </div>
         </div>
