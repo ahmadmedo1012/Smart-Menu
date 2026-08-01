@@ -1,108 +1,105 @@
-import { prisma } from "@/lib/db";
-import { error, warn } from "@/lib/logger";
-import { getDecryptedBotToken } from "@/lib/config";
+import { prisma } from '@/lib/db';
+import { error, warn } from '@/lib/logger';
+import { getDecryptedBotToken } from '@/lib/config';
 
 interface BroadcastResult {
-  sent: number;
-  failed: { chatId: string; reason: string }[];
+	sent: number;
+	failed: { chatId: string; reason: string }[];
 }
 
 interface BroadcastOpts {
-  parseMode?: "Markdown" | "HTML";
-  adminOnly?: boolean;
+	parseMode?: 'Markdown' | 'HTML';
+	adminOnly?: boolean;
 }
 
 export async function sendToChat(
-  botToken: string,
-  chatId: string,
-  message: string,
-  opts?: BroadcastOpts,
+	botToken: string,
+	chatId: string,
+	message: string,
+	opts?: BroadcastOpts
 ): Promise<void> {
-  const body: Record<string, string | number> = {
-    chat_id: /^-?\d+$/.test(chatId) ? Number(chatId) : chatId,
-    text: message,
-  };
-  if (opts?.parseMode) body.parse_mode = opts.parseMode;
-  const res = await fetch(
-    `https://api.telegram.org/bot${botToken}/sendMessage`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    },
-  );
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Telegram API ${res.status}: ${err.slice(0, 300)}`);
-  }
+	const body: Record<string, string | number> = {
+		chat_id: /^-?\d+$/.test(chatId) ? Number(chatId) : chatId,
+		text: message,
+	};
+	if (opts?.parseMode) body.parse_mode = opts.parseMode;
+	const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(body),
+	});
+	if (!res.ok) {
+		const err = await res.text();
+		throw new Error(`Telegram API ${res.status}: ${err.slice(0, 300)}`);
+	}
 }
 
 async function gatherTargets(opts?: BroadcastOpts): Promise<Set<string>> {
-  const targets = new Set<string>();
+	const targets = new Set<string>();
 
-  // Active broadcast targets (always included — these are intentional admin channels)
-  const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
-    where: { isActive: true },
-    select: { chatId: true },
-  });
-  for (const t of broadcastTargets) targets.add(t.chatId);
+	// Active broadcast targets (always included — these are intentional admin channels)
+	const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
+		where: { isActive: true },
+		select: { chatId: true },
+	});
+	for (const t of broadcastTargets) targets.add(t.chatId);
 
-  // Linked users — only include for non-admin broadcasts (order notifications, etc.)
-  if (!opts?.adminOnly) {
-    const linkedUsers = await prisma.user.findMany({
-      where: { telegramChatId: { not: null } },
-      select: { telegramChatId: true },
-    });
-    for (const u of linkedUsers) {
-      if (u.telegramChatId) targets.add(u.telegramChatId);
-    }
-  }
+	// Linked users — only include for non-admin broadcasts (order notifications, etc.)
+	if (!opts?.adminOnly) {
+		const linkedUsers = await prisma.user.findMany({
+			where: { telegramChatId: { not: null } },
+			select: { telegramChatId: true },
+		});
+		for (const u of linkedUsers) {
+			if (u.telegramChatId) targets.add(u.telegramChatId);
+		}
+	}
 
-  return targets;
+	return targets;
 }
 
 export async function broadcastToAll(
-  message: string,
-  opts?: BroadcastOpts,
+	message: string,
+	opts?: BroadcastOpts
 ): Promise<BroadcastResult> {
-  const config = await prisma.telegramConfig.findFirst();
-  if (!config || !config.isActive) return { sent: 0, failed: [] };
-  const botToken = await getDecryptedBotToken();
-  if (!botToken) return { sent: 0, failed: [] };
+	const config = await prisma.telegramConfig.findFirst();
+	if (!config || !config.isActive) return { sent: 0, failed: [] };
+	const botToken = await getDecryptedBotToken();
+	if (!botToken) return { sent: 0, failed: [] };
 
-  const targetIds = await gatherTargets(opts);
-  if (targetIds.size === 0) return { sent: 0, failed: [] };
+	const targetIds = await gatherTargets(opts);
+	if (targetIds.size === 0) return { sent: 0, failed: [] };
 
-  const results = await Promise.allSettled(
-    Array.from(targetIds).map((chatId) =>
-      sendToChat(botToken, chatId, message, opts),
-    ),
-  );
+	const results = await Promise.allSettled(
+		Array.from(targetIds).map((chatId) => sendToChat(botToken, chatId, message, opts))
+	);
 
-  const failed: BroadcastResult["failed"] = [];
-  let sent = 0;
+	const failed: BroadcastResult['failed'] = [];
+	let sent = 0;
 
-  const chatIds = Array.from(targetIds);
-  for (let i = 0; i < results.length; i++) {
-    const r = results[i];
-    if (r.status === "fulfilled") {
-      sent++;
-    } else {
-      const reason = r.reason?.message ?? "Unknown";
-      error("[Telegram Broadcast] Failed:", { chatId: chatIds[i], reason });
-      // Stale target: bot was removed from the group/channel — stop retrying
-      // it forever. Only prune when the failure is a hard chat-not-found.
-      if (/chat not found|chat not accessible|bot was kicked/i.test(reason)) {
-        try {
-          await prisma.telegramBroadcastTarget.deleteMany({
-            where: { chatId: String(chatIds[i]) },
-          });
-          warn("[Telegram Broadcast] Pruned stale target:", { chatId: chatIds[i] });
-        } catch { /* prune is best-effort */ }
-      }
-      failed.push({ chatId: chatIds[i], reason });
-    }
-  }
+	const chatIds = Array.from(targetIds);
+	for (let i = 0; i < results.length; i++) {
+		const r = results[i];
+		if (r.status === 'fulfilled') {
+			sent++;
+		} else {
+			const reason = r.reason?.message ?? 'Unknown';
+			error('[Telegram Broadcast] Failed:', { chatId: chatIds[i], reason });
+			// Stale target: bot was removed from the group/channel — stop retrying
+			// it forever. Only prune when the failure is a hard chat-not-found.
+			if (/chat not found|chat not accessible|bot was kicked/i.test(reason)) {
+				try {
+					await prisma.telegramBroadcastTarget.deleteMany({
+						where: { chatId: String(chatIds[i]) },
+					});
+					warn('[Telegram Broadcast] Pruned stale target:', { chatId: chatIds[i] });
+				} catch {
+					/* prune is best-effort */
+				}
+			}
+			failed.push({ chatId: chatIds[i], reason });
+		}
+	}
 
-  return { sent, failed };
+	return { sent, failed };
 }

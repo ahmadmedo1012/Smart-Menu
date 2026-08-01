@@ -156,7 +156,9 @@ export default function OwnerOrdersPage() {
 					fetchOrders(filter, 1, false);
 					premiumToast('success', `📦 تحديث الطلبات`, undefined, { duration: 3000 });
 				}
-			} catch { /* transient */ }
+			} catch {
+				/* transient */
+			}
 		};
 		poll();
 		const interval = setInterval(poll, 15_000);

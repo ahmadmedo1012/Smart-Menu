@@ -8,6 +8,16 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { csrfHeaders } from "./csrf-helper";
+
+let CSRF = "";
+
+test.beforeEach(async ({ request }) => {
+  const res = await request.get("/api/health");
+  const setCookie = res.headers()["set-cookie"] ?? "";
+  const m = setCookie.match(/csrf-token=([^;]+)/);
+  CSRF = m?.[1] ?? "";
+});
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -286,7 +296,7 @@ test.describe("API endpoints", () => {
 
   test("POST /api/subscriptions without auth → 401", async ({ request }) => {
     const res = await request.post("/api/subscriptions", {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeaders(CSRF) },
       data: {},
     });
     expect(res.status()).toBe(401);

@@ -1,7 +1,16 @@
 import { test, expect } from "@playwright/test";
+import { csrfHeaders } from "./csrf-helper";
 
 // BASE defaults to Playwright config baseURL (localhost in CI, production in manual runs)
 const BASE = process.env.BASE_URL || "";
+let CSRF = "";
+
+test.beforeEach(async ({ request }) => {
+  const res = await request.get(`${BASE}/api/health`);
+  const setCookie = res.headers()["set-cookie"] ?? "";
+  const m = setCookie.match(/csrf-token=([^;]+)/);
+  CSRF = m?.[1] ?? "";
+});
 
 test.describe("API Smoke Tests — Public Endpoints", () => {
   test("GET /api/plans returns 200", async ({ request }) => {
@@ -78,7 +87,7 @@ test.describe("API Smoke Tests — Auth Guard", () => {
 
   test("POST /api/subscriptions without auth returns 401", async ({ request }) => {
     const res = await request.post(`${BASE}/api/subscriptions`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeaders(CSRF) },
       data: {},
     });
     expect(res.status()).toBe(401);
@@ -86,7 +95,7 @@ test.describe("API Smoke Tests — Auth Guard", () => {
 
   test("POST /api/subscriptions without auth returns error", async ({ request }) => {
     const res = await request.post(`${BASE}/api/subscriptions`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeaders(CSRF) },
       data: {},
     });
     const json = await res.json();
