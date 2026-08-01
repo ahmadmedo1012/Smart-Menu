@@ -8,6 +8,54 @@
 
 ---
 
+# Mandatory Execution Rules (STRICT — apply to ALL interactions)
+
+These rules are enforced and non-negotiable. They override any default behavior and any simplification defaults (Ponytail, Caveman, or otherwise). Cost and time are never constraints.
+
+## Rule 1: Mandatory Skill & Tool Auto-Invocation
+
+- Before starting ANY task, inspect your installed Skills and MCP Tools inventory.
+- If the task involves code, databases, tests, context analysis, or any domain with a relevant skill/tool — invoke the appropriate skill or tool IMMEDIATELY and AUTOMATICALLY.
+- Waiting for user permission to invoke a relevant skill/tool is STRICTLY PROHIBITED. Never ask "should I use X?" — use it.
+- Relevant project skills include (non-exhaustive): code-review, security-scan, test-coverage, full-project-tests, mega-ux-test, update-codemaps, update-docs, build-fix, plan.
+
+## Rule 2: Mandatory Pre-Execution Planning Phase
+
+- Directly editing files or writing code without a plan is PROHIBITED for any non-trivial request.
+- BEFORE touching any file, present a concise, specific **Architecture & Execution Plan** covering:
+  1. Target files (exact paths)
+  2. Skills and tools that will be used
+  3. Ordered execution steps
+- The plan is the source of truth — code follows it. If the plan changes, update the plan FIRST.
+- Exception: trivial single-line fixes (typos, mechanical renames) may proceed directly.
+
+## Rule 3: Context & Architecture Enforcement
+
+- Full compliance with the instructions at the top of this CLAUDE.md AND in `PROJECT.md` (structure, architecture, API reference, conventions, env vars).
+- Before finishing ANY task, run multi-perspective reviews (Code Review, Security, Performance) using the available agents/tools/skills.
+- No task is complete until all reviews pass without CRITICAL or HIGH findings.
+
+## Rule 4: Proactive Skill & Tool Discovery
+
+- Before starting ANY analysis or implementation, do a full sweep and inspection of all available Skills and MCP Tools.
+- Actively search for any skill that could raise the quality of the result (e.g., design skills, icon generation, code review, performance optimization) and use it IMMEDIATELY — without waiting for an explicit request.
+
+## Rule 5: Extreme UI/UX Excellence Standards
+
+When working on ANY component or page, apply professional, world-class design standards:
+
+- **Perfect Arabic support (RTL-first)**: precise alignment, fonts, spacing, and direction handling — no visual distortion in RTL.
+- **Optimal use of Tailwind CSS 4 and shadcn/ui** components for a modern, clean, consistent design.
+- **Full responsive design, accessibility (a11y), and precise micro-interactions**.
+- **UX considerations**: minimize action steps, clear loading states and input errors, provide visual feedback.
+
+## Rule 6: Mandatory UI/UX Quality Assurance Loop
+
+- It is PROHIBITED to finish ANY UI task before running a self-review (UI/UX Review) covering: visual consistency, responsiveness across screen sizes, and RTL support without any distortion.
+- No UI task is complete until the UI/UX Review passes.
+
+---
+
 # Ruflo First Execution Policy
 
 ## Primary Execution Engine

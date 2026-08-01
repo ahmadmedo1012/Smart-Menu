@@ -6,6 +6,7 @@ import { Star, X, MessageCircle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { premiumToast } from '@/lib/premium-toast';
+import { csrfFetch } from '@/lib/csrf-client';
 
 const starAnimate = { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] };
 
@@ -106,7 +107,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 		setSubmitting(true);
 		setSubmitError('');
 		try {
-			const res = await fetch(`/api/items/${menuItemId}/reviews`, {
+			const res = await csrfFetch(`/api/items/${menuItemId}/reviews`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ rating: formRating, comment: formComment, customerName: formName }),

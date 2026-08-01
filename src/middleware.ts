@@ -3,7 +3,7 @@
 // and let route handlers do the authoritative session check.
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { assertSameOrigin } from '@/lib/csrf';
+import { assertSameOrigin, CSRF_COOKIE } from '@/lib/csrf';
 
 const SESSION_COOKIE = 'smart-menu-session';
 
@@ -20,6 +20,19 @@ export function middleware(request: NextRequest) {
 	if (isStatic) return NextResponse.next();
 
 	const resp = NextResponse.next();
+
+	// Double-submit CSRF: mint the token cookie on first visit so the client can
+	// echo it in X-CSRF-Token on mutating requests. Never reject just for a
+	// missing cookie — that would break first-visit POSTs (signup, subscribe).
+	if (!request.cookies.get(CSRF_COOKIE)?.value) {
+		resp.cookies.set(CSRF_COOKIE, crypto.randomUUID().replace(/-/g, ''), {
+			httpOnly: false,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			path: '/',
+			maxAge: 60 * 60 * 24,
+		});
+	}
 
 	// Security headers
 	resp.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
