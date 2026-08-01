@@ -26,6 +26,8 @@ export const metadata: Metadata = {
 		default: 'الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي',
 		template: '%s | المنيو الذكي',
 	},
+	// Relative canonical — Next resolves against metadataBase per request path
+	alternates: { canonical: '/' },
 	description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب، برنامج ولاء، وإحصائيات متقدمة',
 	keywords: [
 		'منيو رقمي',

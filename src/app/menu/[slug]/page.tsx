@@ -18,6 +18,7 @@ export async function generateMetadata({
 	if (!restaurant) notFound();
 	return {
 		title: restaurant.name,
+		alternates: { canonical: `/menu/${slug}` },
 		openGraph: {
 			title: restaurant.name,
 			description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
