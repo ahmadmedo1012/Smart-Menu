@@ -31,9 +31,10 @@ export async function POST(request: Request) {
 		if (!allowed) {
 			return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 		}
-		// Account-level throttle — protects against distributed brute force across IPs
-		// Generous 20/15min window to avoid blocking legitimate multi-device use
-		const { success: acctAllowed } = await accountLimiter.check(`acct:${username}`);
+		// Account+IP throttle — keying on username alone lets any attacker lock
+		// any account with 20 wrong passwords from one IP (unauthenticated DoS).
+		// Generous 20/15min window per IP+account to avoid blocking legit use.
+		const { success: acctAllowed } = await accountLimiter.check(`acct:${ip}:${username}`);
 		if (!acctAllowed) {
 			return error('تم قفل الحساب مؤقتاً لكثرة المحاولات الفاشلة. حاول لاحقاً.', 429);
 		}
