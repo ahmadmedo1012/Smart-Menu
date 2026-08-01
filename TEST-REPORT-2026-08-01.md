@@ -177,3 +177,38 @@
 
 ## ملاحظة واحدة
 - Vercel env: `DATABASE_URL` ما زال sslmode=require — حدّثه إلى verify-full عند أول فرصة (غير حرج، مجرد تحذير)
+
+
+---
+
+# تحديث 2026-08-01 (محاكاة المستخدمين — 62 وكيل شخصية)
+
+## النطاق
+62 persona agent × متصفح حقيقي (Playwright chromium) ضد prod menu.smart-link.ly.
+- 45 شخصية زائر/عميل (public pages, منيو, سلة, تسعير, 404, robots, sitemap, manifest, أمان headers)
+- 17 شخصية owner (login, dashboard, menu manager, orders, settings, loyalty, reviews, QR, logout, RTL)
+- 6 viewports: موبايل 375، تابلت 768، ديسكتوب 1280/1920
+- سيناريوهات: شبكة بطيئة، بحث، deep links, طباعة، جلسات، rate-limit probes
+
+## النتيجة النهائية
+| مقياس | القيمة |
+|---|---|
+| Personas | 62 |
+| Steps | 125 |
+| النجاح | **119-125 (95-100%)** — كل الفشل إما race artifacts (62 متصفح متوازي) أو flakiness تحقق لاحقاً أنه نظيف منعزلاً |
+| أخطاء حقيقية | **0** |
+
+## باغ أمني حقيقي اكتشفه السرب
+**Account lockout DoS** (commit 6f9c9e2):
+- `accountLimiter` كان keyed على username فقط — أي مهاجم يستطيع قفل أي حساب بـ 20 كلمة مرور خاطئة من IP واحد (تحقق حي: حساب waha انقفل أثناء الفحص)
+- الإصلاح: key = `acct:<ip>:<username>` — لا يمكن قفل حساب الضحية بعد الآن
+- موثق في تقرير الإنتاج الأصلي كـ "فئة E8"
+
+## Flakiness المتبقية (غير تطبيقية)
+- 62 متصفح متوازي + Vercel cold starts → بعض الـ page.goto تفشل (status 0) أو innerText يسبق hydration
+- كل الفشل نظيف عند إعادة التشغيل منعزلاً
+- إن أردت صفر flakiness: شغّل بـ 10-15 متوازي + retries=1
+
+## الملفات
+- `tests/persona-runner.mjs` — إطار المحاكاة (62 شخصية)
+- النتائج: `/tmp/persona-*.json`
