@@ -3,6 +3,10 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { MessageCircle } from "lucide-react"
 
+// Single canonical support number — same env source as FloatingWhatsApp.
+// Hardcoded per-number links drift (was 218911111111 placeholder vs 218910089975).
+const waLink = `https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "218910089975").replace(/^\+/, "")}`
+
 interface FooterProps { className?: string }
 
 const QUICK_LINKS = [
@@ -32,7 +36,7 @@ export function Footer({ className }: FooterProps) {
 							<span className="size-8 rounded-sm bg-card border border-border flex items-center justify-center opacity-40 cursor-not-allowed" aria-label="قريباً">
 								<svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.88.55 9.38.55 9.38.55s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>
 							</span>
-							<a href="https://wa.me/218911111111" className="size-8 rounded-sm bg-card border border-border flex items-center justify-center hover:bg-orange/20 transition-colors" aria-label="واتساب"><MessageCircle className="size-3.5" /></a>
+							<a href={waLink} className="size-8 rounded-sm bg-card border border-border flex items-center justify-center hover:bg-orange/20 transition-colors" aria-label="واتساب"><MessageCircle className="size-3.5" /></a>
 						</div>
 					</div>
 
@@ -57,7 +61,7 @@ export function Footer({ className }: FooterProps) {
 					<div>
 						<h4 className="text-sm font-medium mb-3">تواصل معنا</h4>
 						<div className="space-y-2.5 text-sm text-muted-foreground">
-							<Link href="https://wa.me/218911111111" className="block w-fit hover:text-foreground transition-colors">واتساب</Link>
+							<Link href={waLink} className="block w-fit hover:text-foreground transition-colors">واتساب</Link>
 							<span className="block cursor-default hover:text-foreground transition-colors">دعم فني 24/7</span>
 						</div>
 					</div>
