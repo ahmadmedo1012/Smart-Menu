@@ -120,3 +120,32 @@
 - تقرير mega السابق: `TEST-REPORT-MEGA.md` (378 findings، fixes مثبتة)
 - Lighthouse: `/tmp/chrome-devtools-mcp-*/report.json`
 - Playwright: `test-results/report/`
+
+
+---
+
+# تحديث 2026-08-01 (بعد الإصلاحات)
+
+## المرحلة 1 (حرجة) — مكتملة ✅ commit 9547dbf
+- Prisma 7 relation filters `{ is: { restaurantId } }` في 6 ملفات — /api/items و /menu/[slug] 500s مُصلحة
+- زر الطباعة → PrintButton client component — 219 خطأ live مُصالح
+- order status PUT عبر csrfFetch — 403 مُصالح
+
+## المرحلة 2 (عالية) — مكتملة ✅ commit b5221f8
+- SSE ×3 → client polling (Vercel 300s cap) + /api/user/events?sinceId= بفلترة userId (تسريب بيانات مُصالح) + حذف dead admin stream
+- db.ts: pool max 5 + query/statement_timeout 15s + sslmode verify-full
+- subscription/status findUnique→findFirst
+- Telegram: setWebhook عند حفظ الإعدادات (bot كان صامتاً)، ack لغير JSON، prune targets stale
+
+## المرحلة 3 (متوسطة) — مكتملة ✅ commit 919463c
+- E2E: csrf-helper (mint per-test) — **152/152 PASS محلياً** (كان 146/180)
+- webhook security: rate-limit بعد التحقق من السر — **9/9 PASS**
+- lint مقصور على src/ tests/ — 0 أخطاء (كان 92)
+- test:legacy script مُصلح — 327 pass
+- DB: حذف 25 مطعم تجريبي + جلسات منتهية (163→138 مطعماً)
+- pg_stat_statements مثبت
+
+## المرحلة 4 (منخفضة) — متبقية
+- Lighthouse: aria-prohibited, contrast, heading-order, meta-description للمنيو
+- التغطية نحو 50%
+- middleware → proxy (Next 16)
