@@ -38,6 +38,7 @@ export function Footer({ className }: FooterProps) {
 						<div className="flex gap-2">
 							<span
 								className="size-8 rounded-sm bg-card border border-border flex items-center justify-center opacity-40 cursor-not-allowed"
+								role="img"
 								aria-label="قريباً"
 							>
 								<svg className="size-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -46,6 +47,7 @@ export function Footer({ className }: FooterProps) {
 							</span>
 							<span
 								className="size-8 rounded-sm bg-card border border-border flex items-center justify-center opacity-40 cursor-not-allowed"
+								role="img"
 								aria-label="قريباً"
 							>
 								<svg className="size-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -54,6 +56,7 @@ export function Footer({ className }: FooterProps) {
 							</span>
 							<span
 								className="size-8 rounded-sm bg-card border border-border flex items-center justify-center opacity-40 cursor-not-allowed"
+								role="img"
 								aria-label="قريباً"
 							>
 								<svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -71,7 +74,7 @@ export function Footer({ className }: FooterProps) {
 					</div>
 
 					<div>
-						<h4 className="text-sm font-medium mb-3">روابط سريعة</h4>
+						<h3 className="text-sm font-medium mb-3">روابط سريعة</h3>
 						<div className="space-y-2.5 text-sm text-muted-foreground">
 							{QUICK_LINKS.map((link) => (
 								<Link
@@ -86,7 +89,7 @@ export function Footer({ className }: FooterProps) {
 					</div>
 
 					<div>
-						<h4 className="text-sm font-medium mb-3">الخدمات</h4>
+						<h3 className="text-sm font-medium mb-3">الخدمات</h3>
 						<div className="space-y-2.5 text-sm text-muted-foreground">
 							{[
 								'منيو إلكتروني',
@@ -106,7 +109,7 @@ export function Footer({ className }: FooterProps) {
 					</div>
 
 					<div>
-						<h4 className="text-sm font-medium mb-3">تواصل معنا</h4>
+						<h3 className="text-sm font-medium mb-3">تواصل معنا</h3>
 						<div className="space-y-2.5 text-sm text-muted-foreground">
 							<Link href={waLink} className="block w-fit hover:text-foreground transition-colors">
 								واتساب
@@ -119,10 +122,10 @@ export function Footer({ className }: FooterProps) {
 				</div>
 
 				<div className="border-t border-border/50 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-					<p className="text-xs text-muted-foreground/60">
+					<p className="text-xs text-muted-foreground">
 						&copy; {new Date().getFullYear()} الربط الذكي | Smart Menu. جميع الحقوق محفوظة.
 					</p>
-					<div className="flex gap-4 text-xs text-muted-foreground/60">
+					<div className="flex gap-4 text-xs text-muted-foreground">
 						<Link href="/terms" className="hover:text-foreground transition-colors">
 							شروط الاستخدام
 						</Link>

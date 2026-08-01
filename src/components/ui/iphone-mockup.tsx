@@ -69,6 +69,7 @@ export function IPhoneMockup({
 
   return (
     <div
+      role="img"
       aria-label={`iPhone mockup (${model})`}
       className={cn("flex justify-center", className)}
       style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}

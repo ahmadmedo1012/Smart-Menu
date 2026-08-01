@@ -9,7 +9,7 @@ const SESSION_COOKIE = 'smart-menu-session';
 
 const PROTECTED_ROOTS = ['/admin', '/owner'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	const isProtected = PROTECTED_ROOTS.some(

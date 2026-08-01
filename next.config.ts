@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
 					{ key: 'X-DNS-Prefetch-Control', value: 'on' },
 					{ key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
 					{ key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-					// CSP via middleware.ts for nonce support — this header is overridden by middleware
+					// CSP via proxy.ts for nonce support — this header is overridden by middleware
 					// on Vercel, middleware CSP takes precedence for dynamic routes
 				],
 			},
