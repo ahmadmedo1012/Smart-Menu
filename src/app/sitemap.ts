@@ -4,7 +4,8 @@ import { prisma } from '@/lib/db';
 const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || 'https://smart-link.ly';
 
 // Slug patterns of test/debug restaurants that must never be indexed
-const TEST_SLUG_RE = /(^|-)(test|admin-test|demo|debug|bug|dev|cafe-t|restaurant-\d|178\d{10,}|^s?asas|^qq+|^-+|^sjj|^ede|^nigga|^sex)/i;
+const TEST_SLUG_RE =
+	/(^|-)(test|admin-test|demo|debug|bug|dev|cafe-t|restaurant-\d|178\d{10,}|^s?asas|^qq+|^-+|^sjj|^ede|^nigga|^sex)/i;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	// Count menu items via categories (MenuItem belongs to a category, not the restaurant)

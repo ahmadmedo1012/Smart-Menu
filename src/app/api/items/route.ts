@@ -42,7 +42,8 @@ export async function GET(request: NextRequest) {
 			}
 			// Unauthenticated: only available items
 			if (!auth.authorized) {
-				where.category = { restaurantId, status: 'available' };
+				where.category = { restaurantId };
+				where.status = 'available';
 			} else {
 				where.category = { restaurantId };
 			}
