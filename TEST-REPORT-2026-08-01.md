@@ -149,3 +149,31 @@
 - Lighthouse: aria-prohibited, contrast, heading-order, meta-description للمنيو
 - التغطية نحو 50%
 - middleware → proxy (Next 16)
+
+
+# تحديث 2026-08-01 (بعد النشر ضد prod) ✅
+
+## النشر
+- push ae15086 → Vercel auto-deploy `dpl_6bPyr99YvvQEFcprJNNNmYQB6vyk` READY (git integration)
+
+## الاختبارات ضد prod (menu.smart-link.ly)
+| الجولة | النتيجة |
+|---|---|
+| api + security projects | ✅ **152/152** |
+| ui-smoke + ui-sweep | ✅ **26/26** |
+| المجموع | ✅ **178/178** |
+
+## التحقق المباشر (curl)
+- `/menu/al-waha-cafe` → 200 (كان 500 — Prisma relation)
+- `/api/items?restaurantId=102` → 200 مع بيانات (كان `Unknown argument 'restaurantId'`)
+- `/menu/al-waha-cafe/print` → 200 (كان event-handler crash)
+- `/api/user/events?sinceId=` → 401 بدون auth (نقطة polling جديدة، SSE محذوف)
+- meta description موجود ✓
+- CSRF gate يعمل: POST بدون token → "CSRF validation failed" ✓
+- CSP سليم ✓
+
+## Vercel runtime بعد النشر (1h)
+- **0 أخطاء حقيقية** — فقط pg SSL deprecation warning (sslmode=verify-full في .env المحلي؛ Vercel env يحتاج نفس التحديث)
+
+## ملاحظة واحدة
+- Vercel env: `DATABASE_URL` ما زال sslmode=require — حدّثه إلى verify-full عند أول فرصة (غير حرج، مجرد تحذير)
