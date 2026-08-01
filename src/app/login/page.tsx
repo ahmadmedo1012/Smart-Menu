@@ -206,12 +206,12 @@ function LoginForm() {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									required
-									className="border-0 bg-transparent pr-9 focus-visible:ring-0 focus-visible:ring-offset-0"
+									className="border-0 bg-transparent pe-9 focus-visible:ring-0 focus-visible:ring-offset-0"
 								/>
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
-									className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 									aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
 								>
 									{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

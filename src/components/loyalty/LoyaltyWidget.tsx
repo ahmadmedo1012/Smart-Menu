@@ -165,7 +165,7 @@ export function LoyaltyWidget({
 									onChange={(e) => setPhone(e.target.value)}
 									onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
 									placeholder="رقم هاتفك للولاء"
-									className="w-full h-10 pr-10 px-3 bg-transparent text-sm outline-none rounded-xl"
+									className="w-full h-10 pe-10 px-3 bg-transparent text-sm outline-none rounded-xl"
 									dir="ltr"
 								/>
 							</div>

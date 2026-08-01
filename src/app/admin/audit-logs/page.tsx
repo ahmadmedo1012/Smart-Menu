@@ -225,7 +225,7 @@ export default function AdminAuditLogsPage() {
 						value={searchInput}
 						onChange={(e) => setSearchInput(e.target.value)}
 						placeholder="بحث في الإجراءات والأنواع وعناوين IP..."
-						className="w-full h-11 pr-10 pl-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						className="w-full h-11 pe-10 ps-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						aria-label="بحث"
 					/>
 				</div>

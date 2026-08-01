@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Minus, Plus, X, Check, Store, MessageCircle } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import type { MenuItemProp } from './MenuItemCard';
 import { toArabicNumber } from '@/lib/format';
@@ -129,6 +129,8 @@ export function OrderDialog({
 
 	const innerContent = (
 		<>
+			{/* Screen-reader name — base-ui warns and SR announces bare "dialog" without a Title */}
+			<DialogTitle className="sr-only">{displayName}</DialogTitle>
 			{/* Image header with gradient overlay */}
 			{item.image && (
 				<div className="relative h-44 sm:h-52 overflow-hidden">

@@ -147,10 +147,13 @@ export default function CartPage() {
 					restaurantId: restaurantId || undefined,
 				}),
 			});
-			if (res.ok) {
-				const json = await res.json();
-				orderNo = json.data?.orderNo ?? '';
+			if (!res.ok) {
+				// Non-2xx must abort the flow — previously the order was silently
+				// dropped while the customer believed it was placed (verified live).
+				throw new Error(`HTTP ${res.status}`);
 			}
+			const json = await res.json();
+			orderNo = json.data?.orderNo ?? '';
 		} catch {
 			premiumToast('error', 'فشل تقديم الطلب. يرجى المحاولة مرة أخرى');
 			setIsSubmitting(false);

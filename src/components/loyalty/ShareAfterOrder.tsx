@@ -206,7 +206,7 @@ ${referralUrl}
 											value={phone}
 											onChange={(e) => setPhone(e.target.value)}
 											placeholder="0912345678"
-											className="w-full h-12 pr-10 px-4 bg-transparent text-sm outline-none rounded-xl"
+											className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-xl"
 											dir="ltr"
 										/>
 									</div>
