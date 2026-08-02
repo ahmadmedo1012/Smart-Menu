@@ -362,7 +362,7 @@ export function PaymentDialog({
 									<div className="rounded-xl bg-muted/30 border border-border/20 p-3 space-y-2.5">
 										<p className="text-xs font-medium flex items-center gap-1.5">
 											<Landmark className="size-3.5 text-orange" />
-											حسّول على الحساب البنكي التالي
+											حوّل على الحساب البنكي التالي
 										</p>
 										{[
 											{ label: 'المصرف', value: BANK_NAME },
