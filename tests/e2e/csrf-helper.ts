@@ -18,12 +18,14 @@ export async function mintCsrf(request: APIRequestContext): Promise<string> {
 }
 
 export function csrfHeaders(token: string): Record<string, string> {
+	// Origin must match the request's actual host (assertSameOrigin anchors to
+	// request.url host + NEXT_PUBLIC_DOMAIN, NOT to a hardcoded env).
+	const base = process.env.BASE_URL || 'https://menu.smart-link.ly';
 	return {
 		'X-CSRF-Token': token,
 		// Cookie comes from Playwright's jar automatically (mint response stored
 		// it); sending a manual Cookie duplicates it and breaks the token match.
-		// assertSameOrigin requires Origin host === NEXT_PUBLIC_DOMAIN host.
-		Origin: 'https://menu.smart-link.ly',
+		Origin: base,
 	};
 }
 
