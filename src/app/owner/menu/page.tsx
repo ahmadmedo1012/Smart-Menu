@@ -441,7 +441,7 @@ export default function OwnerMenuPage() {
 															</p>
 														)}
 													</div>
-													<div className="text-left shrink-0">
+													<div className="text-end shrink-0">
 														<span
 															className={cn(
 																'font-bold text-sm tabular-nums',

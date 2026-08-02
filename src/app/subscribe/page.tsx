@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
 import Link from 'next/link';
 import { Store, Loader2 } from 'lucide-react';
+import { toArabicNumber } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
@@ -308,7 +309,7 @@ function SubscribeContent() {
 						)}
 					>
 						<span className="size-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-							1
+							{toArabicNumber(1)}
 						</span>{' '}
 						اختر الخطة
 					</div>
@@ -320,7 +321,7 @@ function SubscribeContent() {
 						)}
 					>
 						<span className="size-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-							2
+							{toArabicNumber(2)}
 						</span>{' '}
 						بيانات المطعم
 					</div>

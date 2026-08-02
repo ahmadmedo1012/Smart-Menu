@@ -91,6 +91,8 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 
 	useEffect(() => {
 		if (!open || !sheetRef.current) return;
+		// Remember the trigger so focus returns on close (WCAG 2.4.3).
+		const opener = document.activeElement as HTMLElement | null;
 		const firstFocusable = sheetRef.current.querySelector<HTMLElement>(
 			'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 		);
@@ -99,6 +101,8 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 		return () => {
 			cancelAnimationFrame(raf);
 			document.removeEventListener('keydown', trapFocus);
+			// Cleanup runs on close (open→false) — hand focus back to the trigger.
+			if (!open && opener) opener.focus();
 		};
 	}, [open, trapFocus]);
 

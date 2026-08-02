@@ -455,7 +455,7 @@ export default function OwnerOrdersPage() {
 										</div>
 									</div>
 
-									<div className="text-left shrink-0">
+									<div className="text-end shrink-0">
 										<p className="font-bold text-lg tabular-nums">
 											{toArabicNumber(order.total.toFixed(1))}
 										</p>

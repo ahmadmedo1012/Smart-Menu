@@ -219,7 +219,7 @@ export default function AdminMenuPage() {
                             {item.nameAr || item.name}
                           </span>
                         </div>
-                        <div className="text-left shrink-0">
+                        <div className="text-end shrink-0">
                           <span className={cn("font-bold text-sm tabular-nums", item.discountedPrice ? "text-destructive" : "")}>
                             {toArabicNumber((item.discountedPrice ?? item.price).toFixed(1))}
                           </span>

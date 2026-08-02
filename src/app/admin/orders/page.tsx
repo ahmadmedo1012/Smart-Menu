@@ -292,7 +292,7 @@ export default function AdminOrdersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-left shrink-0">
+                  <div className="text-end shrink-0">
                     <p className="font-bold text-lg tabular-nums">{toArabicNumber(order.total.toFixed(1))}</p>
                     <p className="text-xs text-muted-foreground">د.ل</p>
                   </div>
