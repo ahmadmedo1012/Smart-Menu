@@ -290,9 +290,11 @@ function SubscribeContent() {
 						<Store className="size-4" /> اشترك الآن
 					</div>
 					<h1 className="text-3xl md:text-5xl font-bold mb-3">
-						<span>انضم إلى الربط الذكي</span>
+						{upgradeMode ? <span>رقِّ خطة مطعمك</span> : <span>انضم إلى الربط الذكي</span>}
 					</h1>
-					<p className="text-muted-foreground text-lg">وأنشئ منيو رقمي لمطعمك في دقائق</p>
+					<p className="text-muted-foreground text-lg">
+						{upgradeMode ? 'اختر باقة أعلى لمزيد من الأصناف والطلبات' : 'وأنشئ منيو رقمي لمطعمك في دقائق'}
+					</p>
 				</div>
 
 				{/* Step indicator */}

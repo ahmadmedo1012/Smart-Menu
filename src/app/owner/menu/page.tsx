@@ -131,7 +131,9 @@ export default function OwnerMenuPage() {
 			setLoading(false);
 		}
 	}, [restaurantId]);
-	useEffect(() => { fetchCatsRef.current = fetchCats; }, [fetchCats]);
+	useEffect(() => {
+		fetchCatsRef.current = fetchCats;
+	}, [fetchCats]);
 
 	useEffect(() => {
 		fetch('/api/auth/me')
@@ -364,7 +366,8 @@ export default function OwnerMenuPage() {
 											setItemEditing(null);
 											setItemDialogOpen(true);
 										}}
-										title="إضافة صنف" aria-label="إضافة صنف"
+										title="إضافة صنف"
+										aria-label="إضافة صنف"
 									>
 										<Plus className="size-4" />
 									</Button>
@@ -378,7 +381,8 @@ export default function OwnerMenuPage() {
 											setCatForm({ name: cat.name, nameAr: cat.nameAr || '', icon: cat.icon });
 											setCatDialog(true);
 										}}
-										title="تعديل" aria-label="تعديل"
+										title="تعديل"
+										aria-label="تعديل"
 									>
 										<Pencil className="size-4" />
 									</Button>
@@ -390,7 +394,8 @@ export default function OwnerMenuPage() {
 											e.stopPropagation();
 											setDeleteTarget({ type: 'category', id: cat.id, name: cat.name });
 										}}
-										title="حذف" aria-label="حذف"
+										title="حذف"
+										aria-label="حذف"
 									>
 										<Trash2 className="size-4" />
 									</Button>

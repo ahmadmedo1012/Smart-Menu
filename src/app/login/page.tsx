@@ -40,7 +40,6 @@ function safeRedirect(value: string | null) {
 function LoginForm() {
 	const searchParams = useSearchParams();
 	const rawRedirect = searchParams.get('redirect');
-	const redirect = safeRedirect(rawRedirect) || '/admin';
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -108,8 +107,10 @@ function LoginForm() {
 			const status = data.user?.subscriptionStatus;
 			const target =
 				role === 'owner'
-					? redirect && redirect.startsWith('/')
-						? redirect
+					// Owner must never land on /admin — redirect param may be a
+					// leftover from an admin-area visit or the '/admin' default.
+					? rawRedirect && rawRedirect.startsWith('/owner')
+						? rawRedirect
 						: '/owner'
 					: ['super_admin', 'sub_admin', 'admin'].includes(role)
 						? safeRedirect(rawRedirect) || '/admin'
@@ -162,9 +163,7 @@ function LoginForm() {
 							priority
 						/>
 					</div>
-					<CardTitle className="font-arabic text-2xl font-bold">
-						الربط الذكي
-					</CardTitle>
+					<CardTitle className="font-arabic text-2xl font-bold">الربط الذكي</CardTitle>
 					<CardDescription className="font-arabic text-base text-muted-foreground/80">
 						لوحة تحكم المطاعم
 					</CardDescription>

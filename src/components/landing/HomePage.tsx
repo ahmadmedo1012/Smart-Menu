@@ -21,14 +21,27 @@ export function HomePage() {
 	useEffect(() => {
 		const controller = new AbortController();
 		fetchPublicStats()
-			.then(setStats)
-			.catch(() => {});
+			.then((s) => {
+				if (!s || typeof s.totalRestaurants !== 'number') throw new Error('bad stats payload');
+				setStats(s);
+			})
+			.catch((error) => {
+				if (error instanceof DOMException && error.name === 'AbortError') return;
+				// Keep section in skeleton (null) instead of silently vanishing —
+				// a transient failure shouldn't wipe the stats block for the visit.
+				setStats(null);
+			});
 		fetch('/api/public/featured', { signal: controller.signal })
-			.then((r) => r.json())
+			.then((r) => {
+				if (!r.ok) throw new Error(`HTTP ${r.status}`);
+				return r.json();
+			})
 			.then((d) => setFeatured(d.data ?? []))
 			.catch((error) => {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
-				setFeatured([]);
+				// null keeps the loading skeleton visible (with retry affordance);
+				// [] would blank the section silently.
+				setFeatured(null);
 			});
 		return () => controller.abort();
 	}, []);

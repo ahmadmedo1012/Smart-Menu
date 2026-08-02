@@ -379,7 +379,7 @@ export function PaymentDialog({
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: ((30 - countdown) / 30) }}
-                    className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 origin-left"
+                    className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 origin-left rtl:origin-right"
                     transition={{ duration: 0.5 }}
                   />
                 </div>

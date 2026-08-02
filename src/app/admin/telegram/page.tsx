@@ -65,6 +65,7 @@ export default function AdminTelegramPage() {
 	const [eventsInput, setEventsInput] = useState('');
 	const [targets, setTargets] = useState<BroadcastTarget[]>([]);
 	const [linkedAdmins, setLinkedAdmins] = useState(0);
+	const [loadError, setLoadError] = useState<string | null>(null);
 	const [approvers, setApprovers] = useState<Approver[]>([]);
 	const [approversLoading, setApproversLoading] = useState(true);
 
@@ -114,7 +115,7 @@ export default function AdminTelegramPage() {
 			.then((json) => {
 				if (json.success && json.data) setTargets(json.data);
 			})
-			.catch(() => {});
+			.catch(() => setLoadError('فشل تحميل أقسام تيليجرام'));
 
 		fetch('/api/telegram/diagnose?dryRun=true')
 			.then((r) => r.json())
@@ -124,14 +125,14 @@ export default function AdminTelegramPage() {
 					setDiagnose(json.data);
 				}
 			})
-			.catch(() => {});
+			.catch(() => setLoadError('فشل تشخيص تيليجرام'));
 
 		fetch('/api/admin/telegram/approvers')
 			.then((r) => r.json())
 			.then((json) => {
 				if (json.success) setApprovers(json.data ?? []);
 			})
-			.catch(() => {})
+			.catch(() => setLoadError('فشل تحميل الموافقين'))
 			.finally(() => setApproversLoading(false));
 	}, []);
 
@@ -259,6 +260,12 @@ export default function AdminTelegramPage() {
 	return (
 		<div className="space-y-8 animate-fade-in max-w-3xl">
 			<h2 className="text-2xl font-bold tracking-tight">إعدادات تليجرام</h2>
+
+			{loadError && (
+				<div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+					{loadError} — بعض الأقسام قد تكون فارغة مؤقتاً
+				</div>
+			)}
 
 			<TelegramConfigSection
 				config={config}

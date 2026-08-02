@@ -75,7 +75,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 
 			{/* Scroll progress bar — RTL-aware origin-right */}
 			<motion.div
-				className="fixed inset-x-0 top-14 z-30 h-[2px] origin-right bg-gradient-to-r from-orange/60 to-orange"
+				className="fixed inset-x-0 top-14 z-30 h-[2px] origin-right rtl:origin-left bg-gradient-to-r from-orange/60 to-orange"
 				style={{ scaleX: progress }}
 				aria-hidden
 			/>
