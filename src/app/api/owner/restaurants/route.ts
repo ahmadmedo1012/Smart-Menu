@@ -90,6 +90,15 @@ export async function POST(request: NextRequest) {
 			await tx.userRestaurant.create({
 				data: { userId: auth.userId!, restaurantId: restaurant.id, isPrimary: false },
 			});
+			// Auto-seed default categories so a fresh menu is never empty
+			await tx.menuCategory.createMany({
+				data: [
+					{ name: 'مشروبات ساخنة', icon: '☕', sortOrder: 1, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+					{ name: 'مشروبات باردة', icon: '🧃', sortOrder: 2, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+					{ name: 'حلويات', icon: '🍰', sortOrder: 3, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+					{ name: 'وجبات خفيفة', icon: '🍔', sortOrder: 4, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+				],
+			});
 			return restaurant;
 		});
 

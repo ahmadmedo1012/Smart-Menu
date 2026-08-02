@@ -175,6 +175,15 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           await tx.userRestaurant.create({
             data: { userId: existing!.userId, restaurantId: created.id, isPrimary: i === 0 },
           });
+          // Auto-seed default categories so a fresh menu is never empty
+          await tx.menuCategory.createMany({
+            data: [
+              { name: "مشروبات ساخنة", icon: "☕", sortOrder: 1, restaurantId: created.id, createdAt: new Date(), updatedAt: new Date() },
+              { name: "مشروبات باردة", icon: "🧃", sortOrder: 2, restaurantId: created.id, createdAt: new Date(), updatedAt: new Date() },
+              { name: "حلويات", icon: "🍰", sortOrder: 3, restaurantId: created.id, createdAt: new Date(), updatedAt: new Date() },
+              { name: "وجبات خفيفة", icon: "🍔", sortOrder: 4, restaurantId: created.id, createdAt: new Date(), updatedAt: new Date() },
+            ],
+          });
         }
 
         user = await tx.user.update({

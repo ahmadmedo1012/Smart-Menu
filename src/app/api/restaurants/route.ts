@@ -159,6 +159,16 @@ export async function POST(request: NextRequest) {
 					},
 				});
 				if (i === 0) primary = restaurant;
+
+				// Auto-seed default categories so a fresh menu is never empty
+				await tx.menuCategory.createMany({
+					data: [
+						{ name: 'مشروبات ساخنة', icon: '☕', sortOrder: 1, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+						{ name: 'مشروبات باردة', icon: '🧃', sortOrder: 2, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+						{ name: 'حلويات', icon: '🍰', sortOrder: 3, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+						{ name: 'وجبات خفيفة', icon: '🍔', sortOrder: 4, restaurantId: restaurant.id, createdAt: new Date(), updatedAt: new Date() },
+					],
+				});
 			}
 
 			// Create owner user if username/password provided (linked to primary restaurant)
