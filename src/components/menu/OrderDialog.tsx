@@ -145,7 +145,7 @@ export function OrderDialog({
 					<button
 						type="button"
 						onClick={() => onOpenChange(false)}
-						className="absolute top-3 start-3 size-8 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center"
+						className="absolute top-3 start-3 size-10 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center"
 						aria-label="إغلاق"
 					>
 						<X className="size-4" />
@@ -162,7 +162,7 @@ export function OrderDialog({
 						<Check className="size-10 text-orange" />
 					</div>
 					<div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-lg shadow-orange/30">
-						<Check className="size-8 text-white" />
+						<Check className="size-10 text-white" />
 					</div>
 					<h3 className="text-xl font-bold mb-1">تم إرسال الطلب!</h3>
 					<p className="text-sm text-muted-foreground">جاري تحويلك إلى واتساب...</p>

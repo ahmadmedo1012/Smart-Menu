@@ -181,7 +181,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 							</div>
 							<button
 								onClick={() => onOpenChange(false)}
-								className="size-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+								className="size-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
 								aria-label="إغلاق"
 							>
 								<X className="size-4" />
@@ -290,7 +290,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								</div>
 							) : fetchError ? (
 								<div className="text-center py-10" role="alert" aria-live="assertive">
-									<MessageCircle className="size-8 text-destructive/50 mx-auto mb-3" />
+									<MessageCircle className="size-10 text-destructive/50 mx-auto mb-3" />
 									<p className="text-sm text-destructive mb-3">
 										فشل تحميل التقييمات. تحقق من اتصالك بالإنترنت.
 									</p>
@@ -303,7 +303,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								</div>
 							) : reviews.length === 0 ? (
 								<div className="text-center py-10">
-									<MessageCircle className="size-8 text-muted-foreground/30 mx-auto mb-3" />
+									<MessageCircle className="size-10 text-muted-foreground/30 mx-auto mb-3" />
 									<p className="text-sm text-muted-foreground">
 										لا توجد تقييمات{filterStar ? ` بتقييم ${filterStar} نجوم` : ''}
 									</p>

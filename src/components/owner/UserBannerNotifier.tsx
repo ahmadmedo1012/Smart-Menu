@@ -80,7 +80,7 @@ export function UserBannerNotifier() {
 							</div>
 							<button
 								onClick={() => setDismissed(true)}
-								className="shrink-0 size-7 rounded-full flex items-center justify-center hover:bg-destructive/10 transition-colors"
+								className="shrink-0 size-9 rounded-full flex items-center justify-center hover:bg-destructive/10 transition-colors"
 								aria-label="إغلاق"
 							>
 								<X className="size-3.5 text-muted-foreground" />

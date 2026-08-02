@@ -162,7 +162,7 @@ export function GalleryCarousel({
 								setPaused((p) => !p);
 							}}
 							aria-label={paused ? 'تشغيل العرض التلقائي' : 'إيقاف العرض التلقائي'}
-							className="absolute bottom-3 end-3 size-8 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+							className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
 						>
 							{paused ? (
 								<Play className="size-3.5" aria-hidden="true" />
@@ -200,7 +200,7 @@ export function GalleryCarousel({
 						e.stopPropagation();
 						openLightbox(current);
 					}}
-					className="absolute top-3 start-3 size-8 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+					className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
 					aria-label="تكبير الصورة"
 				>
 					<Maximize2 className="size-3.5" aria-hidden="true" />
