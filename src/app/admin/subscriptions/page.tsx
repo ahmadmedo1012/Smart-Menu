@@ -24,7 +24,7 @@ import { toArabicNumber } from "@/lib/format";
 import {
   CreditCard, Check, X, RefreshCw, FilterX,
   ChevronLeft, ChevronRight, AlertCircle, Smartphone, Clock,
-  AlertTriangle,
+  AlertTriangle, Landmark, ImageIcon,
 } from "lucide-react";
 
 interface Payment {
@@ -36,6 +36,7 @@ interface Payment {
   planName: string;
   status: string;
   createdAt: string;
+  metadata?: Record<string, unknown> | null;
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
@@ -47,6 +48,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 const PROVIDER_NAMES: Record<string, string> = {
   libyana: "ليبيانا",
   madar: "مدار",
+  bank: "تحويل مصرفي",
 };
 
 export default function AdminSubscriptionsPage() {
@@ -261,6 +263,47 @@ export default function AdminSubscriptionsPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Bank transfer details (from metadata) */}
+                    {p.provider === "bank" && (() => {
+                      const m = p.metadata ?? {};
+                      const senderName = typeof m.senderAccountName === "string" ? m.senderAccountName : "";
+                      const senderNumber = typeof m.senderAccountNumber === "string" ? m.senderAccountNumber : "";
+                      const receiptUrl = typeof m.receiptImageUrl === "string" ? m.receiptImageUrl : "";
+                      return (
+                      <div className="mt-3 rounded-md bg-muted/30 border border-border/20 p-3 space-y-1.5 text-xs">
+                        <div className="flex items-center gap-2">
+                          <Landmark className="size-3.5 text-orange shrink-0" />
+                          <span className="font-semibold">تحويل مصرفي</span>
+                        </div>
+                        {senderName && (
+                          <div className="flex justify-between gap-2">
+                            <span className="text-muted-foreground">اسم المُرسِل</span>
+                            <span className="font-semibold text-left">{senderName}</span>
+                          </div>
+                        )}
+                        {senderNumber && (
+                          <div className="flex justify-between gap-2">
+                            <span className="text-muted-foreground">رقم الحساب</span>
+                            <span className="font-mono text-left" dir="ltr">{senderNumber}</span>
+                          </div>
+                        )}
+                        {receiptUrl && (
+                          <div className="pt-1">
+                            <a
+                              href={receiptUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-primary hover:underline"
+                            >
+                              <ImageIcon className="size-3.5" />
+                              عرض صورة التحويل
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                      );
+                    })()}
 
                     {p.status === "pending" && (
                       <div className="flex items-center gap-1 shrink-0">

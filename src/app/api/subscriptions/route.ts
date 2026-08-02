@@ -11,15 +11,32 @@ import { z } from "zod";
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
-const createPaymentSchema = z.object({
-  phone: z.string().regex(/^09\d{8}$/, "رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09"),
-  amount: z.number().positive(),
-  provider: z.enum(["libyana", "madar"]),
-  planId: z.number().int().positive(),
-  tempUsername: z.string().min(3).optional(),
-  tempRestaurantName: z.string().min(1).optional(),
-  tempRestaurantSlug: z.string().min(3).optional(),
-});
+export const createPaymentSchema = z
+  .object({
+    phone: z
+      .string()
+      .regex(/^09\d{8}$/, "رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09")
+      .optional(),
+    amount: z.number().positive(),
+    provider: z.enum(["libyana", "madar", "bank"]),
+    planId: z.number().int().positive(),
+    tempUsername: z.string().min(3).optional(),
+    tempRestaurantName: z.string().min(1).optional(),
+    tempRestaurantSlug: z.string().min(3).optional(),
+    // Bank transfer fields — only valid when provider === "bank"
+    senderAccountName: z.string().min(1).max(100).optional(),
+    senderAccountNumber: z.string().min(1).max(50).optional(),
+    receiptImageUrl: z.string().url().optional(),
+  })
+  .refine(
+    (d) => d.provider !== "bank" || (d.senderAccountName && d.senderAccountNumber),
+    {
+      message: "اسم صاحب الحساب ورقم الحساب إجباريان للتحويل البنكي",
+      path: ["senderAccountName"],
+    }
+  );
+
+// The 99 LYD cap is a libyana/madar network constraint — bank transfers have no cap.
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +49,13 @@ export async function POST(request: NextRequest) {
 
     const parsed = createPaymentSchema.safeParse(await request.json());
     if (!parsed.success) return error(parsed.error.issues[0].message, 400);
-    const { phone, amount, provider, planId, tempUsername, tempRestaurantName, tempRestaurantSlug } = parsed.data;
+    const { phone, amount, provider, planId, tempUsername, tempRestaurantName, tempRestaurantSlug, senderAccountName, senderAccountNumber, receiptImageUrl } = parsed.data;
+
+    // Bank transfers bypass the mobile-wallet 99 LYD cap
+    const isBank = provider === "bank";
+    if (!isBank && Number(amount) > 99) {
+      return error("المبلغ لا يطابق سعر الباقة", 400);
+    }
 
     // Pre-flight uniqueness checks (defense in depth alongside client-side validation)
     if (tempUsername) {
@@ -68,9 +91,9 @@ export async function POST(request: NextRequest) {
     const payment = await prisma.subscriptionPayment.create({
       data: {
         userId: auth.userId,
-        phone: String(phone),
+        phone: phone ? String(phone) : "",
         amount: plan.price,
-        provider: provider as "libyana" | "madar",
+        provider: provider as "libyana" | "madar" | "bank",
         planId,
         planName: plan?.nameAr ?? "",
         status: "pending",
@@ -78,6 +101,9 @@ export async function POST(request: NextRequest) {
           tempUsername,
           tempRestaurantName,
           tempRestaurantSlug,
+          ...(isBank
+            ? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
+            : {}),
           telegramMessages: [],
         },
       },

@@ -9,13 +9,27 @@ import { sendMessageWithKeyboard } from "@/lib/telegram-api";
 import { error as logError } from "@/lib/logger";
 import { z } from "zod";
 
-const upgradeSchema = z.object({
-  planId: z.number().int().positive(),
-  phone: z.string().regex(/^09\d{8}$/, "رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09"),
-  provider: z.enum(["libyana", "madar"]),
-  amount: z.number().positive(),
-  upgradeRestaurantId: z.number().int().positive(),
-});
+const upgradeSchema = z
+  .object({
+    planId: z.number().int().positive(),
+    phone: z
+      .string()
+      .regex(/^09\d{8}$/, "رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09")
+      .optional(),
+    provider: z.enum(["libyana", "madar", "bank"]),
+    amount: z.number().positive(),
+    upgradeRestaurantId: z.number().int().positive(),
+    senderAccountName: z.string().min(1).max(100).optional(),
+    senderAccountNumber: z.string().min(1).max(50).optional(),
+    receiptImageUrl: z.string().url().optional(),
+  })
+  .refine(
+    (d) => d.provider !== "bank" || (d.senderAccountName && d.senderAccountNumber),
+    {
+      message: "اسم صاحب الحساب ورقم الحساب إجباريان للتحويل البنكي",
+      path: ["senderAccountName"],
+    }
+  );
 
 const upgradeLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -30,7 +44,13 @@ export async function POST(request: NextRequest) {
 
     const parsed = upgradeSchema.safeParse(await request.json());
     if (!parsed.success) return error(parsed.error.issues[0].message, 400);
-    const { planId, phone, provider, amount, upgradeRestaurantId } = parsed.data;
+    const { planId, phone, provider, amount, upgradeRestaurantId, senderAccountName, senderAccountNumber, receiptImageUrl } = parsed.data;
+
+    // Bank transfers bypass the mobile-wallet 99 LYD cap
+    const isBank = provider === "bank";
+    if (!isBank && Number(amount) > 99) {
+      return error("المبلغ لا يطابق سعر الباقة", 400);
+    }
 
     // Validate plan exists and is active
     const plan = await prisma.subscriptionPlan.findUnique({
@@ -91,15 +111,18 @@ export async function POST(request: NextRequest) {
     const payment = await prisma.subscriptionPayment.create({
       data: {
         userId: auth.userId,
-        phone: String(phone),
+        phone: phone ? String(phone) : "",
         amount: plan.price,
-        provider: provider as "libyana" | "madar",
+        provider: provider as "libyana" | "madar" | "bank",
         planId,
         planName: plan.nameAr ?? "",
         status: "pending",
         metadata: {
           upgradeRestaurantId,
           currentPlanId: restaurant.planId,
+          ...(isBank
+            ? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
+            : {}),
         },
       },
     });

@@ -14,11 +14,13 @@ import { csrfFetch } from "@/lib/csrf-client";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Smartphone, Copy, CheckCircle2, XCircle } from "lucide-react";
+import { Smartphone, Landmark, Copy, CheckCircle2, XCircle, Upload, Loader2 } from "lucide-react";
 import { useConfig } from "@/hooks/useConfig";
+import { OptimizedImage } from "@/components/ui/OptimizedImage";
+import { compressImage } from "@/lib/image-compress";
 
 
-type Provider = "libyana" | "madar";
+type Provider = "libyana" | "madar" | "bank";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -50,6 +52,11 @@ export function PaymentDialog({
   const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || "0942119637";
 
   const [phone, setPhone] = useState("");
+  const [bankAmount, setBankAmount] = useState(price);
+  const [senderAccountName, setSenderAccountName] = useState("");
+  const [senderAccountNumber, setSenderAccountNumber] = useState("");
+  const [receiptImageUrl, setReceiptImageUrl] = useState("");
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [step, setStep] = useState<"form" | "waiting" | "success" | "approved" | "rejected">("form");
   const [resolutionMsg, setResolutionMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
@@ -59,6 +66,11 @@ export function PaymentDialog({
 
   const providerPhone = provider === "libyana" ? LIBYANA_PHONE : MADAR_PHONE;
   const providerName = provider === "libyana" ? "ليبيانا" : "مدار";
+
+  // Bank account details from SystemConfig (same mechanism as the phones)
+  const BANK_NAME = (config?.bank_transfer_bank_name as string) || "";
+  const BANK_ACCOUNT = (config?.bank_transfer_account_number as string) || "";
+  const BANK_IBAN = (config?.bank_transfer_iban as string) || "";
 
   const quickTransferCode =
     provider === "libyana"
@@ -86,9 +98,20 @@ export function PaymentDialog({
   }, []);
 
   const handleSent = async () => {
-    if (!phone.trim()) {
+    const isBank = provider === "bank";
+    if (!isBank && !phone.trim()) {
       premiumToast("error", "يرجى إدخال رقم هاتفك");
       return;
+    }
+    if (isBank) {
+      if (!senderAccountName.trim()) {
+        premiumToast("error", "يرجى إدخال اسم صاحب الحساب");
+        return;
+      }
+      if (!senderAccountNumber.trim()) {
+        premiumToast("error", "يرجى إدخال رقم الحساب");
+        return;
+      }
     }
     setSubmitting(true);
     try {
@@ -99,7 +122,17 @@ export function PaymentDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phone.trim(), amount: price, provider, planId,
+          phone: isBank ? undefined : phone.trim(),
+          amount: isBank ? bankAmount : price,
+          provider,
+          planId,
+          ...(isBank
+            ? {
+                senderAccountName: senderAccountName.trim(),
+                senderAccountNumber: senderAccountNumber.trim(),
+                ...(receiptImageUrl ? { receiptImageUrl } : {}),
+              }
+            : {}),
           ...(tempRestaurantName ? { tempRestaurantName } : {}),
           ...(tempRestaurantSlug ? { tempRestaurantSlug } : {}),
           ...(upgradeRestaurantId ? { upgradeRestaurantId } : {}),
@@ -129,8 +162,11 @@ export function PaymentDialog({
   useEffect(() => {
     if (step !== "waiting") return;
 
+    // Auto-verify countdown is libyana-only — bank/madar always wait for admin review
+    const autoVerify = provider === "libyana";
     deadlineRef.current = Date.now() + 30000;
     const tick = setInterval(() => {
+      if (!autoVerify) return;
       const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
       setCountdown(remaining);
       if (remaining <= 0) {
@@ -140,7 +176,7 @@ export function PaymentDialog({
       }
     }, 100);
 
-    if (paymentId) {
+    if (paymentId && (provider === "libyana" || provider === "madar" || provider === "bank")) {
       let pollFailures = 0;
       const warnedRef = { current: false };
       pollRef.current = setInterval(async () => {
@@ -174,7 +210,7 @@ export function PaymentDialog({
       clearInterval(tick);
       cleanup();
     };
-  }, [step, paymentId, cleanup, finishFlow]);
+  }, [step, paymentId, provider, cleanup, finishFlow]);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -183,11 +219,15 @@ export function PaymentDialog({
         setStep("form");
         setCountdown(30);
         setPhone("");
+        setBankAmount(price);
+        setSenderAccountName("");
+        setSenderAccountNumber("");
+        setReceiptImageUrl("");
         setPaymentId(null);
       }
       onOpenChange(open);
     },
-    [onOpenChange, cleanup]
+    [onOpenChange, price, cleanup]
   );
 
   return (
@@ -221,26 +261,36 @@ export function PaymentDialog({
               {/* Payment method tabs */}
               <div>
                 <Label>طريقة الدفع</Label>
-                <div className="grid grid-cols-2 gap-2 mt-1.5">
-                  {(["libyana", "madar"] as const).map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setProvider(p)}
-                      className={cn(
-                        "h-11 rounded-xl border-2 text-sm font-medium transition-all",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
-                        provider === p
-                          ? "border-orange bg-orange-muted/40 dark:bg-orange-muted/20 shadow-sm"
-                          : "border-border/30 hover:border-orange/30 text-muted-foreground"
-                      )}
-                    >
-                      {p === "libyana" ? "ليبيانا" : "مدار"}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-3 gap-2 mt-1.5">
+                  {([
+                    { id: "libyana" as Provider, label: "ليبيانا", icon: Smartphone },
+                    { id: "madar" as Provider, label: "مدار", icon: Smartphone },
+                    { id: "bank" as Provider, label: "تحويل بنكي", icon: Landmark },
+                  ]).map((opt) => {
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setProvider(opt.id)}
+                        className={cn(
+                          "h-14 rounded-xl border-2 text-[13px] font-medium transition-all flex flex-col items-center justify-center gap-1",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
+                          provider === opt.id
+                            ? "border-orange bg-orange-muted/40 dark:bg-orange-muted/20 shadow-sm"
+                            : "border-border/30 hover:border-orange/30 text-muted-foreground"
+                        )}
+                      >
+                        <Icon className="size-4" />
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
+              {provider !== "bank" && (
+                <>
               {/* Provider phone */}
               <div className="rounded-xl bg-muted/30 border border-border/20 p-3">
                 <p className="text-xs text-muted-foreground mb-1">
@@ -310,17 +360,153 @@ export function PaymentDialog({
                   10 أرقام تبدأ بـ 09 — حتى نتمكن من التأكد من استلام التحويل
                 </p>
               </div>
+              </>
+            )}
 
-              {/* Amount — fixed, read-only (server enforces plan price) */}
+              {/* Bank transfer section — replaces the mobile template entirely */}
+              {provider === "bank" && (
+                <>
+              {/* Bank account info card */}
+              <div className="rounded-xl bg-muted/30 border border-border/20 p-3 space-y-2.5">
+                <p className="text-xs font-medium flex items-center gap-1.5">
+                  <Landmark className="size-3.5 text-orange" />
+                  حسّول على الحساب البنكي التالي
+                </p>
+                {[
+                  { label: "المصرف", value: BANK_NAME },
+                  { label: "رقم الحساب", value: BANK_ACCOUNT },
+                  { label: "IBAN", value: BANK_IBAN },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground shrink-0">{row.label}</span>
+                    <span className="font-mono text-sm font-bold text-left truncate" dir="ltr">
+                      {row.value}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(row.value)}
+                      className="size-7 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0"
+                      title={`نسخ ${row.label}`}
+                    >
+                      <Copy className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bank amount — no 99 cap (server enforces plan price) */}
+              <div>
+                <Label>المبلغ (د.ل)</Label>
+                <Input
+                  type="number"
+                  value={bankAmount}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (isNaN(v) || v < 0) return;
+                    setBankAmount(v);
+                  }}
+                  className="h-11 rounded-xl mt-1.5"
+                  min={1}
+                />
+              </div>
+
+              {/* Sender account name */}
+              <div>
+                <Label>اسم صاحب الحساب المُرسِل *</Label>
+                <Input
+                  value={senderAccountName}
+                  onChange={(e) => setSenderAccountName(e.target.value)}
+                  placeholder="الاسم كما يظهر في الحساب"
+                  className="h-11 rounded-xl mt-1.5"
+                />
+              </div>
+
+              {/* Sender account number */}
+              <div>
+                <Label>رقم حساب المُرسِل *</Label>
+                <Input
+                  value={senderAccountNumber}
+                  onChange={(e) => setSenderAccountNumber(e.target.value)}
+                  placeholder="رقم الحساب الذي حُوّل منه"
+                  className="h-11 rounded-xl mt-1.5 text-left font-mono"
+                  dir="ltr"
+                />
+              </div>
+
+              {/* Receipt upload — optional */}
+              <div>
+                <Label>صورة التحويل (اختياري)</Label>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <label
+                    className="h-11 px-4 rounded-xl border border-border/30 flex items-center justify-center gap-2 hover:bg-accent cursor-pointer text-sm text-muted-foreground"
+                    style={{ opacity: uploadingReceipt ? 0.5 : 1, pointerEvents: uploadingReceipt ? "none" : "auto" }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingReceipt}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploadingReceipt(true);
+                        premiumToast("info", "جاري رفع الصورة...");
+                        try {
+                          const compressed = await compressImage(file);
+                          const fd = new FormData();
+                          fd.append("file", compressed, file.name.replace(/\.[^.]+$/, ".jpg"));
+                          const r = await csrfFetch("/api/upload", { method: "POST", body: fd });
+                          const d = await r.json();
+                          if (!r.ok) {
+                            premiumToast("error", d?.error || "فشل رفع الصورة");
+                            return;
+                          }
+                          if (d.data?.url) setReceiptImageUrl(d.data.url);
+                          else premiumToast("error", "فشل رفع الصورة");
+                        } catch (err) {
+                          premiumToast("error", err instanceof Error ? err.message : "فشل رفع الصورة");
+                        } finally {
+                          setUploadingReceipt(false);
+                        }
+                      }}
+                    />
+                    {uploadingReceipt ? (
+                      <Loader2 className="size-4 text-muted-foreground animate-spin" />
+                    ) : (
+                      <Upload className="size-4 text-muted-foreground" />
+                    )}
+                    {uploadingReceipt ? "جاري الرفع..." : "اختر صورة"}
+                  </label>
+                  {receiptImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setReceiptImageUrl("")}
+                      className="text-xs text-red-500 hover:underline shrink-0"
+                    >
+                      حذف الصورة
+                    </button>
+                  )}
+                </div>
+                {receiptImageUrl && (
+                  <div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30">
+                    <OptimizedImage src={receiptImageUrl} alt="صورة التحويل" className="size-full" skeleton={false} />
+                  </div>
+                )}
+              </div>
+              </>
+            )}
+
+              {provider !== "bank" && (
               <div className="rounded-xl bg-muted/30 border border-border/20 p-3 flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">المبلغ المطلوب</span>
                 <span className="text-lg font-bold text-orange">{price} د.ل</span>
               </div>
+              )}
 
               <Button
                 className="w-full h-12 text-base font-semibold rounded-xl"
                 onClick={handleSent}
-                disabled={submitting || !phone.trim()}
+                disabled={submitting || (provider !== "bank" && !phone.trim())}
               >
                 {submitting ? "جاري الإرسال..." : "إرسال طلب الدفع"}
               </Button>
@@ -362,20 +548,22 @@ export function PaymentDialog({
                 </span>
               </div>
 
-              {/* Progress bar — scaleX avoids layout thrash */}
-              <div className="w-48 space-y-1.5">
-                <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: ((30 - countdown) / 30) }}
-                    className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 origin-left rtl:origin-right"
-                    transition={{ duration: 0.5 }}
-                  />
+              {/* Auto-verification progress bar — libyana only; bank/madar wait for admin */}
+              {provider === "libyana" && (
+                <div className="w-48 space-y-1.5">
+                  <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: ((30 - countdown) / 30) }}
+                      className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 origin-left rtl:origin-right"
+                      transition={{ duration: 0.5 }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    الإشتراك سينتهي خلال {countdown} ثانية
+                  </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground text-center">
-                  الإشتراك سينتهي خلال {countdown} ثانية
-                </p>
-              </div>
+              )}
             </div>
           )}
 
@@ -424,7 +612,7 @@ export function PaymentDialog({
                 </Button>
                 <Button
                   className="flex-1 h-11 rounded-xl"
-                  onClick={() => { setStep("form"); setResolutionMsg(""); setPhone(""); setPaymentId(null); }}
+                  onClick={() => { setStep("form"); setResolutionMsg(""); setPhone(""); setBankAmount(price); setSenderAccountName(""); setSenderAccountNumber(""); setReceiptImageUrl(""); setPaymentId(null); }}
                 >
                   إعادة المحاولة
                 </Button>
