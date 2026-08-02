@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, memo } from "react";
+import { useReducedMotion } from "framer-motion";
 import { DotLottiePlayer } from "@dotlottie/react-player";
 import "@dotlottie/react-player/dist/index.css";
 
@@ -22,6 +23,10 @@ const LottieAnimation = memo(function LottieAnimation({
   onComplete,
 }: LottieAnimationProps) {
   const ref = useRef<HTMLDivElement>(null);
+  // Canvas/WebGL — CSS prefers-reduced-motion doesn't stop it; gate explicitly.
+  const reducedMotion = useReducedMotion();
+  const effectiveLoop = reducedMotion ? false : loop;
+  const effectiveAutoplay = reducedMotion ? false : autoplay;
 
   useEffect(() => {
     const el = ref.current;
@@ -40,8 +45,8 @@ const LottieAnimation = memo(function LottieAnimation({
     <div ref={ref} className={className} aria-hidden="true">
       <DotLottiePlayer
         src={src}
-        loop={loop}
-        autoplay={autoplay}
+        loop={effectiveLoop}
+        autoplay={effectiveAutoplay}
         speed={speed}
       />
     </div>

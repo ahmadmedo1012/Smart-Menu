@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MapPin, Star, Phone, ArrowLeft, ArrowRight, Store } from 'lucide-react';
 import { SectionContainer } from '@/components/ui/SectionContainer';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -24,6 +24,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 	const timer = useRef<ReturnType<typeof setInterval>>(undefined);
 
 	const n = restaurants?.length ?? 0;
+	const reducedMotion = useReducedMotion();
 	const go = useCallback(
 		(i: number, d?: number) => {
 			setSlide(([cur]) => [((i % n) + n) % n, d ?? (i > cur ? 1 : -1)]);
@@ -38,10 +39,10 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 	}, [n]);
 
 	useEffect(() => {
-		if (paused || n <= 1) return;
+		if (paused || n <= 1 || reducedMotion) return;
 		timer.current = setInterval(next, AUTOPLAY_INTERVAL);
 		return () => clearInterval(timer.current);
-	}, [paused, next, n]);
+	}, [paused, next, n, reducedMotion]);
 
 	if (restaurants === null) {
 		return (
