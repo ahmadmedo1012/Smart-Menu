@@ -35,6 +35,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
+import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
 import { ItemDialog } from '@/components/owner/ItemDialog';
 import { premiumToast } from '@/lib/premium-toast';
 
@@ -141,8 +142,26 @@ export default function OwnerMenuPage() {
 				if (!r.ok) throw Error();
 				return r.json();
 			})
-			.then((d) => {
-				if (d.data?.restaurantId) setRestaurantId(d.data.restaurantId);
+			.then(async (d) => {
+				// Prefer the active restaurant from localStorage (multi-menu switcher),
+				// else the user's primary restaurantId from /api/auth/me.
+				const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));
+				let rid = stored || d.data?.restaurantId;
+				// Validate the stored id belongs to this user (fetch owner restaurants)
+				try {
+					const r = await fetch('/api/owner/restaurants');
+					const j = await r.json();
+					const list = j.data ?? j ?? [];
+					if (list.length > 0 && !list.some((x: { id: number }) => x.id === rid)) {
+						rid = list.find((x: { isPrimary: boolean }) => x.isPrimary)?.id ?? list[0].id;
+						localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(rid));
+					} else if (list.length > 0 && stored) {
+						rid = stored;
+					}
+				} catch {
+					/* fallback to /api/auth/me */
+				}
+				if (rid) setRestaurantId(rid);
 			})
 			.catch(() => router.push('/login'));
 	}, [router]);

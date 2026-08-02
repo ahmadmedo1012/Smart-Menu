@@ -22,11 +22,13 @@ import { cn } from '@/lib/utils';
 import { NavLink } from '@/components/shared/NavLink';
 import { PageFade } from '@/components/shared/PageFade';
 import { UserBannerNotifier } from '@/components/owner/UserBannerNotifier';
+import { RestaurantSwitcher } from '@/components/owner/RestaurantSwitcher';
 
 const navItems = [
 	{ href: '/owner', label: 'لوحة التحكم', icon: LayoutDashboard },
 	{ href: '/owner/orders', label: 'الطلبات', icon: ClipboardList },
 	{ href: '/owner/menu', label: 'المنيو', icon: Store },
+	{ href: '/owner/restaurants', label: 'المنيوهات', icon: Store },
 	{ href: '/owner/qr', label: 'رمز QR', icon: QrCode },
 	{ href: '/owner/loyalty', label: 'الولاء', icon: Gift },
 	{ href: '/owner/reviews', label: 'التقييمات', icon: Star },
@@ -56,6 +58,9 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
 					priority
 				/>
 			</div>
+
+			{/* Restaurant switcher (multi-menu) */}
+			<RestaurantSwitcher />
 
 			{/* Nav */}
 			<nav className="relative z-10 flex-1 space-y-1 px-3 py-4">
