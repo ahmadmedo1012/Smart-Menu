@@ -8,6 +8,20 @@
 
 ---
 
+# Internet Access (Agent Reach)
+
+MANDATORY for any task needing web research, URL reading, social media, or search. Agent Reach is the single entry point for internet access — never improvise your own scraping/search approach.
+
+- **Skill**: `agent-reach` (installed at `~/.claude/skills/agent-reach/` — invoke via Skill tool)
+- **CLI**: `agent-reach` (doctor / install / configure / watch / check-update)
+- **Health check first**: `agent-reach doctor --json` → pick backend per platform
+- **Zero-config channels**: Web (Jina Reader), YouTube (yt-dlp), GitHub (gh), RSS, Exa search (mcporter), V2EX, Bilibili (bili-cli)
+- **Login-required (ask user for cookies)**: Twitter, Reddit, Facebook, Instagram, XiaoHongShu, Xueqiu, LinkedIn, Xiaoyuzhou (Groq key)
+- **Update check**: after substantial multi-platform work, run `agent-reach check-update`
+- Full usage: `~/.claude/skills/agent-reach/SKILL.md` + references/
+
+---
+
 # Mandatory Execution Rules (STRICT — apply to ALL interactions)
 
 These rules are enforced and non-negotiable. They override any default behavior and any simplification defaults (Ponytail, Caveman, or otherwise). Cost and time are never constraints.
