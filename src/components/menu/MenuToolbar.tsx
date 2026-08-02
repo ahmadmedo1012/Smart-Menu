@@ -124,75 +124,75 @@ export function MenuToolbar({
 			{hideSearch && !search ? null : null}
 			{/* Search input — glass card wrapper */}
 			{!hideSearch && (
-			<div className="flex-1 relative">
-				<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-all duration-300">
-					<Search className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
-					<input
-						ref={inputRef}
-						id="menu-search"
-						name="search"
-						type="text"
-						placeholder="ابحث في القائمة..."
-						value={inputValue}
-						onChange={(e) => {
-							setInputValue(e.target.value);
-							debouncedSearchChange(e.target.value);
-							setShowSuggestions(true);
-						}}
-						onFocus={() => {
-							if (hasSuggestions) setShowSuggestions(true);
-						}}
-						className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground/50"
-					/>
-					{search && (
-						<button
-							type="button"
-							aria-label="مسح البحث"
-							onClick={() => {
-								setInputValue('');
-								debouncedSearchChange('');
-								setShowSuggestions(false);
-								inputRef.current?.focus();
+				<div className="flex-1 relative">
+					<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-all duration-300">
+						<Search className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
+						<input
+							ref={inputRef}
+							id="menu-search"
+							name="search"
+							type="text"
+							placeholder="ابحث في القائمة..."
+							value={inputValue}
+							onChange={(e) => {
+								setInputValue(e.target.value);
+								debouncedSearchChange(e.target.value);
+								setShowSuggestions(true);
 							}}
-							className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
-						>
-							<X className="size-3" />
-						</button>
-					)}
-				</div>
+							onFocus={() => {
+								if (hasSuggestions) setShowSuggestions(true);
+							}}
+							className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground/50"
+						/>
+						{search && (
+							<button
+								type="button"
+								aria-label="مسح البحث"
+								onClick={() => {
+									setInputValue('');
+									debouncedSearchChange('');
+									setShowSuggestions(false);
+									inputRef.current?.focus();
+								}}
+								className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+							>
+								<X className="size-3" />
+							</button>
+						)}
+					</div>
 
-				{/* Suggestions dropdown — glass-strong */}
-				<div
-					className={cn(
-						'glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-all duration-200',
-						dropdownVisible
-							? 'opacity-100 visible translate-y-0'
-							: 'opacity-0 invisible -translate-y-1 pointer-events-none'
-					)}
-				>
-					{suggestions.map((s) => (
-						<button
-							key={s.id}
-							type="button"
-							onClick={() => {
-								onSuggestionClick?.(s.id);
-								setShowSuggestions(false);
-							}}
-							className="flex items-center gap-3 w-full px-4 py-3 text-start text-sm hover:bg-accent transition-colors first:pt-3.5 last:pb-3.5"
-						>
-							{s.image && (
-								<div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
-									<img src={s.image} alt="" loading="lazy" className="size-full object-cover" />
-								</div>
-							)}
-							<span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
-							<span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
-								{toArabicNumber(s.price.toFixed(1))} د.ل
-							</span>
-						</button>
-					))}
+					{/* Suggestions dropdown — glass-strong */}
+					<div
+						className={cn(
+							'glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-all duration-200',
+							dropdownVisible
+								? 'opacity-100 visible translate-y-0'
+								: 'opacity-0 invisible -translate-y-1 pointer-events-none'
+						)}
+					>
+						{suggestions.map((s) => (
+							<button
+								key={s.id}
+								type="button"
+								onClick={() => {
+									onSuggestionClick?.(s.id);
+									setShowSuggestions(false);
+								}}
+								className="flex items-center gap-3 w-full px-4 py-3 text-start text-sm hover:bg-accent transition-colors first:pt-3.5 last:pb-3.5"
+							>
+								{s.image && (
+									<div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
+										<img src={s.image} alt="" loading="lazy" className="size-full object-cover" />
+									</div>
+								)}
+								<span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
+								<span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
+									{toArabicNumber(s.price.toFixed(1))} د.ل
+								</span>
+							</button>
+						))}
+					</div>
 				</div>
-			</div>
 			)}
 
 			{/* Sort button — glass-card trigger */}
