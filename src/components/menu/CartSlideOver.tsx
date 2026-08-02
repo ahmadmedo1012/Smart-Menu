@@ -85,7 +85,7 @@ export function CartSlideOver() {
 						<button
 							type="button"
 							onClick={() => setOpen(false)}
-							className="size-8 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
+							className="size-10 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
 							aria-label="إغلاق"
 						>
 							<ArrowLeft className="size-4" />
@@ -126,7 +126,7 @@ export function CartSlideOver() {
 											type="button"
 											onClick={() => updateQuantity(item.id, item.quantity - 1)}
 											aria-label="إنقاص الكمية"
-											className="size-9 flex items-center justify-center hover:bg-white/10 transition-colors"
+											className="size-10 flex items-center justify-center hover:bg-white/10 transition-colors"
 										>
 											<Minus className="size-3" />
 										</button>
@@ -137,7 +137,7 @@ export function CartSlideOver() {
 											type="button"
 											onClick={() => updateQuantity(item.id, item.quantity + 1)}
 											aria-label="زيادة الكمية"
-											className="size-9 flex items-center justify-center hover:bg-white/10 transition-colors"
+											className="size-10 flex items-center justify-center hover:bg-white/10 transition-colors"
 										>
 											<Plus className="size-3" />
 										</button>
@@ -149,7 +149,7 @@ export function CartSlideOver() {
 										type="button"
 										onClick={() => removeItem(item.id)}
 										aria-label={`حذف ${item.name}`}
-										className="size-9 flex items-center justify-center rounded-sm text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors"
+										className="size-10 flex items-center justify-center rounded-sm text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors"
 									>
 										<Trash2 className="size-3.5" />
 									</button>
