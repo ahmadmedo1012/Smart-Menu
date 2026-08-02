@@ -38,8 +38,16 @@ export async function GET(request: NextRequest) {
 
 		// Owners can only see their own restaurant's orders; regular users can't read any order history
 		if (auth.role === 'owner') {
-			if (!auth.restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
-			restaurantId = auth.restaurantId;
+			// Multi-menu: verify ownership of requested restaurantId via UserRestaurant
+			if (restaurantId && restaurantId !== auth.restaurantId) {
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
+				});
+				if (!link) return apiError('غير مصرح', 403);
+			} else {
+				restaurantId = auth.restaurantId ?? undefined;
+			}
+			if (!restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
 		} else if (auth.role !== 'admin') {
 			return apiError('غير مصرح', 403);
 		}

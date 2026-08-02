@@ -36,7 +36,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 		// Only the owner (own restaurant) or platform roles may view an order
 		if (auth.role === 'owner') {
-			if (auth.restaurantId !== data.restaurantId) return apiError('غير مصرح', 401);
+			if (auth.restaurantId !== data.restaurantId) {
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId: data.restaurantId } },
+				});
+				if (!link) return apiError('غير مصرح', 401);
+			}
 		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
 			return apiError('غير مصرح', 403);
 		}
@@ -70,7 +75,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 		// Owner can only modify their own restaurant's orders; regular users can't modify any
 		if (auth.role === 'owner') {
-			if (auth.restaurantId !== existing.restaurantId) return apiError('غير مصرح', 401);
+			if (auth.restaurantId !== existing.restaurantId) {
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId: existing.restaurantId } },
+				});
+				if (!link) return apiError('غير مصرح', 401);
+			}
 		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
 			return apiError('غير مصرح', 403);
 		}

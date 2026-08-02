@@ -36,9 +36,12 @@ export async function GET(request: NextRequest) {
 		const where: Record<string, unknown> = {};
 		const auth = await requireAuth();
 		if (restaurantId) {
-			// Owners can only read their own restaurant's items
+			// Owners can only read their own restaurant's items — multi-menu aware
 			if (auth.authorized && auth.role === 'owner' && auth.restaurantId !== restaurantId) {
-				return error('غير مصرح', 403);
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
+				});
+				if (!link) return error('غير مصرح', 403);
 			}
 			// Unauthenticated: only available items
 			if (!auth.authorized) {

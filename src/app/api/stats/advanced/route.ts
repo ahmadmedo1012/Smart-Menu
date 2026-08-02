@@ -12,8 +12,16 @@ export async function GET(request: NextRequest) {
     let restaurantId: number | undefined = Number(searchParams.get("restaurantId")) || undefined;
 
     if (auth.role === "owner") {
-      if (!auth.restaurantId) return error("لا يوجد مطعم مرتبط", 400);
-      restaurantId = auth.restaurantId;
+      // Multi-menu: verify ownership of requested restaurantId via UserRestaurant
+      if (restaurantId && restaurantId !== auth.restaurantId) {
+        const link = await prisma.userRestaurant.findUnique({
+          where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
+        });
+        if (!link) return error("غير مصرح", 403);
+      } else {
+        restaurantId = auth.restaurantId ?? undefined;
+      }
+      if (!restaurantId) return error("لا يوجد مطعم مرتبط", 400);
     }
     if (!restaurantId) return error("معرف المطعم مطلوب", 400);
 

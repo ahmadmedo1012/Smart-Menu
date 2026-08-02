@@ -103,7 +103,11 @@ export async function POST(request: NextRequest) {
 			auth.role !== 'super_admin' &&
 			auth.role !== 'admin'
 		) {
-			return error('لا تملك صلاحية ترقية هذا المطعم', 403);
+			// Multi-menu: allow if owner manages this restaurant via UserRestaurant
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: upgradeRestaurantId } },
+			});
+			if (!link) return error('لا تملك صلاحية ترقية هذا المطعم', 403);
 		}
 
 		// Check no pending upgrade for this restaurant

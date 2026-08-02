@@ -13,11 +13,21 @@ export async function GET(req: NextRequest) {
 
 		const { searchParams } = new URL(req.url);
 		const minRating = searchParams.get('minRating');
+		// Multi-menu: allow explicit restaurantId (verify ownership), else primary
+		let restaurantId = auth.restaurantId;
+		const requestedId = Number(searchParams.get('restaurantId')) || 0;
+		if (requestedId && requestedId !== auth.restaurantId) {
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: requestedId } },
+			});
+			if (!link) return NextResponse.json({ success: false, error: 'غير مصرح' }, { status: 403 });
+			restaurantId = requestedId;
+		}
 
 		const where: Prisma.ReviewWhereInput = {};
 		// Get all item IDs for this restaurant (relation doesn't allow nested restaurantId)
 		const itemIds = await prisma.menuItem.findMany({
-			where: { category: { is: { restaurantId: auth.restaurantId } } },
+			where: { category: { is: { restaurantId } } },
 			select: { id: true },
 		});
 		where.menuItemId = { in: itemIds.map((i) => i.id) };

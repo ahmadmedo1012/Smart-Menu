@@ -34,9 +34,12 @@ export async function POST(request: NextRequest) {
     });
     if (!order) return notFound("Order");
 
-    // Owners can only generate for their own restaurant
+    // Owners can only generate for their own restaurant (multi-menu aware)
     if (auth.role === "owner" && auth.restaurantId !== order.restaurantId) {
-      return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+      const link = await prisma.userRestaurant.findUnique({
+        where: { userId_restaurantId: { userId: auth.userId!, restaurantId: order.restaurantId } },
+      });
+      if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
     }
 
     const lines: string[] = [];

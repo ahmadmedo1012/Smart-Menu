@@ -17,8 +17,20 @@ export async function GET(request: NextRequest) {
 
 		const auth = await requireAuth();
 		if (!auth.authorized) return apiError('غير مصرح', 401);
-		const restaurantId =
-			auth.restaurantId || Number(request.cookies.get('smart-menu-restaurant')?.value);
+		const { searchParams } = new URL(request.url);
+		const requestedId = Number(searchParams.get('restaurantId')) || 0;
+		let restaurantId =
+			requestedId ||
+			auth.restaurantId ||
+			Number(request.cookies.get('smart-menu-restaurant')?.value);
+
+		// Multi-menu: verify owner manages the requested restaurant
+		if (requestedId && requestedId !== auth.restaurantId) {
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: requestedId } },
+			});
+			if (!link) return apiError('غير مصرح', 403);
+		}
 
 		if (!restaurantId) return apiError('معرف المطعم مطلوب', 400);
 

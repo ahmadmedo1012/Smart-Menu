@@ -19,10 +19,15 @@ export async function GET(request: NextRequest) {
 		const restaurantId = Number(searchParams.get('restaurantId'));
 		if (!restaurantId) return error('معرف المطعم مطلوب', 400);
 
-		// Owners can only read their own restaurant's categories
+		// Owners can only read their own restaurant's categories — allow ANY
+		// restaurant the user owns (multi-menu support via UserRestaurant)
 		const auth = await requireAuth();
 		if (auth.authorized && auth.role === 'owner' && auth.restaurantId !== restaurantId) {
-			return error('غير مصرح', 403);
+			// Check UserRestaurant link (owner may manage multiple menus)
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
+			});
+			if (!link) return error('غير مصرح', 403);
 		}
 
 		const page = Math.max(1, Number(searchParams.get('page')) || 1);
@@ -52,9 +57,12 @@ export async function POST(request: NextRequest) {
 		const body = createSchema.parse(await request.json());
 		const rid = body.restaurantId;
 
-		// Owners can only add categories to their own restaurant
+		// Owners can only add categories to their own restaurant (multi-menu aware)
 		if (auth.role === 'owner' && auth.restaurantId !== rid) {
-			return error('غير مصرح', 401);
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: rid } },
+			});
+			if (!link) return error('غير مصرح', 401);
 		}
 
 		const restaurant = await prisma.restaurant.findUnique({
