@@ -269,6 +269,16 @@ export default function OwnerLoyaltyPage() {
 					<Button variant="outline" className="mt-5" onClick={() => setShowSettings(true)}>
 						<Award className="size-4 me-2" /> الإعدادات
 					</Button>
+					{showSettings && (
+						<div className="mt-8 w-full max-w-md animate-fade-in">
+							<LoyaltySettings
+								onSaved={() => {
+									setShowSettings(false);
+									load();
+								}}
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 		);

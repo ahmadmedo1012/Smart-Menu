@@ -418,6 +418,19 @@ export default function OwnerMenuPage() {
 													className="flex items-center gap-3 px-5 py-3 hover:bg-muted/10 transition-colors group"
 												>
 													<GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100" />
+													{item.image ? (
+														// eslint-disable-next-line @next/next/no-img-element
+														<img
+															src={item.image}
+															alt={item.name}
+															loading="lazy"
+															className="size-10 rounded-md object-cover shrink-0 border border-border/30"
+														/>
+													) : (
+														<div className="size-10 rounded-md bg-muted/30 flex items-center justify-center shrink-0">
+															<Package className="size-4 text-muted-foreground/40" />
+														</div>
+													)}
 													<div className="flex-1 min-w-0">
 														<div className="flex items-center gap-2">
 															<span
