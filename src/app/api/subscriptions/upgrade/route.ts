@@ -11,7 +11,7 @@ import { z } from "zod";
 
 const upgradeSchema = z.object({
   planId: z.number().int().positive(),
-  phone: z.string().min(1),
+  phone: z.string().regex(/^09\d{8}$/, "رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09"),
   provider: z.enum(["libyana", "madar"]),
   amount: z.number().positive(),
   upgradeRestaurantId: z.number().int().positive(),

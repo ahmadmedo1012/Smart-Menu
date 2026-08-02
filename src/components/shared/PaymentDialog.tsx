@@ -14,7 +14,7 @@ import { csrfFetch } from "@/lib/csrf-client";
 import { premiumToast } from "@/lib/premium-toast";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Smartphone, Copy, Phone, CheckCircle2, XCircle } from "lucide-react";
+import { Smartphone, Copy, CheckCircle2, XCircle } from "lucide-react";
 import { useConfig } from "@/hooks/useConfig";
 
 
@@ -50,7 +50,6 @@ export function PaymentDialog({
   const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || "0942119637";
 
   const [phone, setPhone] = useState("");
-  const [amount, setAmount] = useState(price);
   const [step, setStep] = useState<"form" | "waiting" | "success" | "approved" | "rejected">("form");
   const [resolutionMsg, setResolutionMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
@@ -63,17 +62,19 @@ export function PaymentDialog({
 
   const quickTransferCode =
     provider === "libyana"
-      ? `*122*218${LIBYANA_PHONE.slice(1)}*${amount * 1000}*1#`
-      : `*140*4*1*${amount}*${MADAR_PHONE}#`;
+      ? `*122*218${LIBYANA_PHONE.slice(1)}*${price * 1000}*1#`
+      : `*140*4*1*${price}*${MADAR_PHONE}#`;
 
   const encodedUSSD = quickTransferCode.replace(/#/g, "%23");
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string): Promise<boolean> => {
     try {
       await navigator.clipboard.writeText(text);
       premiumToast("copy", "تم النسخ");
+      return true;
     } catch {
       premiumToast("error", "فشل النسخ");
+      return false;
     }
   };
 
@@ -98,7 +99,7 @@ export function PaymentDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phone.trim(), amount, provider, planId,
+          phone: phone.trim(), amount: price, provider, planId,
           ...(tempRestaurantName ? { tempRestaurantName } : {}),
           ...(tempRestaurantSlug ? { tempRestaurantSlug } : {}),
           ...(upgradeRestaurantId ? { upgradeRestaurantId } : {}),
@@ -182,23 +183,12 @@ export function PaymentDialog({
         setStep("form");
         setCountdown(30);
         setPhone("");
-        setAmount(price);
         setPaymentId(null);
       }
       onOpenChange(open);
     },
-    [onOpenChange, price, cleanup]
+    [onOpenChange, cleanup]
   );
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value
-    // Allow empty input for UX
-    if (raw === "") { setAmount(0); return }
-    const val = Number(raw)
-    if (isNaN(val) || val < 0) return
-    const maxPrice = price > 99 ? price : 99
-    setAmount(val > maxPrice ? maxPrice : Math.max(1, Math.round(val)))
-  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -283,21 +273,22 @@ export function PaymentDialog({
                   >
                     {quickTransferCode}
                   </span>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <a
-                      href={`tel:${encodedUSSD}`}
-                      className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
-                      title="اتصال"
-                    >
-                      <Phone className="size-3.5" />
-                    </a>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* One-tap: copy the code, then open the dialer (only on copy success) */}
                     <button
                       type="button"
-                      onClick={() => copyToClipboard(quickTransferCode)}
-                      className="size-8 rounded-lg border border-green-200/30 flex items-center justify-center hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
-                      title="نسخ الرمز"
+                      onClick={async () => {
+                        const ok = await copyToClipboard(quickTransferCode);
+                        if (!ok) return;
+                        setTimeout(() => {
+                          window.location.href = `tel:${encodedUSSD}`;
+                        }, 150);
+                      }}
+                      className="h-9 px-3 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+                      title="نسخ الرمز وفتح الاتصال"
                     >
                       <Copy className="size-3.5" />
+                      نسخ واتصال
                     </button>
                   </div>
                 </div>
@@ -309,23 +300,21 @@ export function PaymentDialog({
                 <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="0910089975"
+                  placeholder="09XXXXXXXXX"
+                  inputMode="numeric"
+                  maxLength={10}
                   className="h-11 rounded-xl mt-1.5 text-left font-mono"
                   dir="ltr"
                 />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  10 أرقام تبدأ بـ 09 — حتى نتمكن من التأكد من استلام التحويل
+                </p>
               </div>
 
-              {/* Amount — max 99 */}
-              <div>
-                <Label>المبلغ (د.ل — خانتين فقط)</Label>
-                <Input
-                  type="number"
-                  value={amount}
-                  onChange={handleAmountChange}
-                  className="h-11 rounded-xl mt-1.5"
-                  min={1}
-                  max={price > 99 ? price : 99}
-                />
+              {/* Amount — fixed, read-only (server enforces plan price) */}
+              <div className="rounded-xl bg-muted/30 border border-border/20 p-3 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">المبلغ المطلوب</span>
+                <span className="text-lg font-bold text-orange">{price} د.ل</span>
               </div>
 
               <Button
@@ -435,7 +424,7 @@ export function PaymentDialog({
                 </Button>
                 <Button
                   className="flex-1 h-11 rounded-xl"
-                  onClick={() => { setStep("form"); setResolutionMsg(""); setPhone(""); setAmount(price); setPaymentId(null); }}
+                  onClick={() => { setStep("form"); setResolutionMsg(""); setPhone(""); setPaymentId(null); }}
                 >
                   إعادة المحاولة
                 </Button>

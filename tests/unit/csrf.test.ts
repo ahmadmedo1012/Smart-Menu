@@ -4,7 +4,7 @@
  * and exemption list for webhook, health, auth endpoints.
  */
 import { describe, it, expect, beforeAll } from 'vitest';
-import { assertSameOrigin } from '@/lib/csrf';
+import { assertSameOrigin, getExpectedHosts } from '@/lib/csrf';
 
 beforeAll(() => {
 	process.env.NEXT_PUBLIC_DOMAIN = 'https://example.com';
@@ -126,6 +126,87 @@ describe('assertSameOrigin', () => {
 				'example.com'
 			);
 			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+	});
+
+	describe('deploy-agnostic host resolution (vercel.app vs custom domain)', () => {
+		it('POST from vercel.app origin with matching request host → passes', () => {
+			const req = makeRequest(
+				'POST',
+				'/api/subscriptions',
+				'https://smart-menu-abc123.vercel.app',
+				'smart-menu-abc123.vercel.app'
+			);
+			expect(() => assertSameOrigin(req)).not.toThrow();
+		});
+
+		it('POST from custom domain origin with matching request host → passes', () => {
+			const req = makeRequest(
+				'POST',
+				'/api/subscriptions',
+				'https://menu.smart-link.ly',
+				'menu.smart-link.ly'
+			);
+			expect(() => assertSameOrigin(req)).not.toThrow();
+		});
+
+		it('POST from vercel.app origin when request host is custom domain → throws', () => {
+			const req = makeRequest(
+				'POST',
+				'/api/subscriptions',
+				'https://smart-menu-abc123.vercel.app',
+				'menu.smart-link.ly'
+			);
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+
+		it('POST with forged x-forwarded-host matching origin → throws (header not trusted)', () => {
+			const req = makeRequest('POST', '/api/subscriptions', 'https://evil.com', 'victim.com');
+			req.headers.set('x-forwarded-host', 'evil.com');
+			// attacker also forges the double-submit token — must still be rejected
+			req.headers.set('cookie', 'csrf-token=forged');
+			req.headers.set('x-csrf-token', 'forged');
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+
+		it('POST with forged Host header matching origin → throws (Host header not trusted)', () => {
+			const req = makeRequest(
+				'POST',
+				'/api/subscriptions',
+				'https://evil.com',
+				'victim.com'
+			);
+			req.headers.set('host', 'evil.com');
+			req.headers.set('cookie', 'csrf-token=forged');
+			req.headers.set('x-csrf-token', 'forged');
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+
+		it('POST with x-forwarded-host but mismatching origin → throws', () => {
+			const req = makeRequest(
+				'POST',
+				'/api/subscriptions',
+				'https://evil.com',
+				'internal.edge'
+			);
+			req.headers.set('x-forwarded-host', 'menu.smart-link.ly');
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+
+		it('getExpectedHosts with no env and unparseable URL → empty list', () => {
+			const prevEnv = process.env.NEXT_PUBLIC_DOMAIN;
+			process.env.NEXT_PUBLIC_DOMAIN = '';
+			try {
+				// Simulate an edge request whose URL host cannot be resolved:
+				// Request always yields a URL, so cover the branch via a stub.
+				const req = new Request('http://x/', { method: 'POST' });
+				// Patch the URL to a value whose host parsing fails — same branch
+				// getExpectedHosts guards against malformed platform URLs.
+				Object.defineProperty(req, 'url', { value: 'not a url' });
+				expect(getExpectedHosts(req)).toEqual([]);
+			} finally {
+				process.env.NEXT_PUBLIC_DOMAIN = prevEnv;
+			}
 		});
 	});
 });

@@ -12,7 +12,7 @@ import { z } from "zod";
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 const createPaymentSchema = z.object({
-  phone: z.string().min(1),
+  phone: z.string().regex(/^09\d{8}$/, "رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09"),
   amount: z.number().positive(),
   provider: z.enum(["libyana", "madar"]),
   planId: z.number().int().positive(),

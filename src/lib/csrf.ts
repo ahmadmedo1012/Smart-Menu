@@ -14,6 +14,36 @@ export const CSRF_EXEMPT = new Set([
 ]);
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+/**
+ * Hosts we accept as same-origin. Anchored to platform truth, not to
+ * sender-controlled headers:
+ *  - new URL(request.url).host — Vercel builds the request URL from the
+ *    real Host, so this is the actual deployment host (production domain,
+ *    *.vercel.app, preview deploys all work with zero env config).
+ *  - NEXT_PUBLIC_DOMAIN — the canonical app domain.
+ * x-forwarded-host / Host headers are deliberately NOT trusted: they are
+ * sender-controlled, so comparing Origin against them would reduce CSRF
+ * protection to a self-consistency check.
+ */
+export function getExpectedHosts(request: Request): string[] {
+	const hosts = new Set<string>();
+	try {
+		const urlHost = new URL(request.url).host;
+		if (urlHost) hosts.add(urlHost);
+	} catch {
+		/* fall through to env anchor */
+	}
+	const envHost = process.env.NEXT_PUBLIC_DOMAIN;
+	if (envHost) {
+		try {
+			hosts.add(new URL(envHost).host);
+		} catch {
+			/* malformed env — ignore */
+		}
+	}
+	return [...hosts];
+}
+
 export function assertSameOrigin(request: Request): void {
 	if (!MUTATING.has(request.method)) return;
 	const pathname = new URL(request.url).pathname;
@@ -23,18 +53,17 @@ export function assertSameOrigin(request: Request): void {
 	if (!origin) {
 		throw new Error('CSRF check failed: missing Origin');
 	}
-	const expectedOrigin = process.env.NEXT_PUBLIC_DOMAIN;
-	if (!expectedOrigin) {
-		throw new Error('CSRF check failed: NEXT_PUBLIC_DOMAIN not configured');
-	}
 	let originHost: string;
 	try {
 		originHost = new URL(origin).host;
 	} catch {
 		throw new Error('CSRF check failed: Origin mismatch');
 	}
-	const expectedHost = new URL(expectedOrigin).host;
-	if (originHost !== expectedHost) {
+	const expectedHosts = getExpectedHosts(request);
+	if (expectedHosts.length === 0) {
+		throw new Error('CSRF check failed: host not resolvable');
+	}
+	if (!expectedHosts.includes(originHost)) {
 		throw new Error('CSRF check failed: Origin mismatch');
 	}
 
