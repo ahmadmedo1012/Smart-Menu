@@ -22,29 +22,53 @@ type Plan = {
 	sortOrder: number;
 };
 
-const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
-const PLAN_GRADIENTS = [
-	'from-gray-400 to-gray-500',
-	'from-orange to-orange/80',
-	'from-orange to-orange/80',
-	'from-gray-600 to-gray-800',
-];
-const PLAN_GLOWS = [
-	'shadow-gray-400/20',
-	'shadow-orange/25',
-	'shadow-orange/30',
-	'shadow-gray-600/25',
-];
-const PLAN_BADGES = ['', 'الأكثر شعبية', 'الأفضل قيمة', 'للشركات الكبرى'];
-const PLAN_BADGE_COLORS = [
-	'',
-	'bg-orange text-orange-foreground',
-	'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground',
-	'bg-gradient-to-r from-gray-600 to-gray-800 text-white dark:text-white',
-];
+// Map by plan name (not index) — Enterprise previously fell past the 4-item
+// arrays → blank white icon box on the 5th card.
+const PLAN_META: Record<
+	string,
+	{ icon: typeof Sparkles; gradient: string; glow: string; badge: string; badgeColor: string }
+> = {
+	Free: {
+		icon: Sparkles,
+		gradient: 'from-gray-400 to-gray-500',
+		glow: 'shadow-gray-400/20',
+		badge: '',
+		badgeColor: '',
+	},
+	Basic: {
+		icon: Star,
+		gradient: 'from-orange to-orange/80',
+		glow: 'shadow-orange/25',
+		badge: 'الأكثر شعبية',
+		badgeColor: 'bg-orange text-orange-foreground',
+	},
+	Premium: {
+		icon: Crown,
+		gradient: 'from-amber-500 to-orange-600',
+		glow: 'shadow-orange/30',
+		badge: 'الأفضل قيمة',
+		badgeColor: 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground',
+	},
+	Pro: {
+		icon: Building2,
+		gradient: 'from-blue-500 to-indigo-600',
+		glow: 'shadow-blue-500/25',
+		badge: '',
+		badgeColor: '',
+	},
+	Enterprise: {
+		icon: Building2,
+		gradient: 'from-violet-500 to-purple-600',
+		glow: 'shadow-violet-500/25',
+		badge: 'للشركات الكبرى',
+		badgeColor: 'bg-gradient-to-r from-violet-600 to-purple-700 text-white dark:text-white',
+	},
+};
+const DEFAULT_META = PLAN_META.Free;
 
 function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: boolean }) {
-	const Icon = PLAN_ICONS[index] || Sparkles;
+	const meta = PLAN_META[plan.name] ?? DEFAULT_META;
+	const Icon = meta.icon;
 	const monthlyPrice = plan.price;
 	const displayPrice = yearly ? monthlyPrice * 10 : monthlyPrice;
 	const periodLabel = plan.periodDays === 0 ? '' : yearly ? '/السنة' : '/الشهر';
@@ -60,14 +84,14 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					: 'border-border/50 bg-card hover:border-orange-muted/60 hover:shadow-lg hover:shadow-orange/10'
 			)}
 		>
-			{PLAN_BADGES[index] && (
+			{meta.badge && (
 				<div
 					className={cn(
 						'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-sm text-xs font-bold shadow-lg',
-						PLAN_BADGE_COLORS[index]
+						meta.badgeColor
 					)}
 				>
-					{PLAN_BADGES[index]}
+					{meta.badge}
 				</div>
 			)}
 
@@ -84,8 +108,8 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					<div
 						className={cn(
 							'size-11 rounded-sm bg-gradient-to-br flex items-center justify-center shadow-lg',
-							PLAN_GRADIENTS[index],
-							PLAN_GLOWS[index]
+							meta.gradient,
+							meta.glow
 						)}
 					>
 						<Icon className="size-5 text-white" />
