@@ -298,7 +298,7 @@ export function PaymentDialog({
 											<button
 												type="button"
 												onClick={() => copyToClipboard(providerPhone)}
-												className="size-8 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+												className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
 												title="نسخ الرقم"
 											>
 												<Copy className="size-3.5" />
@@ -377,10 +377,10 @@ export function PaymentDialog({
 												<button
 													type="button"
 													onClick={() => copyToClipboard(row.value)}
-													className="size-7 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0"
+													className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0"
 													title={`نسخ ${row.label}`}
 												>
-													<Copy className="size-3.5" />
+													<Copy className="size-4" />
 												</button>
 											</div>
 										))}
