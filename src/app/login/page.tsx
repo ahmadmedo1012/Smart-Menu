@@ -107,9 +107,9 @@ function LoginForm() {
 			const status = data.user?.subscriptionStatus;
 			const target =
 				role === 'owner'
-					// Owner must never land on /admin — redirect param may be a
-					// leftover from an admin-area visit or the '/admin' default.
-					? rawRedirect && rawRedirect.startsWith('/owner')
+					? // Owner must never land on /admin — redirect param may be a
+						// leftover from an admin-area visit or the '/admin' default.
+						rawRedirect && rawRedirect.startsWith('/owner')
 						? rawRedirect
 						: '/owner'
 					: ['super_admin', 'sub_admin', 'admin'].includes(role)

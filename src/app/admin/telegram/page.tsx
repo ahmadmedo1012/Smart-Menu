@@ -262,7 +262,10 @@ export default function AdminTelegramPage() {
 			<h2 className="text-2xl font-bold tracking-tight">إعدادات تليجرام</h2>
 
 			{loadError && (
-				<div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+				<div
+					role="alert"
+					className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+				>
 					{loadError} — بعض الأقسام قد تكون فارغة مؤقتاً
 				</div>
 			)}

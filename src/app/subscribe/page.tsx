@@ -293,7 +293,9 @@ function SubscribeContent() {
 						{upgradeMode ? <span>رقِّ خطة مطعمك</span> : <span>انضم إلى الربط الذكي</span>}
 					</h1>
 					<p className="text-muted-foreground text-lg">
-						{upgradeMode ? 'اختر باقة أعلى لمزيد من الأصناف والطلبات' : 'وأنشئ منيو رقمي لمطعمك في دقائق'}
+						{upgradeMode
+							? 'اختر باقة أعلى لمزيد من الأصناف والطلبات'
+							: 'وأنشئ منيو رقمي لمطعمك في دقائق'}
 					</p>
 				</div>
 

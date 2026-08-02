@@ -4,12 +4,15 @@ import { useEffect, useState } from "react"
 import QRCode from "qrcode"
 
 export function ReferralQR({ url }: { url: string }) {
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+  const [error, setError] = useState(false);
+	const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
 
   useEffect(() => {
     QRCode.toDataURL(url, { width: 180, margin: 2, color: { dark: "#000", light: "#fff" } })
-      .then(setQrDataUrl).catch(() => {})
+      .then(setQrDataUrl).catch(() => setError(true))
   }, [url])
+
+  if (error) return <p className="text-sm text-destructive">تعذر إنشاء الرمز — أعد المحاولة</p>
 
   if (!qrDataUrl) return <div className="size-[180px] animate-pulse rounded-xl bg-muted" />
 

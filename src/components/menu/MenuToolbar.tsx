@@ -52,6 +52,8 @@ interface MenuToolbarProps {
 	/** Raw items for suggestion dropdown — always pass, dropdown manages visibility */
 	items?: { id: number; name: string; nameAr?: string | null; price: number; image?: string }[];
 	onSuggestionClick?: (id: number) => void;
+	/** Short menus (<8 items) don't need search — hide to reclaim the fold */
+	hideSearch?: boolean;
 	className?: string;
 }
 
@@ -69,6 +71,7 @@ export function MenuToolbar({
 	onSortChange,
 	items = [],
 	onSuggestionClick,
+	hideSearch = false,
 	className,
 }: MenuToolbarProps) {
 	const [showSort, setShowSort] = useState(false);
@@ -118,7 +121,9 @@ export function MenuToolbar({
 
 	return (
 		<div ref={containerRef} className={cn('relative mb-4 flex gap-2 items-start', className)}>
+			{hideSearch && !search ? null : null}
 			{/* Search input — glass card wrapper */}
+			{!hideSearch && (
 			<div className="flex-1 relative">
 				<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-all duration-300">
 					<Search className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
@@ -188,6 +193,7 @@ export function MenuToolbar({
 					))}
 				</div>
 			</div>
+			)}
 
 			{/* Sort button — glass-card trigger */}
 			<div className="relative">

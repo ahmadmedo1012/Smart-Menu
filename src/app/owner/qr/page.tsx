@@ -47,7 +47,7 @@ export default function OwnerQRPage() {
 					setUrl(`${window.location.origin}/menu/${r.slug}`);
 				}
 			})
-			.catch(() => {})
+			.catch(() => premiumToast('error', 'فشل تحميل إعدادات المطعم'))
 			.finally(() => setLoaded(true));
 	}, []);
 

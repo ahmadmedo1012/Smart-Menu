@@ -184,6 +184,7 @@ function MenuPageClientInner({
 				onSortChange={(v) => updateURL({ sort: v })}
 				items={items}
 				onSuggestionClick={handleSuggestionClick}
+				hideSearch={items.length < 8}
 			/>
 
 			{hasActiveFilter && (

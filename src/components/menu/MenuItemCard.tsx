@@ -108,7 +108,7 @@ const MenuItemCard = memo(function MenuItemCard({
 			className={cn(
 				'group relative flex w-full cursor-pointer overflow-hidden rounded-xl flex-col',
 				/* glassmorphism base */
-				'bg-white/70 dark:bg-white/5 backdrop-blur-xl',
+				'bg-white/70 dark:bg-white/[0.07] backdrop-blur-xl',
 				'border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/20',
 				/* hover glow */
 				'hover:border-orange-400/50 dark:hover:border-orange-500/40',
