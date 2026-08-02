@@ -31,14 +31,6 @@ export async function POST(request: Request) {
 		if (!allowed) {
 			return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 		}
-		// Account+IP throttle — keying on username alone lets any attacker lock
-		// any account with 20 wrong passwords from one IP (unauthenticated DoS).
-		// Generous 20/15min window per IP+account to avoid blocking legit use.
-		const { success: acctAllowed } = await accountLimiter.check(`acct:${ip}:${username}`);
-		if (!acctAllowed) {
-			return error('تم قفل الحساب مؤقتاً لكثرة المحاولات الفاشلة. حاول لاحقاً.', 429);
-		}
-
 		const user = await prisma.user.findUnique({
 			where: { username },
 			select: {
@@ -51,6 +43,17 @@ export async function POST(request: Request) {
 				subscriptionStatus: true,
 			},
 		});
+
+		// Account+IP throttle — checked only on FAILED auth so successful logins
+		// never count toward the window (previously legit use from one IP filled
+		// the 20-count budget and locked real accounts; verified live).
+		// Keyed on IP+username — username alone lets any attacker lock any
+		// account (unauthenticated DoS).
+		const { success: acctAllowed } = await accountLimiter.check(`acct:${ip}:${username}`);
+		if (!acctAllowed) {
+			return error('تم قفل الحساب مؤقتاً لكثرة المحاولات الفاشلة. حاول لاحقاً.', 429);
+		}
+
 		if (!user) {
 			return error('اسم المستخدم أو كلمة المرور غير صحيحة', 401);
 		}
