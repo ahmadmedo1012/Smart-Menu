@@ -30,15 +30,27 @@ const PLAN_GRADIENTS = [
 ];
 const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
 
-interface FormState {
+interface RestaurantInput {
 	name: string;
 	slug: string;
 	description: string;
 	phone: string;
 	whatsapp: string;
+}
+
+interface FormState {
+	restaurants: RestaurantInput[];
 	username: string;
 	password: string;
 }
+
+const EMPTY_RESTAURANT: RestaurantInput = {
+	name: '',
+	slug: '',
+	description: '',
+	phone: '',
+	whatsapp: '',
+};
 
 export function SubscribeForm({
 	plans,
@@ -63,10 +75,6 @@ export function SubscribeForm({
 		const touched = fieldTouched[field] || submitted;
 		if (!touched) return false;
 		switch (field) {
-			case 'name':
-				return form.name.trim().length < 2;
-			case 'slug':
-				return form.slug.trim().length < 2;
 			case 'username':
 				return form.username.trim().length < 3;
 			case 'password':
@@ -77,6 +85,25 @@ export function SubscribeForm({
 	};
 
 	const currentPlan = plans.find((p) => p.id === selectedPlan);
+	const maxMenus = Math.max(1, currentPlan?.maxMenus ?? 1);
+	const menus = form.restaurants;
+	const canAddMenu = menus.length < maxMenus;
+
+	const updateRestaurant = (index: number, patch: Partial<RestaurantInput>) => {
+		const next = menus.map((r, i) => (i === index ? { ...r, ...patch } : r));
+		onFormChange({ ...form, restaurants: next });
+		setSubmitted(false);
+	};
+
+	const addRestaurant = () => {
+		if (!canAddMenu) return;
+		onFormChange({ ...form, restaurants: [...menus, { ...EMPTY_RESTAURANT }] });
+	};
+
+	const removeRestaurant = (index: number) => {
+		if (menus.length <= 1) return; // keep at least one
+		onFormChange({ ...form, restaurants: menus.filter((_, i) => i !== index) });
+	};
 
 	if (!currentPlan) return null;
 
@@ -120,95 +147,141 @@ export function SubscribeForm({
 			</div>
 
 			<div className="space-y-5">
-				{/* Restaurant name + slug */}
-				<div className="grid grid-cols-2 gap-3">
+				{/* Menus header */}
+				<div className="flex items-center justify-between">
 					<div>
-						<Label>اسم المطعم *</Label>
-						<Input
-							value={form.name}
-							onChange={(e) => {
-								onFormChange({ ...form, name: e.target.value });
-								setSubmitted(false);
-							}}
-							onBlur={() => touchField('name')}
-							placeholder="اسم المطعم (مثال: مقهى الواحة)"
-							className={cn(
-								'h-11 mt-1.5',
-								fieldError('name') && 'border-destructive ring-1 ring-destructive/30'
-							)}
-							aria-invalid={fieldError('name') || undefined}
-							required
-						/>
-						{fieldError('name') && (
-							<p className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>
-						)}
+						<h3 className="font-bold text-base">بيانات المنيوهات</h3>
+						<p className="text-xs text-muted-foreground mt-0.5">
+							{maxMenus === 9999
+								? 'خطتك تدعم منيوهات غير محدودة — أضف ما تشاء الآن أو لاحقاً'
+								: maxMenus > 1
+									? `خطتك تدعم حتى ${toArabicNumber(maxMenus)} منيوهات — يمكنك إضافة ${toArabicNumber(maxMenus - menus.length)} ${menus.length >= maxMenus - 1 ? '' : 'آخر/أخرى'} الآن أو لاحقاً من لوحة التحكم`
+									: 'خطتك تتضمن منيو واحد'}
+						</p>
 					</div>
-					<div>
-						<Label>الرابط المختصر *</Label>
-						<div className="flex items-center mt-1.5">
-							<span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
-								/menu/
-							</span>
-							<Input
-								value={form.slug}
-								onChange={(e) => {
-									onFormChange({
-										...form,
-										slug: e.target.value.replace(/[^a-z0-9-]/gi, '-').toLowerCase(),
-									});
-									setSubmitted(false);
-								}}
-								onBlur={() => touchField('slug')}
-								placeholder="الرابط المختصر (مثال: al-waha-cafe)"
-								className={cn(
-									'h-11 rounded-[4px] -me-[2px] text-left',
-									fieldError('slug') && 'border-destructive ring-1 ring-destructive/30'
+					{canAddMenu && (
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={addRestaurant}
+							className="shrink-0"
+						>
+							+ إضافة منيو
+						</Button>
+					)}
+				</div>
+
+				{/* Restaurant blocks */}
+				{menus.map((restaurant, index) => (
+					<div
+						key={index}
+						className="rounded-md border border-border/40 p-4 space-y-4 relative"
+					>
+						<div className="flex items-center justify-between">
+							<h4 className="text-sm font-semibold text-primary">
+								المنيو {toArabicNumber(index + 1)}
+								{index === 0 && (
+									<span className="ms-2 text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+										الأساسي
+									</span>
 								)}
-								dir="ltr"
-								aria-invalid={fieldError('slug') || undefined}
-								required
+							</h4>
+							{menus.length > 1 && (
+								<button
+									type="button"
+									onClick={() => removeRestaurant(index)}
+									className="text-xs text-destructive hover:underline"
+								>
+									حذف
+								</button>
+							)}
+						</div>
+
+						{/* Restaurant name + slug */}
+						<div className="grid grid-cols-2 gap-3">
+							<div>
+								<Label>اسم المطعم *</Label>
+								<Input
+									value={restaurant.name}
+									onChange={(e) => updateRestaurant(index, { name: e.target.value })}
+									placeholder="اسم المطعم (مثال: مقهى الواحة)"
+									className={cn(
+										'h-11 mt-1.5',
+										submitted && restaurant.name.trim().length < 2 && 'border-destructive ring-1 ring-destructive/30'
+									)}
+									aria-invalid={submitted && restaurant.name.trim().length < 2 || undefined}
+									required
+								/>
+								{submitted && restaurant.name.trim().length < 2 && (
+									<p className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>
+								)}
+							</div>
+							<div>
+								<Label>الرابط المختصر *</Label>
+								<div className="flex items-center mt-1.5">
+									<span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
+										/menu/
+									</span>
+									<Input
+										value={restaurant.slug}
+										onChange={(e) =>
+											updateRestaurant(index, {
+												slug: e.target.value.replace(/[^a-z0-9-]/gi, '-').toLowerCase(),
+											})
+										}
+										placeholder="الرابط المختصر (مثال: al-waha-cafe)"
+										className={cn(
+											'h-11 rounded-[4px] -me-[2px] text-left',
+											submitted && restaurant.slug.trim().length < 2 && 'border-destructive ring-1 ring-destructive/30'
+										)}
+										dir="ltr"
+										aria-invalid={submitted && restaurant.slug.trim().length < 2 || undefined}
+										required
+									/>
+								</div>
+								{submitted && restaurant.slug.trim().length < 2 && (
+									<p className="text-xs text-destructive mt-1">الرابط مطلوب (حرفان على الأقل)</p>
+								)}
+							</div>
+						</div>
+
+						{/* Description */}
+						<div>
+							<Label>الوصف</Label>
+							<Input
+								value={restaurant.description}
+								onChange={(e) => updateRestaurant(index, { description: e.target.value })}
+								placeholder="وصف المطعم (اختياري)"
+								className="h-11 mt-1.5"
 							/>
 						</div>
-						{fieldError('slug') && (
-							<p className="text-xs text-destructive mt-1">الرابط مطلوب (حرفان على الأقل)</p>
-						)}
-					</div>
-				</div>
 
-				{/* Description */}
-				<div>
-					<Label>الوصف</Label>
-					<Input
-						value={form.description}
-						onChange={(e) => onFormChange({ ...form, description: e.target.value })}
-						placeholder="وصف المطعم (اختياري)"
-						className="h-11 mt-1.5"
-					/>
-				</div>
-
-				{/* Phone + WhatsApp */}
-				<div className="grid grid-cols-2 gap-3">
-					<div>
-						<Label>رقم الهاتف</Label>
-						<Input
-							value={form.phone}
-							onChange={(e) => onFormChange({ ...form, phone: e.target.value })}
-							placeholder="رقم الهاتف (مثال: 0912345678)"
-							className="h-11 mt-1.5 text-left"
-							dir="ltr"
-						/>
+						{/* Phone + WhatsApp */}
+						<div className="grid grid-cols-2 gap-3">
+							<div>
+								<Label>رقم الهاتف</Label>
+								<Input
+									value={restaurant.phone}
+									onChange={(e) => updateRestaurant(index, { phone: e.target.value })}
+									placeholder="رقم الهاتف (مثال: 0912345678)"
+									className="h-11 mt-1.5 text-left"
+									dir="ltr"
+								/>
+							</div>
+							<div>
+								<Label>رقم واتساب</Label>
+								<Input
+									value={restaurant.whatsapp}
+									onChange={(e) => updateRestaurant(index, { whatsapp: e.target.value })}
+									placeholder="رقم الواتساب (مثال: 0912345678)"
+									className="h-11 mt-1.5 text-left"
+									dir="ltr"
+								/>
+							</div>
+						</div>
 					</div>
-					<div>
-						<Label>رقم واتساب</Label>
-						<Input
-							value={form.whatsapp}
-							onChange={(e) => onFormChange({ ...form, whatsapp: e.target.value })}
-							placeholder="رقم الواتساب (مثال: 0912345678)"
-							className="h-11 mt-1.5 text-left"
-							dir="ltr"
-						/>
-					</div>
-				</div>
+				))}
 
 				{/* Divider */}
 				<div className="relative">

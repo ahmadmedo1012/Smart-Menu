@@ -72,7 +72,7 @@ export function PaymentDialogWrapper({
 	currentPlan: Plan;
 	upgradeMode: boolean;
 	user: { role: string; subscriptionStatus: string; restaurantId: number | null } | null;
-	form: { name: string; slug: string };
+	form: { restaurants: { name: string; slug: string }[] };
 	onSuccess: () => void;
 }) {
 	return (
@@ -85,8 +85,7 @@ export function PaymentDialogWrapper({
 			price={Number(currentPlan.price)}
 			onSuccess={onSuccess}
 			upgradeRestaurantId={upgradeMode && user?.restaurantId ? user.restaurantId : undefined}
-			tempRestaurantName={form.name}
-			tempRestaurantSlug={form.slug}
+			tempRestaurants={form.restaurants.map((r) => ({ name: r.name, slug: r.slug }))}
 		/>
 	);
 }

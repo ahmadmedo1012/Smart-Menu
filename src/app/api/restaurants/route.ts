@@ -18,7 +18,7 @@ function getClientIp(request: NextRequest): string {
 	);
 }
 
-const createSchema = z.object({
+const restaurantInputSchema = z.object({
 	name: z.string().min(1),
 	slug: z
 		.string()
@@ -27,6 +27,20 @@ const createSchema = z.object({
 	description: z.string().optional(),
 	phone: z.string().optional(),
 	whatsapp: z.string().optional(),
+});
+
+const createSchema = z.object({
+	// Support MULTIPLE menus: either legacy single-fields OR array form
+	name: z.string().min(1).optional(),
+	slug: z
+		.string()
+		.min(1)
+		.regex(/^[a-z0-9-]+$/)
+		.optional(),
+	description: z.string().optional(),
+	phone: z.string().optional(),
+	whatsapp: z.string().optional(),
+	restaurants: z.array(restaurantInputSchema).optional(),
 	email: z.string().optional(),
 	address: z.string().optional(),
 	workingHours: z.string().optional(),
@@ -36,6 +50,8 @@ const createSchema = z.object({
 	city: z.string().optional(),
 	showOnLanding: z.boolean().optional(),
 	featuredRank: z.number().int().optional(),
+}).refine((d) => d.restaurants?.length || (d.name && d.slug), {
+	message: 'يجب توفير بيانات منيو واحد على الأقل',
 });
 
 export async function GET(request: NextRequest) {
@@ -106,39 +122,69 @@ export async function POST(request: NextRequest) {
 		}
 
 		const result = await prisma.$transaction(async (tx) => {
-			// Check slug uniqueness inside transaction to avoid race (multiple concurrent requests)
-			const slugTaken = await tx.restaurant.findUnique({ where: { slug: body.slug } });
-			if (slugTaken) throw new Error('Unique constraint failed on slug');
-			const restaurant = await tx.restaurant.create({
-				data: {
-					name: body.name,
-					slug: body.slug,
-					description: body.description ?? '',
-					phone: body.phone ?? '',
-					whatsapp: body.whatsapp ?? '',
-					email: body.email ?? '',
-					address: body.address ?? '',
-					workingHours: body.workingHours ?? '',
-					planId: body.planId ?? null,
-				},
-			});
+			// Normalize: array form (new) or legacy single-fields form
+			const menus = body.restaurants?.length
+				? body.restaurants
+				: [
+						{
+							name: body.name!,
+							slug: body.slug!,
+							description: body.description,
+							phone: body.phone,
+							whatsapp: body.whatsapp,
+						},
+					];
 
-			// Create owner user if username/password provided
+			// Check ALL slugs unique inside transaction
+			for (const m of menus) {
+				const slugTaken = await tx.restaurant.findUnique({ where: { slug: m.slug } });
+				if (slugTaken) throw new Error('Unique constraint failed on slug');
+			}
+
+			// Create each restaurant; first = primary
+			let primary: Awaited<ReturnType<typeof tx.restaurant.create>> | null = null;
+			for (let i = 0; i < menus.length; i++) {
+				const m = menus[i];
+				const restaurant = await tx.restaurant.create({
+					data: {
+						name: m.name,
+						slug: m.slug,
+						description: m.description ?? '',
+						phone: m.phone ?? '',
+						whatsapp: m.whatsapp ?? '',
+						email: body.email ?? '',
+						address: body.address ?? '',
+						workingHours: body.workingHours ?? '',
+						planId: body.planId ?? null,
+					},
+				});
+				if (i === 0) primary = restaurant;
+			}
+
+			// Create owner user if username/password provided (linked to primary restaurant)
 			if (body.username && body.password) {
 				const { hashPassword } = await import('@/lib/hash');
 				await tx.user.create({
 					data: {
 						username: body.username,
 						password: hashPassword(body.password),
-						name: body.name,
+						name: primary!.name,
 						role: 'owner',
-						restaurantId: restaurant.id,
+						restaurantId: primary!.id,
 						planId: body.planId ?? null,
 					},
 				});
+
+				// Link ALL restaurants to the new user via UserRestaurant (many-to-many)
+				const createdUser = await tx.user.findUniqueOrThrow({ where: { username: body.username } });
+				for (let i = 0; i < menus.length; i++) {
+					await tx.userRestaurant.create({
+						data: { userId: createdUser.id, restaurantId: (i === 0 ? primary! : (await tx.restaurant.findUniqueOrThrow({ where: { slug: menus[i].slug } }))).id, isPrimary: i === 0 },
+					});
+				}
 			}
 
-			return restaurant;
+			return primary!;
 		});
 
 		// Audit log + Telegram (best-effort, must not fail the response)

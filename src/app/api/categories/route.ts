@@ -59,15 +59,19 @@ export async function POST(request: NextRequest) {
 
 		const restaurant = await prisma.restaurant.findUnique({
 			where: { id: rid },
-			select: { plan: { select: { maxMenus: true } } },
+			select: { plan: { select: { maxItems: true } } },
 		});
 		if (!restaurant) return error('المطعم غير موجود', 404);
 
-		const maxMenus = restaurant.plan?.maxMenus ?? 1;
+		// Categories are organizational containers — unlimited. The real plan
+		// limits are enforced on ITEMS (maxItems) and ORDERS (maxOrders).
+		// Previously maxMenus (menu count) was wrongly used here as a category
+		// cap, which blocked users from adding more than N categories.
 		const existingCount = await prisma.menuCategory.count({ where: { restaurantId: rid } });
-		if (existingCount >= maxMenus) {
+		const maxCategories = 1000; // generous organizational ceiling
+		if (existingCount >= maxCategories) {
 			return error(
-				`لقد وصلت للحد الأقصى للأقسام (${maxMenus}). قم بترقية خطتك لإضافة المزيد.`,
+				`لقد وصلت للحد الأقصى للأقسام (${maxCategories}).`,
 				403
 			);
 		}

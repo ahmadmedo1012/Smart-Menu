@@ -21,8 +21,14 @@ export const createPaymentSchema = z
 		provider: z.enum(['libyana', 'madar', 'bank']),
 		planId: z.number().int().positive(),
 		tempUsername: z.string().min(3).optional(),
-		tempRestaurantName: z.string().min(1).optional(),
-		tempRestaurantSlug: z.string().min(3).optional(),
+		tempRestaurants: z
+			.array(
+				z.object({
+					name: z.string().min(1),
+					slug: z.string().min(3),
+				})
+			)
+			.optional(),
 		// Bank transfer fields — only valid when provider === "bank"
 		senderAccountName: z.string().min(1).max(100).optional(),
 		senderAccountNumber: z.string().min(1).max(50).optional(),
@@ -55,8 +61,7 @@ export async function POST(request: NextRequest) {
 			provider,
 			planId,
 			tempUsername,
-			tempRestaurantName,
-			tempRestaurantSlug,
+			tempRestaurants,
 			senderAccountName,
 			senderAccountNumber,
 			receiptImageUrl,
@@ -77,18 +82,21 @@ export async function POST(request: NextRequest) {
 			// Allow if tempUsername matches the currently authenticated user (already registered before payment)
 			if (tempUser && tempUser.id !== auth.userId) return error('اسم المستخدم مستخدم بالفعل', 409);
 		}
-		if (tempRestaurantSlug) {
-			const existingSlug = await prisma.restaurant.findUnique({
-				where: { slug: tempRestaurantSlug },
-			});
-			if (existingSlug) return error('الرابط محجوز مسبقاً', 409);
-			const slugPending = await prisma.subscriptionPayment.findFirst({
-				where: {
-					status: 'pending',
-					metadata: { path: ['tempRestaurantSlug'], equals: tempRestaurantSlug },
-				},
-			});
-			if (slugPending) return error('الرابط محجوز بطلب دفع معلق', 409);
+		// Check uniqueness for ALL temp restaurant slugs (multiple menus)
+		if (tempRestaurants && tempRestaurants.length > 0) {
+			for (const tr of tempRestaurants) {
+				const existingSlug = await prisma.restaurant.findUnique({
+					where: { slug: tr.slug },
+				});
+				if (existingSlug) return error(`الرابط ${tr.slug} محجوز مسبقاً`, 409);
+				const slugPending = await prisma.subscriptionPayment.findFirst({
+					where: {
+						status: 'pending',
+						metadata: { path: ['tempRestaurants'], array_contains: [{ name: tr.name, slug: tr.slug }] },
+					},
+				});
+				if (slugPending) return error(`الرابط ${tr.slug} محجوز بطلب دفع معلق`, 409);
+			}
 		}
 
 		// Check no pending payment for this user
@@ -118,8 +126,7 @@ export async function POST(request: NextRequest) {
 				status: 'pending',
 				metadata: {
 					tempUsername,
-					tempRestaurantName,
-					tempRestaurantSlug,
+					tempRestaurants: tempRestaurants ?? [],
 					...(isBank
 						? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
 						: {}),

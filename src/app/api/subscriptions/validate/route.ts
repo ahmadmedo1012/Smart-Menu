@@ -6,7 +6,8 @@ import { z } from "zod";
 
 const validateSchema = z.object({
   username: z.string().min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل"),
-  slug: z.string().min(3, "الرابط يجب أن يكون 3 أحرف على الأقل").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط"),
+  slug: z.string().min(3, "الرابط يجب أن يكون 3 أحرف على الأقل").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط").optional(),
+  slugs: z.array(z.string().min(3).regex(/^[a-z0-9-]+$/)).optional(),
 });
 
 const validateLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
@@ -21,21 +22,22 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return Response.json({ valid: false, errors: { _form: parsed.error.issues[0].message } }, { status: 400 });
     }
-    const { username, slug } = parsed.data;
+    const { username, slug, slugs } = parsed.data;
+    // Backward compat: accept either a single `slug` or an array `slugs`
+    const slugList = (slugs && slugs.length > 0 ? slugs : slug ? [slug] : []).filter(Boolean);
 
     const errors: { username?: string; slug?: string } = {};
 
     const existingUser = await prisma.user.findUnique({ where: { username } });
     if (existingUser) errors.username = "اسم المستخدم مستخدم بالفعل";
 
-    const existingRestaurant = await prisma.restaurant.findUnique({ where: { slug } });
-    if (existingRestaurant) errors.slug = "الرابط محجوز مسبقاً";
-
-    if (!errors.slug) {
+    for (const s of slugList) {
+      const existingRestaurant = await prisma.restaurant.findUnique({ where: { slug: s } });
+      if (existingRestaurant) { errors.slug = `الرابط ${s} محجوز مسبقاً`; break; }
       const slugPending = await prisma.subscriptionPayment.findFirst({
-        where: { status: "pending", metadata: { path: ["tempRestaurantSlug"], equals: slug } },
+        where: { status: "pending", metadata: { path: ["tempRestaurants"], array_contains: [{ name: "", slug: s }] } },
       });
-      if (slugPending) errors.slug = "الرابط محجوز بطلب دفع معلق";
+      if (slugPending) { errors.slug = `الرابط ${s} محجوز بطلب دفع معلق`; break; }
     }
 
     if (Object.keys(errors).length > 0) {

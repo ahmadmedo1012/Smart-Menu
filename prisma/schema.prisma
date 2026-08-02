@@ -35,12 +35,29 @@ model User {
   subscriptionPayments  SubscriptionPayment[]
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   restaurant   Restaurant?       @relation("RestaurantUsers", fields: [restaurantId], references: [id], onDelete: SetNull)
+  restaurants  UserRestaurant[]
 
   @@index([restaurantId])
   @@index([planId])
   @@index([role])
   @@index([lastLoginAt])
   @@index([createdAt])
+}
+
+// Many-to-many: a user (owner) can manage multiple restaurant menus.
+// The first/primary restaurant is ALSO mirrored on User.restaurantId for
+// backward compatibility with existing queries (dashboard, auth, etc.).
+model UserRestaurant {
+  userId        Int
+  restaurantId  Int
+  isPrimary     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@id([userId, restaurantId])
+  @@index([userId])
+  @@index([restaurantId])
 }
 
 model SubscriptionPlan {
@@ -95,6 +112,7 @@ model Restaurant {
   rewardTransactions RewardTransaction[]
   settings           Setting[]
   users              User[]  @relation("RestaurantUsers")
+  userRestaurants    UserRestaurant[]
   whatsappTemplates  WhatsappTemplate[]
 
   @@index([isActive])

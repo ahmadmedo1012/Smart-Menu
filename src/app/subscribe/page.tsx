@@ -58,11 +58,9 @@ function SubscribeContent() {
 
 	const [authLoaded, setAuthLoaded] = useState(false);
 	const [form, setForm] = useState({
-		name: '',
-		slug: '',
-		description: '',
-		phone: '',
-		whatsapp: '',
+		restaurants: [
+			{ name: '', slug: '', description: '', phone: '', whatsapp: '' },
+		],
 		username: '',
 		password: '',
 	});
@@ -146,9 +144,11 @@ function SubscribeContent() {
 	}, [sseOpen]);
 
 	const currentPlan = plans.find((p) => p.id === selectedPlan);
+	const allRestaurantsValid = form.restaurants.every(
+		(r) => r.name.trim().length >= 2 && r.slug.trim().length >= 2
+	);
 	const isFormValid =
-		form.name.trim().length >= 2 &&
-		form.slug.trim().length >= 2 &&
+		allRestaurantsValid &&
 		form.username.trim().length >= 3 &&
 		form.password.trim().length >= PASSWORD_MIN_LENGTH;
 
@@ -156,25 +156,27 @@ function SubscribeContent() {
 		submittedRef.current = true;
 		if (!selectedPlan || !isFormValid || upgradeMode) return;
 
-		// Pre-flight
+		// Pre-flight: validate username + ALL slugs
 		try {
 			const valRes = await fetch('/api/subscriptions/validate', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					username: form.username.trim(),
-					slug: form.slug
-						.trim()
-						.toLowerCase()
-						.replace(/[^a-z0-9-]/g, '-'),
+					slugs: form.restaurants.map((r) =>
+						r.slug
+							.trim()
+							.toLowerCase()
+							.replace(/[^a-z0-9-]/g, '-')
+					),
 				}),
 			});
 			const valJson = await valRes.json();
 			if (!valJson.success || !valJson.data?.valid) {
 				const errs = valJson.data?.errors ?? {};
 				if (errs.username) premiumToast('error', errs.username);
-				if (errs.slug) premiumToast('error', errs.slug);
-				if (!errs.username && !errs.slug) premiumToast('error', 'البيانات غير صالحة');
+				if (errs.slugs) premiumToast('error', errs.slugs);
+				if (!errs.username && !errs.slugs) premiumToast('error', 'البيانات غير صالحة');
 				return;
 			}
 		} catch {
@@ -192,7 +194,7 @@ function SubscribeContent() {
 					body: JSON.stringify({
 						username: form.username.trim(),
 						password: form.password.trim(),
-						name: form.name.trim(),
+						name: form.restaurants[0]?.name.trim() || form.username.trim(),
 					}),
 				});
 				const regJson = await regRes.json();
@@ -236,14 +238,16 @@ function SubscribeContent() {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					name: form.name.trim(),
-					slug: form.slug
-						.trim()
-						.toLowerCase()
-						.replace(/[^a-z0-9-]/g, '-'),
-					description: form.description.trim(),
-					phone: form.phone.trim(),
-					whatsapp: form.whatsapp.trim(),
+					restaurants: form.restaurants.map((r) => ({
+						name: r.name.trim(),
+						slug: r.slug
+							.trim()
+							.toLowerCase()
+							.replace(/[^a-z0-9-]/g, '-'),
+						description: r.description.trim(),
+						phone: r.phone.trim(),
+						whatsapp: r.whatsapp.trim(),
+					})),
 					planId: selectedPlan,
 					username: form.username.trim(),
 					password: form.password.trim(),

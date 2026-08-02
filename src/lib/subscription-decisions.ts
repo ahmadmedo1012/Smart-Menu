@@ -48,6 +48,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     tempUsername?: string;
     tempRestaurantName?: string;
     tempRestaurantSlug?: string;
+    tempRestaurants?: { name: string; slug: string }[];
     upgradeRestaurantId?: number;
     currentPlanId?: number | null;
   } | null;
@@ -123,14 +124,21 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     }
   }
 
-  // NEW USER BRANCH
-  const restaurantName = meta?.tempRestaurantName ?? `مطعم ${existing!.phone}`;
-  const restaurantSlug = meta?.tempRestaurantSlug ?? `restaurant-${existing!.id}`;
+  // NEW USER BRANCH — supports MULTIPLE menus (tempRestaurants[])
+  // Backward compat: old payments used single tempRestaurantName/Slug
+  const menus = meta?.tempRestaurants?.length
+    ? meta.tempRestaurants
+    : meta?.tempRestaurantSlug
+      ? [{ name: meta.tempRestaurantName ?? `مطعم ${existing!.phone}`, slug: meta.tempRestaurantSlug }]
+      : [{ name: `مطعم ${existing!.phone}`, slug: `restaurant-${existing!.id}` }];
 
   try {
+    // eslint-disable-next-line prefer-const
+    let primaryRestaurant: { id: number; name: string; slug: string } | null = null as { id: number; name: string; slug: string } | null;
     const result = await prisma.$transaction(async (tx) => {
-      if (existing!.userId) {
-        const slugTaken = await tx.restaurant.findUnique({ where: { slug: restaurantSlug } });
+      // Check ALL slugs unique
+      for (const m of menus) {
+        const slugTaken = await tx.restaurant.findUnique({ where: { slug: m.slug } });
         if (slugTaken) throw new Error("SLUG_TAKEN");
       }
 
@@ -139,7 +147,6 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         data: { status: "verified" },
       });
 
-      let restaurant = null;
       let user = null;
       if (existing!.userId) {
         const plan = await tx.subscriptionPlan.findUnique({
@@ -147,19 +154,28 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           select: { maxItems: true, maxOrders: true },
         });
 
-        restaurant = await tx.restaurant.create({
-          data: {
-            name: restaurantName,
-            slug: restaurantSlug,
-            phone: existing!.phone,
-            planId: existing!.planId,
-            planStart: new Date(),
-            planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-            maxItems: plan?.maxItems ?? undefined,
-            maxOrders: plan?.maxOrders ?? undefined,
-            isActive: true,
-          },
-        });
+        // Create each restaurant; first = primary
+        for (let i = 0; i < menus.length; i++) {
+          const m = menus[i];
+          const created = await tx.restaurant.create({
+            data: {
+              name: m.name,
+              slug: m.slug,
+              phone: existing!.phone,
+              planId: existing!.planId,
+              planStart: new Date(),
+              planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              maxItems: plan?.maxItems ?? undefined,
+              maxOrders: plan?.maxOrders ?? undefined,
+              isActive: true,
+            },
+          });
+          if (i === 0) primaryRestaurant = created;
+          // Link every restaurant to the user via UserRestaurant (many-to-many)
+          await tx.userRestaurant.create({
+            data: { userId: existing!.userId, restaurantId: created.id, isPrimary: i === 0 },
+          });
+        }
 
         user = await tx.user.update({
           where: { id: existing!.userId },
@@ -167,7 +183,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
             role: "owner",
             subscriptionStatus: "PAID",
             planId: existing!.planId,
-            restaurantId: restaurant.id,
+            restaurantId: primaryRestaurant!.id,
           },
           select: { id: true, username: true, role: true, subscriptionStatus: true, restaurantId: true },
         });
@@ -178,7 +194,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         data: {
           eventType: "payment",
           title: "اشتراك جديد",
-          message: `تم تأكيد دفع ${existing!.planName} — ${restaurantName}`,
+          message: `تم تأكيد دفع ${existing!.planName} — ${primaryRestaurant?.name ?? menus[0]?.name ?? ''}`,
           severity: "info",
           metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
         },
@@ -191,28 +207,29 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
             title: "تم تفعيل الحساب",
             message: "تم تفعيل حسابك بنجاح!",
             severity: "info",
-            metadata: { userId: existing!.userId, restaurantSlug },
+            metadata: { userId: existing!.userId, restaurantSlug: primaryRestaurant?.slug ?? menus[0]?.slug ?? '' },
           },
         });
       }
 
-      return { restaurant, user };
+      return { restaurant: primaryRestaurant, user };
     });
 
     // Post-transaction Telegram notifications (fire-and-forget, best-effort)
     const userPart = result.user ? `• المستخدم: ${result.user.username}\n` : "";
-    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المطعم: ${restaurantName}\n• الخطة: ${existing!.planName}\n• الرابط: ${restaurantSlug}`;
+    const menuList = menus.map((m) => `• ${m.name} → /menu/${m.slug}`).join("\n");
+    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المنيوهات:\n${menuList}\n• الخطة: ${existing!.planName}`;
     sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] telegram failed:", { error: e }));
 
     const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
     const userChatId = existingUser.user?.telegramChatId;
     if (userChatId) {
       notifyUserViaTelegram(String(userChatId),
-        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n• المطعم: ${restaurantName}\n• رابط المنيو: ${process.env.NEXT_PUBLIC_DOMAIN || "https://menu.smart-link.ly"}/menu/${restaurantSlug}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`)
+        `✅ *تم تفعيل حسابك في Smart Menu!*\n\n${menuList}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`)
         .catch((e) => error("[subscription] notify user failed:", { error: e }));
     }
 
-    return { ok: true, action: "verified", paymentId: existing!.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: restaurantName, slug: restaurantSlug } : undefined, user: result.user ?? undefined };
+    return { ok: true, action: "verified", paymentId: existing!.id, restaurant: primaryRestaurant ? { id: primaryRestaurant.id, name: primaryRestaurant.name, slug: primaryRestaurant.slug } : undefined, user: result.user ?? undefined };
   } catch (e: unknown) {
     error("[subscription-decisions] new user error:", { error: e });
     const errMsg = e instanceof Error ? e.message : "";
