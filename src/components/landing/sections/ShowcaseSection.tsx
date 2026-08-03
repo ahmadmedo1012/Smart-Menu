@@ -32,7 +32,7 @@ export function ShowcaseSection() {
 						<motion.div style={{ scale: imageScale, y: imageY }}>
 							<Image
 								src="/main21.png"
-								alt=""
+								alt="معاينة المنيو الرقمي الذكي من الربط الذكي"
 								width={1536}
 								height={1024}
 								className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover"
