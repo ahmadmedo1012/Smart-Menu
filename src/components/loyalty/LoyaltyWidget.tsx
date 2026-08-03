@@ -173,7 +173,7 @@ export function LoyaltyWidget({
 								type="button"
 								onClick={handleCheck}
 								disabled={loading}
-								className="h-10 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-50 shrink-0"
+								className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-50 shrink-0"
 							>
 								{loading ? (
 									<span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin block" />
