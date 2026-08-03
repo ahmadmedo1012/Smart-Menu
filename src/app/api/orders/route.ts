@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 				restaurantId = auth.restaurantId ?? undefined;
 			}
 			if (!restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
-		} else if (auth.role !== 'admin') {
+		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
 			return apiError('غير مصرح', 403);
 		}
 
