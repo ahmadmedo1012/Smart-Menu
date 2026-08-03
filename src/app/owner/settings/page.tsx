@@ -108,7 +108,7 @@ export default function OwnerSettingsPage() {
 			})
 			.catch(() => premiumToast('error', 'فشل تحميل الإعدادات'))
 			.finally(() => setLoading(false));
-	}, []);
+	}, [activeId]);
 
 	const uploadImage = async (file: File, type: 'logo' | 'gallery') => {
 		setUploading((prev) => ({ ...prev, [type]: true }));

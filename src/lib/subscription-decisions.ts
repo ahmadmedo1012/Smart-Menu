@@ -133,7 +133,6 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
       : [{ name: `مطعم ${existing!.phone}`, slug: `restaurant-${existing!.id}` }];
 
   try {
-    // eslint-disable-next-line prefer-const
     let primaryRestaurant: { id: number; name: string; slug: string } | null = null as { id: number; name: string; slug: string } | null;
     const result = await prisma.$transaction(async (tx) => {
       // Check ALL slugs unique

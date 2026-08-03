@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 		if (!auth.authorized) return apiError('غير مصرح', 401);
 		const { searchParams } = new URL(request.url);
 		const requestedId = Number(searchParams.get('restaurantId')) || 0;
-		let restaurantId =
+		const restaurantId =
 			requestedId ||
 			auth.restaurantId ||
 			Number(request.cookies.get('smart-menu-restaurant')?.value);

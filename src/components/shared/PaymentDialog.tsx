@@ -293,7 +293,7 @@ export function PaymentDialog({
 								</div>
 								{requiresBank && (
 									<p className="text-xs text-orange mt-2">
-										المبالغ فوق 99 د.ل تتطلب تحويل بنكي — اختر "تحويل بنكي" لإتمام الدفع
+										المبالغ فوق 99 د.ل تتطلب تحويل بنكي — اختر &quot;تحويل بنكي&quot; لإتمام الدفع
 									</p>
 								)}
 							</div>
