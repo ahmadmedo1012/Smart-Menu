@@ -48,6 +48,7 @@ export default defineConfig({
         "tests/e2e/round5-lifecycle.spec.ts",
         "tests/e2e/round6-subscriptions.spec.ts",
         "tests/e2e/round8-whatsapp.spec.ts",
+        "tests/e2e/round29-cart-regression.spec.ts",
       ],
     },
     {
