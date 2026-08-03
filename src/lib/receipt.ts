@@ -55,9 +55,9 @@ export function buildReceiptMessage(opts: {
   lines.push("📦 *الأصناف المطلوبة*");
   lines.push(SEP_L);
   opts.items.forEach((item, i) => {
-    const lineTotal = (item.qty * item.price).toFixed(1);
+    const lineTotal = (item.qty * item.price).toFixed(2);
     const qtyStr = `${item.qty}`;
-    const priceStr = `${item.price.toFixed(1)}`;
+    const priceStr = `${item.price.toFixed(2)}`;
     const totalStr = `${lineTotal}`;
     lines.push(`   ${i + 1}. *${item.name}*`);
     lines.push(`      ${qtyStr} × ${priceStr} د.ل  =  ${totalStr} د.ل`);
@@ -68,7 +68,7 @@ export function buildReceiptMessage(opts: {
 
   // ── Total ──
   lines.push(`💵 *الإجمالي*`);
-  lines.push(`   ${opts.totalPrice.toFixed(1)} د.ل`);
+  lines.push(`   ${opts.totalPrice.toFixed(2)} د.ل`);
   lines.push(SEP);
   lines.push("");
 
