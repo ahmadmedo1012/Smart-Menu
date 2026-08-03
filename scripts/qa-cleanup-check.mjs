@@ -14,8 +14,8 @@ import pg from 'pg';
 
 // Transliterated-literal patterns identifying QA artifacts from the E2E suites.
 // We match on lowercase substrings.
-const USER_NEEDLES = ['qa', 'bank', 'wallet'];
-const REST_NEEDLES = ['qa', 'bank', 'wallet'];
+const USER_NEEDLES = ['qa', 'bank', 'wallet', 'p1_', 'p3_'];
+const REST_NEEDLES = ['qa', 'bank', 'wallet', 'p3-cafe', 'p1-'];
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
