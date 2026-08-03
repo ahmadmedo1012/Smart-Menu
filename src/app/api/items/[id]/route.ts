@@ -32,10 +32,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 const updateSchema = z.object({
-	name: z.string().min(1).optional(),
+	name: z.string().min(1).max(100).optional(),
 	nameAr: z.string().nullable().optional(),
-	description: z.string().optional(),
-	descriptionAr: z.string().optional(),
+	description: z.string().max(1000).optional(),
+	descriptionAr: z.string().max(1000).nullable().optional(),
 	price: z.number().positive().optional(),
 	discountedPrice: z.number().positive().nullable().optional(),
 	image: z.string().max(7000000).optional(),

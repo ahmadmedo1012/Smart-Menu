@@ -5,7 +5,7 @@ import { success, error, notFound, handleError } from "@/lib/api-helpers";
 
 import { requireAuth } from "@/lib/auth";
 const updateSchema = z.object({
-  name: z.string().min(1).optional(),
+  name: z.string().min(1).max(100).optional(),
   nameAr: z.string().nullable().optional(),
   icon: z.string().optional(),
   sortOrder: z.number().int().optional(),

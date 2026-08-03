@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { success, error, handleError, paginated } from '@/lib/api-helpers';
 
 const createSchema = z.object({
-	name: z.string().min(1),
+	name: z.string().min(1).max(100),
 	nameAr: z.string().nullable().optional(),
 	icon: z.string().optional(),
 	sortOrder: z.number().int().optional(),

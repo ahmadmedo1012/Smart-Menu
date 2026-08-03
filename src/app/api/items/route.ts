@@ -6,10 +6,10 @@ import { requireAuth } from '@/lib/auth';
 import { ItemStatus } from '@/generated/prisma/enums';
 
 const createSchema = z.object({
-	name: z.string().min(1, 'الاسم مطلوب'),
+	name: z.string().min(1, 'الاسم مطلوب').max(100),
 	nameAr: z.string().nullable().optional(),
-	description: z.string().optional(),
-	descriptionAr: z.string().optional(),
+	description: z.string().max(1000).optional(),
+	descriptionAr: z.string().max(1000).optional(),
 	price: z.number().min(0, 'السعر يجب أن يكون 0 أو أكثر'),
 	discountedPrice: z.number().min(0).nullable().optional(),
 	image: z.string().max(7000000).optional(),
