@@ -1,16 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { useScroll, useTransform, useMotionValueEvent, motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import Link from 'next/link';
+import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'framer-motion';
+import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+
+// Simple global nav so a visitor on any restaurant's menu can reach pricing/login
+const menuGlobalLinks = [
+  { href: '/pricing', label: 'الخطط والأسعار' },
+  { href: '/login', label: 'تسجيل الدخول' },
+];
 
 export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }) {
 	/* ponytail: single scroll source — useScroll replaces native scroll listener */
 	const { scrollYProgress } = useScroll();
 	const [scrolled, setScrolled] = useState(false);
+	const [mobileOpen, setMobileOpen] = useState(false);
 	const progress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
 	useMotionValueEvent(scrollYProgress, 'change', (v) => {
@@ -64,14 +72,53 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 					</span>
 				</div>
 				<div className="flex items-center gap-2">
+					{/* Desktop nav links */}
+					<nav className="hidden md:flex items-center gap-1">
+						{menuGlobalLinks.map((l) => (
+							<Link
+								key={l.href}
+								href={l.href}
+								className="px-3 py-2 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors"
+							>
+								{l.label}
+							</Link>
+						))}
+					</nav>
 					<ThemeToggle />
-					{!scrolled && (
-						<div className="animate-float">
-							<ChevronDown className="size-5 text-muted-foreground" />
-						</div>
-					)}
+					{/* Mobile hamburger */}
+					<button
+						type="button"
+						aria-label="القائمة"
+						onClick={() => setMobileOpen((o) => !o)}
+						className="md:hidden inline-flex items-center justify-center size-11 rounded-full bg-card border border-border hover:bg-accent/40 transition-colors"
+					>
+						<Menu className="size-5" />
+					</button>
 				</div>
 			</div>
+
+			{/* Mobile drawer */}
+			<AnimatePresence>
+				{mobileOpen && (
+					<motion.div
+						initial={{ opacity: 0, y: -8 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -8 }}
+						className="md:hidden fixed inset-x-3 top-16 z-40 rounded-2xl border border-border/40 bg-background/95 backdrop-blur-xl shadow-2xl p-3 flex flex-col gap-1"
+					>
+						{menuGlobalLinks.map((l) => (
+							<Link
+								key={l.href}
+								href={l.href}
+								onClick={() => setMobileOpen(false)}
+								className="px-4 py-3 rounded-xl text-sm font-medium hover:bg-accent/40 transition-colors"
+							>
+								{l.label}
+							</Link>
+						))}
+					</motion.div>
+				)}
+			</AnimatePresence>
 
 			{/* Scroll progress bar — RTL-aware origin-right */}
 			<motion.div
