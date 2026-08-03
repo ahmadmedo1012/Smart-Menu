@@ -45,6 +45,8 @@ export default defineConfig({
         "tests/e2e/persona-6-browser.spec.ts",
         "tests/e2e/persona-7-malicious.spec.ts",
         "tests/e2e/round4-deep.spec.ts",
+        "tests/e2e/round5-lifecycle.spec.ts",
+        "tests/e2e/round6-subscriptions.spec.ts",
       ],
     },
     {
