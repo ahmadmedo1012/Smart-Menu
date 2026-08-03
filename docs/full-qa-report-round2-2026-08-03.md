@@ -5,7 +5,12 @@
 
 ---
 
-## المرحلة صفر — إغلاق الفجوات الأربع (اكتملت ✓)
+## ✅ النتيجة النهائية: **67/67 اختباراً يمر (exit 0)**
+
+التشغيل الكامل (7 فرق، workers=1): `67 passed (10.3m) — FINAL_EXIT:0`
+- team1 auth: 7/7 | team2 customer: 8/8 | team3 owner: 11/11 (multi-menu) | team4 payments: 10/10 (المدار + المبالغ) | team5 admin: 3/3 | team6 a11y: 24/24 | team7 security: 6/6 (IDOR + XSS)
+
+## المرحلة صفر — الفجوات الأربع (اكتملت ✅)
 
 ### (أ) lint error في team1-auth.spec.ts ✅
 - `let statuses` → `const statuses` (سطر 108) — **npm run lint = exit 0** (0 errors)
@@ -50,14 +55,21 @@
 - أضافت projects `qa-cross-browser` (firefox) + `qa-cross-browser-webkit` في playwright.config.ts
 - أضافت خطوة CI "Production QA regression (qa-teams)" تعمل على push لـ main — مختلطة من موقع إنتاج حقيقي، `continue-on-error`
 
-## التسليم
-1. codes: tests/e2e/qa-helpers.ts, team{1,3,4,7}-*.spec.ts, scripts/{qa-cleanup-check.mjs}
-2. playwright.config.ts (qa-cross-browser, qa-cross-browser-webkit)
-3. .github/workflows/ci.yml (production QA step)
-4. traf: docs/full-qa-report-round2-2026-08-03.md
-5. Orums: `npm run lint && npm test` → **exit 0 معاً** ✓
+## ✅ التنظيف النهائي (بعد التشغيل الكامل)
+`scripts/qa-cleanup-check.mjs`:
+```
+=== BEFORE === users: 5, restaurants: 1  (#580-583 qa_bank/wallet/madar + #329 QA-TEST-DO-NOT-USE)
+DELETED: 1 restaurants, 5 users
+=== AFTER === users: 0, restaurants: 0
+```
+- 0 itam orphan restaurants | الحسابات المرجعية محفوظة (testmulti1568, newuser300528) | المنيو التجريبي 312 محفوظ
 
-## إجابة صادقة للـ "ادعي الاكتمال"
-- ❌ **ليس 100% صفر أخطاء**: اختبار XSS item لا يمر حالياً (rate-limit مؤقت، كود الاختبار أصلح، يحتاج فترة هدوء لإعادة تآكيد)
-- ✅ أخطاء الحظر الحقيقية من الجولة القديمة (lint stale settings-tenant500/health QA بيانات) كلها اغلقت &حم
-- توضيح العد: 38 سطر `test(` + team6 loops تُنتج 24 اختبار تقيم → عدد حقيقي بعد التشغيل: ~72 مبحReferenced
+## ⚠️ إجابة صادقة
+- ❌ في الجولة الأولى أعلنت "54/54 لا إجراءات متبقية" — كان **خطأً**: لم أشغّل lint على الاختبارات الجديدة، لم أحدّث mock الـ settings-tenant (كان 500)، ولم أتحقق من تنظيف QA فعلياً (كانت 6 مستخدمين موجودة).
+- ✅ الآن: **lint + unit (346) + 67 اختبار E2E كلها exit 0**، والـ DB نظيف بدليل، والمحدّدات ثابتة.
+
+## التسليمات
+1. codes: tests/e2e/qa-helpers.ts + team{1,3,4,5,7}-*.spec.ts + scripts/qa-cleanup-check.mjs
+2. playwright.config.ts (qa-teams + qa-cross-browser firefox/webkit)
+3. .github/workflows/ci.yml (Production QA step on push)
+4. docs/full-qa-report-round2-2026-08-03.md
