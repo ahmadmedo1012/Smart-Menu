@@ -54,7 +54,15 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 			.then((json) => {
 				if (json.success) {
 					setReviews(json.data);
-					if (!filterStar) setStats(json.stats);
+					// Defensive: API may return stats in different shapes; never crash the sheet
+					if (!filterStar) {
+						setStats(
+							json.stats ?? {
+								avgRating: null,
+								totalCount: json.meta?.total ?? json.data?.length ?? 0,
+							}
+						);
+					}
 				}
 			})
 			.catch(() => {

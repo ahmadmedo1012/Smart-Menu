@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { error, handleError, paginated, success, validationError } from '@/lib/api-helpers';
+import { error, handleError, success, validationError } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { z } from 'zod';
 
@@ -63,7 +63,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 			}),
 		]);
 
-		return paginated(reviews, stats._count, page, pageSize);
+		return NextResponse.json({
+			success: true,
+			data: reviews,
+			stats: {
+				avgRating: stats._avg.rating ?? null,
+				totalCount: stats._count,
+			},
+			meta: { total: stats._count, page, pageSize, totalPages: Math.ceil(stats._count / pageSize) },
+		});
 	} catch (e) {
 		return handleError(e);
 	}
