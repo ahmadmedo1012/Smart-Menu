@@ -418,20 +418,6 @@ export default function CartPage() {
 					))}
 				</div>
 
-				<div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
-					<h2 className="font-bold mb-3 flex items-center gap-2">
-						<Sparkles className="size-4 text-primary" />
-						ملاحظات إضافية
-					</h2>
-					<textarea
-						placeholder="أي ملاحظات للطلب..."
-						value={notes}
-						onChange={(e) => setOrderNotes(e.target.value)}
-						rows={2}
-						className="w-full rounded-[4px] border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 resize-none"
-					/>
-				</div>
-
 				{/* Undo banner — appears after removing an item (outside items.map so it
 				    stays visible once the item is gone) */}
 				{lastRemoved && items.length >= 0 && (
