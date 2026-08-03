@@ -84,17 +84,19 @@ export function IPhoneMockup({
 			style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
 		>
 			<div
-				style={{
-					width: outerW,
-					height: outerH,
-					borderRadius: outerR,
-					background: frameGrad,
-					padding: spec.bezel,
-					boxShadow: dropShadow,
-					position: 'relative',
-					overflow: 'hidden',
-				}}
+				className="w-full"
+				style={{ maxWidth: outerW, aspectRatio: `${outerW} / ${outerH}` }}
 			>
+				<div
+					className="relative h-full w-full"
+					style={{
+						borderRadius: outerR,
+						background: frameGrad,
+						padding: spec.bezel,
+						boxShadow: dropShadow,
+						overflow: 'hidden',
+					}}
+				>
 				<div
 					style={{
 						width: '100%',
@@ -172,6 +174,7 @@ export function IPhoneMockup({
 							pointerEvents: 'none',
 						}}
 					/>
+				</div>
 				</div>
 			</div>
 		</div>
