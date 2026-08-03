@@ -3,28 +3,19 @@
  * Uses QA test account. Diagnostic only — no production data damage.
  * Run: npx playwright test tests/e2e/team3-owner.spec.ts --project=ui
  */
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+import { login as qaLogin } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
 const ts = Date.now().toString().slice(-8);
 
-async function login(page) {
-  await page.goto("/login", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(1500);
-  const ins = page.locator("input");
-  await ins.nth(0).fill(OWNER);
-  await ins.nth(1).fill(PASS);
-  await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
-  await page.waitForTimeout(4000);
+async function login(page: Page) {
+  await qaLogin(page, OWNER, PASS);
   // Retry once if rate-limited (429 → stays on login)
   if (!page.url().includes("/owner")) {
     await page.waitForTimeout(3000);
-    const ins2 = page.locator("input");
-    await ins2.nth(0).fill(OWNER);
-    await ins2.nth(1).fill(PASS);
-    await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
-    await page.waitForTimeout(5000);
+    await qaLogin(page, OWNER, PASS);
   }
   expect(page.url()).toContain("/owner");
 }
@@ -107,4 +98,35 @@ test("owner: switcher switches between menus", async ({ page }) => {
     const found = menuNames.filter((m) => body.includes(m));
     expect(found.length).toBeGreaterThanOrEqual(2);
   }
+});
+
+test("owner: multi-menu — switching changes data on orders page (tenant isolation UI)", async ({ page }) => {
+  await login(page);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  // Restaurant 313 (primary) vs 315 — different order histories
+  // Switch to a menu via localStorage then assert the orders page reflects it
+  await page.goto("/owner/orders", { waitUntil: "networkidle" });
+  await page.waitForTimeout(3000);
+  // Set active restaurant to 315 (has different data), reload, assert header shows it
+  await page.evaluate(() => localStorage.setItem("smartmenu_active_restaurant", "315"));
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForTimeout(3000);
+  const after = await page.locator("body").innerText();
+  // The restaurant name should appear in the owner header after switch
+  const hasThird = after.includes("مطعم الاختبار الثالث");
+  expect(hasThird).toBeTruthy();
+});
+
+test("owner: settings reflect active restaurant after switch", async ({ page }) => {
+  await login(page);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.evaluate(() => localStorage.setItem("smartmenu_active_restaurant", "313"));
+  await page.goto("/owner/settings", { waitUntil: "networkidle" });
+  await page.waitForTimeout(3000);
+  // Switch to 315 → settings should fetch different data (no 500, no cross-tenant leak)
+  await page.evaluate(() => localStorage.setItem("smartmenu_active_restaurant", "315"));
+  await page.goto("/owner/settings", { waitUntil: "networkidle" });
+  await page.waitForTimeout(3000);
+  const body315 = await page.locator("body").innerText();
+  expect(body315).not.toContain("فشل تحميل");
 });

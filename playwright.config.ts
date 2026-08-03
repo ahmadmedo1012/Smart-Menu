@@ -38,7 +38,24 @@ export default defineConfig({
         "tests/e2e/team4-payments.spec.ts",
         "tests/e2e/team5-admin.spec.ts",
         "tests/e2e/team6-a11y.spec.ts",
+        "tests/e2e/team7-security.spec.ts",
       ],
+    },
+    {
+      // Cross-browser smoke: same UI suite on firefox + webkit (production).
+      // Run explicitly: npx playwright test tests/e2e/ui-smoke.test.ts --project=qa-cross-browser
+      name: "qa-cross-browser",
+      testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/team2-customer.spec.ts"],
+      use: {
+        browserName: "firefox",
+      },
+    },
+    {
+      name: "qa-cross-browser-webkit",
+      testMatch: ["tests/e2e/ui-smoke.test.ts"],
+      use: {
+        browserName: "webkit",
+      },
     },
     {
       name: "auth-verify",

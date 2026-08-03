@@ -5,18 +5,13 @@
  * Run: npx playwright test tests/e2e/team5-admin.spec.ts --project=ui
  */
 import { test, expect } from "@playwright/test";
+import { login } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
 
 test("admin: owner cannot access admin pages", async ({ page }) => {
-  await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
-  const ins = page.locator("input");
-  await ins.nth(0).fill(OWNER);
-  await ins.nth(1).fill(PASS);
-  await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
-  await page.waitForTimeout(4000);
+  await login(page, OWNER, PASS);
   // Try admin pages → should NOT render admin dashboard
   for (const p of ["/admin", "/admin/users", "/admin/settings"]) {
     await page.goto(p, { waitUntil: "domcontentloaded" });
@@ -28,13 +23,8 @@ test("admin: owner cannot access admin pages", async ({ page }) => {
 });
 
 test("admin: admin API blocked for owner (401/403)", async ({ page }) => {
-  await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
-  const ins = page.locator("input");
-  await ins.nth(0).fill(OWNER);
-  await ins.nth(1).fill(PASS);
-  await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
-  await page.waitForTimeout(4000);
+  await login(page, OWNER, PASS);
+  expect(page.url()).toContain("/owner"); // ensure login before API check
   const status = await page.evaluate(async () => {
     const r = await fetch("/api/admin/stats");
     return r.status;

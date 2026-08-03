@@ -8,11 +8,13 @@ const mockUpdate = vi.hoisted(() => vi.fn());
 const mockUpsert = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockDeleteBlob = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
 	restaurant: { findUnique: mockFindUnique, update: mockUpdate },
 	setting: { upsert: mockUpsert },
 	$transaction: mockTransaction,
+	userRestaurant: { findUnique: mockUserRestaurantFindUnique },
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
@@ -20,7 +22,12 @@ vi.mock('@/lib/blob', () => ({ deleteBlob: mockDeleteBlob }));
 
 // requireAuth resolves per-test via a mutable holder
 const authHolder = vi.hoisted(() => ({
-	value: { authorized: true, role: 'owner' as string, restaurantId: 1 as number | null },
+	value: {
+		authorized: true,
+		role: 'owner' as string,
+		restaurantId: 1 as number | null,
+		userId: 1 as number | null,
+	},
 }));
 vi.mock('@/lib/auth', () => ({
 	requireAuth: () => Promise.resolve(authHolder.value),
@@ -40,13 +47,14 @@ function makePutRequest(body: unknown, restaurantId?: number): NextRequest {
 describe('settings PUT — tenant isolation', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		authHolder.value = { authorized: true, role: 'owner', restaurantId: 1 };
+		authHolder.value = { authorized: true, role: 'owner', restaurantId: 1, userId: 1 };
 		mockFindUnique.mockResolvedValue({ logo: 'https://old-logo.com/a.png' });
 		mockUpdate.mockResolvedValue({});
 		mockTransaction.mockImplementation((fn) =>
 			typeof fn === 'function' ? fn(mockPrisma) : Promise.all(fn)
 		);
 		mockUpsert.mockResolvedValue({});
+		mockUserRestaurantFindUnique.mockResolvedValue(null);
 	});
 
 	it('owner A CANNOT modify restaurant B settings via restaurantId param', async () => {
@@ -60,6 +68,22 @@ describe('settings PUT — tenant isolation', () => {
 		expect(mockUpdate).not.toHaveBeenCalled();
 		expect(mockUpsert).not.toHaveBeenCalled();
 		expect(mockDeleteBlob).not.toHaveBeenCalled();
+	});
+
+	it('owner A WITH legitimate UserRestaurant link CAN modify restaurant B', async () => {
+		const { PUT } = await import('@/app/api/settings/route');
+		mockUserRestaurantFindUnique.mockResolvedValue({ userId: 1, restaurantId: 99, isPrimary: false });
+		mockFindUnique.mockResolvedValue({ logo: null, gallery: [] });
+
+		const res = await PUT(makePutRequest([{ key: 'restaurant_name', value: 'legit' }], 99));
+
+		expect(res.status).toBe(200);
+		expect(mockUserRestaurantFindUnique).toHaveBeenCalledWith({
+			where: { userId_restaurantId: { userId: 1, restaurantId: 99 } },
+		});
+		expect(mockUpdate).toHaveBeenCalledWith(
+			expect.objectContaining({ where: { id: 99 } })
+		);
 	});
 
 	it('owner A CAN update their own restaurant and cleans the replaced logo', async () => {
@@ -96,7 +120,7 @@ describe('settings PUT — tenant isolation', () => {
 	});
 
 	it('regular user role is rejected entirely', async () => {
-		authHolder.value = { authorized: true, role: 'user', restaurantId: null as number | null };
+		authHolder.value = { authorized: true, role: 'user', restaurantId: null as number | null, userId: null as number | null };
 		const { PUT } = await import('@/app/api/settings/route');
 
 		const res = await PUT(makePutRequest([{ key: 'restaurant_name', value: 'x' }], 1));

@@ -73,3 +73,12 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
+
+      # Live-production QA regression (qa-teams project) — runs the deep suites
+      # against https://menu.smart-link.ly on every push to main. Catches
+      # production-only regressions that localhost CI cannot see.
+      - name: Production QA regression (qa-teams)
+        run: npx playwright install --with-deps chromium && npx playwright test tests/e2e/team1-auth.spec.ts tests/e2e/team2-customer.spec.ts tests/e2e/team5-admin.spec.ts tests/e2e/team6-a11y.spec.ts --project=qa-teams --workers=1
+        env:
+          BASE_URL: https://menu.smart-link.ly
+        continue-on-error: true # never block deploys on flaky rate-limits; report in logs
