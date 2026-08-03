@@ -3,7 +3,7 @@
 import { csrfFetch } from '@/lib/csrf-client';
 import { useEffect, useState } from 'react';
 import { premiumToast } from '@/lib/premium-toast';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, Lightbulb } from 'lucide-react';
 import { TelegramConfigSection } from './TelegramConfigSection';
 import { BroadcastTargetsSection } from './BroadcastTargetsSection';
 import { DiagnosticsSection } from './DiagnosticsSection';
@@ -303,7 +303,10 @@ export default function AdminTelegramPage() {
 			{/* Broadcast guide */}
 			<section>
 				<div className="rounded-md bg-muted/30 border border-border/20 p-5">
-					<h3 className="text-sm font-semibold mb-2">💡 خطوات التفعيل</h3>
+					<h3 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+						<Lightbulb className="size-4 text-primary" />
+						خطوات التفعيل
+					</h3>
 					<ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
 						<li>قم بإضافة البوت الخاص بالمنصة كمشرف (Admin) داخل قناتك أو مجموعتك الخاصة.</li>
 						<li>تأكد من تفعيل صلاحية &quot;نشر الرسائل&quot; (Post Messages).</li>
