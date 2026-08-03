@@ -10,13 +10,22 @@ const PASS = "testpass123";
 const ts = Date.now().toString().slice(-8);
 
 async function login(page) {
-  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.goto("/login", { waitUntil: "networkidle", timeout: 60000 });
   await page.waitForTimeout(1500);
   const ins = page.locator("input");
   await ins.nth(0).fill(OWNER);
   await ins.nth(1).fill(PASS);
   await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
   await page.waitForTimeout(4000);
+  // Retry once if rate-limited (429 → stays on login)
+  if (!page.url().includes("/owner")) {
+    await page.waitForTimeout(3000);
+    const ins2 = page.locator("input");
+    await ins2.nth(0).fill(OWNER);
+    await ins2.nth(1).fill(PASS);
+    await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
+    await page.waitForTimeout(5000);
+  }
   expect(page.url()).toContain("/owner");
 }
 

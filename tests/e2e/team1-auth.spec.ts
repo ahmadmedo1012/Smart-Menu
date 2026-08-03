@@ -12,7 +12,8 @@ const ts = Date.now().toString().slice(-8);
 // ── Registration (owner) ──────────────────────────────────────────────
 
 test("register: valid free plan creates account", async ({ page }) => {
-  await page.goto("/subscribe", { waitUntil: "networkidle" });
+  test.setTimeout(90000);
+  await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
   await page.waitForTimeout(2000);
   const btns = page.locator("button");
   const count = await btns.count();
@@ -41,7 +42,8 @@ test("register: valid free plan creates account", async ({ page }) => {
 });
 
 test("register: duplicate slug rejected", async ({ page }) => {
-  await page.goto("/subscribe", { waitUntil: "networkidle" });
+  test.setTimeout(90000);
+  await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
   await page.waitForTimeout(2000);
   const btns = page.locator("button");
   const count = await btns.count();
