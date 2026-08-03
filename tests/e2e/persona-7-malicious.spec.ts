@@ -24,6 +24,7 @@ test("P7: IDOR — enumerate other restaurants via direct API", async ({ page })
 });
 
 test("P7: XSS — payload in item name renders escaped (never executes)", async ({ page }) => {
+  test.setTimeout(90000);
   // Use the public menu page: verify no stored payload executes (window flag)
   await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);

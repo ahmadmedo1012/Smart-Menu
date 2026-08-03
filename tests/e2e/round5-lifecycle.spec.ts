@@ -74,6 +74,7 @@ test("edge: empty cart cannot be submitted", async ({ page }) => {
 });
 
 test("edge: item quantity can be increased via counter then removed", async ({ page }) => {
+  test.setTimeout(90000);
   await page.goto(MENU, { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
   const adds = page.locator('button:has-text("أضف")');

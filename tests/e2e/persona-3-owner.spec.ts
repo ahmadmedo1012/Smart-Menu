@@ -12,6 +12,7 @@ const OWNER = `p3_${ts}`;
 const SLUG = `p3-cafe-${ts}`;
 
 test("P3: full owner build-out journey", async ({ page }) => {
+  test.setTimeout(120000);
   // ── 1. Register as new owner (free plan) ──
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
   await page.waitForTimeout(2000);
@@ -26,7 +27,18 @@ test("P3: full owner build-out journey", async ({ page }) => {
     password: "TestPass123!",
   });
   await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(6000);
+  await page.waitForTimeout(8000);
+  // Rate-limit (429) on registration in serial runs can bounce us to /login —
+  // retry the create once after a wait.
+  if (!page.url().includes("/owner")) {
+    console.log("P3: registration bounced (rate-limit?) — retrying create");
+    await page.waitForTimeout(20000);
+    const create2 = page.locator('button:has-text("إنشاء الحساب والبدء")');
+    if (await create2.count()) {
+      await create2.first().click();
+      await page.waitForTimeout(8000);
+    }
+  }
   expect(page.url()).toContain("/owner");
   expect(await page.locator("body").innerText()).toContain("لوحة التحكم");
 

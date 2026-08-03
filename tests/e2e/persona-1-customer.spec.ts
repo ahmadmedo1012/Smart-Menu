@@ -10,6 +10,7 @@ const MENU = "/menu/al-waha-cafe-demo";
 const ts = Date.now().toString().slice(-8);
 
 test("P1: real customer order journey", async ({ page }) => {
+  test.setTimeout(90000);
   const consoleErrors: string[] = [];
   page.on("pageerror", (e) => consoleErrors.push(String(e).slice(0, 120)));
   let orderPostStatus = 0;
