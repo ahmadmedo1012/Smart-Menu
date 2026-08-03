@@ -39,6 +39,14 @@ export function PaymentDialog({
 	upgradeRestaurantId,
 }: PaymentDialogProps) {
 	const [provider, setProvider] = useState<Provider>('libyana');
+	// Mobile wallets (libyana/madar) cap at 99 LYD — plans above that require bank transfer
+	const requiresBank = Number(price) > 99;
+	// Auto-switch to bank when the plan exceeds the wallet cap
+	useEffect(() => {
+		if (requiresBank && (provider === 'libyana' || provider === 'madar')) {
+			setProvider('bank');
+		}
+	}, [requiresBank, provider]);
 	const { config } = useConfig();
 	const MADAR_PHONE = (config?.balance_transfer_phone_1 as string) || '0910089975';
 	const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || '0942119637';
@@ -257,9 +265,9 @@ export function PaymentDialog({
 								<Label>طريقة الدفع</Label>
 								<div className="grid grid-cols-3 gap-2 mt-1.5">
 									{[
-										{ id: 'libyana' as Provider, label: 'ليبيانا', icon: Smartphone },
-										{ id: 'madar' as Provider, label: 'مدار', icon: Smartphone },
-										{ id: 'bank' as Provider, label: 'تحويل بنكي', icon: Landmark },
+										{ id: 'libyana' as Provider, label: 'ليبيانا', icon: Smartphone, disabled: requiresBank },
+										{ id: 'madar' as Provider, label: 'مدار', icon: Smartphone, disabled: requiresBank },
+										{ id: 'bank' as Provider, label: 'تحويل بنكي', icon: Landmark, disabled: false },
 									].map((opt) => {
 										const Icon = opt.icon;
 										return (
@@ -267,9 +275,11 @@ export function PaymentDialog({
 												key={opt.id}
 												type="button"
 												onClick={() => setProvider(opt.id)}
+												disabled={opt.disabled}
 												className={cn(
 													'h-14 rounded-xl border-2 text-[13px] font-medium transition-all flex flex-col items-center justify-center gap-1',
 													'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50',
+													opt.disabled && 'opacity-40 cursor-not-allowed',
 													provider === opt.id
 														? 'border-orange bg-orange-muted/40 dark:bg-orange-muted/20 shadow-sm'
 														: 'border-border/30 hover:border-orange/30 text-muted-foreground'
@@ -281,6 +291,11 @@ export function PaymentDialog({
 										);
 									})}
 								</div>
+								{requiresBank && (
+									<p className="text-xs text-orange mt-2">
+										المبالغ فوق 99 د.ل تتطلب تحويل بنكي — اختر "تحويل بنكي" لإتمام الدفع
+									</p>
+								)}
 							</div>
 
 							{provider !== 'bank' && (

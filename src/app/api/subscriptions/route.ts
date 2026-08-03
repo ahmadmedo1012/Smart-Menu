@@ -70,7 +70,10 @@ export async function POST(request: NextRequest) {
 		// Bank transfers bypass the mobile-wallet 99 LYD cap
 		const isBank = provider === 'bank';
 		if (!isBank && Number(amount) > 99) {
-			return error('المبلغ لا يطابق سعر الباقة', 400);
+			return error(
+				'المبالغ فوق 99 د.ل تتطلب تحويل بنكي — اختر طريقة الدفع "تحويل بنكي"',
+				400
+			);
 		}
 
 		// Pre-flight uniqueness checks (defense in depth alongside client-side validation)
