@@ -68,7 +68,6 @@ export function IPhoneMockup({
 	const sw = spec.w;
 	const outerW = sw + spec.bezel * 2;
 	const outerH = spec.h + spec.bezel * 2;
-	const outerR = spec.radius + spec.bezel;
 	const colorHex = COLORS[color] ?? color;
 
 	const frameGrad = `linear-gradient(135deg, ${shade(colorHex, 8)} 0%, ${colorHex} 40%, ${shade(colorHex, -14)} 100%)`;
@@ -90,7 +89,7 @@ export function IPhoneMockup({
 				<div
 					className="relative h-full w-full"
 					style={{
-						borderRadius: outerR,
+						borderRadius: "min(68px, 14%)",
 						background: frameGrad,
 						padding: spec.bezel,
 						boxShadow: dropShadow,
@@ -101,7 +100,7 @@ export function IPhoneMockup({
 					style={{
 						width: '100%',
 						height: '100%',
-						borderRadius: spec.radius,
+						borderRadius: "min(56px, 11.5%)",
 						position: 'relative',
 						overflow: 'hidden',
 						background: screenBg,

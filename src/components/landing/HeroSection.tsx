@@ -61,10 +61,10 @@ export function HeroSection() {
                     <IPhoneMockup
                         model="15-pro"
                         color="natural-titanium"
-                        wallpaper="/video/screenshot_menu_page.png"
-                        wallpaperFit="contain"
+                        wallpaper="/hero-phone.png"
+                        wallpaperFit="cover"
                         scale={1}
-                        className="w-full max-w-[240px] sm:max-w-[280px] md:max-w-[320px] lg:max-w-[340px]"
+                        className="w-full max-w-[240px] sm:max-w-[280px] md:max-w-[320px] lg:max-w-[360px]"
                     />
                 </div>
             </ContainerScroll>
