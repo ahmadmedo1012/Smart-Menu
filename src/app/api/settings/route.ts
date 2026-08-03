@@ -84,9 +84,17 @@ export async function PUT(request: NextRequest) {
 		// Regular users can't modify another restaurant's settings; only owner (own) or admin (any)
 		let restaurantId: number;
 		if (auth.role === 'owner') {
-			if (!auth.restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
-			if (requestedId && requestedId !== auth.restaurantId) return apiError('غير مصرح', 403);
-			restaurantId = auth.restaurantId;
+			// Multi-menu: allow any restaurant the owner manages via UserRestaurant
+			if (requestedId && requestedId !== auth.restaurantId) {
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId: requestedId } },
+				});
+				if (!link) return apiError('غير مصرح', 403);
+				restaurantId = requestedId;
+			} else {
+				if (!auth.restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
+				restaurantId = auth.restaurantId;
+			}
 		} else if (auth.role === 'admin' || auth.role === 'super_admin' || auth.role === 'sub_admin') {
 			if (!requestedId) return apiError('معرف المطعم مطلوب', 400);
 			restaurantId = requestedId;

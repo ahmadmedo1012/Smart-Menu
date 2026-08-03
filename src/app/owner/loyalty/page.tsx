@@ -26,6 +26,7 @@ import { TierChart } from './TierChart';
 import { ReferrerList } from './ReferrerList';
 import { TransactionTable } from './TransactionTable';
 import { ReferralQR } from './ReferralQR';
+import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 
 const LoyaltySettings = dynamic(
 	() =>
@@ -175,6 +176,7 @@ function ConversionRate({
 
 export default function OwnerLoyaltyPage() {
 	const router = useRouter();
+	const { activeId } = useActiveRestaurant();
 	const [stats, setStats] = useState<StatsData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -188,7 +190,9 @@ export default function OwnerLoyaltyPage() {
 		setLoading(true);
 		setError(null);
 		try {
-			const res = await fetch('/api/loyalty/stats');
+			// Multi-menu: scope loyalty stats to the active restaurant
+			const qs = activeId ? `?restaurantId=${activeId}` : '';
+			const res = await fetch(`/api/loyalty/stats${qs}`);
 			if (!res.ok) throw new Error('Failed to load');
 			const json = await res.json();
 			if (json.success && json.data) setStats(json.data);
@@ -198,7 +202,7 @@ export default function OwnerLoyaltyPage() {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [activeId]);
 
 	useEffect(() => {
 		load();

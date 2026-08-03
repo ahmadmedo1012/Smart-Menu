@@ -27,6 +27,7 @@ import { toArabicNumber } from '@/lib/format';
 import Link from 'next/link';
 import { premiumToast } from '@/lib/premium-toast';
 import { useOrderNotifier } from '@/components/layout/OrderNotifier';
+import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
 import { OwnerKpiGrid } from './OwnerKpiGrid';
 import { StatusBreakdown, PopularItems, RecentOrders } from './OwnerOrdersList';
 import { AnalyticsTab } from './OwnerCharts';
@@ -101,11 +102,27 @@ export default function OwnerDashboard() {
 				return;
 			}
 
-			const rid = userData.data?.restaurantId;
+			// Multi-menu: prefer active restaurant (localStorage) validated against
+			// the owner's list, else fall back to the primary restaurantId
+			let rid = userData.data?.restaurantId;
+			const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));
+			try {
+				const ownerRes = await fetch('/api/owner/restaurants');
+				const ownerJson = await ownerRes.json();
+				const list = ownerJson.data ?? ownerJson ?? [];
+				if (list.length > 0) {
+					const active = list.find((x: { id: number }) => x.id === stored) ?? list.find((x: { isPrimary: boolean }) => x.isPrimary) ?? list[0];
+					rid = active.id;
+					localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(active.id));
+				}
+			} catch {
+				/* fallback to auth/me */
+			}
+
 			const [restRes, statsRes, loyaltyRes, advancedRes] = await Promise.all([
 				fetch(`/api/restaurants/${rid}`),
 				fetch(`/api/stats?restaurantId=${rid}`),
-				fetch('/api/loyalty/stats'),
+				fetch(`/api/loyalty/stats?restaurantId=${rid}`),
 				fetch(`/api/stats/advanced?restaurantId=${rid}`),
 			]);
 

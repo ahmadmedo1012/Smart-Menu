@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useActiveRestaurant } from "@/components/owner/useActiveRestaurant";
 
 type ReviewWithItem = {
   id: number;
@@ -20,6 +21,7 @@ type ReviewWithItem = {
 
 export default function OwnerReviewsPage() {
   const router = useRouter();
+  const { activeId } = useActiveRestaurant();
   const [reviews, setReviews] = useState<ReviewWithItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStar, setFilterStar] = useState<number | null>(null);
@@ -27,12 +29,15 @@ export default function OwnerReviewsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const params = filterStar ? `?minRating=${filterStar}` : "";
-      const res = await fetch(`/api/owner/reviews${params}`);
+      const params = new URLSearchParams();
+      if (filterStar) params.set("minRating", String(filterStar));
+      if (activeId) params.set("restaurantId", String(activeId));
+      const qs = params.toString();
+      const res = await fetch(`/api/owner/reviews${qs ? `?${qs}` : ""}`);
       const json = await res.json();
       if (json.success) setReviews(json.data);
     } catch { console.error("Failed to load reviews"); setReviews([]) } finally { setLoading(false); }
-  }, [filterStar]);
+  }, [filterStar, activeId]);
 
   useEffect(() => { load(); }, [load]);
 

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
+import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 
 interface Order {
 	id: number;
@@ -94,6 +95,8 @@ export default function OwnerOrdersPage() {
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
 	const ordersRef = useRef<Order[]>([]);
+	// Multi-menu: active restaurant scopes all order queries
+	const { activeId } = useActiveRestaurant();
 
 	const fetchOrders = useCallback(
 		async (status: string, pageNum = 1, append = false, dateF?: string, dateT?: string) => {
@@ -105,6 +108,8 @@ export default function OwnerOrdersPage() {
 				if (status) params.set('status', status);
 				params.set('page', String(pageNum));
 				params.set('pageSize', '20');
+				// Multi-menu: always scope to the active restaurant
+				if (activeId) params.set('restaurantId', String(activeId));
 				const from = dateF ?? dateFrom;
 				const to = dateT ?? dateTo;
 				if (from) params.set('dateFrom', from);
@@ -134,7 +139,7 @@ export default function OwnerOrdersPage() {
 				else setLoadingMore(false);
 			}
 		},
-		[dateFrom, dateTo]
+		[dateFrom, dateTo, activeId]
 	);
 	const loadMore = () => fetchOrders(filter, page + 1, true);
 
@@ -146,7 +151,12 @@ export default function OwnerOrdersPage() {
 	useEffect(() => {
 		const poll = async () => {
 			try {
-				const res = await fetch(`/api/orders?status=${filter}&page=1&pageSize=20`);
+				const params = new URLSearchParams();
+				if (filter) params.set('status', filter);
+				params.set('page', '1');
+				params.set('pageSize', '20');
+				if (activeId) params.set('restaurantId', String(activeId));
+				const res = await fetch(`/api/orders?${params.toString()}`);
 				if (!res.ok) return;
 				const json = await res.json();
 				const fresh = json.data ?? json ?? [];
@@ -163,7 +173,7 @@ export default function OwnerOrdersPage() {
 		poll();
 		const interval = setInterval(poll, 15_000);
 		return () => clearInterval(interval);
-	}, [filter, fetchOrders]);
+	}, [filter, fetchOrders, activeId]);
 
 	const updateStatus = useCallback(async (orderId: number, newStatus: string) => {
 		try {

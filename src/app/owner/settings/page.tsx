@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { compressImage } from '@/lib/image-compress';
+import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 
 interface Plan {
 	id: number;
@@ -55,6 +56,7 @@ interface RestaurantData {
 }
 
 export default function OwnerSettingsPage() {
+	const { activeId } = useActiveRestaurant();
 	const [restaurant, setRestaurant] = useState<RestaurantData | null>(null);
 	const [, setPlans] = useState<Plan[]>([]);
 	const [form, setForm] = useState({
@@ -77,8 +79,10 @@ export default function OwnerSettingsPage() {
 	const galleryInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
+		// Multi-menu: scope settings to the active restaurant
+		const qs = activeId ? `?restaurantId=${activeId}` : '';
 		Promise.all([
-			fetch('/api/settings').then((r) => r.json()),
+			fetch(`/api/settings${qs}`).then((r) => r.json()),
 			fetch('/api/plans').then((r) => r.json()),
 		])
 			.then(([settingsData, plansData]) => {
@@ -179,7 +183,7 @@ export default function OwnerSettingsPage() {
 				{ key: 'restaurant_gallery', value: JSON.stringify(gallery) },
 				{ key: 'restaurant_pickupTypes', value: pickupTypes.join(',') },
 			];
-			const res = await csrfFetch('/api/settings', {
+			const res = await csrfFetch(`/api/settings${activeId ? `?restaurantId=${activeId}` : ''}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(items),
@@ -191,7 +195,7 @@ export default function OwnerSettingsPage() {
 			// Old-logo cleanup now happens server-side inside PUT /api/settings
 			// (after the DB write succeeds, tenant-bound) — no client-side delete call
 			premiumToast('save', 'تم حفظ الإعدادات');
-			const settingsRes = await fetch('/api/settings');
+			const settingsRes = await fetch(`/api/settings${activeId ? `?restaurantId=${activeId}` : ''}`);
 			const settingsData = await settingsRes.json();
 			const r = settingsData.data?.restaurant;
 			if (r) setRestaurant(r);

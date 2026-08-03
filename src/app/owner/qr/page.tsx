@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 
 const QR_SIZES = [
 	{ value: 200, label: 'صغير' },
@@ -27,6 +28,7 @@ const QR_SIZES = [
 ];
 
 export default function OwnerQRPage() {
+	const { activeId } = useActiveRestaurant();
 	const router = useRouter();
 	const [slug, setSlug] = useState('');
 	const [name, setName] = useState('');
@@ -37,7 +39,9 @@ export default function OwnerQRPage() {
 	const qrRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		fetch('/api/settings')
+		// Multi-menu: scope QR to the active restaurant
+		const qs = activeId ? `?restaurantId=${activeId}` : '';
+		fetch(`/api/settings${qs}`)
 			.then((r) => r.json())
 			.then((data) => {
 				const r = data.data?.restaurant ?? data.data;
