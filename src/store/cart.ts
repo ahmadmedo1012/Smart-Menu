@@ -51,6 +51,8 @@ interface CartStore {
 	setRestaurantDetails: (id: number, whatsapp: string, name: string) => void;
 	addItem: (item: Omit<CartItem, 'id' | 'quantity' | 'notes'>) => void;
 	removeItem: (id: string) => void;
+	undoRemove: () => void;
+	lastRemoved: CartItem | null;
 	updateQuantity: (id: string, qty: number) => void;
 	updateNotes: (id: string, notes: string) => void;
 	setCustomerName: (n: string) => void;
@@ -73,6 +75,7 @@ export const useCart = create<CartStore>()(
 	persist(
 		(set, get) => ({
 			items: [],
+			lastRemoved: null,
 			customerName: '',
 			customerPhone: '',
 			notes: '',
@@ -113,7 +116,23 @@ export const useCart = create<CartStore>()(
 						: { items: [...s.items, { ...item, id: genId(), quantity: 1, notes: '' }] };
 				}),
 
-			removeItem: (id) => set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
+			removeItem: (id) =>
+				set((s) => {
+					const removed = s.items.find((i) => i.id === id);
+					return {
+						items: s.items.filter((i) => i.id !== id),
+						...(removed ? { lastRemoved: removed } : {}),
+					};
+				}),
+			undoRemove: () =>
+				set((s) => {
+					if (!s.lastRemoved) return {};
+					// restore with the same id so quantity updates keep working
+					return {
+						items: [...s.items, s.lastRemoved],
+						lastRemoved: null,
+					};
+				}),
 			updateQuantity: (id, qty) =>
 				set((s) => ({
 					items:

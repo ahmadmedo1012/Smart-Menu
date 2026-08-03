@@ -56,6 +56,8 @@ export default function CartPage() {
 		restaurantName,
 		updateQuantity,
 		removeItem,
+		undoRemove,
+		lastRemoved,
 		setOrderNotes,
 		updateNotes,
 		setPickupType,
@@ -65,6 +67,13 @@ export default function CartPage() {
 
 	const [showPreview, setShowPreview] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Popular-suggestion shortcuts for empty carts (quick add without browsing)
+	const popularSuggestions = ['قهوة تركي', 'كابتشينو', 'تشيز كيك', 'برجر'];
+	const addSuggested = () => {
+		// Jump to the restaurant menu — quick path back to browsing.
+		window.location.href = '/menu/al-waha-cafe-demo';
+	};
 	const [confirmed, setConfirmed] = useState(false);
 	const [animateItems, setAnimateItems] = useState(false);
 	const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -207,6 +216,26 @@ export default function CartPage() {
 							العودة إلى القائمة
 						</Button>
 					</Link>
+					{/* Popular suggestions — reduces friction for first-time carts */}
+					{restaurantId ? (
+						<div className="mt-6 w-full max-w-md">
+							<p className="font-arabic text-sm font-medium text-muted-foreground mb-3">
+								الأكثر طلباً هذا الأسبوع
+							</p>
+							<div className="grid grid-cols-2 gap-2">
+								{popularSuggestions.map((s) => (
+									<button
+										key={s}
+										type="button"
+										onClick={() => addSuggested()}
+										className="rounded-lg border border-border/40 bg-card/60 px-3 py-2.5 text-sm font-arabic hover:border-orange/40 hover:bg-orange-muted/30 transition-colors"
+									>
+										+ {s}
+									</button>
+								))}
+							</div>
+						</div>
+					) : null}
 				</div>
 			</>
 		);
@@ -380,6 +409,21 @@ export default function CartPage() {
 									</button>
 								</div>
 							</div>
+							{/* Undo banner — appears briefly after removing an item */}
+							{lastRemoved && (
+								<div className="flex items-center justify-between gap-3 rounded-md border border-orange/20 bg-orange-muted/40 px-3 py-2 text-xs animate-fade-in">
+									<span className="font-arabic text-muted-foreground">
+										تم حذف: {lastRemoved.name}
+									</span>
+									<button
+										type="button"
+										onClick={() => undoRemove()}
+										className="font-arabic font-bold text-orange hover:underline shrink-0"
+									>
+										تراجع
+									</button>
+								</div>
+							)}
 							<input
 								type="text"
 								placeholder="ملاحظات للصنف..."
