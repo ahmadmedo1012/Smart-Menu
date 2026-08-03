@@ -360,6 +360,14 @@ export function SubscribeForm({
 							</span>
 						</div>
 						<div className="flex justify-between">
+							<span className="text-muted-foreground">المنيوهات</span>
+							<span className="font-medium">
+								{currentPlan.maxMenus === 9999
+									? 'غير محدودة'
+									: `حتى ${toArabicNumber(currentPlan.maxMenus)}`}
+							</span>
+						</div>
+						<div className="flex justify-between">
 							<span className="text-muted-foreground">الحد الأقصى للأصناف</span>
 							<span className="font-medium">
 								{currentPlan.maxItems === 9999 ? 'غير محدود' : toArabicNumber(currentPlan.maxItems)}
