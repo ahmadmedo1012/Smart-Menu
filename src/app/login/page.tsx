@@ -9,9 +9,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { csrfFetch } from '@/lib/csrf-client';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LogIn, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { LogIn, Eye, EyeOff, ArrowRight, MessageCircle } from 'lucide-react';
+
+const SUPPORT_WHATSAPP = '218910089975';
 
 function FloatingShapes() {
 	return (
@@ -45,6 +54,7 @@ function LoginForm() {
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
+	const [showForgot, setShowForgot] = useState(false);
 	const [checkingAuth, setCheckingAuth] = useState(true);
 
 	// Redirect already-authenticated users to their dashboard
@@ -236,7 +246,45 @@ function LoginForm() {
 								</span>
 							)}
 						</Button>
+
+						{/* Forgot password */}
+						<div className="mt-3 text-center">
+							<button
+								type="button"
+								onClick={() => setShowForgot(true)}
+								className="font-arabic text-xs text-muted-foreground/70 underline-offset-4 hover:text-orange hover:underline transition-colors"
+							>
+								نسيت كلمة المرور؟
+							</button>
+						</div>
 					</form>
+
+					{/* Forgot password help dialog */}
+					<Dialog open={showForgot} onOpenChange={setShowForgot}>
+						<DialogContent className="max-w-sm rounded-2xl font-arabic">
+							<DialogHeader>
+								<DialogTitle className="font-arabic text-lg">استعادة كلمة المرور</DialogTitle>
+								<DialogDescription className="font-arabic text-sm leading-relaxed">
+									لإعادة تعيين كلمة مرورك، تواصل مع الدعم عبر واتساب وسنقوم بإعادة تعيينها
+									خلال وقت قصير.
+								</DialogDescription>
+							</DialogHeader>
+							<div className="space-y-2">
+								<a
+									href={`https://wa.me/${SUPPORT_WHATSAPP}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-500/15 transition-colors"
+								>
+									<MessageCircle className="size-4" />
+									تواصل عبر واتساب
+								</a>
+								<Button variant="outline" className="w-full" onClick={() => setShowForgot(false)}>
+									إغلاق
+								</Button>
+							</div>
+						</DialogContent>
+					</Dialog>
 
 					{/* Footer */}
 					<p className="mt-6 text-center text-xs text-muted-foreground/60 font-arabic">
