@@ -67,8 +67,20 @@ export function useActiveRestaurant(): {
 		}
 
 		resolve();
+
+		// Re-resolve when the RestaurantSwitcher writes a new active restaurant
+		// (switcher sets localStorage; storage event fires on same-document writes too).
+		const onStorage = () => {
+			if (!cancelled) resolve();
+		};
+		window.addEventListener('storage', onStorage);
+		// Custom event for same-tab switcher changes (storage event only fires cross-tab)
+		window.addEventListener('smartmenu:restaurant-change', onStorage);
+
 		return () => {
 			cancelled = true;
+			window.removeEventListener('storage', onStorage);
+			window.removeEventListener('smartmenu:restaurant-change', onStorage);
 		};
 	}, []);
 

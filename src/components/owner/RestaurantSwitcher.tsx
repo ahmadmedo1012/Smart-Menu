@@ -52,6 +52,9 @@ export function RestaurantSwitcher() {
 	const switchTo = (id: number) => {
 		setActiveId(id);
 		localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(id));
+		// Notify pages (orders/dashboard/qr) that the active restaurant changed —
+		// they re-resolve via useActiveRestaurant and refetch their data.
+		window.dispatchEvent(new Event('smartmenu:restaurant-change'));
 		setOpen(false);
 		router.refresh();
 	};
