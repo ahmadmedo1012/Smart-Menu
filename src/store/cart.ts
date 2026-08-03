@@ -169,6 +169,7 @@ export const useCart = create<CartStore>()(
 			skipHydration: true, // rehydrated by CartHydrator in root layout
 			partialize: (state) => ({
 				items: state.items,
+				lastRemoved: state.lastRemoved,
 				customerName: state.customerName,
 				customerPhone: state.customerPhone,
 				notes: state.notes,
