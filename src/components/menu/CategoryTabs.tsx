@@ -106,7 +106,7 @@ function TabButton({
       className={cn(
         "relative snap-start shrink-0",
         /* premium glass pill */
-        "px-4 sm:px-5 py-2 sm:py-2.5 rounded-full",
+        "px-4 sm:px-5 py-2.5 sm:py-3 min-h-11 rounded-full",
         "text-xs sm:text-sm font-medium transition-all duration-200",
         /* hover + active with scale */
         isActive

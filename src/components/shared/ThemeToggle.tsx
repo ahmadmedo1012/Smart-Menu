@@ -19,7 +19,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   const isDark = resolvedTheme === "dark"
 
   if (!mounted) {
-    return <div className={cn("size-10", className)} aria-hidden="true" />
+    return <div className={cn("size-11", className)} aria-hidden="true" />
   }
 
   return (
@@ -27,7 +27,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "الوضع النهاري" : "الوضع الليلي"}
       className={cn(
-        "relative size-10 rounded-full",
+        "relative size-11 rounded-full",
         "bg-card border border-border",
         "hover:bg-orange-muted hover:border-orange/30",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
