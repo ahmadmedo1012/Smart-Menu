@@ -39,7 +39,7 @@ export function CartSlideOver() {
 				initial={{ y: 50, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-				className="fixed bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] end-4 sm:end-6 z-[63]"
+				className="fixed bottom-[calc(env(safe-area-inset-bottom)+9.5rem)] end-4 sm:end-6 z-[63]"
 			>
 				<button
 					type="button"
