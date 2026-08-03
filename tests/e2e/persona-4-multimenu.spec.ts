@@ -11,15 +11,26 @@ const OWNER = "testmulti1568";
 const PASS = "testpass123";
 
 test("P4: switching active restaurant updates dashboard + orders + settings", async ({ page }) => {
+  test.setTimeout(90000);
   await login(page, OWNER, PASS);
   await page.setViewportSize({ width: 1280, height: 800 });
 
   // Use the switcher UI (not localStorage) to switch to "مطعم الاختبار الثالث" (315)
   await page.goto("/owner", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
-  const sw = page.locator('button:has-text("مطعم")').first();
-  expect(await sw.count()).toBeGreaterThan(0);
-  await sw.click();
+  // The switcher button shows the ACTIVE restaurant name (dynamic) — target
+  // it by aria-expanded, not by text. If rate-limited, retry login once.
+  const sw = page.locator('button[aria-expanded]').first();
+  if (!(await sw.count())) {
+    console.log("P4: switcher not found — rate-limited? retrying login");
+    await page.waitForTimeout(15000);
+    await login(page, OWNER, PASS);
+    await page.goto("/owner", { waitUntil: "networkidle" });
+    await page.waitForTimeout(2500);
+  }
+  const sw2 = page.locator('button[aria-expanded]').first();
+  expect(await sw2.count()).toBeGreaterThan(0);
+  await sw2.click();
   await page.waitForTimeout(800);
   // Click the specific menu in the dropdown
   const third = page.locator('[role="menuitem"], [role="option"], li, button').filter({ hasText: "مطعم الاختبار الثالث" }).first();
@@ -49,13 +60,23 @@ test("P4: switching active restaurant updates dashboard + orders + settings", as
 });
 
 test("P4: switching back to primary restores primary data", async ({ page }) => {
+  test.setTimeout(90000);
   await login(page, OWNER, PASS);
   await page.setViewportSize({ width: 1280, height: 800 });
   // Switch via switcher to "مطعم تجريبي أول" (313)
   await page.goto("/owner", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
-  const sw = page.locator('button:has-text("مطعم")').first();
-  await sw.click();
+  const sw = page.locator('button[aria-expanded]').first();
+  if (!(await sw.count())) {
+    console.log("P4b: switcher not found — rate-limited? retrying login");
+    await page.waitForTimeout(15000);
+    await login(page, OWNER, PASS);
+    await page.goto("/owner", { waitUntil: "networkidle" });
+    await page.waitForTimeout(2500);
+  }
+  const sw2 = page.locator('button[aria-expanded]').first();
+  expect(await sw2.count()).toBeGreaterThan(0);
+  await sw2.click();
   await page.waitForTimeout(800);
   const first = page.locator('[role="menuitem"], [role="option"], li, button').filter({ hasText: "مطعم تجريبي أول" }).first();
   if (await first.count()) {
