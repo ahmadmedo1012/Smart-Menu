@@ -338,7 +338,7 @@ export default function AdminDashboard() {
 					<div className="grid grid-cols-2 gap-3">
 						<div className="rounded-md bg-orange-muted/50 p-4">
 							<p className="text-xs text-muted-foreground">معدل الطلب</p>
-							<p className="text-2xl font-bold mt-1">{toArabicNumber(stats.avgOrderValue)} د.ل</p>
+							<p className="text-2xl font-bold mt-1">{toArabicNumber(Number(stats.avgOrderValue.toFixed(2)))} د.ل</p>
 							<p className="text-[11px] text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
 						</div>
 						<div className="rounded-md bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
