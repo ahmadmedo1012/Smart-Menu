@@ -1,0 +1,115 @@
+
+Running 54 tests using 1 worker
+
+  ✘   1 [qa-teams] › tests/e2e/team1-auth.spec.ts:14:1 › register: valid free plan creates account (37.3s)
+  ✓   2 [qa-teams] › tests/e2e/team1-auth.spec.ts:43:1 › register: duplicate slug rejected (11.2s)
+  ✓   3 [qa-teams] › tests/e2e/team1-auth.spec.ts:77:1 › login: wrong password error does not reveal user existence (9.8s)
+  ✓   4 [qa-teams] › tests/e2e/team1-auth.spec.ts:103:1 › login: account lockout after 20 failed attempts, then success works (9.8s)
+  ✓   5 [qa-teams] › tests/e2e/team1-auth.spec.ts:122:1 › login: valid creds succeed (7.7s)
+  ✓   6 [qa-teams] › tests/e2e/team1-auth.spec.ts:135:1 › protected: all admin+owner pages redirect to login when unauthenticated (17.6s)
+  ✓   7 [qa-teams] › tests/e2e/team1-auth.spec.ts:149:1 › logout: session ends, protected page redirects (12.1s)
+  ✓   8 [qa-teams] › tests/e2e/team2-customer.spec.ts:10:1 › menu: loads with items and categories (5.3s)
+  ✓   9 [qa-teams] › tests/e2e/team2-customer.spec.ts:19:1 › menu: category filter shows only that category (11.6s)
+  ✓  10 [qa-teams] › tests/e2e/team2-customer.spec.ts:33:1 › cart: add 2 items, change qty, remove, empty state (10.8s)
+  ✓  11 [qa-teams] › tests/e2e/team2-customer.spec.ts:59:1 › order: complete flow to confirmation (24.2s)
+  ✓  12 [qa-teams] › tests/e2e/team2-customer.spec.ts:82:1 › share: menu share button produces valid URL (6.9s)
+  ✓  13 [qa-teams] › tests/e2e/team2-customer.spec.ts:94:1 › 404: random slug shows not-found page (6.5s)
+  ✓  14 [qa-teams] › tests/e2e/team2-customer.spec.ts:103:1 › landing: all internal links resolve (no broken links) (3.5s)
+  ✓  15 [qa-teams] › tests/e2e/team2-customer.spec.ts:124:1 › PWA: manifest + service worker registered (4.8s)
+  ✓  16 [qa-teams] › tests/e2e/team3-owner.spec.ts:23:1 › owner: dashboard loads with KPI numbers (13.4s)
+  ✓  17 [qa-teams] › tests/e2e/team3-owner.spec.ts:33:1 › owner: restaurants page shows menus + add button (12.4s)
+  ✓  18 [qa-teams] › tests/e2e/team3-owner.spec.ts:42:1 › owner: menu page loads categories editor (12.5s)
+  ✓  19 [qa-teams] › tests/e2e/team3-owner.spec.ts:51:1 › owner: settings loads with form fields (12.8s)
+  ✓  20 [qa-teams] › tests/e2e/team3-owner.spec.ts:61:1 › owner: QR page renders QR code (14.2s)
+  ✓  21 [qa-teams] › tests/e2e/team3-owner.spec.ts:71:1 › owner: loyalty page loads (12.6s)
+  ✓  22 [qa-teams] › tests/e2e/team3-owner.spec.ts:79:1 › owner: orders page has CSV export button (12.2s)
+  ✓  23 [qa-teams] › tests/e2e/team3-owner.spec.ts:87:1 › owner: switcher switches between menus (14.2s)
+  ✓  24 [qa-teams] › tests/e2e/team4-payments.spec.ts:40:1 › bank: amount above 99 accepted (no wallet cap) (14.8s)
+  ✓  25 [qa-teams] › tests/e2e/team4-payments.spec.ts:86:1 › bank: submit without sender name/account → validation error (16.2s)
+  ✓  26 [qa-teams] › tests/e2e/team4-payments.spec.ts:114:1 › wallet: libyana shows USSD/phone info (basic plan 19 ≤ 99) (14.0s)
+  ✓  27 [qa-teams] › tests/e2e/team4-payments.spec.ts:139:1 › pricing: page shows all plans with menu counts (4.1s)
+  ✓  28 [qa-teams] › tests/e2e/team5-admin.spec.ts:12:1 › admin: owner cannot access admin pages (12.8s)
+  ✓  29 [qa-teams] › tests/e2e/team5-admin.spec.ts:30:1 › admin: admin API blocked for owner (401/403) (7.9s)
+  ✓  30 [qa-teams] › tests/e2e/team5-admin.spec.ts:45:1 › admin: all admin pages redirect to login when logged out (9.5s)
+  ✓  31 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › mobile / (4.3s)
+  ✓  32 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › mobile /pricing (4.1s)
+  ✓  33 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › mobile /subscribe (4.2s)
+  ✓  34 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › mobile /login (3.9s)
+  ✓  35 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › mobile /menu/al-waha-cafe-demo (5.5s)
+  ✓  36 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › mobile /cart (4.0s)
+  ✓  37 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › tablet / (4.6s)
+  ✓  38 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › tablet /pricing (4.4s)
+  ✓  39 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › tablet /subscribe (4.6s)
+  ✓  40 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › tablet /login (4.1s)
+  ✓  41 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › tablet /menu/al-waha-cafe-demo (4.9s)
+  ✓  42 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › tablet /cart (5.3s)
+  ✓  43 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › desktop / (4.8s)
+  ✓  44 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › desktop /pricing (4.7s)
+  ✓  45 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › desktop /subscribe (4.9s)
+  ✓  46 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › desktop /login (4.5s)
+  ✓  47 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › desktop /menu/al-waha-cafe-demo (5.0s)
+  ✓  48 [qa-teams] › tests/e2e/team6-a11y.spec.ts:13:7 › responsive: no horizontal overflow at 3 viewports › desktop /cart (4.8s)
+  ✓  49 [qa-teams] › tests/e2e/team6-a11y.spec.ts:26:1 › rtl: every page has dir=rtl + lang=ar (9.4s)
+  ✓  50 [qa-teams] › tests/e2e/team6-a11y.spec.ts:37:1 › console: no unexpected JS errors on key pages (22.2s)
+  ✘  51 [qa-teams] › tests/e2e/team6-a11y.spec.ts:49:1 › network: no unexpected 4xx/5xx on key pages (21.3s)
+  ✓  52 [qa-teams] › tests/e2e/team6-a11y.spec.ts:64:1 › images: no broken images on menu page (7.8s)
+Buttons missing text/aria-label: 0 []
+  ✓  53 [qa-teams] › tests/e2e/team6-a11y.spec.ts:73:1 › a11y: buttons have text or aria-label on menu page (6.6s)
+  ✓  54 [qa-teams] › tests/e2e/team6-a11y.spec.ts:87:1 › keyboard: tab through login form reaches submit (4.9s)
+
+
+  1) [qa-teams] › tests/e2e/team1-auth.spec.ts:14:1 › register: valid free plan creates account ────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "https://menu.smart-link.ly/subscribe", waiting until "networkidle"
+
+
+      13 |
+      14 | test("register: valid free plan creates account", async ({ page }) => {
+    > 15 |   await page.goto("/subscribe", { waitUntil: "networkidle" });
+         |              ^
+      16 |   await page.waitForTimeout(2000);
+      17 |   const btns = page.locator("button");
+      18 |   const count = await btns.count();
+        at /home/ahmed/Downloads/smart-menu/tests/e2e/team1-auth.spec.ts:15:14
+
+    Error Context: test-results/e2e-team1-auth-register-valid-free-plan-creates-account-qa-teams/error-context.md
+
+  2) [qa-teams] › tests/e2e/team6-a11y.spec.ts:49:1 › network: no unexpected 4xx/5xx on key pages ──
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   "404 https://menu.smart-link.ly/_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fp",
+    +   "404 https://menu.smart-link.ly/_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fp",
+    +   "404 https://menu.smart-link.ly/_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fp",
+    +   "404 https://menu.smart-link.ly/_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fp",
+    + ]
+
+      59 |     await page.waitForTimeout(1500);
+      60 |   }
+    > 61 |   expect(bad).toEqual([]);
+         |               ^
+      62 | });
+      63 |
+      64 | test("images: no broken images on menu page", async ({ page }) => {
+        at /home/ahmed/Downloads/smart-menu/tests/e2e/team6-a11y.spec.ts:61:15
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e-team6-a11y-network-no-unexpected-4xx-5xx-on-key-pages-qa-teams/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e-team6-a11y-network-no-unexpected-4xx-5xx-on-key-pages-qa-teams/error-context.md
+
+  2 failed
+    [qa-teams] › tests/e2e/team1-auth.spec.ts:14:1 › register: valid free plan creates account ─────
+    [qa-teams] › tests/e2e/team6-a11y.spec.ts:49:1 › network: no unexpected 4xx/5xx on key pages ───
+  52 passed (8.7m)
+EXIT:1

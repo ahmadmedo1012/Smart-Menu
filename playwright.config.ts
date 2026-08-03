@@ -30,6 +30,17 @@ export default defineConfig({
       testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/ui-sweep.test.ts"],
     },
     {
+      name: "qa-teams",
+      testMatch: [
+        "tests/e2e/team1-auth.spec.ts",
+        "tests/e2e/team2-customer.spec.ts",
+        "tests/e2e/team3-owner.spec.ts",
+        "tests/e2e/team4-payments.spec.ts",
+        "tests/e2e/team5-admin.spec.ts",
+        "tests/e2e/team6-a11y.spec.ts",
+      ],
+    },
+    {
       name: "auth-verify",
       testMatch: "tests/e2e/auth-fix-verification.spec.ts",
       use: { baseURL: "http://localhost:3000" },
