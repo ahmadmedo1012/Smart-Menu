@@ -409,21 +409,6 @@ export default function CartPage() {
 									</button>
 								</div>
 							</div>
-							{/* Undo banner — appears briefly after removing an item */}
-							{lastRemoved && (
-								<div className="flex items-center justify-between gap-3 rounded-md border border-orange/20 bg-orange-muted/40 px-3 py-2 text-xs animate-fade-in">
-									<span className="font-arabic text-muted-foreground">
-										تم حذف: {lastRemoved.name}
-									</span>
-									<button
-										type="button"
-										onClick={() => undoRemove()}
-										className="font-arabic font-bold text-orange hover:underline shrink-0"
-									>
-										تراجع
-									</button>
-								</div>
-							)}
 							<input
 								type="text"
 								placeholder="ملاحظات للصنف..."
@@ -448,6 +433,23 @@ export default function CartPage() {
 						className="w-full rounded-[4px] border border-input bg-transparent px-4 py-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 resize-none"
 					/>
 				</div>
+
+				{/* Undo banner — appears after removing an item (outside items.map so it
+				    stays visible once the item is gone) */}
+				{lastRemoved && items.length >= 0 && (
+					<div className="flex items-center justify-between gap-3 rounded-md border border-orange/20 bg-orange-muted/40 px-3 py-2 text-xs animate-fade-in mb-4">
+						<span className="font-arabic text-muted-foreground">
+							تم حذف: {lastRemoved.name}
+						</span>
+						<button
+							type="button"
+							onClick={() => undoRemove()}
+							className="font-arabic font-bold text-orange hover:underline shrink-0"
+						>
+							تراجع
+						</button>
+					</div>
+				)}
 
 				{/* Customer info */}
 				<div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
