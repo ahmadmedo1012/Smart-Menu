@@ -195,7 +195,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						}}
 						aria-label={`تقييم ${displayName}`}
 						className={cn(
-							'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-1 border transition-all duration-300',
+							'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-11 border transition-all duration-300',
 							'bg-white/20 dark:bg-white/10 backdrop-blur-md border-white/30 dark:border-white/10 shadow-sm',
 							hasRating
 								? 'text-amber-600 dark:text-amber-400 hover:bg-white/30 dark:hover:bg-white/20'
@@ -268,7 +268,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									onAddToCart(item);
 								}}
 								aria-label={`إضافة ${displayName} إلى السلة`}
-								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-orange text-white shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-all duration-200"
+								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-11 rounded-xl text-xs font-bold bg-orange text-white shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-all duration-200"
 							>
 								<Plus className="size-4" />
 								أضف
