@@ -122,11 +122,11 @@ export function LoyaltySettings({ onSaved }: Props) {
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
 						<Award className="size-5 text-orange" />
-						<h3 className="text-base font-semibold">Loyalty Program Settings</h3>
+						<h3 className="text-base font-semibold">إعدادات برنامج الولاء</h3>
 					</div>
 					<Button onClick={save} disabled={saving} size="sm" className="gap-1.5">
 						<Save className="size-4" />
-						{saving ? 'Saving...' : 'Save'}
+						{saving ? 'جاري الحفظ...' : 'حفظ'}
 					</Button>
 				</div>
 			</CardHeader>
@@ -138,9 +138,9 @@ export function LoyaltySettings({ onSaved }: Props) {
 							<Award className="size-5 text-orange" />
 						</div>
 						<div>
-							<p className="text-sm font-medium">Enable Loyalty Program</p>
+							<p className="text-sm font-medium">تفعيل برنامج الولاء</p>
 							<p className="text-xs text-muted-foreground">
-								Allow customers to earn points and referrals
+								يسمح للعملاء بكسب النقاط والإحالات
 							</p>
 						</div>
 					</div>
@@ -156,11 +156,11 @@ export function LoyaltySettings({ onSaved }: Props) {
 				<div className="space-y-4">
 					<h4 className="text-sm font-semibold flex items-center gap-2">
 						<RefreshCw className="size-4 text-muted-foreground" />
-						Points &amp; Rewards
+						النقاط والمكافآت
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div>
-							<Label>Points per 1 LYD</Label>
+							<Label>النقاط لكل دينار</Label>
 							<Input
 								type="number"
 								min="0"
@@ -169,10 +169,10 @@ export function LoyaltySettings({ onSaved }: Props) {
 								onChange={(e) => set('loyalty_points_per_lyd', e.target.value)}
 								className="mt-1"
 							/>
-							<p className="text-xs text-muted-foreground mt-1">How many points per 1 LYD spent</p>
+							<p className="text-xs text-muted-foreground mt-1">عدد النقاط لكل دينار يُنفق</p>
 						</div>
 						<div>
-							<Label>Referral Discount %</Label>
+							<Label>خصم الإحالة ٪</Label>
 							<Input
 								type="number"
 								min="0"
@@ -182,11 +182,11 @@ export function LoyaltySettings({ onSaved }: Props) {
 								className="mt-1"
 							/>
 							<p className="text-xs text-muted-foreground mt-1">
-								Discount for referred friend&apos;s first order
+								الخصم لأول طلب لصديق مُحال
 							</p>
 						</div>
 						<div>
-							<Label>Referrer Reward %</Label>
+							<Label>مكافأة المُحيل ٪</Label>
 							<Input
 								type="number"
 								min="0"
@@ -196,7 +196,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 								className="mt-1"
 							/>
 							<p className="text-xs text-muted-foreground mt-1">
-								Reward points for the referrer on conversion
+								نقاط المُحيل عند التحويل
 							</p>
 						</div>
 					</div>
@@ -208,11 +208,11 @@ export function LoyaltySettings({ onSaved }: Props) {
 				<div className="space-y-4">
 					<h4 className="text-sm font-semibold flex items-center gap-2">
 						<Gift className="size-4 text-muted-foreground" />
-						Referral Settings
+						إعدادات الإحالة
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-3">
 						<div>
-							<Label>Reward Points per Referral</Label>
+							<Label>نقاط المكافأة لكل إحالة</Label>
 							<Input
 								type="number"
 								min="0"
@@ -221,11 +221,11 @@ export function LoyaltySettings({ onSaved }: Props) {
 								className="mt-1"
 							/>
 							<p className="text-xs text-muted-foreground mt-1">
-								Points awarded to referrer on conversion
+								النقاط الممنوحة للمُحيل عند التحويل
 							</p>
 						</div>
 						<div>
-							<Label>Max Referrals per Customer</Label>
+							<Label>الحد الأقصى للإحالات للعميل</Label>
 							<Input
 								type="number"
 								min="0"
@@ -233,7 +233,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 								onChange={(e) => set('loyalty_referral_max_per_customer', e.target.value)}
 								className="mt-1"
 							/>
-							<p className="text-xs text-muted-foreground mt-1">0 = unlimited</p>
+							<p className="text-xs text-muted-foreground mt-1">0 = غير محدود</p>
 						</div>
 						<div>
 							<Label>Auto-Expiry Days</Label>
@@ -245,7 +245,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 								className="mt-1"
 							/>
 							<p className="text-xs text-muted-foreground mt-1">
-								Days before pending referral expires (0 = never)
+								أيام قبل انتهاء الإحالة المعلقة (0 = أبداً)
 							</p>
 						</div>
 					</div>
@@ -257,11 +257,11 @@ export function LoyaltySettings({ onSaved }: Props) {
 				<div className="space-y-4">
 					<h4 className="text-sm font-semibold flex items-center gap-2">
 						<Gift className="size-4 text-muted-foreground" />
-						Tier Thresholds (points)
+						حدود المستويات (نقاط)
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-3">
 						<div>
-							<Label>Silver (min)</Label>
+							<Label>فضي (حد أدنى)</Label>
 							<Input
 								type="number"
 								min="1"
@@ -271,7 +271,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 							/>
 						</div>
 						<div>
-							<Label>Gold (min)</Label>
+							<Label>ذهبي (حد أدنى)</Label>
 							<Input
 								type="number"
 								min="1"
@@ -281,7 +281,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 							/>
 						</div>
 						<div>
-							<Label>Platinum (min)</Label>
+							<Label>بلاتيني (حد أدنى)</Label>
 							<Input
 								type="number"
 								min="1"
