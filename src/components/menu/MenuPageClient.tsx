@@ -89,7 +89,7 @@ function MenuPageClientInner({
 				restaurantId,
 			});
 			premiumToast('cart', 'تمت الإضافة!', item.nameAr || item.name, {
-				duration: 2000,
+				duration: 3200,
 				anim: true,
 			});
 		},
