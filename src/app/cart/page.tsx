@@ -61,8 +61,6 @@ export default function CartPage() {
 		setOrderNotes,
 		updateNotes,
 		setPickupType,
-		setCustomerName,
-		setCustomerPhone,
 	} = useCart();
 
 	const [showPreview, setShowPreview] = useState(false);
@@ -455,36 +453,21 @@ export default function CartPage() {
 				<div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
 					<h2 className="font-bold mb-3 flex items-center gap-2">
 						<Sparkles className="size-4 text-primary" />
-						معلومات الاتصال
+						ملاحظات الطلب
 					</h2>
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+					<div className="grid grid-cols-1 gap-3">
 						<div>
-							<label htmlFor="cart-name" className="block text-xs text-muted-foreground mb-1.5">
-								الاسم
+							<label htmlFor="cart-notes" className="block text-xs text-muted-foreground mb-1.5">
+								ملاحظات (اختياري)
 							</label>
 							<input
-								id="cart-name"
+								id="cart-notes"
 								type="text"
 								dir="auto"
-								placeholder="الاسم (اختياري)"
-								maxLength={30}
-								value={customerName}
-								onChange={(e) => setCustomerName(e.target.value)}
-								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-							/>
-						</div>
-						<div>
-							<label htmlFor="cart-phone" className="block text-xs text-muted-foreground mb-1.5">
-								رقم الهاتف
-							</label>
-							<input
-								id="cart-phone"
-								type="tel"
-								dir="auto"
-								placeholder="رقم الهاتف (اختياري)"
-								maxLength={15}
-								value={customerPhone}
-								onChange={(e) => setCustomerPhone(e.target.value)}
+								placeholder="مثال: بدون بصل، الطلب مستعجل..."
+								maxLength={120}
+								value={notes}
+								onChange={(e) => setOrderNotes(e.target.value)}
 								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
 							/>
 						</div>

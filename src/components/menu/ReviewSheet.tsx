@@ -166,7 +166,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 						animate={{ y: 0 }}
 						exit={{ y: '100%' }}
 						transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-						className="fixed bottom-0 inset-x-0 z-50 max-h-[85vh] rounded-t-2xl bg-card border border-border/30 shadow-2xl flex flex-col overflow-hidden"
+						className="fixed bottom-0 inset-x-0 z-50 max-h-[85vh] rounded-t-2xl bg-card border border-border/30 shadow-2xl flex flex-col overflow-y-auto overflow-x-hidden"
 						dir="rtl"
 						role="dialog"
 						aria-modal="true"
