@@ -42,6 +42,7 @@ export default defineConfig({
         "tests/e2e/persona-1-customer.spec.ts",
         "tests/e2e/persona-3-owner.spec.ts",
         "tests/e2e/persona-4-multimenu.spec.ts",
+        "tests/e2e/persona-6-browser.spec.ts",
         "tests/e2e/persona-7-malicious.spec.ts",
       ],
     },
@@ -49,14 +50,14 @@ export default defineConfig({
       // Cross-browser smoke: same UI suite on firefox + webkit (production).
       // Run explicitly: npx playwright test tests/e2e/ui-smoke.test.ts --project=qa-cross-browser
       name: "qa-cross-browser",
-      testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/team2-customer.spec.ts"],
+      testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/team2-customer.spec.ts", "tests/e2e/persona-6-browser.spec.ts"],
       use: {
         browserName: "firefox",
       },
     },
     {
       name: "qa-cross-browser-webkit",
-      testMatch: ["tests/e2e/ui-smoke.test.ts"],
+      testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/persona-6-browser.spec.ts"],
       use: {
         browserName: "webkit",
       },
