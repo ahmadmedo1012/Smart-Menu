@@ -4,7 +4,8 @@ import { useState, memo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import { Plus, Minus, Star } from 'lucide-react';
+import { Minus, Star } from 'lucide-react';
+import { MotionPlus } from '@/components/ui/motion-icons';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { ReviewSheet } from './ReviewSheet';
 
@@ -295,7 +296,7 @@ const MenuItemCard = memo(function MenuItemCard({
 								aria-label={`إضافة ${displayName} إلى السلة`}
 								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-11 rounded-xl text-xs font-bold bg-orange text-white shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-all duration-200"
 							>
-								<Plus className="size-4" />
+								<MotionPlus className="size-4" />
 								أضف
 							</motion.button>
 						) : (
@@ -328,7 +329,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									aria-label={`زيادة كمية ${displayName}`}
 									className="flex items-center justify-center size-11 text-white hover:brightness-110 transition-colors active:brightness-90"
 								>
-									<Plus className="size-4" />
+									<MotionPlus className="size-4" />
 								</button>
 							</motion.div>
 						)}
