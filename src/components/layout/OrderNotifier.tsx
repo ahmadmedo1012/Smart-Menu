@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { ShoppingCart } from 'lucide-react';
+import {} from 'lucide-react';
+import AnimatedCart from '@/components/ui/shopping-cart-icon';;
 
 /** Play a gentle notification chime using Web Audio API */
 function playOrderSound() {
@@ -28,7 +29,7 @@ function showOrderToast(newOrders: number) {
 	toast(
 		<div className="flex items-center gap-3" role="status" aria-live="polite">
 			<div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
-				<ShoppingCart className="size-5 text-white" />
+				<AnimatedCart className="size-5 text-white" />
 			</div>
 			<div>
 				<p className="font-bold text-sm">طلب جديد!</p>

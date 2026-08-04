@@ -2,7 +2,8 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft } from 'lucide-react';
+import {Plus, Minus, Trash2, ArrowLeft} from 'lucide-react';
+import AnimatedCart from '@/components/ui/shopping-cart-icon';;
 import { motion } from 'framer-motion';
 import { useCart } from '@/store/cart';
 import { toArabicNumber } from '@/lib/format';
@@ -55,7 +56,7 @@ export function CartSlideOver() {
 					)}
 				>
 					<div className="relative">
-						<ShoppingCart className="size-5 text-orange-foreground" />
+						<AnimatedCart className="size-5 text-orange-foreground" />
 						<span
 							className={cn(
 								'absolute -top-2.5 -end-2.5 min-w-[18px] h-[18px] rounded-full',

@@ -5,17 +5,8 @@ import { csrfFetch } from '@/lib/csrf-client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
-import {
-	ShoppingCart,
-	Plus,
-	Minus,
-	Trash2,
-	ArrowLeft,
-	MessageCircle,
-	Check,
-	Sparkles,
-	Loader2,
-} from 'lucide-react';
+import {Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2} from 'lucide-react';
+import AnimatedCart from '@/components/ui/shopping-cart-icon';;
 import { useCart } from '@/store/cart';
 import { useRef } from 'react';
 import { toArabicNumber } from '@/lib/format';
@@ -205,7 +196,7 @@ export default function CartPage() {
 				<Header />
 				<div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 px-4 text-center animate-fade-in">
 					<div className="size-16 rounded-[4px] bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
-						<ShoppingCart className="size-12 text-muted-foreground" />
+						<AnimatedCart className="size-12 text-muted-foreground" />
 					</div>
 					<h2 className="text-2xl font-bold">السلة فارغة</h2>
 					<p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
