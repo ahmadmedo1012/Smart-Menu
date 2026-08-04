@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
+import { ReferralHandler } from '@/components/menu/ReferralHandler';
 
 export async function generateMetadata({
 	params,
@@ -164,6 +165,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 
 	return (
 		<div className="min-h-screen relative overflow-x-hidden">
+			<ReferralHandler />
 			<div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.08),transparent_70%)] pointer-events-none" />
 
 			<script

@@ -1,0 +1,53 @@
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/db';
+import { success, error as apiError } from '@/lib/api-helpers';
+
+const REFERRAL_CODE_RE = /^[A-Z0-9]{6,16}$/;
+
+/**
+ * POST /api/referrals/claim — register a referral click/order intent.
+ * Creates a pending Referral keyed by an anonymous session fingerprint so
+ * repeat visits don't duplicate rows. Converts to `converted` when the
+ * referred order completes (handled in the order flow).
+ */
+export async function POST(request: NextRequest) {
+	try {
+		const { code } = await request.json().catch(() => ({ code: '' }));
+		if (!code || !REFERRAL_CODE_RE.test(code)) {
+			return apiError('كود إحالة غير صالح', 400);
+		}
+
+		// Resolve the card that owns this referral code
+		const card = await prisma.loyaltyCard.findUnique({
+			where: { referralCode: code },
+			select: { id: true, restaurantId: true, customerPhone: true },
+		});
+		if (!card) return apiError('كود الإحالة غير موجود', 404);
+
+		// Anonymous session fingerprint (best-effort dedupe; no PII)
+		const fp = request.headers.get('x-forwarded-for') ?? 'unknown';
+		const key = `ref-${fp}-${code}`;
+		const existing = await prisma.referral.findFirst({
+			where: { referralCode: code, referredName: key },
+		});
+		if (existing) return success({ registered: false, already: true });
+
+		await prisma.referral.create({
+			data: {
+				referralCode: code,
+				referrerId: card.id,
+				referredPhone: '',
+				referredName: key,
+				discountPercent: 10,
+				referrerRewardPct: 10,
+				restaurantId: card.restaurantId,
+				status: 'pending',
+			},
+		});
+
+		return success({ registered: true });
+	} catch (e) {
+		console.error('referral claim error', e);
+		return apiError('فشل تسجيل الإحالة', 500);
+	}
+}
