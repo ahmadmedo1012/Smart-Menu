@@ -19,7 +19,11 @@ export function ShowcaseSection() {
 
 	return (
 		<SectionContainer ref={ref}>
-			<SectionHeader eyebrow="المنيو الذكي في العمل" />
+			<SectionHeader
+				eyebrow="المنيو الذكي في العمل"
+				title="شاهد منيو مطعمك النابض"
+				subtitle="منيو رقمي احترافي صُمم ليحوّل الزائر إلى طلب — كل تفصيلة في مكانها الصحيح"
+			/>
 
 			<motion.div
 				initial={{ opacity: 0, y: 40 }}
