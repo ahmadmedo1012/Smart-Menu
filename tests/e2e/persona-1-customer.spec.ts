@@ -57,8 +57,8 @@ test("P1: real customer order journey", async ({ page }) => {
   if (await pickup.count()) await pickup.click();
 
   // ── 4. Fill customer info + submit ──
-  await page.getByPlaceholder("الاسم (اختياري)").fill("P1 Customer");
-  await page.getByPlaceholder("رقم الهاتف (اختياري)").fill("0913999999");
+  // name field removed per UX decision (order goes straight to WhatsApp)
+  await page.locator("#cart-phone").fill("0913999999");
   await page.locator('button:has-text("مراجعة")').first().click({ timeout: 8000 });
   await page.waitForTimeout(2000);
   const dlg = page.locator('[role="dialog"] button:has-text("تأكيد"), [role="dialog"] button:has-text("إرسال")');

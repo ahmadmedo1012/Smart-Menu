@@ -24,8 +24,8 @@ test("lifecycle: customer order with note reaches owner orders page", async ({ p
   await page.waitForTimeout(2500);
   const note = page.getByPlaceholder(/ملاحظات للطلب/).first();
   if (await note.count()) await note.fill("توصيل سريع R5");
-  await page.getByPlaceholder("الاسم (اختياري)").fill("R5 Customer");
-  await page.getByPlaceholder("رقم الهاتف (اختياري)").fill("0915550005");
+  // name field removed per UX decision
+  await page.locator("#cart-phone").fill("0915550005");
   await page.locator('button:has-text("مراجعة")').first().click({ timeout: 8000 });
   await page.waitForTimeout(2000);
   const dlg = page.locator('[role="dialog"] button:has-text("تأكيد"), [role="dialog"] button:has-text("إرسال")');

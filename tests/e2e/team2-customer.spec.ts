@@ -64,8 +64,8 @@ test("order: complete flow to confirmation", async ({ page }) => {
   await page.waitForTimeout(600);
   await page.goto("/cart", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
-  await page.getByPlaceholder("الاسم (اختياري)").fill("QA Customer");
-  await page.getByPlaceholder("رقم الهاتف (اختياري)").fill("0910000099");
+  // name field removed per UX decision
+  await page.locator("#cart-phone").fill("0910000099");
   await page.locator('button:has-text("مراجعة")').first().click({ timeout: 8000 });
   await page.waitForTimeout(2000);
   const dlg = page.locator('[role="dialog"] button:has-text("تأكيد"), [role="dialog"] button:has-text("إرسال")');

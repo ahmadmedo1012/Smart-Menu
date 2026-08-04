@@ -42,7 +42,8 @@ test("cart has ONE notes section (no duplicate forms)", async ({ page }) => {
   expect(body).not.toContain("ملاحظات إضافية");
   const notesCount = (body.match(/ملاحظات الطلب/g) || []).length;
   expect(notesCount).toBe(1);
-  // name/phone fields gone
+  // name field gone; phone exists ONLY as the loyalty-opt-in field
   expect(body).not.toContain("الاسم (اختياري)");
-  expect(body).not.toContain("رقم الهاتف");
+  // the loyalty phone field is present but clearly optional-labelled
+  expect(body).toContain("لكسب نقاط الولاء");
 });
