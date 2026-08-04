@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { premiumToast } from '@/lib/premium-toast';
-import { Save, Award, Gift, RefreshCw } from 'lucide-react';
+import {Save, Award, Gift} from 'lucide-react';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 
 /* ---------- Types ---------- */
 
@@ -155,7 +156,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 				{/* Points Configuration */}
 				<div className="space-y-4">
 					<h4 className="text-sm font-semibold flex items-center gap-2">
-						<RefreshCw className="size-4 text-muted-foreground" />
+						<AnimatedRefreshCw className="size-4 text-muted-foreground" />
 						النقاط والمكافآت
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-2">

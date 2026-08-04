@@ -3,25 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {
-	Store,
-	ClipboardList,
-	ShoppingCart,
-	AlertCircle,
-	ExternalLink,
-	Package,
-	Award,
-	Gift,
-	Users,
-	CheckCircle,
-	ArrowLeft,
-	Sparkles,
-	BarChart3,
-	QrCode,
-	Copy,
-	Settings,
-	Activity,
-} from 'lucide-react';
+import {Store, ClipboardList, ShoppingCart, AlertCircle, ExternalLink, Package, Award, Gift, Users, CheckCircle, ArrowLeft, Sparkles, BarChart3, QrCode, Settings, Activity} from 'lucide-react';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import Link from 'next/link';
@@ -378,7 +361,7 @@ export default function OwnerDashboard() {
 												.then(() => premiumToast('copy', 'تم نسخ الرابط'));
 										}}
 									>
-										<Copy className="size-3" /> نسخ
+										<AnimatedCopy className="size-3" /> نسخ
 									</Button>
 								</div>
 							</div>

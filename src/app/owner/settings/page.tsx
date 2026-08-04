@@ -7,17 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-import {
-	Save,
-	Crown,
-	ShoppingCart,
-	Package,
-	Sparkles,
-	Upload,
-	X,
-	ImageIcon,
-	Loader2,
-} from 'lucide-react';
+import {Save, Crown, ShoppingCart, Package, Sparkles, X, ImageIcon, Loader2} from 'lucide-react';
+import AnimatedUpload from '@/components/ui/upload-icon';;
 import AnimatedX from '@/components/ui/x-icon';
 import { BackButton } from '@/components/shared/BackButton';
 import Link from 'next/link';
@@ -296,7 +287,7 @@ export default function OwnerSettingsPage() {
 							{uploading.logo ? (
 								<Loader2 className="size-3 animate-spin" />
 							) : (
-								<Upload className="size-3" />
+								<AnimatedUpload className="size-3" />
 							)}
 							{uploading.logo ? 'جاري الرفع...' : 'اختيار صورة'}
 						</Button>
@@ -327,7 +318,7 @@ export default function OwnerSettingsPage() {
 						{uploading.gallery ? (
 							<Loader2 className="size-3 animate-spin" />
 						) : (
-							<Upload className="size-3" />
+							<AnimatedUpload className="size-3" />
 						)}
 						إضافة صور
 					</Button>

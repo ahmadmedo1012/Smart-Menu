@@ -9,7 +9,9 @@ import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Smartphone, Landmark, Copy, CheckCircle2, XCircle, Upload, Loader2 } from 'lucide-react';
+import {Smartphone, Landmark, CheckCircle2, XCircle, Loader2} from 'lucide-react';
+import AnimatedUpload from '@/components/ui/upload-icon';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useConfig } from '@/hooks/useConfig';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { compressImage } from '@/lib/image-compress';
@@ -315,7 +317,7 @@ export function PaymentDialog({
 												className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
 												title="نسخ الرقم"
 											>
-												<Copy className="size-3.5" />
+												<AnimatedCopy className="size-3.5" />
 											</button>
 										</div>
 									</div>
@@ -343,7 +345,7 @@ export function PaymentDialog({
 													className="h-9 px-3 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
 													title="نسخ الرمز وفتح الاتصال"
 												>
-													<Copy className="size-3.5" />
+													<AnimatedCopy className="size-3.5" />
 													نسخ واتصال
 												</button>
 											</div>
@@ -394,7 +396,7 @@ export function PaymentDialog({
 													className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0"
 													title={`نسخ ${row.label}`}
 												>
-													<Copy className="size-4" />
+													<AnimatedCopy className="size-4" />
 												</button>
 											</div>
 										))}
@@ -488,7 +490,7 @@ export function PaymentDialog({
 												{uploadingReceipt ? (
 													<Loader2 className="size-4 text-muted-foreground animate-spin" />
 												) : (
-													<Upload className="size-4 text-muted-foreground" />
+													<AnimatedUpload className="size-4 text-muted-foreground" />
 												)}
 												{uploadingReceipt ? 'جاري الرفع...' : 'اختر صورة'}
 											</label>

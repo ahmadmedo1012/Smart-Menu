@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
-import { QrCode, Copy, Check, Download, Store, ExternalLink, AlertTriangle } from 'lucide-react';
+import {QrCode, Check, Download, Store, ExternalLink, AlertTriangle} from 'lucide-react';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 
 interface Restaurant {
@@ -220,7 +221,7 @@ export default function AdminQRPage() {
 									{copied ? (
 										<Check className="size-4 text-green-500" />
 									) : (
-										<Copy className="size-4" />
+										<AnimatedCopy className="size-4" />
 									)}
 								</Button>
 								<Button

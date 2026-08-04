@@ -7,24 +7,8 @@ import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-	ArrowRight,
-	Copy,
-	Check,
-	AlertCircle,
-	Phone,
-	MessageCircle,
-	ShoppingCart,
-	User,
-	MapPin,
-	FileText,
-	Store,
-	Clock,
-	ChefHat,
-	PackageCheck,
-	CheckCircle,
-	XCircle,
-} from 'lucide-react';
+import {ArrowRight, Check, AlertCircle, Phone, MessageCircle, ShoppingCart, User, MapPin, FileText, Store, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import Link from 'next/link';
@@ -342,7 +326,7 @@ ${items}
 						الأصناف ({toArabicNumber(order.items.length)})
 					</h3>
 					<Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="gap-1">
-						{copied ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
+						{copied ? <Check className="size-3.5 text-success" /> : <AnimatedCopy className="size-3.5" />}
 						نسخ للواتساب
 					</Button>
 				</div>

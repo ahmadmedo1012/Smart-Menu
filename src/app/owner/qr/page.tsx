@@ -5,17 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
-import {
-	QrCode,
-	Copy,
-	Check,
-	Store,
-	ArrowRight,
-	Download,
-	ExternalLink,
-	Smartphone,
-	Printer,
-} from 'lucide-react';
+import {QrCode, Check, Store, ArrowRight, Download, ExternalLink, Smartphone, Printer} from 'lucide-react';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
@@ -202,7 +193,7 @@ export default function OwnerQRPage() {
 									{copied ? (
 										<Check className="size-4 text-green-500" />
 									) : (
-										<Copy className="size-4" />
+										<AnimatedCopy className="size-4" />
 									)}
 								</Button>
 							</div>

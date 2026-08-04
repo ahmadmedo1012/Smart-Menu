@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Upload, Loader2 } from 'lucide-react';
+import {Loader2} from 'lucide-react';
+import AnimatedUpload from '@/components/ui/upload-icon';;
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -320,7 +321,7 @@ export function ItemDialog({
 								{uploading ? (
 									<Loader2 className="size-4 text-muted-foreground animate-spin" />
 								) : (
-									<Upload className="size-4 text-muted-foreground" />
+									<AnimatedUpload className="size-4 text-muted-foreground" />
 								)}
 							</label>
 						</div>

@@ -4,20 +4,8 @@ import { toArabicNumber } from '@/lib/format';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-	Users,
-	Gift,
-	TrendingUp,
-	Award,
-	AlertCircle,
-	RefreshCw,
-	Clock,
-	ArrowRight,
-	Copy,
-	Check,
-	MessageCircle,
-	Share2,
-} from 'lucide-react';
+import {Users, Gift, TrendingUp, Award, AlertCircle, RefreshCw, Clock, ArrowRight, Check, MessageCircle, Share2} from 'lucide-react';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
@@ -430,7 +418,7 @@ export default function OwnerLoyaltyPage() {
 								className="flex-1 gap-1 text-xs"
 								onClick={handleCopyReferralLink}
 							>
-								{copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+								{copied ? <Check className="size-3.5" /> : <AnimatedCopy className="size-3.5" />}
 								{copied ? 'تم النسخ!' : 'نسخ الرابط'}
 							</Button>
 						</div>
