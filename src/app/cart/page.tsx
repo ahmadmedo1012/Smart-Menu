@@ -61,6 +61,7 @@ export default function CartPage() {
 		setOrderNotes,
 		updateNotes,
 		setPickupType,
+		setCustomerPhone,
 	} = useCart();
 
 	const [showPreview, setShowPreview] = useState(false);
@@ -456,6 +457,24 @@ export default function CartPage() {
 								onChange={(e) => setOrderNotes(e.target.value)}
 								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
 							/>
+						</div>
+						<div>
+							<label htmlFor="cart-phone" className="block text-xs text-muted-foreground mb-1.5">
+								رقم الهاتف لكسب نقاط الولاء (اختياري)
+							</label>
+							<input
+								id="cart-phone"
+								type="tel"
+								dir="ltr"
+								placeholder="09XXXXXXXX"
+								maxLength={15}
+								value={customerPhone}
+								onChange={(e) => setCustomerPhone(e.target.value)}
+								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 text-left"
+							/>
+							<p className="text-[11px] text-muted-foreground/70 mt-1">
+								ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب
+							</p>
 						</div>
 					</div>
 				</div>
