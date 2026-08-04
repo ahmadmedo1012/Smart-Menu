@@ -28,6 +28,31 @@ const DIETARY_ICONS: Record<string, string> = {
 	sugarconscious: '🍃',
 };
 
+// Arabic labels for dietary/allergen badges shown to CUSTOMERS
+const DIETARY_LABELS: Record<string, string> = {
+	vegetarian: 'نباتي',
+	vegan: 'نباتي صرف',
+	gluten_free: 'خالٍ من الغلوتين',
+	dairy_free: 'خالٍ من الألبان',
+	halal: 'حلال',
+	keto: 'كيتو',
+	sugar_free: 'بدون سكر',
+	organic: 'عضوي',
+	spicy: 'حار',
+	sugarconscious: 'سكر معتدل',
+};
+const ALLERGEN_LABELS: Record<string, string> = {
+	gluten: 'غلوتين',
+	dairy: 'ألبان',
+	eggs: 'بيض',
+	fish: 'سمك',
+	shellfish: 'قشريات',
+	tree_nuts: 'مكسرات',
+	peanuts: 'فول سوداني',
+	soy: 'صويا',
+	sesame: 'سمسم',
+};
+
 export type MenuItemProp = {
 	id: number;
 	name: string;
@@ -226,7 +251,7 @@ const MenuItemCard = memo(function MenuItemCard({
 								key={tag}
 								className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 backdrop-blur-sm text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
 							>
-								{DIETARY_ICONS[tag] || '🌿'} {tag}
+								{DIETARY_ICONS[tag] || '🌿'} {DIETARY_LABELS[tag] || tag}
 							</span>
 						))}
 						{item.allergens?.map((tag) => (
@@ -234,7 +259,7 @@ const MenuItemCard = memo(function MenuItemCard({
 								key={tag}
 								className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-500/15 backdrop-blur-sm text-amber-600 dark:text-amber-400 border border-amber-500/20"
 							>
-								⚠️ {tag}
+								⚠️ {ALLERGEN_LABELS[tag] || tag}
 							</span>
 						))}
 					</div>
