@@ -11,9 +11,9 @@ const buttonVariants = cva(
 				orange:
 					'bg-orange text-orange-foreground hover:brightness-110 hover:scale-[1.02] shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/25 border-0',
 				outline:
-					'border-border bg-transparent text-foreground hover:bg-foreground/5 hover:border-foreground/30',
+					'border-border bg-transparent text-foreground hover:bg-foreground/5 hover:border-foreground/30 hover:scale-[1.02]',
 				ghost:
-					'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent',
+					'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent active:scale-[0.97]',
 				destructive:
 					'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20',
 			},
