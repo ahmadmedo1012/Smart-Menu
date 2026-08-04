@@ -100,7 +100,7 @@ export function DiagnosticsSection({
 						</p>
 						<div className="flex items-end gap-2">
 							<div className="flex-1">
-								<Label htmlFor="appr-telegram-id">معرف تليجرام (User ID)</Label>
+								<Label htmlFor="appr-telegram-id">معرف التليجرام</Label>
 								<Input
 									id="appr-telegram-id"
 									type="number"
