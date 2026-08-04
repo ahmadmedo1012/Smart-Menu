@@ -5,7 +5,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Bot, Save, Send, Stethoscope, Eye, EyeOff, Loader2 } from "lucide-react"
+import { Bot, Stethoscope, Loader2 } from "lucide-react"
+import AnimatedSave from "@/components/ui/save-icon"
+import AnimatedSend from "@/components/ui/send-icon"
+import AnimatedEye from "@/components/ui/eye-icon"
+import AnimatedEyeOff from "@/components/ui/eye-off-icon"
 
 interface Config {
   botToken: string
@@ -60,7 +64,7 @@ export function TelegramConfigSection({
               <button type="button" onClick={onToggleShowToken}
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}>
-                {showToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                {showToken ? <AnimatedEyeOff className="size-4" /> : <AnimatedEye className="size-4" />}
               </button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -86,12 +90,12 @@ export function TelegramConfigSection({
           </div>
           <div className="flex gap-2 pt-2">
             <Button onClick={onSave} disabled={saving} className="rounded-xl gap-1">
-              <Save className="size-4" aria-hidden="true" />
+              <AnimatedSave className="size-4" aria-hidden="true" />
               {saving ? "جارٍ الحفظ..." : "حفظ الإعدادات"}
             </Button>
             <Button variant="outline" onClick={onTest}
               disabled={testing || !config.botToken.trim() || !config.chatId.trim()} className="rounded-xl gap-1">
-              {testing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
+              {testing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <AnimatedSend className="size-4" aria-hidden="true" />}
               {testing ? "جارٍ..." : "اختبار الإرسال"}
             </Button>
             <Button variant="outline" onClick={onDiagnose} disabled={diagnosing} className="rounded-xl gap-1">

@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
-import {Settings, Eye, EyeOff, Save} from 'lucide-react';
+import {Settings} from 'lucide-react';
+import AnimatedSave from '@/components/ui/save-icon';;
+import AnimatedEyeOff from '@/components/ui/eye-off-icon';;
+import AnimatedEye from '@/components/ui/eye-icon';;
 import AnimatedTrash from '@/components/ui/trash-icon';;
 import {
 	Dialog,
@@ -176,7 +179,7 @@ export function ConfigEditor() {
 										className="size-8"
 										onClick={() => saveConfig(item)}
 									>
-										<Save className="size-3.5" />
+										<AnimatedSave className="size-3.5" />
 									</Button>
 									<Button
 										variant="ghost"
@@ -215,9 +218,9 @@ export function ConfigEditor() {
 											className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 										>
 											{showSecrets[item.key] ? (
-												<EyeOff className="size-4" />
+												<AnimatedEyeOff className="size-4" />
 											) : (
-												<Eye className="size-4" />
+												<AnimatedEye className="size-4" />
 											)}
 										</button>
 									)}

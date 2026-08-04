@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import {Store, Plus, ExternalLink, Star, Loader2} from 'lucide-react';
+import {Store, Plus, Star, Loader2} from 'lucide-react';;
+import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import AnimatedTrash from '@/components/ui/trash-icon';;
 import { Button } from '@/components/ui/button';
@@ -244,7 +245,7 @@ export default function OwnerRestaurantsPage() {
 									<AnimatedCopy className="size-3.5 ms-1.5" /> نسخ الرابط
 								</Button>
 								<Button variant="outline" size="sm" onClick={() => window.open(`/menu/${r.slug}`, '_blank')}>
-									<ExternalLink className="size-3.5 ms-1.5" /> فتح
+									<AnimatedExternalLink className="size-3.5 ms-1.5" /> فتح
 								</Button>
 								{!r.isPrimary && (
 									<Button variant="outline" size="sm" onClick={() => setPrimary(r.id)}>

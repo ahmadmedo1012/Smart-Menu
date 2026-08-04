@@ -18,7 +18,9 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LogIn, Eye, EyeOff, ArrowRight, MessageCircle } from 'lucide-react';
+import {LogIn, ArrowRight, MessageCircle} from 'lucide-react';
+import AnimatedEyeOff from '@/components/ui/eye-off-icon';;
+import AnimatedEye from '@/components/ui/eye-icon';;
 
 const SUPPORT_WHATSAPP = '218910089975';
 
@@ -223,7 +225,7 @@ function LoginForm() {
 									className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 									aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
 								>
-									{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+									{showPassword ? <AnimatedEyeOff className="size-4" /> : <AnimatedEye className="size-4" />}
 								</button>
 							</div>
 						</div>

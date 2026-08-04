@@ -4,7 +4,8 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { MapPin, Star, Phone, ArrowLeft, ArrowRight, Store } from 'lucide-react';
+import {Star, Phone, ArrowLeft, ArrowRight, Store} from 'lucide-react';
+import AnimatedMapPin from '@/components/ui/map-pin-icon';;
 import { SectionContainer } from '@/components/ui/SectionContainer';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { FeaturedRestaurant } from '@/lib/landing';
@@ -155,7 +156,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 														transition={{ delay: 0.15, duration: 0.3 }}
 														className="flex items-center gap-1 text-xs sm:text-sm text-white/70"
 													>
-														<MapPin className="size-3.5" />
+														<AnimatedMapPin className="size-3.5" />
 														{r.city}
 													</motion.span>
 												)}

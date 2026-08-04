@@ -1,6 +1,6 @@
 "use client"
 
-import { Clock } from "lucide-react"
+import AnimatedClock from "@/components/ui/clock-icon"
 import { cn } from "@/lib/utils"
 
 interface Transaction {
@@ -12,7 +12,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
     return (
       <div className="flex flex-col items-center py-8 text-center">
         <div className="mb-3 flex size-10 items-center justify-center rounded-md bg-muted/50">
-          <Clock className="size-5 text-muted-foreground" />
+          <AnimatedClock className="size-5 text-muted-foreground" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">لا توجد معاملات بعد</p>
       </div>

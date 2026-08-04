@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UserCheck, Plus, Trash2, Loader2, Stethoscope, CheckCircle2, XCircle } from 'lucide-react';
+import {Plus, Trash2, Loader2, Stethoscope, CheckCircle2, XCircle} from 'lucide-react';
+import AnimatedUserCheck from '@/components/ui/user-check-icon';;
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 
@@ -90,7 +91,7 @@ export function DiagnosticsSection({
 			{/* Approvers section */}
 			<section>
 				<div className="flex items-center gap-2 mb-4">
-					<UserCheck className="size-5 text-muted-foreground" />
+					<AnimatedUserCheck className="size-5 text-muted-foreground" />
 					<h3 className="text-lg font-semibold">الموافقون على الاشتراكات</h3>
 				</div>
 				<div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
@@ -149,7 +150,7 @@ export function DiagnosticsSection({
 										key={a.id}
 										className="flex items-center gap-3 p-3 rounded-xl bg-background/50 border border-border/20"
 									>
-										<UserCheck className="size-4 text-muted-foreground shrink-0" />
+										<AnimatedUserCheck className="size-4 text-muted-foreground shrink-0" />
 										<div className="flex-1 min-w-0">
 											<p className="text-sm font-medium truncate">
 												{a.label || `ID: ${a.telegramId}`}

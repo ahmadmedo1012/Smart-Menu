@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {MessageCircle, Send} from 'lucide-react';
+import {MessageCircle} from 'lucide-react';
+import AnimatedSend from '@/components/ui/send-icon';;
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
@@ -289,7 +290,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 									<div className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
 								) : (
 									<>
-										<Send className="size-3.5" />
+										<AnimatedSend className="size-3.5" />
 										إرسال التقييم
 									</>
 								)}

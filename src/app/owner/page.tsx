@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {Store, ClipboardList, ShoppingCart, AlertCircle, ExternalLink, Package, Award, Gift, Users, CheckCircle, ArrowLeft, Sparkles, BarChart3, QrCode, Settings, Activity} from 'lucide-react';
+import {Store, ClipboardList, ShoppingCart, AlertCircle, Package, Award, Gift, Users, CheckCircle, ArrowLeft, Sparkles, BarChart3, QrCode, Settings, Activity} from 'lucide-react';
+import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
@@ -215,7 +216,7 @@ export default function OwnerDashboard() {
 								</Link>
 								<Link href={`/menu/${restaurant.slug}`} target="_blank">
 									<Button size="sm" variant="outline" className="gap-1.5 text-xs">
-										<ExternalLink className="size-3.5" /> عرض المنيو
+										<AnimatedExternalLink className="size-3.5" /> عرض المنيو
 									</Button>
 								</Link>
 							</div>
@@ -277,7 +278,7 @@ export default function OwnerDashboard() {
 						</div>
 						<Link href={`/menu/${restaurant.slug}`} target="_blank">
 							<Button variant="outline" size="sm" className="gap-1.5 text-xs">
-								<ExternalLink className="size-3.5" /> عرض المنيو
+								<AnimatedExternalLink className="size-3.5" /> عرض المنيو
 							</Button>
 						</Link>
 					</div>

@@ -10,10 +10,11 @@ import { Switch } from "@/components/ui/switch"
 import { premiumToast } from "@/lib/premium-toast"
 import { csrfFetch } from "@/lib/csrf-client"
 import {
-  Shield, UserPlus, Key, Trash2, LogOut, RefreshCw, AlertCircle,
+  Shield, UserPlus, Key, Trash2, RefreshCw, AlertCircle,
   CheckCheck, Users, Store, DollarSign, Settings as SettingsIcon,
   BarChart3, AlertTriangle,
 } from "lucide-react"
+import AnimatedLogOut from "@/components/ui/logout-icon"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
 
@@ -333,7 +334,7 @@ export default function AdminAdminsPage() {
                       className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
                       title="إلغاء الجلسات" aria-label="إلغاء الجلسات"
                     >
-                      <LogOut className="size-4" />
+                      <AnimatedLogOut className="size-4" />
                     </button>
                     <button
                       type="button"

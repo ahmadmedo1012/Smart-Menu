@@ -1,7 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { DollarSign, ShoppingCart, TrendingUp, Activity, Clock, BarChart3 } from 'lucide-react';
+import {ShoppingCart, TrendingUp, Activity, BarChart3, DollarSign} from 'lucide-react';
+import AnimatedDollarSign from '@/components/ui/currency-dollar-icon';;
+import AnimatedClock from '@/components/ui/clock-icon';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { AreaChart } from '@/components/shared/AreaChart';
@@ -98,7 +100,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 					<AreaChart data={chartData} height={200} />
 				) : (
 					<div className="flex items-center justify-center h-[200px] text-muted-foreground/50">
-						<DollarSign className="size-8" />
+						<AnimatedDollarSign className="size-8" />
 					</div>
 				)}
 			</div>
@@ -107,14 +109,14 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 				{/* Hourly distribution */}
 				<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
-						<Clock className="size-4 text-muted-foreground" />
+						<AnimatedClock className="size-4 text-muted-foreground" />
 						<h3 className="text-sm font-semibold">توزيع الطلبات حسب الساعة</h3>
 					</div>
 					{hourlyData.length > 0 ? (
 						<HorizontalBar data={hourlyData} barHeight={20} />
 					) : (
 						<div className="flex items-center justify-center h-[150px] text-muted-foreground/50">
-							<Clock className="size-8" />
+							<AnimatedClock className="size-8" />
 						</div>
 					)}
 				</div>

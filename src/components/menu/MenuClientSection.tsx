@@ -2,7 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
-import { Store, Clock, MapPin } from 'lucide-react';
+import {Store} from 'lucide-react';
+import AnimatedMapPin from '@/components/ui/map-pin-icon';;
+import AnimatedClock from '@/components/ui/clock-icon';;
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 const StickyMenuHeader = dynamic(
@@ -173,7 +175,7 @@ export function MenuClientSection(props: {
 					<div className="flex flex-wrap items-center justify-center gap-2.5 mt-4">
 						{restaurant.workingHours && (
 							<span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground glass-card px-3.5 py-2 rounded-full backdrop-blur-md border border-white/5 dark:border-white/[0.04]">
-								<Clock className="size-3.5" />
+								<AnimatedClock className="size-3.5" />
 								{restaurant.workingHours}
 							</span>
 						)}
@@ -253,7 +255,7 @@ export function MenuClientSection(props: {
 
 					{restaurant.address && (
 						<div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-muted-foreground glass-card px-3.5 py-2 rounded-full backdrop-blur-md border border-white/5 dark:border-white/[0.04] mx-auto w-fit">
-							<MapPin className="size-3.5" />
+							<AnimatedMapPin className="size-3.5" />
 							{restaurant.address}
 						</div>
 					)}

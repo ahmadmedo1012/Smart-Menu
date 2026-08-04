@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-import {Save, Crown, ShoppingCart, Package, Sparkles, X, ImageIcon, Loader2} from 'lucide-react';
+import {Crown, ShoppingCart, Package, Sparkles, X, ImageIcon, Loader2} from 'lucide-react';
+import AnimatedSave from '@/components/ui/save-icon';;
 import AnimatedUpload from '@/components/ui/upload-icon';;
 import AnimatedX from '@/components/ui/x-icon';
 import { BackButton } from '@/components/shared/BackButton';
@@ -418,7 +419,7 @@ export default function OwnerSettingsPage() {
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-sm font-bold">بيانات المطعم</h2>
 					<Button onClick={save} disabled={saving} className="gap-1.5 text-xs h-8">
-						<Save className="size-3.5" />
+						<AnimatedSave className="size-3.5" />
 						{saving ? 'جارٍ الحفظ...' : 'حفظ'}
 					</Button>
 				</div>

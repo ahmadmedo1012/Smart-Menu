@@ -8,11 +8,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { premiumToast } from "@/lib/premium-toast"
 import {
-  Save, Store, Phone, Mail, MapPin, Clock, Image,
+  Store, Phone, Mail, Image,
   Settings, User, AlertTriangle,
 } from "lucide-react"
 import { ConfigEditor } from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
+import AnimatedMapPin from "@/components/ui/map-pin-icon"
+import AnimatedClock from "@/components/ui/clock-icon"
+import AnimatedSave from "@/components/ui/save-icon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 interface Restaurant {
@@ -274,13 +277,13 @@ export default function AdminSettingsPage() {
                   <Input id="rs-email" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
                 </div>
                 <div>
-                  <Label htmlFor="rs-address" className="flex items-center gap-1"><MapPin className="size-3" aria-hidden="true" /> العنوان</Label>
+                  <Label htmlFor="rs-address" className="flex items-center gap-1"><AnimatedMapPin className="size-3" aria-hidden="true" /> العنوان</Label>
                   <Input id="rs-address" value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="h-11 rounded-xl mt-1.5" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="rs-hours" className="flex items-center gap-1"><Clock className="size-3" aria-hidden="true" /> ساعات العمل</Label>
+                  <Label htmlFor="rs-hours" className="flex items-center gap-1"><AnimatedClock className="size-3" aria-hidden="true" /> ساعات العمل</Label>
                   <Input id="rs-hours" value={form.workingHours} onChange={e => setForm({...form, workingHours: e.target.value})} className="h-11 rounded-xl mt-1.5" />
                 </div>
                 <div>
@@ -295,7 +298,7 @@ export default function AdminSettingsPage() {
               )}
               <div className="flex justify-end pt-2">
                 <Button onClick={saveRestaurant} disabled={saving} className="gap-1">
-                  <Save className="size-4" aria-hidden="true" />
+                  <AnimatedSave className="size-4" aria-hidden="true" />
                   {saving ? "جارٍ..." : "حفظ"}
                 </Button>
               </div>
@@ -372,7 +375,7 @@ export default function AdminSettingsPage() {
 
             <div className="flex justify-end pt-2">
               <Button onClick={saveProfile} disabled={profileSaving} className="gap-1">
-                <Save className="size-4" aria-hidden="true" />
+                <AnimatedSave className="size-4" aria-hidden="true" />
                 {profileSaving ? "جارٍ..." : "حفظ"}
               </Button>
             </div>

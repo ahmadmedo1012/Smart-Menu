@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { LayoutHeader } from '@/components/layout/LayoutHeader';
-import {Store, LayoutDashboard, ClipboardList, Settings, LogOut, QrCode, Gift, Star} from 'lucide-react';
+import {Store, LayoutDashboard, ClipboardList, Settings, QrCode, Gift, Star} from 'lucide-react';;
+import AnimatedLogOut from '@/components/ui/logout-icon';;
 import AnimatedX from '@/components/ui/x-icon';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
@@ -96,7 +97,7 @@ function LogoutButton() {
 			}}
 			className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
 		>
-			<LogOut className="size-4" />
+			<AnimatedLogOut className="size-4" />
 			تسجيل الخروج
 		</button>
 	);

@@ -21,21 +21,8 @@ import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import {
-	CreditCard,
-	Check,
-	X,
-	RefreshCw,
-	FilterX,
-	ChevronLeft,
-	ChevronRight,
-	AlertCircle,
-	Smartphone,
-	Clock,
-	AlertTriangle,
-	Landmark,
-	ImageIcon,
-} from 'lucide-react';
+import {CreditCard, Check, X, RefreshCw, FilterX, ChevronLeft, ChevronRight, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
+import AnimatedClock from '@/components/ui/clock-icon';;
 
 interface Payment {
 	id: number;
@@ -300,7 +287,7 @@ export default function AdminSubscriptionsPage() {
 													)}
 													<span>•</span>
 													<span className="flex items-center gap-1">
-														<Clock className="size-3" />
+														<AnimatedClock className="size-3" />
 														{formatDate(p.createdAt)}
 													</span>
 												</div>

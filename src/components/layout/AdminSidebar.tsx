@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation"
 import {
   LayoutDashboard, UtensilsCrossed, ScrollText,
   Settings, QrCode, Store, Users, ChevronRight,
-  Activity, DollarSign, MessageCircle, Shield, LogOut,
+  Activity, DollarSign, MessageCircle, Shield,
 } from "lucide-react"
+import AnimatedLogOut from "@/components/ui/logout-icon"
 import { NavLink } from "@/components/shared/NavLink"
 
 export interface NavItem {
@@ -57,7 +58,7 @@ function LogoutButton() {
       }}
       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
     >
-      <LogOut className="size-4" />
+      <AnimatedLogOut className="size-4" />
       تسجيل الخروج
     </button>
   )

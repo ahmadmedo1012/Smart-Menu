@@ -6,7 +6,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AdminSidebar, allNavItems, hasItemPermission } from '@/components/layout/AdminSidebar';
 import { LayoutHeader } from '@/components/layout/LayoutHeader';
 import { NavLink } from '@/components/shared/NavLink';
-import { Store, LogOut, X } from 'lucide-react';
+import {Store, X} from 'lucide-react';;
+import AnimatedLogOut from '@/components/ui/logout-icon';;
 import { PageFade } from '@/components/shared/PageFade';
 import { AdminEventNotifier } from '@/components/admin/AdminEventNotifier';
 
@@ -74,7 +75,7 @@ function MobileNav({
 					}}
 					className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
 				>
-					<LogOut className="size-4" />
+					<AnimatedLogOut className="size-4" />
 					تسجيل الخروج
 				</button>
 			</div>

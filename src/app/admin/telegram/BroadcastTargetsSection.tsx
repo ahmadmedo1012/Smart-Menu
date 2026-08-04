@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { Send, Plus, Trash2, Users, Loader2 } from "lucide-react"
+import { Plus, Trash2, Users, Loader2 } from "lucide-react"
+import AnimatedSend from "@/components/ui/send-icon"
 
 function maskChatId(id: string): string {
   if (id.length <= 4) return id
@@ -46,7 +47,7 @@ export function BroadcastTargetsSection({
   return (
     <section>
       <div className="flex items-center gap-2 mb-4">
-        <Send className="size-5 text-muted-foreground" />
+        <AnimatedSend className="size-5 text-muted-foreground" />
         <h3 className="text-lg font-semibold">جهات الإرسال (Broadcast Targets)</h3>
       </div>
       <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">

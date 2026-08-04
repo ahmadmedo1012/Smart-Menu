@@ -4,7 +4,8 @@ import { toArabicNumber } from '@/lib/format';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {Users, Gift, TrendingUp, Award, AlertCircle, RefreshCw, Clock, ArrowRight, Check, MessageCircle, Share2} from 'lucide-react';
+import {Users, Gift, TrendingUp, Award, AlertCircle, RefreshCw, ArrowRight, Check, MessageCircle, Share2} from 'lucide-react';
+import AnimatedClock from '@/components/ui/clock-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -447,7 +448,7 @@ export default function OwnerLoyaltyPage() {
 				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
-							<Clock className="size-4 text-muted-foreground" />
+							<AnimatedClock className="size-4 text-muted-foreground" />
 							<h3 className="text-sm font-semibold">آخر المعاملات</h3>
 						</div>
 					</div>

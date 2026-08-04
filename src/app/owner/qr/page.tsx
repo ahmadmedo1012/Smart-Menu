@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
-import {QrCode, Check, Store, ArrowRight, Download, ExternalLink, Smartphone, Printer} from 'lucide-react';
+import {QrCode, Check, Store, ArrowRight, Smartphone, Printer} from 'lucide-react';
+import AnimatedDownload from '@/components/ui/download-icon';;
+import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -125,7 +127,7 @@ export default function OwnerQRPage() {
 						{url && (
 							<a href={url} target="_blank" rel="noopener noreferrer" className="ms-auto">
 								<Button variant="ghost" size="icon" aria-label="فتح الرابط" className="size-9">
-									<ExternalLink className="size-4" />
+									<AnimatedExternalLink className="size-4" />
 								</Button>
 							</a>
 						)}
@@ -202,7 +204,7 @@ export default function OwnerQRPage() {
 						{/* Actions */}
 						<div className="grid grid-cols-2 gap-3">
 							<Button onClick={downloadQR} className="gap-2">
-								<Download className="size-4" />
+								<AnimatedDownload className="size-4" />
 								تحميل QR
 							</Button>
 							<Button variant="outline" onClick={shareLink} className="gap-2">

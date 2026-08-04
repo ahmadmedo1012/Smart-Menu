@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
-import {QrCode, Check, Download, Store, ExternalLink, AlertTriangle} from 'lucide-react';
+import {QrCode, Check, Store, AlertTriangle} from 'lucide-react';
+import AnimatedDownload from '@/components/ui/download-icon';;
+import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 
@@ -231,13 +233,13 @@ export default function AdminQRPage() {
 									className="size-11 shrink-0"
 									onClick={() => window.open(menuUrl, '_blank', 'noopener,noreferrer')}
 								>
-									<ExternalLink className="size-4" />
+									<AnimatedExternalLink className="size-4" />
 								</Button>
 							</div>
 						</div>
 
 						<Button onClick={downloadQR} className="w-full h-12 gap-2">
-							<Download className="size-4" />
+							<AnimatedDownload className="size-4" />
 							تحميل رمز QR ({qrSize}x{qrSize})
 						</Button>
 					</div>

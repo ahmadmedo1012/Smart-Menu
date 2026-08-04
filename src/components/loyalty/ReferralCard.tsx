@@ -1,16 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import {
-	Copy,
-	Check,
-	Share2,
-	MessageCircle,
-	Gift,
-	Smartphone,
-	Users,
-	TrendingUp,
-} from 'lucide-react';
+import {Check, Share2, MessageCircle, Gift, Smartphone, Users, TrendingUp} from 'lucide-react';
+import AnimatedCopy from '@/components/ui/copy-icon';;
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { premiumToast } from '@/lib/premium-toast';
 
@@ -155,7 +147,7 @@ export function ReferralCard({
 								onClick={handleCopyLink}
 								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-all cursor-pointer"
 							>
-								{copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+								{copied ? <Check className="size-4" /> : <AnimatedCopy className="size-4" />}
 								نسخ الرابط
 							</button>
 							{whatsapp && (

@@ -7,7 +7,8 @@ import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {ArrowRight, Check, AlertCircle, Phone, MessageCircle, ShoppingCart, User, MapPin, FileText, Store, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import {ArrowRight, Check, AlertCircle, Phone, MessageCircle, ShoppingCart, User, FileText, Store, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import AnimatedMapPin from '@/components/ui/map-pin-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
@@ -281,7 +282,7 @@ ${items}
 						<div>
 							<p className="text-xs text-muted-foreground">نوع الاستلام</p>
 							<p className="font-medium flex items-center gap-1">
-								<MapPin className="size-3.5 text-muted-foreground" />
+								<AnimatedMapPin className="size-3.5 text-muted-foreground" />
 								{order.pickupType === 'delivery'
 									? 'توصيل'
 									: order.pickupType === 'takeaway'

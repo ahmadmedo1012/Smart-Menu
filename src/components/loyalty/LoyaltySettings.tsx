@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { premiumToast } from '@/lib/premium-toast';
-import {Save, Award, Gift} from 'lucide-react';
+import {Award, Gift} from 'lucide-react';
+import AnimatedSave from '@/components/ui/save-icon';;
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 
 /* ---------- Types ---------- */
@@ -126,7 +127,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 						<h3 className="text-base font-semibold">إعدادات برنامج الولاء</h3>
 					</div>
 					<Button onClick={save} disabled={saving} size="sm" className="gap-1.5">
-						<Save className="size-4" />
+						<AnimatedSave className="size-4" />
 						{saving ? 'جاري الحفظ...' : 'حفظ'}
 					</Button>
 				</div>

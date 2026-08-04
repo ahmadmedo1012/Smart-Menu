@@ -1,6 +1,7 @@
 "use client"
 
-import { ExternalLink, Pencil, Trash2, ShoppingCart, Crown, Star, Sparkles, Building2, ChevronLeft, ChevronRight, Plus, Store, FilterX } from "lucide-react"
+import { Pencil, Trash2, ShoppingCart, Crown, Star, Sparkles, Building2, ChevronLeft, ChevronRight, Plus, Store, FilterX } from "lucide-react"
+import AnimatedExternalLink from "@/components/ui/external-link-icon"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -135,7 +136,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
           <a href={`/menu/${r.slug}`} target="_blank" rel="noopener noreferrer"
             className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
             title="عرض المنيو" aria-label={`عرض منيو ${r.name}`}>
-            <ExternalLink className="size-4" aria-hidden="true" />
+            <AnimatedExternalLink className="size-4" aria-hidden="true" />
           </a>
           <button type="button" onClick={() => onToggleShowOnLanding(r.id, !r.showOnLanding)}
             className={cn("size-9 rounded-xl border flex items-center justify-center transition-colors",
