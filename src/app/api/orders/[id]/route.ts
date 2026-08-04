@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 						},
 					});
 					const updated2 = fresh!;
-					const card = await tx.loyaltyCard.findUnique({
+					const existingCard = await tx.loyaltyCard.findUnique({
 						where: {
 							customerPhone_restaurantId: {
 								customerPhone: updated2.customerPhone,
@@ -128,17 +128,31 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 							},
 						},
 					});
-					if (card) {
-						const newTier = computeTier(ptsEarned + card.points);
-						await tx.loyaltyCard.update({
-							where: { id: card.id },
-							data: {
-								points: { increment: ptsEarned },
-								totalOrders: { increment: 1 },
-								totalSpent: { increment: updated2.total },
-								tier: newTier as 'bronze' | 'silver' | 'gold' | 'platinum',
+					const newTier = computeTier(ptsEarned + (existingCard?.points ?? 0)) as 'bronze' | 'silver' | 'gold' | 'platinum';
+					const card = await tx.loyaltyCard.upsert({
+						where: {
+							customerPhone_restaurantId: {
+								customerPhone: updated2.customerPhone,
+								restaurantId: updated2.restaurantId,
 							},
-						});
+						},
+						update: {
+							points: { increment: ptsEarned },
+							totalOrders: { increment: 1 },
+							totalSpent: { increment: updated2.total },
+							tier: newTier,
+						},
+						create: {
+							customerPhone: updated2.customerPhone,
+							restaurantId: updated2.restaurantId,
+							referralCode: `RF${updated2.restaurantId}${Date.now().toString(36).toUpperCase().slice(-6)}`,
+							points: ptsEarned,
+							totalOrders: 1,
+							totalSpent: updated2.total,
+							tier: newTier,
+						},
+					});
+					if (card) {
 						await tx.rewardTransaction.create({
 							data: {
 								cardId: card.id,
