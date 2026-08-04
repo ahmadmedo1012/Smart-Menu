@@ -2,7 +2,8 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import {Plus, Minus, Trash2, ArrowLeft} from 'lucide-react';
+import {Plus, Minus, ArrowLeft} from 'lucide-react';
+import AnimatedTrash from '@/components/ui/trash-icon';;
 import AnimatedCart from '@/components/ui/shopping-cart-icon';;
 import { motion } from 'framer-motion';
 import { useCart } from '@/store/cart';
@@ -152,7 +153,7 @@ export function CartSlideOver() {
 										aria-label={`حذف ${item.name}`}
 										className="size-10 flex items-center justify-center rounded-sm text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors"
 									>
-										<Trash2 className="size-3.5" />
+										<AnimatedTrash className="size-3.5" />
 									</button>
 								</div>
 							</div>

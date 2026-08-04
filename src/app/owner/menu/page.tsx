@@ -10,25 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { SearchInput } from '@/components/ui/search-input';
-import {
-	Plus,
-	Pencil,
-	Trash2,
-	ChevronDown,
-	Package,
-	GripVertical,
-	AlertCircle,
-	Coffee,
-	Pizza,
-	CupSoda,
-	IceCream,
-	Apple,
-	Beef,
-	Fish,
-	UtensilsCrossed,
-	Milk,
-	type LucideIcon,
-} from 'lucide-react';
+import {Plus, Pencil, ChevronDown, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon} from 'lucide-react';
+import AnimatedTrash from '@/components/ui/trash-icon';;
 import { BackButton } from '@/components/shared/BackButton';
 import { csrfFetch } from '@/lib/csrf-client';
 import { useRouter } from 'next/navigation';
@@ -416,7 +399,7 @@ export default function OwnerMenuPage() {
 										title="حذف"
 										aria-label="حذف"
 									>
-										<Trash2 className="size-4" />
+										<AnimatedTrash className="size-4" />
 									</Button>
 									<ChevronDown
 										className={cn(
@@ -527,7 +510,7 @@ export default function OwnerMenuPage() {
 															}
 															title="حذف"
 														>
-															<Trash2 className="size-3.5" />
+															<AnimatedTrash className="size-3.5" />
 														</Button>
 													</div>
 												</div>

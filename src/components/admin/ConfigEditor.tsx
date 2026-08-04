@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
-import { Settings, Eye, EyeOff, Trash2, Save } from 'lucide-react';
+import {Settings, Eye, EyeOff, Save} from 'lucide-react';
+import AnimatedTrash from '@/components/ui/trash-icon';;
 import {
 	Dialog,
 	DialogContent,
@@ -183,7 +184,7 @@ export function ConfigEditor() {
 										className="size-8 text-destructive"
 										onClick={() => setDeleteTarget(item.key)}
 									>
-										<Trash2 className="size-3.5" />
+										<AnimatedTrash className="size-3.5" />
 									</Button>
 								</div>
 							</div>

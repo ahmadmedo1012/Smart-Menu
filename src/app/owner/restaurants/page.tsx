@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Store, Plus, ExternalLink, Star, Trash2, Loader2, Copy } from 'lucide-react';
+import {Store, Plus, ExternalLink, Star, Loader2, Copy} from 'lucide-react';
+import AnimatedTrash from '@/components/ui/trash-icon';;
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -257,7 +258,7 @@ export default function OwnerRestaurantsPage() {
 									disabled={r.isPrimary}
 									title={r.isPrimary ? 'لا يمكن حذف المنيو الأساسي' : 'حذف'}
 								>
-									<Trash2 className="size-3.5" />
+									<AnimatedTrash className="size-3.5" />
 								</Button>
 							</div>
 						</div>
