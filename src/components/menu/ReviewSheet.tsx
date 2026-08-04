@@ -2,11 +2,12 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, X, MessageCircle, Send } from 'lucide-react';
+import { X, MessageCircle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
+import AnimatedStar from '@/components/ui/star-icon';
 
 const starAnimate = { rotate: [0, -10, 10, 0], scale: [1, 1.2, 1] };
 
@@ -241,7 +242,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 												: 'text-muted-foreground/20 hover:text-amber-300/50'
 										)}
 									>
-										<Star className={cn('size-6', s <= formRating && 'fill-amber-400')} />
+										<AnimatedStar className={cn('size-6', s <= formRating && 'fill-amber-400')} />
 									</motion.button>
 								))}
 							</div>
@@ -332,7 +333,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 										<div className="flex items-center gap-2 mb-1.5">
 											<div className="flex gap-0.5">
 												{[1, 2, 3, 4, 5].map((s) => (
-													<Star
+													<AnimatedStar
 														key={s}
 														className={cn(
 															'size-3',
