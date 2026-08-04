@@ -61,6 +61,30 @@ const DIETARY_ICONS: Record<string, string> = {
 	spicy: '🌶️',
 };
 
+// Arabic labels for dietary/allergen badges (i18n — was showing English keys)
+const DIETARY_LABELS: Record<string, string> = {
+	vegetarian: 'نباتي',
+	vegan: 'نباتي صرف',
+	gluten_free: 'خالٍ من الغلوتين',
+	dairy_free: 'خالٍ من الألبان',
+	halal: 'حلال',
+	keto: 'كيتو',
+	sugar_free: 'بدون سكر',
+	organic: 'عضوي',
+	spicy: 'حار',
+};
+const ALLERGEN_LABELS: Record<string, string> = {
+	gluten: 'غلوتين',
+	dairy: 'ألبان',
+	eggs: 'بيض',
+	fish: 'سمك',
+	shellfish: 'قشريات',
+	tree_nuts: 'مكسرات',
+	peanuts: 'فول سوداني',
+	soy: 'صويا',
+	sesame: 'سمسم',
+};
+
 const initForm = (catId: number) => ({
 	name: '',
 	nameAr: '',
@@ -354,7 +378,7 @@ export function ItemDialog({
 												: 'border-border/30 hover:border-emerald-300/50 text-muted-foreground'
 										)}
 									>
-										{DIETARY_ICONS[t] || '🌿'} {t}
+										{DIETARY_ICONS[t] || '🌿'} {DIETARY_LABELS[t] || t}
 									</button>
 								);
 							})}
@@ -386,7 +410,7 @@ export function ItemDialog({
 												: 'border-border/30 hover:border-amber-300/50 text-muted-foreground'
 										)}
 									>
-										⚠️ {t}
+										⚠️ {ALLERGEN_LABELS[t] || t}
 									</button>
 								);
 							})}
