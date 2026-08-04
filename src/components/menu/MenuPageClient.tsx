@@ -265,7 +265,7 @@ function MenuPageClientInner({
 							onClick={() => {
 								updateURL({ q: '', cat: null });
 							}}
-							className="mt-4 text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-all"
+							className="mt-4 text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-[filter,background-color]"
 						>
 							عرض الكل
 						</button>

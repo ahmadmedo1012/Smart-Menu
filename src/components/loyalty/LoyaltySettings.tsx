@@ -77,7 +77,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 				});
 			} catch (error) {
 				if (error instanceof DOMException && error.name === 'AbortError') return;
-				premiumToast('error', 'Failed to load settings');
+				premiumToast('error', 'فشل تحميل الإعدادات');
 			} finally {
 				setLoading(false);
 			}
@@ -99,10 +99,10 @@ export function LoyaltySettings({ onSaved }: Props) {
 				body: JSON.stringify(body),
 			});
 			if (!res.ok) throw new Error('Save failed');
-			premiumToast('save', 'Loyalty settings saved');
+			premiumToast('save', 'تم حفظ إعدادات الولاء');
 			onSaved?.();
 		} catch {
-			premiumToast('error', 'Failed to save settings');
+			premiumToast('error', 'فشل حفظ الإعدادات');
 		} finally {
 			setSaving(false);
 		}

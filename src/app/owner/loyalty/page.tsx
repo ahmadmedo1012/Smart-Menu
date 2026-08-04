@@ -193,10 +193,10 @@ export default function OwnerLoyaltyPage() {
 			// Multi-menu: scope loyalty stats to the active restaurant
 			const qs = activeId ? `?restaurantId=${activeId}` : '';
 			const res = await fetch(`/api/loyalty/stats${qs}`);
-			if (!res.ok) throw new Error('Failed to load');
+			if (!res.ok) throw new Error('load_failed');
 			const json = await res.json();
 			if (json.success && json.data) setStats(json.data);
-			else throw new Error('Invalid response');
+			else throw new Error('invalid_response');
 		} catch {
 			setError('فشل تحميل بيانات الولاء');
 		} finally {
