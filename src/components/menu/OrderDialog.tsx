@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Minus, Plus, Check, Store, MessageCircle } from 'lucide-react';
+import {Minus, Plus, Store, MessageCircle} from 'lucide-react';
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -160,10 +161,10 @@ export function OrderDialog({
 			{confirmed ? (
 				<div className="p-10 text-center animate-scale-in">
 					<div className="size-20 rounded-2xl bg-glass-bg/60 backdrop-blur-sm border border-glass-border flex items-center justify-center mx-auto mb-4">
-						<Check className="size-10 text-orange" />
+						<MotionCheck className="size-10 text-orange" />
 					</div>
 					<div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-lg shadow-orange/30">
-						<Check className="size-10 text-white" />
+						<MotionCheck className="size-10 text-white" />
 					</div>
 					<h3 className="text-xl font-bold mb-1">تم إرسال الطلب!</h3>
 					<p className="text-sm text-muted-foreground">جاري تحويلك إلى واتساب...</p>

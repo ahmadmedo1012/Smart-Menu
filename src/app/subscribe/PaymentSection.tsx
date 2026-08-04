@@ -1,7 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Check, CreditCard } from 'lucide-react';
+import {CreditCard} from 'lucide-react';
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import { PaymentDialog } from '@/components/shared/PaymentDialog';
 
 type Plan = {
@@ -41,7 +42,7 @@ export function UpgradePlanSummary({
 				<div className="mt-4 space-y-2 text-sm">
 					{currentPlan.features.slice(0, 5).map((f, i) => (
 						<div key={i} className="flex items-center gap-2">
-							<Check className="size-3.5 text-primary shrink-0" />
+							<MotionCheck className="size-3.5 text-primary shrink-0" />
 							<span>{f}</span>
 						</div>
 					))}

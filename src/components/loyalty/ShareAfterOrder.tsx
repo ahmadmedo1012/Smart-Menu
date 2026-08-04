@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Confetti } from '@/components/shared/Confetti';
-import {CheckCircle, Check, MessageCircle, Camera, Phone, Gift, Sparkles} from 'lucide-react';
+import {CheckCircle, MessageCircle, Camera, Phone, Gift, Sparkles} from 'lucide-react';
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
@@ -261,7 +262,7 @@ ${referralUrl}
 										aria-label="نسخ رابط الإحالة"
 										className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
 									>
-										{copied ? <Check className="size-4" /> : <AnimatedCopy className="size-4" />}
+										{copied ? <MotionCheck className="size-4" /> : <AnimatedCopy className="size-4" />}
 									</button>
 								</div>
 							</div>

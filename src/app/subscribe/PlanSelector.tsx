@@ -1,6 +1,7 @@
 'use client';
 
-import { Check, Sparkles, Star, Crown, Building2, ArrowLeft } from 'lucide-react';
+import {Sparkles, Star, Crown, Building2, ArrowLeft} from 'lucide-react';
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
@@ -68,7 +69,7 @@ export function PlanSelector({
 						>
 							{isSelected && (
 								<div className="absolute -top-2 -right-2 size-6 rounded-full bg-orange flex items-center justify-center shadow-lg">
-									<Check className="size-3.5 text-white" />
+									<MotionCheck className="size-3.5 text-white" />
 								</div>
 							)}
 							<div
@@ -91,7 +92,7 @@ export function PlanSelector({
 							<div className="space-y-1.5 mb-4 flex-1">
 								{plan.features.slice(0, 4).map((f, j) => (
 									<div key={j} className="flex items-center gap-2 text-xs">
-										<Check className="size-3 text-primary shrink-0" />
+										<MotionCheck className="size-3 text-primary shrink-0" />
 										<span>{f}</span>
 									</div>
 								))}

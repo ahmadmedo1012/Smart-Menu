@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, ChevronsUpDown, Store, Plus } from 'lucide-react';
+import {ChevronsUpDown, Store, Plus} from 'lucide-react';
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import { cn } from '@/lib/utils';
 
 export const ACTIVE_RESTAURANT_KEY = 'smartmenu_active_restaurant';
@@ -95,7 +96,7 @@ export function RestaurantSwitcher() {
 									الأساسي
 								</span>
 							)}
-							{r.id === activeId && <Check className="size-3.5 text-primary shrink-0" />}
+							{r.id === activeId && <MotionCheck className="size-3.5 text-primary shrink-0" />}
 						</button>
 					))}
 					<div className="border-t border-border/20 p-1">
