@@ -26,11 +26,14 @@ export function ReferralHandler() {
 		}
 
 		// Register server-side (creates a pending Referral row keyed to this session)
-		fetch('/api/referrals/claim', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ code }),
-		})
+		import('@/lib/csrf-client')
+			.then(({ csrfFetch }) =>
+				csrfFetch('/api/referrals/claim', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ code }),
+				})
+			)
 			.then((r) => r.json().catch(() => ({})))
 			.then((j) => {
 				if (j?.success) {
