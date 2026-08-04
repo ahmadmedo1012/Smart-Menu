@@ -16,19 +16,19 @@ function makeMotionIcon(Icon: typeof Plus, label: string) {
 		<motion.svg
 			ref={ref}
 			className={className}
-			width={width}
-			height={height}
+			width={width ?? '100%'}
+			height={height ?? '100%'}
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
 			strokeWidth={2}
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			{...(rest as object)}
-			whileHover={{ scale: 1.14, rotate: label === 'Plus' ? 90 : label === 'Check' ? [0, 10, 0] : undefined }}
+			style={{ display: 'block' }}
+			whileHover={{ scale: 1.15, rotate: label === 'Plus' ? 90 : label === 'Check' ? [0, 10, 0] : undefined }}
 			transition={{ type: 'spring', stiffness: 400, damping: 15 }}
 		>
-			<Icon {...(rest as object)} />
+			<Icon {...(rest as object)} className="w-full h-full" />
 		</motion.svg>
 	));
 	Cmp.displayName = `Motion${label}`;
