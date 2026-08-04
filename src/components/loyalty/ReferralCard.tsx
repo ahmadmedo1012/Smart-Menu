@@ -10,8 +10,8 @@ import {
 	Smartphone,
 	Users,
 	TrendingUp,
-	Sparkles,
 } from 'lucide-react';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { premiumToast } from '@/lib/premium-toast';
 
 type ReferralCardProps = {
@@ -191,9 +191,9 @@ export function ReferralCard({
 
 					{/* ===== Footer ===== */}
 					<p className="text-center text-[10px] text-orange/50 dark:text-orange/50 flex items-center justify-center gap-1">
-						<Sparkles className="size-3" />
+						<AnimatedSparkles className="size-3" />
 						شارك الرابط مع أصدقائك واحصل على نقاط مكافأة
-						<Sparkles className="size-3" />
+						<AnimatedSparkles className="size-3" />
 					</p>
 				</div>
 			</div>
