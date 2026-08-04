@@ -5,17 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { LayoutHeader } from '@/components/layout/LayoutHeader';
-import {
-	Store,
-	LayoutDashboard,
-	ClipboardList,
-	Settings,
-	LogOut,
-	QrCode,
-	Gift,
-	Star,
-	X,
-} from 'lucide-react';
+import {Store, LayoutDashboard, ClipboardList, Settings, LogOut, QrCode, Gift, Star} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
@@ -46,7 +37,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
 						className="flex size-8 items-center justify-center rounded-lg hover:bg-accent"
 						aria-label="إغلاق"
 					>
-						<X className="size-4" />
+						<AnimatedX className="size-4" />
 					</button>
 				)}
 				<Image

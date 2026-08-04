@@ -6,7 +6,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { X } from "lucide-react"
+import AnimatedX from "@/components/ui/x-icon";
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { springDefault } from "@/lib/motion"
 
@@ -118,7 +118,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
               <span className="text-sm font-medium tracking-tight text-foreground/80">Smart Menu</span>
-              <button onClick={onClose} className="size-11 rounded-lg border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors active:scale-90" aria-label="إغلاق"><X className="size-4" /></button>
+              <button onClick={onClose} className="size-11 rounded-lg border border-border/10 flex items-center justify-center hover:bg-orange/20 transition-colors active:scale-90" aria-label="إغلاق"><AnimatedX className="size-4" /></button>
             </div>
             <nav className="px-4 py-4 space-y-1">
               {landingLinks.map((link, i) => {

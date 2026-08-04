@@ -18,6 +18,7 @@ import {
 	ImageIcon,
 	Loader2,
 } from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';
 import { BackButton } from '@/components/shared/BackButton';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -266,7 +267,7 @@ export default function OwnerSettingsPage() {
 									onClick={() => setLogo('')}
 									className="absolute top-1.5 right-1.5 size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
 								>
-									<X className="size-3" />
+									<AnimatedX className="size-3" />
 								</button>
 							</>
 						) : (

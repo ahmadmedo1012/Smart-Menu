@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MessageCircle, Send } from 'lucide-react';
+import {MessageCircle, Send} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { premiumToast } from '@/lib/premium-toast';
@@ -197,7 +198,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								className="size-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
 								aria-label="إغلاق"
 							>
-								<X className="size-4" />
+								<AnimatedX className="size-4" />
 							</button>
 						</div>
 

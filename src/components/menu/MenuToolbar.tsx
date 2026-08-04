@@ -40,7 +40,8 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 		[delay]
 	);
 }
-import { Search, X } from 'lucide-react';
+import {Search} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 
@@ -156,7 +157,7 @@ export function MenuToolbar({
 								}}
 								className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
 							>
-								<X className="size-3" />
+								<AnimatedX className="size-3" />
 							</button>
 						)}
 					</div>

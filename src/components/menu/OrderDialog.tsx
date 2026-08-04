@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Minus, Plus, X, Check, Store, MessageCircle } from 'lucide-react';
+import { Minus, Plus, Check, Store, MessageCircle } from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import type { MenuItemProp } from './MenuItemCard';
@@ -148,7 +149,7 @@ export function OrderDialog({
 						className="absolute top-3 start-3 size-10 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center"
 						aria-label="إغلاق"
 					>
-						<X className="size-4" />
+						<AnimatedX className="size-4" />
 					</button>
 					<div className="absolute bottom-4 end-4 start-16">
 						<h3 className="text-white font-bold text-xl drop-shadow-lg">{displayName}</h3>

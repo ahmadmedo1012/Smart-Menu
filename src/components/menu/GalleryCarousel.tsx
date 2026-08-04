@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
-import { ChevronLeft, ChevronRight, X, Maximize2, Pause, Play } from 'lucide-react';
+import {ChevronLeft, ChevronRight, Maximize2, Pause, Play} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
@@ -224,7 +225,7 @@ export function GalleryCarousel({
 						aria-label="إغلاق"
 						className="absolute top-4 start-4 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-all z-10"
 					>
-						<X className="size-5" aria-hidden="true" />
+						<AnimatedX className="size-5" aria-hidden="true" />
 					</button>
 
 					<div
