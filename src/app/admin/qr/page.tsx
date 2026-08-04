@@ -73,13 +73,28 @@ export default function AdminQRPage() {
 		});
 	};
 
-	const downloadQR = () => {
-		const link = document.createElement('a');
-		link.href = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=d97706`;
-		link.download = `qr-${selectedSlug}-${qrSize}.png`;
-		link.target = '_blank';
-		link.click();
+	const downloadQR = async () => {
 		premiumToast('save', 'جاري تحميل رمز QR');
+		try {
+			// Fetch the QR as a blob then trigger a local download — the plain
+			// anchor with download+target=_blank silently opens a tab for
+			// cross-origin images (browser ignores download attr).
+			const res = await fetch(
+				`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=d97706`
+			);
+			if (!res.ok) throw new Error('qr_fetch_failed');
+			const blob = await res.blob();
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `qr-${selectedSlug}-${qrSize}.png`;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 5000);
+		} catch {
+			premiumToast('error', 'تعذر تحميل رمز QR — حاول مجدداً');
+		}
 	};
 
 	if (accessDenied)
