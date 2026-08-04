@@ -1,36 +1,56 @@
 'use client';
 
 import { Plus, Check, Minus, Search, Phone, MapPin, Store, Crown, Award, Gift, Medal, Settings, TrendingUp, Activity, BarChart3, ArrowLeft, ArrowRight, Smartphone, Menu as MenuIcon, ChevronLeft, ChevronRight, AlertTriangle, Building2, Landmark, CreditCard, LogIn, Lightbulb, Stethoscope } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { forwardRef, type SVGProps } from 'react';
+import { motion, useAnimate } from 'framer-motion';
+import { forwardRef, useImperativeHandle, type SVGProps } from 'react';
 
 /**
  * Motion-enhanced lucide icons (Plan B — for icons not in the itshover
- * catalog). Adds a subtle hover spring without changing the icon's
- * appearance, size or color API — drop-in replacement for plain lucide.
+ * catalog). Uses useAnimate (the same proven pattern as itshover icons) —
+ * animates on hoverStart/hoverEnd via imperative animate(), which is far
+ * more reliable than whileHover on nested SVGs. Drop-in replacement for
+ * plain lucide: size/color/className API unchanged.
  */
 type MotionIconProps = SVGProps<SVGSVGElement>;
 
 function makeMotionIcon(Icon: typeof Plus, label: string) {
-	const Cmp = forwardRef<SVGSVGElement, MotionIconProps>(({ className, width, height, ...rest }, ref) => (
-		<motion.svg
-			ref={ref}
-			className={className}
-			width={width ?? '100%'}
-			height={height ?? '100%'}
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth={2}
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			style={{ display: 'block' }}
-			whileHover={{ scale: 1.15, rotate: label === 'Plus' ? 90 : label === 'Check' ? [0, 10, 0] : undefined }}
-			transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-		>
-			<Icon {...(rest as object)} className="w-full h-full" />
-		</motion.svg>
-	));
+	const Cmp = forwardRef<SVGSVGElement, MotionIconProps>(
+		({ className, width, height, ...rest }, ref) => {
+			const [scope, animate] = useAnimate();
+			useImperativeHandle(ref, () => scope.current as SVGSVGElement);
+
+			const start = () => {
+				animate(
+					scope.current,
+					{ scale: 1.15, rotate: label === 'Plus' ? 90 : label === 'Check' ? 15 : label === 'Minus' ? -90 : 0 },
+					{ type: 'spring', stiffness: 400, damping: 15 }
+				);
+			};
+			const stop = () => {
+				animate(scope.current, { scale: 1, rotate: 0 }, { type: 'spring', stiffness: 300, damping: 20 });
+			};
+
+			return (
+				<motion.svg
+					ref={scope}
+					className={className}
+					width={width ?? '100%'}
+					height={height ?? '100%'}
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth={2}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					style={{ display: 'block' }}
+					onHoverStart={start}
+					onHoverEnd={stop}
+				>
+					<Icon {...(rest as object)} className="w-full h-full" />
+				</motion.svg>
+			);
+		}
+	);
 	Cmp.displayName = `Motion${label}`;
 	return Cmp;
 }
