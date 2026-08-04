@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState, memo } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 import { ShoppingCart, TrendingUp, Clock, ClipboardList } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import { springDefault } from "@/lib/motion"
 
 /* ---------- Animated Counter ---------- */
 
@@ -43,7 +45,11 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
   color: string; bg: string; onClick?: () => void
 }) {
   return (
-    <div onClick={onClick}
+    <motion.div
+      onClick={onClick}
+      initial={{ opacity: 0, y: 12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ ...springDefault }}
       className={cn(
         "group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-all duration-300",
         onClick && "cursor-pointer hover:border-orange/30 hover:shadow-lg hover:-translate-y-0.5",
@@ -58,7 +64,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
           <Icon className={cn("size-5", color)} />
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 })
 
