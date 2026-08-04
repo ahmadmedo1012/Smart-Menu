@@ -61,10 +61,10 @@ export function PlanSelector({
 							type="button"
 							onClick={() => onSelect(plan.id)}
 							className={cn(
-								'relative flex flex-col rounded-md border-2 p-5 text-start transition-all duration-300 hover:scale-[1.02]',
+								'relative flex flex-col rounded-md border-2 p-5 text-start transition-all duration-300 hover:scale-[1.02] hover:shadow-xl',
 								isSelected
 									? 'border-orange bg-orange-muted/50 dark:bg-orange-muted shadow-lg shadow-orange/10'
-									: 'border-border/30 hover:border-orange/30 bg-card/50'
+									: 'border-border/30 hover:border-orange/30 hover:shadow-orange/5 bg-card/50'
 							)}
 						>
 							{isSelected && (
