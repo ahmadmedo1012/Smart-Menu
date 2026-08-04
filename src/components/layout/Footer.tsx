@@ -80,7 +80,7 @@ export function Footer({ className }: FooterProps) {
 								<Link
 									key={link.label}
 									href={link.href}
-									className="block w-fit hover:text-foreground transition-colors"
+									className="block w-fit hover:text-foreground hover:underline underline-offset-4 transition-colors"
 								>
 									{link.label}
 								</Link>
@@ -111,7 +111,7 @@ export function Footer({ className }: FooterProps) {
 					<div>
 						<h3 className="text-sm font-medium mb-3">تواصل معنا</h3>
 						<div className="space-y-2.5 text-sm text-muted-foreground">
-							<Link href={waLink} className="block w-fit hover:text-foreground transition-colors">
+							<Link href={waLink} className="block w-fit hover:text-foreground hover:underline underline-offset-4 transition-colors">
 								واتساب
 							</Link>
 							<span className="block cursor-default hover:text-foreground transition-colors">
