@@ -5,8 +5,10 @@ import { csrfFetch } from '@/lib/csrf-client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
-import {Plus, Minus, Trash2, ArrowLeft, MessageCircle, Check, Sparkles, Loader2} from 'lucide-react';
+import {ArrowLeft, MessageCircle, Check, Sparkles, Loader2} from 'lucide-react';
 import AnimatedCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedTrash from '@/components/ui/trash-icon';
+import { MotionPlus, MotionMinus } from '@/components/ui/motion-icons';
 import { useCart } from '@/store/cart';
 import { useRef } from 'react';
 import { toArabicNumber } from '@/lib/format';
@@ -378,7 +380,7 @@ export default function CartPage() {
 										onClick={() => updateQuantity(item.id, item.quantity - 1)}
 										className="size-8 sm:size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
 									>
-										<Minus className="size-3" />
+										<MotionMinus className="size-3" />
 									</button>
 									<span className="w-8 sm:w-10 text-center font-bold tabular-nums text-sm sm:text-lg">
 										{toArabicNumber(item.quantity)}
@@ -388,14 +390,14 @@ export default function CartPage() {
 										onClick={() => updateQuantity(item.id, item.quantity + 1)}
 										className="size-8 sm:size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
 									>
-										<Plus className="size-3" />
+										<MotionPlus className="size-3" />
 									</button>
 									<button
 										type="button"
 										onClick={() => removeItem(item.id)}
 										className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all ms-1 active:scale-90"
 									>
-										<Trash2 className="size-3" />
+										<AnimatedTrash className="size-3" />
 									</button>
 								</div>
 							</div>
