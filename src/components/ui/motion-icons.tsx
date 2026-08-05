@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Check, Minus, Search, Phone, MapPin, Store, Crown, Award, Gift, Medal, Settings, TrendingUp, Activity, BarChart3, ArrowLeft, ArrowRight, Smartphone, Menu as MenuIcon, ChevronLeft, ChevronRight, AlertTriangle, Building2, Landmark, CreditCard, LogIn, Lightbulb, Stethoscope } from 'lucide-react';
+import { Plus, Check, Minus, Search, Phone, MapPin, Store, Crown, Award, Gift, Medal, Settings, TrendingUp, Activity, BarChart3, ArrowLeft, ArrowRight, Smartphone, Menu as MenuIcon, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Building2, Landmark, CreditCard, LogIn, Lightbulb, Stethoscope } from 'lucide-react';
 import { motion, useAnimate } from 'framer-motion';
 import { forwardRef, useImperativeHandle, type SVGProps } from 'react';
 
@@ -76,6 +76,7 @@ export const MotionSmartphone = makeMotionIcon(Smartphone, 'Smartphone');
 export const MotionMenu = makeMotionIcon(MenuIcon, 'Menu');
 export const MotionChevronLeft = makeMotionIcon(ChevronLeft, 'ChevronLeft');
 export const MotionChevronRight = makeMotionIcon(ChevronRight, 'ChevronRight');
+export const MotionChevronDown = makeMotionIcon(ChevronDown, 'ChevronDown');
 export const MotionAlertTriangle = makeMotionIcon(AlertTriangle, 'AlertTriangle');
 export const MotionBuilding2 = makeMotionIcon(Building2, 'Building2');
 export const MotionLandmark = makeMotionIcon(Landmark, 'Landmark');

@@ -1,7 +1,8 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { MessageCircle } from "lucide-react"
+import { motion } from "framer-motion"
+import { MotionChevronDown } from "@/components/ui/motion-icons"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { springGentle } from "@/lib/motion"
@@ -35,7 +36,7 @@ export function FaqSection() {
           >
             <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4">
               {faq.q}
-              <span className="text-muted-foreground/50 group-open:rotate-180 transition-transform duration-300 text-xs shrink-0 ms-2">▼</span>
+              <MotionChevronDown className="size-4 text-muted-foreground/50 group-open:rotate-180 transition-transform duration-300 shrink-0 ms-2" />
             </summary>
             <div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-all duration-300">
               <div className="overflow-hidden">
