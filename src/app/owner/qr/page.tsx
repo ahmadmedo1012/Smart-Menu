@@ -59,14 +59,26 @@ export default function OwnerQRPage() {
 		});
 	};
 
-	const downloadQR = () => {
-		const link = document.createElement('a');
-		const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=d97706`;
-		link.href = qrUrl;
-		link.download = `qr-${slug || 'menu'}-${qrSize}.png`;
-		link.target = '_blank';
-		link.click();
-		premiumToast('save', 'جاري تحميل رمز QR');
+	const downloadQR = async () => {
+		try {
+			// fetch the QR as a blob so the download attribute works
+			// (cross-origin hrefs ignore `download` in Chromium → opened a tab instead)
+			const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=d97706`;
+			const res = await fetch(qrUrl);
+			if (!res.ok) throw new Error('فشل تحميل رمز QR');
+			const blob = await res.blob();
+			const objectUrl = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = objectUrl;
+			link.download = `qr-${slug || 'menu'}-${qrSize}.png`;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
+			premiumToast('save', 'تم تحميل رمز QR');
+		} catch {
+			premiumToast('error', 'فشل تحميل رمز QR');
+		}
 	};
 
 	const shareLink = () => {
