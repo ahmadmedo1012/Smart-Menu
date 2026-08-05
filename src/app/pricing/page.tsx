@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { springDefault } from '@/lib/motion';
 import {Star, Crown, Building2, Sparkles, type LucideIcon} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';;
@@ -71,6 +71,7 @@ const PLAN_META: Record<
 const DEFAULT_META = PLAN_META.Free;
 
 function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: boolean }) {
+	const reduceMotion = useReducedMotion();
 	const meta = PLAN_META[plan.name] ?? DEFAULT_META;
 	const Icon = meta.icon;
 	const monthlyPrice = plan.price;
@@ -81,7 +82,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 24 }}
+			initial={reduceMotion ? false : { opacity: 0, y: 24 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true, margin: "-40px" }}
 			transition={{ ...springDefault, delay: index * 0.08 }}

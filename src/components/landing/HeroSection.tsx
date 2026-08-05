@@ -1,9 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import {} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { IPhoneMockup } from "@/components/ui/iphone-mockup"
@@ -20,6 +19,7 @@ const heroItem = {
 };
 
 export function HeroSection() {
+    const reduceMotion = useReducedMotion();
     return (
         <>
             <div
@@ -33,7 +33,11 @@ export function HeroSection() {
             <ContainerScroll
                 className="bg-background"
                 titleComponent={
-                    <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0 } } }}>
+                    <motion.div
+                            initial={reduceMotion ? false : "hidden"}
+                            animate="show"
+                            variants={{ hidden: {}, show: { transition: { staggerChildren: 0 } } }}
+                        >
                         <motion.h1 variants={heroItem} custom={0} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.3] text-balance max-w-4xl mx-auto">
                             <span className="block">
                                 منيو رقمي لمطعمك

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, memo } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { ShoppingCart, TrendingUp, Clock, ClipboardList } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -44,10 +44,11 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
   label: string; value: number; icon: typeof ShoppingCart; subtitle?: string
   color: string; bg: string; onClick?: () => void
 }) {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.div
       onClick={onClick}
-      initial={{ opacity: 0, y: 12, scale: 0.98 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ ...springDefault }}
       className={cn(
