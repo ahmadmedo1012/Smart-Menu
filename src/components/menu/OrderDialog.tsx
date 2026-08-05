@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {Minus, Plus, Store, MessageCircle} from 'lucide-react';
+import {Minus, Plus, Store} from 'lucide-react';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -338,7 +339,7 @@ export function OrderDialog({
 								</span>
 							) : (
 								<>
-									<MessageCircle className="size-5 text-white" /> أرسل الطلب عبر واتساب
+									<AnimatedMessageCircle className="size-5 text-white" /> أرسل الطلب عبر واتساب
 								</>
 							)}
 						</button>
