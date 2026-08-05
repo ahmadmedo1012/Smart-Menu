@@ -77,7 +77,7 @@ export function HeroSection() {
                         wallpaper="/hero-phone.png"
                         wallpaperFit="cover"
                         scale={1}
-                        className="w-full max-w-[240px] sm:max-w-[280px] md:max-w-[320px] lg:max-w-[360px]"
+                        className="w-full max-w-[240px] sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px]"
                     />
                 </div>
             </ContainerScroll>
