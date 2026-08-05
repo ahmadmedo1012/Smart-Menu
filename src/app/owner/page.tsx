@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {Store, ClipboardList, AlertCircle, Package, Award, Gift, Users, CheckCircle, BarChart3, Settings, Activity, ShoppingCart, QrCode} from 'lucide-react';;
 import AnimatedQrCode from '@/components/ui/qrcode-icon';;
+import PlugConnectedIcon from '@/components/ui/plug-connected-icon';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';;
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
 import AnimatedSparkles from '@/components/ui/sparkles-icon';;
@@ -200,7 +201,12 @@ export default function OwnerDashboard() {
 							<AnimatedSparkles className="size-6 text-white" />
 						</div>
 						<div className="flex-1 min-w-[200px]">
-							<h3 className="text-base font-bold mb-1">مرحباً بك في الربط الذكي!</h3>
+							<h3 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
+						<span className="inline-flex items-center gap-1 text-[10px] font-medium text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">
+							<PlugConnectedIcon className="size-3" />
+							متصل — يستقبل الطلبات
+						</span>
+					</h3>
 							<p className="text-xs text-muted-foreground mb-3 max-w-md leading-relaxed">
 								ابدأ بإضافة أصنافك في المنيو، ثم شارك الرابط مع زبائنك. أول طلب سيصل هنا مباشرة!
 							</p>
