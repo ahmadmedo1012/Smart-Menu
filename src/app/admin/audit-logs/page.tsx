@@ -18,7 +18,9 @@ import {
 	TableRow,
 	TableCell,
 } from '@/components/ui/table';
-import {ChevronDown, ChevronUp, RefreshCw, AlertCircle, Activity, FilterX, History, AlertTriangle} from 'lucide-react';
+import {ChevronUp, AlertCircle, Activity, FilterX, History, AlertTriangle} from 'lucide-react';
+import { MotionChevronDown } from '@/components/ui/motion-icons';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import { MotionSearch } from '@/components/ui/motion-icons';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
@@ -171,7 +173,7 @@ export default function AdminAuditLogsPage() {
 				<AlertCircle className="size-10 text-destructive" />
 				<p className="text-lg font-medium">{error}</p>
 				<Button variant="outline" onClick={() => fetchLogs(1, false)} className="gap-2">
-					<RefreshCw className="size-4" /> إعادة المحاولة
+					<AnimatedRefreshCw className="size-4" /> إعادة المحاولة
 				</Button>
 			</div>
 		);
@@ -350,7 +352,7 @@ export default function AdminAuditLogsPage() {
 														{isExpanded ? (
 															<ChevronUp className="size-4" />
 														) : (
-															<ChevronDown className="size-4" />
+															<MotionChevronDown className="size-4" />
 														)}
 													</Button>
 												)}
@@ -384,9 +386,9 @@ export default function AdminAuditLogsPage() {
 								className="gap-2 min-w-[160px]"
 							>
 								{loadingMore ? (
-									<RefreshCw className="size-4 animate-spin" />
+									<AnimatedRefreshCw className="size-4 animate-spin" />
 								) : (
-									<ChevronDown className="size-4" />
+									<MotionChevronDown className="size-4" />
 								)}
 								تحميل المزيد ({toArabicNumber(total - logs.length)})
 							</Button>

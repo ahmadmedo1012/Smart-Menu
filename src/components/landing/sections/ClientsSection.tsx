@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import {ChevronLeft, Star, Quote} from 'lucide-react';
+import {ChevronLeft, Quote} from 'lucide-react';
+import AnimatedStar from '@/components/ui/star-icon';;
 import { MotionBuilding2 } from '@/components/ui/motion-icons';;
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import { SectionContainer } from "@/components/ui/SectionContainer"
@@ -71,7 +72,7 @@ function TestimonialCard({ t }: { t: typeof TESTIMONIALS[number] }) {
       {/* Stars */}
       <div className="flex justify-center gap-1 mb-4">
         {[...Array(5)].map((_, j) => (
-          <Star key={j} className="size-[13px] sm:size-[14px] fill-orange text-orange/80" />
+          <AnimatedStar key={j} className="size-[13px] sm:size-[14px] fill-orange text-orange/80" />
         ))}
       </div>
 
