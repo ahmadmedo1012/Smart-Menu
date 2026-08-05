@@ -407,9 +407,10 @@ export default function CartPage() {
 									<button
 										type="button"
 										onClick={() => updateQuantity(item.id, item.quantity - 1)}
-										className="size-8 sm:size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
+										className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
+										aria-label="إنقاص الكمية"
 									>
-										<MotionMinus className="size-3" />
+										<MotionMinus className="size-4" />
 									</button>
 									<span className="w-8 sm:w-10 text-center font-bold tabular-nums text-sm sm:text-lg">
 										{toArabicNumber(item.quantity)}
@@ -417,9 +418,10 @@ export default function CartPage() {
 									<button
 										type="button"
 										onClick={() => updateQuantity(item.id, item.quantity + 1)}
-										className="size-8 sm:size-9 rounded-[4px] border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
+										className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
+										aria-label="زيادة الكمية"
 									>
-										<MotionPlus className="size-3" />
+										<MotionPlus className="size-4" />
 									</button>
 									<button
 										type="button"
