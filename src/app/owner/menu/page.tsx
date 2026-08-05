@@ -371,10 +371,11 @@ export default function OwnerMenuPage() {
 											setItemDialogOpen(true);
 										}}
 										title="إضافة صنف"
-										aria-label="إضافة صنف"
-									>
-										<MotionPlus className="size-4" />
-									</Button>
+																			aria-label="إضافة صنف"
+																		>
+																			<MotionPlus className="size-4" />
+																			<span className="sr-only sm:not-sr-only sm:inline">إضافة صنف</span>
+																		</Button>
 									<Button
 										variant="ghost"
 										size="icon"

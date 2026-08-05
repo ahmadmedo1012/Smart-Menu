@@ -54,6 +54,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
+        aria-modal="true"
         className={cn(
           "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto overscroll-contain -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sm bg-popover p-6 text-sm text-popover-foreground ring-1 ring-foreground/10 shadow-lg outline-none sm:max-w-sm",
           "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.2,1)] data-starting-style:opacity-0 data-starting-style:scale-95 data-starting-style:translate-y-4",

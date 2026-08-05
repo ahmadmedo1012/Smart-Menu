@@ -4,7 +4,7 @@ import { useState, memo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import {} from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';;
 import AnimatedStar from '@/components/ui/star-icon';;
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -262,7 +262,7 @@ const MenuItemCard = memo(function MenuItemCard({
 								key={tag}
 								className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-500/15 backdrop-blur-sm text-amber-600 dark:text-amber-400 border border-amber-500/20"
 							>
-								⚠️ {ALLERGEN_LABELS[tag] || tag}
+								<AlertTriangle className="size-3 text-amber-600 dark:text-amber-400" /> {ALLERGEN_LABELS[tag] || tag}
 							</span>
 						))}
 					</div>
@@ -275,7 +275,7 @@ const MenuItemCard = memo(function MenuItemCard({
 					</span>
 					<span className="text-xs text-muted-foreground">د.ل</span>
 					{hasDiscount && (
-						<span className="text-xs text-muted-foreground/40 line-through">
+						<span className="text-xs text-muted-foreground/60 line-through decoration-2">
 							{toArabicNumber(item.price.toFixed(1))} د.ل
 						</span>
 					)}
