@@ -2,7 +2,8 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import {Minus} from 'lucide-react';
+import {} from 'lucide-react';
+import { MotionMinus } from '@/components/ui/motion-icons';;
 import { MotionArrowLeft } from '@/components/ui/motion-icons';;
 import { MotionPlus } from '@/components/ui/motion-icons';;
 import AnimatedTrash from '@/components/ui/trash-icon';;
@@ -132,7 +133,7 @@ export function CartSlideOver() {
 											aria-label="إنقاص الكمية"
 											className="size-10 flex items-center justify-center hover:bg-white/10 transition-colors"
 										>
-											<Minus className="size-3" />
+											<MotionMinus className="size-3" />
 										</button>
 										<span className="min-w-[2ch] text-center text-xs font-semibold tabular-nums px-1">
 											{toArabicNumber(item.quantity)}

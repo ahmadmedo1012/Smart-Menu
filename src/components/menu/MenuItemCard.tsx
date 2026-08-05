@@ -4,7 +4,8 @@ import { useState, memo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import {Minus} from 'lucide-react';
+import {} from 'lucide-react';
+import { MotionMinus } from '@/components/ui/motion-icons';;
 import AnimatedStar from '@/components/ui/star-icon';;
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -317,7 +318,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									aria-label={`إنقاص كمية ${displayName}`}
 									className="flex items-center justify-center size-11 text-white hover:brightness-110 transition-colors active:brightness-90"
 								>
-									<Minus className="size-4" />
+									<MotionMinus className="size-4" />
 								</button>
 								<span className="flex-1 min-w-[2ch] text-center text-sm font-bold text-white bg-orange tabular-nums leading-none py-1.5">
 									{toArabicNumber(cartQty)}

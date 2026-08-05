@@ -1,3 +1,4 @@
+"use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
 import { scaledStrokeWidth } from "./types";

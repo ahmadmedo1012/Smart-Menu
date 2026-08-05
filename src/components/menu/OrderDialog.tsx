@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {Minus, Store} from 'lucide-react';
+import {Store} from 'lucide-react';
+import { MotionMinus } from '@/components/ui/motion-icons';;
 import { MotionPlus } from '@/components/ui/motion-icons';;
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
@@ -248,7 +249,7 @@ export function OrderDialog({
 								className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-all"
 								aria-label="إنقاص الكمية"
 							>
-								<Minus className="size-4" />
+								<MotionMinus className="size-4" />
 							</button>
 							<span className="font-bold text-xl min-w-[2.5ch] text-center tabular-nums">
 								{toArabicNumber(quantity)}
