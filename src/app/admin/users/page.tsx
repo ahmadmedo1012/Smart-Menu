@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/select"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import {
-  Users, Trash2, Key, AlertCircle, UserPlus, Store, Shield,
-  ChevronLeft, ChevronRight, RefreshCw, FilterX,
-} from "lucide-react"
+import {Users, Key, AlertCircle, UserPlus, Store, Shield, ChevronLeft, FilterX} from 'lucide-react';
+import { MotionChevronRight } from '@/components/ui/motion-icons';;
+import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 
@@ -116,7 +116,7 @@ export default function AdminUsersPage() {
         <AlertCircle className="size-10 text-destructive" />
         <p className="text-lg font-medium">{error}</p>
         <Button variant="outline" onClick={fetchUsers} className="gap-2">
-          <RefreshCw className="size-4" /> إعادة المحاولة
+          <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
         </Button>
       </div>
     )
@@ -240,7 +240,7 @@ export default function AdminUsersPage() {
                         title="حذف"
                         aria-label={`حذف ${user.name}`}
                       >
-                        <Trash2 className="size-4" aria-hidden="true" />
+                        <AnimatedTrash2 className="size-4" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
                 disabled={page <= 1}
                 aria-label="الصفحة السابقة"
               >
-                <ChevronRight className="size-4" />
+                <MotionChevronRight className="size-4" />
               </Button>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                 let pn: number

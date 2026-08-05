@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { ActionSearchBar } from "@/components/ui/action-search-bar"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
-import { Menu } from "lucide-react"
+import {} from 'lucide-react';
+import { MotionMenu } from '@/components/ui/motion-icons';
 
 interface LayoutHeaderProps {
   title?: string
@@ -41,7 +42,7 @@ export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, rol
             onClick={onMenuClick}
             aria-label="فتح القائمة"
           >
-            <Menu className="size-5" aria-hidden="true" />
+            <MotionMenu className="size-5" aria-hidden="true" />
           </button>
           <h1 className="hidden text-sm font-semibold text-muted-foreground sm:block">{title}</h1>
         </div>

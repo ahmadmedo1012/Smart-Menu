@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Check, Sparkles, Star, Crown, Building2 } from 'lucide-react';
+import {Star, Crown, Building2, Sparkles, type LucideIcon} from 'lucide-react';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -26,7 +28,7 @@ type Plan = {
 // arrays → blank white icon box on the 5th card.
 const PLAN_META: Record<
 	string,
-	{ icon: typeof Sparkles; gradient: string; glow: string; badge: string; badgeColor: string }
+	{ icon: LucideIcon; gradient: string; glow: string; badge: string; badgeColor: string }
 > = {
 	Free: {
 		icon: Sparkles,
@@ -166,7 +168,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 							className="flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-1"
 						>
 							<div className="relative shrink-0 mt-0.5">
-								<Check className="size-4 text-orange transition-all duration-300 group-hover/feature:scale-110" />
+								<MotionCheck className="size-4 text-orange transition-all duration-300 group-hover/feature:scale-110" />
 								<span className="absolute inset-0 size-4 rounded-full bg-orange/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
 							</div>
 							<span>{feature}</span>
@@ -221,7 +223,7 @@ export default function PricingPage() {
 
 				<div className="relative z-10 max-w-3xl mx-auto px-4">
 					<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-orange-muted text-orange text-sm mb-6">
-						<Sparkles className="size-4" />
+						<AnimatedSparkles className="size-4" />
 						خطط تناسب جميع الأحجام
 					</div>
 					<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">اختر خطتك</h1>

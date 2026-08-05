@@ -4,7 +4,8 @@ import { useEffect, useState, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, MessageCircle, ArrowLeft } from 'lucide-react';
+import {CheckCircle, MessageCircle} from 'lucide-react';
+import { MotionArrowLeft } from '@/components/ui/motion-icons';;
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/store/cart';
@@ -78,7 +79,7 @@ function OrderContent() {
 						</Link>
 						<Link href="/">
 							<Button variant="outline" className="w-full">
-								<ArrowLeft className="ms-2 size-4" />
+								<MotionArrowLeft className="ms-2 size-4" />
 								العودة للرئيسية
 							</Button>
 						</Link>
@@ -118,7 +119,7 @@ function OrderContent() {
 					</Button>
 					<Link href="/menu">
 						<Button variant="outline" className="w-full">
-							<ArrowLeft className="ms-2 size-4" />
+							<MotionArrowLeft className="ms-2 size-4" />
 							العودة إلى القائمة
 						</Button>
 					</Link>

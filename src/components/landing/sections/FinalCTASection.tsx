@@ -2,7 +2,9 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowLeft, Sparkles } from "lucide-react"
+import {} from 'lucide-react';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
+import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { Button } from "@/components/ui/button"
 import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
@@ -25,7 +27,7 @@ export function FinalCTASection() {
 
       <div className="relative z-10 text-center">
         <SectionHeader
-          icon={<Sparkles className="size-3" />}
+          icon={<AnimatedSparkles className="size-3" />}
           eyebrow=""
           title="جهّز مطعمك للانطلاق الرقمي"
           subtitle={
@@ -49,7 +51,7 @@ export function FinalCTASection() {
             className="relative"
           >
             <Link href="/subscribe">
-              <Button size="lg">ابدأ مجاناً <ArrowLeft className="size-4 sm:size-5" /></Button>
+              <Button size="lg">ابدأ مجاناً <MotionArrowLeft className="size-4 sm:size-5" /></Button>
             </Link>
           </motion.div>
           <Link href="/pricing">

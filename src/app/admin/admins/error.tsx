@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, RefreshCw } from "lucide-react"
+import {AlertCircle} from 'lucide-react';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => { console.error(error) }, [error])
@@ -13,7 +14,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
       <p className="text-lg font-medium">حدث خطأ</p>
       <p className="text-sm text-muted-foreground">{error.message}</p>
       <Button variant="outline" onClick={reset} className="gap-2">
-        <RefreshCw className="size-4" /> إعادة المحاولة
+        <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
       </Button>
     </div>
   )

@@ -1,6 +1,7 @@
 'use client';
 
-import {Sparkles, Star, Crown, Building2, ArrowLeft} from 'lucide-react';
+import {Sparkles, Star, Crown, Building2} from 'lucide-react';
+import { MotionArrowLeft } from '@/components/ui/motion-icons';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -116,7 +117,7 @@ export function PlanSelector({
 					{selectedPlan
 						? `اخترت ${plans.find((p) => p.id === selectedPlan)?.nameAr}`
 						: 'اختر خطة أولاً'}
-					<ArrowLeft className="ms-2 size-5" />
+					<MotionArrowLeft className="ms-2 size-5" />
 				</Button>
 			</div>
 		</div>

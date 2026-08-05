@@ -18,17 +18,8 @@ import {
 	TableRow,
 	TableCell,
 } from '@/components/ui/table';
-import {
-	ChevronDown,
-	ChevronUp,
-	RefreshCw,
-	AlertCircle,
-	Activity,
-	FilterX,
-	History,
-	Search,
-	AlertTriangle,
-} from 'lucide-react';
+import {ChevronDown, ChevronUp, RefreshCw, AlertCircle, Activity, FilterX, History, AlertTriangle} from 'lucide-react';
+import { MotionSearch } from '@/components/ui/motion-icons';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 
@@ -219,7 +210,7 @@ export default function AdminAuditLogsPage() {
 			<div className="flex flex-col gap-4">
 				{/* Search input */}
 				<div className="relative">
-					<Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+					<MotionSearch className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 					<input
 						type="text"
 						value={searchInput}

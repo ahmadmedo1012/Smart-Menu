@@ -12,10 +12,9 @@ import {
 } from "@/components/ui/select";
 import { SearchInput } from "@/components/ui/search-input";
 import { premiumToast } from "@/lib/premium-toast";
-import {
-  Plus, Trash2,
-  RefreshCw, AlertCircle, AlertTriangle,
-} from "lucide-react";
+import {RefreshCw, AlertCircle, AlertTriangle} from 'lucide-react';
+import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import { MotionPlus } from '@/components/ui/motion-icons';;
 import { toArabicNumber } from "@/lib/format";
 import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./RestaurantTable";
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
@@ -158,7 +157,7 @@ export default function AdminRestaurantsPage() {
           <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مطعم</p>
         </div>
         <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-white">
-          <Plus className="size-4" /> إضافة مطعم
+          <MotionPlus className="size-4" /> إضافة مطعم
         </Button>
       </div>
 
@@ -186,7 +185,7 @@ export default function AdminRestaurantsPage() {
         <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-orange-muted/50 dark:bg-orange-muted border border-orange/20">
           <span className="text-sm text-muted-foreground">تم اختيار {toArabicNumber(selectedIds.size)} مطعم</span>
           <Button variant="destructive" size="sm" onClick={bulkDelete} className="ms-auto">
-            <Trash2 className="size-3.5 me-1" aria-hidden="true" /> حذف
+            <AnimatedTrash2 className="size-3.5 me-1" aria-hidden="true" /> حذف
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>إلغاء التحديد</Button>
         </div>

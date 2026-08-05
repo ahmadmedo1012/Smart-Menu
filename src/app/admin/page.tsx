@@ -10,21 +10,9 @@ import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
 
-import {
-	Store,
-	ShoppingCart,
-	TrendingUp,
-	AlertCircle,
-	Users,
-	ArrowUpRight,
-	BarChart3,
-	RefreshCw,
-	UserPlus,
-	LogIn,
-	Activity,
-	DollarSign,
-	AlertTriangle,
-} from 'lucide-react';
+import {Store, ShoppingCart, TrendingUp, AlertCircle, Users, ArrowUpRight, RefreshCw, UserPlus, Activity, DollarSign, AlertTriangle} from 'lucide-react';
+import { MotionLogIn } from '@/components/ui/motion-icons';;
+import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';;
 
 interface StatsData {
 	totalUsers: number;
@@ -181,7 +169,7 @@ export default function AdminDashboard() {
 	if (!stats) {
 		return (
 			<div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-				<BarChart3 className="size-12 text-muted-foreground/50" />
+				<AnimatedBarChart3 className="size-12 text-muted-foreground/50" />
 				<p className="text-lg font-medium">لا توجد بيانات</p>
 				<Button variant="outline" onClick={load} className="gap-2">
 					<RefreshCw className="size-4" />
@@ -314,7 +302,7 @@ export default function AdminDashboard() {
 				{/* Top items */}
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
-						<BarChart3 className="size-4 text-muted-foreground" />
+						<AnimatedBarChart3 className="size-4 text-muted-foreground" />
 						<h3 className="text-sm font-semibold">الأصناف الأكثر طلباً</h3>
 					</div>
 					{stats.topItems.length > 0 ? (
@@ -323,7 +311,7 @@ export default function AdminDashboard() {
 						/>
 					) : (
 						<div className="flex flex-col items-center justify-center h-[200px] gap-2 text-muted-foreground/50">
-							<BarChart3 className="size-8" />
+							<AnimatedBarChart3 className="size-8" />
 							<p className="text-sm">لا توجد بيانات</p>
 						</div>
 					)}
@@ -415,7 +403,7 @@ export default function AdminDashboard() {
 				<div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
-							<LogIn className="size-4 text-muted-foreground" aria-hidden="true" />
+							<MotionLogIn className="size-4 text-muted-foreground" aria-hidden="true" />
 							<h3 className="text-sm font-semibold">آخر تسجيلات الدخول</h3>
 						</div>
 					</div>
@@ -448,7 +436,7 @@ export default function AdminDashboard() {
 						</div>
 					) : (
 						<div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-							<LogIn className="size-10 text-muted-foreground/40" aria-hidden="true" />
+							<MotionLogIn className="size-10 text-muted-foreground/40" aria-hidden="true" />
 							<p className="text-sm text-muted-foreground">لا توجد تسجيلات دخول حديثة</p>
 						</div>
 					)}
@@ -459,7 +447,7 @@ export default function AdminDashboard() {
 					<div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
 						<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 							<div className="flex items-center gap-2">
-								<BarChart3 className="size-4 text-muted-foreground" />
+								<AnimatedBarChart3 className="size-4 text-muted-foreground" />
 								<h3 className="text-sm font-semibold">المطاعم الأكثر طلباً</h3>
 							</div>
 						</div>

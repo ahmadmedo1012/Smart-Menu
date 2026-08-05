@@ -6,10 +6,8 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import {
-  ClipboardList, Store, Clock, ChefHat,
-  CheckCircle, XCircle, Activity, BarChart3, AlertTriangle,
-} from "lucide-react"
+import {ClipboardList, Store, Clock, ChefHat, CheckCircle, XCircle, Activity, AlertTriangle} from 'lucide-react';
+import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 
@@ -189,7 +187,7 @@ export default function AdminOrdersPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="rounded-md bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="size-4 text-success" />
+              <AnimatedBarChart3 className="size-4 text-success" />
               <h3 className="text-sm font-semibold">المطاعم الأكثر طلبات</h3>
             </div>
             <div className="space-y-2">
@@ -206,7 +204,7 @@ export default function AdminOrdersPage() {
           </div>
           <div className="rounded-md bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="size-4 text-muted-foreground" />
+              <AnimatedBarChart3 className="size-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold">المطاعم الأقل طلبات</h3>
             </div>
             <div className="space-y-2">

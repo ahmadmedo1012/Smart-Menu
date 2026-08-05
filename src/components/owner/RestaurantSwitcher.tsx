@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import {ChevronsUpDown, Store, Plus} from 'lucide-react';
+import {ChevronsUpDown, Store} from 'lucide-react';
+import { MotionPlus } from '@/components/ui/motion-icons';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
 import { cn } from '@/lib/utils';
 
@@ -108,7 +109,7 @@ export function RestaurantSwitcher() {
 							}}
 							className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-primary hover:bg-accent/60"
 						>
-							<Plus className="size-3.5" /> إدارة المنيوهات
+							<MotionPlus className="size-3.5" /> إدارة المنيوهات
 						</button>
 					</div>
 				</div>

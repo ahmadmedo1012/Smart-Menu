@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import {} from 'lucide-react';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
@@ -57,7 +58,7 @@ export function HeroSection() {
                         <motion.div variants={heroItem} custom={4} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
                             <Link href="/subscribe">
                                 <Button size="lg" className="text-sm sm:text-base">
-                                    أنشئ قائمتك مجاناً <ArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
+                                    أنشئ قائمتك مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
                                 </Button>
                             </Link>
                             <Link href="/login">

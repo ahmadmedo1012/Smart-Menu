@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import {} from 'lucide-react';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
 import { motion } from 'framer-motion';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
@@ -189,7 +190,7 @@ function MenuPageClientInner({
 
 			{hasActiveFilter && (
 				<div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
-					<Sparkles className="size-3.5 text-primary" />
+					<AnimatedSparkles className="size-3.5 text-primary" />
 					<span>
 						{filteredItems.length === 0
 							? 'لا توجد نتائج'
@@ -251,7 +252,7 @@ function MenuPageClientInner({
 			{normalItems.length === 0 ? (
 				<div className="glass-card text-center py-16 sm:py-20 rounded-sm">
 					<div className="empty-state-icon">
-						<Sparkles className="size-8 text-muted-foreground/30" />
+						<AnimatedSparkles className="size-8 text-muted-foreground/30" />
 					</div>
 					<p className="text-muted-foreground text-base sm:text-lg font-medium mb-1">
 						{search ? 'لا توجد أصناف تطابق بحثك' : 'لا توجد أصناف في هذه الفئة'}

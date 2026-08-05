@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Building2, ChevronLeft, ChevronRight, Star, Quote } from "lucide-react"
+import {ChevronLeft, Star, Quote} from 'lucide-react';
+import { MotionBuilding2 } from '@/components/ui/motion-icons';;
+import { MotionChevronRight } from '@/components/ui/motion-icons';
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
@@ -128,7 +130,7 @@ export function ClientsSection() {
       <GlowPool position="top-1/2 right-1/4" size="size-[50vmin]" color="orange/5" />
 
       <SectionHeader
-        icon={<Building2 className="size-3" />}
+        icon={<MotionBuilding2 className="size-3" />}
         eyebrow="منصتنا"
         title="عملاؤنا"
         subtitle="آلاف المطاعم والمقاهي تثق في منصتنا الرقمية"
@@ -165,7 +167,7 @@ export function ClientsSection() {
                 className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-all duration-300 text-muted-foreground/50"
                 aria-label="السابق"
               >
-                <ChevronRight className="size-4 group-hover:text-white transition-colors" />
+                <MotionChevronRight className="size-4 group-hover:text-white transition-colors" />
               </button>
               <div className="flex gap-1.5">
                 {TESTIMONIALS.map((_, i) => (

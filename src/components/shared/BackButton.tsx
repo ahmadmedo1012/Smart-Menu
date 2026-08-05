@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import {} from 'lucide-react';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 
 interface BackButtonProps {
   href?: string
@@ -16,7 +17,7 @@ export function BackButton({ href }: BackButtonProps) {
     return (
       <Link href={href}>
         <Button variant="ghost" size="sm">
-          <ArrowRight className="ms-1 size-4" />
+          <MotionArrowRight className="ms-1 size-4" />
           العودة
         </Button>
       </Link>
@@ -25,7 +26,7 @@ export function BackButton({ href }: BackButtonProps) {
 
   return (
     <Button variant="ghost" size="sm" onClick={() => router.back()}>
-      <ArrowRight className="ms-1 size-4" />
+      <MotionArrowRight className="ms-1 size-4" />
       العودة
     </Button>
   )

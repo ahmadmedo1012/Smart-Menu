@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Star, MessageCircle, RefreshCw, ArrowRight } from "lucide-react";
+import {Star, MessageCircle} from 'lucide-react';
+import { MotionArrowRight } from '@/components/ui/motion-icons';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,7 @@ export default function OwnerReviewsPage() {
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
       {/* Back */}
       <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2">
-        <ArrowRight className="size-4 me-1" />
+        <MotionArrowRight className="size-4 me-1" />
         العودة
       </Button>
 
@@ -66,7 +68,7 @@ export default function OwnerReviewsPage() {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          <RefreshCw className={cn("size-4", loading && "animate-spin")} />
+          <AnimatedRefreshCw className={cn("size-4", loading && "animate-spin")} />
           تحديث
         </Button>
       </div>

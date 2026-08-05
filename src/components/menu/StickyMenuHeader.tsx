@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'framer-motion';
-import { Menu } from 'lucide-react';
+import {} from 'lucide-react';
+import { MotionMenu } from '@/components/ui/motion-icons';;
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
@@ -92,7 +93,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 						onClick={() => setMobileOpen((o) => !o)}
 						className="md:hidden inline-flex items-center justify-center size-11 rounded-full bg-card border border-border hover:bg-accent/40 transition-colors"
 					>
-						<Menu className="size-5" />
+						<MotionMenu className="size-5" />
 					</button>
 				</div>
 			</div>
