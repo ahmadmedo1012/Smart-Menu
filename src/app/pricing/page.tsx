@@ -55,17 +55,17 @@ const PLAN_META: Record<
 	},
 	Pro: {
 		icon: Building2,
-		gradient: 'from-blue-500 to-indigo-600',
+		gradient: 'from-orange-500 to-rose-600',
 		glow: 'shadow-blue-500/25',
 		badge: '',
 		badgeColor: '',
 	},
 	Enterprise: {
 		icon: Building2,
-		gradient: 'from-violet-500 to-purple-600',
-		glow: 'shadow-violet-500/25',
+		gradient: 'from-rose-500 to-orange-600',
+		glow: 'shadow-orange-500/25',
 		badge: 'للشركات الكبرى',
-		badgeColor: 'bg-gradient-to-r from-violet-600 to-purple-700 text-white dark:text-white',
+		badgeColor: 'bg-gradient-to-r from-orange-600 to-rose-700 text-white dark:text-white',
 	},
 };
 const DEFAULT_META = PLAN_META.Free;
