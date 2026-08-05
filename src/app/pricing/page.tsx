@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { springDefault } from '@/lib/motion';
 import {Star, Crown, Building2, Sparkles, type LucideIcon} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
@@ -78,7 +80,11 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 	const isFree = plan.price === 0;
 
 	return (
-		<div
+		<motion.div
+			initial={{ opacity: 0, y: 24 }}
+			whileInView={{ opacity: 1, y: 0 }}
+			viewport={{ once: true, margin: "-40px" }}
+			transition={{ ...springDefault, delay: index * 0.08 }}
 			className={cn(
 				'group relative flex flex-col rounded-sm border p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1',
 				isPopular
@@ -188,7 +194,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					</Button>
 				</Link>
 			</div>
-		</div>
+		</motion.div>
 	);
 }
 
