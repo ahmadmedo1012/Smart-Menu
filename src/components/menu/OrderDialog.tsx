@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {Minus, Plus, Store} from 'lucide-react';
+import {Minus, Store} from 'lucide-react';
+import { MotionPlus } from '@/components/ui/motion-icons';;
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedX from '@/components/ui/x-icon';
@@ -259,7 +260,7 @@ export function OrderDialog({
 								className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-all"
 								aria-label="زيادة الكمية"
 							>
-								<Plus className="size-4" />
+								<MotionPlus className="size-4" />
 							</button>
 						</div>
 					</div>

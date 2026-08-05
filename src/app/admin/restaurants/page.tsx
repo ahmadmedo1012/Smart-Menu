@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/select";
 import { SearchInput } from "@/components/ui/search-input";
 import { premiumToast } from "@/lib/premium-toast";
-import {RefreshCw, AlertCircle, AlertTriangle} from 'lucide-react';
+import {AlertCircle, AlertTriangle} from 'lucide-react';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import AnimatedTrash2 from '@/components/ui/trash-icon';;
 import { MotionPlus } from '@/components/ui/motion-icons';;
 import { toArabicNumber } from "@/lib/format";
@@ -136,7 +137,7 @@ export default function AdminRestaurantsPage() {
     <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
       <AlertCircle className="size-10 text-destructive" />
       <p className="text-lg font-medium">{error}</p>
-      <Button variant="outline" onClick={fetchData} className="gap-2"><RefreshCw className="size-4" /> إعادة المحاولة</Button>
+      <Button variant="outline" onClick={fetchData} className="gap-2"><AnimatedRefreshCw className="size-4" /> إعادة المحاولة</Button>
     </div>
   );
 

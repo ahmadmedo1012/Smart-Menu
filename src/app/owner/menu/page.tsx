@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { SearchInput } from '@/components/ui/search-input';
-import {Plus, Pencil, ChevronDown, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon} from 'lucide-react';
+import {Pencil, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon} from 'lucide-react';
+import { MotionChevronDown } from '@/components/ui/motion-icons';;
+import { MotionPlus } from '@/components/ui/motion-icons';;
 import AnimatedTrash from '@/components/ui/trash-icon';;
 import { BackButton } from '@/components/shared/BackButton';
 import { csrfFetch } from '@/lib/csrf-client';
@@ -294,7 +296,7 @@ export default function OwnerMenuPage() {
 					}}
 					className="gap-2"
 				>
-					<Plus className="size-4" /> تصنيف جديد
+					<MotionPlus className="size-4" /> تصنيف جديد
 				</Button>
 			</div>
 
@@ -323,7 +325,7 @@ export default function OwnerMenuPage() {
 							}}
 							className="gap-2"
 						>
-							<Plus className="size-4" /> إضافة تصنيف
+							<MotionPlus className="size-4" /> إضافة تصنيف
 						</Button>
 					)}
 				</div>
@@ -371,7 +373,7 @@ export default function OwnerMenuPage() {
 										title="إضافة صنف"
 										aria-label="إضافة صنف"
 									>
-										<Plus className="size-4" />
+										<MotionPlus className="size-4" />
 									</Button>
 									<Button
 										variant="ghost"
@@ -401,7 +403,7 @@ export default function OwnerMenuPage() {
 									>
 										<AnimatedTrash className="size-4" />
 									</Button>
-									<ChevronDown
+									<MotionChevronDown
 										className={cn(
 											'size-5 text-muted-foreground transition-transform duration-300 mr-1',
 											expandedCat === cat.id && 'rotate-180'
@@ -531,7 +533,7 @@ export default function OwnerMenuPage() {
 												}}
 												className="gap-1 border-orange/30 text-orange hover:bg-orange-muted"
 											>
-												<Plus className="size-3.5" /> إضافة صنف
+												<MotionPlus className="size-3.5" /> إضافة صنف
 											</Button>
 										</div>
 									)}

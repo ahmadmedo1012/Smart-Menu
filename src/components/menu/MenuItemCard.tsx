@@ -4,7 +4,8 @@ import { useState, memo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import { Minus, Star } from 'lucide-react';
+import {Minus} from 'lucide-react';
+import AnimatedStar from '@/components/ui/star-icon';;
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { ReviewSheet } from './ReviewSheet';
@@ -183,7 +184,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							transition={CARD_SPRING}
 							className="text-[10px] font-bold px-2 py-1 rounded-lg bg-orange/85 dark:bg-orange/90 backdrop-blur-sm text-white shadow-lg flex items-center gap-1"
 						>
-							<Star className="size-2.5 fill-current" />
+							<AnimatedStar className="size-2.5 fill-current" />
 							الأكثر طلباً
 						</motion.span>
 					)}
@@ -228,7 +229,7 @@ const MenuItemCard = memo(function MenuItemCard({
 								: 'text-muted-foreground/60 hover:text-amber-500 hover:bg-white/20'
 						)}
 					>
-						<Star
+						<AnimatedStar
 							className={cn('size-3', hasRating && 'fill-amber-500 dark:fill-amber-400')}
 							aria-hidden="true"
 						/>

@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Confetti } from '@/components/shared/Confetti';
-import {CheckCircle, MessageCircle, Camera, Phone, Gift, Sparkles} from 'lucide-react';
+import {CheckCircle, Camera, Phone, Gift} from 'lucide-react';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useCart } from '@/store/cart';
@@ -144,7 +146,7 @@ ${referralUrl}
 
 					{/* Sparkle decoration */}
 					<div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
-						<Sparkles className="size-12 text-white/20 animate-spin-slow" />
+						<AnimatedSparkles className="size-12 text-white/20 animate-spin-slow" />
 					</div>
 
 					{/* Checkmark */}
@@ -274,7 +276,7 @@ ${referralUrl}
 									onClick={handleShareWhatsApp}
 									className="h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all cursor-pointer"
 								>
-									<MessageCircle className="size-5" />
+									<AnimatedMessageCircle className="size-5" />
 									واتساب
 								</button>
 								<button

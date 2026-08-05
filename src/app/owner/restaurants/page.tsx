@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import {Store, Plus, Star, Loader2} from 'lucide-react';;
+import {Store, Loader2} from 'lucide-react';
+import AnimatedStar from '@/components/ui/star-icon';;
+import { MotionPlus } from '@/components/ui/motion-icons';;;
 import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import AnimatedTrash from '@/components/ui/trash-icon';;
@@ -132,7 +134,7 @@ export default function OwnerRestaurantsPage() {
 					</p>
 				</div>
 				<Button onClick={() => setShowAdd((s) => !s)} className="h-11">
-					<Plus className="size-4 ms-2" /> إضافة منيو جديد
+					<MotionPlus className="size-4 ms-2" /> إضافة منيو جديد
 				</Button>
 			</div>
 
@@ -249,7 +251,7 @@ export default function OwnerRestaurantsPage() {
 								</Button>
 								{!r.isPrimary && (
 									<Button variant="outline" size="sm" onClick={() => setPrimary(r.id)}>
-										<Star className="size-3.5 ms-1.5" /> تعيين أساسي
+										<AnimatedStar className="size-3.5 ms-1.5" /> تعيين أساسي
 									</Button>
 								)}
 								<Button

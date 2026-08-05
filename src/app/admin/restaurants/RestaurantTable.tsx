@@ -1,6 +1,12 @@
 "use client"
 
-import { Pencil, Trash2, ShoppingCart, Crown, Star, Sparkles, Building2, ChevronLeft, ChevronRight, Plus, Store, FilterX } from "lucide-react"
+import {Pencil, Crown, Star, Building2, Store, FilterX, Sparkles} from 'lucide-react';;
+import { MotionChevronLeft } from '@/components/ui/motion-icons';;
+import { MotionChevronRight } from '@/components/ui/motion-icons';;
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
+import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedExternalLink from "@/components/ui/external-link-icon"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -71,7 +77,7 @@ export function EmptyState({ search, planFilter, onClear, onAdd }: EmptyStatePro
         </Button>
       ) : (
         <Button variant="orange" onClick={onAdd} className="gap-2">
-          <Plus className="size-4" /> إضافة مطعم
+          <MotionPlus className="size-4" /> إضافة مطعم
         </Button>
       )}
     </div>
@@ -123,7 +129,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
               <span>/{r.slug}</span>
               {r.phone && <span dir="ltr">{r.phone}</span>}
               <span className="flex items-center gap-1">
-                <ShoppingCart className="size-3" aria-hidden="true" />
+                <AnimatedShoppingCart className="size-3" aria-hidden="true" />
                 {toArabicNumber(r._count.orders)} طلب
               </span>
               <span className={cn("text-[11px] px-1.5 py-0.5 rounded", r.showOnLanding ? "text-orange bg-orange/10" : "text-muted-foreground/40")}>
@@ -146,7 +152,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
             )}
             title={r.showOnLanding ? "إخفاء من الرئيسية" : "عرض في الرئيسية"}
             aria-label={r.showOnLanding ? `إخفاء ${r.name} من الرئيسية` : `عرض ${r.name} في الرئيسية`}>
-            <Sparkles className="size-3.5" aria-hidden="true" />
+            <AnimatedSparkles className="size-3.5" aria-hidden="true" />
           </button>
           <button type="button" onClick={() => onEdit(r)}
             className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
@@ -156,7 +162,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
           <button type="button" onClick={() => onDelete(r)}
             className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors"
             title="حذف" aria-label={`حذف ${r.name}`}>
-            <Trash2 className="size-4" aria-hidden="true" />
+            <AnimatedTrash2 className="size-4" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -175,7 +181,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
     <div className="flex items-center justify-center gap-2 pt-2">
       <Button variant="outline" size="icon" onClick={() => onPageChange(Math.max(1, page - 1))}
         disabled={page <= 1} aria-label="الصفحة السابقة">
-        <ChevronRight className="size-4" />
+        <MotionChevronRight className="size-4" />
       </Button>
       {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
         let pageNum: number
@@ -193,7 +199,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       })}
       <Button variant="outline" size="icon" onClick={() => onPageChange(Math.min(totalPages, page + 1))}
         disabled={page >= totalPages} aria-label="الصفحة التالية">
-        <ChevronLeft className="size-4" />
+        <MotionChevronLeft className="size-4" />
       </Button>
       <span className="text-xs text-muted-foreground mr-2">
         الصفحة {toArabicNumber(page)} من {toArabicNumber(totalPages)}

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import {ChevronLeft, Quote} from 'lucide-react';
+import {Quote} from 'lucide-react';
+import { MotionChevronLeft } from '@/components/ui/motion-icons';;
 import AnimatedStar from '@/components/ui/star-icon';;
 import { MotionBuilding2 } from '@/components/ui/motion-icons';;
 import { MotionChevronRight } from '@/components/ui/motion-icons';
@@ -180,7 +181,7 @@ export function ClientsSection() {
                 className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-all duration-300 text-muted-foreground/50"
                 aria-label="التالي"
               >
-                <ChevronLeft className="size-4 group-hover:text-white transition-colors" />
+                <MotionChevronLeft className="size-4 group-hover:text-white transition-colors" />
               </button>
             </div>
           )}

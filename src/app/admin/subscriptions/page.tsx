@@ -21,7 +21,11 @@ import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import {CreditCard, Check, RefreshCw, FilterX, ChevronLeft, ChevronRight, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
+import {CreditCard, FilterX, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
+import { MotionChevronLeft } from '@/components/ui/motion-icons';;
+import { MotionChevronRight } from '@/components/ui/motion-icons';;
+import { MotionCheck } from '@/components/ui/motion-icons';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import AnimatedX from '@/components/ui/x-icon';;
 import AnimatedClock from '@/components/ui/clock-icon';;
 
@@ -174,7 +178,7 @@ export default function AdminSubscriptionsPage() {
 				<AlertCircle className="size-10 text-destructive" />
 				<p className="text-lg font-medium">{error}</p>
 				<Button variant="outline" onClick={fetchPayments} className="gap-2">
-					<RefreshCw className="size-4" /> إعادة المحاولة
+					<AnimatedRefreshCw className="size-4" /> إعادة المحاولة
 				</Button>
 			</div>
 		);
@@ -354,7 +358,7 @@ export default function AdminSubscriptionsPage() {
 													title="تأكيد الدفع"
 													aria-label="تأكيد الدفع"
 												>
-													<Check className="size-4 text-emerald-600" />
+													<MotionCheck className="size-4 text-emerald-600" />
 												</button>
 												<button
 													type="button"
@@ -385,7 +389,7 @@ export default function AdminSubscriptionsPage() {
 								onClick={() => setPage((p) => Math.max(1, p - 1))}
 								disabled={page <= 1}
 							>
-								<ChevronRight className="size-4" />
+								<MotionChevronRight className="size-4" />
 							</Button>
 							{Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
 								let pn: number;
@@ -412,7 +416,7 @@ export default function AdminSubscriptionsPage() {
 								onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
 								disabled={page >= totalPages}
 							>
-								<ChevronLeft className="size-4" />
+								<MotionChevronLeft className="size-4" />
 							</Button>
 						</div>
 					)}
@@ -441,7 +445,7 @@ export default function AdminSubscriptionsPage() {
 						>
 							{actionLoading ? (
 								<span className="flex items-center gap-2">
-									<RefreshCw className="size-4 animate-spin" />
+									<AnimatedRefreshCw className="size-4 animate-spin" />
 									جاري التحديث...
 								</span>
 							) : actionType === 'verified' ? (

@@ -4,7 +4,11 @@ import { toArabicNumber } from '@/lib/format';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {Users, Gift, TrendingUp, Award, AlertCircle, RefreshCw, ArrowRight, Check, MessageCircle, Share2} from 'lucide-react';
+import {Users, Gift, TrendingUp, Award, AlertCircle, Share2} from 'lucide-react';
+import { MotionArrowRight } from '@/components/ui/motion-icons';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
+import { MotionCheck } from '@/components/ui/motion-icons';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import AnimatedClock from '@/components/ui/clock-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { useRouter } from 'next/navigation';
@@ -233,7 +237,7 @@ export default function OwnerLoyaltyPage() {
 				<p className="text-lg font-semibold">خطأ في تحميل بيانات الولاء</p>
 				<p className="mt-1 text-sm text-muted-foreground">{error}</p>
 				<Button variant="outline" className="mt-5" onClick={() => load()}>
-					<RefreshCw className="size-4 me-2" /> إعادة المحاولة
+					<AnimatedRefreshCw className="size-4 me-2" /> إعادة المحاولة
 				</Button>
 			</div>
 		);
@@ -249,7 +253,7 @@ export default function OwnerLoyaltyPage() {
 		return (
 			<div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
 				<Button variant="ghost" size="sm" onClick={() => router.push('/owner')} className="mb-2">
-					<ArrowRight className="size-4 me-1" /> العودة
+					<MotionArrowRight className="size-4 me-1" /> العودة
 				</Button>
 				<div className="card-premium flex flex-col items-center justify-center rounded-md bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
 					<div className="mb-4 flex size-16 items-center justify-center rounded-md bg-orange/10">
@@ -313,7 +317,7 @@ export default function OwnerLoyaltyPage() {
 		<div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
 			{/* ---- Header ---- */}
 			<Button variant="ghost" size="sm" onClick={() => router.push('/owner')} className="mb-2">
-				<ArrowRight className="size-4 me-1" /> العودة
+				<MotionArrowRight className="size-4 me-1" /> العودة
 			</Button>
 			<div className="flex items-center justify-between flex-wrap gap-4">
 				<div>
@@ -338,7 +342,7 @@ export default function OwnerLoyaltyPage() {
 						className="gap-1.5 border-white/30 backdrop-blur-sm"
 						onClick={() => load()}
 					>
-						<RefreshCw className="size-4" /> تحديث
+						<AnimatedRefreshCw className="size-4" /> تحديث
 					</Button>
 				</div>
 			</div>
@@ -411,7 +415,7 @@ export default function OwnerLoyaltyPage() {
 									)
 								}
 							>
-								<MessageCircle className="size-3.5" /> واتساب
+								<AnimatedMessageCircle className="size-3.5" /> واتساب
 							</Button>
 							<Button
 								variant="outline"
@@ -419,7 +423,7 @@ export default function OwnerLoyaltyPage() {
 								className="flex-1 gap-1 text-xs"
 								onClick={handleCopyReferralLink}
 							>
-								{copied ? <Check className="size-3.5" /> : <AnimatedCopy className="size-3.5" />}
+								{copied ? <MotionCheck className="size-3.5" /> : <AnimatedCopy className="size-3.5" />}
 								{copied ? 'تم النسخ!' : 'نسخ الرابط'}
 							</Button>
 						</div>

@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { MessageCircle } from 'lucide-react';
+import {} from 'lucide-react';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 
 // Single canonical support number — same env source as FloatingWhatsApp.
 // Hardcoded per-number links drift (was 218911111111 placeholder vs 218910089975).
@@ -68,7 +69,7 @@ export function Footer({ className }: FooterProps) {
 								className="size-8 rounded-sm bg-card border border-border flex items-center justify-center hover:bg-orange/20 transition-colors"
 								aria-label="واتساب"
 							>
-								<MessageCircle className="size-3.5" />
+								<AnimatedMessageCircle className="size-3.5" />
 							</a>
 						</div>
 					</div>

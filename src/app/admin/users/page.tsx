@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import {Users, Key, AlertCircle, UserPlus, Store, Shield, ChevronLeft, FilterX} from 'lucide-react';
+import {Users, Key, AlertCircle, UserPlus, Store, Shield, FilterX} from 'lucide-react';
+import { MotionChevronLeft } from '@/components/ui/motion-icons';;
 import { MotionChevronRight } from '@/components/ui/motion-icons';;
 import AnimatedTrash2 from '@/components/ui/trash-icon';;
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
@@ -293,7 +294,7 @@ export default function AdminUsersPage() {
                 disabled={page >= totalPages}
                 aria-label="الصفحة التالية"
               >
-                <ChevronLeft className="size-4" />
+                <MotionChevronLeft className="size-4" />
               </Button>
               <span className="text-xs text-muted-foreground mr-2">
                 الصفحة {toArabicNumber(page)} من {toArabicNumber(totalPages)}

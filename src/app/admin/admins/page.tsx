@@ -9,11 +9,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Switch } from "@/components/ui/switch"
 import { premiumToast } from "@/lib/premium-toast"
 import { csrfFetch } from "@/lib/csrf-client"
-import {
-  Shield, UserPlus, Key, Trash2, RefreshCw, AlertCircle,
-  CheckCheck, Users, Store, DollarSign, Settings as SettingsIcon,
-  BarChart3, AlertTriangle,
-} from "lucide-react"
+import {Shield, UserPlus, Key, AlertCircle, CheckCheck, Users, Store, DollarSign, Settings as SettingsIcon, BarChart3, AlertTriangle} from 'lucide-react';
+import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import AnimatedLogOut from "@/components/ui/logout-icon"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
@@ -184,7 +182,7 @@ export default function AdminAdminsPage() {
         <AlertCircle className="size-10 text-destructive" />
         <p className="text-lg font-medium">{error}</p>
         <Button variant="outline" onClick={fetchAdmins} className="gap-2">
-          <RefreshCw className="size-4" /> إعادة المحاولة
+          <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
         </Button>
       </div>
     )
@@ -342,7 +340,7 @@ export default function AdminAdminsPage() {
                       className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors"
                       title="حذف" aria-label="حذف"
                     >
-                      <Trash2 className="size-4" />
+                      <AnimatedTrash2 className="size-4" />
                     </button>
                   </div>
                 </div>

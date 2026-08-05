@@ -7,7 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-import {Crown, ShoppingCart, Package, Sparkles, ImageIcon, Loader2} from 'lucide-react';;
+import {Crown, Package, ImageIcon, Loader2} from 'lucide-react';
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;;
 import AnimatedSave from '@/components/ui/save-icon';;
 import AnimatedUpload from '@/components/ui/upload-icon';;
 import AnimatedX from '@/components/ui/x-icon';
@@ -239,7 +241,7 @@ export default function OwnerSettingsPage() {
 						</div>
 						<Link href="/subscribe" target="_self">
 							<Button size="sm" variant="outline" className="gap-1 text-xs h-8">
-								<Sparkles className="size-3" /> ترقية
+								<AnimatedSparkles className="size-3" /> ترقية
 							</Button>
 						</Link>
 					</div>
@@ -508,7 +510,7 @@ export default function OwnerSettingsPage() {
 				<div className="grid grid-cols-2 gap-3">
 					<div className="rounded-md bg-card/40 border border-border/20 p-4">
 						<div className="flex items-center gap-2 mb-1.5">
-							<ShoppingCart className="size-3.5 text-primary" />
+							<AnimatedShoppingCart className="size-3.5 text-primary" />
 							<span className="text-[11px] text-muted-foreground">إجمالي الطلبات</span>
 						</div>
 						<p className="text-xl font-bold">{toArabicNumber(restaurant._count?.orders ?? 0)}</p>

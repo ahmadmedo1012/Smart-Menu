@@ -1,6 +1,7 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
+import {} from 'lucide-react';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { cn } from "@/lib/utils";
 
 export function FloatingWhatsApp({ phone }: { phone?: string }) {
@@ -23,7 +24,7 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
 			aria-label="تواصل عبر واتساب"
 			style={{ animationDelay: "3s", animationFillMode: "both" }}
 		>
-			<MessageCircle className="size-7" />
+			<AnimatedMessageCircle className="size-7" />
 		</a>
 	);
 }

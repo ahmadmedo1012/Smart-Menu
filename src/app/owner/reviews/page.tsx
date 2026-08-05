@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import {Star, MessageCircle} from 'lucide-react';
+import {} from 'lucide-react';
+import AnimatedStar from '@/components/ui/star-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionArrowRight } from '@/components/ui/motion-icons';;
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import { cn } from "@/lib/utils";
@@ -132,7 +134,7 @@ export default function OwnerReviewsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
-          <MessageCircle className="size-10 text-muted-foreground/20 mx-auto mb-3" />
+          <AnimatedMessageCircle className="size-10 text-muted-foreground/20 mx-auto mb-3" />
           <p className="text-base font-medium text-muted-foreground">لا توجد تقييمات</p>
           <p className="text-sm text-muted-foreground/60 mt-1">عندما يقوم العملاء بتقييم الأصناف ستظهر هنا</p>
         </div>
@@ -151,7 +153,7 @@ export default function OwnerReviewsPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} className={cn("size-3.5", s <= review.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20")} />
+                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20")} />
                       ))}
                     </div>
                     <span className="text-xs text-muted-foreground">

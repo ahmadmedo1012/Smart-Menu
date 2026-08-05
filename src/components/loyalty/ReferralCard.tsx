@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import {Share2, MessageCircle, Gift, Smartphone, Users, TrendingUp} from 'lucide-react';
+import {Share2, Gift, Smartphone, Users, TrendingUp} from 'lucide-react';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
@@ -140,7 +141,7 @@ export function ReferralCard({
 								onClick={handleShareWhatsApp}
 								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all cursor-pointer"
 							>
-								<MessageCircle className="size-4" />
+								<AnimatedMessageCircle className="size-4" />
 								واتساب
 							</button>
 							<button

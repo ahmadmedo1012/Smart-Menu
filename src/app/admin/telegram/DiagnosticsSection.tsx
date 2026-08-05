@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {Plus, Trash2, Loader2, Stethoscope, CheckCircle2, XCircle} from 'lucide-react';
+import {Loader2, Stethoscope, CheckCircle2, XCircle} from 'lucide-react';
+import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import { MotionPlus } from '@/components/ui/motion-icons';;
 import AnimatedUserCheck from '@/components/ui/user-check-icon';;
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
@@ -130,7 +132,7 @@ export function DiagnosticsSection({
 								{addingApprover ? (
 									<Loader2 className="size-4 animate-spin" />
 								) : (
-									<Plus className="size-4" />
+									<MotionPlus className="size-4" />
 								)}
 								إضافة
 							</Button>
@@ -171,7 +173,7 @@ export function DiagnosticsSection({
 											onClick={() => handleDeleteApprover(a.id)}
 											className="rounded-xl"
 										>
-											<Trash2 className="size-4" />
+											<AnimatedTrash2 className="size-4" />
 										</Button>
 									</div>
 								))}

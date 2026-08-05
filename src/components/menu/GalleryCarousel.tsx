@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
-import {ChevronLeft, ChevronRight, Maximize2, Pause, Play} from 'lucide-react';
+import {Maximize2, Pause, Play} from 'lucide-react';
+import { MotionChevronLeft } from '@/components/ui/motion-icons';;
+import { MotionChevronRight } from '@/components/ui/motion-icons';;
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -142,7 +144,7 @@ export function GalleryCarousel({
 							aria-label="الصورة السابقة"
 							className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg"
 						>
-							<ChevronLeft className="size-4" aria-hidden="true" />
+							<MotionChevronLeft className="size-4" aria-hidden="true" />
 						</button>
 						<button
 							type="button"
@@ -153,7 +155,7 @@ export function GalleryCarousel({
 							aria-label="الصورة التالية"
 							className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg"
 						>
-							<ChevronRight className="size-4" aria-hidden="true" />
+							<MotionChevronRight className="size-4" aria-hidden="true" />
 						</button>
 
 						<button
@@ -252,7 +254,7 @@ export function GalleryCarousel({
 									aria-label="الصورة السابقة"
 									className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg"
 								>
-									<ChevronLeft className="size-5" aria-hidden="true" />
+									<MotionChevronLeft className="size-5" aria-hidden="true" />
 								</button>
 								<button
 									type="button"
@@ -261,7 +263,7 @@ export function GalleryCarousel({
 									aria-label="الصورة التالية"
 									className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg"
 								>
-									<ChevronRight className="size-5" aria-hidden="true" />
+									<MotionChevronRight className="size-5" aria-hidden="true" />
 								</button>
 
 								<div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">

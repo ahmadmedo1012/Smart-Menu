@@ -18,7 +18,9 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import Link from 'next/link';
-import {LogIn, ArrowRight, MessageCircle} from 'lucide-react';
+import {LogIn} from 'lucide-react';
+import { MotionArrowRight } from '@/components/ui/motion-icons';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import AnimatedEyeOff from '@/components/ui/eye-off-icon';;
 import AnimatedEye from '@/components/ui/eye-icon';;
 
@@ -152,7 +154,7 @@ function LoginForm() {
 						size="sm"
 						className="gap-1 text-muted-foreground/60 hover:text-foreground"
 					>
-						<ArrowRight className="size-3.5" />
+						<MotionArrowRight className="size-3.5" />
 						العودة للرئيسية
 					</Button>
 				</Link>
@@ -278,7 +280,7 @@ function LoginForm() {
 									rel="noopener noreferrer"
 									className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-500/15 transition-colors"
 								>
-									<MessageCircle className="size-4" />
+									<AnimatedMessageCircle className="size-4" />
 									تواصل عبر واتساب
 								</a>
 								<Button variant="outline" className="w-full" onClick={() => setShowForgot(false)}>

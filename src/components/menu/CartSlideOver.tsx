@@ -2,7 +2,9 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import {Plus, Minus, ArrowLeft} from 'lucide-react';
+import {Minus} from 'lucide-react';
+import { MotionArrowLeft } from '@/components/ui/motion-icons';;
+import { MotionPlus } from '@/components/ui/motion-icons';;
 import AnimatedTrash from '@/components/ui/trash-icon';;
 import AnimatedCart from '@/components/ui/shopping-cart-icon';;
 import { motion } from 'framer-motion';
@@ -90,7 +92,7 @@ export function CartSlideOver() {
 							className="size-10 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
 							aria-label="إغلاق"
 						>
-							<ArrowLeft className="size-4" />
+							<MotionArrowLeft className="size-4" />
 						</button>
 						<SheetTitle className="text-base">سلة الطلبات</SheetTitle>
 					</div>
@@ -141,7 +143,7 @@ export function CartSlideOver() {
 											aria-label="زيادة الكمية"
 											className="size-10 flex items-center justify-center hover:bg-white/10 transition-colors"
 										>
-											<Plus className="size-3" />
+											<MotionPlus className="size-3" />
 										</button>
 									</div>
 									<span className="text-xs font-semibold tabular-nums ms-auto">

@@ -10,7 +10,9 @@ import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
 
-import {Store, ShoppingCart, TrendingUp, AlertCircle, Users, ArrowUpRight, RefreshCw, UserPlus, Activity, DollarSign, AlertTriangle} from 'lucide-react';
+import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart} from 'lucide-react';;
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
 import { MotionLogIn } from '@/components/ui/motion-icons';;
 import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';;
 
@@ -158,7 +160,7 @@ export default function AdminDashboard() {
 				<p className="text-lg font-medium">{error}</p>
 				<p className="text-sm text-muted-foreground">تحقق من الاتصال وحاول مرة أخرى</p>
 				<Button variant="outline" onClick={load} className="gap-2">
-					<RefreshCw className="size-4" />
+					<AnimatedRefreshCw className="size-4" />
 					إعادة المحاولة
 				</Button>
 			</div>
@@ -172,7 +174,7 @@ export default function AdminDashboard() {
 				<AnimatedBarChart3 className="size-12 text-muted-foreground/50" />
 				<p className="text-lg font-medium">لا توجد بيانات</p>
 				<Button variant="outline" onClick={load} className="gap-2">
-					<RefreshCw className="size-4" />
+					<AnimatedRefreshCw className="size-4" />
 					تحميل
 				</Button>
 			</div>
@@ -202,7 +204,7 @@ export default function AdminDashboard() {
 				</div>
 				<div className="flex items-center gap-2">
 					<Button variant="ghost" size="icon" onClick={load} aria-label="تحديث">
-						<RefreshCw className="size-4" />
+						<AnimatedRefreshCw className="size-4" />
 					</Button>
 					<Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20">
 						<Activity className="size-3.5 text-success" />
@@ -277,7 +279,7 @@ export default function AdminDashboard() {
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center justify-between mb-4">
 						<div className="flex items-center gap-2">
-							<ShoppingCart className="size-4 text-muted-foreground" />
+							<AnimatedShoppingCart className="size-4 text-muted-foreground" />
 							<h3 className="text-sm font-semibold">حجم الطلبات (30 يوم)</h3>
 						</div>
 					</div>
@@ -290,7 +292,7 @@ export default function AdminDashboard() {
 						/>
 					) : (
 						<div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">
-							<ShoppingCart className="size-8" />
+							<AnimatedShoppingCart className="size-8" />
 							<p className="text-sm">لا توجد بيانات</p>
 						</div>
 					)}

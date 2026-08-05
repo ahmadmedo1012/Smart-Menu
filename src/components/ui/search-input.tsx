@@ -1,7 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { Search } from 'lucide-react';
+import {} from 'lucide-react';
+import { MotionSearch } from '@/components/ui/motion-icons';;
 
 interface SearchInputProps {
 	value: string;
@@ -20,7 +21,7 @@ export function SearchInput({
 }: SearchInputProps) {
 	return (
 		<div className={cn('relative flex-1', className)}>
-			<Search
+			<MotionSearch
 				className="pointer-events-none absolute start-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
 				aria-hidden="true"
 			/>

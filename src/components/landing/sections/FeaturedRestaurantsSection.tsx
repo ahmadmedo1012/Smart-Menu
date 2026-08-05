@@ -4,7 +4,10 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import {Star, Phone, ArrowLeft, ArrowRight, Store} from 'lucide-react';
+import {Phone, Store} from 'lucide-react';
+import { MotionArrowRight } from '@/components/ui/motion-icons';;
+import { MotionArrowLeft } from '@/components/ui/motion-icons';;
+import AnimatedStar from '@/components/ui/star-icon';;
 import AnimatedMapPin from '@/components/ui/map-pin-icon';;
 import { SectionContainer } from '@/components/ui/SectionContainer';
 import { SectionHeader } from '@/components/ui/SectionHeader';
@@ -169,7 +172,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 												transition={{ delay: 0.2, duration: 0.3 }}
 												className="flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white/90"
 											>
-												<Star className="size-3.5 text-yellow-400" />
+												<AnimatedStar className="size-3.5 text-yellow-400" />
 												{r.orderCount}
 											</motion.div>
 										)}
@@ -204,7 +207,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 											)}
 											<span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange-400 hover:text-orange-300 transition-colors group/link">
 												عرض المنيو
-												<ArrowLeft className="size-4 transition-transform duration-200 group-hover/link:-translate-x-1" />
+												<MotionArrowLeft className="size-4 transition-transform duration-200 group-hover/link:-translate-x-1" />
 											</span>
 										</motion.div>
 									</div>
@@ -222,7 +225,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 								className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
 								aria-label="السابق"
 							>
-								<ArrowRight className="size-5" />
+								<MotionArrowRight className="size-5" />
 							</button>
 							<button
 								onClick={next}
@@ -230,7 +233,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 								className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
 								aria-label="التالي"
 							>
-								<ArrowLeft className="size-5" />
+								<MotionArrowLeft className="size-5" />
 							</button>
 						</>
 					)}

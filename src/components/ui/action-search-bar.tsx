@@ -4,22 +4,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-	Search,
-	LayoutDashboard,
-	Store,
-	Users,
-	UtensilsCrossed,
-	ScrollText,
-	QrCode,
-	Settings,
-	Activity,
-	DollarSign,
-	MessageCircle,
-	ClipboardList,
-	Gift,
-	Package,
-} from 'lucide-react';
+import {LayoutDashboard, Store, Users, UtensilsCrossed, ScrollText, Settings, Activity, DollarSign, ClipboardList, Gift, Package} from 'lucide-react';
+import AnimatedQrCode from '@/components/ui/qrcode-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
+import { MotionSearch } from '@/components/ui/motion-icons';;
 
 interface Action {
 	id: string;
@@ -68,7 +56,7 @@ const adminActions: Action[] = [
 	{
 		id: 'admin-qr',
 		label: 'رمز QR',
-		icon: <QrCode className="size-4 text-orange" />,
+		icon: <AnimatedQrCode className="size-4 text-orange" />,
 		href: '/admin/qr',
 		keywords: ['qr', 'كيو آر'],
 	},
@@ -82,7 +70,7 @@ const adminActions: Action[] = [
 	{
 		id: 'admin-telegram',
 		label: 'التليجرام',
-		icon: <MessageCircle className="size-4 text-orange" />,
+		icon: <AnimatedMessageCircle className="size-4 text-orange" />,
 		href: '/admin/telegram',
 		keywords: ['telegram', 'تلجرام'],
 	},
@@ -127,7 +115,7 @@ const ownerActions: Action[] = [
 	{
 		id: 'owner-qr',
 		label: 'رمز QR',
-		icon: <QrCode className="size-4 text-orange" />,
+		icon: <AnimatedQrCode className="size-4 text-orange" />,
 		href: '/owner/qr',
 		keywords: ['qr', 'owner', 'كيو آر'],
 	},
@@ -255,7 +243,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 				aria-label="بحث سريع (⌘K)"
 			>
 				{/* Icon anchored right (RTL) via order */}
-				<Search className="size-4 shrink-0 order-1" aria-hidden="true" />
+				<MotionSearch className="size-4 shrink-0 order-1" aria-hidden="true" />
 				<span className="flex-1 text-right truncate order-2">بحث سريع...</span>
 				{/* KBD anchored left */}
 				<kbd className="order-3 hidden shrink-0 items-center gap-0.5 rounded border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
@@ -304,7 +292,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 									className="h-12 w-full bg-transparent pe-12 ps-4 text-sm outline-none placeholder:text-muted-foreground/40"
 								/>
 								{/* Icon pinned right inside input */}
-								<Search
+								<MotionSearch
 									className="pointer-events-none absolute end-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/40"
 									aria-hidden="true"
 								/>
@@ -323,7 +311,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 							>
 								{filtered.length === 0 ? (
 									<div className="flex flex-col items-center py-10 text-muted-foreground/60">
-										<Search className="size-8 mb-2 opacity-30" />
+										<MotionSearch className="size-8 mb-2 opacity-30" />
 										<p className="text-sm">لا توجد نتائج</p>
 										<p className="text-xs">جرب كلمات بحث أخرى</p>
 									</div>

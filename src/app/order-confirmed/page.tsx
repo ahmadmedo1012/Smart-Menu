@@ -4,7 +4,8 @@ import { useEffect, useState, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import {CheckCircle, MessageCircle} from 'lucide-react';
+import {CheckCircle} from 'lucide-react';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionArrowLeft } from '@/components/ui/motion-icons';;
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
@@ -114,7 +115,7 @@ function OrderContent() {
 
 				<div className="flex flex-col gap-3 w-full max-w-xs">
 					<Button className="w-full" onClick={handleWhatsApp}>
-						<MessageCircle className="ms-2 size-4" />
+						<AnimatedMessageCircle className="ms-2 size-4" />
 						إرسال عبر واتساب
 					</Button>
 					<Link href="/menu">

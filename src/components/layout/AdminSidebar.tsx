@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  LayoutDashboard, UtensilsCrossed, ScrollText,
-  Settings, QrCode, Store, Users, ChevronRight,
-  Activity, DollarSign, MessageCircle, Shield,
-} from "lucide-react"
+import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield} from 'lucide-react';
+import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedLogOut from "@/components/ui/logout-icon"
 import { NavLink } from "@/components/shared/NavLink"
 
@@ -115,7 +112,7 @@ export function AdminSidebar() {
           href="/"
           className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 group"
         >
-          <ChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180" />
+          <MotionChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180" />
           العودة للموقع
         </Link>
       </div>

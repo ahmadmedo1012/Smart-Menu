@@ -3,7 +3,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {Store, ClipboardList, ShoppingCart, AlertCircle, Package, Award, Gift, Users, CheckCircle, ArrowLeft, Sparkles, BarChart3, QrCode, Settings, Activity} from 'lucide-react';
+import {Store, ClipboardList, AlertCircle, Package, Award, Gift, Users, CheckCircle, BarChart3, Settings, Activity, ShoppingCart, QrCode} from 'lucide-react';;
+import AnimatedQrCode from '@/components/ui/qrcode-icon';;
+import { MotionArrowLeft } from '@/components/ui/motion-icons';;
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
 import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
@@ -193,7 +197,7 @@ export default function OwnerDashboard() {
 				<div className="rounded-md bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted/20 dark:to-card border border-orange/20 dark:border-orange/15 p-5 animate-fade-in">
 					<div className="flex items-start gap-4 flex-wrap">
 						<div className="size-12 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shrink-0">
-							<Sparkles className="size-6 text-white" />
+							<AnimatedSparkles className="size-6 text-white" />
 						</div>
 						<div className="flex-1 min-w-[200px]">
 							<h3 className="text-base font-bold mb-1">مرحباً بك في الربط الذكي!</h3>
@@ -211,7 +215,7 @@ export default function OwnerDashboard() {
 								</Link>
 								<Link href="/owner/qr">
 									<Button size="sm" variant="outline" className="gap-1.5 text-xs">
-										<QrCode className="size-3.5" /> احصل على QR
+										<AnimatedQrCode className="size-3.5" /> احصل على QR
 									</Button>
 								</Link>
 								<Link href={`/menu/${restaurant.slug}`} target="_blank">
@@ -271,7 +275,7 @@ export default function OwnerDashboard() {
 										<ClipboardList className="size-3" /> {stats?.totalItems ?? 0} صنف
 									</span>
 									<span className="flex items-center gap-1">
-										<ShoppingCart className="size-3" /> {stats?.totalOrders ?? 0} طلب
+										<AnimatedShoppingCart className="size-3" /> {stats?.totalOrders ?? 0} طلب
 									</span>
 								</div>
 							</div>
@@ -334,7 +338,7 @@ export default function OwnerDashboard() {
 					<div className="flex items-start justify-between flex-wrap gap-4">
 						<div className="flex items-start gap-3">
 							<div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 shrink-0">
-								<QrCode className="size-5 text-white" />
+								<AnimatedQrCode className="size-5 text-white" />
 							</div>
 							<div>
 								<h3 className="text-sm font-bold mb-1">شارك منيو مطعمك</h3>
@@ -372,7 +376,7 @@ export default function OwnerDashboard() {
 								size="sm"
 								className="h-8 text-xs gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white"
 							>
-								<QrCode className="size-3.5" /> عرض QR
+								<AnimatedQrCode className="size-3.5" /> عرض QR
 							</Button>
 						</Link>
 					</div>
@@ -392,7 +396,7 @@ export default function OwnerDashboard() {
 								size="sm"
 								className="gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white text-xs shadow-sm h-8"
 							>
-								إدارة <ArrowLeft className="size-3" />
+								إدارة <MotionArrowLeft className="size-3" />
 							</Button>
 						</Link>
 					</div>

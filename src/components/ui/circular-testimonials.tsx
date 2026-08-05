@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
+import AnimatedStar from '@/components/ui/star-icon';;
 import { AvatarInitials } from './AvatarInitials';
 
 /* ── Premium tokens ── */
@@ -201,7 +202,7 @@ export function CircularTestimonials({
 								{/* Stars */}
 								<div className="flex justify-center gap-1 mb-4">
 									{[...Array(5)].map((_, j) => (
-										<Star
+										<AnimatedStar
 											key={j}
 											className="size-[13px] sm:size-[14px] fill-orange text-orange/80"
 										/>

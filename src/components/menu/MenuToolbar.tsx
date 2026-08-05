@@ -40,7 +40,8 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 		[delay]
 	);
 }
-import {Search} from 'lucide-react';
+import {} from 'lucide-react';
+import { MotionSearch } from '@/components/ui/motion-icons';;
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
@@ -127,7 +128,7 @@ export function MenuToolbar({
 			{!hideSearch && (
 				<div className="flex-1 relative">
 					<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-all duration-300">
-						<Search className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
+						<MotionSearch className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
 						<input
 							ref={inputRef}
 							id="menu-search"

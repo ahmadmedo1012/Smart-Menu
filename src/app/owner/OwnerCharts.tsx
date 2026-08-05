@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import {ShoppingCart, TrendingUp, Activity, BarChart3, DollarSign} from 'lucide-react';
+import {ShoppingCart, TrendingUp, Activity, DollarSign} from 'lucide-react';
+import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';;
 import AnimatedDollarSign from '@/components/ui/currency-dollar-icon';;
 import AnimatedClock from '@/components/ui/clock-icon';;
 import { cn } from '@/lib/utils';
@@ -124,7 +125,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 				{/* Top items with growth */}
 				<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
-						<BarChart3 className="size-4 text-muted-foreground" />
+						<AnimatedBarChart3 className="size-4 text-muted-foreground" />
 						<h3 className="text-sm font-semibold">الأكثر طلباً (نمو)</h3>
 					</div>
 					{advancedStats.topItems.length > 0 ? (
@@ -167,7 +168,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 						</div>
 					) : (
 						<div className="flex items-center justify-center h-[150px] text-muted-foreground/50">
-							<BarChart3 className="size-8" />
+							<AnimatedBarChart3 className="size-8" />
 						</div>
 					)}
 				</div>

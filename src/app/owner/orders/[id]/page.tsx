@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-import {Check, AlertCircle, Phone, MessageCircle, ShoppingCart, User, FileText, ChevronLeft, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import {AlertCircle, Phone, User, FileText, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import { MotionChevronLeft } from '@/components/ui/motion-icons';;
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedMapPin from '@/components/ui/map-pin-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
@@ -197,7 +201,7 @@ ${items}
 						onClick={() => router.push('/owner/orders')}
 						className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
 					>
-						<ChevronLeft className="size-4" />
+						<MotionChevronLeft className="size-4" />
 					</button>
 					<div>
 						<h2 className="text-xl font-bold">طلب #{order.orderNo}</h2>
@@ -233,7 +237,7 @@ ${items}
 									)}
 								>
 									{isActive && idx < currentIdx ? (
-										<Check className="size-5" />
+										<MotionCheck className="size-5" />
 									) : (
 										<StatusIcon className="size-5" />
 									)}
@@ -338,7 +342,7 @@ ${items}
 				{/* Order summary */}
 				<div className="rounded-md bg-card/50 border border-border/30 p-5">
 					<h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
-						<ShoppingCart className="size-4" /> ملخص الطلب
+						<AnimatedShoppingCart className="size-4" /> ملخص الطلب
 					</h3>
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
@@ -364,7 +368,7 @@ ${items}
 						الأصناف ({toArabicNumber(order.items.length)})
 					</h3>
 					<Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="gap-1">
-						{copied ? <Check className="size-3.5 text-success" /> : <AnimatedCopy className="size-3.5" />}
+						{copied ? <MotionCheck className="size-3.5 text-success" /> : <AnimatedCopy className="size-3.5" />}
 						نسخ للواتساب
 					</Button>
 				</div>
@@ -402,7 +406,7 @@ ${items}
 					onClick={copyAsWhatsApp}
 					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-green-200/30 text-success hover:bg-success/15 transition-all font-medium text-sm"
 				>
-					<MessageCircle className="size-4" />
+					<AnimatedMessageCircle className="size-4" />
 					نسخ نص الطلب
 				</button>
 			</div>

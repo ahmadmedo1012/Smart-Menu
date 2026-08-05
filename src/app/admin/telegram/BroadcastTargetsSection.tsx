@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { Plus, Trash2, Users, Loader2 } from "lucide-react"
+import {Users, Loader2} from 'lucide-react';
+import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedSend from "@/components/ui/send-icon"
 
 function maskChatId(id: string): string {
@@ -64,7 +66,7 @@ export function BroadcastTargetsSection({
                 placeholder="-100xxxx" className="h-11 rounded-xl mt-1.5 text-left" dir="ltr" />
             </div>
             <Button onClick={handleAdd} disabled={adding || !newChatId.trim()} className="rounded-xl gap-1 shrink-0">
-              {adding ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+              {adding ? <Loader2 className="size-4 animate-spin" /> : <MotionPlus className="size-4" />}
               إضافة
             </Button>
           </div>
@@ -80,7 +82,7 @@ export function BroadcastTargetsSection({
                   </div>
                   <Switch checked={t.isActive} onCheckedChange={(v) => onToggle(t.id, v)} />
                   <Button variant="destructive" size="sm" onClick={() => onDelete(t.id)} className="rounded-xl" aria-label="حذف جهة الإرسال">
-                    <Trash2 className="size-4" />
+                    <AnimatedTrash2 className="size-4" />
                   </Button>
                 </div>
               ))}

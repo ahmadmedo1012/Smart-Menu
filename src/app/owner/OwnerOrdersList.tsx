@@ -2,7 +2,8 @@
 
 import { memo } from "react"
 import Link from "next/link"
-import { ShoppingCart } from "lucide-react"
+import {} from 'lucide-react';
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 
@@ -107,7 +108,7 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
         </div>
       ) : (
         <div className="flex flex-col items-center py-8 text-center">
-          <div className="empty-state-icon"><ShoppingCart /></div>
+          <div className="empty-state-icon"><AnimatedShoppingCart /></div>
           <p className="text-xs font-medium text-muted-foreground">لا توجد بيانات بعد</p>
         </div>
       )}
@@ -128,7 +129,7 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
         </div>
       ) : (
         <div className="flex flex-col items-center py-8 text-center">
-          <div className="empty-state-icon"><ShoppingCart /></div>
+          <div className="empty-state-icon"><AnimatedShoppingCart /></div>
           <p className="text-xs font-medium text-muted-foreground">لا توجد طلبات بعد</p>
         </div>
       )}

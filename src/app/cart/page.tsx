@@ -5,7 +5,11 @@ import { csrfFetch } from '@/lib/csrf-client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
-import {ArrowLeft, MessageCircle, Check, Sparkles, Loader2} from 'lucide-react';
+import {Loader2} from 'lucide-react';
+import { MotionArrowLeft } from '@/components/ui/motion-icons';;
+import AnimatedSparkles from '@/components/ui/sparkles-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedCart from '@/components/ui/shopping-cart-icon';;
 import AnimatedTrash from '@/components/ui/trash-icon';
 import { MotionPlus, MotionMinus } from '@/components/ui/motion-icons';
@@ -204,7 +208,7 @@ export default function CartPage() {
 					<p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
 					<Link href="/menu">
 						<Button size="lg" className="px-8 gap-2">
-							<ArrowLeft className="size-4" />
+							<MotionArrowLeft className="size-4" />
 							العودة إلى القائمة
 						</Button>
 					</Link>
@@ -239,7 +243,7 @@ export default function CartPage() {
 				<Header />
 				<div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center animate-scale-in">
 					<div className="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 animate-scale-in">
-						<Check className="size-12 text-primary" />
+						<MotionCheck className="size-12 text-primary" />
 					</div>
 					<h2 className="text-2xl font-bold mb-2">تم تأكيد الطلب!</h2>
 					<p className="text-muted-foreground flex items-center gap-2">
@@ -261,7 +265,7 @@ export default function CartPage() {
 						href="/menu"
 						className="text-muted-foreground hover:text-foreground transition-colors"
 					>
-						<ArrowLeft className="size-5" />
+						<MotionArrowLeft className="size-5" />
 					</Link>
 					<h1 className="text-2xl font-bold">سلة الطلب</h1>
 					<div className="relative">
@@ -457,7 +461,7 @@ export default function CartPage() {
 				{/* Customer info */}
 				<div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
 					<h2 className="font-bold mb-3 flex items-center gap-2">
-						<Sparkles className="size-4 text-primary" />
+						<AnimatedSparkles className="size-4 text-primary" />
 						ملاحظات الطلب
 					</h2>
 					<div className="grid grid-cols-1 gap-3">
@@ -534,7 +538,7 @@ export default function CartPage() {
 					<div className="rounded-lg bg-gradient-to-br from-orange-muted/50 to-orange-muted/20 dark:from-orange-muted/10 border border-orange/20 p-3.5 mt-4">
 						<div className="flex items-center gap-2.5">
 							<div className="size-8 rounded-lg bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-sm shrink-0">
-								<Sparkles className="size-4 text-white" />
+								<AnimatedSparkles className="size-4 text-white" />
 							</div>
 							<div className="min-w-0 flex-1">
 								<p className="text-xs font-bold">اكسب نقاط ولاء مع هذا الطلب!</p>
@@ -558,7 +562,7 @@ export default function CartPage() {
 					size="lg"
 					disabled={items.length === 0}
 				>
-					<MessageCircle className="size-5" />
+					<AnimatedMessageCircle className="size-5" />
 					مراجعة الطلب وإرساله
 				</Button>
 
@@ -677,7 +681,7 @@ export default function CartPage() {
 									</>
 								) : (
 									<>
-										<MessageCircle className="size-4" /> تأكيد وإرسال
+										<AnimatedMessageCircle className="size-4" /> تأكيد وإرسال
 									</>
 								)}
 							</Button>

@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
-import {QrCode, Check, Store, ArrowRight, Smartphone, Printer} from 'lucide-react';
+import {Store, Smartphone, Printer} from 'lucide-react';
+import AnimatedQrCode from '@/components/ui/qrcode-icon';;
+import { MotionArrowRight } from '@/components/ui/motion-icons';;
+import { MotionCheck } from '@/components/ui/motion-icons';;
 import AnimatedDownload from '@/components/ui/download-icon';;
 import AnimatedExternalLink from '@/components/ui/external-link-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
@@ -82,13 +85,13 @@ export default function OwnerQRPage() {
 				onClick={() => router.push('/owner')}
 				className="mb-2 text-muted-foreground"
 			>
-				<ArrowRight className="size-4 me-1" />
+				<MotionArrowRight className="size-4 me-1" />
 				العودة
 			</Button>
 
 			<div className="flex items-center gap-3">
 				<div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
-					<QrCode className="size-5 text-white" />
+					<AnimatedQrCode className="size-5 text-white" />
 				</div>
 				<div>
 					<h2 className="text-2xl font-bold tracking-tight">رمز QR</h2>
@@ -99,7 +102,7 @@ export default function OwnerQRPage() {
 			{/* Empty state */}
 			{loaded && !url && (
 				<div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-					<QrCode className="size-10 text-muted-foreground/50" />
+					<AnimatedQrCode className="size-10 text-muted-foreground/50" />
 					<p className="text-sm">لا توجد بيانات للمطعم</p>
 					<Button
 						variant="outline"
@@ -193,7 +196,7 @@ export default function OwnerQRPage() {
 									className="size-11 shrink-0"
 								>
 									{copied ? (
-										<Check className="size-4 text-green-500" />
+										<MotionCheck className="size-4 text-green-500" />
 									) : (
 										<AnimatedCopy className="size-4" />
 									)}
