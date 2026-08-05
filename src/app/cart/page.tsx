@@ -272,6 +272,31 @@ export default function CartPage() {
 					</div>
 				</div>
 
+				{/* Stepper — order progress (Peak-End: reduces checkout anxiety) */}
+				<div className="flex items-center gap-1.5 mb-6 animate-slide-up delay-75" aria-label="خطوات الطلب">
+					{[
+						{ n: 1, label: 'الأصناف' },
+						{ n: 2, label: 'التأكيد' },
+						{ n: 3, label: 'واتساب' },
+					].map((step, i) => (
+						<div key={step.n} className="flex items-center gap-1.5 flex-1">
+							<div className={cn(
+								'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold transition-all duration-300',
+								i === 0
+									? 'bg-orange/15 text-orange border border-orange/30'
+									: 'bg-muted/40 text-muted-foreground/60 border border-border/30'
+							)}>
+								<span className={cn(
+									'size-4 rounded-full flex items-center justify-center text-[9px]',
+									i === 0 ? 'bg-orange text-white' : 'bg-muted text-muted-foreground/60'
+								)}>{toArabicNumber(step.n)}</span>
+								{step.label}
+							</div>
+							{i < 2 && <div className="h-px flex-1 bg-border/40" />}
+						</div>
+					))}
+				</div>
+
 				{/* Pickup type selector */}
 				<div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up delay-100">
 					{filteredPickupOptions.map((opt) => (
