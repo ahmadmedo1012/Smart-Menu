@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 
 // Single canonical support number — same env source as FloatingWhatsApp.
@@ -21,8 +21,14 @@ const QUICK_LINKS = [
 
 export function Footer({ className }: FooterProps) {
 	return (
-		<footer className={cn('border-t border-border/50 pt-12 sm:pt-16 pb-8 sm:pb-10', className)}>
-			<div className="max-w-[1220px] mx-auto px-4 sm:px-6">
+		<motion.footer
+				initial={{ opacity: 0, y: 20 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				viewport={{ once: true, margin: "-40px" }}
+				transition={{ duration: 0.5, ease: 'easeOut' }}
+				className={cn('border-t border-border/50 pt-12 sm:pt-16 pb-8 sm:pb-10', className)}
+			>
+				<div className="max-w-[1220px] mx-auto px-4 sm:px-6">
 				<div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-10 sm:mb-12">
 					<div className="col-span-2 sm:col-span-1">
 						<Image
@@ -136,6 +142,6 @@ export function Footer({ className }: FooterProps) {
 					</div>
 				</div>
 			</div>
-		</footer>
+		</motion.footer>
 	);
 }
