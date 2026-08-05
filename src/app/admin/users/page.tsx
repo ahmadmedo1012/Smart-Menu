@@ -162,7 +162,9 @@ export default function AdminUsersPage() {
         />
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
           <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الدور">
-            <SelectValue placeholder="كل الأدوار" />
+            <SelectValue placeholder="كل الأدوار">
+              {roleFilter === "all" ? "كل الأدوار" : roleFilter === "admin" ? "مدير" : roleFilter === "owner" ? "مالك" : roleFilter}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل الأدوار</SelectItem>

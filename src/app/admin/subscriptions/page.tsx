@@ -238,7 +238,9 @@ export default function AdminSubscriptionsPage() {
 			<div className="flex items-center gap-3">
 				<Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'pending')}>
 					<SelectTrigger className="h-11 w-48 rounded-md" aria-label="فلتر الحالة">
-						<SelectValue placeholder="فلترة حسب الحالة" />
+						<SelectValue placeholder="فلترة حسب الحالة">
+							{statusFilter === 'all' ? 'الكل' : (STATUS_MAP[statusFilter]?.label ?? statusFilter)}
+						</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value="pending">قيد الانتظار</SelectItem>
