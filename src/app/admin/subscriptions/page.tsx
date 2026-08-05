@@ -21,7 +21,8 @@ import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import {CreditCard, Check, X, RefreshCw, FilterX, ChevronLeft, ChevronRight, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
+import {CreditCard, Check, RefreshCw, FilterX, ChevronLeft, ChevronRight, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';;
 import AnimatedClock from '@/components/ui/clock-icon';;
 
 interface Payment {
@@ -365,7 +366,7 @@ export default function AdminSubscriptionsPage() {
 													title="إلغاء"
 													aria-label="إلغاء"
 												>
-													<X className="size-4 text-red-500" />
+													<AnimatedX className="size-4 text-red-500" />
 												</button>
 											</div>
 										)}

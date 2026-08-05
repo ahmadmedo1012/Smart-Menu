@@ -2,10 +2,8 @@
 
 import { toast } from "sonner";
 import { LottieAnimation } from "@/components/shared/LottieAnimation";
-import {
-  CheckCircle, AlertCircle, Info, ShoppingCart, LogOut,
-  LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy, X,
-} from "lucide-react";
+import {CheckCircle, AlertCircle, Info, ShoppingCart, LogOut, LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';;
 import { cn } from "@/lib/utils";
 
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
@@ -67,7 +65,7 @@ export function premiumToast(
           className="shrink-0 size-6 rounded-md flex items-center justify-center hover:bg-muted transition-colors opacity-40 hover:opacity-100"
           aria-label="إغلاق"
         >
-          <X className="size-3.5 text-muted-foreground" />
+          <AnimatedX className="size-3.5 text-muted-foreground" />
         </button>
       </div>
     ),

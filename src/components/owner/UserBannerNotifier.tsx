@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import {AlertTriangle} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';;
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -83,7 +84,7 @@ export function UserBannerNotifier() {
 								className="shrink-0 size-9 rounded-full flex items-center justify-center hover:bg-destructive/10 transition-colors"
 								aria-label="إغلاق"
 							>
-								<X className="size-3.5 text-muted-foreground" />
+								<AnimatedX className="size-3.5 text-muted-foreground" />
 							</button>
 						</div>
 					</motion.div>

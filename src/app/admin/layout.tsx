@@ -6,7 +6,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AdminSidebar, allNavItems, hasItemPermission } from '@/components/layout/AdminSidebar';
 import { LayoutHeader } from '@/components/layout/LayoutHeader';
 import { NavLink } from '@/components/shared/NavLink';
-import {Store, X} from 'lucide-react';;
+import {Store} from 'lucide-react';
+import AnimatedX from '@/components/ui/x-icon';;;
 import AnimatedLogOut from '@/components/ui/logout-icon';;
 import { PageFade } from '@/components/shared/PageFade';
 import { AdminEventNotifier } from '@/components/admin/AdminEventNotifier';
@@ -35,7 +36,7 @@ function MobileNav({
 						className="flex size-8 items-center justify-center rounded-lg hover:bg-accent"
 						aria-label="إغلاق"
 					>
-						<X className="size-4" />
+						<AnimatedX className="size-4" />
 					</button>
 				)}
 				<div
