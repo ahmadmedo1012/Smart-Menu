@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { createHash } from 'crypto';
 import { prisma } from '@/lib/db';
 import { success, error as apiError } from '@/lib/api-helpers';
 
@@ -24,9 +25,10 @@ export async function POST(request: NextRequest) {
 		});
 		if (!card) return apiError('كود الإحالة غير موجود', 404);
 
-		// Anonymous session fingerprint (best-effort dedupe; no PII)
+		// Anonymous session fingerprint — hashed so the raw IP is never
+		// persisted/displayed (round-77: IP is PII, spoofable header)
 		const fp = request.headers.get('x-forwarded-for') ?? 'unknown';
-		const key = `ref-${fp}-${code}`;
+		const key = `ref-${sha256(fp)}-${code}`;
 		const existing = await prisma.referral.findFirst({
 			where: { referralCode: code, referredName: key },
 		});
@@ -50,4 +52,8 @@ export async function POST(request: NextRequest) {
 		console.error('referral claim error', e);
 		return apiError('فشل تسجيل الإحالة', 500);
 	}
+}
+
+function sha256(s: string): string {
+	return createHash("sha256").update(s).digest("hex").slice(0, 16);
 }
