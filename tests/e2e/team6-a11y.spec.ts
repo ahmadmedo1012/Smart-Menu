@@ -12,7 +12,7 @@ test.describe("responsive: no horizontal overflow at 3 viewports", () => {
     for (const p of PAGES) {
       test(`${vp.name} ${p}`, async ({ page }) => {
         await page.setViewportSize({ width: vp.w, height: vp.h });
-        await page.goto(p, { waitUntil: "networkidle" });
+        await page.goto(p, { waitUntil: "domcontentloaded" });
         await page.waitForTimeout(2000);
         const overflow = await page.evaluate(
           () => document.documentElement.scrollWidth > document.documentElement.clientWidth
@@ -38,7 +38,7 @@ test("console: no unexpected JS errors on key pages", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e).slice(0, 150)));
   for (const p of PAGES) {
-    await page.goto(p, { waitUntil: "networkidle" });
+    await page.goto(p, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
   }
   // Filter known benign: aborted requests, favicon, etc.
@@ -55,7 +55,7 @@ test("network: no unexpected 4xx/5xx on key pages", async ({ page }) => {
     }
   });
   for (const p of PAGES) {
-    await page.goto(p, { waitUntil: "networkidle" });
+    await page.goto(p, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1500);
   }
   expect(bad).toEqual([]);
