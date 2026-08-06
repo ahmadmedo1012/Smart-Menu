@@ -176,45 +176,54 @@ export async function POST(request: NextRequest) {
 			return apiError('المطعم غير موجود', 404);
 		}
 
-		// Check plan order limit
-		const orderCount = await prisma.order.count({ where: { restaurantId: body.restaurantId } });
-		if (orderCount >= restaurant.maxOrders) {
-			return apiError('تم الوصول للحد الأقصى للطلبات في خطتك', 403);
-		}
-
-		// Cap discount to prevent price manipulation (e.g., setting discount >= subtotal)
-		const discount = Math.min(body.discount ?? 0, recalcSubtotal);
-
-		const data = await prisma.order.create({
-			data: {
-				orderNo,
-				customerName: body.customerName ?? '',
-				customerPhone: body.customerPhone ?? '',
-				notes: body.notes ?? '',
-				pickupType: body.pickupType ?? 'inside',
-				subtotal: recalcSubtotal, // Prisma auto-converts number to Decimal for Decimal fields
-				discount,
-				total: recalcSubtotal - discount,
-				restaurantId: body.restaurantId,
-				items: {
-					create: body.items.map((i) => {
-						const db = priceMap.get(i.itemId)!;
-						return {
-							itemId: i.itemId,
-							quantity: i.quantity,
-							notes: i.notes ?? '',
-							price: db.discountedPrice ? Number(db.discountedPrice) : Number(db.price),
-							modifiersJson: JSON.stringify(i.modifierOptionIds ?? []),
-						};
-					}),
+		// Check plan order limit — inside the tx with the create (round-76: TOCTOU
+		// race — concurrent POSTs both passed the old outside count check)
+		const data = await prisma.$transaction(async (tx) => {
+			const orderCount = await tx.order.count({ where: { restaurantId: body.restaurantId } });
+			if (orderCount >= restaurant.maxOrders) {
+				throw new OrderLimitError('تم الوصول للحد الأقصى للطلبات في خطتك');
+			}
+			// Cap discount to prevent price manipulation (e.g., setting discount >= subtotal)
+			const discount = Math.min(body.discount ?? 0, recalcSubtotal);
+			return tx.order.create({
+				data: {
+					orderNo,
+					customerName: body.customerName ?? '',
+					customerPhone: body.customerPhone ?? '',
+					notes: body.notes ?? '',
+					pickupType: body.pickupType ?? 'inside',
+					subtotal: recalcSubtotal, // Prisma auto-converts number to Decimal for Decimal fields
+					discount,
+					total: recalcSubtotal - discount,
+					restaurantId: body.restaurantId,
+					items: {
+						create: body.items.map((i) => {
+							const db = priceMap.get(i.itemId)!;
+							return {
+								itemId: i.itemId,
+								quantity: i.quantity,
+								notes: i.notes ?? '',
+								price: db.discountedPrice ? Number(db.discountedPrice) : Number(db.price),
+								modifiersJson: JSON.stringify(i.modifierOptionIds ?? []),
+							};
+						}),
+					},
 				},
-			},
-			include: {
-				items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
-			},
+				include: {
+					items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
+				},
+			});
 		});
 		return success(data, 201);
 	} catch (e) {
+		if (e instanceof OrderLimitError) return apiError(e.message, 403);
 		return handleError(e);
+	}
+}
+
+class OrderLimitError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'OrderLimitError';
 	}
 }
