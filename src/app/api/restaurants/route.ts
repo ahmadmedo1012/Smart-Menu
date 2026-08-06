@@ -109,10 +109,18 @@ export async function POST(request: NextRequest) {
 		const body = createSchema.parse(await request.json());
 		// Allow public registration when username/password provided (new account)
 		let actorId: number | undefined;
+		let isPublicRegistration = false;
 		if (!body.username || !body.password) {
 			const auth = await requireAdmin();
 			if (!auth.authorized) return error('غير مصرح', 401);
 			actorId = auth.userId!;
+		} else {
+			isPublicRegistration = true;
+		}
+		// SECURITY (round-76): public self-registration must not be able to
+		// mass-assign planId/showOnLanding/featuredRank (paid plan for free).
+		if (isPublicRegistration && (body.planId !== undefined || body.showOnLanding || body.featuredRank !== undefined)) {
+			return error('لا يمكن تحديد الخطة أو الميزات عند التسجيل الذاتي', 400);
 		}
 
 		// Check username uniqueness before transaction
