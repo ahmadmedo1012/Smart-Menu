@@ -288,6 +288,9 @@
 	background-size: 200% 100%;
 	animation: shimmer-advanced 2s infinite linear;
 }
+.light .shimmer-advanced {
+	background: linear-gradient(90deg, transparent 0%, oklch(0 0 0/0.06) 50%, transparent 100%);
+}
 
 /* ══════════════════════════════════════════════════════════════
    RTL base
@@ -398,7 +401,8 @@
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--orange); }
 * { scrollbar-width: thin; scrollbar-color: oklch(0.35 0.005 0) transparent; }
-.light * { scrollbar-width: thin; scrollbar-color: oklch(0.75 0.005 0) transparent; }
+.light, .light * { scrollbar-width: thin; scrollbar-color: oklch(0.75 0.005 0) transparent; }
+html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .light ::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .light ::-webkit-scrollbar-thumb:hover { background: var(--orange); }
 
