@@ -272,7 +272,7 @@ export default function PricingPage() {
 			<section className="pb-16 sm:pb-24">
 				<div className="max-w-6xl mx-auto px-4">
 					{loading ? (
-						<div className="flex flex-col-reverse sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+						<div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
 							{[...Array(4)].map((_, i) => (
 								<div key={i} className="rounded-sm border border-border/30 p-6 sm:p-8">
 									<div className="flex items-center gap-3 mb-4">
@@ -307,7 +307,7 @@ export default function PricingPage() {
 					) : plans.length === 0 ? (
 						<div className="text-center py-20 text-muted-foreground">لا توجد خطط متاحة حالياً</div>
 					) : (
-						<div className="flex flex-col-reverse sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+						<div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
 							{plans.map((plan, i) => (
 								<PlanCard key={plan.id} plan={plan} index={i} yearly={yearly} />
 							))}

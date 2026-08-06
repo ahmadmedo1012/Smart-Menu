@@ -18,7 +18,7 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
   const pathname = usePathname()
   const isActive = exact
     ? pathname === href
-    : pathname === href || (href !== "/" && pathname.startsWith(href))
+    : pathname === href || (href !== "/" && href !== "/owner" && pathname.startsWith(href + "/"))
 
   return (
     <Link

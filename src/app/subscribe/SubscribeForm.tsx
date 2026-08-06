@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import { Sparkles, Crown, Building2, Star } from 'lucide-react';
+import { Sparkles, Star, Crown, Building2, type LucideIcon } from 'lucide-react';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 
 type Plan = {
@@ -22,13 +22,20 @@ type Plan = {
 	sortOrder: number;
 };
 
-const PLAN_GRADIENTS = [
-	'from-gray-400 to-gray-500',
-	'from-orange to-orange/80',
-	'from-orange to-orange/80',
-	'from-orange to-orange/80',
-];
-const PLAN_ICONS = [Sparkles, Star, Crown, Building2];
+const PLAN_GRADIENTS: Record<string, string> = {
+	Free: 'from-gray-400 to-gray-500',
+	Basic: 'from-orange to-orange/80',
+	Premium: 'from-orange to-orange/80',
+	Pro: 'from-orange-500 to-rose-600',
+	Enterprise: 'from-rose-500 to-orange-600',
+};
+const PLAN_ICONS: Record<string, LucideIcon> = {
+	Free: Sparkles,
+	Basic: Star,
+	Premium: Crown,
+	Pro: Building2,
+	Enterprise: Building2,
+};
 
 interface RestaurantInput {
 	name: string;
@@ -120,12 +127,12 @@ export function SubscribeForm({
 						<div
 							className={cn(
 								'size-10 rounded-[4px] bg-gradient-to-br flex items-center justify-center',
-								PLAN_GRADIENTS[plans.findIndex((p) => p.id === currentPlan.id)]
+								PLAN_GRADIENTS[currentPlan.name] ?? 'from-orange to-orange/80'
 							)}
 						>
 							{(() => {
 								const Icon =
-									PLAN_ICONS[plans.findIndex((p) => p.id === currentPlan.id)] || Sparkles;
+									PLAN_ICONS[currentPlan.name] || Sparkles;
 								return <Icon className="size-5 text-white" />;
 							})()}
 						</div>
