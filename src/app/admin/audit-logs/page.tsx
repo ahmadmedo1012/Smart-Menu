@@ -52,6 +52,7 @@ const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }
 	update: { label: 'تحديث', color: 'text-orange', bg: 'bg-orange-muted dark:bg-orange-muted' },
 	delete: { label: 'حذف', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/30' },
 	login: { label: 'دخول', color: 'text-orange', bg: 'bg-orange/10' },
+	export: { label: 'تصدير', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30' },
 	other: { label: 'أخرى', color: 'text-muted-foreground', bg: 'bg-muted' },
 };
 
