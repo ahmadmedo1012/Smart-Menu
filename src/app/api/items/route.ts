@@ -81,6 +81,13 @@ export async function GET(request: NextRequest) {
 	}
 }
 
+class ItemLimitError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'ItemLimitError';
+	}
+}
+
 export async function POST(request: NextRequest) {
 	try {
 		const auth = await requireAuth();
@@ -100,40 +107,41 @@ export async function POST(request: NextRequest) {
 			return error('غير مصرح', 401);
 		}
 
-		// Count existing items for this restaurant
-		const existingCount = await prisma.menuItem.count({
-			where: { category: { is: { restaurantId: category.restaurant.id } } },
-		});
-
-		const maxItems = category.restaurant.maxItems;
-		if (existingCount >= maxItems) {
-			return error(
-				`لقد وصلت إلى الحد الأقصى للأصناف (${maxItems}). قم بترقية خطتك لإضافة المزيد.`,
-				403
-			);
-		}
-
-		const data = await prisma.menuItem.create({
-			data: {
-				name: body.name,
-				nameAr: body.nameAr ?? null,
-				description: body.description ?? '',
-				descriptionAr: body.descriptionAr ?? '',
-				price: body.price,
-				discountedPrice: body.discountedPrice ?? null,
-				image: body.image ?? '',
-				status: (body.status ?? 'available') as ItemStatus,
-				sortOrder: body.sortOrder ?? 0,
-				categoryId: body.categoryId,
-				dietaryTags: body.dietaryTags ?? [],
-				allergens: body.allergens ?? [],
-			},
-			include: {
-				category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } },
-			},
+		// Count + create in one transaction (round-77: TOCTOU — concurrent
+		// POSTs both passed the outside count, exceeding maxItems)
+		const data = await prisma.$transaction(async (tx) => {
+			const existingCount = await tx.menuItem.count({
+				where: { category: { is: { restaurantId: category.restaurant.id } } },
+			});
+			const maxItems = category.restaurant.maxItems;
+			if (existingCount >= maxItems) {
+				throw new ItemLimitError(
+					`لقد وصلت إلى الحد الأقصى للأصناف (${maxItems}). قم بترقية خطتك لإضافة المزيد.`
+				);
+			}
+			return tx.menuItem.create({
+				data: {
+					name: body.name,
+					nameAr: body.nameAr ?? null,
+					description: body.description ?? '',
+					descriptionAr: body.descriptionAr ?? '',
+					price: body.price,
+					discountedPrice: body.discountedPrice ?? null,
+					image: body.image ?? '',
+					status: (body.status ?? 'available') as ItemStatus,
+					sortOrder: body.sortOrder ?? 0,
+					categoryId: body.categoryId,
+					dietaryTags: body.dietaryTags ?? [],
+					allergens: body.allergens ?? [],
+				},
+				include: {
+					category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } },
+				},
+			});
 		});
 		return success(data, 201);
 	} catch (e) {
+		if (e instanceof ItemLimitError) return error(e.message, 403);
 		return handleError(e);
 	}
 }
