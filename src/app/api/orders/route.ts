@@ -163,11 +163,16 @@ export async function POST(request: NextRequest) {
 			? `ORD-${body.idempotencyKey.toUpperCase().slice(0, 40)}`
 			: `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 
-		// Idempotency — return existing order if this orderNo was already created
+		// Idempotency — duplicate orderNo returns minimal confirmation only
+		// (round-77: returned the FULL stored row incl. customer PII, letting
+		// callers probe/enumerate order numbers)
 		if (body.idempotencyKey) {
-			const existing = await prisma.order.findUnique({ where: { orderNo } });
+			const existing = await prisma.order.findUnique({
+				where: { orderNo },
+				select: { orderNo: true },
+			});
 			if (existing) {
-				return success(existing, 200);
+				return success({ orderNo: existing.orderNo, already: true }, 200);
 			}
 		}
 
