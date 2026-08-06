@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { normalizeWaNumber } from "@/lib/whatsapp";
 import {Share2, Gift, Smartphone, Users, TrendingUp} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { MotionCheck } from '@/components/ui/motion-icons';;
@@ -47,13 +48,16 @@ export function ReferralCard({
 		const text = `مرحباً! 🎉\n\nادعوك لتجربة ${restaurantName} 🍽️\n${discountText} عند استخدام رابط الإحالة الخاص بي:\n${referralUrl}\n\nاستمتع بوجبتك! 😊`;
 
 		if (whatsapp) {
-			window.open(
-				`https://wa.me/${whatsapp.replace(/^\+/, '')}?text=${encodeURIComponent(text)}`,
-				'_blank'
-			);
-		} else {
-			window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+			const wa = normalizeWaNumber(whatsapp);
+			if (wa) {
+				window.open(
+					`https://wa.me/${wa}?text=${encodeURIComponent(text)}`,
+					'_blank'
+				);
+				return;
+			}
 		}
+		window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 	}, [restaurantName, discountText, referralUrl, whatsapp]);
 
 	const handleShareSMS = useCallback(() => {

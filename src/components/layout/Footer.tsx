@@ -7,7 +7,8 @@ import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 
 // Single canonical support number — same env source as FloatingWhatsApp.
 // Hardcoded per-number links drift (was 218911111111 placeholder vs 218910089975).
-const waLink = `https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '218910089975').replace(/^\+/, '')}`;
+import { normalizeWaNumber } from "@/lib/whatsapp";
+const waLink = `https://wa.me/${normalizeWaNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '218910089975')}`;
 
 interface FooterProps {
 	className?: string;

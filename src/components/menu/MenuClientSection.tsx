@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import { normalizeWaNumber } from "@/lib/whatsapp";
 import {Store} from 'lucide-react';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';;
 import AnimatedClock from '@/components/ui/clock-icon';;
@@ -221,7 +222,7 @@ export function MenuClientSection(props: {
 							)}
 							{restaurant.whatsapp && (
 								<a
-									href={`https://wa.me/${restaurant.whatsapp.replace(/[^0-9]/g, '')}`}
+									href={`https://wa.me/${normalizeWaNumber(restaurant.whatsapp)}`}
 									target="_blank"
 									rel="noopener noreferrer"
 									className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-green-100 dark:hover:bg-green-900/40 transition-all duration-300 backdrop-blur-md border border-green-200/30 dark:border-green-800/30 text-green-700 dark:text-green-400"

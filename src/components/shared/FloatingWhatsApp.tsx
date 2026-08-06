@@ -3,13 +3,14 @@
 import {} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
 import { cn } from "@/lib/utils";
+import { normalizeWaNumber } from "@/lib/whatsapp";
 
 export function FloatingWhatsApp({ phone }: { phone?: string }) {
-	const adminPhone = phone || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+	const adminPhone = normalizeWaNumber(phone || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "");
 	if (!adminPhone) return null;
 	return (
 		<a
-			href={`https://wa.me/${adminPhone.replace(/^\+/, "")}`}
+			href={`https://wa.me/${adminPhone}`}
 			target="_blank"
 			rel="noopener noreferrer"
 			className={cn(

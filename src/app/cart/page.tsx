@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
+import { normalizeWaNumber } from "@/lib/whatsapp";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
@@ -118,7 +119,7 @@ export default function CartPage() {
 
 	const handleCheckout = async () => {
 		if (submittingRef.current) return; // double-click guard
-		const waNumber = restaurantWhatsapp?.replace(/^\+/, '');
+		const waNumber = normalizeWaNumber(restaurantWhatsapp);
 		if (!waNumber) {
 			setWaError(true);
 			premiumToast('error', 'رقم واتساب المطعم غير متوفر. يُرجى التواصل مع المطعم مباشرة.');
