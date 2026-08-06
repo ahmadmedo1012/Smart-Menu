@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-menu-v1';
+const CACHE_NAME = 'smart-menu-v2';
 const STATIC_ASSETS = ['/', '/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -37,10 +37,14 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// API calls: network-only — never cache API responses, prevents
-	// stale offline.html being served as JSON on first load after SW update
+	// API: menu/data GET endpoints cached stale-while-revalidate for
+	// offline reading; mutating/writes stay network-only
 	if (url.pathname.startsWith('/api/')) {
-		event.respondWith(networkOnly(request));
+		if (request.method === 'GET' && !url.pathname.includes('/orders') && !url.pathname.includes('/stream')) {
+			event.respondWith(staleWhileRevalidate(request));
+		} else {
+			event.respondWith(networkOnly(request));
+		}
 		return;
 	}
 
