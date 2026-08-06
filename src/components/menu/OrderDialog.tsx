@@ -164,7 +164,7 @@ export function OrderDialog({
 			{confirmed ? (
 				<div className="p-10 text-center animate-scale-in">
 					<div className="size-20 rounded-2xl bg-glass-bg/60 backdrop-blur-sm border border-glass-border flex items-center justify-center mx-auto mb-4">
-						<MotionCheck className="size-10 text-orange" />
+						{/* decorative backdrop — checkmark lives in the orange circle only */}
 					</div>
 					<div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-lg shadow-orange/30">
 						<MotionCheck className="size-10 text-white" />
@@ -371,7 +371,7 @@ export function OrderDialog({
 			<SheetContent
 				side="bottom"
 				className="gap-0 p-0 max-h-[90dvh] overflow-y-auto rounded-t-2xl glass-strong"
-				showCloseButton={true}
+				showCloseButton={!item?.image}
 			>
 				{innerContent}
 			</SheetContent>
@@ -380,7 +380,7 @@ export function OrderDialog({
 		<Dialog {...sharedProps}>
 			<DialogContent
 				className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-2xl glass-strong max-h-[90dvh] overflow-y-auto"
-				showCloseButton={true}
+				showCloseButton={!item?.image}
 			>
 				{innerContent}
 			</DialogContent>

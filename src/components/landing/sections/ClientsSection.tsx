@@ -47,7 +47,7 @@ function PartnerMarquee() {
         {doubled.map((p, i) => (
           <div key={i} className="flex items-center gap-2 sm:gap-3 shrink-0">
             <span className="size-1.5 rounded-full bg-orange/40 shrink-0" />
-            <span className="text-sm sm:text-base font-medium text-muted-foreground/60 whitespace-nowrap tracking-wide">
+            <span className="text-sm sm:text-base font-medium text-muted-foreground/60 whitespace-nowrap">
               {p.name}
             </span>
           </div>
