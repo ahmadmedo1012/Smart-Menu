@@ -200,7 +200,7 @@ function LoginForm() {
 									onChange={(e) => setUsername(e.target.value)}
 									required
 									autoFocus
-									className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+									className="border-0 bg-transparent focus-visible:ring-2 focus-visible:ring-orange/40 focus-visible:ring-offset-0 rounded-sm"
 								/>
 							</div>
 						</div>
@@ -219,7 +219,7 @@ function LoginForm() {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									required
-									className="border-0 bg-transparent pe-9 focus-visible:ring-0 focus-visible:ring-offset-0"
+									className="border-0 bg-transparent pe-9 focus-visible:ring-2 focus-visible:ring-orange/40 focus-visible:ring-offset-0"
 								/>
 								<button
 									type="button"
