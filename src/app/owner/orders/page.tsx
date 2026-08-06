@@ -275,6 +275,12 @@ export default function OwnerOrdersPage() {
 				<button
 					type="button"
 					onClick={() => {
+						const esc = (v: string | number) => {
+							const s = String(v ?? '');
+							// formula-injection guard: neutralize = + - @ leading chars
+							const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
+							return `"${safe.replace(/"/g, '""')}"`;
+						};
 						const headers = 'رقم الطلب,العميل,الهاتف,الحالة,النوع,المجموع,التاريخ';
 						const rows = orders
 							.map((o) => {
@@ -294,11 +300,11 @@ export default function OwnerOrdersPage() {
 										: o.pickupType === 'takeaway'
 											? 'سفري'
 											: 'داخل المكان';
-								return `${o.orderNo},${o.customerName},${o.customerPhone || ''},${statusLabel},${typeLabel},${o.total},${formatDate(new Date(o.createdAt))}`;
+								return `${esc(o.orderNo)},${esc(o.customerName)},${esc(o.customerPhone || '')},${esc(statusLabel)},${esc(typeLabel)},${esc(o.total)},${esc(formatDate(new Date(o.createdAt)))}`;
 							})
 							.join('\n');
 						const csv = `${headers}\n${rows}`;
-						const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+						const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
 						const link = document.createElement('a');
 						link.href = URL.createObjectURL(blob);
 						link.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
