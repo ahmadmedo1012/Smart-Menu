@@ -13,7 +13,7 @@ export function HowItWorksSection() {
       <GlowPool position="top-1/3 right-1/4 rtl:left-1/4" size="size-[50vmin]" color="orange/4" />
       <GlowPool position="bottom-1/3 left-1/4 rtl:right-1/4" size="size-[30vmin]" color="orange/3" />
 
-      <SectionHeader eyebrow="خطوات بسيطة" title="ابدأ في ٣ خطوات فقط" subtitle="من التسجيل إلى استقبال الطلبات في دقائق" />
+      <SectionHeader eyebrow="خطوات بسيطة" title="ابدأ في 3 خطوات فقط" subtitle="من التسجيل إلى استقبال الطلبات في دقائق" />
 
       {/* Steps grid */}
       <div className="grid md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
