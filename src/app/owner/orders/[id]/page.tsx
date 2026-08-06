@@ -204,7 +204,7 @@ ${items}
 						<MotionChevronLeft className="size-4" />
 					</button>
 					<div>
-						<h2 className="text-xl font-bold">طلب #{order.orderNo}</h2>
+						<h2 className="text-xl font-bold">طلب <bdi dir="ltr">#{order.orderNo}</bdi></h2>
 						<p className="text-xs text-muted-foreground">{formatDate(new Date(order.createdAt))}</p>
 					</div>
 				</div>
@@ -257,7 +257,7 @@ ${items}
 								{idx < STATUS_FLOW.length - 1 && (
 									<div
 										className={cn(
-											'h-0.5 w-full -mt-6 mr-10',
+											'h-0.5 w-full -mt-6 me-10',
 											isActive && idx < currentIdx
 												? 'bg-emerald-300 dark:bg-emerald-700'
 												: isActive
