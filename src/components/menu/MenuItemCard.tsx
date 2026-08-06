@@ -227,7 +227,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							'bg-white/20 dark:bg-white/10 backdrop-blur-md border-white/30 dark:border-white/10 shadow-sm',
 							hasRating
 								? 'text-amber-600 dark:text-amber-400 hover:bg-white/30 dark:hover:bg-white/20'
-								: 'text-muted-foreground/60 hover:text-amber-500 hover:bg-white/20'
+								: 'text-muted-foreground hover:text-amber-500 hover:bg-white/20'
 						)}
 					>
 						<AnimatedStar

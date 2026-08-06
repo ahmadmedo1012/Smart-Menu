@@ -426,17 +426,19 @@ export default function CartPage() {
 									<button
 										type="button"
 										onClick={() => removeItem(item.id)}
-										className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all ms-1 active:scale-90"
+																					className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all ms-1 active:scale-90"
+																					aria-label="حذف الصنف"
 									>
 										<AnimatedTrash className="size-3" />
 									</button>
 								</div>
 							</div>
 							<input
-								type="text"
-								placeholder="ملاحظات للصنف..."
-								value={item.notes}
-								onChange={(e) => updateNotes(item.id, e.target.value)}
+															type="text"
+															placeholder="ملاحظات للصنف..."
+															aria-label={`ملاحظات للصنف ${item.name}`}
+															value={item.notes}
+															onChange={(e) => updateNotes(item.id, e.target.value)}
 								className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
 							/>
 						</div>
