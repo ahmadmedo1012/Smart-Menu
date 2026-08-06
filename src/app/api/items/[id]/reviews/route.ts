@@ -37,9 +37,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 		const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
 
 		const auth = await requireAuth().catch(() => ({ authorized: false as const }));
-		const isOwner =
-			auth.authorized &&
-			(['super_admin', 'sub_admin', 'admin'].includes(auth.role ?? '') || auth.role === 'owner');
+		// PII leak guard (round-77): an 'owner' must not read customer
+		// name/phone of ANOTHER restaurant's items — only role+ownership.
+		let isOwner = false;
+		if (auth.authorized && ['super_admin', 'sub_admin', 'admin'].includes(auth.role ?? '')) {
+			isOwner = true;
+		} else if (auth.authorized && auth.role === 'owner') {
+			const item = await prisma.menuItem.findUnique({
+				where: { id: itemId },
+				select: { category: { select: { restaurantId: true } } },
+			});
+			isOwner = !!item && item.category.restaurantId === auth.restaurantId;
+		}
 
 		const [reviews, stats] = await Promise.all([
 			prisma.review.findMany({
