@@ -90,7 +90,7 @@ export function CartSlideOver() {
 						<button
 							type="button"
 							onClick={() => setOpen(false)}
-							className="size-10 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
+							className="size-11 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
 							aria-label="إغلاق"
 						>
 							<MotionArrowLeft className="size-4" />
@@ -128,13 +128,13 @@ export function CartSlideOver() {
 								<div className="flex items-center gap-2 mt-2">
 									<div className="flex items-center rounded-md overflow-hidden border border-white/10 bg-background/30">
 										<button
-											type="button"
-											onClick={() => updateQuantity(item.id, item.quantity - 1)}
-											aria-label="إنقاص الكمية"
-											className="size-10 flex items-center justify-center hover:bg-white/10 transition-colors"
-										>
-											<MotionMinus className="size-3" />
-										</button>
+																					type="button"
+																					onClick={() => updateQuantity(item.id, item.quantity - 1)}
+																					aria-label="إنقاص الكمية"
+																					className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors"
+																				>
+																					<MotionMinus className="size-4" />
+																			</button>
 										<span className="min-w-[2ch] text-center text-xs font-semibold tabular-nums px-1">
 											{toArabicNumber(item.quantity)}
 										</span>
@@ -142,9 +142,9 @@ export function CartSlideOver() {
 											type="button"
 											onClick={() => updateQuantity(item.id, item.quantity + 1)}
 											aria-label="زيادة الكمية"
-											className="size-10 flex items-center justify-center hover:bg-white/10 transition-colors"
+											className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors"
 										>
-											<MotionPlus className="size-3" />
+											<MotionPlus className="size-4" />
 										</button>
 									</div>
 									<span className="text-xs font-semibold tabular-nums ms-auto">
