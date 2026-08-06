@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "الباقات والأسعار",
-  description: "اختر الباقة المناسبة لمطعمك أو مقهاك — باقات مرنة مع منيو رقمي، طلب واتساب، برنامج ولاء والمزيد",
+	title: "الباقات والأسعار | Smart Menu",
+	description:
+		"باقات مرنة للمطاعم والمقاهي — ابدأ مجاناً، ورقّ لاحقاً. منيو رقمي + طلبات واتساب + ولاء.",
 };
 
 export default function PricingLayout({ children }: { children: React.ReactNode }) {
-  return children;
+	return children;
 }

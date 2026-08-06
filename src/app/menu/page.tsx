@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
+
+export const metadata: Metadata = {
+	title: "المنيو الرقمي | Smart Menu",
+	description: "تصفح المنيوهات الرقمية للمطاعم والمقاهي — اطلب عبر واتساب، اربح نقاط ولاء.",
+};
 
 export default async function MenuPage() {
   const first = await prisma.restaurant.findFirst({

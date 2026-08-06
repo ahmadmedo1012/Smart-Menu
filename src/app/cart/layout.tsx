@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "سلة الطلبات",
-  description: "سلة طلباتك — راجع الأصناف المضافة قبل إرسال الطلب عبر واتساب",
+	title: "سلة الطلبات | Smart Menu",
+	description: "راجع طلباتك وأرسلها عبر واتساب للمطعم.",
+	robots: { index: false, follow: true },
 };
 
 export default function CartLayout({ children }: { children: React.ReactNode }) {
-  return children;
+	return children;
 }
