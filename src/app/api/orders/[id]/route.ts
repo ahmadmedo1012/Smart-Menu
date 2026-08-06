@@ -110,7 +110,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 							where: { id: oid },
 							include: { restaurant: { select: { id: true, name: true, slug: true } } },
 						});
-						return { updated: already!, accrued: false };
+						return { updated: already!, accrued: false }; // kept — but caller must treat count; see note
 					}
 					const fresh = await tx.order.findUnique({
 						where: { id: oid },
