@@ -20,7 +20,7 @@ import {
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatDate } from '@/lib/format';
 import {CreditCard, FilterX, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';;
 import { MotionChevronRight } from '@/components/ui/motion-icons';;
@@ -156,11 +156,8 @@ export default function AdminSubscriptionsPage() {
 		}
 	};
 
-	const formatDate = (d: string) => {
-		const date = new Date(d);
-		const pad = (n: number) => n.toString().padStart(2, '0');
-		return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
-	};
+	// Round-77: use the shared lib formatDate (Arabic month names, Western
+	// digits) instead of this local dd/mm/yyyy shadow — one source of truth.
 
 	if (loading && payments.length === 0) {
 		return (
@@ -295,7 +292,7 @@ export default function AdminSubscriptionsPage() {
 													<span>•</span>
 													<span className="flex items-center gap-1">
 														<AnimatedClock className="size-3" />
-														{formatDate(p.createdAt)}
+														{formatDate(new Date(p.createdAt))}
 													</span>
 												</div>
 											</div>
