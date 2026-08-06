@@ -28,10 +28,12 @@ export default function OwnerReviewsPage() {
   const { activeId } = useActiveRestaurant();
   const [reviews, setReviews] = useState<ReviewWithItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterStar, setFilterStar] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams();
       if (filterStar) params.set("minRating", String(filterStar));
@@ -40,7 +42,8 @@ export default function OwnerReviewsPage() {
       const res = await fetch(`/api/owner/reviews${qs ? `?${qs}` : ""}`);
       const json = await res.json();
       if (json.success) setReviews(json.data);
-    } catch { console.error("Failed to load reviews"); setReviews([]) } finally { setLoading(false); }
+      else setError("تعذر تحميل التقييمات — حاول مجدداً");
+    } catch { console.error("Failed to load reviews"); setError("تعذر تحميل التقييمات — تحقق من الاتصال وحاول مجدداً"); } finally { setLoading(false); }
   }, [filterStar, activeId]);
 
   useEffect(() => { load(); }, [load]);
@@ -131,6 +134,19 @@ export default function OwnerReviewsPage() {
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-24 rounded-md bg-card/30 animate-pulse" />
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-16">
+          <AnimatedRefreshCw className="size-10 text-destructive/40 mx-auto mb-3" />
+          <p className="text-base font-medium text-destructive">{error}</p>
+          <button
+            type="button"
+            onClick={load}
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline underline-offset-4"
+          >
+            <AnimatedRefreshCw className="size-3.5" />
+            إعادة المحاولة
+          </button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
