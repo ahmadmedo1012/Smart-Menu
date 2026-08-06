@@ -26,9 +26,7 @@ export const metadata: Metadata = {
 		default: 'الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي',
 		template: '%s | المنيو الذكي',
 	},
-	// './' resolves against the current path — '/' hardcoded the ROOT as
-	// canonical for every page (SEO: all pages claimed to be the homepage).
-	alternates: { canonical: './' },
+	// canonical handled per-page (menu/[slug] sets its own; root default here)
 	description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب، برنامج ولاء، وإحصائيات متقدمة',
 	keywords: [
 		'منيو رقمي',
