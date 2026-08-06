@@ -15,11 +15,3 @@ export function normalizeWaNumber(input: string | null | undefined): string | nu
 	if (digits.length < 8 || digits.length > 15) return null;
 	return digits;
 }
-
-/** Resolve the WhatsApp number for a restaurant with env fallback. */
-export function resolveWhatsApp(
-	restaurantNumber: string | null | undefined,
-	envFallback?: string
-): string | null {
-	return normalizeWaNumber(restaurantNumber) ?? normalizeWaNumber(envFallback);
-}
