@@ -338,6 +338,12 @@
 	html[dir="rtl"] {
 		letter-spacing: 0;
 	}
+	/* Anti-broken-joins: any tracking utility on Arabic must not win over the base guard */
+	@layer utilities {
+		html[dir="rtl"] [class*="tracking-"]:not([class*="font-mono"]) {
+			letter-spacing: 0 !important;
+		}
+	}
 
 	/* Typography scale */
 	h1, h2 {
