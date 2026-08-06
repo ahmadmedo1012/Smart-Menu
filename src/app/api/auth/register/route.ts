@@ -46,6 +46,15 @@ export async function POST(request: Request) {
 			return error('اسم المستخدم موجود مسبقاً', 409);
 		}
 
+		// Check email uniqueness when provided (round-77 account agent:
+		// duplicate emails were silently allowed)
+		if (email?.trim()) {
+			const emailTaken = await prisma.user.findFirst({ where: { email: email.trim() } });
+			if (emailTaken) {
+				return error('البريد الإلكتروني مستخدم مسبقاً', 409);
+			}
+		}
+
 		const hashed = hashPassword(password);
 
 		const user = await prisma.user.create({
