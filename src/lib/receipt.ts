@@ -91,3 +91,34 @@ export function buildReceiptMessage(opts: {
 
   return lines.join("\n");
 }
+
+/**
+ * Shared owner/admin copy-as-text builder (round-77: two byte-identical
+ * implementations lived in owner/orders/[id] and admin/orders/[id]).
+ * Renders order + items + totals for clipboard sharing.
+ */
+export function buildOrderShareText(o: {
+  orderNo: string;
+  customerName: string;
+  customerPhone: string | null;
+  pickupType: string;
+  total: number | { toString(): string };
+  items: { item: { nameAr: string | null; name: string }; quantity: number; price: number }[];
+}): string {
+  const items = o.items
+    .map(
+      (oi) =>
+        `• ${oi.item.nameAr || oi.item.name} ×${oi.quantity} = ${(oi.price * oi.quantity).toFixed(1)} د.ل`
+    )
+    .join("\n");
+  const type =
+    o.pickupType === "delivery" ? "توصيل" : o.pickupType === "takeaway" ? "سفري" : "داخل المكان";
+  return `📋 طلب ${o.orderNo}
+━━━━━━━━━━━━━
+👤 ${o.customerName} | ${o.customerPhone ?? ""}
+📍 ${type}
+━━━━━━━━━━━━━
+${items}
+━━━━━━━━━━━━━
+💰 الإجمالي: ${Number(o.total).toFixed(1)} د.ل`;
+}

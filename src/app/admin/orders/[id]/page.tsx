@@ -16,6 +16,7 @@ import AnimatedMapPin from '@/components/ui/map-pin-icon';;
 import AnimatedCopy from '@/components/ui/copy-icon';;
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
+import { buildOrderShareText } from '@/lib/receipt';
 import Link from 'next/link';
 
 interface OrderDetail {
@@ -98,21 +99,9 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 
 	const copyAsWhatsApp = () => {
 		if (!order) return;
-		const items = order.items
-			.map(
-				(oi) =>
-					`• ${oi.item.nameAr || oi.item.name} ×${oi.quantity} = ${toArabicNumber((oi.price * oi.quantity).toFixed(1))} د.ل`
-			)
-			.join('\n');
-		const text = `📋 طلب ${order.orderNo}
-🏪 ${order.restaurant?.name || 'المطعم'}
-━━━━━━━━━━━━━
-👤 ${order.customerName} | ${order.customerPhone}
-📍 ${order.pickupType === 'delivery' ? 'توصيل' : order.pickupType === 'takeaway' ? 'سفري' : 'داخل المكان'}
-━━━━━━━━━━━━━
-${items}
-━━━━━━━━━━━━━
-💰 الإجمالي: ${toArabicNumber(order.total.toFixed(1))} د.ل`;
+		const body = buildOrderShareText(order);
+		const restaurantLine = order.restaurant?.name ? `🏪 ${order.restaurant.name}\n` : '';
+		const text = restaurantLine + body;
 		navigator.clipboard.writeText(text).then(() => {
 			setCopied(true);
 			premiumToast('success', 'تم نسخ نص الطلب');
