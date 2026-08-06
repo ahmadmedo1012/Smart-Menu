@@ -70,9 +70,21 @@ export async function broadcastToAll(
 	const targetIds = await gatherTargets(opts);
 	if (targetIds.size === 0) return { sent: 0, failed: [] };
 
-	const results = await Promise.allSettled(
-		Array.from(targetIds).map((chatId) => sendToChat(botToken, chatId, message, opts))
-	);
+	// Batch in chunks with a short delay (round-77: Promise.allSettled fired
+	// every send simultaneously — Telegram caps ~30/s → 429s with large N)
+	const chunks: string[][] = [];
+	const ids = Array.from(targetIds);
+	for (let i = 0; i < ids.length; i += 10) chunks.push(ids.slice(i, i + 10));
+
+	const settled = [];
+	for (const chunk of chunks) {
+		const batch = await Promise.allSettled(
+			chunk.map((chatId) => sendToChat(botToken, chatId, message, opts))
+		);
+		settled.push(...batch);
+		if (chunks.length > 1) await new Promise((r) => setTimeout(r, 60));
+	}
+	const results = settled;
 
 	const failed: BroadcastResult['failed'] = [];
 	let sent = 0;
