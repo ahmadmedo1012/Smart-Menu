@@ -111,19 +111,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 			data: { rating, comment, customerName, customerPhone, menuItemId: itemId },
 		});
 
-		// Recalculate avg rating and count atomically in a transaction
+		// Incremental avg update (round-76 data agent): avoid re-aggregating
+		// O(reviews) rows per POST — single atomic update from stored counters.
 		await prisma.$transaction(async (tx) => {
-			const agg = await tx.review.aggregate({
-				where: { menuItemId: itemId },
-				_avg: { rating: true },
-				_count: true,
-			});
+			const item = await tx.menuItem.findUnique({ where: { id: itemId }, select: { avgRating: true, ratingCount: true } });
+			const count = (item?.ratingCount ?? 0) + 1;
+			const avg = item?.avgRating ? (Number(item.avgRating) * (count - 1) + rating) / count : rating;
 			await tx.menuItem.update({
 				where: { id: itemId },
-				data: {
-					avgRating: agg._avg.rating,
-					ratingCount: agg._count,
-				},
+				data: { avgRating: Math.round(avg * 10) / 10, ratingCount: count },
 			});
 		});
 
