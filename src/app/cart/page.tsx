@@ -169,6 +169,7 @@ export default function CartPage() {
 		// 2. Send WhatsApp receipt to restaurant on success
 		const receipt = buildReceiptMessage({
 			restaurantName: restaurantName || 'المطعم',
+			orderNo: orderNo || undefined,
 			items: items.map((i) => ({
 				name: i.name,
 				qty: i.quantity,
