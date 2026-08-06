@@ -84,6 +84,7 @@ const TABS = [
 
 export default function OwnerOrdersPage() {
 	const [orders, setOrders] = useState<Order[]>([]);
+	const [totalOrders, setTotalOrders] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [loadingMore, setLoadingMore] = useState(false);
 	const [filter, setFilter] = useState('');
@@ -119,6 +120,7 @@ export default function OwnerOrdersPage() {
 				if (!res.ok) throw new Error();
 				const json = await res.json();
 				const newOrders = json.data ?? json ?? [];
+				if (json?.meta?.total !== undefined) setTotalOrders(json.meta.total);
 				if (append) {
 					setOrders((prev) => {
 						const merged = [...prev, ...newOrders];
@@ -204,9 +206,11 @@ export default function OwnerOrdersPage() {
 			TABS.map((tab) => ({
 				...tab,
 				count:
-					tab.value === '' ? orders.length : orders.filter((o) => o.status === tab.value).length,
+					tab.value === ''
+						? totalOrders || orders.length
+						: orders.filter((o) => o.status === tab.value).length,
 			})),
-		[orders]
+		[orders, totalOrders]
 	);
 
 	if (loading)
