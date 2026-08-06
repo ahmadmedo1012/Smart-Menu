@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
                     >
                       <Key className="size-4" aria-hidden="true" />
                     </button>
-                    {user.role !== "admin" && (
+                    {user.role !== "admin" && user.role !== "super_admin" && (
                       <button
                         type="button"
                         onClick={() => setDeleteTarget(user)}
