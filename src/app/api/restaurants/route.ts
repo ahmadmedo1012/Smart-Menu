@@ -129,12 +129,18 @@ export async function POST(request: NextRequest) {
 			if (existingUser) return error('اسم المستخدم مستخدم بالفعل', 409);
 		}
 
+		// Round-77: public self-registration must not create N menus in one
+		// POST (maxMenus bypass — free plan = 1). Admin path can pass more.
+		if (isPublicRegistration && body.restaurants && body.restaurants.length > 1) {
+			return error('التسجيل الذاتي يسمح بمنيو واحد فقط — رقِّ خطتك لإضافة المزيد', 400);
+		}
+
 		const result = await prisma.$transaction(async (tx) => {
 			// Normalize: array form (new) or legacy single-fields form
 			const menus = body.restaurants?.length
 				? body.restaurants
 				: [
-						{
+					{
 							name: body.name!,
 							slug: body.slug!,
 							description: body.description,
