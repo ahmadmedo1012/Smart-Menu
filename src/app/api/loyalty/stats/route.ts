@@ -47,17 +47,17 @@ export async function GET(request: NextRequest) {
 			}),
 		]);
 
-		const cardIds = cards.map((c) => c.id);
-
+		// Round-77 (data agent): groupBy directly by restaurantId instead of
+		// materializing an unbounded IN of every card id (Postgres IN ~32k cap).
 		const [referralCounts, referralsByStatus, rewardAgg] = await Promise.all([
 			prisma.referral.groupBy({
 				by: ['referrerId'],
-				where: { referrerId: { in: cardIds } },
+				where: { restaurantId },
 				_count: { id: true },
 			}),
 			prisma.referral.groupBy({
 				by: ['status'],
-				where: { referrerId: { in: cardIds } },
+				where: { restaurantId },
 				_count: { id: true },
 			}),
 			prisma.rewardTransaction.aggregate({
