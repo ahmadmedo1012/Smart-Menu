@@ -117,6 +117,7 @@ export default function OwnerOrdersPage() {
 				if (to) params.set('dateTo', to);
 				const url = `/api/orders?${params.toString()}`;
 				const res = await fetch(url);
+				if (res.status === 401) { window.location.href = '/login'; return; }
 				if (!res.ok) throw new Error();
 				const json = await res.json();
 				const newOrders = json.data ?? json ?? [];
@@ -159,6 +160,7 @@ export default function OwnerOrdersPage() {
 				params.set('pageSize', '20');
 				if (activeId) params.set('restaurantId', String(activeId));
 				const res = await fetch(`/api/orders?${params.toString()}`);
+				if (res.status === 401) { window.location.href = '/login'; return; }
 				if (!res.ok) return;
 				const json = await res.json();
 				const fresh = json.data ?? json ?? [];
