@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
 
     if (!referrerCard) return error("Invalid referral code", 404);
 
+    // Self-referral guard (round-77): reject redeeming your own code via
+    // your own phone — normalized digits compare
+    if (referredPhone) {
+      const normalize = (p: string) => p.replace(/[^\d]/g, "").replace(/^00/, "");
+      if (normalize(referredPhone) && normalize(referredPhone) === normalize(referrerCard.customerPhone)) {
+        return error("لا يمكنك استخدام كود الإحالة الخاص بك", 400);
+      }
+    }
+
     // Enforce referral usage limit (max 10 converted referrals per code)
     const convertedCount = await prisma.referral.count({
       where: { referralCode, status: "converted" },
