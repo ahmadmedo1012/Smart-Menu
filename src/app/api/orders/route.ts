@@ -183,8 +183,10 @@ export async function POST(request: NextRequest) {
 			if (orderCount >= restaurant.maxOrders) {
 				throw new OrderLimitError('تم الوصول للحد الأقصى للطلبات في خطتك');
 			}
-			// Cap discount to prevent price manipulation (e.g., setting discount >= subtotal)
-			const discount = Math.min(body.discount ?? 0, recalcSubtotal);
+			// Discount guard (round-77): no server-verified coupon/referral
+			// system exists in the order flow — a client-sent discount is
+			// always abuse (discount=subtotal → free order). Force 0.
+			const discount = 0;
 			return tx.order.create({
 				data: {
 					orderNo,
