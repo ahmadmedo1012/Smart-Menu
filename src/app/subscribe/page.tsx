@@ -153,6 +153,8 @@ function SubscribeContent() {
 		form.password.trim().length >= PASSWORD_MIN_LENGTH;
 
 	const handleSubmit = async () => {
+		// double-submit guard (round-76): check FIRST, then set
+		if (submittedRef.current) return;
 		submittedRef.current = true;
 		if (!selectedPlan || !isFormValid || upgradeMode) return;
 
@@ -177,10 +179,12 @@ function SubscribeContent() {
 				if (errs.username) premiumToast('error', errs.username);
 				if (errs.slugs) premiumToast('error', errs.slugs);
 				if (!errs.username && !errs.slugs) premiumToast('error', 'البيانات غير صالحة');
+				submittedRef.current = false; // allow retry after failed validation
 				return;
 			}
 		} catch {
 			premiumToast('error', 'خطأ في التحقق من البيانات');
+			submittedRef.current = false;
 			return;
 		}
 
