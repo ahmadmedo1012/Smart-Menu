@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { createHash } from "crypto";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
@@ -98,7 +99,14 @@ export async function PUT(request: NextRequest) {
 
     // Revoke all sessions except current one after password change
     if (body.newPassword) {
-      await prisma.session.deleteMany({ where: { userId: auth.userId } });
+      const currentToken = request.cookies.get("smart-menu-session")?.value;
+      const currentHash = currentToken ? createHash("sha256").update(currentToken).digest("hex") : null;
+      await prisma.session.deleteMany({
+        where: {
+          userId: auth.userId,
+          ...(currentHash ? { token: { not: currentHash } } : {}),
+        },
+      });
     }
 
     await logAudit({
