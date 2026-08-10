@@ -75,27 +75,10 @@ export default function RootLayout({
 				<meta name="apple-mobile-web-app-title" content="Smart Menu" />
 				{/* eslint-disable-next-line @next/next/no-css-tags */}
 				<link rel="stylesheet" href="/fonts/fonts.css" />
-				<link
-					rel="preload"
-					href="/fonts/noto-naskh-arabic.woff2"
-					as="font"
-					type="font/woff2"
-					crossOrigin="anonymous"
-				/>
-				<link
-					rel="preload"
-					href="/fonts/noto-sans-arabic.woff2"
-					as="font"
-					type="font/woff2"
-					crossOrigin="anonymous"
-				/>
-				<link
-					rel="preload"
-					href="/fonts/readex-pro.woff2"
-					as="font"
-					type="font/woff2"
-					crossOrigin="anonymous"
-				/>
+				{/* ponytail: Cairo is the only active font family (round84). The @font-face
+				 * rules in fonts.css load lazily via unicode-range — no preloads needed for
+				 * the fallback families (Noto Naskh / Noto Sans / Readex Pro), which are
+				 * unused in the UI. Preloading them wasted ~277KB on mobile. */}
 				{/* Cairo handles via next/font/google — no render-blocking external CSS */}
 				<script
 					type="application/ld+json"
