@@ -33,7 +33,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
   ];
 
   return (
-    <SectionContainer>
+    <SectionContainer tone="alt">
       <GlowPool position="-top-20 left-1/2" size="size-72" color="orange/5" />
 
       <div className="glass-strong rounded-2xl mx-auto max-w-4xl p-6 sm:p-8">

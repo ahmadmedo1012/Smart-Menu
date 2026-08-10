@@ -17,7 +17,7 @@ const features = [
 
 export function FeaturesSection() {
 	return (
-		<SectionContainer>
+		<SectionContainer tone="alt">
 			<SectionHeader eyebrow="إليك ما يمكنك تحقيقه معنا" title="ميزات متكاملة لمطعمك" />
 
 			<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

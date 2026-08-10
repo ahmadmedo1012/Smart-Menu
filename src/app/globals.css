@@ -21,10 +21,10 @@
 
 @theme inline {
 	/* ── Font system — premium Arabic-first ── */
-	--font-sans: "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
-	--font-mono: "Noto Naskh Arabic", "Courier New", monospace;
-	--font-arabic: "Noto Naskh Arabic", "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
-	--font-heading: "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-sans: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-mono: var(--font-cairo), "Cairo", "Courier New", monospace;
+	--font-arabic: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-heading: var(--font-cairo), "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
 
 	/* ── Theme colors ── */
 	--color-background: var(--background);
@@ -80,6 +80,11 @@
 }
 
 :root {
+	/* ── Fonts — resolved here so [dir=rtl] and body always find them ── */
+	--font-arabic: var(--font-cairo, "Cairo"), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-sans: var(--font-arabic);
+	--font-heading: var(--font-cairo, "Cairo"), "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
+
 	/* ── Z-index scale ── */
 	--z-dropdown: 10;
 	--z-sticky: 20;
@@ -299,6 +304,10 @@
 [dir="rtl"] {
 	--font-sans: var(--font-arabic);
 	font-family: var(--font-arabic);
+}
+/* Noto Naskh Arabic stays available via .font-naskh for editorial/quote text only */
+[dir="rtl"] .font-naskh {
+	font-family: "Noto Naskh Arabic", "Cairo", system-ui, sans-serif;
 }
 
 /* ══════════════════════════════════════════════════════════════

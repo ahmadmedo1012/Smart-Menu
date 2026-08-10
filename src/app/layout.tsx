@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Cairo } from 'next/font/google';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
@@ -13,13 +12,7 @@ import { GridPattern } from '@/components/ui/grid-pattern';
 import { MotionProvider } from '@/components/shared/MotionProvider';
 import './globals.css';
 
-/* ponytail: next/font replaces Google Fonts CSS link — eliminates render-blocking external CSS round-trip */
-const cairo = Cairo({
-	subsets: ['arabic', 'latin'],
-	weight: ['400', '500', '600', '700', '800'],
-	variable: '--font-cairo',
-	display: 'swap',
-});
+/* ponytail: Cairo served local-first via /fonts/fonts.css — no render-blocking external Google Fonts round-trip, no next/font module-class dependency */
 
 export const metadata: Metadata = {
 	title: {
@@ -67,7 +60,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="ar" dir="rtl" suppressHydrationWarning className={cairo.variable}>
+		<html lang="ar" dir="rtl" suppressHydrationWarning className="light">
 			<head>
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="icon" type="image/png" href="/favicon.png" />

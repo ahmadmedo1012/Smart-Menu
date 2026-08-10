@@ -19,6 +19,23 @@ export async function fetchPublicStats(): Promise<PublicStats> {
     const base = typeof window !== "undefined" ? window.location.origin : "";
     const res = await fetch(`${base}/api/public/stats`);
     if (!res.ok) throw new Error(`Stats unavailable (${res.status})`);
+    const ct = res.headers.get("content-type") ?? "";
+    // Dev-mode cold compile can answer HTML for the first hit; retry once.
+    if (!ct.includes("application/json")) {
+      const retry = await fetch(`${base}/api/public/stats`, { cache: "no-store" });
+      if (!retry.ok || !(retry.headers.get("content-type") ?? "").includes("application/json")) {
+        throw new Error("Stats unavailable (HTML response)");
+      }
+      const data2: unknown = await retry.json();
+      if (
+        !data2 ||
+        typeof (data2 as PublicStats).totalRestaurants !== "number" ||
+        typeof (data2 as PublicStats).totalUsers !== "number"
+      ) {
+        throw new Error("Bad stats payload");
+      }
+      return data2 as PublicStats;
+    }
     const data: unknown = await res.json();
     if (
       !data ||

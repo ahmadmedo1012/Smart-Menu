@@ -9,7 +9,7 @@ import { GlowPool } from "@/components/ui/GlowPool"
 
 export function HowItWorksSection() {
   return (
-    <SectionContainer>
+    <SectionContainer tone="alt">
       <GlowPool position="top-1/3 right-1/4 rtl:left-1/4" size="size-[50vmin]" color="orange/4" />
       <GlowPool position="bottom-1/3 left-1/4 rtl:right-1/4" size="size-[30vmin]" color="orange/3" />
 
