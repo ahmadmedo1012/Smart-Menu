@@ -292,7 +292,7 @@ function LoginForm() {
 
 					{/* Footer */}
 					<p className="mt-6 text-center text-xs text-muted-foreground/60 font-arabic">
-						نظام إدارة المطاعم — الربط الذكي
+						نظام إدارة المطاعم · الربط الذكي
 					</p>
 				</CardContent>
 			</Card>

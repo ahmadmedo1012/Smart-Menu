@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { springDefault } from '@/lib/motion';
-import {Star, Crown, Building2, Sparkles, type LucideIcon} from 'lucide-react';
+import {Star, Crown, Building2, Sparkles, ChevronDown, type LucideIcon} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import { Button } from '@/components/ui/button';
@@ -172,7 +172,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					{plan.features.map((feature: string, i: number) => (
 						<div
 							key={i}
-							className="flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-1"
+							className="flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-[-4px] rtl:hover:translate-x-[4px]"
 						>
 							<div className="relative shrink-0 mt-0.5">
 								<MotionCheck className="size-4 text-orange transition-all duration-300 group-hover/feature:scale-110" />
@@ -260,7 +260,7 @@ export default function PricingPage() {
 								yearly ? 'text-orange bg-orange-muted' : 'text-muted-foreground'
 							)}
 						>
-							سنوي —<span className="mr-1 text-xs text-orange font-bold">وفر شهرين</span>
+							سنوي ·<span className="mr-1 text-xs text-orange font-bold">وفر شهرين</span>
 							{yearly && (
 								<span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />
 							)}
@@ -343,11 +343,11 @@ export default function PricingPage() {
 								className="group rounded-sm border border-border/40 bg-card open:border-border/60 open:shadow-sm transition-all duration-300 overflow-hidden"
 							>
 								<summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4">
-									{faq.q}
-									<span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300 text-xs">
-										▼
-									</span>
-								</summary>
+																	{faq.q}
+																	<span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300 text-xs">
+																		<ChevronDown className="size-4" />
+																	</span>
+																</summary>
 								<div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-all duration-300">
 									<div className="overflow-hidden">
 										<p className="px-4 sm:px-5 pb-3 sm:pb-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
