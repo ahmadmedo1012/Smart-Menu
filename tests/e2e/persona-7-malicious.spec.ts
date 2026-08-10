@@ -12,14 +12,17 @@ const PASS = "testpass123";
 
 test("P7: IDOR — enumerate other restaurants via direct API", async ({ page }) => {
   await login(page, OWNER, PASS);
+  // Use page.request (shares the browser context's session cookies) — a raw
+  // page.evaluate(fetch) does NOT attach cookies, which made every request
+  // unauthenticated (middleware/edge would 200-HTML instead of 403 JSON).
   // Try reading settings/orders of random other restaurant IDs
   for (const rid of [1, 2, 50, 100, 161, 317, 99999]) {
-    const res = await page.evaluate(async (rid) => {
-      const r = await fetch(`/api/settings?restaurantId=${rid}`);
-      return r.status;
-    }, rid);
+    const res = await page.request.get(`/api/settings?restaurantId=${rid}`, {
+      headers: { Accept: "application/json" },
+    });
+    const status = res.status();
     // Owner must NOT get 200 for restaurants they don't own
-    expect(res, `settings for rid=${rid}`).not.toBe(200);
+    expect(status, `settings for rid=${rid}`).not.toBe(200);
   }
 });
 
@@ -32,7 +35,7 @@ test("P7: XSS — payload in item name renders escaped (never executes)", async 
   expect(executed).toBe(false);
   // Also verify no <script> tags injected into DOM from any item text
   const injected = await page.evaluate(() =>
-    [...document.querySelectorAll("script")].some((s) => s.textContent.includes("__xss"))
+    Array.from(document.querySelectorAll("script")).some((s) => s.textContent.includes("__xss"))
   );
   expect(injected).toBe(false);
 });
@@ -63,22 +66,18 @@ test("P7: SQL-injection-ish search input handled safely", async ({ page }) => {
 
 test("P7: oversized input rejected gracefully (no 500)", async ({ page }) => {
   await login(page, OWNER, PASS);
-  const token = await page.evaluate(() =>
-    document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
-  );
-  const big = "A".repeat(100000);
-  const res = await page.evaluate(async (csrf) => {
-    const r = await fetch("/api/categories", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
-      body: JSON.stringify({ name: "X".repeat(100000), restaurantId: 313 }),
-    });
-    return r.status;
-  }, token);
+  const cookies = await page.context().cookies();
+  const token = cookies.find((c) => c.name === "csrf-token")?.value ?? "";
+  const res = await page.request.post("/api/categories", {
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": token,
+    },
+    data: { name: "X".repeat(100000), restaurantId: 313 },
+  });
   // 400 (validation) or 413 (payload too large) or 403 — never 500
-  expect(res).not.toBe(500);
-  expect(res).not.toBe(201); // must not create
+  expect(res.status()).not.toBe(500);
+  expect(res.status()).not.toBe(201); // must not create
 });
 
 test("P7: admin endpoints hidden from owner via path fuzzing", async ({ page }) => {
@@ -88,10 +87,8 @@ test("P7: admin endpoints hidden from owner via path fuzzing", async ({ page }) 
     "/api/admin/restaurants", "/api/admin/subscriptions", "/api/admin/audit-logs",
   ];
   for (const p of paths) {
-    const res = await page.evaluate(async (p) => {
-      const r = await fetch(p);
-      return r.status;
-    }, p);
-    expect(res, p).toBeGreaterThanOrEqual(401);
+    // page.request carries the session cookie; page.evaluate(fetch) does not
+    const res = await page.request.get(p, { headers: { Accept: "application/json" } });
+    expect(res.status(), p).toBeGreaterThanOrEqual(401);
   }
 });

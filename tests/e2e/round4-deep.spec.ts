@@ -57,7 +57,9 @@ test("admin guard: owner get /api/admin/* returns 401/403", async ({ page }) => 
   await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
   await page.waitForTimeout(4000);
   for (const p of ["/api/admin/stats", "/api/admin/restaurants", "/api/admin/users", "/api/admin/config"]) {
-    const status = await page.evaluate(async (p) => (await fetch(p)).status, p);
+    // page.request carries the session cookie; page.evaluate(fetch) does not,
+    // which made every request unauthenticated (200-HTML instead of 401/403).
+    const status = (await page.request.get(p, { headers: { Accept: "application/json" } })).status();
     expect(status, p).toBeGreaterThanOrEqual(401);
   }
 });

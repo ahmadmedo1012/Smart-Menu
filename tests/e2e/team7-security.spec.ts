@@ -14,56 +14,55 @@ const ts = Date.now().toString().slice(-8);
 test("IDOR: owner A cannot access owner B's restaurant settings", async ({ page }) => {
   await login(page, OWNER_A, PASS);
   // newuser300528's primary restaurant id
-  const res = await page.evaluate(async () => {
-    const r = await fetch("/api/settings?restaurantId=317");
-    return { status: r.status, body: (await r.text()).slice(0, 60) };
+  // page.request shares the context's session cookies — page.evaluate(fetch)
+  // does NOT attach cookies, so unauthenticated 401/200-HTML would mask the
+  // real tenant check. With a real session the route must return 403.
+  const res = await page.request.get("/api/settings?restaurantId=317", {
+    headers: { Accept: "application/json" },
   });
   // A has NO UserRestaurant link to 317 → must be denied
-  expect(res.status).toBe(403);
+  expect(res.status()).toBe(403);
 });
 
 test("IDOR: owner A cannot read owner B's orders", async ({ page }) => {
   await login(page, OWNER_A, PASS);
-  const res = await page.evaluate(async () => {
-    const r = await fetch("/api/orders?restaurantId=317");
-    return { status: r.status };
+  const res = await page.request.get("/api/orders?restaurantId=317", {
+    headers: { Accept: "application/json" },
   });
-  expect(res.status).toBeGreaterThanOrEqual(401);
+  expect(res.status()).toBeGreaterThanOrEqual(401);
 });
 
 test("IDOR: owner A cannot create category in owner B's restaurant", async ({ page }) => {
   await login(page, OWNER_A, PASS);
-  const token = await page.evaluate(() =>
-    document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
-  );
-  const res = await page.evaluate(async (csrf) => {
-    const r = await fetch("/api/categories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
-      body: JSON.stringify({ name: "XSS", restaurantId: 317 }),
-    });
-    return { status: r.status };
-  }, token);
+  const cookies = await page.context().cookies();
+  const token =
+    cookies.find((c) => c.name === "csrf-token")?.value ?? "";
+  const res = await page.request.post("/api/categories", {
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": token,
+    },
+    data: { name: "XSS", restaurantId: 317 },
+  });
   // 401 (not authed) / 403 (forbidden) both prove denial; never 201
-  expect(res.status).toBeGreaterThanOrEqual(401);
-  expect(res.status).not.toBe(201);
+  expect(res.status()).toBeGreaterThanOrEqual(401);
+  expect(res.status()).not.toBe(201);
 });
 
 test("IDOR: owner A cannot update owner B's restaurant", async ({ page }) => {
   await login(page, OWNER_A, PASS);
-  const token = await page.evaluate(() =>
-    document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
-  );
-  const res = await page.evaluate(async (csrf) => {
-    const r = await fetch("/api/restaurants/317", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
-      body: JSON.stringify({ name: "hacked" }),
-    });
-    return { status: r.status };
-  }, token);
+  const cookies = await page.context().cookies();
+  const token =
+    cookies.find((c) => c.name === "csrf-token")?.value ?? "";
+  const res = await page.request.patch("/api/restaurants/317", {
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": token,
+    },
+    data: { name: "hacked" },
+  });
   // 403/401/404 all acceptable — must NOT be 200
-  expect(res.status).not.toBe(200);
+  expect(res.status()).not.toBe(200);
 });
 
 test("XSS: item <script> stored and rendered as text (not executed)", async ({ page }) => {
