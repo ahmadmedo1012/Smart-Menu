@@ -67,7 +67,11 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 		}),
 		prisma.menuItem.findMany({
 			where: { status: 'available', category: { is: { restaurantId: restaurant.id } } },
-			include: { category: true },
+			include: {
+				category: {
+					select: { id: true, name: true, nameAr: true, icon: true, sortOrder: true, isActive: true, restaurantId: true, createdAt: true, updatedAt: true },
+				},
+			},
 			orderBy: { sortOrder: 'asc' },
 		}),
 		prisma.orderItem.groupBy({

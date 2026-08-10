@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 			popularItems,
 			recentOrders,
 			statusCounts,
-			todayOrdersFull,
+			todayRevenueAgg,
 		] = await Promise.all([
 			prisma.order.count({ where: { restaurantId } }),
 			prisma.order.count({ where: { restaurantId, createdAt: { gte: today } } }),
@@ -59,9 +59,9 @@ export async function GET(request: NextRequest) {
 				where: { restaurantId },
 				_count: true,
 			}),
-			prisma.order.findMany({
+			prisma.order.aggregate({
 				where: { restaurantId, createdAt: { gte: today } },
-				select: { total: true },
+				_sum: { total: true },
 			}),
 		]);
 
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
 		const statusBreakdown: Record<string, number> = {};
 		for (const s of statusCounts) statusBreakdown[s.status] = s._count;
 
-		const todayRevenue = todayOrdersFull.reduce((sum, o) => sum + Number(o.total), 0);
+		const todayRevenue = Number(todayRevenueAgg._sum.total ?? 0);
 
 		return success({
 			totalOrders,

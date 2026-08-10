@@ -1,4 +1,3 @@
-"use client";
 'use client';
 
 import { forwardRef, useRef, useImperativeHandle } from 'react';
@@ -46,5 +45,8 @@ AnimatedIcon.displayName = 'AnimatedIcon';
 export function withHoverAnimation<T extends AnimatedIconProps>(
 	Icon: React.ComponentType<T>,
 ): React.ForwardRefExoticComponent<React.PropsWithoutRef<T> & React.RefAttributes<AnimatedIconHandle>> {
-	return forwardRef<AnimatedIconHandle, T>((props, ref) => <AnimatedIcon ref={ref} as={Icon as React.ComponentType<AnimatedIconProps>} {...(props as AnimatedIconProps)} />);
+	const Wrapped = forwardRef<AnimatedIconHandle, T>((props, ref) => <AnimatedIcon ref={ref} as={Icon as React.ComponentType<AnimatedIconProps>} {...(props as AnimatedIconProps)} />);
+	const displayName = Icon.displayName || Icon.name || 'Icon';
+	Wrapped.displayName = `AnimatedIcon(${displayName})`;
+	return Wrapped;
 }
