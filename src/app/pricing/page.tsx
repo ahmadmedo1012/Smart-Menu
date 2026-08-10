@@ -88,7 +88,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 			viewport={{ once: true, margin: "-40px" }}
 			transition={{ ...springDefault, delay: index * 0.08 }}
 			className={cn(
-				'group relative flex flex-col rounded-sm border p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1',
+				'group relative flex flex-col rounded-2xl border p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1',
 				isPopular
 					? 'border-orange/40 bg-card shadow-lg shadow-orange/15 dark:shadow-orange/10'
 					: 'border-border/50 bg-card hover:border-orange-muted/60 hover:shadow-lg hover:shadow-orange/10'
@@ -97,7 +97,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 			{meta.badge && (
 				<div
 					className={cn(
-						'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-sm text-xs font-bold shadow-lg',
+						'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold shadow-lg',
 						meta.badgeColor
 					)}
 				>
@@ -105,12 +105,12 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 				</div>
 			)}
 
-			<div className="pointer-events-none absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
+			<div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
 				<div className="absolute -inset-full z-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:inset-0 transition-all duration-700 dark:via-white/10" />
 			</div>
 
 			{isPopular && (
-				<div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-sm bg-gradient-to-t from-orange/5 to-transparent pointer-events-none" />
+				<div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-2xl bg-gradient-to-t from-orange/5 to-transparent pointer-events-none" />
 			)}
 
 			<div className="relative z-10 flex flex-col flex-1">
