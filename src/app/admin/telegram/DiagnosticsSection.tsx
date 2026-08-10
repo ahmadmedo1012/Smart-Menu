@@ -6,9 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {Loader2, Stethoscope, CheckCircle2, XCircle} from 'lucide-react';
-import AnimatedTrash2 from '@/components/ui/trash-icon';;
-import { MotionPlus } from '@/components/ui/motion-icons';;
-import AnimatedUserCheck from '@/components/ui/user-check-icon';;
+import AnimatedTrash2 from '@/components/ui/trash-icon';
+import { MotionPlus } from '@/components/ui/motion-icons';
+import AnimatedUserCheck from '@/components/ui/user-check-icon';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 

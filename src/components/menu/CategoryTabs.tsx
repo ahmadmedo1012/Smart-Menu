@@ -26,15 +26,46 @@ const ICON_MAP: Record<string, { icon: LucideIcon; fallback: string }> = {
   package: { icon: Package, fallback: "📦" },
 }
 
+// Map common emoji category icons to lucide icons so tabs render crisp SVG
+// instead of platform emoji (matches Open Design emoji-slop rule).
+const EMOJI_MAP: Record<string, LucideIcon> = {
+  "☕": Coffee,
+  "🧃": CupSoda,
+  "🥤": CupSoda,
+  "🍰": Cookie,
+  "🍕": Pizza,
+  "🍔": Beef,
+  "🥩": Beef,
+  "🍞": Cookie,
+  "🍎": Apple,
+  "🍲": Soup,
+  "🥛": Milk,
+  "📦": Package,
+  "🍟": Soup,
+  "🍝": Soup,
+  "🥗": Soup,
+  "🍦": Cookie,
+  "🍧": Cookie,
+  "🧁": Cookie,
+  "🍪": Cookie,
+  "🥧": Cookie,
+}
+
 function TabIcon({ icon }: { icon: string }) {
   if (!icon) return null
+  // Prefer a crisp lucide SVG for known emoji icon values (Open Design)
   if (/^\p{Emoji}/u.test(icon)) {
+    const mapped = EMOJI_MAP[icon]
+    if (mapped) {
+      const Icon = mapped
+      return <Icon className="size-3.5 sm:size-4" strokeWidth={2.4} />
+    }
     return <span className="size-3.5 sm:size-4 flex items-center justify-center text-sm">{icon}</span>
   }
   const mapped = ICON_MAP[icon.toLowerCase().replace(/[-_\s]/g, "")]
   if (mapped) {
     const Icon = mapped.icon
-    return <Icon className="size-3.5 sm:size-4" />
+    return <Icon className="size-3.5 sm:size-4" strokeWidth={2.4} />
   }
   return <span className="text-[10px] sm:text-xs">{icon.slice(0, 2)}</span>
 }

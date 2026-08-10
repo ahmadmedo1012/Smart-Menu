@@ -4,8 +4,8 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import {Store} from 'lucide-react';
-import AnimatedMapPin from '@/components/ui/map-pin-icon';;
-import AnimatedClock from '@/components/ui/clock-icon';;
+import AnimatedMapPin from '@/components/ui/map-pin-icon';
+import AnimatedClock from '@/components/ui/clock-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 const StickyMenuHeader = dynamic(

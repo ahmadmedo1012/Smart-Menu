@@ -4,9 +4,9 @@ import { useState, memo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import { AlertTriangle } from 'lucide-react';
-import { MotionMinus } from '@/components/ui/motion-icons';;
-import AnimatedStar from '@/components/ui/star-icon';;
+import { AlertTriangle, Sparkles, UtensilsCrossed } from 'lucide-react';
+import { MotionMinus } from '@/components/ui/motion-icons';
+import AnimatedStar from '@/components/ui/star-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { ReviewSheet } from './ReviewSheet';
@@ -163,12 +163,12 @@ const MenuItemCard = memo(function MenuItemCard({
 							alt={displayName}
 							aspectRatio="square"
 							skeleton
-							fallback={<span className="text-2xl text-orange/40">🍽️</span>}
+							fallback={<span className="text-2xl text-orange/40"><UtensilsCrossed className="size-6 text-orange/40" /></span>}
 							onError={() => setImageError(true)}
 						/>
 					) : (
 						<div className="flex size-full items-center justify-center bg-gradient-to-br from-orange-muted/30 via-orange-muted/10 to-transparent">
-							<div className="text-3xl opacity-40">🍽️</div>
+							<div className="text-3xl opacity-40"><UtensilsCrossed className="size-6 text-orange/40" /></div>
 						</div>
 					)}
 				</div>
@@ -196,8 +196,9 @@ const MenuItemCard = memo(function MenuItemCard({
 							transition={{ ...CARD_SPRING, delay: 0.1 }}
 							className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/85 dark:bg-emerald-500/90 backdrop-blur-sm text-white shadow-lg"
 						>
-							🆕 جديد
-						</motion.span>
+							<Sparkles className="size-2.5 fill-current" />
+						جديد
+					</motion.span>
 					)}
 				</div>
 

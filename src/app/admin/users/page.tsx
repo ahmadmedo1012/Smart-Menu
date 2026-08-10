@@ -18,9 +18,9 @@ import {
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
 import {Users, Key, AlertCircle, UserPlus, Store, Shield, FilterX} from 'lucide-react';
-import { MotionChevronLeft } from '@/components/ui/motion-icons';;
-import { MotionChevronRight } from '@/components/ui/motion-icons';;
-import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import { MotionChevronLeft } from '@/components/ui/motion-icons';
+import { MotionChevronRight } from '@/components/ui/motion-icons';
+import AnimatedTrash2 from '@/components/ui/trash-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"

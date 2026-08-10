@@ -3,11 +3,11 @@
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {} from 'lucide-react';
-import { MotionMinus } from '@/components/ui/motion-icons';;
-import { MotionArrowLeft } from '@/components/ui/motion-icons';;
-import { MotionPlus } from '@/components/ui/motion-icons';;
-import AnimatedTrash from '@/components/ui/trash-icon';;
-import AnimatedCart from '@/components/ui/shopping-cart-icon';;
+import { MotionMinus } from '@/components/ui/motion-icons';
+import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionPlus } from '@/components/ui/motion-icons';
+import AnimatedTrash from '@/components/ui/trash-icon';
+import AnimatedCart from '@/components/ui/shopping-cart-icon';
 import { motion } from 'framer-motion';
 import { useCart } from '@/store/cart';
 import { toArabicNumber } from '@/lib/format';

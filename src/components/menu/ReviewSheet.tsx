@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {} from 'lucide-react';
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import AnimatedSend from '@/components/ui/send-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import AnimatedSend from '@/components/ui/send-icon';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';

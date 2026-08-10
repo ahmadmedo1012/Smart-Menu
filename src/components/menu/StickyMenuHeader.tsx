@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'framer-motion';
 import {} from 'lucide-react';
-import { MotionMenu } from '@/components/ui/motion-icons';;
+import { MotionMenu } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';

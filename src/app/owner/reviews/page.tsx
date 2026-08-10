@@ -3,10 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {} from 'lucide-react';
-import AnimatedStar from '@/components/ui/star-icon';;
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import { MotionArrowRight } from '@/components/ui/motion-icons';;
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
+import AnimatedStar from '@/components/ui/star-icon';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";

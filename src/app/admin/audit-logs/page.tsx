@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/table';
 import {ChevronUp, AlertCircle, Activity, FilterX, History, AlertTriangle} from 'lucide-react';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
-import { MotionSearch } from '@/components/ui/motion-icons';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
+import { MotionSearch } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 

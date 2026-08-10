@@ -1,7 +1,7 @@
 "use client";
 
 import {} from 'lucide-react';
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { cn } from "@/lib/utils";
 import { normalizeWaNumber } from "@/lib/whatsapp";
 

@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import {CreditCard} from 'lucide-react';
-import { MotionCheck } from '@/components/ui/motion-icons';;
+import { MotionCheck } from '@/components/ui/motion-icons';
 import { PaymentDialog } from '@/components/shared/PaymentDialog';
 
 type Plan = {

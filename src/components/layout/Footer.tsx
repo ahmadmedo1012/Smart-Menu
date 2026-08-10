@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 
 // Single canonical support number — same env source as FloatingWhatsApp.
 // Hardcoded per-number links drift (was 218911111111 placeholder vs 218910089975).

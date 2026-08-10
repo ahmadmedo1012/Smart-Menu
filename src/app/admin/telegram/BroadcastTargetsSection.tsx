@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import {Users, Loader2} from 'lucide-react';
-import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedSend from "@/components/ui/send-icon"
 

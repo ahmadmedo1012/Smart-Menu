@@ -11,9 +11,9 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { SearchInput } from '@/components/ui/search-input';
 import {Pencil, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon} from 'lucide-react';
-import { MotionChevronDown } from '@/components/ui/motion-icons';;
-import { MotionPlus } from '@/components/ui/motion-icons';;
-import AnimatedTrash from '@/components/ui/trash-icon';;
+import { MotionChevronDown } from '@/components/ui/motion-icons';
+import { MotionPlus } from '@/components/ui/motion-icons';
+import AnimatedTrash from '@/components/ui/trash-icon';
 import { BackButton } from '@/components/shared/BackButton';
 import { csrfFetch } from '@/lib/csrf-client';
 import { useRouter } from 'next/navigation';

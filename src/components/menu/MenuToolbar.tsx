@@ -41,7 +41,7 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 	);
 }
 import {} from 'lucide-react';
-import { MotionSearch } from '@/components/ui/motion-icons';;
+import { MotionSearch } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';

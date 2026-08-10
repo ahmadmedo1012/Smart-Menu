@@ -10,8 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { premiumToast } from '@/lib/premium-toast';
 import {Award, Gift} from 'lucide-react';
-import AnimatedSave from '@/components/ui/save-icon';;
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
+import AnimatedSave from '@/components/ui/save-icon';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 
 /* ---------- Types ---------- */
 

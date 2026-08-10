@@ -42,7 +42,6 @@ export function HeroSection() {
                             <span className="block">
                                 منيو رقمي لمطعمك
                             </span>
-                            <span className="block"> </span>
                             <span className="block">
                                 <span className="text-orange">الطلبات تصل</span> على واتساب
                             </span>

@@ -3,14 +3,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {Store, ClipboardList, AlertCircle, Package, Award, Gift, Users, CheckCircle, BarChart3, Settings, Activity, ShoppingCart, QrCode} from 'lucide-react';;
-import AnimatedQrCode from '@/components/ui/qrcode-icon';;
+import {Store, ClipboardList, AlertCircle, Package, Award, Gift, Users, CheckCircle, BarChart3, Settings, Activity, ShoppingCart, QrCode} from 'lucide-react';
+import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import PlugConnectedIcon from '@/components/ui/plug-connected-icon';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';;
-import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
-import AnimatedSparkles from '@/components/ui/sparkles-icon';;
-import AnimatedExternalLink from '@/components/ui/external-link-icon';;
-import AnimatedCopy from '@/components/ui/copy-icon';;
+import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';
+import AnimatedExternalLink from '@/components/ui/external-link-icon';
+import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import Link from 'next/link';
@@ -312,13 +312,12 @@ export default function OwnerDashboard() {
 							{[
 								{ href: '/owner/menu', icon: ClipboardList, label: 'إدارة المنيو' },
 								{ href: '/owner/orders', icon: ShoppingCart, label: 'الطلبات' },
-								{ href: '/owner/qr', icon: QrCode, label: 'رمز QR', color: 'emerald' },
+								{ href: '/owner/qr', icon: QrCode, label: 'رمز QR' },
 								{ href: '/owner/settings', icon: Settings, label: 'الإعدادات' },
-							].map(({ href, icon: Icon, label, color }) => (
+							].map(({ href, icon: Icon, label }) => (
 								<Link key={href} href={href}>
 									<div
 										className="group relative overflow-hidden rounded-md border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
-										style={{ borderColor: color === 'emerald' ? undefined : undefined }}
 									>
 										<div className="absolute inset-0 bg-gradient-to-br from-orange/0 to-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 										<div className="relative flex flex-col items-center gap-1.5">

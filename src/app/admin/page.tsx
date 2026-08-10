@@ -10,11 +10,11 @@ import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
 
-import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart} from 'lucide-react';;
-import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
-import { MotionLogIn } from '@/components/ui/motion-icons';;
-import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';;
+import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart} from 'lucide-react';
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
+import { MotionLogIn } from '@/components/ui/motion-icons';
+import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
 
 interface StatsData {
 	totalUsers: number;

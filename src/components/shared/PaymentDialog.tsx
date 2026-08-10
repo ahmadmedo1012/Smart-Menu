@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import {Smartphone, Landmark, CheckCircle2, XCircle, Loader2} from 'lucide-react';
 import AnimatedUpload from '@/components/ui/upload-icon';
-import AnimatedCopy from '@/components/ui/copy-icon';;
+import AnimatedCopy from '@/components/ui/copy-icon';
 import { useConfig } from '@/hooks/useConfig';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { compressImage } from '@/lib/image-compress';

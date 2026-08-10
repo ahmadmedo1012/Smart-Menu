@@ -19,10 +19,10 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import {LogIn} from 'lucide-react';
-import { MotionArrowRight } from '@/components/ui/motion-icons';;
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import AnimatedEyeOff from '@/components/ui/eye-off-icon';;
-import AnimatedEye from '@/components/ui/eye-icon';;
+import { MotionArrowRight } from '@/components/ui/motion-icons';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import AnimatedEyeOff from '@/components/ui/eye-off-icon';
+import AnimatedEye from '@/components/ui/eye-icon';
 
 const SUPPORT_WHATSAPP = '218910089975';
 

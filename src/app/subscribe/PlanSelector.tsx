@@ -1,8 +1,8 @@
 'use client';
 
 import {Sparkles, Star, Crown, Building2} from 'lucide-react';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
+import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionCheck } from '@/components/ui/motion-icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';

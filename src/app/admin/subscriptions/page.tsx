@@ -22,12 +22,12 @@ import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import {CreditCard, FilterX, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
-import { MotionChevronLeft } from '@/components/ui/motion-icons';;
-import { MotionChevronRight } from '@/components/ui/motion-icons';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
-import AnimatedX from '@/components/ui/x-icon';;
-import AnimatedClock from '@/components/ui/clock-icon';;
+import { MotionChevronLeft } from '@/components/ui/motion-icons';
+import { MotionChevronRight } from '@/components/ui/motion-icons';
+import { MotionCheck } from '@/components/ui/motion-icons';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
+import AnimatedX from '@/components/ui/x-icon';
+import AnimatedClock from '@/components/ui/clock-icon';
 
 interface Payment {
 	id: number;

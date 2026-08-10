@@ -39,6 +39,8 @@ export default defineConfig({
         "tests/e2e/team5-admin.spec.ts",
         "tests/e2e/team6-a11y.spec.ts",
         "tests/e2e/team7-security.spec.ts",
+        "tests/e2e/round80-security.spec.ts",
+        "tests/e2e/round80-geometry.spec.ts",
         "tests/e2e/persona-1-customer.spec.ts",
         "tests/e2e/persona-3-owner.spec.ts",
         "tests/e2e/persona-4-multimenu.spec.ts",

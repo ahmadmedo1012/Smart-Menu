@@ -2,9 +2,9 @@
 
 import { useMemo } from 'react';
 import {ShoppingCart, TrendingUp, Activity, DollarSign} from 'lucide-react';
-import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';;
-import AnimatedDollarSign from '@/components/ui/currency-dollar-icon';;
-import AnimatedClock from '@/components/ui/clock-icon';;
+import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
+import AnimatedDollarSign from '@/components/ui/currency-dollar-icon';
+import AnimatedClock from '@/components/ui/clock-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { AreaChart } from '@/components/shared/AreaChart';

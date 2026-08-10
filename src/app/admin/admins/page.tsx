@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { premiumToast } from "@/lib/premium-toast"
 import { csrfFetch } from "@/lib/csrf-client"
 import {Shield, UserPlus, Key, AlertCircle, CheckCheck, Users, Store, DollarSign, Settings as SettingsIcon, BarChart3, AlertTriangle} from 'lucide-react';
-import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import AnimatedTrash2 from '@/components/ui/trash-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import AnimatedLogOut from "@/components/ui/logout-icon"
 import { cn } from "@/lib/utils"

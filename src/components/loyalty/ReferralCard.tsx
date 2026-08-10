@@ -3,9 +3,9 @@
 import { useState, useCallback } from 'react';
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import {Share2, Gift, Smartphone, Users, TrendingUp} from 'lucide-react';
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
-import AnimatedCopy from '@/components/ui/copy-icon';;
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import { MotionCheck } from '@/components/ui/motion-icons';
+import AnimatedCopy from '@/components/ui/copy-icon';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { premiumToast } from '@/lib/premium-toast';
 

@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
 import {Settings} from 'lucide-react';
-import AnimatedSave from '@/components/ui/save-icon';;
-import AnimatedEyeOff from '@/components/ui/eye-off-icon';;
-import AnimatedEye from '@/components/ui/eye-icon';;
-import AnimatedTrash from '@/components/ui/trash-icon';;
+import AnimatedSave from '@/components/ui/save-icon';
+import AnimatedEyeOff from '@/components/ui/eye-off-icon';
+import AnimatedEye from '@/components/ui/eye-icon';
+import AnimatedTrash from '@/components/ui/trash-icon';
 import {
 	Dialog,
 	DialogContent,

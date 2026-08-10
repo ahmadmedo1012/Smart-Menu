@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Confetti } from '@/components/shared/Confetti';
 import {CheckCircle, Camera, Phone, Gift} from 'lucide-react';
-import AnimatedSparkles from '@/components/ui/sparkles-icon';;
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
-import AnimatedCopy from '@/components/ui/copy-icon';;
+import AnimatedSparkles from '@/components/ui/sparkles-icon';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import { MotionCheck } from '@/components/ui/motion-icons';
+import AnimatedCopy from '@/components/ui/copy-icon';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';

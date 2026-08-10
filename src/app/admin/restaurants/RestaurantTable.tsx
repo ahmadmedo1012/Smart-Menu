@@ -1,11 +1,11 @@
 "use client"
 
-import {Pencil, Crown, Star, Building2, Store, FilterX, Sparkles} from 'lucide-react';;
-import { MotionChevronLeft } from '@/components/ui/motion-icons';;
-import { MotionChevronRight } from '@/components/ui/motion-icons';;
-import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';;
-import AnimatedSparkles from '@/components/ui/sparkles-icon';;
-import AnimatedTrash2 from '@/components/ui/trash-icon';;
+import {Pencil, Crown, Star, Building2, Store, FilterX, Sparkles} from 'lucide-react';
+import { MotionChevronLeft } from '@/components/ui/motion-icons';
+import { MotionChevronRight } from '@/components/ui/motion-icons';
+import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
+import AnimatedSparkles from '@/components/ui/sparkles-icon';
+import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedExternalLink from "@/components/ui/external-link-icon"
 import { Button } from "@/components/ui/button"

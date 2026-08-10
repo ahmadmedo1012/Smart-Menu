@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
-import AnimatedStar from '@/components/ui/star-icon';;
+import AnimatedStar from '@/components/ui/star-icon';
 import { AvatarInitials } from './AvatarInitials';
 
 /* ── Premium tokens ── */

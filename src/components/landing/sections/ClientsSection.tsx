@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {Quote} from 'lucide-react';
-import { MotionChevronLeft } from '@/components/ui/motion-icons';;
-import AnimatedStar from '@/components/ui/star-icon';;
-import { MotionBuilding2 } from '@/components/ui/motion-icons';;
+import { MotionChevronLeft } from '@/components/ui/motion-icons';
+import AnimatedStar from '@/components/ui/star-icon';
+import { MotionBuilding2 } from '@/components/ui/motion-icons';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"

@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import {} from 'lucide-react';
-import { MotionSearch } from '@/components/ui/motion-icons';;
+import { MotionSearch } from '@/components/ui/motion-icons';
 
 interface SearchInputProps {
 	value: string;

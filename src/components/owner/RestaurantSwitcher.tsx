@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {ChevronsUpDown, Store} from 'lucide-react';
-import { MotionPlus } from '@/components/ui/motion-icons';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
+import { MotionPlus } from '@/components/ui/motion-icons';
+import { MotionCheck } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';
 
 export const ACTIVE_RESTAURANT_KEY = 'smartmenu_active_restaurant';

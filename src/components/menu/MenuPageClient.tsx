@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {} from 'lucide-react';
-import AnimatedSparkles from '@/components/ui/sparkles-icon';;
+import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { motion } from 'framer-motion';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';

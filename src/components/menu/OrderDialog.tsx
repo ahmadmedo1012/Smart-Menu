@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {Store} from 'lucide-react';
-import { MotionMinus } from '@/components/ui/motion-icons';;
-import { MotionPlus } from '@/components/ui/motion-icons';;
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
+import { MotionMinus } from '@/components/ui/motion-icons';
+import { MotionPlus } from '@/components/ui/motion-icons';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import { MotionCheck } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';

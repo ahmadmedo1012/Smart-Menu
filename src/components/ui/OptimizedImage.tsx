@@ -4,6 +4,7 @@ import { useState, memo, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { UtensilsCrossed } from "lucide-react";
 
 type AspectRatio = "auto" | "square" | "video";
 
@@ -82,7 +83,11 @@ const OptimizedImage = memo(function OptimizedImage({
         />
       ) : (
         <div className="flex size-full items-center justify-center bg-gradient-to-br from-orange-muted/40 to-transparent">
-          {fallback || <span className="text-2xl text-orange/40">🍽️</span>}
+          {fallback || (
+            <span className="text-2xl text-orange/40">
+              <UtensilsCrossed className="size-6 text-orange/40" />
+            </span>
+          )}
         </div>
       )}
     </div>

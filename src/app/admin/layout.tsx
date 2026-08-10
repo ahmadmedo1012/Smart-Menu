@@ -7,8 +7,8 @@ import { AdminSidebar, allNavItems, hasItemPermission } from '@/components/layou
 import { LayoutHeader } from '@/components/layout/LayoutHeader';
 import { NavLink } from '@/components/shared/NavLink';
 import {Store} from 'lucide-react';
-import AnimatedX from '@/components/ui/x-icon';;;
-import AnimatedLogOut from '@/components/ui/logout-icon';;
+import AnimatedX from '@/components/ui/x-icon';
+import AnimatedLogOut from '@/components/ui/logout-icon';
 import { PageFade } from '@/components/shared/PageFade';
 import { AdminEventNotifier } from '@/components/admin/AdminEventNotifier';
 

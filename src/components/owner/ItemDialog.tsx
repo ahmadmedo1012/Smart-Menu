@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import {Loader2} from 'lucide-react';
-import AnimatedUpload from '@/components/ui/upload-icon';;
+import AnimatedUpload from '@/components/ui/upload-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

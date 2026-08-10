@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
 import {Maximize2, Pause, Play} from 'lucide-react';
-import { MotionChevronLeft } from '@/components/ui/motion-icons';;
-import { MotionChevronRight } from '@/components/ui/motion-icons';;
+import { MotionChevronLeft } from '@/components/ui/motion-icons';
+import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import {} from 'lucide-react';
-import AnimatedCart from '@/components/ui/shopping-cart-icon';;
+import AnimatedCart from '@/components/ui/shopping-cart-icon';
 
 /** Play a gentle notification chime using Web Audio API */
 function playOrderSound() {

@@ -5,9 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {LayoutDashboard, Store, Users, UtensilsCrossed, ScrollText, Settings, Activity, DollarSign, ClipboardList, Gift, Package} from 'lucide-react';
-import AnimatedQrCode from '@/components/ui/qrcode-icon';;
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';;
-import { MotionSearch } from '@/components/ui/motion-icons';;
+import AnimatedQrCode from '@/components/ui/qrcode-icon';
+import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import { MotionSearch } from '@/components/ui/motion-icons';
 
 interface Action {
 	id: string;

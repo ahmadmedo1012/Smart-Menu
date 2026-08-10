@@ -3,7 +3,7 @@
 import { toast } from "sonner";
 import { LottieAnimation } from "@/components/shared/LottieAnimation";
 import {CheckCircle, AlertCircle, Info, ShoppingCart, LogOut, LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy} from 'lucide-react';
-import AnimatedX from '@/components/ui/x-icon';;
+import AnimatedX from '@/components/ui/x-icon';
 import { cn } from "@/lib/utils";
 
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";

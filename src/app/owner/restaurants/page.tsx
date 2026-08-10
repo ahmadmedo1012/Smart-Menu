@@ -3,11 +3,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {Store, Loader2} from 'lucide-react';
-import AnimatedStar from '@/components/ui/star-icon';;
-import { MotionPlus } from '@/components/ui/motion-icons';;;
-import AnimatedExternalLink from '@/components/ui/external-link-icon';;
-import AnimatedCopy from '@/components/ui/copy-icon';;
-import AnimatedTrash from '@/components/ui/trash-icon';;
+import AnimatedStar from '@/components/ui/star-icon';
+import { MotionPlus } from '@/components/ui/motion-icons';
+import AnimatedExternalLink from '@/components/ui/external-link-icon';
+import AnimatedCopy from '@/components/ui/copy-icon';
+import AnimatedTrash from '@/components/ui/trash-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

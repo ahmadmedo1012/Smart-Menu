@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
 import {Store, AlertTriangle} from 'lucide-react';
-import AnimatedQrCode from '@/components/ui/qrcode-icon';;
-import { MotionCheck } from '@/components/ui/motion-icons';;
-import AnimatedDownload from '@/components/ui/download-icon';;
-import AnimatedExternalLink from '@/components/ui/external-link-icon';;
-import AnimatedCopy from '@/components/ui/copy-icon';;
+import AnimatedQrCode from '@/components/ui/qrcode-icon';
+import { MotionCheck } from '@/components/ui/motion-icons';
+import AnimatedDownload from '@/components/ui/download-icon';
+import AnimatedExternalLink from '@/components/ui/external-link-icon';
+import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
 
 interface Restaurant {

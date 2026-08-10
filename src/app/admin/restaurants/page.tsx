@@ -13,9 +13,9 @@ import {
 import { SearchInput } from "@/components/ui/search-input";
 import { premiumToast } from "@/lib/premium-toast";
 import {AlertCircle, AlertTriangle} from 'lucide-react';
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';;
-import AnimatedTrash2 from '@/components/ui/trash-icon';;
-import { MotionPlus } from '@/components/ui/motion-icons';;
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
+import AnimatedTrash2 from '@/components/ui/trash-icon';
+import { MotionPlus } from '@/components/ui/motion-icons';
 import { toArabicNumber } from "@/lib/format";
 import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./RestaurantTable";
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
