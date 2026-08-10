@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {Loader2} from 'lucide-react';
+import {Loader2, AlertTriangle} from 'lucide-react';
 import AnimatedUpload from '@/components/ui/upload-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -411,7 +411,7 @@ export function ItemDialog({
 												: 'border-border/30 hover:border-amber-300/50 text-muted-foreground'
 										)}
 									>
-										⚠️ {ALLERGEN_LABELS[t] || t}
+										<AlertTriangle className="size-3 inline-block me-1 text-amber-600 dark:text-amber-400" />{ALLERGEN_LABELS[t] || t}
 									</button>
 								);
 							})}

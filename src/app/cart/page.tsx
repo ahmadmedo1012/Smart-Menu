@@ -228,7 +228,7 @@ export default function CartPage() {
 										onClick={() => addSuggested()}
 										className="rounded-lg border border-border/40 bg-card/60 px-3 py-2.5 text-sm font-arabic hover:border-orange/40 hover:bg-orange-muted/30 transition-colors"
 									>
-										+ {s}
+										<MotionPlus className="size-3.5 text-orange ms-1" /> {s}
 									</button>
 								))}
 							</div>

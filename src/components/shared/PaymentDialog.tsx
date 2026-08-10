@@ -613,7 +613,7 @@ export function PaymentDialog({
 									animate={{ opacity: 1, y: 0 }}
 									className="text-lg font-bold text-green-600 dark:text-green-400"
 								>
-									✅ تم الموافقة على الاشتراك
+									تم الموافقة على الاشتراك
 								</motion.p>
 								<motion.p
 									initial={{ opacity: 0, y: 10 }}
@@ -663,7 +663,7 @@ export function PaymentDialog({
 									animate={{ opacity: 1, y: 0 }}
 									className="text-lg font-bold text-red-600 dark:text-red-400"
 								>
-									❌ تم رفض طلب الاشتراك
+									تم رفض طلب الاشتراك
 								</motion.p>
 								<motion.p
 									initial={{ opacity: 0, y: 10 }}
