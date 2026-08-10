@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
 
-export const dynamic = "force-dynamic";
+// Landing page hits this on every visit — static data (ranked restaurants),
+// safe to revalidate at most every 60s instead of a DB query per request.
+export const revalidate = 60;
 
 export async function GET() {
     try {
