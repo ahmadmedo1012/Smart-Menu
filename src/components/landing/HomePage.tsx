@@ -47,7 +47,7 @@ export function HomePage() {
 	}, []);
 
 	return (
-		<div className="flex flex-col min-h-screen overflow-x-hidden">
+		<div className="flex flex-col min-h-screen overflow-x-clip">
 			<Header />
 			<HeroSection totalRestaurants={stats?.totalRestaurants} />
 			<FeaturesSection />

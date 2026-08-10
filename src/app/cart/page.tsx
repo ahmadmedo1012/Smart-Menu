@@ -260,7 +260,7 @@ export default function CartPage() {
 	return (
 		<>
 			<Header />
-			<div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20 overflow-x-hidden">
+			<div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20 overflow-x-clip">
 				{/* Header */}
 				<div className="flex items-center gap-4 mb-8 animate-slide-down">
 					<Link

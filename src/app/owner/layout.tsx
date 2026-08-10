@@ -154,7 +154,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 			</Sheet>
 
 			{/* Main content */}
-			<div className="flex flex-1 flex-col animate-fade-in overflow-x-hidden">
+			<div className="flex flex-1 flex-col animate-fade-in overflow-x-clip">
 				<LayoutHeader onMenuClick={() => setSheetOpen(true)} role="owner" />
 				<main
 					aria-live="polite"

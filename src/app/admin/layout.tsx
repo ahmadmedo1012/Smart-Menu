@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 			</Sheet>
 
 			{/* Main */}
-			<div className="flex flex-1 flex-col animate-fade-in overflow-x-hidden">
+			<div className="flex flex-1 flex-col animate-fade-in overflow-x-clip">
 				<LayoutHeader onMenuClick={() => setSheetOpen(true)} role="admin" />
 				<main
 					aria-live="polite"

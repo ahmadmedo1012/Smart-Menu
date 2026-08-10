@@ -12,6 +12,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
+import { fetchJson } from '@/lib/fetch-json';
 
 type Plan = {
 	id: number;
@@ -205,14 +206,19 @@ export default function PricingPage() {
 	const [yearly, setYearly] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const loadPlans = useCallback(() => {
+	const loadPlans = useCallback(async () => {
 		setLoading(true);
 		setError(null);
-		fetch('/api/plans')
-			.then((r) => r.json())
-			.then((d) => setPlans(d.data ?? d ?? []))
-			.catch(() => setError('فشل تحميل الخطط'))
-			.finally(() => setLoading(false));
+		try {
+			const data = await fetchJson<{ data?: Plan[] }>('/api/plans');
+			const list = data.data ?? (data as unknown as Plan[]) ?? [];
+			setError(null);
+			setPlans(list);
+		} catch {
+			setError('فشل تحميل الخطط');
+		} finally {
+			setLoading(false);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -220,7 +226,7 @@ export default function PricingPage() {
 	}, [loadPlans]);
 
 	return (
-		<div className="min-h-screen bg-background overflow-x-hidden">
+		<div className="min-h-screen bg-background overflow-x-clip">
 			<Header />
 
 			<section className="relative pt-20 sm:pt-24 pb-12 sm:pb-16 text-center overflow-hidden">

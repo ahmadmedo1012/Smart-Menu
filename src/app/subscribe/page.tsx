@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
+import { fetchJson } from '@/lib/fetch-json';
 import { Header } from '@/components/layout/Header';
 import { PlanSelector } from './PlanSelector';
 import { SubscribeForm } from './SubscribeForm';
@@ -66,18 +67,32 @@ function SubscribeContent() {
 	});
 
 	useEffect(() => {
-		fetch('/api/plans')
-			.then((r) => r.json())
-			.then((d) => {
-				const p = d.data ?? d ?? [];
+		let retried = false;
+		let retryTimer: ReturnType<typeof setTimeout> | undefined;
+		const fetchPlans = async () => {
+			try {
+				const data = await fetchJson<{ data?: Plan[] }>('/api/plans');
+				const p = data.data ?? (data as unknown as Plan[]) ?? [];
 				setPlans(p);
 				if (preselectedPlan) {
 					const found = p.find((pl: Plan) => pl.id === Number(preselectedPlan));
 					if (found) setSelectedPlan(found.id);
 				}
-			})
-			.catch(() => premiumToast('error', 'فشل تحميل الخطط'))
-			.finally(() => setLoading(false));
+			} catch {
+				premiumToast('error', 'فشل تحميل الخطط');
+				// auto-retry once after 1s — cold-start /api/plans may return non-JSON 200
+				if (!retried) {
+					retried = true;
+					retryTimer = setTimeout(fetchPlans, 1000);
+				}
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchPlans();
+		return () => {
+			if (retryTimer) clearTimeout(retryTimer);
+		};
 	}, [preselectedPlan]);
 
 	useEffect(() => {

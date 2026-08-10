@@ -324,7 +324,7 @@
 		background: var(--background);
 		color: var(--foreground);
 		overflow-x: hidden;
-		max-width: 100vw;
+		overflow-x: clip;
 		transition: background-color 0.3s ease, color 0.3s ease;
 		font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1;
 		font-variant-numeric: lining-nums tabular-nums;
@@ -336,9 +336,15 @@
 
 	html {
 		overflow-x: hidden;
-		max-width: 100vw;
-		scroll-behavior: smooth;
+		overflow-x: clip;
 		transition: background-color 0.3s ease, color 0.3s ease;
+		overscroll-behavior-y: none;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		html {
+			scroll-behavior: smooth;
+		}
 	}
 
 	/* ponytail: disabled — conflicts with framer-motion AnimatePresence */

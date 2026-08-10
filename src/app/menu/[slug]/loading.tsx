@@ -1,6 +1,6 @@
 export default function MenuSlugLoading() {
   return (
-    <div className="min-h-screen relative overflow-x-hidden">
+    <div className="min-h-screen relative overflow-x-clip">
       {/* Background glow matching page.tsx */}
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_50%_0%,oklch(0.55_0.19_45/0.08),transparent_70%)] pointer-events-none" />
 

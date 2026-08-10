@@ -150,7 +150,7 @@ export default function AdminOrdersPage() {
   )
 
   return (
-    <div className="space-y-6 animate-fade-in overflow-x-hidden">
+    <div className="space-y-6 animate-fade-in overflow-x-clip">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">الطلبات</h2>
