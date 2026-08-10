@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import {} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { Button } from "@/components/ui/button"
@@ -11,7 +10,8 @@ import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
 
-export function FinalCTASection() {
+export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: number }) {
+  const trustCount = totalRestaurants && totalRestaurants > 0 ? totalRestaurants : 500;
   return (
     <SectionContainer className="border-t border-orange/10">
       {/* ponytail: removed Unsplash external image (caused 500/503 from Next.js Image Optimization).
@@ -28,11 +28,10 @@ export function FinalCTASection() {
       <div className="relative z-10 text-center">
         <SectionHeader
           icon={<AnimatedSparkles className="size-3" />}
-          eyebrow=""
           title="جهّز مطعمك للانطلاق الرقمي"
           subtitle={
             <>
-              انطلق الآن — انضم إلى <span className="font-bold text-foreground">أكثر من 500 مطعم ومقهى</span>.
+              انطلق الآن — انضم إلى <span className="font-bold text-foreground">أكثر من {trustCount.toLocaleString("ar")} مطعم ومقهى</span>.
               استقبل الطلبات عبر واتساب وابدأ في دقائق.
             </>
           }

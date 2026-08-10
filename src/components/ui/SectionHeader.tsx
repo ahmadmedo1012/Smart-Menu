@@ -7,7 +7,7 @@ import { springGentle, springSnappy } from "@/lib/motion";
 import { Eyebrow } from "./Eyebrow";
 
 type SectionHeaderProps = {
-  eyebrow: ReactNode;
+  eyebrow?: ReactNode;
   title?: string;
   subtitle?: ReactNode;
   className?: string;

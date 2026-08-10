@@ -1,6 +1,5 @@
 "use client"
 
-import {} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { motion } from "framer-motion"
 import { MotionChevronDown } from "@/components/ui/motion-icons"
@@ -18,7 +17,7 @@ const FAQS = [
 export function FaqSection() {
   return (
     <SectionContainer>
-      <SectionHeader icon={<AnimatedMessageCircle className="size-3" />} eyebrow=""
+      <SectionHeader icon={<AnimatedMessageCircle className="size-3" />}
         title="أسئلة شائعة"
         subtitle="إجابات سريعة لأكثر الأسئلة تردداً"
       />

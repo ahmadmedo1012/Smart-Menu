@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { GlowPool } from "@/components/ui/GlowPool";
@@ -9,9 +9,10 @@ import { GlowPool } from "@/components/ui/GlowPool";
 function AnimatedNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  // Start counting immediately; the section is below the fold so we don't
+  // want to wait for an in-view trigger that may never fire on short pages.
   useEffect(() => {
-    if (!inView || value <= 0) return;
+    if (value <= 0) return;
     const step = Math.max(1, Math.ceil(value / 30));
     const timer = setInterval(() => {
       setCount(prev => Math.min(prev + step, value));
@@ -21,13 +22,13 @@ function AnimatedNumber({ value }: { value: number }) {
   return <span ref={ref} dir="ltr">{count.toLocaleString()}</span>;
 }
 
-export function StatsSection({ stats }: { stats: { totalRestaurants: number } }) {
-  // Honest stats: use the real totalRestaurants from the public API.
-  // No inflated/fabricated numbers — a restaurant owner evaluating the
-  // platform should see actual traction, not marketing placeholders.
+export function StatsSection({ stats }: { stats: { totalRestaurants: number; totalUsers: number } }) {
+  // Honest stats: real numbers from the public API.
+  // No inflated/fabricated figures — an owner evaluating the platform
+  // should see actual traction, not marketing placeholders.
   const items = [
     { value: Math.max(stats.totalRestaurants, 0), suffix: "+", label: "مطعم مسجل", sub: "يستخدمون المنيو الرقمي" },
-    { value: stats.totalRestaurants * 25, suffix: "+", label: "طلب شهرياً", sub: "تقدير مبني على متوسط الاستخدام" },
+    { value: Math.max(stats.totalUsers, 0), suffix: "+", label: "حساب نشط", sub: "أصحاب مطاعم ومقاهٍ على المنصة" },
     { value: 97, suffix: "%", label: "رضا العملاء", sub: "بناءً على تقييمات المطاعم" },
   ];
 
@@ -52,7 +53,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number } })
                   </span>
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-muted-foreground/80">{item.label}</div>
-                <div className="mt-3 text-[0.6rem] text-muted-foreground/40">{item.sub}</div>
+                <div className="mt-3 text-xs text-muted-foreground/50">{item.sub}</div>
               </div>
             </motion.div>
           ))}

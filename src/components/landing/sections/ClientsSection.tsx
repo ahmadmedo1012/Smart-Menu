@@ -103,7 +103,7 @@ function NavPill({
       onClick={onClick}
       className={cn(
         "rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
-        i === active ? "w-6 h-[5px] bg-orange" : "w-[5px] h-[5px] bg-border/50 hover:bg-border",
+        i === active ? "w-6 h-[5px] bg-orange" : "w-[5px] h-[5px] bg-border/50 hover:bg-orange/40",
       )}
       aria-label={`التقييم ${i + 1}`}
     />
@@ -113,6 +113,7 @@ function NavPill({
 /* ── Root ── */
 export function ClientsSection() {
   const [active, setActive] = useState(0)
+  const [paused, setPaused] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const n = TESTIMONIALS.length
 
@@ -121,9 +122,10 @@ export function ClientsSection() {
   const prev = useCallback(() => goTo(active - 1), [active, goTo])
 
   useEffect(() => {
+    if (paused) return
     timerRef.current = setInterval(next, 5000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [next])
+  }, [next, paused])
 
   const activeT = TESTIMONIALS[active]
 
@@ -155,6 +157,10 @@ export function ClientsSection() {
         viewport={{ once: true, margin: "-40px" }}
         transition={{ ...springGentle, delay: 0.1 }}
         className="max-w-lg mx-auto"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={() => setPaused(false)}
       >
         <div className="relative rounded-2xl bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
           <AnimatePresence mode="wait">

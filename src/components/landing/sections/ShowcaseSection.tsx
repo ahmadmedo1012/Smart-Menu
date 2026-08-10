@@ -35,7 +35,7 @@ export function ShowcaseSection() {
 					<div className="relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2rem-0.375rem)] sm:rounded-[calc(2rem-0.5rem)]">
 						<motion.div style={{ scale: imageScale, y: imageY }}>
 							<Image
-								src="/main21.png"
+								src="/main21.webp"
 								alt="معاينة المنيو الرقمي الذكي من الربط الذكي"
 								width={1536}
 								height={1024}
@@ -43,7 +43,6 @@ export function ShowcaseSection() {
 								priority
 							/>
 						</motion.div>
-
 
 						<div className="absolute inset-0 pointer-events-none"
 							style={{ background: "radial-gradient(ellipse at center, transparent 50%, var(--background) 100%)" }}

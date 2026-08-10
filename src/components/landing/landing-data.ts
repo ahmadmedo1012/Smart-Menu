@@ -15,10 +15,21 @@ export type PublicStats = {
 
 export async function fetchPublicStats(): Promise<PublicStats> {
   try {
-    const res = await fetch("/api/public/stats");
-    if (!res.ok) throw new Error("Stats unavailable");
-    return await res.json();
+    // Absolute URL so the fetch works in every context (dev, prod, SSR edge).
+    const base = typeof window !== "undefined" ? window.location.origin : "";
+    const res = await fetch(`${base}/api/public/stats`);
+    if (!res.ok) throw new Error(`Stats unavailable (${res.status})`);
+    const data: unknown = await res.json();
+    if (
+      !data ||
+      typeof (data as PublicStats).totalRestaurants !== "number" ||
+      typeof (data as PublicStats).totalUsers !== "number"
+    ) {
+      throw new Error("Bad stats payload");
+    }
+    return data as PublicStats;
   } catch {
+    // Keep the section in its loading state rather than fabricating numbers.
     return { totalRestaurants: 0, totalUsers: 0 };
   }
 }
