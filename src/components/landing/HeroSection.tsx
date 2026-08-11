@@ -37,7 +37,7 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
                     <motion.div
                             initial={reduceMotion ? false : "hidden"}
                             animate="show"
-                            variants={{ hidden: {}, show: { transition: { staggerChildren: 0 } } }}
+                            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
                         >
                         <motion.h1 variants={heroItem} custom={0} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.3] text-balance max-w-4xl mx-auto">
                             <span className="block">

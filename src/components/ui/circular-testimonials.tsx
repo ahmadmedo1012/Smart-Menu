@@ -136,7 +136,6 @@ export function CircularTestimonials({
 	}, [autoplay, autoplayInterval, next, n]);
 
 	const activeT = testimonials[active];
-	const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
 
 	if (!n) return null;
 
@@ -229,7 +228,8 @@ export function CircularTestimonials({
 					{/* ── Arrow footer ── */}
 					{n > 1 && (
 						<div className="flex items-center justify-center gap-4 px-6 sm:px-8 py-4 sm:py-5 border-t border-border/30 mt-4">
-							<ArrowBtn onClick={isRtl ? next : prev} Icon={ChevronRight} label="السابق" />
+							{/* RTL: ChevronRight points LEFT (previous) — next goes forward regardless of direction */}
+							<ArrowBtn onClick={prev} Icon={ChevronRight} label="السابق" />
 							{/* dot indicators */}
 							<div className="flex gap-1.5">
 								{testimonials.map((_, i) => (
@@ -246,7 +246,7 @@ export function CircularTestimonials({
 									/>
 								))}
 							</div>
-							<ArrowBtn onClick={isRtl ? prev : next} Icon={ChevronLeft} label="التالي" />
+							<ArrowBtn onClick={next} Icon={ChevronLeft} label="التالي" />
 						</div>
 					)}
 				</div>

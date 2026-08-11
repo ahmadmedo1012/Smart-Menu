@@ -29,7 +29,7 @@ export function FeaturesSection() {
 						viewport={{ once: true, margin: "-60px" }}
 						transition={{ ...springDefault, delay: i * 0.06 }}
 						whileHover={{ y: -5, transition: springSnappy }}
-						className={`group rounded-sm bg-card border p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
+						className={`group rounded-2xl bg-card border p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
 							i === 0
 								? "border-orange/30"
 								: "border-border/50 hover:border-orange/30"
@@ -37,11 +37,11 @@ export function FeaturesSection() {
 					>
 						<div className="relative">
 							{i === 0 && (
-								<span className="absolute -top-3 -end-3 text-[10px] font-bold px-2 py-0.5 rounded-sm bg-orange text-white">
+								<span className="absolute -top-3 -end-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange text-white">
 									الأكثر طلباً
 								</span>
 							)}
-							<div className={`size-10 sm:size-12 rounded-sm flex items-center justify-center mb-4 transition-colors duration-300 ${
+							<div className={`size-10 sm:size-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300 ${
 								i === 0 ? 'bg-orange/15' : 'bg-orange/10 group-hover:bg-orange/20'
 							}`}>
 								<feat.icon className="size-5 sm:size-6 text-orange" />

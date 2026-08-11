@@ -48,7 +48,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
             >
               <div className="text-center">
                 <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2">
-                  <span className={i === 0 ? "text-orange font-semibold" : "text-orange"}>
+                  <span className="text-orange">
                     <AnimatedNumber value={item.value} />{item.suffix}
                   </span>
                 </div>

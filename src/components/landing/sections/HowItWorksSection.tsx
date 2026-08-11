@@ -34,7 +34,7 @@ export function HowItWorksSection() {
               </div>
 
               {/* Step badge */}
-              <div className="absolute -top-1 -right-1 size-6 rounded-full bg-orange text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/40 animate-pulse-glow">
+              <div className="absolute -top-1 -end-1 size-6 rounded-full bg-orange text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/40 animate-pulse-glow">
                 {i + 1}
               </div>
 
