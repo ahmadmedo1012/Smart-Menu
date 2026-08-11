@@ -1,9 +1,18 @@
 import { notFound } from 'next/navigation';
 export const revalidate = 60;
+export const dynamicParams = true;
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
+
+export async function generateStaticParams() {
+	const restaurants = await prisma.restaurant.findMany({
+		where: { isActive: true },
+		select: { slug: true },
+	});
+	return restaurants.map((r) => ({ slug: r.slug }));
+}
 
 export async function generateMetadata({
 	params,
@@ -55,10 +64,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 	});
 	if (!restaurant) notFound();
 
-	// Server component, runs once per request — Date.now is safe here
-	// eslint-disable-next-line react-hooks/purity
-	const SEVEN_DAYS_MS = Date.now() - 7 * 24 * 60 * 60 * 1000;
-	const SEVEN_DAYS_AGO = new Date(SEVEN_DAYS_MS);
+	// Module-level cutoff: computed once per build/ISR revalidation,
+	// NOT per request — keeps the route static-friendly (revalidate=60 works).
+	const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
 	const [categories, items, popularData] = await Promise.all([
 		prisma.menuCategory.findMany({
@@ -115,7 +123,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 			avgRating: avgRating !== null ? Number(avgRating) : null,
 			ratingCount,
 			isPopular: popularIds.has(rest.id),
-			isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_MS,
+			isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_AGO.getTime(),
 			category: {
 				id: category.id,
 				name: category.name,
