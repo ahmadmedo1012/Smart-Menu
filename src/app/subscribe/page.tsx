@@ -3,17 +3,14 @@
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 // ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
-import Link from 'next/link';
 import { Store, Loader2 } from 'lucide-react';
-import { toArabicNumber } from '@/lib/format';
-import { Button } from '@/components/ui/button';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
-import { cn } from '@/lib/utils';
 import { fetchJson } from '@/lib/fetch-json';
 import { Header } from '@/components/layout/Header';
 import { PlanSelector } from './PlanSelector';
 import { SubscribeForm } from './SubscribeForm';
+import { StepIndicator, type WizardStep } from './StepIndicator';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import dynamic from 'next/dynamic';
 const PaymentDialogWrapper = dynamic(
@@ -48,7 +45,7 @@ function SubscribeContent() {
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
 	const submittedRef = useRef(false);
-	const [step, setStep] = useState<'plan' | 'form'>(preselectedPlan ? 'form' : 'plan');
+	const [step, setStep] = useState<WizardStep>(preselectedPlan ? 'menu' : 'plan');
 	const [paymentOpen, setPaymentOpen] = useState(false);
 	const [user, setUser] = useState<{
 		role: string;
@@ -326,31 +323,7 @@ function SubscribeContent() {
 				</div>
 
 				{/* Step indicator */}
-				<div className="flex items-center justify-center gap-3 mb-10">
-					<div
-						className={cn(
-							'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all',
-							step === 'plan' ? 'bg-primary text-primary-foreground' : 'bg-muted/50'
-						)}
-					>
-						<span className="size-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-							{toArabicNumber(1)}
-						</span>{' '}
-						اختر الخطة
-					</div>
-					<div className="w-8 h-0.5 bg-muted-foreground/20" />
-					<div
-						className={cn(
-							'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all',
-							step === 'form' ? 'bg-primary text-primary-foreground' : 'bg-muted/50'
-						)}
-					>
-						<span className="size-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-							{toArabicNumber(2)}
-						</span>{' '}
-						بيانات المطعم
-					</div>
-				</div>
+				<StepIndicator current={step} onNavigate={setStep} />
 
 				{/* Step 1: Plan selector */}
 				{step === 'plan' && (
@@ -359,12 +332,12 @@ function SubscribeContent() {
 						selectedPlan={selectedPlan}
 						upgradeMode={upgradeMode}
 						onSelect={setSelectedPlan}
-						onContinue={() => setStep('form')}
+						onContinue={() => setStep('menu')}
 					/>
 				)}
 
 				{/* Step 2: Upgrade mode (pay only) */}
-				{step === 'form' && upgradeMode && currentPlan && (
+				{step === 'menu' && upgradeMode && currentPlan && (
 					<UpgradePlanSummary
 						currentPlan={currentPlan}
 						onBack={() => setStep('plan')}
@@ -373,14 +346,14 @@ function SubscribeContent() {
 				)}
 
 				{/* Loading state while checking auth (upgrade mode detection) */}
-				{step === 'form' && !authLoaded && (
+				{step === 'menu' && !authLoaded && (
 					<div className="flex items-center justify-center py-16">
 						<Loader2 className="size-6 animate-spin text-primary" />
 					</div>
 				)}
 
 				{/* Step 2: New registration form */}
-				{step === 'form' && authLoaded && !upgradeMode && (
+				{step !== 'plan' && authLoaded && !upgradeMode && (
 					<form
 						onSubmit={(e) => {
 							e.preventDefault();
@@ -392,33 +365,10 @@ function SubscribeContent() {
 							selectedPlan={selectedPlan}
 							form={form}
 							step={step}
+							submitting={submitting}
 							onStepChange={setStep}
 							onFormChange={setForm}
 						/>
-						<div className="max-w-lg mx-auto mt-6">
-							<Button
-								className="w-full h-14 text-base font-semibold rounded-sm"
-								size="lg"
-								type="submit"
-								disabled={!isFormValid || submitting}
-							>
-								{submitting ? (
-									<span className="flex items-center gap-2">
-										<Loader2 className="size-4 animate-spin" /> جاري إنشاء الحساب...
-									</span>
-								) : (
-									<>
-										<Store className="size-5" /> إنشاء الحساب والبدء
-									</>
-								)}
-							</Button>
-							<p className="text-xs text-center text-muted-foreground/60 mt-4">
-								بالضغط على إنشاء الحساب، أنت توافق على{' '}
-								<Link href="/terms" className="text-primary underline">
-									شروط الخدمة
-								</Link>
-							</p>
-						</div>
 					</form>
 				)}
 

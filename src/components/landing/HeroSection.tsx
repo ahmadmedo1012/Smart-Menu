@@ -30,6 +30,20 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
                     filter: "blur(120px)",
                 }}
             />
+            <div
+                className="absolute bottom-0 left-1/4 -translate-x-1/2 size-[50vmin] rounded-full pointer-events-none z-0"
+                style={{
+                    background: "radial-gradient(ellipse at center, oklch(0.85 0.09 85 / 0.07) 0%, transparent 70%)",
+                    filter: "blur(100px)",
+                }}
+            />
+            <div
+                className="absolute top-1/3 right-1/4 size-[40vmin] rounded-full pointer-events-none z-0"
+                style={{
+                    background: "radial-gradient(ellipse at center, oklch(0.78 0.13 30 / 0.05) 0%, transparent 70%)",
+                    filter: "blur(90px)",
+                }}
+            />
 
             <ContainerScroll
                 className="bg-background"
