@@ -72,7 +72,11 @@ function SubscribeContent() {
 				const p = data.data ?? (data as unknown as Plan[]) ?? [];
 				setPlans(p);
 				if (preselectedPlan) {
-					const found = p.find((pl: Plan) => pl.id === Number(preselectedPlan));
+					// Try exact id first, then by position (ids may shift in DB)
+					const sorted = [...p].sort((a, b) => a.sortOrder - b.sortOrder);
+					const byId = p.find((pl: Plan) => pl.id === Number(preselectedPlan));
+					const byPos = sorted[Number(preselectedPlan) - 1];
+					const found = byId ?? byPos;
 					if (found) setSelectedPlan(found.id);
 				}
 			} catch {
