@@ -38,7 +38,7 @@ export default function AdminAdminsPage() {
       .then((d) => {
         if (!d.success) { setAccessDenied(true); return }
         const { role, permissions } = d.data
-        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("MANAGE_USERS")) {
+        if (role !== "super_admin" && !(permissions ?? []).includes("MANAGE_USERS")) {
           setAccessDenied(true)
         }
       })

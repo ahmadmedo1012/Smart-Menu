@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
 	const authHeader = request.headers.get('authorization');
 	const expected = process.env.CRON_SECRET;
-	if (expected && authHeader !== `Bearer ${expected}`) {
+	// CRON_SECRET is REQUIRED — without it the endpoint refuses to run.
+	// Otherwise anyone could wipe sessions + audit logs (security audit trail).
+	if (!expected || authHeader !== `Bearer ${expected}`) {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 	}
 

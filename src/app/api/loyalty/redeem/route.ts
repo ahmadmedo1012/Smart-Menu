@@ -30,7 +30,12 @@ export async function POST(request: NextRequest) {
 					where: { userId_restaurantId: { userId: auth.userId!, restaurantId: card.restaurantId } },
 				});
 				if (!link) throw new Error('UNAUTHORIZED');
-			} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+			} else if (auth.role === 'super_admin') {
+				// full access
+			} else if (auth.role === 'admin' || auth.role === 'sub_admin') {
+				// admins need explicit permission to touch loyalty cards
+				if (!(auth.permissions ?? []).includes('APPROVE_ORDERS')) throw new Error('UNAUTHORIZED');
+			} else {
 				throw new Error('UNAUTHORIZED');
 			}
 

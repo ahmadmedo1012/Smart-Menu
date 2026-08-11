@@ -48,7 +48,16 @@ export async function requirePermission(
 > {
   const auth = await requireAuth(opts);
   if (!auth.authorized) return { authorized: false, error: "غير مصرح", status: 401 };
-  if (auth.role === "super_admin" || auth.role === "admin") return auth;
+  // super_admin: full access. `admin` (legacy): full access EXCEPT
+  // MANAGE_USERS — that one is super_admin-only, otherwise an admin could
+  // create sub_admins / reset passwords / escalate (privilege escalation).
+  if (auth.role === "super_admin") return auth;
+  if (auth.role === "admin") {
+    if (permission === "MANAGE_USERS") {
+      return { authorized: false, error: "لا تملك الصلاحية", status: 403 };
+    }
+    return auth;
+  }
   if (auth.role === "sub_admin" && auth.permissions?.includes(permission)) {
     return auth;
   }

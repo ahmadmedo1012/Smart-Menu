@@ -11,6 +11,7 @@ import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { csrfFetch } from '@/lib/csrf-client';
 
 type ShareAfterOrderProps = {
 	orderNo: string;
@@ -64,7 +65,7 @@ export function ShareAfterOrder({
 
 		setLoading(true);
 		try {
-			const res = await fetch('/api/loyalty', {
+			const res = await csrfFetch('/api/loyalty', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

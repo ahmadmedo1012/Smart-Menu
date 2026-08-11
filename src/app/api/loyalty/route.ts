@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
 		const { nextTier, pointsToNext } = getNextTierInfo(card.tier);
 
 		// Public endpoint — never expose PII (customerName/phone) to unauthenticated callers
-		const { customerName: _n, ...publicCard } = card;
+		const { customerName: _n, customerPhone: _p, ...publicCard } = card;
 
 		return success({
 			card: publicCard,

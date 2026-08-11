@@ -11,6 +11,7 @@ import AnimatedX from '@/components/ui/x-icon';
 import AnimatedLogOut from '@/components/ui/logout-icon';
 import { PageFade } from '@/components/shared/PageFade';
 import { AdminEventNotifier } from '@/components/admin/AdminEventNotifier';
+import { csrfFetch } from '@/lib/csrf-client';
 
 function MobileNav({
 	onNavClick,
@@ -65,7 +66,7 @@ function MobileNav({
 				<button
 					onClick={async () => {
 						try {
-							const res = await fetch('/api/auth/logout', { method: 'POST' });
+							const res = await csrfFetch('/api/auth/logout', { method: 'POST' });
 							if (res.ok) {
 								router.push('/login');
 								router.refresh();

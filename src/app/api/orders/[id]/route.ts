@@ -42,7 +42,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 				});
 				if (!link) return apiError('غير مصرح', 401);
 			}
-		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+		} else if (auth.role === 'super_admin') {
+			// full access
+		} else if (auth.role === 'admin' || auth.role === 'sub_admin') {
+			// admins need explicit permission to view any order's details
+			if (!(auth.permissions ?? []).includes('APPROVE_ORDERS')) return apiError('لا تملك الصلاحية', 403);
+		} else {
 			return apiError('غير مصرح', 403);
 		}
 
@@ -81,7 +86,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 				});
 				if (!link) return apiError('غير مصرح', 401);
 			}
-		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+		} else if (auth.role === 'super_admin') {
+			// full access
+		} else if (auth.role === 'admin' || auth.role === 'sub_admin') {
+			// admins need explicit permission to modify any order
+			if (!(auth.permissions ?? []).includes('APPROVE_ORDERS')) return apiError('لا تملك الصلاحية', 403);
+		} else {
 			return apiError('غير مصرح', 403);
 		}
 

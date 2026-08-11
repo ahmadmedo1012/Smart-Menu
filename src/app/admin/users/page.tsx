@@ -32,6 +32,7 @@ interface OwnerUser {
 }
 
 export default function AdminUsersPage() {
+  const [accessDenied, setAccessDenied] = useState(false)
   const [users, setUsers] = useState<OwnerUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -65,6 +66,23 @@ export default function AdminUsersPage() {
   }, [page, search, roleFilter])
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((me) => {
+        const role = me?.user?.role ?? me?.role
+        if (role !== "super_admin" && role !== "sub_admin" && role !== "admin") {
+          setAccessDenied(true)
+        }
+        // `admin` (legacy) is NOT allowed to manage users — super_admin/sub_admin with permission only
+        if (role === "admin") {
+          const perms = me?.user?.permissions ?? me?.permissions ?? []
+          if (!perms.includes("MANAGE_USERS")) setAccessDenied(true)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   // Debounce search
   useEffect(() => {
@@ -119,6 +137,16 @@ export default function AdminUsersPage() {
         <Button variant="outline" onClick={fetchUsers} className="gap-2">
           <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
         </Button>
+      </div>
+    )
+  }
+
+  // ---------- Access denied ----------
+  if (accessDenied) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
+        <AlertCircle className="size-10 text-destructive" />
+        <p className="text-lg font-medium">لا تملك صلاحية الوصول لهذه الصفحة</p>
       </div>
     )
   }

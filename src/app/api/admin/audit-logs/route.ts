@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
 
 		const auth = await requireAdmin();
 		if (!auth.authorized) return error('غير مصرح', 401);
+		// Audit logs expose IPs + actions of ALL users — super_admin only.
+		if (auth.role !== 'super_admin') return error('لا تملك الصلاحية', 403);
 
 		const { searchParams } = new URL(request.url);
 		const page = Math.max(1, Number(searchParams.get('page')) || 1);

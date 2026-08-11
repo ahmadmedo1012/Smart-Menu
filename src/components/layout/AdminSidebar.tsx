@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield} from 'lucide-react';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedLogOut from "@/components/ui/logout-icon"
+import { csrfFetch } from "@/lib/csrf-client"
 import { NavLink } from "@/components/shared/NavLink"
 
 export interface NavItem {
@@ -35,7 +36,10 @@ export function hasItemPermission(
   permissions: string[]
 ): boolean {
   if (!item.permission) return true;
-  if (role === "super_admin" || role === "admin") return true;
+  if (role === "super_admin") return true;
+  // `admin` (legacy): full access EXCEPT MANAGE_USERS (users/admins pages) —
+  // matches requirePermission() in src/lib/auth.ts (privilege-escalation fix).
+  if (role === "admin") return item.permission !== "MANAGE_USERS";
   return permissions.includes(item.permission);
 }
 
@@ -46,7 +50,7 @@ function LogoutButton() {
     <button
       onClick={async () => {
         try {
-          const res = await fetch("/api/auth/logout", { method: "POST" })
+          const res = await csrfFetch("/api/auth/logout", { method: "POST" })
           if (res.ok) {
             router.push("/login")
             router.refresh()

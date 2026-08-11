@@ -40,6 +40,13 @@ export async function POST(request: NextRequest) {
         where: { userId_restaurantId: { userId: auth.userId!, restaurantId: order.restaurantId } },
       });
       if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    } else if (auth.role === "admin" || auth.role === "sub_admin") {
+      // admins need explicit permission to read any order's details
+      if (!(auth.permissions ?? []).includes("APPROVE_ORDERS")) {
+        return Response.json({ success: false, error: "لا تملك الصلاحية" }, { status: 403 });
+      }
+    } else if (auth.role === "USER") {
+      return Response.json({ success: false, error: "غير مصرح" }, { status: 403 });
     }
 
     const lines: string[] = [];

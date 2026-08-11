@@ -182,7 +182,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 
 			<script
 				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
 			/>
 
 			{/* Hero + Menu + Loyalty — fully client-rendered to avoid hydration mismatch */}
