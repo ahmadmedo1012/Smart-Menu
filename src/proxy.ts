@@ -9,14 +9,7 @@ const SESSION_COOKIE = 'smart-menu-session';
 
 const PROTECTED_ROOTS = ['/admin', '/owner'];
 
-// Per-request CSP nonce stamping: Next.js streams its hydration/flight scripts
-// inline (no src) and does NOT add nonce attributes on its own, so a nonce-only
-// script-src must rewrite the HTML to tag every inline <script> — otherwise the
-// browser blocks hydration and the app hangs on the loading shell.
-// Lookaheads skip external scripts (<script src=...>) and already-tagged ones.
-const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)(?![^>]*\snonce=)/gi;
-
-export async function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	const isProtected = PROTECTED_ROOTS.some(
@@ -26,7 +19,7 @@ export async function proxy(request: NextRequest) {
 	const isStatic = pathname.startsWith('/_next/');
 	if (isStatic) return NextResponse.next();
 
-	let resp = NextResponse.next();
+	const resp = NextResponse.next();
 
 	// Pages that are fully public and never mutate: skip CSRF cookie minting
 	// so responses stay cacheable (set-cookie would bust CDN/ISR caching).
@@ -58,45 +51,35 @@ export async function proxy(request: NextRequest) {
 	resp.headers.set('X-Frame-Options', 'DENY');
 	resp.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-	// CSP: API gets strict script-src; pages get per-request nonce (no 'unsafe-inline')
+	// CSP with per-request nonce (pages only; API gets strict CSP)
 	if (isApiRoute) {
 		resp.headers.set(
 			'Content-Security-Policy',
 			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
 		);
 	} else {
-		const nonce = crypto.randomUUID().replace(/-/g, '');
+		// Next.js streams inline hydration scripts without nonce attributes, so a
+		// nonce-only script-src blocks them and the app hangs on the loading shell
+		// (verified: CSP violation "Executing inline script violates ... nonce").
+		// 'unsafe-inline' is required for Next hydration; script-src 'self' still
+		// blocks remote/external scripts. TODO: wire real nonces via next.config.
 		const csp = [
-			`default-src 'self'`,
-			`script-src 'self' 'nonce-${nonce}' https://va.vercel-scripts.com`,
-			`style-src 'self' 'unsafe-inline'`,
-			`style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-			`img-src 'self' data: blob: https:`,
-			`font-src 'self' data: https://fonts.gstatic.com`,
-			`connect-src 'self' https://va.vercel-scripts.com https://api.telegram.org`,
-			`frame-src 'none'`,
-			`object-src 'none'`,
-			`base-uri 'self'`,
-			`form-action 'self'`,
-			`worker-src 'self' blob:`,
-			`manifest-src 'self' blob:`,
-			`upgrade-insecure-requests`,
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+			"style-src 'self' 'unsafe-inline'",
+			"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			"img-src 'self' data: blob: https:",
+			"font-src 'self' data: https://fonts.gstatic.com",
+			"connect-src 'self' https://va.vercel-scripts.com https://api.telegram.org",
+			"frame-src 'none'",
+			"object-src 'none'",
+			"base-uri 'self'",
+			"form-action 'self'",
+			"worker-src 'self' blob:",
+			"manifest-src 'self' blob:",
+			"upgrade-insecure-requests",
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
-
-		// Buffer HTML pages to stamp the nonce onto Next's inline scripts.
-		// Only text/html, non-API, non-data: bodies. Streaming is collapsed for
-		// HTML responses only; API/static/data responses pass through untouched.
-		// NOTE: buffering delays the response until the server stream finishes,
-		// which disables progressive HTML streaming (Suspense/loading.tsx).
-		const contentType = resp.headers.get('content-type') ?? '';
-		if (contentType.startsWith('text/html')) {
-			const html = await resp.text();
-			if (html.length > 0 && !html.startsWith('data:')) {
-				const stamped = html.replace(INLINE_SCRIPT, `<script nonce="${nonce}"`);
-				resp = new NextResponse(stamped, resp);
-			}
-		}
 	}
 
 	// CSRF: validate Origin on mutating requests (API + protected pages)
