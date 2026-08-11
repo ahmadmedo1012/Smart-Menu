@@ -155,7 +155,7 @@
 	/* Surface variants — richer depth */
 	--surface-raised: oklch(0.14 0.005 0);
 	--surface-overlay: oklch(0.11 0.003 0);
-	--surface-sunken: oklch(0.04 0.002 0);
+	--surface-sunken: oklch(0.055 0.003 0);
 
 	/* Gradients */
 	--gradient-orange: linear-gradient(135deg, oklch(0.55 0.19 45 / 0.12), oklch(0.52 0.19 45 / 0.06));
