@@ -18,6 +18,10 @@ const createSchema = z.object({
 	categoryId: z.number().int().positive(),
 	dietaryTags: z.array(z.string()).optional().default([]),
 	allergens: z.array(z.string()).optional().default([]),
+}).superRefine((v, ctx) => {
+	if (v.discountedPrice != null && v.discountedPrice > v.price) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
+	}
 });
 
 export async function GET(request: NextRequest) {

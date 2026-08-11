@@ -46,6 +46,10 @@ const updateSchema = z.object({
 	// A status-only toggle (no tags in body) would wipe them via ...body.
 	dietaryTags: z.array(z.string()).optional(),
 	allergens: z.array(z.string()).optional(),
+}).superRefine((v, ctx) => {
+	if (v.discountedPrice != null && v.price != null && v.discountedPrice > v.price) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
+	}
 });
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -76,6 +80,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			if (v !== undefined) updateData[k] = v;
 		}
 		if (updateData.status !== undefined) updateData.status = updateData.status as ItemStatus;
+
+		// Final-price sanity: effective discounted price must never exceed the price
+		// (covers price-only updates vs a stored discount, and vice versa)
+		const finalPrice = updateData.price !== undefined ? Number(updateData.price) : Number(existing.price);
+		const finalDiscounted =
+			updateData.discountedPrice !== undefined
+				? updateData.discountedPrice === null
+					? null
+					: Number(updateData.discountedPrice)
+				: existing.discountedPrice != null
+					? Number(existing.discountedPrice)
+					: null;
+		if (finalDiscounted != null && finalDiscounted > finalPrice) {
+			return error('السعر المخفض لا يمكن أن يتجاوز السعر الأصلي', 422);
+		}
 
 		const data = await prisma.menuItem.update({
 			where: { id: itemId },

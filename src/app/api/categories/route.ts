@@ -19,15 +19,21 @@ export async function GET(request: NextRequest) {
 		const restaurantId = Number(searchParams.get('restaurantId'));
 		if (!restaurantId) return error('معرف المطعم مطلوب', 400);
 
+		const auth = await requireAuth();
+		if (!auth.authorized) return error('غير مصرح', 401);
+
 		// Owners can only read their own restaurant's categories — allow ANY
 		// restaurant the user owns (multi-menu support via UserRestaurant)
-		const auth = await requireAuth();
-		if (auth.authorized && auth.role === 'owner' && auth.restaurantId !== restaurantId) {
-			// Check UserRestaurant link (owner may manage multiple menus)
-			const link = await prisma.userRestaurant.findUnique({
-				where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
-			});
-			if (!link) return error('غير مصرح', 403);
+		if (auth.role === 'owner') {
+			if (auth.restaurantId !== restaurantId) {
+				// Check UserRestaurant link (owner may manage multiple menus)
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
+				});
+				if (!link) return error('غير مصرح', 403);
+			}
+		} else if (!['admin', 'super_admin', 'sub_admin'].includes(auth.role)) {
+			return error('غير مصرح', 403);
 		}
 
 		const page = Math.max(1, Number(searchParams.get('page')) || 1);

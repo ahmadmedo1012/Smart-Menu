@@ -37,7 +37,13 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
   return {
     async check(key: string): Promise<RateLimitResult> {
       const now = Date.now();
-      const deadline = new Date(now + windowMs);
+      // Fixed window bucket: align windowEnd to the start of the current window
+      // so all requests within the same window share ONE (key, windowEnd) row.
+      // (round-86: deadline was now+windowMs per request → every request got a
+      // different windowEnd → unique(key,windowEnd) created a new row each time
+      // → count never accumulated → limiter never blocked.)
+      const bucketStart = Math.floor(now / windowMs) * windowMs;
+      const deadline = new Date(bucketStart + windowMs);
 
       // Best-effort cleanup of expired entries for this key
       try {
@@ -48,22 +54,31 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
         logWarn("cleanup error", { error: String(e) });
       }
 
-      // Record this attempt
+      // Record this attempt — single row per (key, windowEnd) via the unique
+      // constraint; the count column accumulates attempts.
       try {
-        await prisma.rateLimitEntry.create({
-          data: { key, windowEnd: deadline },
+        await prisma.rateLimitEntry.upsert({
+          where: {
+            key_windowEnd: { key, windowEnd: deadline },
+          },
+          create: { key, windowEnd: deadline, count: 1 },
+          update: { count: { increment: 1 } },
         });
       } catch (e) {
         // unique-constraint race is expected under concurrency
         logWarn("create race", { error: String(e) });
       }
 
-      // Count attempts in current window
+      // Attempts in current window — read the accumulated count directly
       let count = max + 1; // fail closed on DB error
       try {
-        count = await prisma.rateLimitEntry.count({
-          where: { key, windowEnd: { gt: new Date(now) } },
+        const agg = await prisma.rateLimitEntry.findUnique({
+          where: {
+            key_windowEnd: { key, windowEnd: deadline },
+          },
+          select: { count: true },
         });
+        count = agg?.count ?? 0;
       } catch (e) {
         logWarn("count error — failing closed", { error: String(e) });
       }

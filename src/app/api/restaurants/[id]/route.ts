@@ -41,12 +41,35 @@ const adminUpdateSchema = z.object({
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const auth = await requireAuth();
-		if (!auth.authorized) return apiError('غير مصرح', 401);
-
 		const { id } = await params;
 		const rId = Number(id);
 		if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
+		const auth = await requireAuth();
+		const isOwnerOrAdmin =
+			auth.authorized &&
+			(auth.role === 'super_admin' || auth.role === 'sub_admin' || auth.role === 'admin' ||
+				(auth.role === 'owner' && auth.restaurantId === rId));
+		if (!isOwnerOrAdmin) {
+			// Public consumers (menu / cart pages) get only the fields needed to
+			// display the menu & place an order — no operational details.
+			const pub = await prisma.restaurant.findUnique({
+				where: { id: rId },
+				select: {
+					id: true,
+					name: true,
+					slug: true,
+					description: true,
+					logo: true,
+					whatsapp: true,
+					pickupTypes: true,
+					currency: true,
+					themeColor: true,
+					isActive: true,
+				},
+			});
+			if (!pub) return apiError('Restaurant not found', 404);
+			return success(pub);
+		}
 		const data = await prisma.restaurant.findUnique({
 			where: { id: rId },
 			include: {
