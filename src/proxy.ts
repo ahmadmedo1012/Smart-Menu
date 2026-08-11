@@ -20,6 +20,8 @@ export function proxy(request: NextRequest) {
 	if (isStatic) return NextResponse.next();
 
 	const resp = NextResponse.next();
+	// Forwarded to the app for nonce-based CSP (pages only, set below)
+	const requestHeaders = new Headers(request.headers);
 
 	// Pages that are fully public and never mutate: skip CSRF cookie minting
 	// so responses stay cacheable (set-cookie would bust CDN/ISR caching).
@@ -58,18 +60,28 @@ export function proxy(request: NextRequest) {
 			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
 		);
 	} else {
-		// Next.js streams inline hydration scripts without nonce attributes, so a
-		// nonce-only script-src blocks them and the app hangs on the loading shell
-		// (verified: CSP violation "Executing inline script violates ... nonce").
-		// 'unsafe-inline' is required for Next hydration; script-src 'self' still
-		// blocks remote/external scripts. TODO: wire real nonces via next.config.
+		// Official Next.js 16 nonce flow (docs: content-security-policy guide):
+		// 1. generate nonce here, put it in the CSP response header AND forward it
+		//    to the app via the x-nonce request header;
+		// 2. Next.js extracts the nonce from the request's CSP header during SSR
+		//    (server/app-render/get-script-nonce-from-header.js) and stamps every
+		//    inline script/style with nonce="..." automatically.
+		// No body rewriting — NextResponse.next() has no upstream body
+		// (next/dist/server/web/spec-extension/response.js: NextResponse.next()
+		// returns new NextResponse(null, ...)), and the nonce must be applied
+		// during SSR, not after the fact.
+		// Requires dynamic rendering: layout.tsx calls connection() to opt pages
+		// out of static prerendering (static HTML is built with no request
+		// headers, hence no nonce).
+		const nonce = crypto.randomUUID().replace(/-/g, '');
+		const isDev = process.env.NODE_ENV === 'development';
 		const csp = [
 			"default-src 'self'",
-			"script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+			`script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''} https://va.vercel-scripts.com`,
 			"style-src 'self' 'unsafe-inline'",
-			"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			"style-src-elem 'self' 'unsafe-inline'",
 			"img-src 'self' data: blob: https:",
-			"font-src 'self' data: https://fonts.gstatic.com",
+			"font-src 'self' data:",
 			"connect-src 'self' https://va.vercel-scripts.com https://api.telegram.org",
 			"frame-src 'none'",
 			"object-src 'none'",
@@ -80,6 +92,8 @@ export function proxy(request: NextRequest) {
 			"upgrade-insecure-requests",
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
+		// Forward the nonce to the app so SSR can stamp inline scripts
+		requestHeaders.set('x-nonce', nonce);
 	}
 
 	// CSRF: validate Origin on mutating requests (API + protected pages)
@@ -92,7 +106,15 @@ export function proxy(request: NextRequest) {
 	}
 
 	// Session check only for protected page routes
-	if (!isProtected) return resp;
+	if (!isProtected) {
+		if (isApiRoute) return resp;
+		// Pages: forward x-nonce request header so Next.js SSR can stamp inline
+		// scripts with the nonce (official nonce flow, see CSP comment above).
+		return NextResponse.next({
+			request: { headers: requestHeaders },
+			headers: resp.headers,
+		});
+	}
 
 	const session = request.cookies.get(SESSION_COOKIE)?.value;
 	if (!session || session.length < 32) {
@@ -104,7 +126,11 @@ export function proxy(request: NextRequest) {
 		return redirect;
 	}
 
-	return resp;
+	// Protected page with valid session: forward nonce + headers
+	return NextResponse.next({
+		request: { headers: requestHeaders },
+		headers: resp.headers,
+	});
 }
 
 export const config = {

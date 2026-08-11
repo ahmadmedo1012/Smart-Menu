@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
+import { headers } from 'next/headers';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
@@ -54,11 +56,17 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	// ponytail: dynamic rendering required for CSP nonce support — Next.js stamps
+	// inline scripts with the nonce from the request's CSP header during SSR.
+	// Without this, pages are prerendered at build time (no request headers) and
+	// inline hydration scripts carry no nonce → strict CSP blocks them.
+	void connection();
+	const nonce = (await headers()).get('x-nonce') ?? '';
 	return (
 		<html lang="ar" dir="rtl" suppressHydrationWarning>
 			<head>
@@ -75,6 +83,11 @@ export default function RootLayout({
 				<meta name="apple-mobile-web-app-title" content="Smart Menu" />
 				{/* eslint-disable-next-line @next/next/no-css-tags */}
 				<link rel="stylesheet" href="/fonts/fonts.css" />
+				{/* LCP: preload the Arabic Cairo subset (the one that renders Arabic text) —
+				 * fonts.css @font-face already has font-display: swap, so text paints in a
+				 * fallback instantly and swaps once the woff2 arrives. Preloading moves the
+				 * font fetch ahead of the CSS discovery, cutting the ~700ms block. */}
+				<link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossOrigin="anonymous" />
 				{/* ponytail: Cairo is the only active font family (round84). The @font-face
 				 * rules in fonts.css load lazily via unicode-range — no preloads needed for
 				 * the fallback families (Noto Naskh / Noto Sans / Readex Pro), which are
@@ -82,6 +95,7 @@ export default function RootLayout({
 				{/* Cairo handles via next/font/google — no render-blocking external CSS */}
 				<script
 					type="application/ld+json"
+					nonce={nonce}
 					dangerouslySetInnerHTML={{
 						__html: JSON.stringify({
 							'@context': 'https://schema.org',

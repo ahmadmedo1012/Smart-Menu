@@ -82,6 +82,7 @@ const MenuItemCard = memo(function MenuItemCard({
 	onDecrementCart,
 	cartQty = 0,
 	variant,
+	eager = false,
 }: {
 	item: MenuItemProp;
 	onOrder: (item: MenuItemProp) => void;
@@ -89,6 +90,8 @@ const MenuItemCard = memo(function MenuItemCard({
 	onDecrementCart?: (item: MenuItemProp) => void;
 	cartQty?: number;
 	variant?: 'default' | 'featured';
+	/* LCP: eager=true → loading="eager" + fetchPriority="high" for above-the-fold images */
+	eager?: boolean;
 }) {
 	const displayName = item.nameAr || item.name;
 	const displayDesc = item.descriptionAr || item.description;
@@ -162,6 +165,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							src={item.image}
 							alt={displayName}
 							aspectRatio="square"
+							priority={eager}
 							skeleton
 							fallback={<span className="text-2xl text-orange/40"><UtensilsCrossed className="size-6 text-orange/40" /></span>}
 							onError={() => setImageError(true)}

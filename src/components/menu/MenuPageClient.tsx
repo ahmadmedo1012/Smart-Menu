@@ -244,6 +244,8 @@ function MenuPageClientInner({
 									onDecrementCart={handleDecrement}
 									cartQty={getCartQty(item.id)}
 									variant="featured"
+									/* LCP: first 4 popular items above the fold → eager + fetchPriority=high */
+									eager={index < 4}
 								/>
 							</motion.div>
 						))}
@@ -289,6 +291,8 @@ function MenuPageClientInner({
 								onAddToCart={handleQuickAdd}
 								onDecrementCart={handleDecrement}
 								cartQty={getCartQty(item.id)}
+								/* LCP: no popular section → first 4 normal items are above the fold */
+								eager={popularItems.length === 0 && index < 4}
 							/>
 						</div>
 					))}
