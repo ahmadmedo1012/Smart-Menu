@@ -18,7 +18,7 @@ const createSchema = z.object({
 });
 
 function generateReferralCode(): string {
-	return randomBytes(4).toString('hex').toUpperCase();
+	return randomBytes(8).toString('hex').toUpperCase();
 }
 
 export async function POST(request: NextRequest) {
@@ -68,8 +68,11 @@ export async function POST(request: NextRequest) {
 
 		const { nextTier, pointsToNext } = getNextTierInfo(card.tier);
 
+		// Public endpoint — never expose PII (customerName/phone) to unauthenticated callers
+		const { customerName: _n, customerPhone: _p, ...publicCard } = card;
+
 		return success({
-			card,
+			card: publicCard,
 			tier: card.tier,
 			nextTier,
 			pointsToNext,

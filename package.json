@@ -77,6 +77,11 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "pnpm": {
+    "overrides": {
+      "zod": "4.3.6"
+    }
+  },
   "bugs": {
     "url": "https://github.com/ahmadmedo1012/Smart-Menu/issues"
   },

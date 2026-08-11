@@ -106,7 +106,7 @@ export function ConfigEditor() {
 
 	const deleteConfig = async (key: string) => {
 		try {
-			const res = await fetch(`/api/admin/config?key=${encodeURIComponent(key)}`, {
+			const res = await csrfFetch(`/api/admin/config?key=${encodeURIComponent(key)}`, {
 				method: 'DELETE',
 			});
 			const json = await res.json();

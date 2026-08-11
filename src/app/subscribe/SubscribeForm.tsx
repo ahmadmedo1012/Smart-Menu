@@ -10,6 +10,7 @@ import { toArabicNumber } from '@/lib/format';
 import { Sparkles, Star, Crown, Building2, Store, Loader2, type LucideIcon } from 'lucide-react';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import { premiumToast } from '@/lib/premium-toast';
+import { csrfFetch } from '@/lib/csrf-client';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
 import { motion, AnimatePresence } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
@@ -144,7 +145,7 @@ export function SubscribeForm({
 			setValidating(true);
 			setDupErrors({});
 			try {
-				const valRes = await fetch('/api/subscriptions/validate', {
+				const valRes = await csrfFetch('/api/subscriptions/validate', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
@@ -177,7 +178,7 @@ export function SubscribeForm({
 			setValidating(true);
 			setDupErrors({});
 			try {
-				const valRes = await fetch('/api/subscriptions/validate', {
+				const valRes = await csrfFetch('/api/subscriptions/validate', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({

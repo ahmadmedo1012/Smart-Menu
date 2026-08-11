@@ -197,7 +197,7 @@ function SubscribeContent() {
 
 		// Pre-flight: validate username + ALL slugs
 		try {
-			const valRes = await fetch('/api/subscriptions/validate', {
+			const valRes = await csrfFetch('/api/subscriptions/validate', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

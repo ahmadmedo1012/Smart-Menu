@@ -4,3 +4,6 @@ allowBuilds:
   prisma: true
   sharp: true
   unrs-resolver: true
+
+overrides:
+  zod: 4.3.6
