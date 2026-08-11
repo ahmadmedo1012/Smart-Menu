@@ -21,10 +21,21 @@ export function proxy(request: NextRequest) {
 
 	const resp = NextResponse.next();
 
+	// Pages that are fully public and never mutate: skip CSRF cookie minting
+	// so responses stay cacheable (set-cookie would bust CDN/ISR caching).
+	// Everything else (API, subscribe, cart, login, owner, admin) still gets
+	// the CSRF cookie + Origin check.
+	const isCacheablePage =
+		pathname === '/' ||
+		pathname.startsWith('/menu/') ||
+		pathname === '/pricing' ||
+		pathname === '/pricing/' ||
+		pathname.startsWith('/landing');
+
 	// Double-submit CSRF: mint the token cookie on first visit so the client can
 	// echo it in X-CSRF-Token on mutating requests. Never reject just for a
 	// missing cookie — that would break first-visit POSTs (signup, subscribe).
-	if (!request.cookies.get(CSRF_COOKIE)?.value) {
+	if (!isCacheablePage && !request.cookies.get(CSRF_COOKIE)?.value) {
 		resp.cookies.set(CSRF_COOKIE, crypto.randomUUID().replace(/-/g, ''), {
 			httpOnly: false,
 			secure: process.env.NODE_ENV === 'production',
