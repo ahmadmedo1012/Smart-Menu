@@ -39,7 +39,7 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
                             animate="show"
                             variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
                         >
-                        <motion.h1 variants={heroItem} custom={0} className="text-[2.25rem] sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.35] text-balance max-w-4xl mx-auto">
+                        <motion.h1 variants={heroItem} custom={0} className="text-[1.9rem] sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.35] text-balance max-w-3xl mx-auto">
                             <span className="block">
                                 منيو رقمي لمطعمك{"\u00A0"}
                             </span>
