@@ -59,7 +59,7 @@ export function ContainerScroll({
     <div
       ref={containerRef}
       className={cn(
-        "relative min-h-dvh md:min-h-[55rem] flex items-start justify-center pt-16 pb-8",
+        "relative min-h-[80vh] md:min-h-[40rem] flex items-start justify-center pt-16 pb-8",
         className,
       )}
     >

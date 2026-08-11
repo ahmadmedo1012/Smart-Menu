@@ -368,13 +368,13 @@
 		font-family: var(--font-heading);
 		font-weight: 600;
 		letter-spacing: -0.02em;
-		line-height: 1.2;
+		line-height: 1.35;
 	}
 	h3, h4, h5 {
 		font-family: var(--font-heading);
 		font-weight: 600;
 		letter-spacing: -0.01em;
-		line-height: 1.2;
+		line-height: 1.35;
 	}
 
 	[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5 {
