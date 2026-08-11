@@ -140,7 +140,7 @@ export function SubscribeForm({
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
-						username: form.username.trim(),
+						// username not filled yet at menu step — omit to avoid 400
 						slugs: menus.map((r) =>
 							r.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
 						),
@@ -174,9 +174,8 @@ export function SubscribeForm({
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
 						username: form.username.trim(),
-						slugs: menus.map((r) =>
-							r.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
-						),
+						// slugs already validated at menu step
+						slugs: [],
 					}),
 				});
 				const valJson = await valRes.json();
