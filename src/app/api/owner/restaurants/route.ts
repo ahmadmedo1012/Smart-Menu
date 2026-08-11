@@ -18,9 +18,11 @@ export async function GET(request: NextRequest) {
 		if (!auth.authorized) return error('غير مصرح', 401);
 
 		// Admin sees all; owner sees ONLY their own (no IDOR — userId param is
-		// ignored for owners, always bound to the authenticated user)
-		const isAdmin = ['super_admin', 'sub_admin', 'admin'].includes(auth.role);
-		const userId = isAdmin ? Number(new URL(request.url).searchParams.get('userId') ?? auth.userId) : auth.userId!;
+		// ignored for owners, always bound to the authenticated user).
+		// Only super_admin may pass ?userId= to view another user's restaurants;
+		// sub_admin/admin fall through to their own list (privilege fix).
+		const isSuperAdmin = auth.role === 'super_admin';
+		const userId = isSuperAdmin ? Number(new URL(request.url).searchParams.get('userId') ?? auth.userId) : auth.userId!;
 
 		const links = await prisma.userRestaurant.findMany({
 			where: { userId },

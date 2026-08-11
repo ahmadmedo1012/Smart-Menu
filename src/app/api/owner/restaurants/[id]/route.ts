@@ -21,8 +21,12 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
 
 		const body = patchSchema.parse(await _request.json());
 
-		// Verify ownership (or admin)
-		const isAdmin = ['super_admin', 'sub_admin', 'admin'].includes(auth.role);
+		// Verify ownership (or admin with MANAGE_RESTAURANTS permission).
+		// sub_admin is NOT included: it has an explicit permission list and must
+		// not get free rein over any restaurant (privilege-escalation fix).
+		const isAdmin = auth.role === 'super_admin' ||
+			(auth.role === 'admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) ||
+			(auth.role === 'sub_admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS'));
 		if (!isAdmin) {
 			const link = await prisma.userRestaurant.findUnique({
 				where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
@@ -72,7 +76,12 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 		const restaurantId = Number(id);
 		if (!restaurantId) return error('معرف غير صالح', 400);
 
-		const isAdmin = ['super_admin', 'sub_admin', 'admin'].includes(auth.role);
+		// Only super_admin, or admin/sub_admin with MANAGE_RESTAURANTS, may
+		// delete arbitrary restaurants. sub_admin without the permission must
+		// fall through to the ownership check below (privilege-escalation fix).
+		const isAdmin = auth.role === 'super_admin' ||
+			(auth.role === 'admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) ||
+			(auth.role === 'sub_admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS'));
 		if (!isAdmin) {
 			const link = await prisma.userRestaurant.findUnique({
 				where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
