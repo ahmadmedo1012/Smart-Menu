@@ -267,9 +267,11 @@ function SubscribeContent() {
 						phone: r.phone.trim(),
 						whatsapp: r.whatsapp.trim(),
 					})),
-					planId: selectedPlan,
-					username: form.username.trim(),
-					password: form.password.trim(),
+					// planId: only for paid plans — the API forbids planId on
+									// self-registration (round-76). Free plan = no planId (default).
+									...(currentPlan && Number(currentPlan.price) > 0 ? { planId: selectedPlan } : {}),
+									username: form.username.trim(),
+									password: form.password.trim(),
 				}),
 			});
 			const json = await res.json();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-menu-v2';
+const CACHE_NAME = 'smart-menu-v3';
 const STATIC_ASSETS = ['/', '/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -37,11 +37,13 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// API: menu/data GET endpoints cached stale-while-revalidate for
-	// offline reading; mutating/writes stay network-only
+	// API: network-first, cache only VALID JSON responses for public menu/data
+	// GET endpoints (offline reading). Never cache HTML error pages — a cached
+	// text/html under /api/ bricks the dashboard ("فشل تحميل البيانات") because
+	// res.json() throws. Auth/owner/orders endpoints stay network-only.
 	if (url.pathname.startsWith('/api/')) {
 		if (request.method === 'GET' && !url.pathname.includes('/orders') && !url.pathname.includes('/stream')) {
-			event.respondWith(staleWhileRevalidate(request));
+			event.respondWith(staleWhileRevalidateJSON(request));
 		} else {
 			event.respondWith(networkOnly(request));
 		}
@@ -56,6 +58,33 @@ self.addEventListener('fetch', (event) => {
 
 	event.respondWith(networkFirst(request));
 });
+
+// JSON-safe stale-while-revalidate: serves cached response only when it is
+// valid application/json; refreshes from network; never caches non-JSON.
+// Also purges any poisoned (text/html) cache entries from older SW versions.
+async function staleWhileRevalidateJSON(request) {
+	const cache = await caches.open(CACHE_NAME);
+	const cached = await cache.match(request);
+	const isJson = (r) => (r?.headers?.get('content-type') || '').includes('application/json');
+	if (cached && isJson(cached)) {
+		// revalidate in background
+		fetch(request)
+			.then(async (res) => {
+				if (res.ok && isJson(res)) await cache.put(request, res.clone());
+			})
+			.catch(() => {});
+		return cached;
+	}
+	// Purge poisoned entry, then network
+	if (cached) await cache.delete(request);
+	try {
+		const res = await fetch(request);
+		if (res.ok && isJson(res)) await cache.put(request, res.clone());
+		return res;
+	} catch {
+		return cached ?? Response.error();
+	}
+}
 
 async function cacheFirst(request) {
 	const cached = await caches.match(request);
