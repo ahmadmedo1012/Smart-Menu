@@ -117,7 +117,7 @@ export default async function RootLayout({
 					تخطى إلى المحتوى الرئيسي
 				</a>
 				<div className="grain-overlay" />
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem nonce={nonce}>
 					<GridPattern
 						width={60}
 						height={60}
