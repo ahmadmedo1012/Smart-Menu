@@ -44,7 +44,7 @@ export function proxy(request: NextRequest) {
 	if (isApiRoute) {
 		resp.headers.set(
 			'Content-Security-Policy',
-			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
 		);
 	} else {
 		// Next.js streams inline hydration scripts without nonce attributes, so a
@@ -64,7 +64,7 @@ export function proxy(request: NextRequest) {
 			"object-src 'none'",
 			"base-uri 'self'",
 			"form-action 'self'",
-			"worker-src 'self'",
+			"worker-src 'self' blob:",
 			"manifest-src 'self' blob:",
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
