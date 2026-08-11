@@ -60,7 +60,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="ar" dir="rtl" suppressHydrationWarning className="light">
+		<html lang="ar" dir="rtl" suppressHydrationWarning>
 			<head>
 				<link rel="manifest" href="/manifest.json" />
 				<link rel="icon" type="image/png" href="/favicon.png" />

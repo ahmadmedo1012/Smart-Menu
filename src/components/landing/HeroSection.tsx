@@ -71,7 +71,7 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
                         <motion.div variants={heroItem} custom={3} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
                             <Link href="/subscribe">
                                 <Button size="lg" className="text-sm sm:text-base">
-                                    أنشئ قائمتك مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
+                                    ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
                                 </Button>
                             </Link>
                             <Link href="/login">

@@ -377,11 +377,11 @@ export default function PricingPage() {
 							مستعد لانطلاق مطعمك الرقمي؟
 						</h2>
 						<p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
-							ابدأ الآن مجاناً بدون بطاقة ائتمان
+							ابدأ مجاناً بدون بطاقة ائتمان
 						</p>
 						<div className="flex gap-3 sm:gap-4 justify-center flex-wrap">
 							<Link href="/subscribe">
-								<Button size="lg">ابدأ الآن مجاناً</Button>
+								<Button size="lg">ابدأ مجاناً</Button>
 							</Link>
 							<Link href="/menu/al-waha-cafe">
 								<Button size="lg" variant="outline">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 // ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
 import { Store, Loader2 } from 'lucide-react';
@@ -94,6 +94,27 @@ function SubscribeContent() {
 		return () => {
 			if (retryTimer) clearTimeout(retryTimer);
 		};
+	}, [preselectedPlan]);
+
+	// B1 fix: manual retry after both auto-retries failed (no more infinite skeleton)
+	const handleRetryPlans = useCallback(() => {
+		setLoading(true);
+		setPlans([]);
+		fetch('/api/plans')
+			.then((r) => r.json())
+			.then((data) => {
+				const p = data.data ?? (data as unknown as Plan[]) ?? [];
+				setPlans(p);
+				if (preselectedPlan) {
+					const sorted = [...p].sort((a, b) => a.sortOrder - b.sortOrder);
+					const byId = p.find((pl: Plan) => pl.id === Number(preselectedPlan));
+					const byPos = sorted[Number(preselectedPlan) - 1];
+					const found = byId ?? byPos;
+					if (found) setSelectedPlan(found.id);
+				}
+			})
+			.catch(() => premiumToast('error', 'فشل تحميل الخطط'))
+			.finally(() => setLoading(false));
 	}, [preselectedPlan]);
 
 	useEffect(() => {
@@ -373,6 +394,7 @@ function SubscribeContent() {
 							submitting={submitting}
 							onStepChange={setStep}
 							onFormChange={setForm}
+							onRetryPlans={handleRetryPlans}
 						/>
 					</form>
 				)}

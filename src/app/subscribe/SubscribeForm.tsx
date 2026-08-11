@@ -72,6 +72,7 @@ export function SubscribeForm({
 	submitting,
 	onStepChange,
 	onFormChange,
+	onRetryPlans,
 }: {
 	plans: Plan[];
 	selectedPlan: number | null;
@@ -80,6 +81,7 @@ export function SubscribeForm({
 	submitting: boolean;
 	onStepChange: (s: WizardStep) => void;
 	onFormChange: (f: FormState) => void;
+	onRetryPlans?: () => void;
 }) {
 	const [fieldTouched, setFieldTouched] = useState<Record<string, boolean>>({});
 	const [submitted, setSubmitted] = useState(false);
@@ -111,22 +113,28 @@ export function SubscribeForm({
 		const next = menus.map((r, i) => (i === index ? { ...r, ...patch } : r));
 		onFormChange({ ...form, restaurants: next });
 		setSubmitted(false);
+		setDupErrors({}); // D1 fix: clear stale duplicate errors on edit
 	};
 
 	const addRestaurant = () => {
 		if (!canAddMenu) return;
 		onFormChange({ ...form, restaurants: [...menus, { ...EMPTY_RESTAURANT }] });
+		setSubmitted(false); // D3 fix: new empty menu shouldn't show red borders
+		setDupErrors({});
 	};
 
 	const removeRestaurant = (index: number) => {
 		if (menus.length <= 1) return; // keep at least one
 		onFormChange({ ...form, restaurants: menus.filter((_, i) => i !== index) });
+		setSubmitted(false);
+		setDupErrors({});
 	};
 
 	const [validating, setValidating] = useState(false);
 	const [dupErrors, setDupErrors] = useState<{ username?: string; slug?: string }>({});
 
 	const goNext = async () => {
+		if (validating) return; // C1 fix: block double-advance while validation in flight
 		if (step === 'menu') {
 			if (!menusValid) {
 				setSubmitted(true);
@@ -196,10 +204,13 @@ export function SubscribeForm({
 	};
 
 	if (!currentPlan) {
-		// Plans still loading (deep-link ?plan=N skips step 1) — show skeleton
+		// Plans failed to load (deep-link ?plan=N) — offer retry instead of infinite skeleton
 		return (
-			<div className="animate-fade-in max-w-lg mx-auto py-10 text-center text-muted-foreground">
-				جاري تحميل الخطة المحددة...
+			<div className="animate-fade-in max-w-lg mx-auto py-10 text-center">
+				<p className="text-muted-foreground mb-4">تعذر تحميل الخطة المحددة</p>
+				<Button type="button" variant="outline" onClick={onRetryPlans}>
+					إعادة المحاولة
+				</Button>
 			</div>
 		);
 	}
@@ -298,8 +309,9 @@ export function SubscribeForm({
 									{/* Restaurant name + slug */}
 									<div className="grid grid-cols-2 gap-3">
 										<div>
-											<Label>اسم المطعم *</Label>
+											<Label htmlFor={`menu-name-${index}`}>اسم المطعم *</Label>
 											<Input
+												id={`menu-name-${index}`}
 												value={restaurant.name}
 												onChange={(e) => updateRestaurant(index, { name: e.target.value })}
 												placeholder="اسم المطعم (مثال: مقهى الواحة)"
@@ -315,12 +327,13 @@ export function SubscribeForm({
 											)}
 										</div>
 										<div>
-											<Label>الرابط المختصر *</Label>
+											<Label htmlFor={`menu-slug-${index}`}>الرابط المختصر *</Label>
 											<div className="flex items-center mt-1.5">
 												<span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
 													/menu/
 												</span>
 												<Input
+													id={`menu-slug-${index}`}
 													value={restaurant.slug}
 													onChange={(e) =>
 														updateRestaurant(index, {
@@ -394,8 +407,9 @@ export function SubscribeForm({
 							</div>
 							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<Label>اسم المستخدم *</Label>
+									<Label htmlFor="account-username">اسم المستخدم *</Label>
 									<Input
+										id="account-username"
 										value={form.username}
 										onChange={(e) => {
 											onFormChange({ ...form, username: e.target.value });
@@ -419,8 +433,9 @@ export function SubscribeForm({
 									)}
 								</div>
 								<div>
-									<Label>كلمة المرور *</Label>
+									<Label htmlFor="account-password">كلمة المرور *</Label>
 									<Input
+										id="account-password"
 										type="password"
 										value={form.password}
 										onChange={(e) => {

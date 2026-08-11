@@ -103,7 +103,10 @@ export function PaymentDialog({
 		}
 	}, []);
 
+	const sentRef = useRef(false);
 	const handleSent = async () => {
+		if (sentRef.current) return; // C3 fix: block double-click double-payment
+		sentRef.current = true;
 		const isBank = provider === 'bank';
 		if (!isBank && !phone.trim()) {
 			premiumToast('error', 'يرجى إدخال رقم هاتفك');
@@ -151,6 +154,7 @@ export function PaymentDialog({
 			setCountdown(30);
 		} catch (e: any) {
 			premiumToast('error', e.message);
+			sentRef.current = false; // allow retry on failure
 		} finally {
 			setSubmitting(false);
 		}
@@ -168,8 +172,9 @@ export function PaymentDialog({
 	useEffect(() => {
 		if (step !== 'waiting') return;
 
-		// Auto-verify countdown is libyana-only — bank/madar always wait for admin review
-		const autoVerify = provider === 'libyana';
+		// All providers (libyana/madar/bank) wait for admin approval — no auto-verify lie.
+		// Countdown shows elapsed waiting time; success only via poll status=verified.
+		const autoVerify = false;
 		deadlineRef.current = Date.now() + 30000;
 		const tick = setInterval(() => {
 			if (!autoVerify) return;
@@ -559,9 +564,8 @@ export function PaymentDialog({
 							<div className="text-center space-y-1.5">
 								<p className="text-base font-bold">في انتظار تأكيد الدفع</p>
 								<p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
-									{provider === 'libyana'
-										? 'سيتم تأكيد اشتراكك تلقائياً بعد التحويل'
-										: 'بعد التحويل، انتظر موافقة الإدارة'}
+									{/* All providers wait for admin approval */}
+									'بعد التحويل، انتظر موافقة الإدارة'
 								</p>
 							</div>
 

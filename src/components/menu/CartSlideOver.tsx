@@ -77,10 +77,10 @@ export function CartSlideOver() {
 			</motion.div>
 
 			<SheetContent
-				side="left"
+				side="right"
 				showCloseButton={false}
 				className={cn(
-					'flex flex-col gap-0 p-0 w-[85vw] data-[side=left]:w-[85vw] data-[side=right]:w-[85vw] sm:max-w-sm sm:data-[side=left]:w-3/4',
+					'flex flex-col gap-0 p-0 w-[85vw] data-[side=left]:w-[85vw] data-[side=right]:w-[85vw] sm:max-w-sm sm:data-[side=right]:w-3/4',
 					'bg-background/95 backdrop-blur-2xl border-s border-white/5'
 				)}
 			>

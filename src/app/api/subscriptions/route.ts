@@ -11,12 +11,18 @@ import { z } from 'zod';
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
+// Normalize Arabic-Indic digits (٠-٩) to Western (0-9) before validation
+function normalizeDigits(s: string): string {
+  return s.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+}
+
 export const createPaymentSchema = z
 	.object({
 		phone: z
 			.string()
 			.regex(/^09\d{8}$/, 'رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09')
-			.optional(),
+			.optional()
+			.transform((v) => (v ? normalizeDigits(v) : v)),
 		amount: z.number().positive(),
 		provider: z.enum(['libyana', 'madar', 'bank']),
 		planId: z.number().int().positive(),
@@ -95,7 +101,7 @@ export async function POST(request: NextRequest) {
 				const slugPending = await prisma.subscriptionPayment.findFirst({
 					where: {
 						status: 'pending',
-						metadata: { path: ['tempRestaurants'], array_contains: [{ name: tr.name, slug: tr.slug }] },
+						metadata: { path: ['tempRestaurants'], array_contains: [{ slug: tr.slug }] },
 					},
 				});
 				if (slugPending) return error(`الرابط ${tr.slug} محجوز بطلب دفع معلق`, 409);

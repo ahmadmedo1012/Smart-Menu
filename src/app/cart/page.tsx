@@ -60,6 +60,7 @@ export default function CartPage() {
 		updateNotes,
 		setPickupType,
 		setCustomerPhone,
+		clearCart,
 	} = useCart();
 
 	const [showPreview, setShowPreview] = useState(false);
@@ -186,6 +187,8 @@ export default function CartPage() {
 			customerPhone: customerPhone.trim() || undefined,
 			pickupType,
 		});
+		// H4 fix: clear cart immediately after successful order (prevents double-submit on popup-block)
+		clearCart();
 		window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, '_blank');
 
 		setConfirmed(true);

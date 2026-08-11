@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const existingRestaurant = await prisma.restaurant.findUnique({ where: { slug: s } });
       if (existingRestaurant) { errors.slug = `الرابط ${s} محجوز مسبقاً`; break; }
       const slugPending = await prisma.subscriptionPayment.findFirst({
-        where: { status: "pending", metadata: { path: ["tempRestaurants"], array_contains: [{ name: "", slug: s }] } },
+        where: { status: "pending", metadata: { path: ["tempRestaurants"], array_contains: [{ slug: s }] } },
       });
       if (slugPending) { errors.slug = `الرابط ${s} محجوز بطلب دفع معلق`; break; }
     }

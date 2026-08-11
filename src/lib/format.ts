@@ -13,6 +13,21 @@ function toArabicNumber(n: number | string): string {
 }
 
 /**
+ * Normalizes Arabic text for search/filter matching:
+ * - strips tashkeel (diacritics) and tatweel
+ * - folds alef variants (أإآ→ا), alef maqsura (ى→ي), ta marbuta (ة→ه)
+ * - lowercases Latin
+ */
+export function normalizeArabic(s: string): string {
+  return s
+    .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .toLowerCase();
+}
+
+/**
  * Format a date with Arabic month names and Western digits only.
  */
 const ARABIC_MONTHS = [

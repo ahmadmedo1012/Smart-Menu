@@ -89,6 +89,16 @@ export const useCart = create<CartStore>()(
 
 			addItem: (item) =>
 				set((s) => {
+					// C3 fix: if store has no restaurant yet, adopt this one instead of treating as mismatch
+					if (!s.restaurantId && s.items.length === 0) {
+						const first = { ...item, id: genId(), quantity: 1, notes: '' } as CartItem;
+						return {
+							restaurantId: item.restaurantId,
+							restaurantName: s.restaurantName,
+							restaurantWhatsapp: s.restaurantWhatsapp,
+							items: [first].filter((i) => i.itemId),
+						};
+					}
 					// Prevent mixing items from different restaurants — clear cart and start fresh
 					if (
 						s.items.length > 0 &&

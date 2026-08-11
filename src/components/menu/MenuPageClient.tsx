@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import {} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { motion } from 'framer-motion';
 import { useCart } from '@/store/cart';
@@ -11,7 +10,7 @@ import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
 import { MenuToolbar } from './MenuToolbar';
 import { OrderDialog } from './OrderDialog';
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { fadeUp } from '@/lib/motion';
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string };
@@ -80,8 +79,11 @@ function MenuPageClientInner({
 		[searchParams, router]
 	);
 
+	const addLockRef = useRef(false);
 	const handleQuickAdd = useCallback(
 		(item: MenuItemProp) => {
+			if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
+			addLockRef.current = true;
 			addItem({
 				itemId: item.id,
 				name: item.nameAr || item.name,
@@ -93,6 +95,7 @@ function MenuPageClientInner({
 				duration: 3200,
 				anim: true,
 			});
+			setTimeout(() => { addLockRef.current = false; }, 400);
 		},
 		[addItem, restaurantId]
 	);
@@ -118,11 +121,11 @@ function MenuPageClientInner({
 	/* ── Filtered + sorted items ── */
 	const filteredItems = useMemo(() => {
 		const result = items.filter((item) => {
-			const q = search.trim();
+			const q = normalizeArabic(search.trim());
 			const matchesSearch =
 				q === '' ||
-				(item.nameAr || item.name).includes(q) ||
-				(item.descriptionAr || item.description).includes(q);
+				normalizeArabic(item.nameAr || item.name).includes(q) ||
+				normalizeArabic(item.descriptionAr || item.description).includes(q);
 			const matchesCategory = activeCategory === null || item.categoryId === activeCategory;
 			return matchesSearch && matchesCategory;
 		});
