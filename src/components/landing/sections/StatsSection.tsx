@@ -36,7 +36,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
     <SectionContainer tone="alt">
       <GlowPool position="-top-20 left-1/2" size="size-72" color="orange/5" />
 
-      <div className="glass-strong rounded-2xl mx-auto max-w-4xl p-6 sm:p-8">
+      <div className="glass-strong rounded-[20px] mx-auto max-w-4xl p-6 sm:p-8">
         <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {items.map((item, i) => (
             <motion.div

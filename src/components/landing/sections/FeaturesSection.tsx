@@ -29,7 +29,7 @@ export function FeaturesSection() {
 						viewport={{ once: true, margin: "-60px" }}
 						transition={{ ...springDefault, delay: i * 0.06 }}
 						whileHover={{ y: -5, transition: springSnappy }}
-						className={`group rounded-2xl bg-card border p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
+						className={`group rounded-[20px] bg-card border p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
 							i === 0
 								? "border-orange/30"
 								: "border-border/50 hover:border-orange/30"

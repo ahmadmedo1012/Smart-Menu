@@ -162,7 +162,7 @@ export function ClientsSection() {
         onFocusCapture={() => setPaused(true)}
         onBlurCapture={() => setPaused(false)}
       >
-        <div className="relative rounded-2xl bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
+        <div className="relative rounded-[20px] bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
           <AnimatePresence mode="wait">
             <TestimonialCard key={active} t={activeT} />
           </AnimatePresence>
