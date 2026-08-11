@@ -5,7 +5,7 @@ import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const validateSchema = z.object({
-  username: z.string().min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل"),
+  username: z.string().min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل").optional(),
   slug: z.string().min(3, "الرابط يجب أن يكون 3 أحرف على الأقل").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط").optional(),
   slugs: z.array(z.string().min(3).regex(/^[a-z0-9-]+$/)).optional(),
 });
@@ -28,8 +28,10 @@ export async function POST(request: NextRequest) {
 
     const errors: { username?: string; slug?: string } = {};
 
-    const existingUser = await prisma.user.findUnique({ where: { username } });
-    if (existingUser) errors.username = "اسم المستخدم مستخدم بالفعل";
+    if (username) {
+      const existingUser = await prisma.user.findUnique({ where: { username } });
+      if (existingUser) errors.username = "اسم المستخدم مستخدم بالفعل";
+    }
 
     for (const s of slugList) {
       const existingRestaurant = await prisma.restaurant.findUnique({ where: { slug: s } });
