@@ -239,7 +239,7 @@ export default function PricingPage() {
 						<AnimatedSparkles className="size-4" />
 						خطط تناسب جميع الأحجام
 					</div>
-					<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">اختر خطتك</h1>
+					<h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">اختر خطتك</h1>
 					<p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
 						ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
 					</p>
