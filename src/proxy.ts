@@ -86,10 +86,13 @@ export function proxy(request: NextRequest) {
 	if (!session || session.length < 32) {
 		const login = new URL('/login', request.url);
 		login.searchParams.set('redirect', pathname);
-		return NextResponse.redirect(login);
+		const redirect = NextResponse.redirect(login);
+		// carry security headers onto the redirect too
+		resp.headers.forEach((value, key) => redirect.headers.set(key, value));
+		return redirect;
 	}
 
-	return NextResponse.next();
+	return resp;
 }
 
 export const config = {
