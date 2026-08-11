@@ -138,7 +138,14 @@ export function SubscribeForm({
 		}
 	};
 
-	if (!currentPlan) return null;
+	if (!currentPlan) {
+		// Plans still loading (deep-link ?plan=N skips step 1) — show skeleton
+		return (
+			<div className="animate-fade-in max-w-lg mx-auto py-10 text-center text-muted-foreground">
+				جاري تحميل الخطة المحددة...
+			</div>
+		);
+	}
 
 	return (
 		<div className="animate-fade-in max-w-lg mx-auto">
