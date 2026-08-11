@@ -48,10 +48,10 @@ export function Footer({ className }: FooterProps) {
 						<div className="flex gap-2">
 							<a
 								href={waLink}
-								className="size-8 rounded-sm bg-card border border-border flex items-center justify-center hover:bg-orange/20 transition-colors"
+								className="size-9 rounded-full bg-card border border-border flex items-center justify-center hover:bg-orange/20 transition-colors"
 								aria-label="واتساب"
 							>
-								<AnimatedMessageCircle className="size-3.5" />
+								<AnimatedMessageCircle className="size-4" />
 							</a>
 						</div>
 					</div>
