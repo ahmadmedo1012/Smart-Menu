@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { Sparkles, Star, Crown, Building2, Store, Loader2, type LucideIcon } from 'lucide-react';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
+import { premiumToast } from '@/lib/premium-toast';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WizardStep } from './StepIndicator';
@@ -102,8 +103,8 @@ export function SubscribeForm({
 	const menus = form.restaurants;
 	const canAddMenu = menus.length < maxMenus;
 
-	// Per-step validation
-	const menusValid = menus.every((r) => r.name.trim().length >= 2 && r.slug.trim().length >= 2);
+	// Per-step validation (slug ≥3 matches server schema)
+	const menusValid = menus.every((r) => r.name.trim().length >= 2 && r.slug.trim().length >= 3);
 	const accountValid = form.username.trim().length >= 3 && form.password.trim().length >= PASSWORD_MIN_LENGTH;
 
 	const updateRestaurant = (index: number, patch: Partial<RestaurantInput>) => {
@@ -122,19 +123,76 @@ export function SubscribeForm({
 		onFormChange({ ...form, restaurants: menus.filter((_, i) => i !== index) });
 	};
 
-	const goNext = () => {
+	const [validating, setValidating] = useState(false);
+	const [dupErrors, setDupErrors] = useState<{ username?: string; slug?: string }>({});
+
+	const goNext = async () => {
 		if (step === 'menu') {
 			if (!menusValid) {
 				setSubmitted(true);
 				return;
 			}
-			onStepChange('account');
+			// Pre-flight duplicate check: slug availability BEFORE advancing
+			setValidating(true);
+			setDupErrors({});
+			try {
+				const valRes = await fetch('/api/subscriptions/validate', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						username: form.username.trim(),
+						slugs: menus.map((r) =>
+							r.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
+						),
+					}),
+				});
+				const valJson = await valRes.json();
+				if (!valJson.success || !valJson.data?.valid) {
+					const errs = valJson.data?.errors ?? {};
+					const slugErr = errs.slug ?? errs.slugs;
+					setDupErrors({ username: errs.username, slug: slugErr });
+					if (slugErr) premiumToast('error', slugErr);
+					return; // stay on menu step
+				}
+				onStepChange('account');
+			} catch {
+				premiumToast('error', 'خطأ في التحقق من البيانات');
+			} finally {
+				setValidating(false);
+			}
 		} else if (step === 'account') {
 			if (!accountValid) {
 				setSubmitted(true);
 				return;
 			}
-			onStepChange('review');
+			// Pre-flight: username availability BEFORE advancing
+			setValidating(true);
+			setDupErrors({});
+			try {
+				const valRes = await fetch('/api/subscriptions/validate', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						username: form.username.trim(),
+						slugs: menus.map((r) =>
+							r.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
+						),
+					}),
+				});
+				const valJson = await valRes.json();
+				if (!valJson.success || !valJson.data?.valid) {
+					const errs = valJson.data?.errors ?? {};
+					const slugErr = errs.slug ?? errs.slugs;
+					setDupErrors({ username: errs.username, slug: slugErr });
+					if (errs.username) premiumToast('error', errs.username);
+					return; // stay on account step
+				}
+				onStepChange('review');
+			} catch {
+				premiumToast('error', 'خطأ في التحقق من البيانات');
+			} finally {
+				setValidating(false);
+			}
 		}
 	};
 
@@ -273,15 +331,18 @@ export function SubscribeForm({
 													placeholder="الرابط المختصر (مثال: al-waha-cafe)"
 													className={cn(
 														'h-11 rounded-[4px] -me-[2px] text-left',
-														submitted && restaurant.slug.trim().length < 2 && 'border-destructive ring-1 ring-destructive/30'
+														submitted && restaurant.slug.trim().length < 3 && 'border-destructive ring-1 ring-destructive/30'
 													)}
 													dir="ltr"
-													aria-invalid={submitted && restaurant.slug.trim().length < 2 || undefined}
+													aria-invalid={submitted && restaurant.slug.trim().length < 3 || undefined}
 													required
 												/>
 											</div>
-											{submitted && restaurant.slug.trim().length < 2 && (
-												<p className="text-xs text-destructive mt-1">الرابط مطلوب (حرفان على الأقل)</p>
+											{submitted && restaurant.slug.trim().length < 3 && (
+												<p className="text-xs text-destructive mt-1">الرابط مطلوب (ثلاثة أحرف على الأقل)</p>
+											)}
+											{dupErrors.slug && (
+												<p className="text-xs text-destructive mt-1">{dupErrors.slug}</p>
 											)}
 										</div>
 									</div>
@@ -353,6 +414,9 @@ export function SubscribeForm({
 									/>
 									{fieldError('username') && (
 										<p className="text-xs text-destructive mt-1">اسم المستخدم مطلوب (3 أحرف على الأقل)</p>
+									)}
+									{dupErrors.username && (
+										<p className="text-xs text-destructive mt-1">{dupErrors.username}</p>
 									)}
 								</div>
 								<div>
@@ -486,9 +550,17 @@ export function SubscribeForm({
 					</Button>
 				)}
 				{step !== 'review' ? (
-					<Button type="button" size="lg" className="h-14 flex-1 rounded-[20px]" onClick={goNext}>
-						التالي
-						<MotionArrowLeft className="size-5 ms-2" />
+					<Button type="button" size="lg" className="h-14 flex-1 rounded-[20px]" onClick={goNext} disabled={validating}>
+						{validating ? (
+							<span className="flex items-center gap-2">
+								<Loader2 className="size-4 animate-spin" /> جاري التحقق...
+							</span>
+						) : (
+							<>
+								التالي
+								<MotionArrowLeft className="size-5 ms-2" />
+							</>
+						)}
 					</Button>
 				) : (
 					<Button size="lg" className="h-14 flex-1 rounded-[20px]" type="submit" disabled={submitting}>

@@ -161,7 +161,7 @@ function SubscribeContent() {
 
 	const currentPlan = plans.find((p) => p.id === selectedPlan);
 	const allRestaurantsValid = form.restaurants.every(
-		(r) => r.name.trim().length >= 2 && r.slug.trim().length >= 2
+		(r) => r.name.trim().length >= 2 && r.slug.trim().length >= 3
 	);
 	const isFormValid =
 		allRestaurantsValid &&
@@ -223,6 +223,7 @@ function SubscribeContent() {
 				setSseOpen(true);
 			} catch (e: any) {
 				premiumToast('error', e.message);
+				submittedRef.current = false; // allow retry after register failure
 			} finally {
 				setSubmitting(false);
 			}

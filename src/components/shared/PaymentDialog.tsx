@@ -27,6 +27,7 @@ interface PaymentDialogProps {
 	price: number;
 	onSuccess: () => void;
 	tempRestaurants?: { name: string; slug: string }[];
+	tempUsername?: string;
 	upgradeRestaurantId?: number;
 }
 
@@ -38,6 +39,7 @@ export function PaymentDialog({
 	price,
 	onSuccess,
 	tempRestaurants,
+	tempUsername,
 	upgradeRestaurantId,
 }: PaymentDialogProps) {
 	const [provider, setProvider] = useState<Provider>('libyana');
@@ -138,6 +140,7 @@ export function PaymentDialog({
 					...(tempRestaurants && tempRestaurants.length > 0
 						? { tempRestaurants }
 						: {}),
+					...(tempUsername ? { tempUsername } : {}),
 					...(upgradeRestaurantId ? { upgradeRestaurantId } : {}),
 				}),
 			});
