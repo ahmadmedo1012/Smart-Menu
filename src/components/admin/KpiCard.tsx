@@ -47,7 +47,7 @@ export const KpiCard = memo(function KpiCard({
 			<div className="relative flex items-start justify-between">
 				<div className="space-y-1.5">
 					<p className="text-xs font-medium text-muted-foreground">{label}</p>
-					<p className="text-3xl font-bold tracking-tight">
+					<p className="text-3xl font-bold tracking-normal">
 						{toArabicNumber(value)}
 						{suffix}
 					</p>

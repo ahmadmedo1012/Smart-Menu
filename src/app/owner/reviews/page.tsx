@@ -67,7 +67,7 @@ export default function OwnerReviewsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">التقييمات</h2>
+          <h2 className="text-2xl font-bold tracking-normal">التقييمات</h2>
           <p className="text-sm text-muted-foreground mt-1">
             إدارة تقييمات العملاء للأصناف
           </p>

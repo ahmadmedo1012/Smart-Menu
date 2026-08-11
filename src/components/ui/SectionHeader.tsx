@@ -41,7 +41,7 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon }: Sec
       {title && (
         <motion.h2
           variants={fadeUpSpring}
-          className="text-[1.8rem] sm:text-3xl md:text-[2.75rem] font-semibold leading-[1.2]"
+          className="text-3xl sm:text-4xl font-semibold leading-[1.35]"
         >
           {title}
         </motion.h2>

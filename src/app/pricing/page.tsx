@@ -135,7 +135,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 						<div className="text-3xl sm:text-4xl font-bold">مجاني</div>
 					) : (
 						<div className="flex items-baseline gap-1">
-							<span className="text-3xl sm:text-4xl font-bold tracking-tight">
+							<span className="text-3xl sm:text-4xl font-bold tracking-normal">
 								{toArabicNumber(displayPrice)}
 							</span>
 							<span className="text-sm sm:text-lg text-muted-foreground font-medium">د.ل</span>

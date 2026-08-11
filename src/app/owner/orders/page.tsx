@@ -269,7 +269,7 @@ export default function OwnerOrdersPage() {
 
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-2xl font-bold tracking-tight">الطلبات</h2>
+					<h2 className="text-2xl font-bold tracking-normal">الطلبات</h2>
 					<p className="text-sm text-muted-foreground">{toArabicNumber(orders.length)} طلب</p>
 				</div>
 				<button

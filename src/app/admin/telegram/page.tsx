@@ -259,7 +259,7 @@ export default function AdminTelegramPage() {
 
 	return (
 		<div className="space-y-8 animate-fade-in max-w-3xl">
-			<h2 className="text-2xl font-bold tracking-tight">إعدادات تليجرام</h2>
+			<h2 className="text-2xl font-bold tracking-normal">إعدادات تليجرام</h2>
 
 			{loadError && (
 				<div

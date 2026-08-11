@@ -187,7 +187,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8 animate-fade-in max-w-3xl">
-      <h2 className="text-2xl font-bold tracking-tight">الإعدادات</h2>
+      <h2 className="text-2xl font-bold tracking-normal">الإعدادات</h2>
 
       {/* Tab navigation */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">

@@ -122,7 +122,7 @@ export default function AdminQRPage() {
 					<AnimatedQrCode className="size-5 text-white" />
 				</div>
 				<div>
-					<h2 className="text-2xl font-bold tracking-tight">رمز QR</h2>
+					<h2 className="text-2xl font-bold tracking-normal">رمز QR</h2>
 					<p className="text-sm text-muted-foreground">إنشاء رمز QR لكل مطعم</p>
 				</div>
 			</div>

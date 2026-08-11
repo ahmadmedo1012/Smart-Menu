@@ -46,7 +46,7 @@ function MobileNav({
 					<Store className="size-5 text-white" aria-hidden="true" />
 				</div>
 				<div>
-					<span className="block text-base font-bold tracking-tight">الربط الذكي</span>
+					<span className="block text-base font-bold tracking-normal">الربط الذكي</span>
 					<span className="block text-[11px] text-muted-foreground">لوحة الأدمن</span>
 				</div>
 			</div>

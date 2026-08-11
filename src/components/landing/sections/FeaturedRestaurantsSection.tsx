@@ -82,6 +82,8 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 				onFocus={() => setPaused(true)}
 				onMouseLeave={() => setPaused(false)}
 				onBlur={() => setPaused(false)}
+				onTouchStart={() => setPaused(true)}
+				onTouchEnd={() => setPaused(false)}
 			>
 				{/* ── Slide ── */}
 				<div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-white/10 bg-card shadow-[0_8px_40px_-16px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_40px_-16px_rgba(0,0,0,0.5)]">

@@ -204,7 +204,7 @@ export default function AdminAuditLogsPage() {
 					<Activity className="size-5 text-white" />
 				</div>
 				<div>
-					<h2 className="text-2xl font-bold tracking-tight">سجل التدقيق</h2>
+					<h2 className="text-2xl font-bold tracking-normal">سجل التدقيق</h2>
 					<p className="text-sm text-muted-foreground">{toArabicNumber(total)} سجل</p>
 				</div>
 			</div>

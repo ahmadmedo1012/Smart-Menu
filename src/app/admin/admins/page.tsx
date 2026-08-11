@@ -206,7 +206,7 @@ export default function AdminAdminsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">إدارة المسؤولين</h2>
+          <h2 className="text-2xl font-bold tracking-normal">إدارة المسؤولين</h2>
           <p className="text-sm text-muted-foreground">{toArabicNumber(admins.length)} مسؤول</p>
         </div>
         <Button onClick={() => setInviteOpen(true)} className="gap-2">

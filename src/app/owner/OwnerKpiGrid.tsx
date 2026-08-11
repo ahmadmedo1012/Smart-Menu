@@ -58,7 +58,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
       <div className="flex items-start justify-between">
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <p className="text-3xl font-bold tracking-tight"><AnimatedCounter value={value} /></p>
+          <p className="text-3xl font-bold tracking-normal"><AnimatedCounter value={value} /></p>
           {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
         </div>
         <div className={cn("rounded-md p-3 ring-1 ring-border/30", bg)}>

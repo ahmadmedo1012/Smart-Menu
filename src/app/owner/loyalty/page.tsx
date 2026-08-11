@@ -117,7 +117,7 @@ function StatCard({
 			<div className="relative z-10 flex items-start justify-between">
 				<div className="space-y-1">
 					<p className="text-sm font-medium text-muted-foreground">{label}</p>
-					<p className="text-3xl font-bold tracking-tight">
+					<p className="text-3xl font-bold tracking-normal">
 						<AnimatedCount value={value} suffix={suffix} />
 					</p>
 				</div>
@@ -321,7 +321,7 @@ export default function OwnerLoyaltyPage() {
 			</Button>
 			<div className="flex items-center justify-between flex-wrap gap-4">
 				<div>
-					<h2 className="text-2xl font-bold tracking-tight">برنامج الولاء</h2>
+					<h2 className="text-2xl font-bold tracking-normal">برنامج الولاء</h2>
 					<p className="text-sm text-muted-foreground mt-1">
 						إدارة برنامج الولاء والإحالات والمكافآت
 					</p>

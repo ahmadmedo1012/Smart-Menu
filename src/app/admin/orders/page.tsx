@@ -153,7 +153,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-6 animate-fade-in overflow-x-clip">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">الطلبات</h2>
+          <h2 className="text-2xl font-bold tracking-normal">الطلبات</h2>
           <p className="text-sm text-muted-foreground">{toArabicNumber(totalCount)} طلب</p>
         </div>
         <Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20 self-start">

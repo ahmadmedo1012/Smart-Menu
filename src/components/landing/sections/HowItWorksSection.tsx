@@ -62,7 +62,7 @@ export function HowItWorksSection() {
               className="size-1.5 bg-orange/40 rounded-sm mb-3"
             />
 
-            <h3 className="text-base sm:text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
+            <h3 className="text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
             <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-[30ch]">{step.desc}</p>
           </motion.div>
         ))}

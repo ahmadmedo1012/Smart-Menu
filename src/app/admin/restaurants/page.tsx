@@ -154,7 +154,7 @@ export default function AdminRestaurantsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">إدارة المطاعم</h2>
+          <h2 className="text-2xl font-bold tracking-normal">إدارة المطاعم</h2>
           <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مطعم</p>
         </div>
         <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-white">

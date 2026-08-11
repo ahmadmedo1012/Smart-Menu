@@ -47,7 +47,7 @@ export function FeaturesSection() {
 								<feat.icon className="size-5 sm:size-6 text-orange" />
 							</div>
 						</div>
-						<h3 className="text-base sm:text-lg font-medium mb-2">{feat.title}</h3>
+						<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
 						<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
 					</motion.div>
 				))}

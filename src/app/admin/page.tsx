@@ -199,7 +199,7 @@ export default function AdminDashboard() {
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h2 className="text-2xl font-bold tracking-tight">لوحة التحكم</h2>
+					<h2 className="text-2xl font-bold tracking-normal">لوحة التحكم</h2>
 					<p className="text-sm text-muted-foreground mt-0.5">نظرة عامة على شبكة المطاعم</p>
 				</div>
 				<div className="flex items-center gap-2">

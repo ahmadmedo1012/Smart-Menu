@@ -280,7 +280,7 @@ export default function OwnerMenuPage() {
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<BackButton href="/owner" />
-					<h2 className="text-2xl font-bold tracking-tight">إدارة المنيو</h2>
+					<h2 className="text-2xl font-bold tracking-normal">إدارة المنيو</h2>
 					<p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
 				</div>
 				<Button
