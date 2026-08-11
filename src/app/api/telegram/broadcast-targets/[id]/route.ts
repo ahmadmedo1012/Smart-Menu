@@ -18,9 +18,11 @@ export async function PATCH(
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
     const { id } = await params;
+    const tid = Number(id);
+    if (Number.isNaN(tid)) return error('Invalid ID', 400);
     const body = updateSchema.parse(await request.json());
     const target = await prisma.telegramBroadcastTarget.update({
-      where: { id: Number(id) },
+      where: { id: tid },
       data: body,
     });
     return success(target);
@@ -37,8 +39,10 @@ export async function DELETE(
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
     const { id } = await params;
+    const tid = Number(id);
+    if (Number.isNaN(tid)) return error('Invalid ID', 400);
     await prisma.telegramBroadcastTarget.delete({
-      where: { id: Number(id) },
+      where: { id: tid },
     });
     return success({ deleted: true });
   } catch (e) {

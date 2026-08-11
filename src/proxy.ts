@@ -55,7 +55,7 @@ export function proxy(request: NextRequest) {
 	if (isApiRoute) {
 		resp.headers.set(
 			'Content-Security-Policy',
-			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
+			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
 		);
 	} else {
 		// Next.js streams inline hydration scripts without nonce attributes, so a
@@ -70,13 +70,14 @@ export function proxy(request: NextRequest) {
 			"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"img-src 'self' data: blob: https:",
 			"font-src 'self' data: https://fonts.gstatic.com",
-			"connect-src 'self' https:",
+			"connect-src 'self' https://va.vercel-scripts.com https://api.telegram.org",
 			"frame-src 'none'",
 			"object-src 'none'",
 			"base-uri 'self'",
 			"form-action 'self'",
 			"worker-src 'self' blob:",
 			"manifest-src 'self' blob:",
+			"upgrade-insecure-requests",
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
 	}

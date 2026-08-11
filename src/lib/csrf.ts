@@ -6,8 +6,6 @@ export const CSRF_HEADER = 'x-csrf-token';
 export const CSRF_EXEMPT = new Set([
 	'/api/telegram/webhook',
 	'/api/health',
-	'/api/auth/login',
-	'/api/auth/register',
 	// Pre-flight validation runs before signup and has no side effects — the
 	// signup POSTs themselves still require the token.
 	'/api/subscriptions/validate',

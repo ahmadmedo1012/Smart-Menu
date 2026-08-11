@@ -301,7 +301,7 @@ function SubscribeContent() {
 			if (!res.ok) throw new Error(json.error ?? 'فشل إنشاء الحساب');
 			if (currentPlan && Number(currentPlan.price) === 0) {
 				setSseOpen(true);
-				const loginRes = await fetch('/api/auth/login', {
+				const loginRes = await csrfFetch('/api/auth/login', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ username: form.username.trim(), password: form.password.trim() }),
