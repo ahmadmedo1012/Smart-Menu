@@ -26,7 +26,7 @@ const PLAN_META: Record<string, { icon: typeof Sparkles; gradient: string }> = {
 	Free: { icon: Sparkles, gradient: 'from-gray-400 to-gray-500' },
 	Basic: { icon: Star, gradient: 'from-orange to-orange/80' },
 	Premium: { icon: Crown, gradient: 'from-amber-500 to-orange-600' },
-	Pro: { icon: Building2, gradient: 'from-orange-500 to-rose-600' },
+	Pro: { icon: Building2, gradient: 'from-orange to-rose-600' },
 	Enterprise: { icon: Building2, gradient: 'from-rose-500 to-orange-600' },
 };
 const DEFAULT_META = { icon: Sparkles, gradient: 'from-gray-400 to-gray-500' };

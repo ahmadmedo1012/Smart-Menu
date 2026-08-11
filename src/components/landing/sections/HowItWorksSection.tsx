@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { STEPS } from "@/components/landing/landing-data"
 import { springGentle, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"

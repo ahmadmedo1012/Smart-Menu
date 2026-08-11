@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 import { cn } from '@/lib/utils';
 import {LayoutDashboard, Store, Users, UtensilsCrossed, ScrollText, Settings, Activity, DollarSign, ClipboardList, Gift, Package} from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';

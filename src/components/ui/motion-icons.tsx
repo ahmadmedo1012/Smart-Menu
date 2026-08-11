@@ -2,7 +2,7 @@
 'use client';
 
 import { Plus, Check, Minus, Search, Phone, MapPin, Store, Crown, Award, Gift, Medal, Settings, TrendingUp, Activity, BarChart3, ArrowLeft, ArrowRight, Smartphone, Menu as MenuIcon, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Building2, Landmark, CreditCard, LogIn, Lightbulb, Stethoscope } from 'lucide-react';
-import { motion, useAnimate } from 'framer-motion';
+import { motion, useAnimate } from 'motion/react';
 import { forwardRef, useImperativeHandle, type SVGProps } from 'react';
 
 /**

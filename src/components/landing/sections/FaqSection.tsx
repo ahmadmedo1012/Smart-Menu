@@ -1,7 +1,7 @@
 "use client"
 
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { MotionChevronDown } from "@/components/ui/motion-icons"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"

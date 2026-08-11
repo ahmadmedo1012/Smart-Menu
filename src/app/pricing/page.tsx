@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
 import {Star, Crown, Building2, Sparkles, ChevronDown, type LucideIcon} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
@@ -56,7 +56,7 @@ const PLAN_META: Record<
 	},
 	Pro: {
 		icon: Building2,
-		gradient: 'from-orange-500 to-rose-600',
+		gradient: 'from-orange to-rose-600',
 		glow: 'shadow-blue-500/25',
 		badge: '',
 		badgeColor: '',
@@ -64,7 +64,7 @@ const PLAN_META: Record<
 	Enterprise: {
 		icon: Building2,
 		gradient: 'from-rose-500 to-orange-600',
-		glow: 'shadow-orange-500/25',
+		glow: 'shadow-orange/25',
 		badge: 'للشركات الكبرى',
 		badgeColor: 'bg-gradient-to-r from-orange-600 to-rose-700 text-white dark:text-white',
 	},

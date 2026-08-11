@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, memo, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { AlertTriangle, Sparkles, UtensilsCrossed } from 'lucide-react';
@@ -139,8 +139,8 @@ const MenuItemCard = memo(function MenuItemCard({
 				'bg-white/70 dark:bg-white/[0.07] backdrop-blur-xl',
 				'border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/20',
 				/* hover glow */
-				'hover:border-orange-400/50 dark:hover:border-orange-500/40',
-				'hover:shadow-orange-400/15 dark:hover:shadow-orange-500/20 hover:shadow-2xl',
+				'hover:border-orange/50 dark:hover:border-orange/40',
+				'hover:shadow-orange/15 dark:hover:shadow-orange/20 hover:shadow-2xl',
 				'transition-shadow duration-500',
 				/* shimmer sweep — slides across on hover */
 				'after:absolute after:inset-0 after:pointer-events-none',
@@ -271,7 +271,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
 				{/* Price row */}
 				<div className="flex items-center gap-2 flex-wrap">
-					<span className="text-xl font-bold text-primary group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors duration-300 tabular-nums">
+					<span className="text-xl font-bold text-primary group-hover:text-orange transition-colors duration-300 tabular-nums">
 						{toArabicNumber(currentPrice.toFixed(1))}
 					</span>
 					<span className="text-xs text-muted-foreground">د.ل</span>

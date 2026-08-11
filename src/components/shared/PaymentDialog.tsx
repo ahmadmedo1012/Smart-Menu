@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import {Smartphone, Landmark, CheckCircle2, XCircle, Loader2} from 'lucide-react';
 import AnimatedUpload from '@/components/ui/upload-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';

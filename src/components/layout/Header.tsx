@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import AnimatedX from "@/components/ui/x-icon";
 import { ThemeToggle } from "@/components/shared/ThemeToggle"

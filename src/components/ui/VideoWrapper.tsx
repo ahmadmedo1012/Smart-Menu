@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, memo } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { GlowPool } from "@/components/ui/GlowPool";

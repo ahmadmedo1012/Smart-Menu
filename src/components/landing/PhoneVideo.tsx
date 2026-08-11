@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { VideoWrapper } from "@/components/ui/VideoWrapper"
 
 const BG = "#070708"

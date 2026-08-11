@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'framer-motion';
+import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'motion/react';
 import {} from 'lucide-react';
 import { MotionMenu } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';

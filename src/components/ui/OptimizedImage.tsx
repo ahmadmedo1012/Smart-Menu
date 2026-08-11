@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, memo, type ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { UtensilsCrossed } from "lucide-react";

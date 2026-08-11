@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { MotionCheck } from '@/components/ui/motion-icons';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 export type WizardStep = 'plan' | 'menu' | 'account' | 'review';
 

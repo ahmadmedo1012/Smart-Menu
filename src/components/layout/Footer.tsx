@@ -1,7 +1,7 @@
 "use client";
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 

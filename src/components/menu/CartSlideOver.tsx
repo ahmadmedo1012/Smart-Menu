@@ -8,7 +8,7 @@ import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import AnimatedCart from '@/components/ui/shopping-cart-icon';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { toArabicNumber } from '@/lib/format';
 import { buttonVariants } from '@/components/ui/button';

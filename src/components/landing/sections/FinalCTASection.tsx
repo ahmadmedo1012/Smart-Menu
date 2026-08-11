@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { Button } from "@/components/ui/button"

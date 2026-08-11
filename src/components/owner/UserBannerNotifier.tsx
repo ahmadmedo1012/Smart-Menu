@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import {AlertTriangle} from 'lucide-react';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface RejectionEvent {
 	type: 'subscription_rejected';

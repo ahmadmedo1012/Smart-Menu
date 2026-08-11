@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {Phone, Store} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
@@ -207,7 +207,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 													{r.phone}
 												</span>
 											)}
-											<span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange-400 hover:text-orange-300 transition-colors group/link">
+											<span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange hover:text-orange-300 transition-colors group/link">
 												عرض المنيو
 												<MotionArrowLeft className="size-4 transition-transform duration-200 group-hover/link:-translate-x-1" />
 											</span>
@@ -245,7 +245,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 						<div className="absolute bottom-0 inset-x-0 z-20 h-1 bg-white/10">
 							<motion.div
 								key={slide}
-								className="h-full bg-orange-400"
+								className="h-full bg-orange"
 								initial={{ scaleX: 0, transformOrigin: 'right' }}
 								animate={{ scaleX: 1, transformOrigin: 'right' }}
 								exit={{ scaleX: 0, transformOrigin: 'right' }}

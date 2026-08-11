@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect, useMemo, type ReactNode } from "react"
-import { useScroll, useTransform, motion, type MotionValue } from "framer-motion"
+import { useScroll, useTransform, motion, type MotionValue } from "motion/react"
 import { cn } from "@/lib/utils"
 
 /* ── ContainerScroll ───────────────────────────────────────────

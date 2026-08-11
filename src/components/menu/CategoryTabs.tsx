@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, LayoutGroup } from "framer-motion"
+import { motion, LayoutGroup } from "motion/react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import {

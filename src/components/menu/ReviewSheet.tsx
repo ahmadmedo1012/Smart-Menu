@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import AnimatedSend from '@/components/ui/send-icon';

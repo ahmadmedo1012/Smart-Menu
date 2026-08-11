@@ -1,4 +1,4 @@
-import type { Transition, Variants, TargetAndTransition } from 'framer-motion';
+import type { Transition, Variants, TargetAndTransition } from 'motion/react';
 
 export const springGentle: Transition = { type: 'spring', stiffness: 120, damping: 14, mass: 0.8 };
 export const springDefault: Transition = { type: 'spring', stiffness: 200, damping: 20, mass: 0.8 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { toArabicNumber } from '@/lib/format';
 import { Phone, Award, Star, Sparkles, Medal, Gift, Stamp } from 'lucide-react';
 import { csrfFetch } from '@/lib/csrf-client';

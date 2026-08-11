@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { MenuItemCard, type MenuItemProp } from './MenuItemCard';

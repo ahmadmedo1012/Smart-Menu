@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { MiniSparkline } from '@/components/shared/MiniSparkline';

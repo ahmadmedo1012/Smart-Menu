@@ -11,7 +11,7 @@ import { Sparkles, Star, Crown, Building2, Store, Loader2, type LucideIcon } fro
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import { premiumToast } from '@/lib/premium-toast';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
 
 type Plan = {
@@ -31,7 +31,7 @@ const PLAN_GRADIENTS: Record<string, string> = {
 	Free: 'from-gray-400 to-gray-500',
 	Basic: 'from-orange to-orange/80',
 	Premium: 'from-orange to-orange/80',
-	Pro: 'from-orange-500 to-rose-600',
+	Pro: 'from-orange to-rose-600',
 	Enterprise: 'from-rose-500 to-orange-600',
 };
 const PLAN_ICONS: Record<string, LucideIcon> = {

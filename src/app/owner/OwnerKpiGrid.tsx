@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, memo } from "react"
 import { useRouter } from "next/navigation"
-import { motion, useReducedMotion } from "framer-motion"
+import { motion, useReducedMotion } from "motion/react"
 import { ShoppingCart, TrendingUp, Clock, ClipboardList } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
