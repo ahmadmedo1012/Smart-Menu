@@ -37,18 +37,22 @@ function PartnerMarquee() {
   const doubled = [...PARTNERS, ...PARTNERS]
   return (
     <div className="relative overflow-hidden mb-12 sm:mb-14 py-5 sm:py-6 border-y border-orange/5">
-      <div className="absolute inset-y-0 start-0 w-20 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-      <div className="absolute inset-y-0 end-0 w-20 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+      <div className="absolute inset-y-0 start-0 w-16 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+      <div className="absolute inset-y-0 end-0 w-16 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none" />
       <motion.div
-        className="flex gap-8 sm:gap-12 items-center"
+        className="flex gap-8 sm:gap-14 items-center"
         animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
       >
         {doubled.map((p, i) => (
-          <div key={i} className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <span className="size-1.5 rounded-full bg-orange/40 shrink-0" />
-            <span className="text-sm sm:text-base font-medium text-muted-foreground/60 whitespace-nowrap">
+          <div key={i} className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            <span className="size-2 rounded-full bg-orange/40 shrink-0" />
+            <span className="text-sm sm:text-base font-semibold text-muted-foreground/70 whitespace-nowrap">
               {p.name}
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-orange/15 bg-orange/5 px-2 py-0.5 text-[10px] font-medium text-orange/70">
+              <span className="size-1 rounded-full bg-orange/60" />
+              عميل
             </span>
           </div>
         ))}

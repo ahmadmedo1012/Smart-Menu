@@ -227,7 +227,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 								className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
 								aria-label="السابق"
 							>
-								<MotionArrowRight className="size-5" />
+								<MotionArrowLeft className="size-5" />
 							</button>
 							<button
 								onClick={next}
@@ -235,7 +235,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 								className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
 								aria-label="التالي"
 							>
-								<MotionArrowLeft className="size-5" />
+								<MotionArrowRight className="size-5" />
 							</button>
 						</>
 					)}
