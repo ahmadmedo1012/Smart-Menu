@@ -48,7 +48,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 					)}
 				>
 					{logo ? (
-						<OptimizedImage src={logo} alt="" className="size-full" skeleton={false} />
+						<OptimizedImage src={logo} alt="" className="size-full" aspectRatio="square" skeleton={false} />
 					) : (
 						<svg
 							className="size-4 text-white"

@@ -29,7 +29,7 @@ const aspectMap: Record<AspectRatio, string> = {
 const OptimizedImage = memo(function OptimizedImage({
   src,
   alt,
-  aspectRatio = "auto",
+  aspectRatio = "square",
   className = "",
   imageClassName = "",
   priority = false,

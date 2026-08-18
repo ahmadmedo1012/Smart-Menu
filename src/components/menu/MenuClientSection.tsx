@@ -140,7 +140,9 @@ export function MenuClientSection(props: {
 								<OptimizedImage
 									src={restaurant.logo}
 									alt={restaurant.name}
+									aspectRatio="square"
 									imageClassName="size-full object-cover"
+									fallback={<Store className="size-10 text-white" />}
 									skeleton
 								/>
 							</div>

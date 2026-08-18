@@ -188,6 +188,7 @@ export function OrderDialog({
 									src={restaurantLogo}
 									alt=""
 									className="size-full"
+									aspectRatio="square"
 									skeleton={false}
 								/>
 							) : (
