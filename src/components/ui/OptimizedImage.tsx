@@ -15,6 +15,8 @@ type OptimizedImageProps = {
   className?: string;
   imageClassName?: string;
   priority?: boolean;
+  /** LCP hint passed through to next/image (renders as fetchpriority="high") */
+  fetchPriority?: "high" | "low" | "auto";
   skeleton?: boolean;
   fallback?: ReactNode;
   onError?: () => void;
@@ -33,6 +35,7 @@ const OptimizedImage = memo(function OptimizedImage({
   className = "",
   imageClassName = "",
   priority = false,
+  fetchPriority,
   skeleton = true,
   fallback,
   onError,
@@ -78,6 +81,7 @@ const OptimizedImage = memo(function OptimizedImage({
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           loading={priority ? undefined : "lazy"}
           priority={priority}
+          fetchPriority={fetchPriority}
           onLoad={() => setStatus("loaded")}
           onError={() => { setStatus("error"); onError?.(); }}
         />

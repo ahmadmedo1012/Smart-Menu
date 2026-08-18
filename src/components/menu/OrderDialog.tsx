@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {Store} from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -48,6 +48,12 @@ export function OrderDialog({
 	const [customerPhone, setCustomerPhone] = useState('');
 	const [confirmed, setConfirmed] = useState(false);
 	const cartPickupType = useCart((s) => s.pickupType);
+	const whatsappTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Clear the whatsapp-redirect timer on unmount so a late navigation can't fire
+	useEffect(() => () => {
+		if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
+	}, []);
 
 	useEffect(() => {
 		if (open) {
@@ -97,7 +103,8 @@ export function OrderDialog({
 
 		setSubmitting(false);
 		setConfirmed(true);
-		setTimeout(() => {
+		if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
+		whatsappTimerRef.current = setTimeout(() => {
 			onOpenChange(false);
 			// Redirect to unified cart page where user reviews + sends WhatsApp
 			window.location.href = '/cart';
@@ -267,12 +274,14 @@ export function OrderDialog({
 						</div>
 					</div>
 
-					{/* Order type — segmented with bg-orange active */}
-					<div className={cn(glassPillCard, 'flex p-1 gap-1')}>
+					{/* Order type — segmented with bg-orange active (single-select → radio group) */}
+					<div role="radiogroup" aria-label="نوع الطلب" className={cn(glassPillCard, 'flex p-1 gap-1')}>
 						{(['inside', 'delivery', 'takeaway'] as const).map((type) => (
 							<button
 								key={type}
 								type="button"
+								role="radio"
+								aria-checked={orderType === type}
 								onClick={() => setOrderType(type)}
 								className={cn(
 									'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all',
@@ -286,7 +295,7 @@ export function OrderDialog({
 						))}
 					</div>
 
-					{/* Quick notes — glass-pill chips */}
+					{/* Quick notes — glass-pill chips (multi-select toggles → aria-pressed) */}
 					<div>
 						<label className="text-sm font-medium mb-2 block">إضافات</label>
 						<div className="flex flex-wrap gap-1.5">
@@ -294,6 +303,7 @@ export function OrderDialog({
 								<button
 									key={note}
 									type="button"
+									aria-pressed={notes.includes(note)}
 									onClick={() => toggleQuickNote(note)}
 									className={cn(
 										'px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border',

@@ -70,7 +70,7 @@ export default function CartPage() {
 	const popularSuggestions = ['قهوة تركي', 'كابتشينو', 'تشيز كيك', 'برجر'];
 	const addSuggested = () => {
 		// Jump to the restaurant menu — quick path back to browsing.
-		window.location.href = '/menu/al-waha-cafe-demo';
+		window.location.href = '/menu/al-waha-cafe';
 	};
 	const [confirmed, setConfirmed] = useState(false);
 	const [animateItems, setAnimateItems] = useState(false);

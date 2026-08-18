@@ -117,9 +117,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 				data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
 			});
 		} else if (auth.role === 'owner') {
-			// Owner can only update their own restaurant's basic info
+			// Owners can only update restaurants they manage — multi-menu aware via
+			// UserRestaurant links (same check as settings/route.ts & categories)
 			if (auth.restaurantId !== rId) {
-				return apiError('غير مصرح', 401);
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId: rId } },
+				});
+				if (!link) return apiError('غير مصرح', 403);
 			}
 			const parsed = updateSchema.parse(body);
 			data = await prisma.restaurant.update({

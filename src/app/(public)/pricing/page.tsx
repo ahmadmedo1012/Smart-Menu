@@ -385,7 +385,7 @@ export default function PricingPage() {
 							</Link>
 							<Link href="/menu/al-waha-cafe">
 								<Button size="lg" variant="outline">
-									جرب لوحة التحكم
+									شاهد منيو تجريبي
 								</Button>
 							</Link>
 						</div>

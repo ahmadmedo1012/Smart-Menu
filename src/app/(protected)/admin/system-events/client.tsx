@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
 import { Loader2 } from 'lucide-react';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 
 type SystemEvent = {
 	id: number;
@@ -16,13 +17,19 @@ export function SystemEventsClient() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
 
-	useEffect(() => {
+	const load = useCallback(() => {
+		setLoading(true);
+		setError('');
 		csrfFetch('/api/admin/system-events')
 			.then((r) => r.json())
 			.then((d) => setEvents(d.events ?? d.data?.data ?? d.data ?? []))
 			.catch(() => setError('فشل تحميل أحداث النظام'))
 			.finally(() => setLoading(false));
 	}, []);
+
+	useEffect(() => {
+		load();
+	}, [load]);
 
 	if (loading)
 		return (
@@ -32,8 +39,16 @@ export function SystemEventsClient() {
 		);
 	if (error)
 		return (
-			<div className="text-destructive p-4 rounded-lg border border-destructive/30 bg-destructive/10">
-				{error}
+			<div className="flex flex-col items-center gap-3 p-4 rounded-lg border border-destructive/30 bg-destructive/10">
+				<p className="text-destructive">{error}</p>
+				<button
+					type="button"
+					onClick={load}
+					className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline underline-offset-4"
+				>
+					<AnimatedRefreshCw className="size-3.5" />
+					إعادة المحاولة
+				</button>
 			</div>
 		);
 

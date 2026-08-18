@@ -80,6 +80,13 @@ function MenuPageClientInner({
 	);
 
 	const addLockRef = useRef(false);
+	const addLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Clear the add-lock release timer on unmount so a late ref write can't happen
+	useEffect(() => () => {
+		if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
+	}, []);
+
 	const handleQuickAdd = useCallback(
 		(item: MenuItemProp) => {
 			if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
@@ -95,7 +102,8 @@ function MenuPageClientInner({
 				duration: 3200,
 				anim: true,
 			});
-			setTimeout(() => { addLockRef.current = false; }, 400);
+			if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
+			addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
 		},
 		[addItem, restaurantId]
 	);

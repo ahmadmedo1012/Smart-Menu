@@ -3,6 +3,7 @@ export const revalidate = 60;
 export const dynamicParams = true;
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
+import { getRestaurantBySlug } from '@/lib/menu-queries';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
 
@@ -21,11 +22,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug } = await params;
 	const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
-	const restaurant = await prisma.restaurant.findUnique({
-		where: { slug },
-		select: { id: true, name: true, description: true, logo: true },
-	});
+	const restaurant = await getRestaurantBySlug(slug);
 	if (!restaurant) notFound();
+	const ogImage = restaurant.logo || '/icon-512.png';
 	return {
 		title: restaurant.name,
 		description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
@@ -35,9 +34,20 @@ export async function generateMetadata({
 			description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
 			url: `${origin}/menu/${slug}`,
 			siteName: 'الربط الذكي',
-			images: restaurant.logo ? [{ url: restaurant.logo, width: 512, height: 512 }] : [],
+			images: [
+				{
+					url: ogImage,
+					...(restaurant.logo ? { width: 512, height: 512 } : { width: 1200, height: 630 }),
+				},
+			],
 			locale: 'ar_LY',
 			type: 'website',
+		},
+		twitter: {
+			card: 'summary',
+			title: restaurant.name,
+			description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
+			images: [ogImage],
 		},
 	};
 }
@@ -46,22 +56,8 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 	const { slug } = await params;
 	const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
 
-	const restaurant = await prisma.restaurant.findUnique({
-		where: { slug, isActive: true },
-		select: {
-			id: true,
-			name: true,
-			description: true,
-			logo: true,
-			phone: true,
-			whatsapp: true,
-			slug: true,
-			address: true,
-			workingHours: true,
-			gallery: true,
-			email: true,
-		},
-	});
+	// Deduped with generateMetadata via React cache() — 1 DB query for both.
+	const restaurant = await getRestaurantBySlug(slug);
 	if (!restaurant) notFound();
 
 	// Module-level cutoff: computed once per build/ISR revalidation,

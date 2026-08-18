@@ -23,19 +23,21 @@ function generateReferralCode(): string {
 
 export async function POST(request: NextRequest) {
 	try {
-		const ip =
-			request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-			request.headers.get('x-real-ip') ??
-			'unknown';
-		const rateCheck = await loyaltyDbLimiter.check(ip);
-		if (!rateCheck.success) return error('Too many requests', 429);
-
 		const body = createSchema.parse(await request.json());
 		const { customerPhone, customerName } = body;
 		const cookieStore = await cookies();
 		const cookieId = cookieStore.get('smart-menu-restaurant')?.value;
 		const restaurantId = body.restaurantId ?? (cookieId ? Number(cookieId) : null);
 		if (!restaurantId) return error('معرف المطعم مطلوب. Restaurant ID is required.', 400);
+
+		// Rate limit per IP + restaurant (restaurantId in key) so one
+		// restaurant's traffic can't starve others behind the same IP (kiosk/NAT)
+		const ip =
+			request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+			request.headers.get('x-real-ip') ??
+			'unknown';
+		const rateCheck = await loyaltyDbLimiter.check(`${ip}:${restaurantId}`);
+		if (!rateCheck.success) return error('Too many requests', 429);
 
 		// Verify restaurant exists
 		const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });

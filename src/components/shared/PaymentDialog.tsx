@@ -96,10 +96,17 @@ export function PaymentDialog({
 		}
 	};
 
+	const visibilityHandlerRef = useRef<(() => void) | null>(null);
+
 	const cleanup = useCallback(() => {
 		if (pollRef.current) {
 			clearInterval(pollRef.current);
 			pollRef.current = null;
+		}
+		// Always detach the visibility listener — safe to call multiple times
+		if (visibilityHandlerRef.current) {
+			document.removeEventListener('visibilitychange', visibilityHandlerRef.current);
+			visibilityHandlerRef.current = null;
 		}
 	}, []);
 
@@ -190,34 +197,51 @@ export function PaymentDialog({
 		if (paymentId && (provider === 'libyana' || provider === 'madar' || provider === 'bank')) {
 			let pollFailures = 0;
 			const warnedRef = { current: false };
-			pollRef.current = setInterval(async () => {
-				try {
-					const res = await fetch(`/api/subscriptions/status?id=${paymentId}`);
-					const json = await res.json();
-					pollFailures = 0;
-					if (json.data?.status === 'verified') {
-						clearInterval(tick);
-						cleanup();
-						setResolutionMsg('تم الموافقة على اشتراكك بنجاح! سيتم توجيهك إلى لوحة التحكم.');
-						setStep('approved');
+			const startStatusPoll = () => {
+				pollRef.current = setInterval(async () => {
+					try {
+						const res = await fetch(`/api/subscriptions/status?id=${paymentId}`);
+						const json = await res.json();
+						pollFailures = 0;
+						if (json.data?.status === 'verified') {
+							clearInterval(tick);
+							cleanup();
+							setResolutionMsg('تم الموافقة على اشتراكك بنجاح! سيتم توجيهك إلى لوحة التحكم.');
+							setStep('approved');
+						}
+						if (json.data?.status === 'cancelled') {
+							clearInterval(tick);
+							cleanup();
+							setResolutionMsg(
+								json.data?.message ||
+									'عذراً، تم رفض طلب تفعيل الاشتراك. يمكنك تعديل البيانات والمحاولة مرة أخرى.'
+							);
+							setStep('rejected');
+						}
+					} catch {
+						pollFailures++;
+						if (pollFailures >= 3 && !warnedRef.current) {
+							warnedRef.current = true;
+							premiumToast('error', 'تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
+						}
 					}
-					if (json.data?.status === 'cancelled') {
-						clearInterval(tick);
-						cleanup();
-						setResolutionMsg(
-							json.data?.message ||
-								'عذراً، تم رفض طلب تفعيل الاشتراك. يمكنك تعديل البيانات والمحاولة مرة أخرى.'
-						);
-						setStep('rejected');
-					}
-				} catch {
-					pollFailures++;
-					if (pollFailures >= 3 && !warnedRef.current) {
-						warnedRef.current = true;
-						premiumToast('error', 'تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
-					}
+				}, 5000);
+			};
+			const stopStatusPoll = () => {
+				if (pollRef.current) {
+					clearInterval(pollRef.current);
+					pollRef.current = null;
 				}
-			}, 5000);
+			};
+			// Perf: don't poll the status endpoint while the tab is hidden
+			const onVisibilityChange = () => {
+				if (document.visibilityState === 'hidden') stopStatusPoll();
+				else startStatusPoll();
+			};
+
+			startStatusPoll();
+			document.addEventListener('visibilitychange', onVisibilityChange);
+			visibilityHandlerRef.current = onVisibilityChange;
 		}
 
 		return () => {

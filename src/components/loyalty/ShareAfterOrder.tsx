@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Confetti } from '@/components/shared/Confetti';
 import {CheckCircle, Camera, Phone, Gift} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
@@ -32,8 +32,14 @@ export function ShareAfterOrder({
 	const [loading, setLoading] = useState(false);
 	const [referralCode, setReferralCode] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const cartRestaurantId = useCart((s) => s.restaurantId);
 	const [showSkip, setShowSkip] = useState(false);
+
+	// Clear the copied-reset timer on unmount so a late setState can't fire
+	useEffect(() => () => {
+		if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+	}, []);
 
 	// Reset state when dialog opens
 	useEffect(() => {
@@ -98,7 +104,8 @@ export function ShareAfterOrder({
 			await navigator.clipboard.writeText(referralUrl);
 			setCopied(true);
 			premiumToast('copy', 'تم نسخ رابط الإحالة');
-			setTimeout(() => setCopied(false), 2000);
+			if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+			copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
 		} catch {
 			premiumToast('error', 'فشل نسخ الرابط');
 		}

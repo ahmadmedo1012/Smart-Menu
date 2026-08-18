@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import {Share2, Gift, Smartphone, Users, TrendingUp} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -29,6 +29,12 @@ export function ReferralCard({
 	timesUsed = 0,
 }: ReferralCardProps) {
 	const [copied, setCopied] = useState(false);
+	const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Clear the copied-reset timer on unmount so a late setState can't fire
+	useEffect(() => () => {
+		if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+	}, []);
 
 	const origin = typeof window !== 'undefined' ? window.location.origin : '';
 	const referralUrl = `${origin}/menu/${restaurantSlug}?ref=${referralCode}`;
@@ -38,7 +44,8 @@ export function ReferralCard({
 			await navigator.clipboard.writeText(referralUrl);
 			setCopied(true);
 			premiumToast('copy', 'تم نسخ رابط الإحالة');
-			setTimeout(() => setCopied(false), 2000);
+			if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+			copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
 		} catch {
 			premiumToast('error', 'فشل نسخ الرابط');
 		}

@@ -1,5 +1,6 @@
-const CACHE_NAME = 'smart-menu-v3';
-const STATIC_ASSETS = ['/', '/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const CACHE_NAME = 'smart-menu-v4';
+// REMINDER: bump CACHE_VERSION whenever this file changes
+const STATIC_ASSETS = ['/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(

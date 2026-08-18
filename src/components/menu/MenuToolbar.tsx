@@ -40,7 +40,6 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 		[delay]
 	);
 }
-import {} from 'lucide-react';
 import { MotionSearch } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
@@ -123,7 +122,6 @@ export function MenuToolbar({
 
 	return (
 		<div ref={containerRef} className={cn('relative mb-4 flex gap-2 items-start', className)}>
-			{hideSearch && !search ? null : null}
 			{/* Search input — glass card wrapper */}
 			{!hideSearch && (
 				<div className="flex-1 relative">

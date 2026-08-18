@@ -35,17 +35,20 @@ export async function POST(request: NextRequest) {
     if (!order) return notFound("Order");
 
     // Owners can only generate for their own restaurant (multi-menu aware)
-    if (auth.role === "owner" && auth.restaurantId !== order.restaurantId) {
-      const link = await prisma.userRestaurant.findUnique({
-        where: { userId_restaurantId: { userId: auth.userId!, restaurantId: order.restaurantId } },
-      });
-      if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+    if (auth.role === "owner") {
+      if (auth.restaurantId !== order.restaurantId) {
+        const link = await prisma.userRestaurant.findUnique({
+          where: { userId_restaurantId: { userId: auth.userId!, restaurantId: order.restaurantId } },
+        });
+        if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+      }
     } else if (auth.role === "admin" || auth.role === "sub_admin") {
       // admins need explicit permission to read any order's details
       if (!(auth.permissions ?? []).includes("APPROVE_ORDERS")) {
         return Response.json({ success: false, error: "لا تملك الصلاحية" }, { status: 403 });
       }
-    } else if (auth.role === "USER") {
+    } else {
+      // USER and any unknown/other role — deny by default, never fall through
       return Response.json({ success: false, error: "غير مصرح" }, { status: 403 });
     }
 

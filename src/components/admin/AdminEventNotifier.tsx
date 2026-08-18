@@ -21,6 +21,7 @@ function playBeep(freq: number, duration: number) {
 
 export function AdminEventNotifier() {
   const lastIdRef = useRef(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
     const poll = async () => {
@@ -55,9 +56,28 @@ export function AdminEventNotifier() {
       } catch { /* poll failed */ }
     };
 
-    poll(); // immediate first poll
-    const interval = setInterval(poll, 5000);
-    return () => clearInterval(interval);
+    const startPolling = () => {
+      poll(); // immediate first poll
+      intervalRef.current = setInterval(poll, 5000);
+    };
+    const stopPolling = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = undefined;
+      }
+    };
+    // Perf: don't poll while the tab is hidden — browser timers are throttled anyway
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") stopPolling();
+      else startPolling();
+    };
+
+    startPolling();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, []);
 
   return null;

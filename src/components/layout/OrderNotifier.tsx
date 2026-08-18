@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import {} from 'lucide-react';
 import AnimatedCart from '@/components/ui/shopping-cart-icon';
 
 /** Play a gentle notification chime using Web Audio API */
@@ -67,11 +66,29 @@ export function useOrderNotifier(restaurantId?: number) {
 				/* poll failed */
 			}
 		};
-		poll();
-		pollIntervalRef.current = setInterval(poll, 5000);
+
+		const startPolling = () => {
+			poll();
+			pollIntervalRef.current = setInterval(poll, 5000);
+		};
+		const stopPolling = () => {
+			if (pollIntervalRef.current) {
+				clearInterval(pollIntervalRef.current);
+				pollIntervalRef.current = undefined;
+			}
+		};
+		// Perf: don't poll while the tab is hidden — browser timers are throttled anyway
+		const onVisibilityChange = () => {
+			if (document.visibilityState === 'hidden') stopPolling();
+			else startPolling();
+		};
+
+		startPolling();
+		document.addEventListener('visibilitychange', onVisibilityChange);
 
 		return () => {
-			if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+			stopPolling();
+			document.removeEventListener('visibilitychange', onVisibilityChange);
 		};
 	}, [restaurantId]);
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import {Store} from 'lucide-react';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
@@ -35,6 +35,37 @@ const GalleryCarousel = dynamic(
 	() => import('@/components/menu/GalleryCarousel').then((m) => ({ default: m.GalleryCarousel })),
 	{ ssr: false }
 );
+
+/** Decorative hero Lotties — pause when scrolled out of view to save mobile GPU/CPU. */
+function HeroLotties() {
+	const ref = useRef<HTMLDivElement>(null);
+	const [inView, setInView] = useState(true);
+
+	useEffect(() => {
+		const el = ref.current;
+		if (!el || typeof IntersectionObserver === 'undefined') return;
+		const obs = new IntersectionObserver(
+			([entry]) => setInView(entry.isIntersecting),
+			{ threshold: 0.05 }
+		);
+		obs.observe(el);
+		return () => obs.disconnect();
+	}, []);
+
+	return (
+		<>
+			<div
+				ref={ref}
+				className="absolute top-8 end-8 size-24 md:size-32 opacity-30 dark:opacity-20 pointer-events-none select-none"
+			>
+				<LottieAnimation src="/animations/food-choice.lottie" loop autoplay speed={0.6} playing={inView} />
+			</div>
+			<div className="absolute bottom-4 start-4 size-20 md:size-28 opacity-25 dark:opacity-15 pointer-events-none select-none">
+				<LottieAnimation src="/animations/cooking.lottie" loop autoplay speed={0.5} playing={inView} />
+			</div>
+		</>
+	);
+}
 
 type Restaurant = {
 	name: string;
@@ -113,13 +144,8 @@ export function MenuClientSection(props: {
 					<div className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full bg-orange/4 blur-[140px] animate-orb-float-delayed" />
 				</div>
 
-				{/* ── Decorative corner Lottie ── */}
-				<div className="absolute top-8 end-8 size-24 md:size-32 opacity-30 dark:opacity-20 pointer-events-none select-none">
-					<LottieAnimation src="/animations/food-choice.lottie" loop autoplay speed={0.6} />
-				</div>
-				<div className="absolute bottom-4 start-4 size-20 md:size-28 opacity-25 dark:opacity-15 pointer-events-none select-none">
-					<LottieAnimation src="/animations/cooking.lottie" loop autoplay speed={0.5} />
-				</div>
+				{/* ── Decorative corner Lottie (paused when hero is out of view) ── */}
+				<HeroLotties />
 
 				{/* ── Bottom gradient fade ── */}
 				<div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-background/30 to-background pointer-events-none" />
@@ -136,7 +162,8 @@ export function MenuClientSection(props: {
 								style={{ animationDelay: '0.5s' }}
 							/>
 							{/* Glass orb container */}
-							<div className="relative size-28 md:size-32 rounded-2xl overflow-hidden shadow-2xl shadow-orange/20 ring-2 ring-orange/20 dark:ring-orange/15 backdrop-blur-sm bg-white/5 dark:bg-white/[0.04] gpu-layer">
+							<div className="relative size-28 md:size-32 rounded-2xl overflow-hidden shadow-2xl shadow-orange/20 ring-2 ring-orange/15 dark:ring-orange/15 backdrop-blur-sm bg-white/5 dark:bg-white/[0.04] gpu-layer">
+								{/* LCP: hero logo is above the fold → eager fetch with high priority */}
 								<OptimizedImage
 									src={restaurant.logo}
 									alt={restaurant.name}
@@ -144,6 +171,8 @@ export function MenuClientSection(props: {
 									imageClassName="size-full object-cover"
 									fallback={<Store className="size-10 text-white" />}
 									skeleton
+									priority
+									fetchPriority="high"
 								/>
 							</div>
 						</div>

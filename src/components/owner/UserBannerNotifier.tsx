@@ -39,10 +39,28 @@ export function UserBannerNotifier() {
 				/* transient — next tick retries */
 			}
 		};
-		poll();
-		intervalRef.current = setInterval(poll, POLL_MS);
+
+		const startPolling = () => {
+			poll();
+			intervalRef.current = setInterval(poll, POLL_MS);
+		};
+		const stopPolling = () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+				intervalRef.current = undefined;
+			}
+		};
+		// Perf: don't poll while the tab is hidden — browser timers are throttled anyway
+		const onVisibilityChange = () => {
+			if (document.visibilityState === 'hidden') stopPolling();
+			else startPolling();
+		};
+
+		startPolling();
+		document.addEventListener('visibilitychange', onVisibilityChange);
 		return () => {
-			if (intervalRef.current) clearInterval(intervalRef.current);
+			stopPolling();
+			document.removeEventListener('visibilitychange', onVisibilityChange);
 		};
 	}, []);
 

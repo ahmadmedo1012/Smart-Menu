@@ -11,11 +11,6 @@ const rateLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 export async function POST(request: NextRequest) {
 	try {
-		// Rate limit: 5 req/min per IP
-		const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
-		const rl = await rateLimiter.check(`upload:${ip}`);
-		if (!rl.success) return error("طلبات كثيرة جداً، حاول بعد قليل", 429);
-
 		// Early content-length guard — reject before parsing body
 		const cl = request.headers.get("content-length");
 		if (cl && Number(cl) > MAX_SIZE) return error("الملف كبير جداً (الحد الأقصى 5MB)", 413);
@@ -26,6 +21,12 @@ export async function POST(request: NextRequest) {
 
 		const auth = await requireAuth();
 		if (!auth.authorized) return error("غير مصرح", 401);
+
+		// Rate limit: 5 req/min per IP + user (userId in key so one user can't
+		// burn a shared-IP quota, IP in key so one user can't spread across IPs)
+		const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
+		const rl = await rateLimiter.check(`upload:${ip}:${auth.userId}`);
+		if (!rl.success) return error("طلبات كثيرة جداً، حاول بعد قليل", 429);
 
 		const formData = await request.formData();
 		const file = formData.get("file");

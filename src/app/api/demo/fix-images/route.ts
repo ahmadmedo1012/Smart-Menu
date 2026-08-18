@@ -37,6 +37,11 @@ const FIX_IMAGES: Record<string, string> = {
 };
 
 export async function POST() {
+	// Demo-only route — hard-blocked in production (mirrors /api/demo behavior)
+	if (process.env.NODE_ENV === 'production') {
+		return NextResponse.json({ error: 'Not found' }, { status: 404 });
+	}
+
 	const auth = await requireAuth();
 	if (!auth.authorized) return error('غير مصرح', 401);
 

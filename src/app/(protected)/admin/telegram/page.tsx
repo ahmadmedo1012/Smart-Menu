@@ -1,9 +1,10 @@
 'use client';
 
 import { csrfFetch } from '@/lib/csrf-client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { premiumToast } from '@/lib/premium-toast';
 import { Loader2, AlertTriangle, Lightbulb } from 'lucide-react';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { TelegramConfigSection } from './TelegramConfigSection';
 import { BroadcastTargetsSection } from './BroadcastTargetsSection';
 import { DiagnosticsSection } from './DiagnosticsSection';
@@ -69,7 +70,11 @@ export default function AdminTelegramPage() {
 	const [approvers, setApprovers] = useState<Approver[]>([]);
 	const [approversLoading, setApproversLoading] = useState(true);
 
-	useEffect(() => {
+	const loadAll = useCallback(() => {
+		setLoading(true);
+		setLoadError(null);
+
+		// One-time access check (not retried — permission is server-enforced anyway)
 		fetch('/api/auth/me')
 			.then((r) => r.json())
 			.then((d) => {
@@ -135,6 +140,10 @@ export default function AdminTelegramPage() {
 			.catch(() => setLoadError('فشل تحميل الموافقين'))
 			.finally(() => setApproversLoading(false));
 	}, []);
+
+	useEffect(() => {
+		loadAll();
+	}, [loadAll]);
 
 	const handleSave = async () => {
 		if (!config.botToken.trim() || !config.chatId.trim()) {
@@ -266,7 +275,17 @@ export default function AdminTelegramPage() {
 					role="alert"
 					className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
 				>
-					{loadError} — بعض الأقسام قد تكون فارغة مؤقتاً
+					<div className="flex flex-wrap items-center justify-between gap-2">
+						<span>{loadError} — بعض الأقسام قد تكون فارغة مؤقتاً</span>
+						<button
+							type="button"
+							onClick={loadAll}
+							className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline underline-offset-4"
+						>
+							<AnimatedRefreshCw className="size-3.5" />
+							إعادة المحاولة
+						</button>
+					</div>
 				</div>
 			)}
 

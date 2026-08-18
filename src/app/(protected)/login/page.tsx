@@ -290,6 +290,17 @@ function LoginForm() {
 						</DialogContent>
 					</Dialog>
 
+					{/* Demo credentials hint */}
+					<div className="mt-4 rounded-md border border-orange/20 bg-orange-muted/30 p-3 font-arabic text-xs">
+						<p className="text-muted-foreground">
+							حساب تجريبي: <span className="font-semibold text-foreground" dir="ltr">waha</span> /{' '}
+							<span className="font-semibold text-foreground" dir="ltr">waha123</span>
+						</p>
+						<Link href="/menu/al-waha-cafe" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-orange/30 bg-card/60 px-3 py-2 text-xs font-semibold text-orange transition-colors hover:bg-orange/10">
+							فتح المنيو التجريبي
+						</Link>
+					</div>
+
 					{/* Footer */}
 					<p className="mt-6 text-center text-xs text-muted-foreground/60 font-arabic">
 						نظام إدارة المطاعم · الربط الذكي
