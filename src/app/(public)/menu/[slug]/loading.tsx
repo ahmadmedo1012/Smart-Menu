@@ -40,7 +40,7 @@ export default function MenuSlugLoading() {
 
       {/* Premium card grid — vertical layout with aspect-4/3 image area */}
       <div className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => {
             const delay = `${i * 100}ms`;
             return (

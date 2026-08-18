@@ -12,7 +12,7 @@ import { Analytics } from '@vercel/analytics/react';
 
 import { GridPattern } from '@/components/ui/grid-pattern';
 import { MotionProvider } from '@/components/shared/MotionProvider';
-import './globals.css';
+import '../globals.css';
 
 /* ponytail: Cairo served local-first via /fonts/fonts.css — no render-blocking external Google Fonts round-trip, no next/font module-class dependency */
 

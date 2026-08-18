@@ -59,6 +59,38 @@ export function proxy(request: NextRequest) {
 			'Content-Security-Policy',
 			"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
 		);
+	} else if (isCacheablePage) {
+		// Public static pages (/, /menu/*, /pricing, /landing): FIXED CSP with
+		// no nonce. These pages are statically prerendered — there is no
+		// per-request context to mint a nonce into, so we use a static policy.
+		// 'unsafe-inline' is normally ignored by modern browsers when a nonce
+		// is present, but here there is no nonce, so it applies as the fallback
+		// that lets Next.js inline hydration scripts run; 'strict-dynamic'
+		// keeps the policy tight in browsers that support it.
+		// No x-nonce request header is forwarded to the app.
+		const csp = [
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' 'strict-dynamic' https://va.vercel-scripts.com",
+			"style-src 'self' 'unsafe-inline'",
+			"style-src-elem 'self' 'unsafe-inline'",
+			"img-src 'self' data: blob: https:",
+			"font-src 'self' data:",
+			"connect-src 'self' https://va.vercel-scripts.com https://api.telegram.org",
+			"frame-src 'none'",
+			"object-src 'none'",
+			"base-uri 'self'",
+			"form-action 'self'",
+			"worker-src 'self' blob:",
+			"manifest-src 'self' blob:",
+			"upgrade-insecure-requests",
+		].join('; ');
+		resp.headers.set('Content-Security-Policy', csp);
+		// Cacheable pages: no CSRF cookie is minted above (no set-cookie), so
+		// the response can be cached by CDN/ISR.
+		resp.headers.set(
+			'Cache-Control',
+			'public, max-age=60, s-maxage=60, stale-while-revalidate=86400'
+		);
 	} else {
 		// Official Next.js 16 nonce flow (docs: content-security-policy guide):
 		// 1. generate nonce here, put it in the CSP response header AND forward it

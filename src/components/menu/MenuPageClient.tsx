@@ -229,7 +229,7 @@ function MenuPageClientInner({
 						variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
 						initial="hidden"
 						animate="visible"
-						className="grid gap-4 sm:grid-cols-2"
+						className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
 					>
 						{popularItems.slice(0, 6).map((item, index) => (
 							<motion.div
@@ -278,7 +278,7 @@ function MenuPageClientInner({
 					)}
 				</div>
 			) : (
-				<div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+				<div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{normalItems.map((item, index) => (
 						<div
 							key={item.id}

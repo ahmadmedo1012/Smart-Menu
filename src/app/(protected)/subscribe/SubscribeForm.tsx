@@ -289,12 +289,7 @@ export function SubscribeForm({
 								<div key={index} className="rounded-[20px] border border-border/40 p-4 space-y-4 relative">
 									<div className="flex items-center justify-between">
 										<h4 className="text-sm font-semibold text-primary">
-											المنيو {toArabicNumber(index + 1)}
-											{index === 0 && (
-												<span className="ms-2 text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-													الأساسي
-												</span>
-											)}
+											المنيو {toArabicNumber(index + 1)} — {currentPlan.nameAr}
 										</h4>
 										{menus.length > 1 && (
 											<button
