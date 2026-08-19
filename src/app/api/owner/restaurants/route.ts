@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { z } from 'zod';
 
 const createSchema = z.object({
@@ -16,6 +17,8 @@ export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireAuth();
 		if (!auth.authorized) return error('غير مصرح', 401);
+		// Subscription guard: expired → 403
+		if (!(await isOwnerSubscriptionActive(auth))) return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
 
 		// Admin sees all; owner sees ONLY their own (no IDOR — userId param is
 		// ignored for owners, always bound to the authenticated user).
@@ -58,6 +61,8 @@ export async function POST(request: NextRequest) {
 		const auth = await requireAuth();
 		if (!auth.authorized) return error('غير مصرح', 401);
 		if (!auth.userId) return error('غير مصرح', 401);
+		// Subscription guard: expired → 403
+		if (!(await isOwnerSubscriptionActive(auth))) return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
 
 		const body = createSchema.parse(await request.json());
 

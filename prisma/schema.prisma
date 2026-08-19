@@ -42,6 +42,7 @@ model User {
   @@index([role])
   @@index([lastLoginAt])
   @@index([createdAt])
+  @@index([subscriptionStatus])
 }
 
 // Many-to-many: a user (owner) can manage multiple restaurant menus.

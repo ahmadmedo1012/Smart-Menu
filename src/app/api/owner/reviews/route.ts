@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { handleError } from '@/lib/api-helpers';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import type { Prisma } from '@/generated/prisma/client';
 
 export async function GET(req: NextRequest) {
@@ -9,6 +10,10 @@ export async function GET(req: NextRequest) {
 		const auth = await requireAuth({ requireRestaurant: true });
 		if (!auth.authorized || !auth.restaurantId) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
+		// Subscription guard: expired → 403
+		if (!(await isOwnerSubscriptionActive(auth))) {
+			return NextResponse.json({ success: false, error: 'اشتراكك منتهي. جدّد اشتراكك للمتابعة.' }, { status: 403 });
 		}
 
 		const { searchParams } = new URL(req.url);

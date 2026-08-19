@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
+import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { z } from 'zod';
 
 const patchSchema = z.object({
@@ -21,6 +22,8 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
 	try {
 		const auth = await requireAuth();
 		if (!auth.authorized) return error('غير مصرح', 401);
+		// Subscription guard: expired → 403
+		if (!(await isOwnerSubscriptionActive(auth))) return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
 		const { id } = await params;
 		const restaurantId = Number(id);
 		if (!restaurantId) return error('معرف غير صالح', 400);
@@ -80,6 +83,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 	try {
 		const auth = await requireAuth();
 		if (!auth.authorized) return error('غير مصرح', 401);
+		// Subscription guard: expired → 403
+		if (!(await isOwnerSubscriptionActive(auth))) return error('اشتراكك منتهي. جدّد اشتراكك للمتابعة.', 403);
 		const { id } = await params;
 		const restaurantId = Number(id);
 		if (!restaurantId) return error('معرف غير صالح', 400);
