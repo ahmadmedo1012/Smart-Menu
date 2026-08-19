@@ -52,8 +52,8 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
                     <AnimatedNumber value={item.value} />{item.suffix}
                   </span>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-muted-foreground/80">{item.label}</div>
-                <div className="mt-3 text-xs text-muted-foreground/50">{item.sub}</div>
+                <div className="text-xs sm:text-sm font-medium text-muted-foreground/95">{item.label}</div>
+                <div className="mt-3 text-xs text-muted-foreground/75">{item.sub}</div>
               </div>
             </motion.div>
           ))}

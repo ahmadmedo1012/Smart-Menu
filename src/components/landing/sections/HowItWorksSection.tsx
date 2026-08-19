@@ -63,7 +63,7 @@ export function HowItWorksSection() {
             />
 
             <h3 className="text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
-            <p className="text-sm text-muted-foreground/80 leading-relaxed max-w-[30ch]">{step.desc}</p>
+            <p className="text-sm text-muted-foreground/95 leading-relaxed max-w-[30ch]">{step.desc}</p>
           </motion.div>
         ))}
       </div>

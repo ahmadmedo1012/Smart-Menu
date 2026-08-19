@@ -49,7 +49,7 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon }: Sec
       {subtitle && (
         <motion.p
           variants={fadeUpSnappy}
-          className="text-sm text-muted-foreground/70 mt-3 max-w-lg mx-auto"
+          className="text-sm text-muted-foreground/90 mt-3 max-w-lg mx-auto"
         >
           {subtitle}
         </motion.p>
