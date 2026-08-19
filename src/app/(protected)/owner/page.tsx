@@ -236,7 +236,7 @@ export default function OwnerDashboard() {
 			)}
 
 			{/* Tab navigation */}
-			<div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+			<div role="tablist" className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
 				{[
 					{ id: 'overview', label: 'نظرة عامة', icon: Activity },
 					{ id: 'analytics', label: 'تحليلات', icon: BarChart3 },
@@ -246,6 +246,8 @@ export default function OwnerDashboard() {
 						<button
 							key={t.id}
 							type="button"
+							role="tab"
+							aria-selected={tab === t.id}
 							onClick={() => setTab(t.id as any)}
 							className={cn(
 								'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2',

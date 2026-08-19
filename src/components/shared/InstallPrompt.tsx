@@ -30,6 +30,7 @@ export function InstallPrompt() {
 
 	return (
 		<button
+			type="button"
 			onClick={handleInstall}
 			// ponytail: one install button, replace with your own styling when a design exists
 			style={{

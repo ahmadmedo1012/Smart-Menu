@@ -148,14 +148,14 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 
 			{/* Mobile sheet */}
 			<Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-				<SheetContent side="left" className="w-60 border-0 bg-card" showCloseButton={false}>
+				<SheetContent id="mobile-nav-sheet" side="left" className="w-60 border-0 bg-card" showCloseButton={false}>
 					<SidebarContent onNavClick={() => setSheetOpen(false)} />
 				</SheetContent>
 			</Sheet>
 
 			{/* Main content */}
 			<div className="flex flex-1 flex-col animate-fade-in overflow-x-clip">
-				<LayoutHeader onMenuClick={() => setSheetOpen(true)} role="owner" />
+				<LayoutHeader onMenuClick={() => setSheetOpen(true)} role="owner" menuOpen={sheetOpen} />
 				<main
 					aria-live="polite"
 					aria-label="محتوى الصفحة"

@@ -126,14 +126,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
 			{/* Mobile drawer */}
 			<Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-				<SheetContent side="left" className="w-60 border-0 bg-card" showCloseButton={false}>
+				<SheetContent id="mobile-nav-sheet" side="left" className="w-60 border-0 bg-card" showCloseButton={false}>
 					<MobileNav onNavClick={() => setSheetOpen(false)} role={role} permissions={permissions} />
 				</SheetContent>
 			</Sheet>
 
 			{/* Main */}
 			<div className="flex flex-1 flex-col animate-fade-in overflow-x-clip">
-				<LayoutHeader onMenuClick={() => setSheetOpen(true)} role="admin" />
+				<LayoutHeader onMenuClick={() => setSheetOpen(true)} role="admin" menuOpen={sheetOpen} />
 				<main
 					aria-live="polite"
 					aria-label="محتوى الصفحة"

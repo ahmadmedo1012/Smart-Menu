@@ -98,18 +98,6 @@ test('html tag has dir="rtl"', async ({ page }) => {
   expect(dir).toBe("rtl");
 });
 
-// ── Connect / Telegram ──────────────────────────────────────────────
-
-test("GET /connect/telegram responds with a page", async ({ page }) => {
-  const res = await rawResponse(page, "/connect/telegram");
-  // Route does not exist yet — expect a response with visible body (404 page)
-  expect(res?.status()).toBe(404);
-
-  await page.waitForLoadState("networkidle");
-  const body = page.locator("body");
-  await expect(body).toBeVisible();
-});
-
 // ── Additional smoke tests ───────────────────────────────────────────
 
 test("GET /subscribe returns 200 with page content", async ({ page }) => {

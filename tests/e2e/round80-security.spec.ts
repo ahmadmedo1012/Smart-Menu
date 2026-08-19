@@ -69,7 +69,7 @@ test("S6: XSS payload in item name never executes", async ({ page }) => {
 test("S7: security headers present on every page", async ({ page }) => {
   const r = await page.request.get("/", { headers: { Accept: "application/json" } });
   const h = r.headers();
-  expect(h["x-frame-options"] || h["x-frame-options"]).toBe("DENY");
+  expect(h["x-frame-options"] || h["X-Frame-Options"]).toBe("DENY");
   expect(h["x-content-type-options"]).toBe("nosniff");
   expect(h["strict-transport-security"]).toBeTruthy();
   expect(h["content-security-policy"]).toBeTruthy();

@@ -23,9 +23,12 @@ const landingLinks = [
 function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="lg:hidden relative size-11 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200 active:scale-90"
+      aria-expanded={open}
+      aria-controls="mobile-menu"
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
+      className="lg:hidden relative size-11 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200 active:scale-90"
     >
       <span className="relative size-3.5">
         <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-all duration-300 origin-center", open && "rotate-45 top-[6px]")} />
@@ -105,6 +108,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
           <motion.div
             key="menu"
             ref={panelRef}
+            id="mobile-menu"
             role="dialog"
             aria-modal="true"
             aria-label="قائمة التصفح"

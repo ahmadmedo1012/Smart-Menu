@@ -105,11 +105,24 @@ export default function AdminDashboard() {
 		load();
 	}, [load]);
 
-	// Poll every 30s
+	// Poll every 30s (paused while tab is hidden)
 	useEffect(() => {
 		if (error) return;
-		const interval = setInterval(load, 30000);
-		return () => clearInterval(interval);
+		let t: ReturnType<typeof setInterval>;
+		const start = () => {
+			t = setInterval(load, 30000);
+		};
+		const stop = () => clearInterval(t);
+		start();
+		const onVis = () => {
+			if (document.visibilityState === 'visible') start();
+			else stop();
+		};
+		document.addEventListener('visibilitychange', onVis);
+		return () => {
+			stop();
+			document.removeEventListener('visibilitychange', onVis);
+		};
 	}, [load, error]);
 
 	// ---------- Loading skeleton ----------

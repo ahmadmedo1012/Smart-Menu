@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { connection } from 'next/server';
 import { headers } from 'next/headers';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 		description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب',
 		url: '/',
 		siteName: 'الربط الذكي',
-		images: [{ url: '/icon-512.png', width: 512, height: 512 }],
+		images: [{ url: '/icon-512.png', width: 512, height: 512, alt: 'Smart Menu' }],
 		locale: 'ar_LY',
 		type: 'website',
 	},
@@ -54,6 +54,10 @@ export const metadata: Metadata = {
 		index: true,
 		follow: true,
 	},
+};
+
+export const viewport: Viewport = {
+	themeColor: '#d97706',
 };
 
 export default async function RootLayout({

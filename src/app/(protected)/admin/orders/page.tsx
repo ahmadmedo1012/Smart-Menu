@@ -85,10 +85,23 @@ export default function AdminOrdersPage() {
 
   useEffect(() => { setPage(1); fetchOrders(1) }, [fetchOrders])
 
-  // Auto-poll every 5s
+  // Auto-poll every 5s (paused while tab is hidden)
   useEffect(() => {
-    const interval = setInterval(() => fetchOrders(1), 5000)
-    return () => clearInterval(interval)
+    let t: ReturnType<typeof setInterval>
+    const start = () => {
+      t = setInterval(() => fetchOrders(1), 5000)
+    }
+    const stop = () => clearInterval(t)
+    start()
+    const onVis = () => {
+      if (document.visibilityState === "visible") start()
+      else stop()
+    }
+    document.addEventListener("visibilitychange", onVis)
+    return () => {
+      stop()
+      document.removeEventListener("visibilitychange", onVis)
+    }
   }, [fetchOrders])
 
   const updateStatus = async (id: number, status: string) => {

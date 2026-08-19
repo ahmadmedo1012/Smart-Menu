@@ -40,7 +40,6 @@ export default function AdminMenuPage() {
   const [search, setSearch] = useState("")
   const [restaurantFilter, setRestaurantFilter] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<{ type: "category" | "item"; id: number; name: string; parentRestaurant?: string } | null>(null)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const dataRef = useRef("")
 
   const fetchData = useCallback(async () => {
@@ -65,10 +64,23 @@ export default function AdminMenuPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  // Auto-poll every 5s
+  // Auto-poll every 5s (paused while tab is hidden)
   useEffect(() => {
-    intervalRef.current = setInterval(fetchData, 5000)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    let t: ReturnType<typeof setInterval>
+    const start = () => {
+      t = setInterval(fetchData, 5000)
+    }
+    const stop = () => clearInterval(t)
+    start()
+    const onVis = () => {
+      if (document.visibilityState === "visible") start()
+      else stop()
+    }
+    document.addEventListener("visibilitychange", onVis)
+    return () => {
+      stop()
+      document.removeEventListener("visibilitychange", onVis)
+    }
   }, [fetchData])
 
   // Filter

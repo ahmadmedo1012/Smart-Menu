@@ -39,11 +39,25 @@ export function GalleryCarousel({
 	}, [images.length]);
 
 	useEffect(() => {
-		if (!paused) {
-			intervalRef.current = setInterval(next, 5000);
-		}
+		const start = () => {
+			if (paused || document.visibilityState !== 'visible') return;
+			if (!intervalRef.current) intervalRef.current = setInterval(next, 5000);
+		};
+		const stop = () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+				intervalRef.current = null;
+			}
+		};
+		start();
+		const onVis = () => {
+			if (document.visibilityState === 'visible') start();
+			else stop();
+		};
+		document.addEventListener('visibilitychange', onVis);
 		return () => {
-			if (intervalRef.current) clearInterval(intervalRef.current);
+			stop();
+			document.removeEventListener('visibilitychange', onVis);
 		};
 	}, [next, paused]);
 

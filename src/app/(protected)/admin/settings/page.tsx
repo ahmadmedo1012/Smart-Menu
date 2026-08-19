@@ -190,13 +190,15 @@ export default function AdminSettingsPage() {
       <h2 className="text-2xl font-bold tracking-normal">الإعدادات</h2>
 
       {/* Tab navigation */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div role="tablist" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {SETTINGS_TABS.map((tab) => {
           const Icon = tab.icon
           return (
             <button
               key={tab.id}
               type="button"
+              role="tab"
+              aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all flex items-center gap-2",

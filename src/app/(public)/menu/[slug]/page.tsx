@@ -7,6 +7,10 @@ import { getRestaurantBySlug } from '@/lib/menu-queries';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
 
+// Module-level cutoff: computed once per build/ISR revalidation,
+// NOT per request — keeps the route static-friendly (revalidate=60 works).
+const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
 export async function generateStaticParams() {
 	const restaurants = await prisma.restaurant.findMany({
 		where: { isActive: true },
@@ -59,10 +63,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 	// Deduped with generateMetadata via React cache() — 1 DB query for both.
 	const restaurant = await getRestaurantBySlug(slug);
 	if (!restaurant) notFound();
-
-	// Module-level cutoff: computed once per build/ISR revalidation,
-	// NOT per request — keeps the route static-friendly (revalidate=60 works).
-	const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
 	const [categories, items, popularData] = await Promise.all([
 		prisma.menuCategory.findMany({

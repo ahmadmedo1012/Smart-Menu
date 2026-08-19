@@ -10,9 +10,10 @@ interface LayoutHeaderProps {
   title?: string
   onMenuClick: () => void
   role?: "admin" | "owner"
+  menuOpen?: boolean
 }
 
-export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, role = "admin" }: LayoutHeaderProps) {
+export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, role = "admin", menuOpen = false }: LayoutHeaderProps) {
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
@@ -38,9 +39,12 @@ export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, rol
       <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <button
+            type="button"
             className="flex rounded-lg p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
             onClick={onMenuClick}
-            aria-label="فتح القائمة"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav-sheet"
+            aria-label={menuOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             <MotionMenu className="size-5" aria-hidden="true" />
           </button>
