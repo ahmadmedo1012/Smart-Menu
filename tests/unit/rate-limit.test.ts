@@ -9,6 +9,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 
 const mockDeleteMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }));
 const mockCreate = vi.hoisted(() => vi.fn().mockResolvedValue({}));
+const mockUpsert = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const mockCount = vi.hoisted(() => vi.fn().mockResolvedValue(0));
 const mockFindMany = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 
@@ -16,6 +17,7 @@ const mockPrisma = vi.hoisted(() => ({
   rateLimitEntry: {
     deleteMany: mockDeleteMany,
     create: mockCreate,
+    upsert: mockUpsert,
     count: mockCount,
     findMany: mockFindMany,
   },

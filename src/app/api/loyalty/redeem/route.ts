@@ -46,19 +46,38 @@ export async function POST(request: NextRequest) {
 			}
 			// Points must never go negative: accrual earns ~1 pt per completed
 			// order, so a card at 5 orders has ≥ 5 pts. Require the full cost
-			// up-front so the balance stays >= 0.
+			// up-front so the balance stays >= 0. The updateMany guard below
+			// (points: { gte: REWARD_POINTS }) makes this race-safe: a second
+			// concurrent redemption can't pass both the read and the write.
 			if ((card.points ?? 0) < REWARD_POINTS) {
 				throw new Error('INSUFFICIENT_POINTS');
 			}
 
-			const updated = await tx.loyaltyCard.update({
-				where: { id: card.id },
+			const updated = await tx.loyaltyCard.updateMany({
+				where: {
+					id: card.id,
+					totalOrders: { gte: REWARD_COST },
+					// Atomic guard: never let points drop below zero under
+					// concurrent redemptions (Prisma update with a read-then
+					// decrement is TOCTOU-racy — two parallel requests could
+					// both pass the check above and double-decrement).
+					points: { gte: REWARD_POINTS },
+				},
 				data: {
 					totalOrders: { decrement: REWARD_COST },
 					points: { decrement: REWARD_POINTS },
 				},
 			});
+			if (updated.count === 0) {
+				// Race lost or balance changed between read and write —
+				// re-check which guard failed and report it accurately.
+				const fresh = await tx.loyaltyCard.findUnique({ where: { id: card.id } });
+				if (!fresh || fresh.totalOrders < REWARD_COST) throw new Error('INSUFFICIENT');
+				throw new Error('INSUFFICIENT_POINTS');
+			}
 
+			const resultCard = await tx.loyaltyCard.findUnique({ where: { id: card.id } });
+			if (!resultCard) throw new Error('NOT_FOUND');
 			await tx.rewardTransaction.create({
 				data: {
 					cardId: card.id,
@@ -69,7 +88,7 @@ export async function POST(request: NextRequest) {
 				},
 			});
 
-			return updated;
+			return resultCard;
 		});
 
 		return success({ card: result, message: `تم استبدال وجبتك المجانية! رصيدك: ${toArabicNumber(result.totalOrders)} طلبات` });

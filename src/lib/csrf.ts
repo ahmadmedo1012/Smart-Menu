@@ -10,6 +10,13 @@ export const CSRF_EXEMPT = new Set([
 	// signup POSTs themselves still require the token.
 	'/api/subscriptions/validate',
 ]);
+// Prefix exemptions: server-originated callers that can never carry a browser
+// Origin/CSRF cookie, so Origin+token enforcement would break them.
+//  - /api/cron/* — scheduled jobs (Vercel Cron) authenticate via Bearer
+//    CRON_SECRET, never via session cookie. CSRF is meaningless there.
+// Exact-match entries above stay exact on purpose: a sub-path of an exempt
+// route (e.g. /api/telegram/webhook/extra) must NOT inherit the exemption.
+const CSRF_EXEMPT_PREFIXES = ['/api/cron/'];
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 /**
@@ -46,6 +53,7 @@ export function assertSameOrigin(request: Request): void {
 	if (!MUTATING.has(request.method)) return;
 	const pathname = new URL(request.url).pathname;
 	if (CSRF_EXEMPT.has(pathname)) return;
+	if (CSRF_EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return;
 
 	const origin = request.headers.get('origin');
 	if (!origin) {

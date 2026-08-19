@@ -68,9 +68,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		});
 		if (!existing) return notFound('Item');
 
-		// Owners can only update their own restaurant's items
+		// Owners can only update items of restaurants they manage — multi-menu aware
+		// via UserRestaurant links (same check as settings/route.ts & categories)
 		if (auth.role === 'owner' && auth.restaurantId !== existing.category.restaurantId) {
-			return error('غير مصرح', 401);
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: existing.category.restaurantId } },
+			});
+			if (!link) return error('غير مصرح', 403);
 		}
 		// Staff roles (admin/sub_admin — super_admin passes automatically) may only
 		// update arbitrary restaurants' items when they hold MANAGE_RESTAURANTS
@@ -134,9 +138,13 @@ export async function DELETE(
 		});
 		if (!existing) return notFound('Item');
 
-		// Owners can only delete their own restaurant's items
+		// Owners can only delete items of restaurants they manage — multi-menu aware
+		// via UserRestaurant links (same check as settings/route.ts & categories)
 		if (auth.role === 'owner' && auth.restaurantId !== existing.category.restaurantId) {
-			return error('غير مصرح', 401);
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: existing.category.restaurantId } },
+			});
+			if (!link) return error('غير مصرح', 403);
 		}
 		// Staff roles (admin/sub_admin — super_admin passes automatically) may only
 		// delete arbitrary restaurants' items when they hold MANAGE_RESTAURANTS

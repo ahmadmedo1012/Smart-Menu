@@ -366,12 +366,16 @@ describe('csrf.ts', () => {
 		expect(() => assertSameOrigin(req)).toThrow('CSRF check failed: missing Origin');
 	});
 
-	it('exempt path /api/auth/login — no check', () => {
+	// wave6 (commit 5028572e "enforce CSRF on login/register") removed
+	// /api/auth/login from CSRF_EXEMPT — login CSRF protection. The old
+	// expectation (auth exempt, no check) is obsolete: a cross-origin POST
+	// to /api/auth/login must now be rejected.
+	it('auth/login no longer exempt — CSRF enforced since wave6', () => {
 		const req = new Request('http://example.com/api/auth/login', {
 			method: 'POST',
 			headers: { origin: 'http://evil.com' },
 		});
-		expect(() => assertSameOrigin(req)).not.toThrow();
+		expect(() => assertSameOrigin(req)).toThrow('CSRF check failed: Origin mismatch');
 	});
 
 	it('exempt path /api/health — no check', () => {

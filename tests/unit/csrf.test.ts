@@ -1,7 +1,8 @@
 /**
  * CSRF — assertSameOrigin unit tests.
  * Verifies Origin/Host matching gate on mutating requests
- * and exemption list for webhook, health, auth endpoints.
+ * and exemption list for webhook/health endpoints (auth endpoints are
+ * NOT exempt since wave6 — CSRF enforced on login/register).
  */
 import { describe, it, expect, beforeAll } from 'vitest';
 import { assertSameOrigin, getExpectedHosts } from '@/lib/csrf';
@@ -101,18 +102,40 @@ describe('assertSameOrigin', () => {
 			expect(() => assertSameOrigin(req)).not.toThrow();
 		});
 
-		it('/api/auth/login passes with mismatched origin', () => {
+		// wave6 (commit 5028572e "enforce CSRF on login/register") deliberately
+		// removed /api/auth/login and /api/auth/register from CSRF_EXEMPT to
+		// block login-CSRF attacks. The old expectation (auth exempt from CSRF)
+		// is obsolete — auth endpoints now require a valid same-origin request
+		// plus the double-submit token, like every other mutating API route.
+		it('/api/auth/login throws with mismatched origin (CSRF enforced since wave6)', () => {
 			const req = makeRequest('POST', '/api/auth/login', 'https://phish.com', 'example.com');
-			expect(() => assertSameOrigin(req)).not.toThrow();
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
 		});
 
-		it('/api/auth/register passes with mismatched origin', () => {
+		it('/api/auth/register throws with mismatched origin (CSRF enforced since wave6)', () => {
 			const req = makeRequest('POST', '/api/auth/register', 'https://phish.com', 'example.com');
-			expect(() => assertSameOrigin(req)).not.toThrow();
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
 		});
 
 		it('sub-path under exempt path is blocked (exact match only)', () => {
-			const req = makeRequest('POST', '/api/auth/login/extra', 'https://phish.com', 'example.com');
+			const req = makeRequest('POST', '/api/telegram/webhook/extra', 'https://phish.com', 'example.com');
+			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
+		});
+	});
+
+	describe('cron exemptions (server-originated, Bearer-authenticated)', () => {
+		it('POST /api/cron/* passes with no Origin (Vercel Cron)', () => {
+			const req = makeRequest('POST', '/api/cron/cleanup', null, 'example.com');
+			expect(() => assertSameOrigin(req)).not.toThrow();
+		});
+
+		it('POST /api/cron/ passes with no Origin', () => {
+			const req = makeRequest('POST', '/api/cron/', null, 'example.com');
+			expect(() => assertSameOrigin(req)).not.toThrow();
+		});
+
+		it('non-cron API path is NOT prefix-exempt', () => {
+			const req = makeRequest('POST', '/api/cronn', 'https://phish.com', 'example.com');
 			expect(() => assertSameOrigin(req)).toThrow('Origin mismatch');
 		});
 	});

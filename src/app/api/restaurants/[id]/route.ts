@@ -151,7 +151,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 				});
 			}
 		} else {
-			return apiError('غير مصرح', 401);
+			// Regular USER role: no write access to restaurants at all
+			return apiError('غير مصرح', 403);
 		}
 
 		return success(data);
