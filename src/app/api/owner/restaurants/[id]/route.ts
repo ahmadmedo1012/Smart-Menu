@@ -11,6 +11,12 @@ const patchSchema = z.object({
 	isActive: z.boolean().optional(),
 });
 
+// isPrimary is a UserRestaurant column (the owner's link to this restaurant).
+// Admins (super_admin/admin/sub_admin) have no UserRestaurant link row — writing
+// isPrimary for them would throw record-not-found inside the tx. Admins update
+// restaurant fields only; isPrimary stays an owner-only concern.
+const adminPatchSchema = patchSchema.omit({ isPrimary: true });
+
 export async function PATCH(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		const auth = await requireAuth();
@@ -19,14 +25,15 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
 		const restaurantId = Number(id);
 		if (!restaurantId) return error('معرف غير صالح', 400);
 
-		const body = patchSchema.parse(await _request.json());
-
 		// Verify ownership (or admin with MANAGE_RESTAURANTS permission).
 		// sub_admin is NOT included: it has an explicit permission list and must
 		// not get free rein over any restaurant (privilege-escalation fix).
 		const isAdmin = auth.role === 'super_admin' ||
 			(auth.role === 'admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) ||
 			(auth.role === 'sub_admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS'));
+
+		const body: z.infer<typeof patchSchema> = (isAdmin ? adminPatchSchema : patchSchema).parse(await _request.json());
+
 		if (!isAdmin) {
 			const link = await prisma.userRestaurant.findUnique({
 				where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
@@ -35,8 +42,9 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
 		}
 
 		const result = await prisma.$transaction(async (tx) => {
-			// Set primary: clear others first
-			if (body.isPrimary && auth.userId) {
+			// Set primary: clear others first — only reachable for non-admin body
+			// (admins' schema strips isPrimary, so it can never appear here)
+			if (body.isPrimary === true && auth.userId) {
 				await tx.userRestaurant.updateMany({
 					where: { userId: auth.userId },
 					data: { isPrimary: false },

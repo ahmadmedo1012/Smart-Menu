@@ -59,7 +59,7 @@ const OptimizedImage = memo(function OptimizedImage({
             transition={{ duration: 0.3 }}
             className="absolute inset-0 z-10 shimmer"
             style={{
-              background: "linear-gradient(90deg, transparent 0%, oklch(0.2 0 0 / 0.15) 50%, transparent 100%)",
+              background: "linear-gradient(90deg, transparent 0%, var(--image-shimmer) 50%, transparent 100%)",
               backgroundSize: "200% 100%",
               willChange: "background-position",
             }}

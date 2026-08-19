@@ -72,12 +72,17 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
     }
   }, [open])
 
-  // Trap Tab/Shift+Tab within panel
+  // Trap Tab/Shift+Tab within panel + Escape to close
   useEffect(() => {
     if (!open) return
     const panel = panelRef.current
     if (!panel) return
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation()
+        onClose()
+        return
+      }
       if (e.key !== "Tab") return
       const focusable = panel.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
@@ -90,7 +95,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
     }
     panel.addEventListener("keydown", handleKeyDown)
     return () => panel.removeEventListener("keydown", handleKeyDown)
-  }, [open])
+  }, [open, onClose])
 
   return (
     <AnimatePresence>
@@ -218,7 +223,7 @@ export function Header({ className }: HeaderProps) {
                           layoutId="tubelight"
                           className="absolute inset-0 -z-10 rounded-full bg-orange shadow-lg"
                           style={{
-                            boxShadow: "0 0 18px 3px rgba(251,146,60,0.35), 0 0 6px rgba(251,146,60,0.15)",
+                            boxShadow: "0 0 18px 3px color-mix(in oklab, var(--orange) 35%, transparent), 0 0 6px color-mix(in oklab, var(--orange) 15%, transparent)",
                             willChange: "transform, opacity",
                           }}
                           transition={{ type: "spring", stiffness: 420, damping: 28 }}

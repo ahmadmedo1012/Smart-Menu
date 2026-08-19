@@ -468,6 +468,7 @@ enum SubscriptionStatus {
   UNPAID
   PAID
   REJECTED
+  EXPIRED
 }
 
 enum EventSeverity {

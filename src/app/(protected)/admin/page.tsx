@@ -110,9 +110,15 @@ export default function AdminDashboard() {
 		if (error) return;
 		let t: ReturnType<typeof setInterval>;
 		const start = () => {
+			// Guard: visibilitychange can fire while an interval is already running —
+			// never stack a second interval on top of the first.
+			if (t) return;
 			t = setInterval(load, 30000);
 		};
-		const stop = () => clearInterval(t);
+		const stop = () => {
+			clearInterval(t);
+			t = undefined as unknown as ReturnType<typeof setInterval>;
+		};
 		start();
 		const onVis = () => {
 			if (document.visibilityState === 'visible') start();

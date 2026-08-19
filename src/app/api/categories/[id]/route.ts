@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, error, notFound, handleError } from "@/lib/api-helpers";
 
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, requirePermission } from "@/lib/auth";
 const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   nameAr: z.string().nullable().optional(),
@@ -31,6 +31,12 @@ export async function PUT(
     if (auth.role === "owner" && auth.restaurantId !== existing.restaurantId) {
       return error("غير مصرح", 401);
     }
+    // Staff roles (admin/sub_admin — super_admin passes automatically) may only
+    // update arbitrary restaurants' categories when they hold MANAGE_RESTAURANTS
+    if (auth.role !== "owner") {
+      const perm = await requirePermission("MANAGE_RESTAURANTS");
+      if (!perm.authorized) return error(perm.error, perm.status);
+    }
 
     const data = await prisma.menuCategory.update({ where: { id: catId }, data: body });
     return success(data);
@@ -56,6 +62,12 @@ export async function DELETE(
     // Owners can only delete their own restaurant's categories
     if (auth.role === "owner" && auth.restaurantId !== existing.restaurantId) {
       return error("غير مصرح", 401);
+    }
+    // Staff roles (admin/sub_admin — super_admin passes automatically) may only
+    // delete arbitrary restaurants' categories when they hold MANAGE_RESTAURANTS
+    if (auth.role !== "owner") {
+      const perm = await requirePermission("MANAGE_RESTAURANTS");
+      if (!perm.authorized) return error(perm.error, perm.status);
     }
 
     await prisma.menuCategory.delete({ where: { id: catId } });

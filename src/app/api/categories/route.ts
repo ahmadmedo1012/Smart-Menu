@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 			const link = await prisma.userRestaurant.findUnique({
 				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: rid } },
 			});
-			if (!link) return error('غير مصرح', 401);
+			if (!link) return error('غير مصرح', 403);
 		}
 
 		const restaurant = await prisma.restaurant.findUnique({

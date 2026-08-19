@@ -64,13 +64,20 @@ export default function AdminMenuPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  // Auto-poll every 5s (paused while tab is hidden)
+  // Auto-poll every 12s (paused while tab is hidden) — /api/items?pageSize=100
+  // is a heavy query; 5s was over-polling for a menu-management screen.
   useEffect(() => {
     let t: ReturnType<typeof setInterval>
     const start = () => {
-      t = setInterval(fetchData, 5000)
+      // Guard: visibilitychange can fire while an interval is already running —
+      // never stack a second interval on top of the first.
+      if (t) return
+      t = setInterval(fetchData, 12_000)
     }
-    const stop = () => clearInterval(t)
+    const stop = () => {
+      clearInterval(t)
+      t = undefined as unknown as ReturnType<typeof setInterval>
+    }
     start()
     const onVis = () => {
       if (document.visibilityState === "visible") start()

@@ -84,7 +84,7 @@ function LoginForm() {
 
 	if (checkingAuth) {
 		return (
-			<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background dark:from-zinc-900 dark:via-zinc-900 dark:to-background">
+			<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background">
 				<div className="flex flex-col items-center gap-3">
 					<div className="size-10 animate-pulse rounded-full bg-orange/40" />
 					<span className="animate-breath font-arabic text-sm text-muted-foreground">
@@ -142,7 +142,7 @@ function LoginForm() {
 	return (
 		<div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6">
 			{/* Background gradient */}
-			<div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-orange-muted/20 to-background dark:from-zinc-900 dark:via-zinc-900 dark:to-background" />
+			<div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-orange-muted/20 to-background" />
 
 			<FloatingShapes />
 
@@ -315,7 +315,7 @@ export default function LoginPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background dark:from-zinc-900 dark:via-zinc-900 dark:to-background">
+				<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background">
 					<div className="flex flex-col items-center gap-3">
 						<div className="size-10 animate-pulse rounded-full bg-orange/40" />
 						<span className="animate-breath font-arabic text-sm text-muted-foreground">

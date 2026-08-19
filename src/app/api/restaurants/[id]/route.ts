@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requirePermission } from '@/lib/auth';
 import { deleteBlob } from '@/lib/blob';
 
 const updateSchema = z.object({
@@ -109,14 +109,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		const body = await request.json();
 
 		let data;
-		if (auth.role === 'super_admin' || auth.role === 'sub_admin' || auth.role === 'admin') {
-			// Admin can update everything
-			const parsed = adminUpdateSchema.parse(body);
-			data = await prisma.restaurant.update({
-				where: { id: rId },
-				data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
-			});
-		} else if (auth.role === 'owner') {
+		if (auth.role === 'owner') {
 			// Owners can only update restaurants they manage — multi-menu aware via
 			// UserRestaurant links (same check as settings/route.ts & categories)
 			if (auth.restaurantId !== rId) {
@@ -130,6 +123,33 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 				where: { id: rId },
 				data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
 			});
+		} else if (auth.role === 'super_admin' || auth.role === 'admin' || auth.role === 'sub_admin') {
+			// Staff may use the full admin schema (plan/maxItems/featuredRank/...)
+			// only when they hold MANAGE_RESTAURANTS. admin (legacy role) passes
+			// requirePermission automatically; super_admin always passes.
+			const perm = await requirePermission('MANAGE_RESTAURANTS');
+			if (perm.authorized) {
+				const parsed = adminUpdateSchema.parse(body);
+				data = await prisma.restaurant.update({
+					where: { id: rId },
+					data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
+				});
+			} else {
+				// No permission: staff may still edit a restaurant they manage via a
+				// UserRestaurant link, but ONLY with the restricted schema — never
+				// the plan/billing fields (privilege-escalation fix).
+				if (auth.restaurantId !== rId) {
+					const link = await prisma.userRestaurant.findUnique({
+						where: { userId_restaurantId: { userId: auth.userId!, restaurantId: rId } },
+					});
+					if (!link) return apiError('لا تملك الصلاحية', 403);
+				}
+				const parsed = updateSchema.parse(body);
+				data = await prisma.restaurant.update({
+					where: { id: rId },
+					data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
+				});
+			}
 		} else {
 			return apiError('غير مصرح', 401);
 		}
@@ -142,10 +162,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const auth = await requireAuth();
-		if (!auth.authorized || !['super_admin', 'sub_admin', 'admin'].includes(auth.role ?? '')) {
-			return apiError('غير مصرح', 401);
-		}
+		const auth = await requirePermission('MANAGE_RESTAURANTS');
+		if (!auth.authorized) return apiError(auth.error, auth.status);
 		const { id } = await params;
 		const rId = Number(id);
 		if (Number.isNaN(rId)) return apiError('Invalid ID', 400);

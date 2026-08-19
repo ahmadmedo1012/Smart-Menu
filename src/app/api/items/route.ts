@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, handleError, error, paginated } from '@/lib/api-helpers';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requirePermission } from '@/lib/auth';
 import { ItemStatus } from '@/generated/prisma/enums';
 
 const createSchema = z.object({
@@ -107,8 +107,14 @@ export async function POST(request: NextRequest) {
 		if (!category) return error('التصنيف غير موجود', 404);
 
 		// Owners can only add items to their own restaurant's categories
-		if (auth.role === 'owner' && auth.restaurantId !== category.restaurant.id) {
-			return error('غير مصرح', 401);
+			if (auth.role === 'owner' && auth.restaurantId !== category.restaurant.id) {
+				return error('غير مصرح', 401);
+			}
+		// Staff roles (admin/sub_admin — super_admin passes automatically) may only
+		// add items to arbitrary restaurants when they hold MANAGE_RESTAURANTS
+		if (auth.role !== 'owner') {
+			const perm = await requirePermission('MANAGE_RESTAURANTS');
+			if (!perm.authorized) return error(perm.error, perm.status);
 		}
 
 		// Count + create in one transaction (round-77: TOCTOU — concurrent

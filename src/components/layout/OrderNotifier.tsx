@@ -39,9 +39,12 @@ function showOrderToast(newOrders: number) {
 	);
 }
 
+const POLL_MS = 5000;
+
 export function useOrderNotifier(restaurantId?: number) {
 	const hasNotified = useRef(false);
 	const pollIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+	const resetNotifyTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const lastOrderCountRef = useRef(0);
 
 	// ponytail: client polling — Vercel kills SSE streams at 300s.
@@ -57,7 +60,8 @@ export function useOrderNotifier(restaurantId?: number) {
 				if (count > lastOrderCountRef.current && !hasNotified.current) {
 					showOrderToast(count - lastOrderCountRef.current);
 					hasNotified.current = true;
-					setTimeout(() => {
+					// Store the timer id so a late fire after unmount can't reset the flag
+					resetNotifyTimerRef.current = setTimeout(() => {
 						hasNotified.current = false;
 					}, 30000);
 				}
@@ -68,8 +72,11 @@ export function useOrderNotifier(restaurantId?: number) {
 		};
 
 		const startPolling = () => {
+			// Guard: visibilitychange can fire while an interval is already running —
+			// never stack a second interval on top of the first.
+			if (pollIntervalRef.current) return;
 			poll();
-			pollIntervalRef.current = setInterval(poll, 5000);
+			pollIntervalRef.current = setInterval(poll, POLL_MS);
 		};
 		const stopPolling = () => {
 			if (pollIntervalRef.current) {
@@ -89,6 +96,10 @@ export function useOrderNotifier(restaurantId?: number) {
 		return () => {
 			stopPolling();
 			document.removeEventListener('visibilitychange', onVisibilityChange);
+			if (resetNotifyTimerRef.current) {
+				clearTimeout(resetNotifyTimerRef.current);
+				resetNotifyTimerRef.current = undefined;
+			}
 		};
 	}, [restaurantId]);
 }

@@ -136,7 +136,7 @@ export function MenuClientSection(props: {
 		<>
 			<StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
-			<header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,oklch(0.55_0.19_45/0.15),transparent_70%)]">
+			<header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background before:pointer-events-none before:absolute before:inset-0 before:bg-[var(--menu-glow-strong)]">
 				{/* ── Ambient floating orbs — 2 max: blur layers are expensive on mobile
 				     GPUs; reduced-motion users get them fully disabled via globals.css ── */}
 				<div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">

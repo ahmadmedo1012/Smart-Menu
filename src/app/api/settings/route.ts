@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requirePermission } from '@/lib/auth';
 import { deleteBlob } from '@/lib/blob';
 
 const singleSchema = z.object({
@@ -50,6 +50,10 @@ export async function GET(request: NextRequest) {
 				restaurantId = auth.restaurantId;
 			}
 		} else if (auth.role === 'admin' || auth.role === 'super_admin' || auth.role === 'sub_admin') {
+			// Staff roles may only read another restaurant's settings when they
+			// hold MANAGE_RESTAURANTS (admin legacy role passes automatically).
+			const perm = await requirePermission('MANAGE_RESTAURANTS');
+			if (!perm.authorized) return apiError(perm.error, perm.status);
 			if (!requestedId) return apiError('معرف المطعم مطلوب', 400);
 			restaurantId = requestedId;
 		} else {
@@ -96,6 +100,10 @@ export async function PUT(request: NextRequest) {
 				restaurantId = auth.restaurantId;
 			}
 		} else if (auth.role === 'admin' || auth.role === 'super_admin' || auth.role === 'sub_admin') {
+			// Staff roles may only write another restaurant's settings when they
+			// hold MANAGE_RESTAURANTS (admin legacy role passes automatically).
+			const perm = await requirePermission('MANAGE_RESTAURANTS');
+			if (!perm.authorized) return apiError(perm.error, perm.status);
 			if (!requestedId) return apiError('معرف المطعم مطلوب', 400);
 			restaurantId = requestedId;
 		} else {

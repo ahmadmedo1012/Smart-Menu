@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, notFound, handleError, error } from '@/lib/api-helpers';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requirePermission } from '@/lib/auth';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob } from '@/lib/blob';
 
@@ -72,6 +72,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		if (auth.role === 'owner' && auth.restaurantId !== existing.category.restaurantId) {
 			return error('غير مصرح', 401);
 		}
+		// Staff roles (admin/sub_admin — super_admin passes automatically) may only
+		// update arbitrary restaurants' items when they hold MANAGE_RESTAURANTS
+		if (auth.role !== 'owner') {
+			const perm = await requirePermission('MANAGE_RESTAURANTS');
+			if (!perm.authorized) return error(perm.error, perm.status);
+		}
 
 		// Spread only the keys actually present — undefined fields in the payload
 		// must not overwrite stored values (e.g. a status-only toggle).
@@ -131,6 +137,12 @@ export async function DELETE(
 		// Owners can only delete their own restaurant's items
 		if (auth.role === 'owner' && auth.restaurantId !== existing.category.restaurantId) {
 			return error('غير مصرح', 401);
+		}
+		// Staff roles (admin/sub_admin — super_admin passes automatically) may only
+		// delete arbitrary restaurants' items when they hold MANAGE_RESTAURANTS
+		if (auth.role !== 'owner') {
+			const perm = await requirePermission('MANAGE_RESTAURANTS');
+			if (!perm.authorized) return error(perm.error, perm.status);
 		}
 
 		await prisma.menuItem.delete({ where: { id: delId } });

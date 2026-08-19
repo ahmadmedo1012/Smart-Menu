@@ -73,6 +73,7 @@
 	/* ── Glass tokens ── */
 	--color-glass-bg: var(--glass-bg);
 	--color-glass-border: var(--glass-border);
+	--color-glass-border-strong: var(--glass-border-strong);
 
 	/* ── Shadow tokens ── */
 	--shadow-glass: var(--glass-shadow);
@@ -161,10 +162,18 @@
 	--gradient-orange: linear-gradient(135deg, oklch(0.55 0.19 45 / 0.12), oklch(0.52 0.19 45 / 0.06));
 	--gradient-shine: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
 
+	/* Menu page glow — fixed backdrop (loading + menu page) and hero sheen */
+	--menu-glow: radial-gradient(ellipse_at_50%_0%, oklch(0.55 0.19 45 / 0.08), transparent 70%);
+	--menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.55 0.19 45 / 0.15), transparent 70%);
+
+	/* Image placeholder shimmer — keeps OptimizedImage theme-aware */
+	--image-shimmer: oklch(0.2 0 0 / 0.15);
+
 	/* Glass — dark, with oxide-tinted edge */
 	--glass-bg: oklch(0.10 0.003 0 / 0.4);
 	--glass-bg-strong: oklch(0.13 0.004 0 / 0.55);
 	--glass-border: oklch(0.55 0.19 45 / 0.06);
+	--glass-border-strong: oklch(0.55 0.19 45 / 0.15);
 	--glass-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
 	--glass-shadow-lg: 0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
 
@@ -223,6 +232,14 @@
 	--overlay: oklch(0 0 0 / 0.25);
 
 	--gradient-orange: linear-gradient(135deg, oklch(0.55 0.19 45 / 0.08), oklch(0.52 0.19 45 / 0.04));
+	--gradient-shine: linear-gradient(90deg, transparent 0%, oklch(0.18 0.02 30 / 0.05) 50%, transparent 100%);
+
+	/* Menu page glow — light (halo stays visible on near-white) */
+	--menu-glow: radial-gradient(ellipse_at_50%_0%, oklch(0.55 0.19 45 / 0.05), transparent 70%);
+	--menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.55 0.19 45 / 0.1), transparent 70%);
+
+	/* Image placeholder shimmer — near-black sweep on light surfaces */
+	--image-shimmer: oklch(0 0 0 / 0.08);
 
 	/* Surface variants — light
 	   ponytail: these three were missing from .light entirely, so tone="alt"
@@ -238,6 +255,7 @@
 	--glass-bg: oklch(1 0 0 / 0.6);
 	--glass-bg-strong: oklch(1 0 0 / 0.8);
 	--glass-border: oklch(0.85 0.005 0 / 0.5);
+	--glass-border-strong: oklch(0.55 0.19 45 / 0.12);
 	--glass-shadow: 0 4px 30px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
 	--glass-shadow-lg: 0 8px 48px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
 
@@ -274,9 +292,21 @@
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
 }
+.light .text-gradient-orange {
+	background: linear-gradient(135deg, oklch(0.44 0.18 45), oklch(0.38 0.16 50));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
 
 @utility text-gradient-hero {
 	background: linear-gradient(135deg, oklch(0.93 0.005 0) 0%, oklch(0.7 0.19 45/0.8) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+.light .text-gradient-hero {
+	background: linear-gradient(135deg, oklch(0.28 0.02 30) 0%, oklch(0.55 0.19 45) 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -459,7 +489,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 	background: var(--glass-bg-strong);
 	backdrop-filter: blur(24px) saturate(1.5);
 	-webkit-backdrop-filter: blur(24px) saturate(1.5);
-	border: 1px solid oklch(0.55 0.19 45 / 0.15);
+	border: 1px solid var(--glass-border-strong);
 	box-shadow: var(--glass-shadow-lg);
 }
 

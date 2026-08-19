@@ -7,9 +7,11 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface RejectionEvent {
-	type: 'subscription_rejected';
+	id: number;
+	eventType: string;
 	message: string;
 	timestamp: string;
+	createdAt: string;
 }
 
 // ponytail: client polling replaces SSE — Vercel kills server streams at 300s.
@@ -27,11 +29,11 @@ export function UserBannerNotifier() {
 				const res = await fetch(`/api/user/events?sinceId=${lastIdRef.current}`);
 				if (!res.ok) return;
 				const json = await res.json();
-				const events = json.data ?? [];
+				const events: RejectionEvent[] = json.data ?? [];
 				for (const ev of events) {
 					if (ev.id > lastIdRef.current) lastIdRef.current = ev.id;
 					if (ev.eventType === 'subscription_rejected') {
-						setRejected({ type: ev.eventType, message: ev.message ?? '', timestamp: ev.createdAt });
+						setRejected({ eventType: ev.eventType, message: ev.message ?? '', timestamp: ev.createdAt, createdAt: ev.createdAt, id: ev.id });
 						setDismissed(false);
 					}
 				}
@@ -41,6 +43,9 @@ export function UserBannerNotifier() {
 		};
 
 		const startPolling = () => {
+			// Guard: visibilitychange can fire while an interval is already running —
+			// never stack a second interval on top of the first.
+			if (intervalRef.current) return;
 			poll();
 			intervalRef.current = setInterval(poll, POLL_MS);
 		};

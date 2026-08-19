@@ -6,8 +6,10 @@ import { AuditAction, Permission } from '@/generated/prisma/enums';
 import { logAudit } from '@/lib/audit';
 import { z } from 'zod';
 
+const permissionValues = Object.values(Permission) as [string, ...string[]];
+
 const updateSchema = z.object({
-	permissions: z.array(z.string()),
+	permissions: z.array(z.enum(permissionValues)).default([]),
 });
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

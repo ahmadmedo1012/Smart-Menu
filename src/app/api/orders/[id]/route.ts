@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { createHash } from 'crypto';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, notFound, handleError } from '@/lib/api-helpers';
@@ -7,6 +8,18 @@ import { computeTier } from '@/lib/loyalty-tiers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 
 const orderDetailDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
+
+// Mirrors POST /api/referrals/claim fingerprinting — 16 hex chars of the
+// SHA-256 digest — so completion can recompute the same key over the
+// customer's phone and match rows created by the anonymous claim flow.
+function referralFingerprint(s: string): string {
+	return createHash('sha256').update(s).digest('hex').slice(0, 16);
+}
+
+// Digits-only phone comparison (same normalization as loyalty/referral/route.ts).
+function normalizePhone(p: string): string {
+	return p.replace(/[^\d]/g, '').replace(/^00/, '');
+}
 
 const updateSchema = z.object({
 	customerName: z.string().optional(),
@@ -84,7 +97,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 				const link = await prisma.userRestaurant.findUnique({
 					where: { userId_restaurantId: { userId: auth.userId!, restaurantId: existing.restaurantId } },
 				});
-				if (!link) return apiError('غير مصرح', 401);
+				if (!link) return apiError('غير مصرح', 403);
 			}
 		} else if (auth.role === 'super_admin') {
 			// full access
@@ -120,7 +133,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 							where: { id: oid },
 							include: { restaurant: { select: { id: true, name: true, slug: true } } },
 						});
-						return { updated: already!, accrued: false }; // kept — but caller must treat count; see note
+						return { updated: already, accrued: false }; // caller handles null (deleted)
 					}
 					const fresh = await tx.order.findUnique({
 						where: { id: oid },
@@ -129,7 +142,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 							restaurant: { select: { id: true, name: true, slug: true } },
 						},
 					});
-					const updated2 = fresh!;
+					// Order deleted between updateMany and findUnique (rare race): the
+					// pre-update snapshot has stable id/total/customerPhone, so accrue
+					// from it instead of crashing on a null deref.
+					const updated2 = fresh ?? existing;
 					const existingCard = await tx.loyaltyCard.findUnique({
 						where: {
 							customerPhone_restaurantId: {
@@ -173,6 +189,43 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 								restaurantId: updated2.restaurantId,
 							},
 						});
+					}
+
+					// Referral conversion: if this customer claimed a referral code for this
+					// restaurant, flip it to converted and credit the referrer's card with
+					// the reward points (referrerRewardPct of order total ÷ 10, floor ≥ 1).
+					if (updated2.customerPhone) {
+						const fp = referralFingerprint(normalizePhone(updated2.customerPhone));
+						const pendingReferral = await tx.referral.findFirst({
+							where: {
+								restaurantId: updated2.restaurantId,
+								status: 'pending',
+								referredName: fp,
+								orderId: null,
+							},
+							include: { referrer: { select: { id: true } } },
+						});
+						if (pendingReferral) {
+							const rewardPts = Math.max(1, Math.floor((Number(updated2.total) * pendingReferral.referrerRewardPct) / 100 / 10));
+							await tx.referral.update({
+								where: { id: pendingReferral.id },
+								data: { status: 'converted', convertedAt: new Date(), orderId: updated2.id },
+							});
+							await tx.loyaltyCard.update({
+								where: { id: pendingReferral.referrer.id },
+								data: { points: { increment: rewardPts } },
+							});
+							await tx.rewardTransaction.create({
+								data: {
+									cardId: pendingReferral.referrer.id,
+									type: 'earn',
+									points: rewardPts,
+									description: `مكافأة إحالة — طلب ${updated2.orderNo}`,
+									orderId: updated2.id,
+									restaurantId: updated2.restaurantId,
+								},
+							});
+						}
 					}
 					return { updated: updated2, accrued: true };
 				});

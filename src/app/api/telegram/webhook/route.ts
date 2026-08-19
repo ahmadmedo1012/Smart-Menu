@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { prisma } from '@/lib/db';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { error as logError, warn as logWarn, info as logInfo } from '@/lib/logger';
@@ -8,6 +8,16 @@ import { resolveSubscriptionPayment } from '@/lib/subscription-decisions';
 import { getHmacKey } from '@/lib/keys';
 import { getDecryptedBotToken } from '@/lib/config';
 import { editMessageReplyMarkup, editMessageText, answerCallbackQuery } from '@/lib/telegram-api';
+
+// Constant-time string comparison — length mismatch short-circuits (never
+// leaks the expected length through timing) without throwing like
+// timingSafeEqual would on unequal buffer sizes.
+function timingSafeEqualStrings(a: string, b: string): boolean {
+	const bufA = Buffer.from(a);
+	const bufB = Buffer.from(b);
+	if (bufA.length !== bufB.length) return false;
+	return timingSafeEqual(bufA, bufB);
+}
 
 // Telegram can deliver bursts (callback storms); 120/min with a 30s window
 // tolerates the security test's 20-request burst while still capping abuse.
@@ -157,7 +167,7 @@ export async function POST(request: NextRequest) {
 	}
 
 	const incomingSecret = request.headers.get('x-telegram-bot-api-secret-token');
-	if (incomingSecret !== expectedSecret) {
+	if (!incomingSecret || !timingSafeEqualStrings(incomingSecret, expectedSecret)) {
 		return new Response('Forbidden', { status: 403 });
 	}
 
@@ -234,7 +244,10 @@ export async function POST(request: NextRequest) {
 			return new Response('OK', { status: 200 });
 		}
 		const expectedSig = createHmac('sha256', hmacKey).update(payload).digest('hex');
-		if (sig !== expectedSig) return new Response('OK', { status: 200 });
+		// Constant-time compare — sig is attacker-controlled, so `!==` would leak
+		// byte-by-byte prefix match through response timing (recoverable over the
+		// network for short tokens).
+		if (!timingSafeEqualStrings(sig, expectedSig)) return new Response('OK', { status: 200 });
 
 		let data: { userId: number; exp: number };
 		try {

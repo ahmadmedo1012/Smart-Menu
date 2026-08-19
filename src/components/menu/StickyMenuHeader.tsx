@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'motion/react';
 import {} from 'lucide-react';
@@ -20,11 +20,47 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 	const { scrollYProgress } = useScroll();
 	const [scrolled, setScrolled] = useState(false);
 	const [mobileOpen, setMobileOpen] = useState(false);
+	const drawerRef = useRef<HTMLDivElement>(null);
 	const progress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
 	useMotionValueEvent(scrollYProgress, 'change', (v) => {
 		setScrolled(v > 0.02);
 	});
+
+	/* a11y: trap Tab/Shift+Tab inside the mobile drawer + close on Escape (mirrors Header.MobileMenu) */
+	useEffect(() => {
+		if (!mobileOpen) return;
+		const drawer = drawerRef.current;
+		if (!drawer) return;
+		const focusableSelector =
+			'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+		const firstFocusable = drawer.querySelector<HTMLElement>(focusableSelector);
+		firstFocusable?.focus();
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				e.stopPropagation();
+				setMobileOpen(false);
+				return;
+			}
+			if (e.key !== 'Tab') return;
+			const focusable = drawer.querySelectorAll<HTMLElement>(focusableSelector);
+			if (focusable.length === 0) {
+				e.preventDefault();
+				return;
+			}
+			const first = focusable[0];
+			const last = focusable[focusable.length - 1];
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		};
+		drawer.addEventListener('keydown', handleKeyDown);
+		return () => drawer.removeEventListener('keydown', handleKeyDown);
+	}, [mobileOpen]);
 
 	return (
 		<>
@@ -90,6 +126,8 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 					<button
 						type="button"
 						aria-label="القائمة"
+						aria-expanded={mobileOpen}
+						aria-controls="mobile-global-drawer"
 						onClick={() => setMobileOpen((o) => !o)}
 						className="md:hidden inline-flex items-center justify-center size-11 rounded-full bg-card border border-border hover:bg-accent/40 transition-colors"
 					>
@@ -102,6 +140,11 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 			<AnimatePresence>
 				{mobileOpen && (
 					<motion.div
+						ref={drawerRef}
+						id="mobile-global-drawer"
+						role="dialog"
+						aria-modal="true"
+						aria-label="قائمة التصفح"
 						initial={{ opacity: 0, y: -8 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -8 }}

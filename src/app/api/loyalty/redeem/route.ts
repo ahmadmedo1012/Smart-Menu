@@ -40,15 +40,22 @@ export async function POST(request: NextRequest) {
 			}
 
 			const REWARD_COST = 5; // stamps per free meal
+			const REWARD_POINTS = 5; // 1 point per order earned (floor(total/10) per order — see orders PUT accrual)
 			if (card.totalOrders < REWARD_COST) {
 				throw new Error('INSUFFICIENT');
+			}
+			// Points must never go negative: accrual earns ~1 pt per completed
+			// order, so a card at 5 orders has ≥ 5 pts. Require the full cost
+			// up-front so the balance stays >= 0.
+			if ((card.points ?? 0) < REWARD_POINTS) {
+				throw new Error('INSUFFICIENT_POINTS');
 			}
 
 			const updated = await tx.loyaltyCard.update({
 				where: { id: card.id },
 				data: {
 					totalOrders: { decrement: REWARD_COST },
-					points: { decrement: Math.floor(REWARD_COST * 2) }, // ~2 pts/order earned rate
+					points: { decrement: REWARD_POINTS },
 				},
 			});
 
@@ -67,14 +74,18 @@ export async function POST(request: NextRequest) {
 
 		return success({ card: result, message: `تم استبدال وجبتك المجانية! رصيدك: ${toArabicNumber(result.totalOrders)} طلبات` });
 	} catch (e) {
-		if (e instanceof Error && ['NOT_FOUND', 'UNAUTHORIZED', 'INSUFFICIENT'].includes(e.message)) {
+		if (e instanceof Error && ['NOT_FOUND', 'UNAUTHORIZED', 'INSUFFICIENT', 'INSUFFICIENT_POINTS'].includes(e.message)) {
 			const msg =
 				e.message === 'NOT_FOUND'
 					? 'البطاقة غير موجودة'
 					: e.message === 'UNAUTHORIZED'
 						? 'غير مصرح'
-						: 'لا توجد طلبات كافية للاستبدال بعد';
-			return apiError(msg, e.message === 'UNAUTHORIZED' ? 401 : 400);
+						: e.message === 'INSUFFICIENT_POINTS'
+							? 'لا يوجد رصيد نقاط كافٍ للاستبدال'
+							: 'لا توجد طلبات كافية للاستبدال بعد';
+			// 403: caller IS authenticated but lacks permission over this card;
+			// 400: caller is authorized but the card state prevents redemption.
+			return apiError(msg, e.message === 'UNAUTHORIZED' ? 403 : 400);
 		}
 		return handleError(e);
 	}

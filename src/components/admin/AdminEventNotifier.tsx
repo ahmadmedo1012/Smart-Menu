@@ -3,6 +3,10 @@
 import { useEffect, useRef } from "react";
 import { premiumToast } from "@/lib/premium-toast";
 
+// Poll cadence: system events are non-urgent (payment/order toasts) and the
+// /api/admin/system-events payload is page 1 of 50 — no sinceId support yet.
+const POLL_MS = 15_000;
+
 function playBeep(freq: number, duration: number) {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -57,8 +61,11 @@ export function AdminEventNotifier() {
     };
 
     const startPolling = () => {
+      // Guard: visibilitychange can fire while an interval is already running —
+      // never stack a second interval on top of the first.
+      if (intervalRef.current) return;
       poll(); // immediate first poll
-      intervalRef.current = setInterval(poll, 5000);
+      intervalRef.current = setInterval(poll, POLL_MS);
     };
     const stopPolling = () => {
       if (intervalRef.current) {

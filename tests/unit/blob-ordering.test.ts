@@ -30,6 +30,13 @@ vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
 vi.mock('@/lib/blob', () => ({ deleteBlob: mockDeleteBlob }));
 vi.mock('@/lib/auth', () => ({
 	requireAuth: () => Promise.resolve({ authorized: true, role: 'admin', restaurantId: 1 }),
+	// `admin` (legacy) passes every permission except MANAGE_USERS — mirrors auth.ts
+	requirePermission: (permission: string) =>
+		Promise.resolve(
+			permission === 'MANAGE_USERS'
+				? { authorized: false, error: 'لا تملك الصلاحية', status: 403 }
+				: { authorized: true, role: 'admin', restaurantId: 1, userId: 1, permissions: [] }
+		),
 }));
 
 // ── Helpers ─────────────────────────────────────────────────────────────

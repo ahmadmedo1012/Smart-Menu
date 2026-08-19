@@ -25,9 +25,14 @@ export async function PATCH(
     const parsed = updateUserSchema.safeParse(body);
     if (!parsed.success) return apiError("بيانات غير صالحة", 400);
 
-    // Prevent privilege escalation: only super_admin can set "admin" role
-    if (parsed.data.role === "admin" && auth.role !== "super_admin") {
-      return apiError("غير مصرح — فقط المدير العام يمكنه تعيين مشرفين", 403);
+    // Prevent privilege escalation: only super_admin can assign roles or
+    // restaurantId (setting role: 'owner' + restaurantId would grant a user
+    // control over a restaurant; role: 'admin' would grant full legacy access).
+    if (
+      (parsed.data.role !== undefined || parsed.data.restaurantId !== undefined) &&
+      auth.role !== "super_admin"
+    ) {
+      return apiError("غير مصرح — فقط المدير العام يمكنه تعيين الأدوار أو المطاعم", 403);
     }
 
     const updated = await prisma.user.update({

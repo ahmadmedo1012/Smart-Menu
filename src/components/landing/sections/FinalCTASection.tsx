@@ -11,7 +11,10 @@ import { SectionHeader } from "@/components/ui/SectionHeader"
 import { GlowPool } from "@/components/ui/GlowPool"
 
 export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: number }) {
-  const trustCount = totalRestaurants && totalRestaurants > 0 ? totalRestaurants : 500;
+  // Real count from fetchPublicStats — never fabricate marketing numbers
+  // (HeroSection pattern, round 82). Section stays useful even when the
+  // count is unknown: the trust line renders without a number.
+  const trustCount = totalRestaurants && totalRestaurants > 0 ? totalRestaurants : 0;
   return (
     <SectionContainer className="border-t border-orange/10">
       {/* ponytail: removed Unsplash external image (caused 500/503 from Next.js Image Optimization).
@@ -31,7 +34,17 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
           title="جهّز مطعمك للانطلاق الرقمي"
           subtitle={
             <>
-              انطلق الآن — انضم إلى <span className="font-bold text-foreground">أكثر من {trustCount.toLocaleString("ar")} مطعم ومقهى</span>.
+              {trustCount > 0 ? (
+                <>
+                  انطلق الآن — انضم إلى{" "}
+                  <span className="font-bold text-foreground">
+                    أكثر من {trustCount.toLocaleString("ar")} مطعم ومقهى
+                  </span>
+                  .{" "}
+                </>
+              ) : (
+                <>انطلق الآن — انضم إلى عائلتنا. </>
+              )}
               استقبل الطلبات عبر واتساب وابدأ في دقائق.
             </>
           }
