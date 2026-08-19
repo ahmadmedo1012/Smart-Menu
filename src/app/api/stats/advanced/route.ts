@@ -22,6 +22,9 @@ export async function GET(request: NextRequest) {
         restaurantId = auth.restaurantId ?? undefined;
       }
       if (!restaurantId) return error("لا يوجد مطعم مرتبط", 400);
+    } else if (auth.role !== "admin" && auth.role !== "super_admin" && auth.role !== "sub_admin") {
+      // Regular users must never read advanced stats (revenue/orders) or customer PII of any restaurant
+      return error("غير مصرح", 403);
     }
     if (!restaurantId) return error("معرف المطعم مطلوب", 400);
 
