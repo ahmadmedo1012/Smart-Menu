@@ -10,6 +10,26 @@ import { fillSubscribeForm, choosePlanByPrice } from "./qa-helpers";
 const ts = Date.now().toString().slice(-8);
 const PASSWORD = "TestPass123!";
 
+test.describe.configure({ mode: "serial" });
+
+/** Click "إنشاء الحساب والبدء" and wait for the payment dialog.
+ *  Retries up to 3× with a 20s pause to ride out the register
+ *  rate-limit window (5/min per IP) when the suite runs in parallel. */
+async function submitAndWaitDialog(page: Page): Promise<boolean> {
+  for (let i = 0; i < 3; i++) {
+    const btn = page.locator('button:has-text("إنشاء الحساب والبدء")');
+    if (await btn.count()) {
+      await btn.first().click();
+      await page.waitForTimeout(6000);
+    }
+    const dlg = page.locator('[role="dialog"]');
+    if (await dlg.count()) return true;
+    if (page.url().includes("/owner")) return true; // already created
+    await page.waitForTimeout(20000); // rate-limit window
+  }
+  return false;
+}
+
 /** Fill the subscribe form for a single-menu plan. */
 async function fillMenu1(page: Page, name: string, slug: string, phone: string, user: string) {
   await fillSubscribeForm(page, {
@@ -37,8 +57,8 @@ async function openBankDialog(page: Page, name: string, slug: string, user: stri
   await page.waitForTimeout(2000);
   await choosePlanByPrice(page, "129"); // Pro
   await fillStandard1(page, name, slug, "0910000011", user);
-  await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(6000);
+  const dlgOk = await submitAndWaitDialog(page);
+  expect(dlgOk).toBeTruthy();
   const dlg = page.locator('[role="dialog"]');
   return dlg;
 }
@@ -77,11 +97,17 @@ test("bank: amount above 99 accepted (no wallet cap)", async ({ page }) => {
     const phoneInputs = page.getByPlaceholder("رقم الهاتف (مثال: 0912345678)");
     await phoneInputs.nth(1).fill("0910000012");
   }
+  // menu step -> "التالي" -> account step
+  await page.locator('button:has-text("التالي")').first().click();
+  await page.waitForTimeout(1500);
   await page.getByPlaceholder("اسم المستخدم (3 أحرف على الأقل)").fill(`qa_bank_${ts}`);
   await page.getByPlaceholder(/^كلمة المرور/).fill(PASSWORD);
   await page.waitForTimeout(300);
-  await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(6000);
+  // account step -> "التالي" -> review step
+  await page.locator('button:has-text("التالي")').first().click();
+  await page.waitForTimeout(1500);
+  const dlgOk = await submitAndWaitDialog(page);
+  expect(dlgOk).toBeTruthy();
 
   const dlg = page.locator('[role="dialog"]');
   expect(await dlg.count()).toBeGreaterThan(0);
@@ -146,7 +172,8 @@ test("pricing: page shows all plans with menu counts", async ({ page }) => {
 
 test("madar: full flow shows 'بانتظار موافقة الإدارة' without countdown", async ({ page }) => {
   // Madar applies to amounts ≤ 99; use Basic (19) so the wallet channel is enabled.
-  await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
+  test.setTimeout(90000);
+  await page.goto("/subscribe", { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.waitForTimeout(2000);
   await choosePlanByPrice(page, "19");
   await fillStandard(page, "QA Madar", `qa-madar-${ts}`, "0910000015", `qa_madar_${ts}`);

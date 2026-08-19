@@ -71,7 +71,7 @@ test("XSS: item <script> stored and rendered as text (not executed)", async ({ p
   expect(page.url()).toContain("/owner");
 
   const rid = 316; // مقهى النخبة — owned by OWNER_A, has categories
-  await page.goto("/owner/menu", { waitUntil: "networkidle" });
+  await page.goto("/owner/menu", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3000);
 
   // Open the add-item dialog via the owner menu UI. Select the first category.
@@ -80,7 +80,7 @@ test("XSS: item <script> stored and rendered as text (not executed)", async ({ p
     console.log("XSS: no 'إضافة صنف' button found on owner menu — skipping UI create, verifying escape only");
     // Still assert the platform renders stored script as text: seed via direct DB is
     // invasive; instead rely on the passing restaurant-name XSS test + manual check.
-    await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
+    await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2500);
     const executed = await page.evaluate(() => (window as any).__xss === 1);
     expect(executed).toBe(false);
@@ -112,7 +112,7 @@ test("XSS: item <script> stored and rendered as text (not executed)", async ({ p
     const rj = await rr.json();
     return rj.data?.slug;
   });
-  await page.goto(`/menu/${slug}`, { waitUntil: "networkidle" });
+  await page.goto(`/menu/${slug}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
   const executed = await page.evaluate(() => (window as any).__xss === 1);
   expect(executed).toBe(false); // NOT executed (the core security claim)
@@ -122,7 +122,7 @@ test("XSS: restaurant name injection not executed on public menu", async ({ page
   // Set a restaurant with <img onerror=...> in name via direct DB is invasive; instead
   // verify the menu page escapes by posting a QA item name then checking no execution.
   // (covered by the item test above — this is a belt-and-suspenders sanity check)
-  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
+  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
   const executed = await page.evaluate(() => (window as any).__xss === 1);
   expect(executed).toBe(false);

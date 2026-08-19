@@ -25,10 +25,16 @@ export async function fillSubscribeForm(
   }
   await page.getByPlaceholder("رقم الهاتف (مثال: 0912345678)").fill(data.phone);
   await page.getByPlaceholder("رقم الواتساب (مثال: 0912345678)").fill(data.whatsapp);
+  // Multi-step wizard (round87+): menu step -> "التالي" -> account step
+  await page.locator('button:has-text("التالي")').first().click();
+  await page.waitForTimeout(1500);
   await page.getByPlaceholder("اسم المستخدم (3 أحرف على الأقل)").fill(data.username);
   await page
     .getByPlaceholder(/^كلمة المرور/)
     .fill(data.password);
+  // account step -> "التالي" -> review step (where the submit button lives)
+  await page.locator('button:has-text("التالي")').first().click();
+  await page.waitForTimeout(1500);
   await page.waitForTimeout(300);
 }
 
@@ -46,6 +52,12 @@ export async function choosePlanByPrice(page: Page, price: string): Promise<void
   await page.waitForTimeout(800);
   await page.locator("button").filter({ hasText: "اخترت" }).first().click();
   await page.waitForTimeout(2000);
+}
+
+/** Read the CSRF token cookie (set by proxy on non-cacheable pages). */
+export async function csrfToken(page: Page): Promise<string> {
+  const cookies = await page.context().cookies();
+  return cookies.find((c) => c.name === "csrf-token")?.value ?? "";
 }
 
 /** Login with the given credentials via the login form. Retries on 429 rate-limit. */

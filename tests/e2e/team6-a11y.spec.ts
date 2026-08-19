@@ -62,7 +62,7 @@ test("network: no unexpected 4xx/5xx on key pages", async ({ page }) => {
 });
 
 test("images: no broken images on menu page", async ({ page }) => {
-  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
+  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3500);
   const broken = await page.evaluate(() =>
     [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => (i.src || "").slice(0, 80))
@@ -71,7 +71,7 @@ test("images: no broken images on menu page", async ({ page }) => {
 });
 
 test("a11y: buttons have text or aria-label on menu page", async ({ page }) => {
-  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
+  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2500);
   const missing = await page.evaluate(() =>
     [...document.querySelectorAll("button")]
@@ -85,7 +85,7 @@ test("a11y: buttons have text or aria-label on menu page", async ({ page }) => {
 });
 
 test("keyboard: tab through login form reaches submit", async ({ page }) => {
-  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
   // Press Tab several times — should focus inputs and eventually the submit button
   let focused = "";

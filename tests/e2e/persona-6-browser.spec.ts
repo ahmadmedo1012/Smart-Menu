@@ -60,7 +60,7 @@ test("browser: theme toggle persists across reload", async ({ page }) => {
 
 test("browser: RTL dir + lang=ar on all pages", async ({ page }) => {
   for (const pg of PAGES) {
-    await page.goto(pg.path, { waitUntil: "networkidle" });
+    await page.goto(pg.path, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1200);
     const html = await page.evaluate(() => {
       const h = document.documentElement;
