@@ -91,7 +91,7 @@ export function OwnerKpiGrid({ stats }: { stats: StatsData | null }) {
         onClick={() => router.push("/owner/orders")} />
       <StatCard label="قيد الانتظار" value={pendingOrders} icon={Clock}
         subtitle={stats ? `${toArabicNumber(stats.statusBreakdown["new"] ?? 0)} جديد • ${toArabicNumber(stats.statusBreakdown["preparing"] ?? 0)} تحضير` : ""}
-        color="text-[var(--c-dark-glow,#c96a08)] dark:text-[var(--c-saffron)]" bg="bg-orange-muted dark:bg-orange-muted"
+        color="text-[var(--c-flame)] dark:text-[var(--c-saffron)]" bg="bg-orange-muted dark:bg-orange-muted"
         onClick={() => router.push("/owner/orders")} />
       <StatCard label="الأصناف" value={stats?.totalItems ?? 0} icon={ClipboardList}
         color="text-[var(--c-ember)]" bg="bg-orange-muted dark:bg-orange-muted"
