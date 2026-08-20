@@ -69,14 +69,16 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
         logWarn("create race", { error: String(e) });
       }
 
-      // Attempts in current window — read the accumulated count directly.
-      // The (key, windowEnd) pair is unique, so count() returns either 0 or 1
-      // row whose count column holds all attempts in this window.
+      // Attempts in current window — read the accumulated count COLUMN, not
+      // the row count. (key, windowEnd) is unique, so count() would return
+      // 0 or 1 — never the attempt total — and the limiter would never block.
       let count = max + 1; // fail closed on DB error
       try {
-        count = await prisma.rateLimitEntry.count({
-          where: { key, windowEnd: deadline },
+        const entry = await prisma.rateLimitEntry.findUnique({
+          where: { key_windowEnd: { key, windowEnd: deadline } },
+          select: { count: true },
         });
+        count = entry?.count ?? 0;
       } catch (e) {
         logWarn("count error — failing closed", { error: String(e) });
       }

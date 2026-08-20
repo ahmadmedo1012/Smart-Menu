@@ -10,6 +10,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 const mockDeleteMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }));
 const mockCreate = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const mockUpsert = vi.hoisted(() => vi.fn().mockResolvedValue({}));
+const mockFindUnique = vi.hoisted(() => vi.fn().mockResolvedValue(null));
 const mockCount = vi.hoisted(() => vi.fn().mockResolvedValue(0));
 const mockFindMany = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 
@@ -18,6 +19,7 @@ const mockPrisma = vi.hoisted(() => ({
     deleteMany: mockDeleteMany,
     create: mockCreate,
     upsert: mockUpsert,
+    findUnique: mockFindUnique,
     count: mockCount,
     findMany: mockFindMany,
   },
@@ -59,7 +61,7 @@ describe("createDbRateLimiter", () => {
   it("check with fresh key returns success: true", async () => {
     mockDeleteMany.mockResolvedValue({ count: 0 });
     mockCreate.mockResolvedValue({});
-    mockCount.mockResolvedValue(0);
+    mockFindUnique.mockResolvedValue(null);
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
     const result = await limiter.check("fresh-key");
@@ -70,7 +72,7 @@ describe("createDbRateLimiter", () => {
   it("result has success, remaining (number), reset (number)", async () => {
     mockDeleteMany.mockResolvedValue({ count: 0 });
     mockCreate.mockResolvedValue({});
-    mockCount.mockResolvedValue(1);
+    mockFindUnique.mockResolvedValue({ count: 1 });
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
     const result = await limiter.check("shape-key");
@@ -87,20 +89,35 @@ describe("createDbRateLimiter", () => {
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 3 });
 
-    mockCount.mockResolvedValue(1);
+    mockFindUnique.mockResolvedValue({ count: 1 });
     expect((await limiter.check("exceed-key")).success).toBe(true);
 
-    mockCount.mockResolvedValue(2);
+    mockFindUnique.mockResolvedValue({ count: 2 });
     expect((await limiter.check("exceed-key")).success).toBe(true);
 
-    mockCount.mockResolvedValue(3);
+    mockFindUnique.mockResolvedValue({ count: 3 });
     expect((await limiter.check("exceed-key")).success).toBe(true);
 
-    mockCount.mockResolvedValue(4);
+    mockFindUnique.mockResolvedValue({ count: 4 });
     const result = await limiter.check("exceed-key");
     expect(result.success).toBe(false);
     expect(result.remaining).toBe(0);
 
+    limiter.destroy();
+  });
+
+  it("REGRESSION: reads the accumulated count column, not the row count (row count is always 0/1 due to (key, windowEnd) unique)", async () => {
+    mockDeleteMany.mockResolvedValue({ count: 0 });
+    mockCreate.mockResolvedValue({});
+    // The upserted row holds 22 attempts in its count column. The old code
+    // counted ROWS (1) → success always true → 429 never fired.
+    mockFindUnique.mockResolvedValue({ count: 22 });
+
+    const limiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
+    const result = await limiter.check("regression-key");
+
+    expect(result.success).toBe(false);
+    expect(result.remaining).toBe(0);
     limiter.destroy();
   });
 
@@ -118,13 +135,13 @@ describe("createDbRateLimiter", () => {
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
-    mockCount.mockResolvedValue(1);
+    mockFindUnique.mockResolvedValue({ count: 1 });
     expect((await limiter.check("rem-key")).remaining).toBe(4);
 
-    mockCount.mockResolvedValue(2);
+    mockFindUnique.mockResolvedValue({ count: 2 });
     expect((await limiter.check("rem-key")).remaining).toBe(3);
 
-    mockCount.mockResolvedValue(3);
+    mockFindUnique.mockResolvedValue({ count: 3 });
     expect((await limiter.check("rem-key")).remaining).toBe(2);
 
     limiter.destroy();
@@ -134,7 +151,7 @@ describe("createDbRateLimiter", () => {
     const now = Date.now();
     mockDeleteMany.mockResolvedValue({ count: 0 });
     mockCreate.mockResolvedValue({});
-    mockCount.mockResolvedValue(0);
+    mockFindUnique.mockResolvedValue(null);
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
     const result = await limiter.check("reset-key");
