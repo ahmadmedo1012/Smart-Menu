@@ -81,16 +81,14 @@ export default async function RootLayout({
 				<meta name="apple-mobile-web-app-title" content="Smart Menu" />
 				{/* eslint-disable-next-line @next/next/no-css-tags */}
 				<link rel="stylesheet" href="/fonts/fonts.css" />
-				{/* LCP: preload the Arabic Cairo subset (the one that renders Arabic text) —
-				 * fonts.css @font-face already has font-display: swap, so text paints in a
-				 * fallback instantly and swaps once the woff2 arrives. Preloading moves the
-				 * font fetch ahead of the CSS discovery, cutting the ~700ms block. */}
+				{/* LCP: preload the Arabic subsets of the two active families —
+				 * Cairo (body) + Readex Pro (display headings, now the --font-heading face).
+				 * fonts.css @font-face has font-display: swap, so text paints in a fallback
+				 * instantly and swaps once the woff2 arrives. Preloading moves the font fetch
+				 * ahead of CSS discovery, cutting the ~700ms block. Noto Sans/Naskh Arabic
+				 * stay lazy via unicode-range (editorial moments only). */}
 				<link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossOrigin="anonymous" />
-				{/* ponytail: Cairo is the only active font family (round84). The @font-face
-				 * rules in fonts.css load lazily via unicode-range — no preloads needed for
-				 * the fallback families (Noto Naskh / Noto Sans / Readex Pro), which are
-				 * unused in the UI. Preloading them wasted ~277KB on mobile. */}
-				{/* Cairo handles via next/font/google — no render-blocking external CSS */}
+				<link rel="preload" as="font" type="font/woff2" href="/fonts/readex-pro.woff2" crossOrigin="anonymous" />
 				<script
 					type="application/ld+json"
 					nonce={nonce}

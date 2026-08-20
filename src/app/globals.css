@@ -24,7 +24,7 @@
 	--font-sans: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
 	--font-mono: var(--font-cairo), "Cairo", "Courier New", monospace;
 	--font-arabic: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
-	--font-heading: var(--font-cairo), "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
+	--font-heading: "Readex Pro", var(--font-cairo, "Cairo"), "Noto Sans Arabic", system-ui, sans-serif;
 
 	/* ── Theme colors ── */
 	--color-background: var(--background);
@@ -57,6 +57,16 @@
 	--color-orange: var(--orange);
 	--color-orange-foreground: var(--orange-foreground);
 	--color-orange-muted: var(--orange-muted);
+
+	/* Warm kitchen palette (saffron-heat system) */
+	--color-flame: var(--c-flame);
+	--color-ember: var(--c-ember);
+	--color-saffron: var(--c-saffron);
+	--color-ash: var(--c-ash);
+	--color-ash-dim: var(--c-ash-dim);
+	--color-ash-pale: var(--c-ash-pale);
+	--color-night: var(--c-night);
+	--color-basil: var(--c-basil);
 
 	/* Overlay */
 	--color-overlay: var(--overlay);
@@ -106,26 +116,26 @@
 	--duration-slow: 0.7s;
 
 	/* ── Dark theme (default) — deeper, richer ── */
-	--background: oklch(0.025 0.002 30);
+	--background: oklch(0.025 0.004 55);
 	--background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.68 0.19 45 / 0.08), transparent 70%);
-	--foreground: oklch(0.93 0.005 0);
-	--card: oklch(0.11 0.003 0);
-	--card-foreground: oklch(0.93 0.005 0);
-	--popover: oklch(0.11 0.003 0);
-	--popover-foreground: oklch(0.93 0.005 0);
+	--foreground: oklch(0.93 0.008 70);
+	--card: oklch(0.11 0.008 60);
+	--card-foreground: oklch(0.93 0.008 70);
+	--popover: oklch(0.11 0.008 60);
+	--popover-foreground: oklch(0.93 0.008 70);
 
 	/* WCAG AA: orange darkened from 0.68->0.55 for 4.5:1 contrast vs white text */
 	--primary: oklch(0.55 0.19 45);
 	--primary-foreground: oklch(0.98 0 0);
-	--secondary: oklch(0.14 0.005 0);
-	--secondary-foreground: oklch(0.72 0.005 0);
-	--muted: oklch(0.14 0.005 0);
-	--muted-foreground: oklch(0.5 0.01 0);
+	--secondary: oklch(0.14 0.008 60);
+	--secondary-foreground: oklch(0.72 0.01 70);
+	--muted: oklch(0.14 0.008 60);
+	--muted-foreground: oklch(0.52 0.015 70);
 	--accent: oklch(0.55 0.19 45 / 0.15);
 	--accent-foreground: oklch(0.55 0.19 45);
 	--destructive: oklch(0.6 0.22 25);
-	--border: oklch(0.22 0.005 0);
-	--input: oklch(0.22 0.005 0);
+	--border: oklch(0.23 0.01 60);
+	--input: oklch(0.23 0.01 60);
 	--ring: oklch(0.55 0.19 45);
 
 	/* Success */
@@ -145,6 +155,16 @@
 	--orange-foreground: oklch(0.98 0 0);
 	--orange-muted: oklch(0.55 0.19 45 / 0.15);
 
+	/* Warm kitchen palette — saffron-heat system (dark) */
+	--c-flame: oklch(0.55 0.19 45);            /* brand heat (== --orange) */
+	--c-ember: oklch(0.44 0.17 52);            /* pressed/depth of flame */
+	--c-saffron: oklch(0.78 0.14 70);          /* light amber glow */
+	--c-ash: oklch(0.75 0.012 70);             /* warm neutral — UI text */
+	--c-ash-dim: oklch(0.4 0.008 65);          /* warm muted — secondary text/borders */
+	--c-ash-pale: oklch(0.18 0.01 60);         /* deep warm surface wash (dark) */
+	--c-night: oklch(0.16 0.02 55);            /* deep warm charcoal base */
+	--c-basil: oklch(0.64 0.14 150);           /* fresh contrast (dietary/health) */
+
 	/* Overlay backdrop — dark */
 	--overlay: oklch(0 0 0 / 0.55);
 
@@ -154,9 +174,9 @@
 	--grid-square: oklch(0.55 0.19 45 / 0.12);
 
 	/* Surface variants — richer depth */
-	--surface-raised: oklch(0.14 0.005 0);
-	--surface-overlay: oklch(0.11 0.003 0);
-	--surface-sunken: oklch(0.055 0.003 0);
+	--surface-raised: oklch(0.14 0.008 60);
+	--surface-overlay: oklch(0.11 0.008 60);
+	--surface-sunken: oklch(0.055 0.007 60);
 
 	/* Gradients */
 	--gradient-orange: linear-gradient(135deg, oklch(0.55 0.19 45 / 0.12), oklch(0.52 0.19 45 / 0.06));
@@ -170,8 +190,8 @@
 	--image-shimmer: oklch(0.2 0 0 / 0.15);
 
 	/* Glass — dark, with oxide-tinted edge */
-	--glass-bg: oklch(0.10 0.003 0 / 0.4);
-	--glass-bg-strong: oklch(0.13 0.004 0 / 0.55);
+	--glass-bg: oklch(0.10 0.008 60 / 0.4);
+	--glass-bg-strong: oklch(0.13 0.01 60 / 0.55);
 	--glass-border: oklch(0.55 0.19 45 / 0.06);
 	--glass-border-strong: oklch(0.55 0.19 45 / 0.15);
 	--glass-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
@@ -187,25 +207,25 @@
 
 /* ── Light theme ── */
 .light {
-	--background: oklch(0.985 0 0);
+	--background: oklch(0.985 0.004 70);
 	--background-radial: radial-gradient(circle at 30% 0%, oklch(0.55 0.19 45 / 0.03), transparent 65%);
-	--foreground: oklch(0.11 0 0);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.11 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.11 0 0);
+	--foreground: oklch(0.12 0.008 70);
+	--card: oklch(1 0.002 70);
+	--card-foreground: oklch(0.12 0.008 70);
+	--popover: oklch(1 0.002 70);
+	--popover-foreground: oklch(0.12 0.008 70);
 
 	--primary: oklch(0.40 0.19 45);
 	--primary-foreground: oklch(0.98 0 0);
-	--secondary: oklch(0.92 0.005 0);
-	--secondary-foreground: oklch(0.2 0 0);
-	--muted: oklch(0.94 0.003 0);
-	--muted-foreground: oklch(0.48 0.01 0);
+	--secondary: oklch(0.92 0.008 70);
+	--secondary-foreground: oklch(0.2 0.01 70);
+	--muted: oklch(0.94 0.006 70);
+	--muted-foreground: oklch(0.48 0.015 70);
 	--accent: oklch(0.55 0.19 45 / 0.12);
 	--accent-foreground: oklch(0.55 0.19 45);
 	--destructive: oklch(0.58 0.2 25);
-	--border: oklch(0.85 0.005 0);
-	--input: oklch(0.85 0.005 0);
+	--border: oklch(0.86 0.008 70);
+	--input: oklch(0.86 0.008 70);
 	--ring: oklch(0.55 0.19 45);
 
 	--success: oklch(0.62 0.18 145);
@@ -228,6 +248,16 @@
 	--orange-foreground: oklch(0.98 0 0);
 	--orange-muted: oklch(0.55 0.19 45 / 0.12);
 
+	/* Warm kitchen palette — saffron-heat system (light) */
+	--c-flame: oklch(0.42 0.17 48);            /* pressed brand heat (<-- --primary) */
+	--c-ember: oklch(0.5 0.15 52);             /* middle depth */
+	--c-saffron: oklch(0.78 0.14 70);          /* same warm amber glow */
+	--c-ash: oklch(0.36 0.012 70);             /* warm ink on paper */
+	--c-ash-dim: oklch(0.56 0.012 70);         /* warm muted — secondary text/borders */
+	--c-ash-pale: oklch(0.94 0.01 70);         /* warm sunken surface wash (light) */
+	--c-night: oklch(0.24 0.02 50);            /* deepest warm charcoal */
+	--c-basil: oklch(0.5 0.14 150);            /* fresh contrast (dietary/health) */
+
 	/* Overlay backdrop — light */
 	--overlay: oklch(0 0 0 / 0.25);
 
@@ -247,14 +277,14 @@
 	   near-black --surface-sunken (0.055) at /60 opacity — a faded dark smudge
 	   over a white page. Light equivalents follow the same raised>overlay>sunken
 	   ordering as dark, mapped onto the light neutral scale instead. */
-	--surface-raised: oklch(1 0 0);
-	--surface-overlay: oklch(1 0 0);
-	--surface-sunken: oklch(0.93 0.004 0);
+	--surface-raised: oklch(1 0.002 70);
+	--surface-overlay: oklch(1 0.002 70);
+	--surface-sunken: oklch(0.94 0.006 70);
 
 	/* Glass — light */
-	--glass-bg: oklch(1 0 0 / 0.6);
-	--glass-bg-strong: oklch(1 0 0 / 0.8);
-	--glass-border: oklch(0.85 0.005 0 / 0.5);
+	--glass-bg: oklch(1 0.002 70 / 0.6);
+	--glass-bg-strong: oklch(1 0.002 70 / 0.8);
+	--glass-border: oklch(0.86 0.008 70 / 0.5);
 	--glass-border-strong: oklch(0.55 0.19 45 / 0.12);
 	--glass-shadow: 0 4px 30px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
 	--glass-shadow-lg: 0 8px 48px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
@@ -422,6 +452,11 @@
 		font-family: var(--font-heading);
 		letter-spacing: 0;
 	}
+	/* Readex Pro uses flat tie-height; the display-face letter-spacing only applies to Latin-safe contexts,
+	   never to Arabic (guard vs broken letter joins + the tracking overrides above). */
+	@supports (font-family: "Readex Pro") {
+		[dir="ltr"] h1, [dir="ltr"] h2, [dir="ltr"] h3 { letter-spacing: -0.03em; }
+	}
 
 	p, li, .body-text {
 		font-family: var(--font-sans);
@@ -465,6 +500,86 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 ::selection {
 	background: oklch(0.55 0.19 45 / 0.25);
 	color: inherit;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   QR-corner signature — the recurring QR/WhatsApp motif
+   ══════════════════════════════════════════════════════════════ */
+.qr-corner {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 22%;
+	background: linear-gradient(135deg, var(--c-ember), var(--c-saffron));
+	box-shadow: 0 8px 28px oklch(0.55 0.19 45 / 0.32), inset 0 1px 0 oklch(1 0 0 / 0.12);
+	overflow: hidden;
+	color: #1a130b;
+	paint-order: stroke fill;
+	transition: transform 0.35s var(--ease-out-expo), box-shadow 0.35s var(--ease-out-expo);
+}
+.qr-corner:hover {
+	transform: translateY(-2px) scale(1.04);
+	box-shadow: 0 12px 40px oklch(0.55 0.19 45 / 0.42), inset 0 1px 0 oklch(1 0 0 / 0.15);
+}
+.qr-corner:active {
+	transform: translateY(0) scale(0.97);
+}
+.qr-corner::after {
+	content: "";
+	position: absolute;
+	inset-inline-end: 3px;
+	inset-block-start: 3px;
+	width: 22%;
+	aspect-ratio: 1;
+	border-radius: 3px;
+	background:
+		linear-gradient(45deg, transparent 43%, currentcolor 43% 57%, transparent 57%),
+		linear-gradient(135deg, transparent 43%, currentcolor 43% 57%, transparent 57%),
+		linear-gradient(0deg, transparent 43%, currentcolor 43% 57%, transparent 57%),
+		linear-gradient(90deg, transparent 43%, currentcolor 43% 57%, transparent 57%);
+	background-size: 50% 50%;
+	background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+	background-repeat: no-repeat;
+	opacity: 0.9;
+}
+.qr-corner:has(> svg) { color: #1a130b; }
+
+.qr-seed {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2px;
+	aspect-ratio: 1;
+	width: 100%;
+	height: 100%;
+	padding: 18%;
+	box-sizing: border-box;
+}
+.qr-seed i {
+	background: currentcolor;
+	border-radius: 14%;
+	opacity: 0.85;
+}
+.qr-seed i:nth-child(1) { opacity: 1; background: currentcolor; }
+.qr-seed i:nth-child(2) { opacity: 0.55; background: currentcolor; }
+.qr-seed i:nth-child(3) { opacity: 1; background: currentcolor; }
+.qr-seed i:nth-child(4) { opacity: 0.6; background: currentcolor; }
+.qr-seed i:nth-child(5) { opacity: 0.9; background: currentcolor; }
+.qr-seed i:nth-child(6) { opacity: 0.5; background: currentcolor; }
+.qr-seed i:nth-child(7) { opacity: 0.75; background: currentcolor; }
+.qr-seed i:nth-child(8) { opacity: 0.6; background: currentcolor; }
+.qr-seed i:nth-child(9) { opacity: 1; background: currentcolor; }
+
+.qr-fade::before {
+	content: "";
+	position: absolute;
+	inset: auto auto 0 0;
+	height: 55%;
+	width: 55%;
+	background: linear-gradient(to top right, var(--c-saffron), transparent);
+	opacity: 0.1;
+	border-radius: 0 60% 0 22%;
+	pointer-events: none;
 }
 
 :focus-visible {
@@ -544,6 +659,11 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 }
 @keyframes tilt-in { 0% { opacity:0; transform: rotateX(-10deg) translateY(30px) scale(0.95); } 100% { opacity:1; transform: rotateX(0) translateY(0) scale(1); } }
 @keyframes float-slow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes ticket-drop {
+	0%   { opacity: 0; transform: translateY(-14px) scaleY(0.96); }
+	60%  { opacity: 1; transform: translateY(3px) scaleY(1); }
+	100% { opacity: 1; transform: translateY(0) scaleY(1); }
+}
 @keyframes scale-glow { 0%,100% { box-shadow:0 0 20px oklch(0.55 0.19 45/0.2); } 50% { box-shadow:0 0 50px oklch(0.55 0.19 45/0.4); } }
 @keyframes grain-anim { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-2%, -2%); } 20% { transform: translate(1%, -1%); } 30% { transform: translate(-1%, 2%); } 40% { transform: translate(2%, 1%); } 50% { transform: translate(-2%, 0); } 60% { transform: translate(0, -2%); } 70% { transform: translate(1%, 1%); } 80% { transform: translate(-1%, -1%); } 90% { transform: translate(2%, -2%); } }
 
@@ -599,6 +719,10 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 .animate-pulse-dot {
 	animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.animate-ticket-drop {
+	animation: ticket-drop 0.55s var(--ease-out-expo) both;
 }
 
 /* ══════════════════════════════════════════════════════════════

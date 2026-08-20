@@ -10,6 +10,9 @@ const buttonVariants = cva(
 			variant: {
 				orange:
 					'bg-orange text-orange-foreground hover:brightness-110 hover:scale-[1.02] shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/25 border-0',
+				// "flame" (ember→saffron warm) is the signature CTA treatment — QR-corner moments.
+				flame:
+					'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] hover:brightness-110 hover:scale-[1.02] shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 border-0',
 				outline:
 					'border-border bg-transparent text-foreground hover:bg-foreground/5 hover:border-foreground/30 hover:scale-[1.02]',
 				ghost:
@@ -34,6 +37,8 @@ const buttonVariants = cva(
 function Button({
 	className,
 	variant = 'orange',
+	// "flame" (ember→saffron warm) is the signature CTA treatment — used in
+	// the QR-corner moments (menu order FAB, share card).
 	size = 'default',
 	...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {

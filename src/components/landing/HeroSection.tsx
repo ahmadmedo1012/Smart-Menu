@@ -6,6 +6,8 @@ import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { motion, useReducedMotion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
+import { QrCornerMark } from "@/components/ui/QrCornerMark"
+import { Eyebrow } from "@/components/ui/Eyebrow"
 import { IPhoneMockup } from "@/components/ui/iphone-mockup"
 import { springDefault } from "@/lib/motion"
 
@@ -31,25 +33,28 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
 				className="absolute inset-0 -z-10 overflow-clip pointer-events-none"
 				aria-hidden="true"
 			>
+				{/* Kitchen glow — warm ember bowl behind the phone (colourway: warm flame/ember/saffron) */}
 				<div
-					className="absolute top-1/4 left-1/2 -translate-x-1/2 size-[70vmin] rounded-full"
+					className="absolute top-[8%] left-1/2 -translate-x-1/2 size-[min(80vmin,720px)] rounded-full"
 					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.12) 0%, transparent 70%)",
-						filter: "blur(120px)",
+						background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.20) 0%, oklch(0.55 0.19 45 / 0.06) 48%, transparent 72%)",
+						filter: "blur(70px)",
 					}}
 				/>
+				{/* Saffron mist — upper atmosphere warmth */}
 				<div
-					className="absolute bottom-0 left-1/4 -translate-x-1/2 size-[50vmin] rounded-full"
+					className="absolute top-0 end-0 size-[50vmin] rounded-full"
 					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.85 0.09 85 / 0.07) 0%, transparent 70%)",
+						background: "radial-gradient(ellipse at center, oklch(0.78 0.14 70 / 0.10) 0%, transparent 70%)",
+						filter: "blur(110px)",
+					}}
+				/>
+				{/* Ember floor wash — ground the hero, haze along the base */}
+				<div
+					className="absolute bottom-0 start-1/4 size-[56vmin] rounded-full"
+					style={{
+						background: "radial-gradient(ellipse at center, oklch(0.44 0.17 52 / 0.10) 0%, transparent 70%)",
 						filter: "blur(100px)",
-					}}
-				/>
-				<div
-					className="absolute top-1/3 right-1/4 size-[40vmin] rounded-full"
-					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.78 0.13 30 / 0.05) 0%, transparent 70%)",
-						filter: "blur(90px)",
 					}}
 				/>
 			</div>
@@ -57,47 +62,57 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
 			<ContainerScroll
 				className="bg-background"
 				titleComponent={
+				<motion.div
+					initial={reduceMotion ? false : "hidden"}
+					animate="show"
+					variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
+				>
+					{/* Eyebrow — Naskh editorial voice, above the fold */}
 					<motion.div
-							initial={reduceMotion ? false : "hidden"}
-							animate="show"
-							variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
-						>
-						<motion.h1 variants={heroItem} custom={0} className="text-[1.9rem] sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.35] text-balance max-w-3xl mx-auto">
-							<span className="block">
-								منيو رقمي لمطعمك{"\u00A0"}
-							</span>
-							<span className="block">
-								<span className="text-orange">الطلبات تصل</span> على واتساب
-							</span>
-						</motion.h1>
-
-						<motion.div variants={heroItem} custom={1} className="mx-auto mt-4 w-16 h-0.5 rounded-full bg-gradient-to-r from-orange/0 via-orange to-orange/0" />
-
-						<motion.p variants={heroItem} custom={2} className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8">
-							هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
-						</motion.p>
-
-						<motion.div variants={heroItem} custom={3} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
-							<Link href="/subscribe">
-								<Button size="lg" className="text-sm sm:text-base">
-									ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
-								</Button>
-							</Link>
-							<Link href="/login">
-								<Button variant="outline" size="lg" className="text-sm sm:text-base">
-									تسجيل الدخول
-								</Button>
-							</Link>
-						</motion.div>
-
-						<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
-							<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
-							أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
-						</motion.div>
+						initial={reduceMotion ? false : { opacity: 0, y: -8 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.1, ...springDefault }}
+					>
+						<Eyebrow className="mb-5">منيو رقمي · طلب مباشر على واتساب</Eyebrow>
 					</motion.div>
+					<motion.h1
+						variants={heroItem}
+						custom={0}
+						className="font-display text-[2.1rem] sm:text-5xl md:text-6xl font-semibold leading-[1.25] text-balance max-w-3xl mx-auto"
+					>
+						<span className="block">منيو رقمي لمطعمك</span>
+						<span className="block">
+							<span className="text-gradient-orange">الطلبات تصل</span> على واتساب
+						</span>
+					</motion.h1>
+					<motion.div variants={heroItem} custom={1} className="mx-auto mt-5 w-16 h-0.5 rounded-full bg-gradient-to-r from-orange/0 via-orange to-orange/0" />
+					<motion.p variants={heroItem} custom={2} className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8">
+						هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
+					</motion.p>
+					<motion.div variants={heroItem} custom={3} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
+						<Link href="/subscribe">
+							<Button variant="flame" size="lg" className="text-sm sm:text-base">
+								ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
+							</Button>
+						</Link>
+						<Link href="/login">
+							<Button variant="outline" size="lg" className="text-sm sm:text-base">
+								تسجيل الدخول
+							</Button>
+						</Link>
+					</motion.div>
+					<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
+						<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
+						أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
+					</motion.div>
+				</motion.div>
 				}
 			>
-				<div className="flex justify-center sm:px-4 md:px-0">
+				<div className="relative flex justify-center sm:px-4 md:px-0">
+					{/* QR-corner signature — the scan → WhatsApp moment anchors the hero */}
+					<div aria-hidden="true" className="absolute -top-4 end-[4%] sm:end-[12%] md:end-[16%] -z-10 opacity-90">
+						<QrCornerMark label="" size={84} className="opacity-25 blur-[1px]" />
+					</div>
 					<div className="relative w-full max-w-[240px] sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px]">
 						<IPhoneMockup
 							model="15-pro"
@@ -107,8 +122,7 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
 							scale={1}
 							className="w-full"
 						/>
-
-						{/* Floating: WhatsApp order notification */}
+						{/* Order ticket — the WhatsApp handoff, itemized like a real till receipt */}
 						<motion.div
 							initial={{ opacity: 0, y: 14, scale: 0.95 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -116,20 +130,28 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
 							className="absolute top-5 -start-2 sm:-start-5 md:-start-8 z-10"
 						>
 							<div className="animate-float-slow">
-								<div className="glass-strong rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-xl">
-									<div className="relative size-9 rounded-full bg-[#25D366]/15 flex items-center justify-center shrink-0">
-										<MessageCircle className="size-4 text-[#25D366]" />
-										<span className="absolute -top-0.5 -end-0.5 size-2.5 rounded-full bg-[#25D366] ring-2 ring-background" />
+								<div className="glass-strong rounded-2xl px-3.5 py-3 flex flex-col gap-2 shadow-xl">
+									<div className="flex items-center gap-2.5">
+										<div className="relative size-9 rounded-full bg-[#25D366]/15 flex items-center justify-center shrink-0">
+											<MessageCircle className="size-4 text-[#25D366]" />
+											<span className="absolute -top-0.5 -end-0.5 size-2.5 rounded-full bg-[#25D366] ring-2 ring-background" />
+										</div>
+										<div className="text-start">
+											<p className="text-xs font-bold text-foreground leading-tight">طلب جديد وصل</p>
+											<p className="text-[10px] text-muted-foreground mt-0.5">عبر واتساب</p>
+										</div>
 									</div>
-									<div className="text-start">
-										<p className="text-xs font-bold text-foreground leading-tight">طلب جديد وصل</p>
-										<p className="text-[10px] text-muted-foreground whitespace-nowrap mt-0.5">بيتزا مارغريتا ×2 · الآن</p>
+									<div className="animate-ticket-drop flex items-center justify-between gap-3 rounded-xl bg-background/70 border border-border/40 px-3 py-1.5">
+										<div className="flex items-center gap-1.5">
+											<span className="size-1.5 rounded-full bg-[#25D366]" />
+											<span className="text-[10px] font-bold text-foreground">بيتزا مارغريتا ×2</span>
+										</div>
+										<span dir="ltr" className="text-[10px] font-bold text-orange">32.00 د.ل</span>
 									</div>
 								</div>
 							</div>
 						</motion.div>
-
-						{/* Floating: monthly growth stat */}
+						{/* Monthly growth — retail numerals, LTR */}
 						<motion.div
 							initial={{ opacity: 0, y: 14, scale: 0.95 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -138,11 +160,11 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
 						>
 							<div className="animate-float-slow [animation-delay:1.5s]">
 								<div className="glass-strong rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-xl">
-									<div className="size-9 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-										<TrendingUp className="size-4 text-emerald-500" />
+									<div className="size-9 rounded-full bg-orange/15 flex items-center justify-center shrink-0">
+										<TrendingUp className="size-4 text-orange" />
 									</div>
 									<div className="text-start">
-										<p className="text-sm font-bold text-foreground leading-none">+32%</p>
+										<p dir="ltr" className="text-sm font-bold text-foreground leading-none">+32%</p>
 										<p className="text-[10px] text-muted-foreground mt-1 whitespace-nowrap">نمو الطلبات الشهرية</p>
 									</div>
 								</div>
