@@ -63,7 +63,7 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
             className="relative"
           >
             <Link href="/subscribe">
-              <Button size="lg">ابدأ مجاناً <MotionArrowLeft className="size-4 sm:size-5" /></Button>
+              <Button variant="flame" size="lg">ابدأ مجاناً <MotionArrowLeft className="size-4 sm:size-5" /></Button>
             </Link>
           </motion.div>
           <Link href="/pricing">

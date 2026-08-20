@@ -32,7 +32,7 @@ export function FeaturesSection() {
 						className={`group rounded-[20px] bg-card border p-4 md:p-6 lg:p-8 shadow-sm transition-colors duration-300 ${
 												i === 0
 													? "border-orange/30 shadow-md"
-													: "border-border/50 hover:border-orange/30 hover:shadow-md"
+													: "border-border/50 hover:border-orange/30 hover:shadow-md hover:bg-[var(--surface-sunken)]/50"
 											}`}
 					>
 						<div className="relative">
@@ -41,12 +41,10 @@ export function FeaturesSection() {
 									الأكثر طلباً
 								</span>
 							)}
-							<div className={`size-10 sm:size-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300 ${
-								i === 0 ? 'bg-orange/15' : 'bg-orange/10 group-hover:bg-orange/20'
-							}`}>
-								<feat.icon className="size-5 sm:size-6 text-orange" />
+							<div className="size-10 sm:size-12 rounded-xl bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center mb-4 shadow-lg shadow-orange/20 transition-transform duration-300 group-hover:scale-105">
+								<feat.icon className="size-5 sm:size-6 text-[#1a130b]" />
 							</div>
-						</div>
+					</div>
 						<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
 						<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
 					</motion.div>

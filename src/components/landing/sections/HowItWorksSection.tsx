@@ -28,13 +28,13 @@ export function HowItWorksSection() {
           >
             {/* Icon container */}
             <div className="relative mb-4">
-              <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-orange/20 blur-md group-hover:blur-lg transition-colors duration-500" />
-              <div className="relative size-18 sm:size-22 rounded-full bg-gradient-to-b from-orange/30 to-orange/15 border border-orange/30 flex items-center justify-center group-hover:border-orange/40 group-hover:scale-105 transition-colors duration-500">
-                <step.icon className="size-6 sm:size-7 text-orange" />
+              <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] opacity-15 blur-md group-hover:blur-lg transition-colors duration-500" />
+              <div className="relative size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] border border-orange/30 flex items-center justify-center group-hover:border-orange/50 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange/20 transition-all duration-500">
+                <step.icon className="size-6 sm:size-7 text-[#1a130b]" />
               </div>
 
               {/* Step badge */}
-              <div className="absolute -top-1 -end-1 size-6 rounded-full bg-orange text-white text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/40 animate-pulse-glow">
+              <div className="absolute -top-1 -end-1 size-6 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/40 animate-pulse-glow">
                 {i + 1}
               </div>
 
