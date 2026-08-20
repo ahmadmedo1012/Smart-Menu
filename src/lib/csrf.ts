@@ -52,8 +52,8 @@ export function getExpectedHosts(request: Request): string[] {
 export function assertSameOrigin(request: Request): void {
 	if (!MUTATING.has(request.method)) return;
 	const pathname = new URL(request.url).pathname;
-	if (CSRF_EXEMPT.has(pathname)) return;
-	if (CSRF_EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return;
+	const isExempt = CSRF_EXEMPT.has(pathname) || CSRF_EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+	if (isExempt) return;
 
 	const origin = request.headers.get('origin');
 	if (!origin) {
