@@ -13,7 +13,6 @@ export async function fetchJson<T>(
   const timeoutMs = opts?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
   let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       const controller = new AbortController();

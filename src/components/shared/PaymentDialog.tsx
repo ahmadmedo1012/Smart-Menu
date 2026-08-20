@@ -589,7 +589,7 @@ export function PaymentDialog({
 								<p className="text-base font-bold">في انتظار تأكيد الدفع</p>
 								<p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
 									{/* All providers wait for admin approval */}
-									'بعد التحويل، انتظر موافقة الإدارة'
+									&quot;بعد التحويل، انتظر موافقة الإدارة&quot;
 								</p>
 							</div>
 
