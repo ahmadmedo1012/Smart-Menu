@@ -6,10 +6,30 @@
 import { test, expect } from '@playwright/test';
 
 // Secret must come from env — never commit a real webhook secret (repo is public).
-// Tests that need the real secret skip when TELEGRAM_WEBHOOK_SECRET is unset.
-const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? '';
-const BASE_URL = process.env.BASE_URL ?? 'https://menu.smart-link.ly/';
-const WEBHOOK_URL = `${BASE_URL}api/telegram/webhook`;
+// The dev server reads .env but the Playwright process does not, so resolve the
+// secret from the same .env file the dev server uses. Tests that cannot find it
+// skip only the positive-auth cases; rejection tests run regardless.
+import fs from 'node:fs';
+import path from 'node:path';
+
+function loadWebhookSecret(): string {
+  if (process.env.TELEGRAM_WEBHOOK_SECRET) return process.env.TELEGRAM_WEBHOOK_SECRET;
+  try {
+    const envPath = path.join(process.cwd(), '.env');
+    const line = fs
+      .readFileSync(envPath, 'utf8')
+      .split('\n')
+      .find((l) => l.startsWith('TELEGRAM_WEBHOOK_SECRET='));
+    return line ? line.slice('TELEGRAM_WEBHOOK_SECRET='.length).replace(/^"|"$/g, '').trim() : '';
+  } catch {
+    return '';
+  }
+}
+
+const WEBHOOK_SECRET = loadWebhookSecret();
+const BASE_URL = (process.env.BASE_URL ?? 'https://menu.smart-link.ly').replace(/\/+$/, '');
+const WEBHOOK_URL = `${BASE_URL}/api/telegram/webhook`;
+const hasSecret = WEBHOOK_SECRET.length > 0;
 
 test.describe('Security: Secret Token Verification', () => {
 	test('rejects request with empty secret header', async ({ request }) => {
@@ -59,6 +79,7 @@ test.describe('Security: Secret Token Verification', () => {
 	});
 
 	test('handles multiple rapid requests without crashing', async ({ request }) => {
+			test.skip(!hasSecret, 'TELEGRAM_WEBHOOK_SECRET not resolved (env or .env)');
 		const promises = Array.from({ length: 20 }, (_, i) =>
 			request.post(WEBHOOK_URL, {
 				headers: {
@@ -94,6 +115,7 @@ test.describe('Security: SSRF Protection', () => {
 	};
 
 	test('handles large payload without timeout', async ({ request }) => {
+			test.skip(!hasSecret, 'TELEGRAM_WEBHOOK_SECRET not resolved (env or .env)');
 		const res = await request.post(WEBHOOK_URL, {
 			headers: {
 				'Content-Type': 'application/json',
@@ -105,6 +127,7 @@ test.describe('Security: SSRF Protection', () => {
 	});
 
 	test('handles nested object payloads safely', async ({ request }) => {
+			test.skip(!hasSecret, 'TELEGRAM_WEBHOOK_SECRET not resolved (env or .env)');
 		const res = await request.post(WEBHOOK_URL, {
 			headers: {
 				'Content-Type': 'application/json',
@@ -146,6 +169,8 @@ test.describe('Security: CORS and Access Control', () => {
 
 	test('does not set CORS allow-origin wildcard', async ({ request }) => {
 		const res = await request.post(WEBHOOK_URL, {
+			// Cross-origin POST: middleware rejects the non-matching Origin before
+			// the route can answer, and never echoes a CORS allow-origin header.
 			headers: {
 				'Content-Type': 'application/json',
 				'x-telegram-bot-api-secret-token': WEBHOOK_SECRET,
@@ -153,6 +178,8 @@ test.describe('Security: CORS and Access Control', () => {
 			},
 			data: { update_id: 1 },
 		});
+		// 403 from middleware still proves no wildcard alllow-origin is set.
+		expect([200, 403]).toContain(res.status());
 		const headers = res.headers();
 		expect(headers['access-control-allow-origin']).toBeUndefined();
 	});

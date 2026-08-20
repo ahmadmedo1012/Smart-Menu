@@ -8,15 +8,28 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { csrfHeaders } from './csrf-helper';
+import { mintCsrfPair, csrfHeadersFor } from './csrf-helper';
 
-let CSRF = '';
+// RUNTIME_HOST: Next.js dev normalizes the middleware request URL to
+// localhost even when the client connects via 127.0.0.1. The nonce-based CSP
+// on non-cacheable pages (nonce-X + 'strict-dynamic') only stamps scripts for
+// the request host that matches that normalized URL — connecting via
+// 127.0.0.1 leaves every inline script with nonce="" and CSP blocks it, so
+// client-only pages (/login) never hydrate and stay stuck on the Suspense
+// fallback. Test against localhost to keep Next dev's nonce flow working; the
+// production site (menu.smart-link.ly) has no such host divergence.
+const RUNTIME_HOST = 'localhost';
+
+// Normalize any 127.0.0.1 base to localhost so browser navigations (page.goto)
+// carry a Host that matches the middleware's normalized request URL.
+const raw = process.env.BASE_URL || `http://${RUNTIME_HOST}:3000`;
+const u = new URL(raw.replace(/\/+$/, ''));
+if (u.hostname === '127.0.0.1') u.hostname = RUNTIME_HOST;
+const BASE = u.origin;
+let CSRF: { token: string; cookie: string } = { token: '', cookie: '' };
 
 test.beforeEach(async ({ request }) => {
-	const res = await request.get('/api/health');
-	const setCookie = res.headers()['set-cookie'] ?? '';
-	const m = setCookie.match(/csrf-token=([^;]+)/);
-	CSRF = m?.[1] ?? '';
+  CSRF = await mintCsrfPair(request);
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -71,10 +84,13 @@ test.describe('Page content verification', () => {
 
 	test('Login page has input fields', async ({ page }) => {
 		await gotoOk(page, '/login');
-		await page.waitForLoadState('networkidle');
-		const inputs = page.locator('input');
-		await expect(inputs.first()).toBeVisible();
-		expect(await inputs.count()).toBeGreaterThanOrEqual(1);
+		// Client-rendered form: the page shows a loading placeholder until
+		// /api/auth/me resolves, then mounts the form (can take 5-10s+ under
+		// load). Wait for the text input itself with a generous timeout.
+		const input = page.locator('input[type="text"], input[type="password"]').first();
+		await expect(input).toBeAttached({ timeout: 30_000 });
+		await expect(input).toBeVisible();
+		expect(await page.locator('input').count()).toBeGreaterThanOrEqual(1);
 	});
 
 	test('Pricing page mentions pricing plans', async ({ page }) => {
@@ -269,7 +285,7 @@ test.describe('API endpoints', () => {
 
 	test('POST /api/auth/login empty body → 400', async ({ request }) => {
 		const res = await request.post('/api/auth/login', {
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...csrfHeadersFor(BASE, CSRF) },
 			data: {},
 		});
 		expect(res.status()).toBe(400);
@@ -279,7 +295,7 @@ test.describe('API endpoints', () => {
 
 	test('POST /api/auth/login bad creds → 401', async ({ request }) => {
 		const res = await request.post('/api/auth/login', {
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...csrfHeadersFor(BASE, CSRF) },
 			data: { username: 'nonexistent_xyz', password: 'wrongpass' },
 		});
 		expect(res.status()).toBe(401);
@@ -292,7 +308,7 @@ test.describe('API endpoints', () => {
 
 	test('POST /api/subscriptions without auth → 401', async ({ request }) => {
 		const res = await request.post('/api/subscriptions', {
-			headers: { 'Content-Type': 'application/json', ...csrfHeaders(CSRF) },
+			headers: { 'Content-Type': 'application/json', ...csrfHeadersFor(BASE, CSRF) },
 			data: {},
 		});
 		expect(res.status()).toBe(401);
@@ -331,12 +347,13 @@ test.describe('Browser interactions', () => {
 
 	test('Login page has form elements', async ({ page }) => {
 		await gotoOk(page, '/login');
-		await page.waitForLoadState('networkidle');
-		const form = page.locator('form');
-		const hasForm = (await form.count()) > 0;
+		// Client-rendered form: page shows a loading placeholder until the
+		// auth check resolves, then mounts the inputs. Wait with a generous
+		// timeout instead of racing networkidle.
 		const inputs = page.locator('input');
+		await expect(inputs.first()).toBeAttached({ timeout: 30_000 });
 		const hasInputs = (await inputs.count()) > 0;
-		expect(hasForm || hasInputs).toBe(true);
+		expect(hasInputs).toBe(true);
 	});
 
 	test('Menu page has navigable links', async ({ page }) => {

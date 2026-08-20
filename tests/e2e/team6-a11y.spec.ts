@@ -50,7 +50,14 @@ test("network: no unexpected 4xx/5xx on key pages", async ({ page }) => {
   const bad: string[] = [];
   page.on("response", (r) => {
     const url = r.url();
-    if (r.status() >= 400 && url.includes("menu.smart-link.ly") && !url.includes("/api/")) {
+    const host = new URL(url).hostname;
+    // Same-origin (localhost in dev, menu.smart-link.ly in prod) non-API
+    // responses must never be 4xx/5xx. Ignore external hosts (fonts, CDNs).
+    if (
+      r.status() >= 400 &&
+      (host.includes("localhost") || host.includes("127.0.0.1") || host === "menu.smart-link.ly") &&
+      !url.includes("/api/")
+    ) {
       bad.push(`${r.status()} ${url.slice(0, 80)}`);
     }
   });

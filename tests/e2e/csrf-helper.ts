@@ -2,35 +2,33 @@ import type { APIRequestContext } from '@playwright/test';
 
 // Middleware enforces double-submit CSRF on ALL mutating /api/* (except
 // CSRF_EXEMPT): X-CSRF-Token header must equal the csrf-token cookie.
-// A real browser gets the cookie minted by middleware on first response;
-// Playwright's request context starts cookie-less, so mint explicitly once
-// per test (GET /api/health passes middleware which sets csrf-token) and
-// attach both cookie + header to every mutating call.
-let cachedToken = '';
-
-export async function mintCsrf(request: APIRequestContext): Promise<string> {
-	if (cachedToken) return cachedToken;
-	const res = await request.get('/api/health');
-	const setCookie = res.headers()['set-cookie'] ?? '';
-	const m = setCookie.match(/csrf-token=([^;]+)/);
-	cachedToken = m?.[1] ?? '';
-	return cachedToken;
+//
+// The request fixture's cookie jar does NOT reliably persist the Set-Cookie
+// response header, and each test gets a fresh context, so a module-cached
+// token goes stale. Instead: mint per request fixture and return BOTH the
+// token and the cookie, so the caller can send an explicit Cookie header that
+// matches X-CSRF-Token exactly.
+export async function mintCsrfPair(request: APIRequestContext): Promise<{ token: string; cookie: string }> {
+  const res = await request.get('/api/health');
+  const setCookie = res.headers()['set-cookie'] ?? '';
+  const m = setCookie.match(/csrf-token=([^;]+)/);
+  const token = m?.[1] ?? '';
+  return { token, cookie: token ? `csrf-token=${token}` : '' };
 }
 
-export function csrfHeaders(token: string): Record<string, string> {
-	// Origin must match the request's actual host (assertSameOrigin anchors to
-	// request.url host + NEXT_PUBLIC_DOMAIN, NOT to a hardcoded env).
-	const base = process.env.BASE_URL || 'https://menu.smart-link.ly';
-	return {
-		'X-CSRF-Token': token,
-		// Cookie comes from Playwright's jar automatically (mint response stored
-		// it); sending a manual Cookie duplicates it and breaks the token match.
-		Origin: base,
-	};
-}
-
-// Mint token once per suite; returns headers for mutating calls.
-export async function setupCsrf(request: APIRequestContext): Promise<() => Record<string, string>> {
-	const token = await mintCsrf(request);
-	return () => csrfHeaders(token);
+export function csrfHeadersFor(
+  base: string,
+  pair: { token: string; cookie: string }
+): Record<string, string> {
+  const origin = new URL(base);
+  // Next dev normalizes the middleware request URL to localhost even when the
+  // client connects via 127.0.0.1, and assertSameOrigin anchors to that
+  // normalized host — so the Origin must claim localhost to match. Production
+  // hosts (menu.smart-link.ly, custom domains) pass through unchanged.
+  if (origin.hostname === '127.0.0.1') origin.hostname = 'localhost';
+  return {
+    'X-CSRF-Token': pair.token,
+    Cookie: pair.cookie,
+    Origin: origin.origin,
+  };
 }

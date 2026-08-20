@@ -1,15 +1,20 @@
 import { test, expect } from "@playwright/test";
-import { csrfHeaders } from "./csrf-helper";
+import { mintCsrfPair, csrfHeadersFor } from "./csrf-helper";
 
-// BASE defaults to Playwright config baseURL (localhost in CI, production in manual runs)
-const BASE = process.env.BASE_URL || "";
-let CSRF = "";
+const RUNTIME_HOST = "localhost";
+
+// Normalize 127.0.0.1 → localhost: Next dev normalizes the middleware request
+// URL to localhost, so API CSRF Origin + the nonce-CSP nonce-stamping both
+// anchor to localhost. Using localhost keeps the app's middleware/proxy
+// behavior identical to production (no host divergence).
+const raw = process.env.BASE_URL || `http://${RUNTIME_HOST}:3000`;
+const u = new URL(raw.replace(/\/+$/, ""));
+if (u.hostname === "127.0.0.1") u.hostname = RUNTIME_HOST;
+const BASE = u.origin;
+let CSRF: { token: string; cookie: string } = { token: "", cookie: "" };
 
 test.beforeEach(async ({ request }) => {
-  const res = await request.get(`${BASE}/api/health`);
-  const setCookie = res.headers()["set-cookie"] ?? "";
-  const m = setCookie.match(/csrf-token=([^;]+)/);
-  CSRF = m?.[1] ?? "";
+  CSRF = await mintCsrfPair(request);
 });
 
 test.describe("API Smoke Tests — Public Endpoints", () => {
@@ -36,7 +41,7 @@ test.describe("API Smoke Tests — Public Endpoints", () => {
 test.describe("API Smoke Tests — Auth Login", () => {
   test("POST /api/auth/login with empty body returns 400", async ({ request }) => {
     const res = await request.post(`${BASE}/api/auth/login`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: {},
     });
     expect(res.status()).toBe(400);
@@ -44,7 +49,7 @@ test.describe("API Smoke Tests — Auth Login", () => {
 
   test("POST /api/auth/login with empty body returns error message", async ({ request }) => {
     const res = await request.post(`${BASE}/api/auth/login`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: {},
     });
     const json = await res.json();
@@ -55,7 +60,7 @@ test.describe("API Smoke Tests — Auth Login", () => {
 
   test("POST /api/auth/login with wrong credentials returns 401", async ({ request }) => {
     const res = await request.post(`${BASE}/api/auth/login`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: { username: "nonexistent_user_xyz", password: "wrongpass" },
     });
     expect(res.status()).toBe(401);
@@ -63,7 +68,7 @@ test.describe("API Smoke Tests — Auth Login", () => {
 
   test("POST /api/auth/login with wrong credentials returns error", async ({ request }) => {
     const res = await request.post(`${BASE}/api/auth/login`, {
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: { username: "nonexistent_user_xyz", password: "wrongpass" },
     });
     const json = await res.json();
@@ -87,7 +92,7 @@ test.describe("API Smoke Tests — Auth Guard", () => {
 
   test("POST /api/subscriptions without auth returns 401", async ({ request }) => {
     const res = await request.post(`${BASE}/api/subscriptions`, {
-      headers: { "Content-Type": "application/json", ...csrfHeaders(CSRF) },
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: {},
     });
     expect(res.status()).toBe(401);
@@ -95,7 +100,7 @@ test.describe("API Smoke Tests — Auth Guard", () => {
 
   test("POST /api/subscriptions without auth returns error", async ({ request }) => {
     const res = await request.post(`${BASE}/api/subscriptions`, {
-      headers: { "Content-Type": "application/json", ...csrfHeaders(CSRF) },
+      headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: {},
     });
     const json = await res.json();

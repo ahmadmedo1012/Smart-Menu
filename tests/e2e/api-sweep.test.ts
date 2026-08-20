@@ -9,18 +9,19 @@
  * Run:  npx playwright test tests/e2e/api-sweep.test.ts
  */
 import { test, expect } from '@playwright/test';
-import { csrfHeaders } from './csrf-helper';
+import { mintCsrfPair, csrfHeadersFor } from './csrf-helper';
 
-const BASE = process.env.BASE_URL || 'https://menu.smart-link.ly';
-let CSRF = '';
+// Normalize 127.0.0.1 → localhost: Next dev normalizes the middleware request
+// URL to localhost, so the CSRF Origin check anchors to localhost. Keep API
+// tests on localhost to match the app's middleware behavior in dev.
+const raw = process.env.BASE_URL || 'https://menu.smart-link.ly';
+const u2 = new URL(raw.replace(/\/+$/, ''));
+if (u2.hostname === '127.0.0.1') u2.hostname = 'localhost';
+const BASE = u2.origin;
+let CSRF: { token: string; cookie: string } = { token: '', cookie: '' };
 
-// Re-mint every test: each test's request context has a fresh cookie jar, so
-// the CSRF cookie must land in THIS context's jar (not just a module var).
 test.beforeEach(async ({ request }) => {
-	const res = await request.get(`${BASE}/api/health`);
-	const setCookie = res.headers()['set-cookie'] ?? '';
-	const m = setCookie.match(/csrf-token=([^;]+)/);
-	CSRF = m?.[1] ?? '';
+  CSRF = await mintCsrfPair(request);
 });
 
 async function expectJson(
@@ -45,7 +46,7 @@ test.describe('Auth — POST /api/auth/login', () => {
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/auth/login`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -69,7 +70,7 @@ test.describe('Auth — POST /api/auth/register', () => {
 
 	test('empty body returns 400 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect400or429(res.status());
@@ -82,7 +83,7 @@ test.describe('Auth — POST /api/auth/register', () => {
 
 	test('username too short returns 400 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { username: 'ab', password: '123456', name: 'Test' },
 		});
 		expect400or429(res.status());
@@ -94,7 +95,7 @@ test.describe('Auth — POST /api/auth/register', () => {
 
 	test('password too short returns 400 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { username: 'testuser_sweep', password: '12345', name: 'Test' },
 		});
 		expect400or429(res.status());
@@ -106,7 +107,7 @@ test.describe('Auth — POST /api/auth/register', () => {
 
 	test('name missing returns 400 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { username: 'testuser_sweep', password: '123456' },
 		});
 		expect400or429(res.status());
@@ -125,7 +126,7 @@ test.describe('Auth — POST /api/auth/register', () => {
 test.describe('Auth — GET /api/auth/me', () => {
 	test('POST returns 405 method not allowed', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/me`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -133,7 +134,7 @@ test.describe('Auth — GET /api/auth/me', () => {
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/auth/me`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -148,7 +149,7 @@ test.describe('Auth — GET /api/auth/me', () => {
 test.describe('Plans — GET /api/plans', () => {
 	test('POST returns 405 method not allowed', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/plans`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -156,7 +157,7 @@ test.describe('Plans — GET /api/plans', () => {
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/plans`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -200,7 +201,7 @@ test.describe('Restaurants — GET /api/restaurants', () => {
 test.describe('Restaurants — POST /api/restaurants', () => {
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/restaurants`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -215,7 +216,7 @@ test.describe('Restaurants — POST /api/restaurants', () => {
 		// 429 tolerated: route rate-limits per IP per 60s and the sweep fires
 		// many POSTs from one IP.
 		const res = await request.post(`${BASE}/api/restaurants`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { name: 'Sweep Test', slug: 'sweep-test' },
 		});
 		expect([401, 429]).toContain(res.status());
@@ -229,7 +230,7 @@ test.describe('Restaurants — POST /api/restaurants', () => {
 	// so Next.js catches the thrown ZodError and returns 422, not 400.
 	test('empty body returns 422', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/restaurants`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([422, 429]).toContain(res.status());
@@ -237,7 +238,7 @@ test.describe('Restaurants — POST /api/restaurants', () => {
 
 	test('missing required name field returns 422', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/restaurants`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { slug: 'sweep-test' },
 		});
 		expect([422, 429]).toContain(res.status());
@@ -245,7 +246,7 @@ test.describe('Restaurants — POST /api/restaurants', () => {
 
 	test('invalid slug returns 422', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/restaurants`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { name: 'Sweep Test', slug: 'INVALID SLUG!!!' },
 		});
 		expect([422, 429]).toContain(res.status());
@@ -260,7 +261,7 @@ test.describe('Subscriptions — POST /api/subscriptions', () => {
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/subscriptions`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -275,7 +276,7 @@ test.describe('Subscriptions — POST /api/subscriptions', () => {
 test.describe('Telegram — GET /api/telegram/diagnose', () => {
 	test('POST returns 405 method not allowed', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/telegram/diagnose`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -283,7 +284,7 @@ test.describe('Telegram — GET /api/telegram/diagnose', () => {
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/telegram/diagnose`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -303,7 +304,7 @@ test.describe('Telegram Config — GET/POST /api/telegram/config', () => {
 
 	test('POST without auth returns 401', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/telegram/config`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { botToken: 'test', chatId: '1', events: [] },
 		});
 		expect([401, 429]).toContain(res.status());
@@ -315,7 +316,7 @@ test.describe('Telegram Config — GET/POST /api/telegram/config', () => {
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/telegram/config`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());
@@ -340,7 +341,7 @@ test.describe('Admin Telegram Approvers — GET/POST /api/admin/telegram/approve
 
 	test('POST without auth returns 401', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/admin/telegram/approvers`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { telegramId: '12345', label: 'Test' },
 		});
 		expect([401, 429]).toContain(res.status());
@@ -348,7 +349,7 @@ test.describe('Admin Telegram Approvers — GET/POST /api/admin/telegram/approve
 
 	test('PUT returns 405 method not allowed', async ({ request }) => {
 		const res = await request.put(`${BASE}/api/admin/telegram/approvers`, {
-			headers: { ...csrfHeaders(CSRF), 'Content-Type': 'application/json' },
+			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
 		expect([403, 405]).toContain(res.status());

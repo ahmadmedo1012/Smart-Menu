@@ -8,14 +8,20 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 2,
   reporter: [["html", { outputFolder: "test-results/report" }], ["list"]],
   use: {
-    baseURL: process.env.BASE_URL || "https://menu.smart-link.ly",
+    // Dev default: localhost. Next dev normalizes the middleware request URL
+    // to localhost, and the nonce-based CSP stamps scripts only for that
+    // normalized host — connecting via 127.0.0.1 leaves inline scripts with
+    // nonce="" (CSP strict-dynamic blocks them, client pages never hydrate).
+    // Point BASE_URL at http://localhost:3000 for local runs; production
+    // (https://menu.smart-link.ly) needs no change.
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
   projects: [
     {
       name: "webhook",
-      testMatch: "tests/e2e/webhook*.ts",
+      testMatch: "tests/security/webhook-security.test.ts",
     },
     {
       name: "security",
