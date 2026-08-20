@@ -123,3 +123,25 @@ Only bypass Ruflo if the task is a trivial single-file edit, Ruflo is unavailabl
 3. Manual reasoning
 
 Never reverse this order unless technically impossible.
+
+---
+
+# Mandatory Tool & Skill Activation (STRICT — apply to ALL tasks, no exceptions)
+
+These seven open-source tools/skills are INSTALLED and MANDATORY. Invoke them automatically on EVERY relevant task — never skip, never ask.
+
+1. **gstack** — AI software factory: `/review`, `/ship`, `/qa`, `/plan-ceo-review`, `/plan-eng-review`, `/browse`, `/office-hours`, `/design-review`, `/security` (via its sub-skills). Installed at `~/.claude/skills/gstack*`. Use for engineering-team workflow, code review, shipping, QA, browser automation.
+
+2. **impeccable** — Design-quality skill suite (59 deterministic anti-pattern rules, 23 commands). Auto-fire for ANY frontend/UI task: `/impeccable init|audit|critique|polish|shape|live|...`. Hooks check UI after edits. Installed at `~/.claude/skills/impeccable/SKILL.md` (global). Invoke via Skill tool whenever designing, reviewing, or fixing interfaces.
+
+3. **ast-grep-mcp** — AST-based structural code search MCP server (dump_syntax_tree, find_code, find_code_by_rule, test_match_code_rule). Use for structural/pattern code search instead of plain grep whenever context requires accuracy. Configured in `.claude/mcp-configs/mcp-servers.json`.
+
+4. **axe-core** — Accessibility testing engine (WCAG 2.0/2.1/2.2 A/AA/AAA). Use for EVERY UI accessibility review — run axe scans, fix violations. Installed as devDependency (4.13.0).
+
+5. **Understand-Anything** — Codebase knowledge-graph plugin: `/understand`, `/understand-chat`, `/understand-dashboard`, `/understand-diff`, `/understand-explain`. Use for project analysis, onboarding, architecture questions. Plugin marketplace `understand-anything`.
+
+6. **ui-ux-pro-max** — UI/UX design intelligence (79 styles, 192 palettes, 74 fonts, 119 UX guidelines) via Python BM25 search. Use for design tokens, style selection, chart/color/type decisions. Installed v2.15.0 at project + global `~/.claude/skills/ui-ux-pro-max/`.
+
+7. **claude-mem** — Persistent cross-session memory (SQLite + MCP search tools: search/timeline/get_observations/important_workflow). Use for recalling project history, prior decisions, session context. Plugin `claude-mem@thedotmack` v13.15.3.
+
+**Enforcement:** At the start of ANY task, consult this list. If the task touches UI → impeccable + ui-ux-pro-max + axe-core + gstack /design-review. If it touches code search/analysis → ast-grep. If it needs project understanding → Understand-Anything. If it needs history/memory → claude-mem + search. If it's any engineering work → gstack workflow commands. NO TASK proceeds without the relevant tools from this list engaged.
