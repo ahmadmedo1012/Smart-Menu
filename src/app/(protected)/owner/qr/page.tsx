@@ -63,7 +63,7 @@ export default function OwnerQRPage() {
 		try {
 			// fetch the QR as a blob so the download attribute works
 			// (cross-origin hrefs ignore `download` in Chromium → opened a tab instead)
-			const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=d97706`;
+			const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=a86b1f`;
 			const res = await fetch(qrUrl);
 			if (!res.ok) throw new Error('فشل تحميل رمز QR');
 			const blob = await res.blob();
@@ -102,8 +102,8 @@ export default function OwnerQRPage() {
 			</Button>
 
 			<div className="flex items-center gap-3">
-				<div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
-					<AnimatedQrCode className="size-5 text-white" />
+				<div className="size-11 rounded-md bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center shadow-lg shadow-orange/25">
+					<AnimatedQrCode className="size-5 text-[#1a130b]" />
 				</div>
 				<div>
 					<h2 className="text-2xl font-bold tracking-normal">رمز QR</h2>
@@ -154,7 +154,7 @@ export default function OwnerQRPage() {
 							<div className="relative group">
 								{/* ponytail: raw <img> — external QR API URL. next/image remotePatterns doesn't support query-param-variant URLs (size changes per render). layout needs precise pixel dimensions (not fill+cover). */}
 								<img
-									src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=d97706`}
+									src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=a86b1f`}
 									alt={`QR Code - ${name}`}
 									className="rounded-xl shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02]"
 									style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}

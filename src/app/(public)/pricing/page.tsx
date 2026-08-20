@@ -42,28 +42,28 @@ const PLAN_META: Record<
 	},
 	Basic: {
 		icon: Star,
-		gradient: 'from-orange to-orange/80',
+		gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
 		glow: 'shadow-orange/25',
 		badge: 'الأكثر شعبية',
 		badgeColor: 'bg-orange text-orange-foreground',
 	},
 	Premium: {
 		icon: Crown,
-		gradient: 'from-amber-500 to-orange-600',
+		gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
 		glow: 'shadow-orange/30',
 		badge: 'الأفضل قيمة',
 		badgeColor: 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground',
 	},
 	Pro: {
 		icon: Building2,
-		gradient: 'from-orange to-rose-600',
-		glow: 'shadow-blue-500/25',
+		gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
+		glow: 'shadow-orange/25',
 		badge: '',
 		badgeColor: '',
 	},
 	Enterprise: {
 		icon: Building2,
-		gradient: 'from-rose-500 to-orange-600',
+		gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
 		glow: 'shadow-orange/25',
 		badge: 'للشركات الكبرى',
 		badgeColor: 'bg-gradient-to-r from-orange-600 to-rose-700 text-white dark:text-white',
@@ -122,7 +122,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 							meta.glow
 						)}
 					>
-						<Icon className="size-5 text-white" />
+						<Icon className={cn('size-5', isFree ? 'text-white' : 'text-[#1a130b]')} />
 					</div>
 					<div>
 						<h2 className="text-base sm:text-lg font-bold">{plan.nameAr}</h2>
@@ -381,7 +381,7 @@ export default function PricingPage() {
 						</p>
 						<div className="flex gap-3 sm:gap-4 justify-center flex-wrap">
 							<Link href="/subscribe">
-								<Button size="lg">ابدأ مجاناً</Button>
+								<Button variant="flame" size="lg">ابدأ مجاناً</Button>
 							</Link>
 							<Link href="/menu/al-waha-cafe">
 								<Button size="lg" variant="outline">

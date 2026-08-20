@@ -85,7 +85,7 @@ export default function AdminQRPage() {
 			// anchor with download+target=_blank silently opens a tab for
 			// cross-origin images (browser ignores download attr).
 			const res = await fetch(
-				`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=d97706`
+				`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=a86b1f`
 			);
 			if (!res.ok) throw new Error('qr_fetch_failed');
 			const blob = await res.blob();
@@ -118,8 +118,8 @@ export default function AdminQRPage() {
 	return (
 		<div className="space-y-6 animate-fade-in max-w-xl mx-auto">
 			<div className="flex items-center gap-3">
-				<div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg">
-					<AnimatedQrCode className="size-5 text-white" />
+				<div className="size-11 rounded-md bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center shadow-lg shadow-orange/25">
+					<AnimatedQrCode className="size-5 text-[#1a130b]" />
 				</div>
 				<div>
 					<h2 className="text-2xl font-bold tracking-normal">رمز QR</h2>
@@ -174,7 +174,7 @@ export default function AdminQRPage() {
 								<div className="relative group">
 									{/* ponytail: raw <img> — external QR API URL. next/image remotePatterns can't handle query-param-variant URLs. Needs precise pixel dimensions per size selection. */}
 									<img
-										src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=d97706`}
+										src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=a86b1f`}
 										alt={`QR - ${selectedName}`}
 										className="rounded-xl shadow-lg transition-all group-hover:shadow-xl"
 										style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}

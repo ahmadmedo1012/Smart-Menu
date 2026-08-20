@@ -83,18 +83,18 @@ export function OwnerKpiGrid({ stats }: { stats: StatsData | null }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard label="إجمالي الطلبات" value={stats?.totalOrders ?? 0} icon={ShoppingCart} subtitle="كل الوقت"
-        color="text-orange dark:text-orange" bg="bg-orange-muted dark:bg-orange-muted"
+        color="text-[#1a130b]" bg="bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] shadow-lg shadow-orange/15 group-hover:shadow-orange/25"
         onClick={() => router.push("/owner/orders")} />
       <StatCard label="طلبات اليوم" value={stats?.todayOrders ?? 0} icon={TrendingUp}
         subtitle={stats?.todayRevenue ? `${toArabicNumber(stats.todayRevenue.toFixed(1))} د.ل` : undefined}
-        color="text-success" bg="bg-success/10"
+        color="text-success dark:text-success" bg="bg-success/10"
         onClick={() => router.push("/owner/orders")} />
       <StatCard label="قيد الانتظار" value={pendingOrders} icon={Clock}
         subtitle={stats ? `${toArabicNumber(stats.statusBreakdown["new"] ?? 0)} جديد • ${toArabicNumber(stats.statusBreakdown["preparing"] ?? 0)} تحضير` : ""}
-        color="text-orange dark:text-orange" bg="bg-orange-muted dark:bg-orange-muted"
+        color="text-[var(--c-dark-glow,#c96a08)] dark:text-[var(--c-saffron)]" bg="bg-orange-muted dark:bg-orange-muted"
         onClick={() => router.push("/owner/orders")} />
       <StatCard label="الأصناف" value={stats?.totalItems ?? 0} icon={ClipboardList}
-        color="text-orange dark:text-orange" bg="bg-orange-muted dark:bg-orange-muted"
+        color="text-[var(--c-ember)]" bg="bg-orange-muted dark:bg-orange-muted"
         onClick={() => router.push("/owner/menu")} />
     </div>
   )
