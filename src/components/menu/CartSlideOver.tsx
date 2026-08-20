@@ -175,7 +175,7 @@ export function CartSlideOver() {
 					<Link
 						href="/cart"
 						onClick={() => setOpen(false)}
-						className={cn(buttonVariants({ variant: 'orange' }), 'w-full text-sm')}
+						className={cn(buttonVariants({ variant: 'flame' }), 'w-full text-sm')}
 					>
 						إتمام الطلب
 					</Link>

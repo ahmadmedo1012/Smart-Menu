@@ -273,9 +273,9 @@ const MenuItemCard = memo(function MenuItemCard({
 					</div>
 				)}
 
-				{/* Price row */}
+				{/* Price row — saffron ink, warm on hover */}
 				<div className="flex items-center gap-2 flex-wrap">
-					<span className="text-xl font-bold text-primary group-hover:text-orange transition-colors duration-300 tabular-nums">
+					<span className="text-xl font-bold text-primary group-hover:text-[var(--c-ember)] transition-colors duration-300 tabular-nums">
 						{toArabicNumber(currentPrice.toFixed(1))}
 					</span>
 					<span className="text-xs text-muted-foreground">د.ل</span>
@@ -301,7 +301,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									onAddToCart(item);
 								}}
 								aria-label={`إضافة ${displayName} إلى السلة`}
-								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-11 rounded-xl text-xs font-bold bg-orange text-white shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-all duration-200"
+								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-11 rounded-xl text-xs font-bold bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-all duration-200"
 							>
 								<MotionPlus className="size-4" />
 								أضف
