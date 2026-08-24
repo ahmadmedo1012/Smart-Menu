@@ -28,7 +28,10 @@ export function RestaurantSwitcher() {
 		try {
 			const res = await fetch('/api/owner/restaurants');
 			const json = await res.json();
-			const list: RestaurantInfo[] = json.data ?? json ?? [];
+			// Array.isArray guard: a 401 error body is an object — assigning it
+			// crashed render with "restaurants.find is not a function" and the
+			// error boundary blocked the post-logout redirect to /login.
+			const list: RestaurantInfo[] = Array.isArray(json.data) ? json.data : [];
 			setRestaurants(list);
 			// Resolve active: localStorage override, else primary, else first
 			const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));

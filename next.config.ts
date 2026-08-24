@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
 	turbopack: {
 		root: process.cwd(),
 	},
-
 	images: {
 		remotePatterns: [
 			{ protocol: 'https', hostname: 'vercel.app' },
@@ -24,6 +23,12 @@ const nextConfig: NextConfig = {
 
 	experimental: {
 		optimizePackageImports: ['lucide-react', '@base-ui/react', 'sonner'],
+		// Local builds: Next sizes its build/static worker pool from cpus; on
+		// big hosts that's 15 workers hammering the single Neon pool, and one
+		// cold-cache timeout aborts the whole build. Cap to 2 locally so DB
+		// queries serialize. Vercel deployments keep their default — remote
+		// builds aren't DB-bound the same way.
+		...(process.env.VERCEL && process.env.NEXT_PUBLIC_VERCEL_ENV ? {} : { cpus: 2 }),
 	},
 
 	poweredByHeader: false,
@@ -31,11 +36,18 @@ const nextConfig: NextConfig = {
 	compress: true,
 
 	async headers() {
+		// HSTS only on Vercel production — on dev OR a local prod server running
+		// plain HTTP, WebKit upgrades every subresource to https://localhost and
+		// the page never hydrates. proxy.ts enforces the protocol check too.
+		const hsts =
+			process.env.NODE_ENV === 'production' && process.env.VERCEL
+				? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }]
+				: [];
 		return [
 			{
 				source: '/(.*)',
 				headers: [
-					{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+					...hsts,
 					{ key: 'X-Content-Type-Options', value: 'nosniff' },
 					{ key: 'X-Frame-Options', value: 'DENY' },
 					{ key: 'X-DNS-Prefetch-Control', value: 'on' },

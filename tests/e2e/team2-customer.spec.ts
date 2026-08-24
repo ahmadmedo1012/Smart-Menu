@@ -46,19 +46,16 @@ test("cart: add 2 items, change qty, remove, empty state", async ({ page }) => {
   if (!page.url().includes("/login")) {
     expect(body).toContain("د.ل");
   }
-  // Remove item → empty state
-  const btns = await page.locator("button").all();
-  const svgBtns: number[] = [];
-  for (let i = 0; i < btns.length; i++) {
-    if (!(await btns[i].innerText()).trim() && (await btns[i].locator("svg").count())) svgBtns.push(i);
-  }
-  if (svgBtns.length) {
-    await btns[svgBtns[svgBtns.length - 1]].click();
-    await page.waitForTimeout(1000);
-    const body2 = await page.locator("body").innerText();
-    const emptyShown = body2.includes("فارغة") || body2.includes("لا توجد");
-    expect(emptyShown).toBeTruthy();
-  }
+  // Remove item → empty state. The remove button is icon-only with the
+  // label in aria-label (no text node), so :has-text never matches — use the
+  // accessible name instead.
+  const removeBtn = page.getByRole("button", { name: "حذف الصنف" });
+  await removeBtn.waitFor({ state: "visible", timeout: 15000 });
+  await removeBtn.click();
+  await page.waitForTimeout(1000);
+  const body2 = await page.locator("body").innerText();
+  const emptyShown = body2.includes("فارغة") || body2.includes("لا توجد");
+  expect(emptyShown).toBeTruthy();
 });
 
 test("order: complete flow to confirmation", async ({ page }) => {

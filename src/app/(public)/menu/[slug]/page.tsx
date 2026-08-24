@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 export const revalidate = 60;
 export const dynamicParams = true;
-import { prisma } from '@/lib/db';
+import { prisma, withRetry } from '@/lib/db';
 import type { Metadata } from 'next';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
@@ -12,10 +12,15 @@ import { ReferralHandler } from '@/components/menu/ReferralHandler';
 const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
 export async function generateStaticParams() {
-	const restaurants = await prisma.restaurant.findMany({
-		where: { isActive: true },
-		select: { slug: true },
-	});
+	// Retry transient Neon timeouts: build hits this with 15 parallel workers
+	// against a small pool; a cold connection that fails once shouldn't abort
+	// the whole build.
+	const restaurants = await withRetry(() =>
+		prisma.restaurant.findMany({
+			where: { isActive: true },
+			select: { slug: true },
+		})
+	);
 	return restaurants.map((r) => ({ slug: r.slug }));
 }
 

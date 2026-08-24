@@ -79,17 +79,19 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
 }
 
 function LogoutButton() {
-	const router = useRouter();
-
 	return (
 		<button
 			onClick={async () => {
 				try {
 					const res = await csrfFetch('/api/auth/logout', { method: 'POST' });
+					// Flag for /login: suppress its auto-redirect race (see login page).
+					try { sessionStorage.setItem('just-logged-out', '1'); } catch { /* private mode */ }
 					if (res.ok) {
 						premiumToast('logout', 'تم تسجيل الخروج');
-						router.push('/login');
-						router.refresh();
+						// window.location.replace avoids the router.push + router.refresh
+						// race (a refresh re-validates the still-set session cookie and
+						// bounces the user back to /owner while the push is in flight)
+						window.location.replace('/login');
 					}
 				} catch {
 					premiumToast('error', 'فشل تسجيل الخروج');

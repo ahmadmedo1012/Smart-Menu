@@ -192,8 +192,11 @@ function SubscribeContent() {
 	const handleSubmit = async () => {
 		// double-submit guard (round-76): check FIRST, then set
 		if (submittedRef.current) return;
-		submittedRef.current = true;
+		// Validate BEFORE latching the guard: a click that lands while state is
+		// momentarily inconsistent must stay retryable, otherwise the button
+		// bricks silently (observed in e2e: review-step clicks, no network call).
 		if (!selectedPlan || !isFormValid || upgradeMode) return;
+		submittedRef.current = true;
 
 		// Pre-flight: validate username + ALL slugs
 		try {

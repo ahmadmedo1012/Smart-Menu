@@ -5,13 +5,13 @@
  * Run: npx playwright test tests/e2e/persona-4-multimenu.spec.ts --project=qa-teams
  */
 import { test, expect } from "@playwright/test";
-import { login } from "./qa-helpers";
+import { login, loginBudget } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
 
 test("P4: switching active restaurant updates dashboard + orders + settings", async ({ page }) => {
-  test.setTimeout(90000);
+  test.setTimeout(Math.max(loginBudget(), 90000));
   await login(page, OWNER, PASS);
   await page.setViewportSize({ width: 1280, height: 800 });
 
@@ -60,7 +60,7 @@ test("P4: switching active restaurant updates dashboard + orders + settings", as
 });
 
 test("P4: switching back to primary restores primary data", async ({ page }) => {
-  test.setTimeout(90000);
+  test.setTimeout(Math.max(loginBudget(), 90000));
   await login(page, OWNER, PASS);
   await page.setViewportSize({ width: 1280, height: 800 });
   // Switch via switcher to "مطعم تجريبي أول" (313)

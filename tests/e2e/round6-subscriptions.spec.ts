@@ -4,12 +4,13 @@
  * Run: npx playwright test tests/e2e/round6-subscriptions.spec.ts --project=qa-teams
  */
 import { test, expect } from "@playwright/test";
-import { login } from "./qa-helpers";
+import { login, loginBudget } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
 
 test("subs: pricing page shows all 5 plans with prices and features", async ({ page }) => {
+  test.setTimeout(loginBudget());
   await page.goto("/pricing", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
   const body = await page.locator("body").innerText();
@@ -25,6 +26,7 @@ test("subs: pricing page shows all 5 plans with prices and features", async ({ p
 });
 
 test("subs: plan cap — free account cannot exceed 1 menu (403 on 2nd)", async ({ page }) => {
+  test.setTimeout(loginBudget());
   await login(page, OWNER, PASS);
   // owner is Pro (3 menus) — verify a 4th menu is rejected with clear message
   const body = await page.goto("/owner/menus", { waitUntil: "networkidle" }).then(() =>
@@ -74,6 +76,7 @@ test("subs: subscribe page renders payment methods after plan select", async ({ 
 });
 
 test("subs: upgrade path exists for existing subscriber", async ({ page }) => {
+  test.setTimeout(loginBudget());
   await login(page, OWNER, PASS);
   await page.goto("/owner/settings", { waitUntil: "networkidle" });
   await page.waitForTimeout(3000);

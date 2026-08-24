@@ -120,7 +120,7 @@ export default function OwnerOrdersPage() {
 				if (res.status === 401) { window.location.href = '/login'; return; }
 				if (!res.ok) throw new Error();
 				const json = await res.json();
-				const newOrders = json.data ?? json ?? [];
+				const newOrders = Array.isArray(json.data) ? json.data : [];
 				if (json?.meta?.total !== undefined) setTotalOrders(json.meta.total);
 				if (append) {
 					setOrders((prev) => {
@@ -163,7 +163,7 @@ export default function OwnerOrdersPage() {
 				if (res.status === 401) { window.location.href = '/login'; return; }
 				if (!res.ok) return;
 				const json = await res.json();
-				const fresh = json.data ?? json ?? [];
+				const fresh = Array.isArray(json.data) ? json.data : [];
 				const current = JSON.stringify(ordersRef.current?.map((o: { id: number }) => o.id) ?? []);
 				const freshIds = JSON.stringify(fresh.map((o: { id: number }) => o.id));
 				if (current !== freshIds && current !== '[]') {

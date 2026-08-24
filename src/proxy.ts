@@ -18,6 +18,12 @@ export function proxy(request: NextRequest) {
 	const isApiRoute = pathname.startsWith('/api/');
 	const isStatic = pathname.startsWith('/_next/');
 	if (isStatic) return NextResponse.next();
+	// https detection must survive TLS-terminating reverse proxies: the upstream
+	// request arrives as plain http, and x-forwarded-proto carries the real
+	// client scheme. Fall back to it when the direct protocol is http.
+	const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+	const isSecure =
+		request.nextUrl.protocol === 'https:' || forwardedProto === 'https';
 
 	const resp = NextResponse.next();
 	// Forwarded to the app for nonce-based CSP (pages only, set below)
@@ -48,7 +54,13 @@ export function proxy(request: NextRequest) {
 	}
 
 	// Security headers
-	resp.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+	// HSTS only in production AND on https — in dev/plain-http it makes WebKit
+	// upgrade subresources to https://localhost (plain HTTP) → all CSS/JS fail,
+	// page never hydrates. isSecure also honors x-forwarded-proto so a
+	// TLS-terminating proxy deployment keeps the header.
+	if (process.env.NODE_ENV === 'production' && isSecure) {
+		resp.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+	}
 	resp.headers.set('X-Content-Type-Options', 'nosniff');
 	resp.headers.set('X-Frame-Options', 'DENY');
 	resp.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -83,7 +95,7 @@ export function proxy(request: NextRequest) {
 			"form-action 'self'",
 			"worker-src 'self' blob:",
 			"manifest-src 'self' blob:",
-			"upgrade-insecure-requests",
+			...(isSecure ? ["upgrade-insecure-requests"] : []),
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
 		// Cacheable pages: no CSRF cookie is minted above (no set-cookie), so
@@ -122,7 +134,7 @@ export function proxy(request: NextRequest) {
 			"form-action 'self'",
 			"worker-src 'self' blob:",
 			"manifest-src 'self' blob:",
-			"upgrade-insecure-requests",
+			...(isSecure ? ["upgrade-insecure-requests"] : []),
 		].join('; ');
 		resp.headers.set('Content-Security-Policy', csp);
 		// Forward the nonce to the app so SSR can stamp inline scripts

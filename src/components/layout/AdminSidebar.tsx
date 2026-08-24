@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield} from 'lucide-react';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedLogOut from "@/components/ui/logout-icon"
@@ -44,16 +43,18 @@ export function hasItemPermission(
 }
 
 function LogoutButton() {
-  const router = useRouter()
-
   return (
     <button
       onClick={async () => {
         try {
           const res = await csrfFetch("/api/auth/logout", { method: "POST" })
           if (res.ok) {
-            router.push("/login")
-            router.refresh()
+            // Flag for /login: suppress its auto-redirect race (see login page).
+            try { sessionStorage.setItem("just-logged-out", "1"); } catch { /* private mode */ }
+            // window.location.replace avoids the router.push + router.refresh
+            // race (a refresh re-validates the still-set session cookie and
+            // bounces the user back while the push is in flight)
+            window.location.replace("/login")
           }
         } catch { /* ignore */ }
       }}

@@ -66,9 +66,17 @@ export async function destroySession() {
 			return;
 		}
 		const tokenHash = hashToken(token);
-		await prisma.session
-			.deleteMany({ where: { token: tokenHash } })
-			.catch((e) => logError('session.destroy failed', { error: String(e) }));
+		// Retry once: a transient Neon connection error must not leave the
+		// session row alive server-side (silent .catch left it resurrectable).
+		try {
+			await prisma.session.deleteMany({ where: { token: tokenHash } });
+		} catch (e) {
+			logError('session.destroy failed (retrying)', { error: String(e) });
+			await new Promise((r) => setTimeout(r, 300));
+			await prisma.session
+				.deleteMany({ where: { token: tokenHash } })
+				.catch((e2) => logError('session.destroy failed twice', { error: String(e2) }));
+		}
 	}
 	c.set(SESSION_COOKIE, '', {
 		httpOnly: true,
@@ -95,7 +103,12 @@ export async function validateSession(): Promise<{ valid: boolean; userId: numbe
 			}
 			return { valid: false, userId: null };
 		}
-		// Sliding window: extend session TTL on every valid check
+		// Sliding window: extend session TTL on every valid check — DB-side ONLY.
+		// Do NOT re-send Set-Cookie here: an in-flight response arriving after
+		// logout would resurrect the just-cleared cookie (observed in e2e as a
+		// "resurrected session": events-poll response landed post-logout and
+		// re-minted the cookie). The browser refreshes its own cookie expiry on
+		// each login; mid-session re-minting adds nothing but this race.
 		const newExpiry = new Date(Date.now() + SESSION_TTL_MS);
 		await prisma.session
 			.update({
@@ -103,13 +116,6 @@ export async function validateSession(): Promise<{ valid: boolean; userId: numbe
 				data: { expiresAt: newExpiry },
 			})
 			.catch((e) => logError('session.extend failed', { error: String(e) }));
-		c.set(SESSION_COOKIE, token, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			path: '/',
-			maxAge: SESSION_TTL_MS / 1000,
-		});
 		return { valid: true, userId: session.userId };
 	} catch (e) {
 		logError('session.validate crash', { error: String(e) });

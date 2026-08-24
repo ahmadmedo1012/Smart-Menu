@@ -1,10 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { LottieAnimation } from "@/components/shared/LottieAnimation";
 import {CheckCircle, AlertCircle, Info, ShoppingCart, LogOut, LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy} from 'lucide-react';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from "@/lib/utils";
+
+// Dynamic: LottieAnimation pulls in @dotlottie/react-player (~100KB). A static
+// import here drags dotlottie into the chunk graph of EVERY premium-toast
+// importer (menu page dynamic entries, share buttons, loyalty widgets…), and a
+// stale turbopack loadable-manifest entry then preloads a dotlottie chunk that
+// was never emitted — 404 on every menu-page visit. Only the cart toast
+// renders it anyway.
+const LottieAnimation = dynamic(
+  () => import("@/components/shared/LottieAnimation").then((m) => ({ default: m.LottieAnimation })),
+  { ssr: false }
+);
 
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 

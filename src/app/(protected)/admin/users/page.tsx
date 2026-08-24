@@ -59,7 +59,8 @@ export default function AdminUsersPage() {
       const res = await fetch(`/api/users?${params.toString()}`)
       if (!res.ok) throw Error()
       const json = await res.json()
-      setUsers(json.data?.users ?? json.data ?? json ?? [])
+      // Array.isArray guard: error bodies are objects, not lists.
+      setUsers(Array.isArray(json.data?.users) ? json.data.users : []);
       setTotal(json.data?.total ?? json.meta?.total ?? 0)
     } catch { setError("فشل تحميل المستخدمين") }
     finally { setLoading(false) }

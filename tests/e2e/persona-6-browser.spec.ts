@@ -26,7 +26,7 @@ for (const vp of VIEWPORTS) {
       const consoleErrors: string[] = [];
       page.on("pageerror", (e) => consoleErrors.push(String(e).slice(0, 100)));
       await page.setViewportSize({ width: vp.w, height: vp.h });
-      const resp = await page.goto(pg.path, { waitUntil: "networkidle", timeout: 40000 });
+      const resp = await page.goto(pg.path, { waitUntil: "domcontentloaded", timeout: 40000 });
       expect(resp?.status()).toBeLessThan(400);
       await page.waitForTimeout(1500);
       // No horizontal overflow beyond a tiny tolerance (RTL/RTL-safe)
@@ -44,14 +44,14 @@ for (const vp of VIEWPORTS) {
 }
 
 test("browser: theme toggle persists across reload", async ({ page }) => {
-  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "networkidle" });
+  await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2000);
   const toggle = page.locator('button[aria-label="الوضع النهاري"], button[aria-label="الوضع الليلي"]').first();
   if (await toggle.count()) {
     await toggle.click();
     await page.waitForTimeout(800);
   }
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(2000);
   const cls = await page.evaluate(() => document.documentElement.className);
   console.log(`browser: theme class after reload: ${cls}`);

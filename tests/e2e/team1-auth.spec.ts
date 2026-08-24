@@ -4,11 +4,27 @@
  * Run: npx playwright test tests/e2e/team1-auth.spec.ts --project=qa-teams
  */
 import { test, expect } from "@playwright/test";
-import { fillSubscribeForm, chooseFreePlan, login, csrfToken } from "./qa-helpers";
+import { fillSubscribeForm, chooseFreePlan, login, loginBudget, csrfToken } from "./qa-helpers";
 
 const TEST_USER = "testmulti1568";
 const TEST_PASS = "testpass123";
 const ts = Date.now().toString().slice(-8);
+
+// Each test gets its own context with an empty cookie jar, so mint per test —
+// a module-cached token would mismatch the jar and 403.
+async function csrfHeadersFor(page: import("@playwright/test").Page): Promise<Record<string, string>> {
+  await page.goto("/login");
+  // Derive origin from the resolved baseURL instead of hardcoding localhost —
+  // Origin must match the server's host or assertSameOrigin rejects the POST.
+  const BASE = new URL(page.url()).origin;
+  const cookies = await page.context().cookies();
+  const token = cookies.find((c) => c.name === "csrf-token")?.value ?? "";
+  return {
+    "X-CSRF-Token": token,
+    "Content-Type": "application/json",
+    Origin: BASE,
+  };
+}
 
 test.describe.configure({ mode: "serial" });
 
@@ -90,27 +106,36 @@ test("login: wrong password error does not reveal user existence", async ({ page
 });
 
 test("login: account lockout after 20 failed attempts, then success works", async ({ page }) => {
-  await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
-  const token = await csrfToken(page);
+  // The account limiter (max 20 per 15 min) is the only login limiter that
+  // stays strict under dev relax (RATE_LIMIT_RELAX=1); the 10/min login
+  // limiter is relaxed locally. It only counts FAILED auth on an EXISTING
+  // user (the route returns 401 for unknown usernames before the account
+  // check), so first register a fresh user, then send 21 failed logins.
+  test.setTimeout(120_000);
+  const uname = `qa_lock_${ts}`;
+  const headers = await csrfHeadersFor(page);
+  const BASE = new URL(page.url()).origin;
+  const reg = await page.request.post(`${BASE}/api/auth/register`, {
+    data: { username: uname, password: "password123", name: "Lockout QA" },
+    headers: { ...headers, "X-Forwarded-For": "10.9.9.1" },
+  });
+  expect(reg.status()).toBe(201);
+
   const statuses: number[] = [];
-  for (let i = 0; i < 12; i++) {
-    const r = await page.evaluate(async ({ uname, token }) => {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
-        body: JSON.stringify({ username: uname, password: "wrong" }),
-      });
-      return res.status;
-    }, { uname: `qa_lock_${ts}`, token });
-    statuses.push(r);
+  for (let i = 0; i < 21; i++) {
+    const r = await page.request.post(`${BASE}/api/auth/login`, {
+      data: { username: uname, password: "wrong" },
+      headers: { ...headers, "X-Forwarded-For": "10.9.9.1" },
+    });
+    statuses.push(r.status());
     // Space attempts out to avoid upsert races on the (key, windowEnd) row
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
   }
-  expect(statuses.slice(10)).toContain(429);
+  expect(statuses.slice(18)).toContain(429);
 });
 
 test("login: valid creds succeed", async ({ page }) => {
+  test.setTimeout(loginBudget());
   await login(page, TEST_USER, TEST_PASS);
   expect(page.url()).toContain("/owner");
 });
@@ -130,11 +155,10 @@ test("protected: all admin+owner pages redirect to login when unauthenticated", 
 });
 
 test("logout: session ends, protected page redirects", async ({ page }) => {
+  test.setTimeout(loginBudget());
   await login(page, TEST_USER, TEST_PASS);
   await page.locator('button:has-text("تسجيل الخروج")').first().click();
-  await page.waitForTimeout(2500);
-  expect(page.url()).toContain("/login");
+  await page.waitForURL(/\/login/, { timeout: 15000 });
   await page.goto("/owner", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
-  expect(page.url()).toContain("/login");
+  await page.waitForURL(/\/login/, { timeout: 15000 });
 });

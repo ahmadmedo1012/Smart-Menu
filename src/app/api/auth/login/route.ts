@@ -14,8 +14,14 @@ const loginSchema = z.object({
 });
 
 const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
-// Account-level limiter — protects against distributed brute force across IPs
-const accountLimiter = createDbRateLimiter({ windowMs: 15 * 60_000, max: 20 });
+// Account-level limiter — protects against distributed brute force across IPs.
+// exemptFromRelax keeps its real budget under dev RATE_LIMIT_RELAX so the e2e
+// lockout test's 21-failed-logins → 429 assertion stays valid locally.
+const accountLimiter = createDbRateLimiter({
+	windowMs: 15 * 60_000,
+	max: 20,
+	exemptFromRelax: true,
+});
 
 export async function POST(request: Request) {
 	try {

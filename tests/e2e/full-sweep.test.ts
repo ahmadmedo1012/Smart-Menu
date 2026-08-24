@@ -214,6 +214,7 @@ test.describe('Security headers', () => {
 	});
 
 	test('Strict-Transport-Security present', async ({ request }) => {
+		test.skip(!process.env.VERCEL, 'HSTS emitted only on Vercel production');
 		const res = await request.get('/');
 		const headers = res.headers();
 		expect(headers['strict-transport-security']).toBeDefined();

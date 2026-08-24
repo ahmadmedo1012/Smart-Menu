@@ -75,7 +75,11 @@ test("response has Content-Security-Policy header", async ({ request }) => {
   expect(headers["content-security-policy"]?.length).toBeGreaterThan(0);
 });
 
+// HSTS is emitted only on Vercel production (proxy.ts guards against
+// plain-http hosts where WebKit would upgrade subresources to https and
+// never hydrate). Local dev/prod runs have no HSTS header by design.
 test("response has Strict-Transport-Security header", async ({ request }) => {
+  test.skip(!process.env.VERCEL, "HSTS emitted only on Vercel production");
   const res = await request.get("/");
   const headers = await res.headers();
   const hsts = headers["strict-transport-security"];

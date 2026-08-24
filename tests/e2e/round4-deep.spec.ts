@@ -3,25 +3,30 @@
  * Run: npx playwright test tests/e2e/round4-deep.spec.ts --project=qa-teams
  */
 import { test, expect } from "@playwright/test";
+import { login } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
 
 test("guard: /admin and /owner secret pages redirect owner to /owner, never render admin", async ({ page }) => {
-  await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
-  const ins = page.locator("input");
-  await ins.nth(0).fill(OWNER);
-  await ins.nth(1).fill(PASS);
-  await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
-  await page.waitForTimeout(4000);
+  test.setTimeout(120_000);
+  // Use the shared login helper — the inline copy raced the client-side
+  // replace('/owner') with a fixed 4s sleep (login POST alone takes 3-4s),
+  // leaving the session half-settled before the admin-page loop began.
+  await login(page, OWNER, PASS);
   for (const path of ["/admin", "/admin/users", "/admin/restaurants", "/admin/settings", "/admin/telegram"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2500);
+    // The admin layout re-validates via /api/auth/me then router.push('/owner');
+    // wait until the URL actually settles instead of a fixed 2500ms sleep.
+    let settled = false;
+    for (let i = 0; i < 12 && !settled; i++) {
+      await page.waitForTimeout(500);
+      settled = page.url().includes("/owner");
+    }
     const url = page.url();
     const body = await page.locator("body").innerText();
     const safe = url.includes("/owner") && !body.includes("إدارة المطاعم");
-    expect(safe, `${path} should not expose admin UI`).toBeTruthy();
+    expect(safe, `${path} should not expose admin UI (url=${url})`).toBeTruthy();
   }
 });
 

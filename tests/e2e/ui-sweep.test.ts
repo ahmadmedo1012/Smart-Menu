@@ -77,6 +77,7 @@ test.describe("ui-sweep", () => {
   });
 
   test("Strict-Transport-Security header present", async ({ request }) => {
+    test.skip(!process.env.VERCEL, "HSTS emitted only on Vercel production");
     const res = await request.get("/");
     const headers = await res.headers();
     const hsts = headers["strict-transport-security"];

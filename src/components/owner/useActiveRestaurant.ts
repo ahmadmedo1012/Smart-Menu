@@ -33,9 +33,10 @@ export function useActiveRestaurant(): {
 				// 2. Owner's restaurants list (validates ownership + gives name/slug)
 				const res = await fetch('/api/owner/restaurants');
 				const json = await res.json();
-				const list = (json.data ?? json ?? []) as { id: number; name: string; slug: string; isPrimary: boolean }[];
+                                // Array.isArray guard: 401 error bodies are objects, not lists.
+                                const list = (Array.isArray(json.data) ? json.data : []) as { id: number; name: string; slug: string; isPrimary: boolean }[];
 
-				if (list.length === 0) {
+                                if (list.length === 0) {
 					if (!cancelled) setLoaded(true);
 					return;
 				}

@@ -4,13 +4,14 @@
  * Run: npx playwright test tests/e2e/team3-owner.spec.ts --project=ui
  */
 import { test, expect, type Page } from "@playwright/test";
-import { login as qaLogin } from "./qa-helpers";
+import { login as qaLogin, loginBudget } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
 const ts = Date.now().toString().slice(-8);
 
 async function login(page: Page) {
+  test.setTimeout(loginBudget());
   await qaLogin(page, OWNER, PASS);
   // Retry once if rate-limited (429 → stays on login)
   if (!page.url().includes("/owner")) {

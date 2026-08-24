@@ -98,7 +98,8 @@ export default function OwnerDashboard() {
 			try {
 				const ownerRes = await fetch('/api/owner/restaurants');
 				const ownerJson = await ownerRes.json();
-				const list = ownerJson.data ?? ownerJson ?? [];
+				// Array.isArray guard: 401 error bodies are objects, not lists.
+				const list = Array.isArray(ownerJson.data) ? ownerJson.data : [];
 				if (list.length > 0) {
 					const active = list.find((x: { id: number }) => x.id === stored) ?? list.find((x: { isPrimary: boolean }) => x.isPrimary) ?? list[0];
 					rid = active.id;

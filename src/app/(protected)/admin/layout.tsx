@@ -22,7 +22,6 @@ function MobileNav({
 	role: string | null;
 	permissions: string[];
 }) {
-	const router = useRouter();
 	const visible =
 		role === 'super_admin' || role === 'admin'
 			? allNavItems
@@ -68,8 +67,12 @@ function MobileNav({
 						try {
 							const res = await csrfFetch('/api/auth/logout', { method: 'POST' });
 							if (res.ok) {
-								router.push('/login');
-								router.refresh();
+								// Flag for /login: suppress its auto-redirect race (see login page).
+								try { sessionStorage.setItem('just-logged-out', '1'); } catch { /* private mode */ }
+								// window.location.replace avoids the router.push + router.refresh
+								// race (a refresh re-validates the still-set session cookie and
+								// bounces the user back while the push is in flight)
+								window.location.replace('/login');
 							}
 						} catch {
 							/* ignore */

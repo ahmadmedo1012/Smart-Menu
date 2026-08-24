@@ -136,7 +136,8 @@ export default function OwnerMenuPage() {
 				try {
 					const r = await fetch('/api/owner/restaurants');
 					const j = await r.json();
-					const list = j.data ?? j ?? [];
+					// Array.isArray guard: 401 error bodies are objects, not lists.
+					const list = Array.isArray(j.data) ? j.data : [];
 					if (list.length > 0 && !list.some((x: { id: number }) => x.id === rid)) {
 						rid = list.find((x: { isPrimary: boolean }) => x.isPrimary)?.id ?? list[0].id;
 						localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(rid));

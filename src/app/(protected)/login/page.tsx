@@ -61,11 +61,24 @@ function LoginForm() {
 	const [showForgot, setShowForgot] = useState(false);
 	const [checkingAuth, setCheckingAuth] = useState(true);
 
-	// Redirect already-authenticated users to their dashboard
+	// Redirect already-authenticated users to their dashboard — UNLESS they just
+	// logged out. The logout POST clears the cookie, but this effect's /api/auth/me
+	// call can race it and read the still-valid session, then bounce the user
+	// straight back (resurrected session). Logout flows set a sessionStorage flag;
+	// seeing it, we clear the stale session state client-side and stay put.
 	useEffect(() => {
+		let justLoggedOut = false;
+		try {
+			justLoggedOut = sessionStorage.getItem('just-logged-out') === '1';
+			if (justLoggedOut) sessionStorage.removeItem('just-logged-out');
+		} catch { /* private mode */ }
 		fetch('/api/auth/me')
 			.then((r) => r.json())
 			.then((d) => {
+				if (justLoggedOut) {
+					setCheckingAuth(false);
+					return;
+				}
 				if (d.success && d.data) {
 					const role = d.data.role;
 					const target =

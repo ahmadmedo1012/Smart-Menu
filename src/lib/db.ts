@@ -28,11 +28,17 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function createPool(): pg.Pool {
 	const url = process.env.DATABASE_URL!;
+	// Serverless: many concurrent function instances × pool size must stay under
+	// Neon's connection cap (10). 5 × instances is a safer ceiling than 10.
+	// Local runs usually point DATABASE_URL at remote Neon too — the same cap
+	// applies (2 capped build workers × 10 would already exceed it), so the
+	// local bump is opt-in via DATABASE_POOL_MAX for genuinely local databases.
+	const isRemote = /neon\.(tech|build)|neon\.new|pooler\./i.test(url);
+	const defaultMax = process.env.VERCEL ? 5 : isRemote ? 5 : 10;
+	const max = Number(process.env.DATABASE_POOL_MAX) || defaultMax;
 	return new pg.Pool({
 		connectionString: url,
-		// Serverless: many concurrent function instances × pool size must stay under
-		// Neon's connection cap (10). 5 × instances is a safer ceiling than 10.
-		max: 5,
+		max,
 		connectionTimeoutMillis: 10_000,
 		idleTimeoutMillis: 30_000,
 		maxUses: 1000,

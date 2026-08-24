@@ -6,6 +6,8 @@ import { warn as logWarn } from "./logger";
 interface RateLimiterConfig {
   windowMs: number;
   max: number;
+  /** Keep the real budget even under RATE_LIMIT_RELAX (e.g. account lockout limiters asserted by e2e). */
+  exemptFromRelax?: boolean;
 }
 
 interface RateLimitResult {
@@ -20,7 +22,15 @@ interface RateLimiter {
 }
 
 export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
-  const { windowMs, max } = config;
+  const { windowMs, max, exemptFromRelax } = config;
+  // Dev-only relief: local e2e suites share one origin (127.0.0.1) across
+  // many projects and exhaust the per-IP bucket within a minute. Production
+  // (Vercel sets NODE_ENV=production) keeps the real limits.
+  const isRelaxed =
+    process.env.NODE_ENV !== "production" &&
+    process.env.RATE_LIMIT_RELAX === "1" &&
+    !exemptFromRelax;
+  const effectiveMax = isRelaxed ? Math.max(20, max * 200) : max;
   let destroyed = false;
 
   // Periodic cleanup of expired entries every 120s
@@ -84,8 +94,8 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
       }
 
       return {
-        success: count <= max,
-        remaining: Math.max(0, max - count),
+        success: count <= effectiveMax,
+        remaining: Math.max(0, effectiveMax - count),
         reset: deadline.getTime(),
       };
     },

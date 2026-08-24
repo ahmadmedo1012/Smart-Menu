@@ -38,7 +38,8 @@ export default function OwnerRestaurantsPage() {
 		try {
 			const res = await fetch('/api/owner/restaurants');
 			const json = await res.json();
-			setRestaurants(json.data ?? json ?? []);
+			// Array.isArray guard: 401 error bodies are objects, not lists.
+			setRestaurants(Array.isArray(json.data) ? json.data : []);
 		} catch {
 			premiumToast('error', 'فشل تحميل المنيوهات');
 		} finally {

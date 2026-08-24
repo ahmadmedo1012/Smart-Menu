@@ -30,18 +30,6 @@ async function submitAndWaitDialog(page: Page): Promise<boolean> {
   return false;
 }
 
-/** Fill the subscribe form for a single-menu plan. */
-async function fillMenu1(page: Page, name: string, slug: string, phone: string, user: string) {
-  await fillSubscribeForm(page, {
-    restaurantName: name,
-    slug,
-    phone,
-    whatsapp: phone,
-    username: user,
-    password: PASSWORD,
-  });
-}
-
 /** Click "إرسال طلب الدفع" if present; returns whether it was clicked. */
 async function trySubmitPayment(page: Page): Promise<boolean> {
   const sub = page.locator('[role="dialog"] button:has-text("إرسال طلب الدفع")');
@@ -52,21 +40,6 @@ async function trySubmitPayment(page: Page): Promise<boolean> {
   return false;
 }
 
-async function openBankDialog(page: Page, name: string, slug: string, user: string) {
-  await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
-  await choosePlanByPrice(page, "129"); // Pro
-  await fillStandard1(page, name, slug, "0910000011", user);
-  const dlgOk = await submitAndWaitDialog(page);
-  expect(dlgOk).toBeTruthy();
-  const dlg = page.locator('[role="dialog"]');
-  return dlg;
-}
-
-// passthrough stub to keep call sites identical (defined inline below)
-async function fillStandard1(page: Page, name: string, slug: string, phone: string, user: string) {
-  await fillStandard(page, name, slug, phone, user);
-}
 async function fillStandard(page: Page, name: string, slug: string, phone: string, user: string) {
   await fillSubscribeForm(page, {
     restaurantName: name, slug, phone, whatsapp: phone, username: user, password: PASSWORD,
@@ -134,7 +107,7 @@ test("bank: submit without sender name/account → validation error", async ({ p
   await page.waitForTimeout(6000);
   const dlg = page.locator('[role="dialog"]');
   if (await dlg.count()) {
-    const clicked = await trySubmitPayment(page);
+    trySubmitPayment(page);
     await page.waitForTimeout(2500);
     const body = await page.locator("body").innerText();
     const hasError = body.includes("مطلوب") || body.includes("يرجى") || (await dlg.count()) > 0;
@@ -197,11 +170,14 @@ test("madar: full flow shows 'بانتظار موافقة الإدارة' withou
   if (await senderAcct.count()) await senderAcct.fill("123456789");
   await page.waitForTimeout(400);
 
-  // Submit → should go straight to "بانتظار موافقة الإدارة", no countdown timer
+  // Submit → should go straight to "بانتظار موافقة الإدارة", no countdown timer.
+  // The POST can take 3-5s on a cold backend, so wait for the waiting-state
+  // text deterministically instead of a fixed sleep that races the response.
   const clicked = await trySubmitPayment(page);
-  await page.waitForTimeout(4000);
-  const body = await page.locator("body").innerText();
   if (clicked) {
+    const pendingText = dlg.getByText(/موافقة الإدارة|بانتظار/).first();
+    await pendingText.waitFor({ state: "visible", timeout: 30000 }).catch(() => {});
+    const body = await page.locator("body").innerText();
     const pendingTxt = body.includes("موافقة الإدارة") || body.includes("بانتظار");
     expect(pendingTxt).toBeTruthy();
     // No USSD countdown should appear for madar
