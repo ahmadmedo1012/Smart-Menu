@@ -87,7 +87,16 @@ export function CategoryTabs({
 }: CategoryTabsProps) {
   return (
     <LayoutGroup>
+      {/* a11y decision: these are FILTER buttons, not ARIA tabs — selecting one
+          filters a single list in place instead of swapping labelled panels, so
+          role="tablist"/"tab" would promise tabpanel semantics that don't exist.
+          Pattern used instead: a named toolbar group + aria-pressed toggle buttons
+          (APG "toggle button" filter pattern), which screen readers announce as
+          "pressed/not pressed" without the tab-panel contract. */}
       <div
+        role="group"
+        aria-label="تصفية الأصناف حسب القسم"
+        aria-describedby="category-tabs-hint"
         className={cn(
           /* glass pill strip */
           "flex gap-1.5 overflow-x-auto pb-3 mb-6 scrollbar-none snap-x snap-mandatory -mx-4 sm:mx-0 px-4 sm:px-0",
@@ -96,6 +105,10 @@ export function CategoryTabs({
           className,
         )}
       >
+        {/* sr-only hint so SR users understand the group filters the list below */}
+        <span id="category-tabs-hint" className="sr-only">
+          اختيار قسم يعرض أصنافه فقط في القائمة أدناه
+        </span>
         <TabButton
           label="الكل"
           count={itemCounts.get(null) ?? 0}
@@ -134,8 +147,9 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={isActive}
       className={cn(
-        "relative snap-start shrink-0",
+        "relative snap-start shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2",
         /* premium glass pill */
         "px-4 sm:px-5 py-2.5 sm:py-3 min-h-11 rounded-full",
         "text-xs sm:text-sm font-medium transition-all duration-200",

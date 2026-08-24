@@ -31,7 +31,7 @@ export default function CartLoading() {
                 <div className="size-9 skeleton rounded-md" />
                 <div className="h-6 w-10 skeleton rounded" />
                 <div className="size-9 skeleton rounded-md" />
-                <div className="size-9 skeleton rounded-md mr-1" />
+                <div className="size-9 skeleton rounded-md ms-1" />
               </div>
             </div>
             <div className="h-9 skeleton rounded-md" />

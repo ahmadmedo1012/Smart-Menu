@@ -201,7 +201,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         disabled={page >= totalPages} aria-label="الصفحة التالية">
         <MotionChevronLeft className="size-4" />
       </Button>
-      <span className="text-xs text-muted-foreground mr-2">
+      <span className="text-xs text-muted-foreground ms-2">
         الصفحة {toArabicNumber(page)} من {toArabicNumber(totalPages)}
       </span>
     </div>

@@ -100,8 +100,10 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 				{chartData.length > 0 ? (
 					<AreaChart data={chartData} height={200} />
 				) : (
-					<div className="flex items-center justify-center h-[200px] text-muted-foreground/50">
-						<AnimatedDollarSign className="size-8" />
+					<div className="flex flex-col items-center justify-center gap-2 h-[200px] text-muted-foreground">
+						<AnimatedDollarSign className="size-8 text-muted-foreground/50" aria-hidden="true" />
+						<p className="text-sm">لا توجد بيانات إيرادات بعد</p>
+						<p className="text-xs text-muted-foreground/60">ستظهر الإيرادات هنا مع أول الطلبات</p>
 					</div>
 				)}
 			</div>
@@ -116,8 +118,10 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 					{hourlyData.length > 0 ? (
 						<HorizontalBar data={hourlyData} barHeight={20} />
 					) : (
-						<div className="flex items-center justify-center h-[150px] text-muted-foreground/50">
-							<AnimatedClock className="size-8" />
+						<div className="flex flex-col items-center justify-center gap-2 h-[150px] text-muted-foreground">
+							<AnimatedClock className="size-8 text-muted-foreground/50" aria-hidden="true" />
+							<p className="text-sm">لا توجد طلبات مسجلة بعد</p>
+							<p className="text-xs text-muted-foreground/60">سيظهر توزيع الطلبات على مدار اليوم هنا</p>
 						</div>
 					)}
 				</div>
@@ -167,8 +171,10 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 							))}
 						</div>
 					) : (
-						<div className="flex items-center justify-center h-[150px] text-muted-foreground/50">
-							<AnimatedBarChart3 className="size-8" />
+						<div className="flex flex-col items-center justify-center gap-2 h-[150px] text-muted-foreground">
+							<AnimatedBarChart3 className="size-8 text-muted-foreground/50" aria-hidden="true" />
+							<p className="text-sm">لا توجد أصناف مطلوبة بعد</p>
+							<p className="text-xs text-muted-foreground/60">سيظهر ترتيب الأصناف الأكثر طلباً هنا مع نموّها</p>
 						</div>
 					)}
 				</div>

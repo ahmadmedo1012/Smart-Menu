@@ -10,6 +10,7 @@ import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
 import { MenuToolbar } from './MenuToolbar';
 import { OrderDialog } from './OrderDialog';
+import { ReviewSheet } from './ReviewSheet';
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { fadeUp } from '@/lib/motion';
 
@@ -52,6 +53,9 @@ function MenuPageClientInner({
 	const sort = isValidSort(searchParams.get('sort')) ? searchParams.get('sort')! : 'default';
 
 	const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
+	/* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
+		Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore. */
+	const [reviewItem, setReviewItem] = useState<{ id: number; name: string } | null>(null);
 	const cartItems = useCart((s) => s.items);
 	const addItem = useCart((s) => s.addItem);
 	const updateQuantity = useCart((s) => s.updateQuantity);
@@ -185,6 +189,10 @@ function MenuPageClientInner({
 		[items]
 	);
 
+	const handleReview = useCallback((item: MenuItemProp) => {
+		setReviewItem({ id: item.id, name: item.nameAr || item.name });
+	}, []);
+
 	const hasActiveFilter = search !== '' || activeCategory !== null;
 
 	return (
@@ -230,8 +238,8 @@ function MenuPageClientInner({
 			{popularItems.length >= 2 && (
 				<section id="menu-popular" className="mb-8">
 					<div className="flex items-center gap-2 mb-3 px-1">
-						<span className="size-2 rounded-full bg-orange animate-pulse" />
-						<span className="text-sm font-semibold text-foreground">الأكثر طلباً</span>
+						<span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
+						<h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
 					</div>
 					<motion.div
 						variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
@@ -250,6 +258,7 @@ function MenuPageClientInner({
 									onOrder={setOrderItem}
 									onAddToCart={handleQuickAdd}
 									onDecrementCart={handleDecrement}
+									onReview={handleReview}
 									cartQty={getCartQty(item.id)}
 									variant="featured"
 									/* LCP: first 4 popular items above the fold → eager + fetchPriority=high */
@@ -298,6 +307,7 @@ function MenuPageClientInner({
 								onOrder={setOrderItem}
 								onAddToCart={handleQuickAdd}
 								onDecrementCart={handleDecrement}
+								onReview={handleReview}
 								cartQty={getCartQty(item.id)}
 								/* LCP: no popular section → first 4 normal items are above the fold */
 								eager={popularItems.length === 0 && index < 4}
@@ -317,6 +327,16 @@ function MenuPageClientInner({
 				restaurantName={restaurantName}
 				restaurantId={restaurantId}
 				restaurantLogo={restaurantLogo}
+			/>
+
+			{/* Shared reviews dialog — single instance for all cards (a11y + DOM size) */}
+			<ReviewSheet
+				menuItemId={reviewItem?.id ?? 0}
+				menuItemName={reviewItem?.name ?? ''}
+				open={reviewItem !== null}
+				onOpenChange={(o) => {
+					if (!o) setReviewItem(null);
+				}}
 			/>
 		</>
 	);

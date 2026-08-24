@@ -353,9 +353,9 @@ export default function OwnerMenuPage() {
 									<div>
 										<span className="font-bold">{cat.name}</span>
 										{cat.nameAr && (
-											<span className="text-xs text-muted-foreground mr-2">{cat.nameAr}</span>
+											<span className="text-xs text-muted-foreground ms-2">{cat.nameAr}</span>
 										)}
-										<span className="text-xs text-muted-foreground mr-2 bg-muted/50 px-2 py-0.5 rounded-full">
+										<span className="text-xs text-muted-foreground ms-2 bg-muted/50 px-2 py-0.5 rounded-full">
 											{toArabicNumber(cat._count?.items ?? cat.items?.length ?? 0)} صنف
 										</span>
 									</div>
@@ -407,7 +407,7 @@ export default function OwnerMenuPage() {
 									</Button>
 									<MotionChevronDown
 										className={cn(
-											'size-5 text-muted-foreground transition-transform duration-300 mr-1',
+											'size-5 text-muted-foreground transition-transform duration-300 ms-1',
 											expandedCat === cat.id && 'rotate-180'
 										)}
 									/>
@@ -469,7 +469,7 @@ export default function OwnerMenuPage() {
 														>
 															{toArabicNumber((item.discountedPrice ?? item.price).toFixed(1))}
 														</span>
-														<span className="text-xs text-muted-foreground mr-0.5">د.ل</span>
+														<span className="text-xs text-muted-foreground ms-0.5">د.ل</span>
 														{item.discountedPrice && (
 															<span className="text-xs text-muted-foreground/50 line-through block">
 																{toArabicNumber(item.price.toFixed(1))}

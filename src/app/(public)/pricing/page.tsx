@@ -266,7 +266,7 @@ export default function PricingPage() {
 								yearly ? 'text-orange bg-orange-muted' : 'text-muted-foreground'
 							)}
 						>
-							سنوي ·<span className="mr-1 text-xs text-orange font-bold">وفر شهرين</span>
+							سنوي ·<span className="ms-1 text-xs text-orange font-bold">وفر شهرين</span>
 							{yearly && (
 								<span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />
 							)}

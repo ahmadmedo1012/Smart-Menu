@@ -274,17 +274,42 @@ export function OrderDialog({
 						</div>
 					</div>
 
-					{/* Order type — segmented with bg-orange active (single-select → radio group) */}
-					<div role="radiogroup" aria-label="نوع الطلب" className={cn(glassPillCard, 'flex p-1 gap-1')}>
+					{/* Order type — segmented with bg-orange active (single-select → radio group).
+						a11y (APG radiogroup): roving tabindex + ArrowLeft/Right/Up/Down moves
+						selection. In RTL the LEFT arrow advances forward (visual order matches
+						DOM order here), so both left/down = next and right/up = previous. */}
+					<div
+						role="radiogroup"
+						aria-label="نوع الطلب"
+						className={cn(glassPillCard, 'flex p-1 gap-1')}
+						onKeyDown={(e) => {
+							if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+							e.preventDefault();
+							const types = ['inside', 'delivery', 'takeaway'] as const;
+							const curIdx = types.indexOf(orderType);
+							const delta =
+								e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? 1 : -1;
+							const nextIdx = (curIdx + delta + types.length) % types.length;
+							setOrderType(types[nextIdx]);
+							const groupEl = e.currentTarget;
+							requestAnimationFrame(() => {
+								groupEl
+									.querySelector<HTMLButtonElement>(`[data-order-type='${types[nextIdx]}']`)
+									?.focus();
+							});
+						}}
+					>
 						{(['inside', 'delivery', 'takeaway'] as const).map((type) => (
 							<button
 								key={type}
 								type="button"
 								role="radio"
+								data-order-type={type}
 								aria-checked={orderType === type}
+								tabIndex={orderType === type ? 0 : -1}
 								onClick={() => setOrderType(type)}
 								className={cn(
-									'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all',
+									'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 									orderType === type
 										? 'bg-orange text-white shadow-md'
 										: 'text-muted-foreground hover:text-foreground'

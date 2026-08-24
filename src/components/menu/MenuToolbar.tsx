@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useDeferredValue, useMemo, useEffect } from 'react';
+import { useState, useRef, useCallback, useDeferredValue, useMemo, useEffect } from 'react';
 
 /** Pure debounce core — exported for unit testing without React. */
 export function createDebounced<A extends unknown[]>(fn: (...args: A) => void, delay = 275) {
@@ -77,8 +77,16 @@ export function MenuToolbar({
 }: MenuToolbarProps) {
 	const [showSort, setShowSort] = useState(false);
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	/* a11y (ARIA combobox): activeIndex drives aria-activedescendant — the input
+	   keeps DOM focus while Arrow keys walk the listbox options. -1 = none. */
+	const [activeIdx, setActiveIdx] = useState(-1);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const listboxId = 'menu-search-suggestions';
+
+	useEffect(() => {
+		setActiveIdx(-1);
+	}, [search]);
 
 	// Local input value updates instantly while typing; URL sync is debounced
 	// so router.replace doesn't fire per keystroke (history spam + re-render churn)
@@ -120,6 +128,43 @@ export function MenuToolbar({
 	const hasSuggestions = search.trim().length >= 1 && suggestions.length > 0;
 	const dropdownVisible = hasSuggestions && showSuggestions;
 
+	/* a11y: keyboard walk of the suggestion listbox (ARIA combobox pattern).
+	   ArrowDown/ArrowUp move aria-activedescendant, Enter picks the active option,
+	   Escape collapses. RTL note: Up/Down are direction-neutral so no mirroring needed. */
+	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (!dropdownVisible) {
+			if (e.key === 'ArrowDown' && hasSuggestions) {
+				e.preventDefault();
+				setShowSuggestions(true);
+				setActiveIdx(0);
+			}
+			return;
+		}
+		if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			setActiveIdx((i) => (i <= 0 ? -1 : i - 1));
+		} else if (e.key === 'Enter' && activeIdx >= 0 && activeIdx < suggestions.length) {
+			e.preventDefault();
+			onSuggestionClick?.(suggestions[activeIdx].id);
+			setShowSuggestions(false);
+			setActiveIdx(-1);
+		} else if (e.key === 'Escape') {
+			setShowSuggestions(false);
+			setActiveIdx(-1);
+		}
+	};
+
+	/* Scroll the activedescendant option into view without stealing focus */
+	const optionRef = useCallback(
+		(node: HTMLButtonElement | null) => {
+			if (node?.dataset.active === 'true') node.scrollIntoView({ block: 'nearest' });
+		},
+		[]
+	);
+
 	return (
 		<div ref={containerRef} className={cn('relative mb-4 flex gap-2 items-start', className)}>
 			{/* Search input — glass card wrapper */}
@@ -132,6 +177,7 @@ export function MenuToolbar({
 							id="menu-search"
 							name="search"
 							type="text"
+							role="combobox"
 							placeholder="ابحث في القائمة..."
 							value={inputValue}
 							onChange={(e) => {
@@ -142,6 +188,13 @@ export function MenuToolbar({
 							onFocus={() => {
 								if (hasSuggestions) setShowSuggestions(true);
 							}}
+							onKeyDown={handleSearchKeyDown}
+							aria-autocomplete="list"
+							aria-expanded={dropdownVisible}
+							aria-controls={hasSuggestions ? listboxId : undefined}
+							aria-activedescendant={
+								dropdownVisible && activeIdx >= 0 ? `${listboxId}-opt-${activeIdx}` : undefined
+							}
 							className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground/50"
 						/>
 						{search && (
@@ -154,15 +207,18 @@ export function MenuToolbar({
 									setShowSuggestions(false);
 									inputRef.current?.focus();
 								}}
-								className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+								className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 							>
-								<AnimatedX className="size-3" />
+								<AnimatedX className="size-3" aria-hidden="true" />
 							</button>
 						)}
 					</div>
 
-					{/* Suggestions dropdown — glass-strong */}
-					<div
+					{/* Suggestions dropdown — glass-strong, real listbox owned by the combobox */}
+					<ul
+						id={listboxId}
+						role="listbox"
+						aria-label="اقتراحات البحث"
 						className={cn(
 							'glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-all duration-200',
 							dropdownVisible
@@ -170,37 +226,50 @@ export function MenuToolbar({
 								: 'opacity-0 invisible -translate-y-1 pointer-events-none'
 						)}
 					>
-						{suggestions.map((s) => (
-							<button
-								key={s.id}
-								type="button"
-								onClick={() => {
-									onSuggestionClick?.(s.id);
-									setShowSuggestions(false);
-								}}
-								className="flex items-center gap-3 w-full px-4 py-3 text-start text-sm hover:bg-accent transition-colors first:pt-3.5 last:pb-3.5"
-							>
-								{s.image && (
-									<div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
-										<img src={s.image} alt="" loading="lazy" className="size-full object-cover" />
-									</div>
-								)}
-								<span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
-								<span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
-									{toArabicNumber(s.price.toFixed(1))} د.ل
-								</span>
-							</button>
+						{suggestions.map((s, i) => (
+							<li key={s.id} role="none">
+								<button
+									ref={optionRef}
+									id={`${listboxId}-opt-${i}`}
+									type="button"
+									role="option"
+									data-active={i === activeIdx}
+									aria-selected={i === activeIdx}
+									onClick={() => {
+										onSuggestionClick?.(s.id);
+										setShowSuggestions(false);
+										setActiveIdx(-1);
+										inputRef.current?.focus();
+									}}
+									className={cn(
+										'flex items-center gap-3 w-full px-4 py-3 text-start text-sm hover:bg-accent transition-colors first:pt-3.5 last:pb-3.5',
+										i === activeIdx && 'bg-accent'
+									)}
+								>
+									{s.image && (
+										<div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
+											<img src={s.image} alt="" loading="lazy" className="size-full object-cover" />
+										</div>
+									)}
+									<span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
+									<span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
+										{toArabicNumber(s.price.toFixed(1))} د.ل
+									</span>
+								</button>
+							</li>
 						))}
-					</div>
+					</ul>
 				</div>
 			)}
 
-			{/* Sort button — glass-card trigger */}
+			{/* Sort button — glass-card trigger, opens a real menu pattern.
+				a11y: role=menu + menuitemradio + aria-checked (single-select menu),
+				options are NOT tabbable — Arrow keys move focus among them (roving). */}
 			<div className="relative">
 				<button
 					type="button"
 					aria-label="ترتيب"
-					aria-haspopup="listbox"
+					aria-haspopup="menu"
 					aria-expanded={showSort}
 					onClick={() => setShowSort(!showSort)}
 					onKeyDown={(e) => {
@@ -209,7 +278,7 @@ export function MenuToolbar({
 							setShowSort(true);
 						}
 					}}
-					className="glass-card rounded-xl h-12 sm:h-14 w-12 sm:w-14 flex items-center justify-center transition-all duration-300 focus-within:ring-2 focus-within:ring-orange/30"
+					className="glass-card rounded-xl h-12 sm:h-14 w-12 sm:w-14 flex items-center justify-center transition-all duration-300 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none"
 				>
 					<svg
 						className="size-4"
@@ -224,23 +293,25 @@ export function MenuToolbar({
 				</button>
 				{showSort && (
 					<>
-						<div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
+						<div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} aria-hidden="true" />
 						<div
 							className="absolute end-0 sm:end-auto sm:start-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-xl shadow-glass-lg overflow-hidden origin-top-right animate-scale-in"
-							role="listbox"
+							role="menu"
 							aria-label="خيارات الترتيب"
+							tabIndex={-1}
+							ref={(node) => {
+								if (showSort && node) node.focus();
+							}}
 							onKeyDown={(e) => {
-								const opts = e.currentTarget.querySelectorAll<HTMLButtonElement>("[role='option']");
+								const opts = e.currentTarget.querySelectorAll<HTMLButtonElement>("[role='menuitemradio']");
 								const cur = Array.from(opts).findIndex((o) => o === document.activeElement);
 								if (e.key === 'ArrowDown') {
 									e.preventDefault();
 									opts[(cur + 1) % opts.length]?.focus();
-								}
-								if (e.key === 'ArrowUp') {
+								} else if (e.key === 'ArrowUp') {
 									e.preventDefault();
 									opts[(cur - 1 + opts.length) % opts.length]?.focus();
-								}
-								if (e.key === 'Escape') {
+								} else if (e.key === 'Escape') {
 									setShowSort(false);
 								}
 							}}
@@ -248,15 +319,16 @@ export function MenuToolbar({
 							{SORT_OPTIONS.map((opt) => (
 								<button
 									key={opt.value}
-									role="option"
 									type="button"
-									aria-selected={sort === opt.value}
+									role="menuitemradio"
+									aria-checked={sort === opt.value}
+									tabIndex={-1}
 									onClick={() => {
 										onSortChange(opt.value);
 										setShowSort(false);
 									}}
 									className={cn(
-										'glass-strong w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none',
+										'glass-strong w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:bg-accent focus-visible:outline-none',
 										sort === opt.value && 'bg-accent font-medium text-primary'
 									)}
 								>

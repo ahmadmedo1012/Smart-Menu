@@ -162,10 +162,10 @@ export default function AdminMenuPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-normal">إدارة المنيو</h2>
+          <h1 className="text-2xl font-bold tracking-normal">إدارة المنيو</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(items.length)} صنف في {toArabicNumber(totalRestaurants)} مطعم</p>
         </div>
-        <Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20 self-start">
+        <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15 self-start">
           <Activity className="size-3.5 text-success animate-pulse" />
           تحديث تلقائي
         </Badge>
@@ -196,7 +196,7 @@ export default function AdminMenuPage() {
           <p className="text-xs text-muted-foreground">متوفر</p>
         </div>
         <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold text-red-500">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
+          <p className="text-2xl font-bold text-destructive">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
           <p className="text-xs text-muted-foreground">غير متوفر</p>
         </div>
         <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
@@ -232,7 +232,7 @@ export default function AdminMenuPage() {
                     </div>
                     {catItems.map(item => (
                       <div key={item.id} className="flex items-center gap-4 px-5 py-3 hover:bg-muted/10 transition-colors group">
-                        <div className={cn("size-2 rounded-full shrink-0", item.status === "available" ? "bg-success" : "bg-red-400")} />
+                        <div className={cn("size-2 rounded-full shrink-0", item.status === "available" ? "bg-success" : "bg-destructive")} />
                         <div className="flex-1 min-w-0">
                           <span className={cn("font-medium text-sm", item.status !== "available" && "text-muted-foreground/50 line-through")}>
                             {item.nameAr || item.name}

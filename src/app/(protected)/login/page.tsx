@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { csrfFetch } from '@/lib/csrf-client';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
@@ -190,7 +190,11 @@ function LoginForm() {
 							priority
 						/>
 					</div>
-					<CardTitle className="font-arabic text-2xl font-bold">الربط الذكي</CardTitle>
+					{/* a11y: real h1 — page previously had no level-1 heading.
+					    CardTitle renders a <div>, so the h1 is a plain element styled to match. */}
+					<h1 className="font-heading font-arabic text-2xl leading-snug font-bold">
+						الربط الذكي
+					</h1>
 					<CardDescription className="font-arabic text-base text-muted-foreground/80">
 						لوحة تحكم المطاعم
 					</CardDescription>
@@ -234,10 +238,12 @@ function LoginForm() {
 									required
 									className="border-0 bg-transparent pe-9 focus-visible:ring-2 focus-visible:ring-orange/40 focus-visible:ring-offset-0"
 								/>
+								{/* a11y (2.5.8 target size): size-11 hit area via negative margin
+									around the icon so the visual layout is unchanged */}
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
-									className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									className="absolute end-1.5 top-1/2 -translate-y-1/2 flex size-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:rounded-full"
 									aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
 								>
 									{showPassword ? <AnimatedEyeOff className="size-4" /> : <AnimatedEye className="size-4" />}
@@ -303,16 +309,19 @@ function LoginForm() {
 						</DialogContent>
 					</Dialog>
 
-					{/* Demo credentials hint */}
-					<div className="mt-4 rounded-md border border-orange/20 bg-orange-muted/30 p-3 font-arabic text-xs">
-						<p className="text-muted-foreground">
-							حساب تجريبي: <span className="font-semibold text-foreground" dir="ltr">waha</span> /{' '}
-							<span className="font-semibold text-foreground" dir="ltr">waha123</span>
-						</p>
-						<Link href="/menu/al-waha-cafe" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-orange/30 bg-card/60 px-3 py-2 text-xs font-semibold text-orange transition-colors hover:bg-orange/10">
-							فتح المنيو التجريبي
-						</Link>
-					</div>
+					{/* Demo credentials hint — dev-only (security: don't advertise test
+						credentials in production builds) */}
+					{process.env.NODE_ENV === 'development' && (
+						<div className="mt-4 rounded-md border border-orange/20 bg-orange-muted/30 p-3 font-arabic text-xs">
+							<p className="text-muted-foreground">
+								حساب تجريبي: <span className="font-semibold text-foreground" dir="ltr">waha</span> /{' '}
+								<span className="font-semibold text-foreground" dir="ltr">waha123</span>
+							</p>
+							<Link href="/menu/al-waha-cafe" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-orange/30 bg-card/60 px-3 py-2 text-xs font-semibold text-orange transition-colors hover:bg-orange/10">
+								فتح المنيو التجريبي
+							</Link>
+						</div>
+					)}
 
 					{/* Footer */}
 					<p className="mt-6 text-center text-xs text-muted-foreground/60 font-arabic">

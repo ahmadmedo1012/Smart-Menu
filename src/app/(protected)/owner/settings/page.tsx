@@ -256,12 +256,15 @@ export default function OwnerSettingsPage() {
 						{logo ? (
 							<>
 								<OptimizedImage src={logo} alt="الشعار" className="size-full" priority={false} />
+								{/* a11y: visible by default (touch screens have no hover); hover-hidden
+									only from sm up, and always revealed on focus */}
 								<button
 									type="button"
 									onClick={() => setLogo('')}
-									className="absolute top-1.5 right-1.5 size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+									aria-label="حذف الشعار"
+									className="absolute top-1.5 right-1.5 size-8 sm:size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
 								>
-									<AnimatedX className="size-3" />
+									<AnimatedX className="size-3" aria-hidden="true" />
 								</button>
 							</>
 						) : (
@@ -344,21 +347,24 @@ export default function OwnerSettingsPage() {
 								className="group relative aspect-square rounded-xl overflow-hidden bg-muted/20 border border-border/20"
 							>
 								<OptimizedImage src={url} alt={`صورة ${i + 1}`} className="size-full" />
-								<div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+								{/* a11y: overlay controls visible on touch / focus, hover-hidden only sm+ */}
+								<div className="absolute inset-0 bg-black/30 flex items-center justify-center gap-2 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
 									<button
 										type="button"
 										onClick={() => removeGalleryImage(i)}
-										className="size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center hover:bg-destructive transition-colors"
+										aria-label={`حذف صورة ${i + 1}`}
+										className="size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center hover:bg-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
 									>
-										<AnimatedX className="size-3.5" />
+										<AnimatedX className="size-3.5" aria-hidden="true" />
 									</button>
 								</div>
-								<div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+								<div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
 									{i > 0 && (
 										<button
 											type="button"
 											onClick={() => moveGalleryImage(i, i - 1)}
-											className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm"
+											aria-label={`نقل صورة ${i + 1} إلى اليمين`}
+											className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 										>
 											→
 										</button>
@@ -367,7 +373,8 @@ export default function OwnerSettingsPage() {
 										<button
 											type="button"
 											onClick={() => moveGalleryImage(i, i + 1)}
-											className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm"
+											aria-label={`نقل صورة ${i + 1} إلى اليسار`}
+											className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 										>
 											←
 										</button>

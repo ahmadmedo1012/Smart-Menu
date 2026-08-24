@@ -4,12 +4,11 @@ import { useState, memo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
-import { AlertTriangle, Sparkles, UtensilsCrossed } from 'lucide-react';
+import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import AnimatedStar from '@/components/ui/star-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
-import { ReviewSheet } from './ReviewSheet';
 
 /* ponytail: shared spring config — deduped from 3 inline copies */
 const CARD_SPRING = { type: 'spring' as const, stiffness: 500, damping: 25 };
@@ -80,6 +79,7 @@ const MenuItemCard = memo(function MenuItemCard({
 	onOrder,
 	onAddToCart,
 	onDecrementCart,
+	onReview,
 	cartQty = 0,
 	variant,
 	eager = false,
@@ -88,6 +88,8 @@ const MenuItemCard = memo(function MenuItemCard({
 	onOrder: (item: MenuItemProp) => void;
 	onAddToCart: (item: MenuItemProp) => void;
 	onDecrementCart?: (item: MenuItemProp) => void;
+	/** Open the shared ReviewSheet (owned by MenuPageClient) for this item */
+	onReview?: (item: MenuItemProp) => void;
 	cartQty?: number;
 	variant?: 'default' | 'featured';
 	/* LCP: eager=true → loading="eager" + fetchPriority="high" for above-the-fold images */
@@ -99,9 +101,21 @@ const MenuItemCard = memo(function MenuItemCard({
 	const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 	const hasRating = item.avgRating != null && item.ratingCount != null && item.ratingCount > 0;
 	const [imageError, setImageError] = useState(false);
-	const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
-	const [reviewSheetItem, setReviewSheetItem] = useState<{ id: number; name: string } | null>(null);
 	const cardRef = useRef<HTMLDivElement>(null);
+
+	/**
+	 * Card-level activation (Enter/Space) opens the order dialog — but only when
+	 * the event did not originate from an interactive child (buttons handle
+	 * themselves and stopPropagation). Without this guard, Space pressed on a
+	 * focused "أضف" button would bubble up and double-fire onOrder.
+	 */
+	const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.key !== 'Enter' && e.key !== ' ') return;
+		const target = e.target as HTMLElement;
+		if (target.closest('button, a[href], input, textarea, select')) return;
+		e.preventDefault();
+		onOrder(item);
+	};
 
 	/* ponytail: 3D tilt via mouse position */
 	const mx = useMotionValue(0);
@@ -137,7 +151,7 @@ const MenuItemCard = memo(function MenuItemCard({
 			whileHover={{ y: -10, scale: 1.02, transition: HOVER_SPRING }}
 			whileTap={{ scale: 0.97, transition: HOVER_SPRING }}
 			className={cn(
-				'group relative flex w-full cursor-pointer overflow-hidden rounded-xl flex-col',
+				'group relative flex w-full cursor-pointer overflow-hidden rounded-xl flex-col outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
 				/* glassmorphism base */
 				'bg-white/70 dark:bg-white/[0.07] backdrop-blur-xl',
 				'border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/20',
@@ -152,10 +166,14 @@ const MenuItemCard = memo(function MenuItemCard({
 				'after:-translate-x-full group-hover:after:translate-x-full after:transition-transform after:duration-700 after:ease-in-out',
 				isFeatured && 'md:col-span-2'
 			)}
+			tabIndex={0}
 			onClick={() => onOrder(item)}
-			// a11y: no role="button"/tabIndex on the card — it would hijack Space/Enter
-			// from the nested add-to-cart and quantity buttons. Card click is a
-			// progressive enhancement; keyboard users operate the real buttons.
+			onKeyDown={handleCardKeyDown}
+			// a11y: the card is a keyboard-operable shortcut to the order dialog
+			// (tabIndex + Enter/Space). No role="button" — a button role wrapping
+			// real buttons would fail axe nested-interactive; the visible "خيارات"
+			// and "أضف" buttons remain the primary, fully-labelled controls and
+			// stopPropagation keeps card activation from double-firing.
 		>
 			{/* Image — aspect-4/3 with zoom */}
 			<div className="relative w-full aspect-[4/3] overflow-hidden">
@@ -216,15 +234,14 @@ const MenuItemCard = memo(function MenuItemCard({
 
 			{/* Content area */}
 			<div className="relative z-10 p-4 flex flex-col gap-2">
-				{/* Name + Rating glass-pill */}
+				{/* Name (h2: page outline is h1 restaurant → h2 items) + Rating glass-pill */}
 				<div className="flex items-start justify-between gap-2">
-					<h3 className="font-bold text-lg leading-[1.4] line-clamp-1">{displayName}</h3>
+					<h2 className="font-bold text-lg leading-[1.4] line-clamp-1">{displayName}</h2>
 					<button
 						type="button"
 						onClick={(e) => {
 							e.stopPropagation();
-							setReviewSheetItem({ id: item.id, name: displayName });
-							setReviewSheetOpen(true);
+							onReview?.(item);
 						}}
 						aria-label={`تقييم ${displayName}`}
 						className={cn(
@@ -286,8 +303,23 @@ const MenuItemCard = memo(function MenuItemCard({
 					)}
 				</div>
 
-				{/* Animated CTA / Quantity counter */}
-				<div className="w-full">
+				{/* Options + Animated CTA / Quantity counter row */}
+				<div className="flex items-stretch gap-2 w-full">
+					{/* a11y (WCAG 2.1.1): the card's onClick is mouse-only — this visible,
+						keyboard-reachable button is the primary path to OrderDialog. */}
+					<button
+						type="button"
+						onClick={(e) => {
+							e.stopPropagation();
+							onOrder(item);
+						}}
+						aria-label={`خيارات ${displayName}`}
+						className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-11 min-w-11 rounded-xl border border-orange/40 bg-orange/5 text-orange dark:text-orange hover:bg-orange/10 active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+					>
+						<Settings2 className="size-4" aria-hidden="true" />
+						<span className="text-xs font-bold">خيارات</span>
+					</button>
+					<div className="flex-1">
 					<AnimatePresence mode="wait">
 						{cartQty === 0 ? (
 							<motion.button
@@ -343,19 +375,8 @@ const MenuItemCard = memo(function MenuItemCard({
 					</AnimatePresence>
 				</div>
 			</div>
-
-			<ReviewSheet
-				menuItemId={reviewSheetItem?.id ?? 0}
-				menuItemName={reviewSheetItem?.name ?? ''}
-				open={reviewSheetOpen}
-				onOpenChange={(o) => {
-					if (!o) {
-						setReviewSheetOpen(false);
-						setReviewSheetItem(null);
-					}
-				}}
-			/>
-		</motion.div>
+		</div>
+	</motion.div>
 	);
 });
 

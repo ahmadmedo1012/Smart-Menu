@@ -13,6 +13,7 @@ import { useCart } from '@/store/cart';
 import { toArabicNumber } from '@/lib/format';
 import { buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { cn } from '@/lib/utils';
 
 export function CartSlideOver() {
@@ -111,14 +112,13 @@ export function CartSlideOver() {
 							)}
 						>
 							{item.image && (
-								<div className="size-14 rounded-md overflow-hidden shrink-0 bg-muted/30 ring-1 ring-white/10">
-									<img
-										src={item.image}
-										alt={item.name}
-										loading="lazy"
-										className="size-full object-cover"
-									/>
-								</div>
+								<OptimizedImage
+									src={item.image}
+									alt={item.name}
+									aspectRatio="square"
+									className="size-14 shrink-0 rounded-md"
+									skeleton={false}
+								/>
 							)}
 							<div className="flex-1 min-w-0">
 								<p className="text-sm font-medium truncate">{item.name}</p>

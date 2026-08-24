@@ -5,21 +5,27 @@ import { BackButton } from '@/components/shared/BackButton';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SearchInput } from '@/components/ui/search-input';
+import { EmptyState } from '@/components/ui/empty-state';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-import { SearchInput } from '@/components/ui/search-input';
 import {
 	ClipboardList,
-	Clock,
-	CheckCircle,
-	XCircle,
-	ChefHat,
-	PackageCheck,
+	SearchX,
+	Download,
+	Loader2,
 	AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
+import {
+	getOrderStatusMeta,
+	getPickupTypeMeta,
+	formatRelativeTimeAr,
+} from '@/lib/order-status';
+import { LivePollIndicator } from '@/components/orders/LivePollIndicator';
+import { OrderCardSkeleton } from '@/components/orders/OrderCardSkeleton';
 
 interface Order {
 	id: number;
@@ -33,60 +39,26 @@ interface Order {
 	items: { quantity: number }[];
 }
 
-const STATUS_CONFIG: Record<
-	string,
-	{ label: string; icon: typeof Clock; color: string; bg: string; next: string | null }
-> = {
-	new: {
-		label: 'جديد',
-		icon: Clock,
-		color: 'text-orange dark:text-orange',
-		bg: 'bg-orange-muted dark:bg-orange-muted',
-		next: 'preparing',
-	},
-	preparing: {
-		label: 'قيد التحضير',
-		icon: ChefHat,
-		color: 'text-orange dark:text-orange',
-		bg: 'bg-orange-muted dark:bg-orange-muted',
-		next: 'ready',
-	},
-	ready: {
-		label: 'جاهز',
-		icon: PackageCheck,
-		color: 'text-success',
-		bg: 'bg-success/10',
-		next: 'completed',
-	},
-	completed: {
-		label: 'مكتمل',
-		icon: CheckCircle,
-		color: 'text-muted-foreground',
-		bg: 'bg-muted',
-		next: null,
-	},
-	cancelled: {
-		label: 'ملغي',
-		icon: XCircle,
-		color: 'text-red-600 dark:text-red-400',
-		bg: 'bg-red-50 dark:bg-red-950/30',
-		next: null,
-	},
-};
+const PAGE_SIZE = 20;
+/** Honest cadence shown in the live indicator — keep both in sync. */
+const POLL_INTERVAL_MS = 15_000;
 
-const TABS = [
-	{ value: '', label: 'الكل', count: 0 },
-	{ value: 'new', label: 'جديد', count: 0 },
-	{ value: 'preparing', label: 'قيد التحضير', count: 0 },
-	{ value: 'ready', label: 'جاهز', count: 0 },
-	{ value: 'completed', label: 'مكتمل', count: 0 },
+/** Status chips shown as horizontally scrollable filters with counts. */
+const STATUS_FILTERS = [
+	{ value: '', label: 'الكل' },
+	{ value: 'new', label: 'جديد' },
+	{ value: 'preparing', label: 'قيد التحضير' },
+	{ value: 'ready', label: 'جاهز' },
+	{ value: 'completed', label: 'مكتمل' },
 ];
 
 export default function OwnerOrdersPage() {
 	const [orders, setOrders] = useState<Order[]>([]);
 	const [totalOrders, setTotalOrders] = useState(0);
 	const [loading, setLoading] = useState(true);
-	const [loadingMore, setLoadingMore] = useState(false);
+	const constLoadingMore = useState(false);
+	void constLoadingMore;
+	const [loadingMore, setLoadingMore] = constLoadingMore;
 	const [filter, setFilter] = useState('');
 	const [search, setSearch] = useState('');
 	const [page, setPage] = useState(1);
@@ -94,13 +66,24 @@ export default function OwnerOrdersPage() {
 	const [dateFrom, setDateFrom] = useState('');
 	const [dateTo, setDateTo] = useState('');
 	const [error, setError] = useState<string | null>(null);
+	const [exporting, setExporting] = useState(false);
+	// True while the tab is visible AND the poll interval is running.
+	const [isLive, setIsLive] = useState(true);
+	// Optimistic status transitions: orderId → target status while in flight.
+	const [pendingStatus, setPendingStatus] = useState<Record<number, string>>({});
 	const router = useRouter();
 	const ordersRef = useRef<Order[]>([]);
 	// Multi-menu: active restaurant scopes all order queries
 	const { activeId } = useActiveRestaurant();
 
 	const fetchOrders = useCallback(
-		async (status: string, pageNum = 1, append = false, dateF?: string, dateT?: string) => {
+		async (
+			status: string,
+			pageNum = 1,
+			append = false,
+			dateF?: string,
+			dateT?: string
+		) => {
 			try {
 				if (pageNum === 1) setLoading(true);
 				else setLoadingMore(true);
@@ -108,7 +91,7 @@ export default function OwnerOrdersPage() {
 				const params = new URLSearchParams();
 				if (status) params.set('status', status);
 				params.set('page', String(pageNum));
-				params.set('pageSize', '20');
+				params.set('pageSize', String(PAGE_SIZE));
 				// Multi-menu: always scope to the active restaurant
 				if (activeId) params.set('restaurantId', String(activeId));
 				const from = dateF ?? dateFrom;
@@ -117,10 +100,13 @@ export default function OwnerOrdersPage() {
 				if (to) params.set('dateTo', to);
 				const url = `/api/orders?${params.toString()}`;
 				const res = await fetch(url);
-				if (res.status === 401) { window.location.href = '/login'; return; }
+				if (res.status === 401) {
+					window.location.href = '/login';
+					return;
+				}
 				if (!res.ok) throw new Error();
 				const json = await res.json();
-				const newOrders = Array.isArray(json.data) ? json.data : [];
+				const newOrders: Order[] = Array.isArray(json.data) ? json.data : [];
 				if (json?.meta?.total !== undefined) setTotalOrders(json.meta.total);
 				if (append) {
 					setOrders((prev) => {
@@ -132,7 +118,7 @@ export default function OwnerOrdersPage() {
 					setOrders(newOrders);
 					ordersRef.current = newOrders;
 				}
-				setHasMore(newOrders.length === 20);
+				setHasMore(newOrders.length === PAGE_SIZE);
 				setPage(pageNum);
 			} catch {
 				setError('فشل تحميل الطلبات');
@@ -144,6 +130,7 @@ export default function OwnerOrdersPage() {
 		},
 		[dateFrom, dateTo, activeId]
 	);
+
 	const loadMore = () => fetchOrders(filter, page + 1, true);
 
 	useEffect(() => {
@@ -151,47 +138,104 @@ export default function OwnerOrdersPage() {
 	}, [filter, fetchOrders]);
 
 	// Auto-refresh — client polling replaces SSE (Vercel kills streams at 300s).
+	// Honest UX: the indicator reflects the real cadence and pauses when the tab
+	// is hidden (document.visibilitychange) to save network + battery.
 	useEffect(() => {
+		let intervalId: ReturnType<typeof setInterval> | undefined;
+
 		const poll = async () => {
 			try {
 				const params = new URLSearchParams();
 				if (filter) params.set('status', filter);
 				params.set('page', '1');
-				params.set('pageSize', '20');
+				params.set('pageSize', String(PAGE_SIZE));
 				if (activeId) params.set('restaurantId', String(activeId));
 				const res = await fetch(`/api/orders?${params.toString()}`);
-				if (res.status === 401) { window.location.href = '/login'; return; }
+				if (res.status === 401) {
+					window.location.href = '/login';
+					return;
+				}
 				if (!res.ok) return;
 				const json = await res.json();
-				const fresh = Array.isArray(json.data) ? json.data : [];
-				const current = JSON.stringify(ordersRef.current?.map((o: { id: number }) => o.id) ?? []);
+				const fresh: Order[] = Array.isArray(json.data) ? json.data : [];
+				const currentIds = JSON.stringify(
+					ordersRef.current?.map((o: { id: number }) => o.id) ?? []
+				);
 				const freshIds = JSON.stringify(fresh.map((o: { id: number }) => o.id));
-				if (current !== freshIds && current !== '[]') {
+				if (currentIds !== freshIds && currentIds !== '[]') {
 					fetchOrders(filter, 1, false);
-					premiumToast('success', `📦 تحديث الطلبات`, undefined, { duration: 3000 });
+					premiumToast('success', '📦 تحديث الطلبات', undefined, {
+						duration: 3000,
+					});
 				}
 			} catch {
-				/* transient */
+				/* transient — next tick retries */
 			}
 		};
-		poll();
-		const interval = setInterval(poll, 15_000);
-		return () => clearInterval(interval);
+
+		const startPolling = () => {
+			setIsLive(true);
+			// Guard: visibilitychange can fire while an interval is running —
+			// never stack a second interval on top of the first.
+			if (intervalId) return;
+			intervalId = setInterval(poll, POLL_INTERVAL_MS);
+		};
+		const stopPolling = () => {
+			setIsLive(false);
+			if (intervalId) {
+				clearInterval(intervalId);
+				intervalId = undefined;
+			}
+		};
+		const onVisibilityChange = () => {
+			if (document.visibilityState === 'hidden') stopPolling();
+			else startPolling();
+		};
+
+		startPolling();
+		document.addEventListener('visibilitychange', onVisibilityChange);
+		return () => {
+			stopPolling();
+			document.removeEventListener('visibilitychange', onVisibilityChange);
+		};
 	}, [filter, fetchOrders, activeId]);
 
 	const updateStatus = useCallback(async (orderId: number, newStatus: string) => {
+		const prevStatus = ordersRef.current.find((o) => o.id === orderId)?.status;
+		if (!prevStatus) return;
+		const setStatusEverywhere = (status: string) => {
+			setOrders((prev) =>
+				prev.map((o) => (o.id === orderId ? { ...o, status } : o))
+			);
+			ordersRef.current = ordersRef.current.map((o) =>
+				o.id === orderId ? { ...o, status } : o
+			);
+		};
+		// Optimistic: flip the card immediately, roll back on failure.
+		setPendingStatus((prev) => ({ ...prev, [orderId]: newStatus }));
+		setStatusEverywhere(newStatus);
 		try {
 			const res = await csrfFetch(`/api/orders/${orderId}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: newStatus }),
 			});
-			if (res.ok) {
-				setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
-				premiumToast('save', `تم تغيير الحالة إلى ${STATUS_CONFIG[newStatus]?.label}`);
-			}
+			if (!res.ok) throw new Error();
+			premiumToast(
+				'save',
+				`تم تغيير الحالة إلى ${getOrderStatusMeta(newStatus).label}`
+			);
 		} catch {
-			premiumToast('error', 'فشل تحديث الحالة');
+			// Rollback to the exact previous state
+			setStatusEverywhere(prevStatus);
+			premiumToast('error', 'فشل تحديث الحالة — أُعيدت الحالة السابقة');
+		} finally {
+			setPendingStatus((prev) => {
+				if (!(orderId in prev)) return prev;
+				const next = { ...prev };
+				delete next[orderId];
+				return next;
+			});
 		}
 	}, []);
 
@@ -203,9 +247,9 @@ export default function OwnerOrdersPage() {
 		[orders, search]
 	);
 
-	const tabsWithCounts = useMemo(
+	const filtersWithCounts = useMemo(
 		() =>
-			TABS.map((tab) => ({
+			STATUS_FILTERS.map((tab) => ({
 				...tab,
 				count:
 					tab.value === ''
@@ -214,6 +258,57 @@ export default function OwnerOrdersPage() {
 			})),
 		[orders, totalOrders]
 	);
+
+	const hasActiveFilters = Boolean(search || filter || dateFrom || dateTo);
+
+	const clearAllFilters = () => {
+		setSearch('');
+		const hadDateFilter = Boolean(dateFrom || dateTo);
+		const hadStatusFilter = Boolean(filter);
+		setDateFrom('');
+		setDateTo('');
+		setFilter('');
+		// Changing filter triggers the refetch effect; if only dates were active
+		// (filter already ''), refetch explicitly.
+		if (!hadStatusFilter && hadDateFilter) fetchOrders('', 1, false, '', '');
+	};
+
+	const exportCsv = async () => {
+		if (exporting || filtered.length === 0) return;
+		setExporting(true);
+		// Yield a frame so the loading spinner actually paints before the
+		// synchronous blob work blocks the main thread.
+		await new Promise((r) => requestAnimationFrame(() => r(null)));
+		try {
+			const esc = (v: string | number) => {
+				const s = String(v ?? '');
+				// formula-injection guard: neutralize = + - @ leading chars
+				const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
+				return `"${safe.replace(/"/g, '""')}"`;
+			};
+			const headers = 'رقم الطلب,العميل,الهاتف,الحالة,النوع,المجموع,التاريخ';
+			const rows = filtered
+				.map((o) => {
+					const statusLabel = getOrderStatusMeta(o.status).label;
+					const typeLabel = getPickupTypeMeta(o.pickupType).label;
+					return `${esc(o.orderNo)},${esc(o.customerName)},${esc(o.customerPhone || '')},${esc(statusLabel)},${esc(typeLabel)},${esc(o.total)},${esc(formatDate(new Date(o.createdAt)))}`;
+				})
+				.join('\n');
+			const csv = `${headers}\n${rows}`;
+			const stamp = new Date().toISOString().slice(0, 10);
+			const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `orders-${stamp}.csv`;
+			link.click();
+			URL.revokeObjectURL(link.href);
+			premiumToast('save', 'تم تصدير الطلبات المعروضة');
+		} catch {
+			premiumToast('error', 'فشل التصدير');
+		} finally {
+			setExporting(false);
+		}
+	};
 
 	if (loading)
 		return (
@@ -224,27 +319,17 @@ export default function OwnerOrdersPage() {
 				<div className="h-8 w-32 rounded-lg bg-muted/50 animate-pulse" />
 				{/* Search skeleton */}
 				<div className="h-11 rounded-md bg-muted/40 animate-pulse" />
-				{/* Tabs skeleton */}
+				{/* Chips skeleton */}
 				<div className="flex gap-2">
 					{[1, 2, 3, 4, 5].map((i) => (
 						<div key={i} className="h-9 w-20 rounded-md bg-muted/40 animate-pulse" />
 					))}
 				</div>
-				{/* Orders skeleton */}
-				{[1, 2, 3].map((i) => (
-					<div
-						key={i}
-						className="h-32 rounded-md bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse"
-					>
-						<div className="h-4 w-40 rounded bg-muted/60" />
-						<div className="h-3 w-24 rounded bg-muted/40" />
-						<div className="h-3 w-full rounded bg-muted/30" />
-					</div>
-				))}
+				<OrderCardSkeleton />
 			</div>
 		);
 
-	if (error)
+	if (error && orders.length === 0)
 		return (
 			<div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
 				<div className="size-20 rounded-md bg-destructive/10 flex items-center justify-center">
@@ -270,60 +355,26 @@ export default function OwnerOrdersPage() {
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h2 className="text-2xl font-bold tracking-normal">الطلبات</h2>
-					<p className="text-sm text-muted-foreground">{toArabicNumber(orders.length)} طلب</p>
+					<p className="text-sm text-muted-foreground">
+						{toArabicNumber(filtered.length)} طلب
+					</p>
 				</div>
-				<button
-					type="button"
-					onClick={() => {
-						const esc = (v: string | number) => {
-							const s = String(v ?? '');
-							// formula-injection guard: neutralize = + - @ leading chars
-							const safe = /^[=+\-@]/.test(s) ? `'${s}` : s;
-							return `"${safe.replace(/"/g, '""')}"`;
-						};
-						const headers = 'رقم الطلب,العميل,الهاتف,الحالة,النوع,المجموع,التاريخ';
-						const rows = orders
-							.map((o) => {
-								const statusLabel =
-									o.status === 'new'
-										? 'جديد'
-										: o.status === 'preparing'
-											? 'تحضير'
-											: o.status === 'ready'
-												? 'جاهز'
-												: o.status === 'completed'
-													? 'مكتمل'
-													: 'ملغي';
-								const typeLabel =
-									o.pickupType === 'delivery'
-										? 'توصيل'
-										: o.pickupType === 'takeaway'
-											? 'سفري'
-											: 'داخل المكان';
-								return `${esc(o.orderNo)},${esc(o.customerName)},${esc(o.customerPhone || '')},${esc(statusLabel)},${esc(typeLabel)},${esc(o.total)},${esc(formatDate(new Date(o.createdAt)))}`;
-							})
-							.join('\n');
-						const csv = `${headers}\n${rows}`;
-						const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-						const link = document.createElement('a');
-						link.href = URL.createObjectURL(blob);
-						link.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
-						link.click();
-					}}
-					disabled={orders.length === 0}
-					className="h-11 px-5 rounded-md border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-40 flex items-center gap-2"
-				>
-					<svg
-						className="size-4"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
+				<div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+					<LivePollIndicator intervalSeconds={15} isActive={isLive} />
+					<button
+						type="button"
+						onClick={exportCsv}
+						disabled={filtered.length === 0 || exporting}
+						className="h-9 px-4 rounded-full border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-40 flex items-center gap-2"
 					>
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-					</svg>
-					تصدير CSV
-				</button>
+						{exporting ? (
+							<Loader2 className="size-4 animate-spin motion-reduce:hidden" />
+						) : (
+							<Download className="size-4" aria-hidden="true" />
+						)}
+						{exporting ? 'جاري التصدير...' : 'تصدير CSV'}
+					</button>
+				</div>
 			</div>
 
 			{/* Search + Date filter */}
@@ -343,6 +394,7 @@ export default function OwnerOrdersPage() {
 					}}
 					className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
 					title="من تاريخ"
+					aria-label="من تاريخ"
 				/>
 				<input
 					type="date"
@@ -354,6 +406,7 @@ export default function OwnerOrdersPage() {
 					}}
 					className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
 					title="إلى تاريخ"
+					aria-label="إلى تاريخ"
 				/>
 				{(dateFrom || dateTo) && (
 					<button
@@ -370,13 +423,18 @@ export default function OwnerOrdersPage() {
 				)}
 			</div>
 
-			{/* Status tabs with counts */}
-			<div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-				{tabsWithCounts.map((tab) => (
+			{/* Status filter chips with counts */}
+			<div
+				className="flex gap-2 overflow-x-auto pb-2 scrollbar-none snap-x"
+				role="group"
+				aria-label="تصفية حسب الحالة"
+			>
+				{filtersWithCounts.map((tab) => (
 					<button
 						key={tab.value}
 						type="button"
 						onClick={() => setFilter(tab.value)}
+						aria-pressed={filter === tab.value}
 						className={cn(
 							'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2',
 							filter === tab.value
@@ -388,7 +446,9 @@ export default function OwnerOrdersPage() {
 						<span
 							className={cn(
 								'inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold',
-								filter === tab.value ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'
+								filter === tab.value
+									? 'bg-white/20 text-white'
+									: 'bg-muted text-muted-foreground'
 							)}
 						>
 							{toArabicNumber(tab.count)}
@@ -404,128 +464,186 @@ export default function OwnerOrdersPage() {
 				</div>
 			)}
 
-			{hasMore && (
-				<div className="flex justify-center pt-2">
-					<button
-						type="button"
-						onClick={loadMore}
-						disabled={loadingMore}
-						className="px-8 py-3 rounded-md border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-50"
-					>
-						{loadingMore ? 'جاري التحميل...' : 'تحميل المزيد ↓'}
-					</button>
-				</div>
-			)}
-
 			{filtered.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-					<div className="empty-state-icon">
-						<ClipboardList />
-					</div>
-					<p className="text-lg font-medium">{search ? 'لا توجد نتائج' : 'لا توجد طلبات'}</p>
-					<p className="text-sm text-muted-foreground/60">
-						{search ? 'جرب كلمات بحث أخرى' : 'عندما يطلب الزبائن، ستظهر الطلبات هنا'}
-					</p>
-				</div>
+				hasActiveFilters ? (
+					<EmptyState
+						icon={SearchX}
+						title="لا طلبات مطابقة للفلتر"
+						description="جرب تعديل البحث أو مسح الفلاتر لعرض كل الطلبات."
+						action={
+							<Button size="sm" onClick={clearAllFilters}>
+								مسح الفلاتر
+							</Button>
+						}
+					/>
+				) : (
+					<EmptyState
+						icon={ClipboardList}
+						title="لا طلبات اليوم بعد"
+						description="عندما يطلب الزبائن عبر المنيو، ستظهر طلباتهم هنا فوراً."
+					/>
+				)
 			) : (
 				<div className="space-y-3">
-					{filtered.map((order) => {
-						const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new;
-						const StatusIcon = config.icon;
-						const nextStatus = config.next;
-
-						return (
-							<div
-								key={order.id}
-								role="link"
-								tabIndex={0}
-								className="rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
-								onClick={() => router.push(`/owner/orders/${order.id}`)}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										router.push(`/owner/orders/${order.id}`);
-									}
-								}}
-							>
-								<div className="flex items-start justify-between gap-4">
-									<div className="flex items-center gap-3">
-										<div
-											className={cn(
-												'size-11 rounded-xl flex items-center justify-center shrink-0',
-												config.bg
-											)}
-										>
-											<StatusIcon className={cn('size-5', config.color)} />
-										</div>
-										<div>
-											<div className="flex items-center gap-2">
-												<p className="font-bold">{order.orderNo}</p>
-												<Badge className={cn('text-xs', config.bg, config.color)}>
-													{config.label}
-												</Badge>
-											</div>
-											<p className="text-sm text-muted-foreground">{order.customerName}</p>
-											<p className="text-xs text-muted-foreground/60 mt-0.5">
-												{toArabicNumber(order.items?.length ?? 0)} أصناف •{' '}
-												{order.pickupType === 'delivery'
-													? 'توصيل'
-													: order.pickupType === 'takeaway'
-														? 'سفري'
-														: 'داخل المكان'}
-											</p>
-										</div>
-									</div>
-
-									<div className="text-end shrink-0">
-										<p className="font-bold text-lg tabular-nums">
-											{toArabicNumber(order.total.toFixed(1))}
-										</p>
-										<p className="text-xs text-muted-foreground">د.ل</p>
-									</div>
-								</div>
-
-								{/* Status actions */}
-								{nextStatus && (
-									<div className="flex gap-2 mt-3 pt-3 border-t border-border/20">
-										<button
-											type="button"
-											onClick={(e) => {
-												e.stopPropagation();
-												updateStatus(order.id, nextStatus);
-											}}
-											className={cn(
-												'flex-1 py-2 rounded-xl text-sm font-medium transition-all border',
-												nextStatus === 'preparing' &&
-													'border-orange/30 text-orange hover:bg-orange-muted dark:hover:bg-orange-muted',
-												nextStatus === 'ready' &&
-													'border-green-200/30 text-success hover:bg-success/15',
-												nextStatus === 'completed' &&
-													'border-orange/30 text-orange hover:bg-orange-muted dark:hover:bg-orange-muted'
-											)}
-										>
-											← {STATUS_CONFIG[nextStatus]?.label}
-										</button>
-										{order.status === 'new' && (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟'))
-														updateStatus(order.id, 'cancelled');
-												}}
-												className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
-											>
-												إلغاء
-											</button>
-										)}
-									</div>
-								)}
-							</div>
-						);
-					})}
+					{filtered.map((order) => (
+						<OrderCard
+							key={order.id}
+							order={order}
+							pendingStatus={pendingStatus[order.id]}
+							onAdvance={() => {
+								const meta = getOrderStatusMeta(order.status);
+								if (meta.next) updateStatus(order.id, meta.next);
+							}}
+							onCancel={() => updateStatus(order.id, 'cancelled')}
+							onOpen={() => router.push(`/owner/orders/${order.id}`)}
+						/>
+					))}
 				</div>
 			)}
+
+			{hasMore && filtered.length > 0 && !loadingMore && (
+				<div className="flex justify-center pt-2">
+					<Button variant="outline" onClick={loadMore}>
+						تحميل المزيد ↓
+					</Button>
+				</div>
+			)}
+		</div>
+	);
+}
+
+interface OrderCardProps {
+	order: Order;
+	/** Target status while the transition PUT is in flight (optimistic). */
+	pendingStatus?: string;
+	onAdvance: () => void;
+	onCancel: () => void;
+	onOpen: () => void;
+}
+
+function OrderCard({
+	order,
+	pendingStatus,
+	onAdvance,
+	onCancel,
+	onOpen,
+}: OrderCardProps) {
+	const config = getOrderStatusMeta(order.status);
+	const StatusIcon = config.icon;
+	const isBusy = pendingStatus !== undefined;
+	// While the PUT is in flight show the TARGET status (what the user asked for).
+	const targetStatus = pendingStatus ?? config.next;
+	const targetMeta =
+		targetStatus !== null && targetStatus !== undefined
+			? getOrderStatusMeta(targetStatus)
+			: null;
+	const PickupIcon = getPickupTypeMeta(order.pickupType).icon;
+	const createdIso = Number.isNaN(new Date(order.createdAt).getTime())
+		? undefined
+		: new Date(order.createdAt).toISOString();
+
+	return (
+		<div
+			role="link"
+			tabIndex={0}
+			className={cn(
+				'rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-ring',
+				isBusy && 'opacity-80'
+			)}
+			onClick={onOpen}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onOpen();
+				}
+			}}
+		>
+			<div className="flex items-start justify-between gap-4">
+				<div className="flex items-center gap-3 min-w-0">
+					<div
+						className={cn(
+							'size-11 rounded-xl flex items-center justify-center shrink-0',
+							config.toneClassName
+						)}
+					>
+						<StatusIcon className="size-5" aria-hidden="true" />
+					</div>
+					<div className="min-w-0">
+						<div className="flex items-center gap-2 flex-wrap">
+							<p className="font-bold">{order.orderNo}</p>
+							<Badge className={cn('text-xs', config.badgeClassName)}>
+								{config.label}
+							</Badge>
+						</div>
+						<p className="text-sm text-muted-foreground truncate">
+							{order.customerName}
+						</p>
+						<div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground/60">
+							<span className="flex items-center gap-1">
+								<PickupIcon className="size-3.5" aria-hidden="true" />
+								{getPickupTypeMeta(order.pickupType).label}
+							</span>
+							<span aria-hidden="true">•</span>
+							<span>{toArabicNumber(order.items?.length ?? 0)} أصناف</span>
+						</div>
+					</div>
+				</div>
+
+				<div className="text-end shrink-0">
+					<p className="font-bold text-lg tabular-nums">
+						{toArabicNumber(order.total.toFixed(1))}
+					</p>
+					<p className="text-xs text-muted-foreground">د.ل</p>
+				</div>
+			</div>
+
+			<div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-border/20">
+				<time
+					dateTime={createdIso}
+					className="text-xs text-muted-foreground/70 tabular-nums"
+				>
+					{formatRelativeTimeAr(order.createdAt)}
+				</time>
+
+				{targetMeta && (
+					<div className="flex gap-2">
+						{order.status === 'new' && (
+							<button
+								type="button"
+								disabled={isBusy}
+								onClick={(e) => {
+									e.stopPropagation();
+									if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟'))
+										onCancel();
+								}}
+								className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 disabled:opacity-50 transition-all"
+							>
+								إلغاء
+							</button>
+						)}
+						<button
+							type="button"
+							disabled={isBusy}
+							aria-busy={isBusy}
+							onClick={(e) => {
+								e.stopPropagation();
+								onAdvance();
+							}}
+							className={cn(
+								'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all border disabled:opacity-60',
+								targetStatus === 'preparing'
+									? 'border-info/30 text-sky-800 dark:text-sky-300 hover:bg-info/10'
+									: 'border-success/25 text-emerald-800 dark:text-emerald-300 hover:bg-success/10'
+							)}
+						>
+							{isBusy && (
+								<Loader2 className="size-3.5 animate-spin motion-reduce:hidden" />
+							)}
+							← {targetMeta.label}
+						</button>
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }

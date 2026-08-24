@@ -736,7 +736,12 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 	border-radius: var(--radius-md);
 	box-shadow: var(--shadow-sm);
 	transform: translateZ(0);
-	transition: all 0.3s var(--ease-out-quart);
+	transition:
+		background-color 0.3s var(--ease-out-quart),
+		color 0.3s var(--ease-out-quart),
+		border-color 0.3s var(--ease-out-quart),
+		box-shadow 0.3s var(--ease-out-quart),
+		transform 0.3s var(--ease-out-quart);
 }
 .card-premium:hover {
 	transform: translateY(-3px);

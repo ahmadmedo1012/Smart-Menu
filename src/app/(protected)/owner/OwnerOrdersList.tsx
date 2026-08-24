@@ -2,17 +2,18 @@
 
 import { memo } from "react"
 import Link from "next/link"
-import {} from 'lucide-react';
-import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
+import { ClipboardList, ShoppingCart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import { getArabicPlural } from "@/lib/arabic-plural"
+import { EmptyState } from "@/components/ui/empty-state"
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; indicator: string }> = {
   new:        { label: "جديد",       color: "text-orange dark:text-orange",       bg: "bg-orange-muted dark:bg-orange-muted",      indicator: "bg-orange" },
   preparing:  { label: "قيد التحضير", color: "text-orange dark:text-orange",    bg: "bg-orange-muted dark:bg-orange-muted",   indicator: "bg-orange" },
   ready:      { label: "جاهز",       color: "text-success",     bg: "bg-success/10",   indicator: "bg-success" },
   completed:  { label: "مكتمل",      color: "text-muted-foreground",       bg: "bg-muted",     indicator: "bg-muted-foreground" },
-  cancelled:  { label: "ملغي",       color: "text-red-600 dark:text-red-400",         bg: "bg-red-50 dark:bg-red-950/20",        indicator: "bg-red-500" },
+  cancelled:  { label: "ملغي",       color: "text-destructive",             bg: "bg-destructive/10",                   indicator: "bg-destructive" },
 }
 
 interface StatsData {
@@ -20,6 +21,16 @@ interface StatsData {
   popularItems: { itemId: number; name: string; totalSold: number }[]
   recentOrders: { id: number; orderNo: string; customerName: string; status: string; total: number; createdAt: string }[]
   statusBreakdown: Record<string, number>
+}
+
+/** "3 طلبات / طلب واحد / لا طلبات" — correct Arabic number-state per count. */
+function ordersWithCount(count: number): string {
+  return `${count === 1 ? "" : toArabicNumber(count) + " "}${getArabicPlural(count, "طلب", {
+    zero: "لا طلبات",
+    two: "طلبان",
+    few: "طلبات",
+    many: "طلب",
+  })}`
 }
 
 const OrderRow = memo(function OrderRow({ order }: { order: StatsData["recentOrders"][0] }) {
@@ -50,23 +61,24 @@ interface StatusSectionProps {
 }
 
 export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
+  const hasBreakdown = !!stats && Object.keys(stats.statusBreakdown).length > 0
   return (
     <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
       <h3 className="text-xs font-semibold text-muted-foreground mb-3">حالة الطلبات</h3>
-      {stats && Object.keys(stats.statusBreakdown).length > 0 ? (
+      {hasBreakdown ? (
         <>
           <div className="h-2.5 rounded-full bg-muted/50 overflow-hidden flex ring-1 ring-inset ring-black/5">
             {Object.entries(STATUS_CONFIG).map(([status, config]) => {
-              const count = stats.statusBreakdown[status] ?? 0
+              const count = stats!.statusBreakdown[status] ?? 0
               if (count === 0) return null
               const pct = statusTotal > 0 ? (count / statusTotal) * 100 : 0
-              return <div key={status} className={cn("h-full first:rounded-r-full last:rounded-l-full transition-all duration-500", config.bg)}
+              return <div key={status} className={cn("h-full first:rounded-s-full last:rounded-e-full transition-all duration-500", config.bg)}
                 style={{ width: `${pct}%` }} title={`${config.label}: ${count}`} />
             })}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
             {Object.entries(STATUS_CONFIG).map(([status, config]) => {
-              const count = stats.statusBreakdown[status] ?? 0
+              const count = stats!.statusBreakdown[status] ?? 0
               if (count === 0 && status !== "new") return null
               return (
                 <div key={status} className="flex items-center gap-1.5 text-xs">
@@ -79,7 +91,12 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
           </div>
         </>
       ) : (
-        <p className="text-xs text-muted-foreground/60 py-4 text-center">لا توجد طلبات بعد</p>
+        <EmptyState
+          icon={ShoppingCart}
+          title="لا توجد طلبات بعد"
+          description="ستظهر حالة الطلبات هنا فور وصول أول طلب من زبائنك."
+          className="py-6"
+        />
       )}
     </div>
   )
@@ -102,15 +119,17 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
                 )}>{toArabicNumber(idx + 1)}</span>
                 <span className="text-sm">{item.name}</span>
               </div>
-              <span className="text-[11px] text-muted-foreground">{toArabicNumber(item.totalSold)} طلب</span>
+              <span className="text-[11px] text-muted-foreground">{ordersWithCount(item.totalSold)}</span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center py-8 text-center">
-          <div className="empty-state-icon"><AnimatedShoppingCart /></div>
-          <p className="text-xs font-medium text-muted-foreground">لا توجد بيانات بعد</p>
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title="لا توجد بيانات بعد"
+          description="الأصناف الأكثر طلباً ستظهر هنا مع أول عملية بيع."
+          className="py-6"
+        />
       )}
     </div>
   )
@@ -128,10 +147,20 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
           {orders.slice(0, 6).map((order) => <OrderRow key={order.id} order={order} />)}
         </div>
       ) : (
-        <div className="flex flex-col items-center py-8 text-center">
-          <div className="empty-state-icon"><AnimatedShoppingCart /></div>
-          <p className="text-xs font-medium text-muted-foreground">لا توجد طلبات بعد</p>
-        </div>
+        <EmptyState
+          icon={ShoppingCart}
+          title="لا توجد طلبات بعد"
+          description="شارك رابط المنيو مع زبائنك ليصل أول طلب إلى هنا مباشرة."
+          className="py-6"
+          action={
+            <Link
+              href="/owner/qr"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 rounded-sm"
+            >
+              احصل على رمز QR
+            </Link>
+          }
+        />
       )}
     </div>
   )

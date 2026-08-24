@@ -209,7 +209,9 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 											)}
 											<span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange hover:text-orange-300 transition-colors group/link">
 												عرض المنيو
-												<MotionArrowLeft className="size-4 transition-transform duration-200 group-hover/link:-translate-x-1" />
+												{/* HeroSection:95 pattern — ArrowRight + rtl:rotate-180 keeps glyph and hover
+												nudge coherent in both directions (translate-x is physical in TW4) */}
+											<MotionArrowRight className="size-4 transition-transform duration-200 group-hover/link:translate-x-1 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
 											</span>
 										</motion.div>
 									</div>

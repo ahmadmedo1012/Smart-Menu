@@ -9,8 +9,9 @@ import { toArabicNumber, formatDate } from '@/lib/format';
 import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
+import { EmptyState } from '@/components/ui/empty-state';
 
-import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart} from 'lucide-react';
+import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart, BarChart3} from 'lucide-react';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { MotionLogIn } from '@/components/ui/motion-icons';
@@ -218,14 +219,14 @@ export default function AdminDashboard() {
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">لوحة التحكم</h2>
+					<h1 className="text-2xl font-bold tracking-normal">لوحة التحكم</h1>
 					<p className="text-sm text-muted-foreground mt-0.5">نظرة عامة على شبكة المطاعم</p>
 				</div>
 				<div className="flex items-center gap-2">
 					<Button variant="ghost" size="icon" onClick={load} aria-label="تحديث">
 						<AnimatedRefreshCw className="size-4" />
 					</Button>
-					<Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20">
+					<Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
 						<Activity className="size-3.5 text-success" />
 						مباشر
 					</Badge>
@@ -241,14 +242,16 @@ export default function AdminDashboard() {
 					iconBg="bg-orange-muted"
 					iconColor="text-orange"
 					trend={stats.restaurantGrowthPct}
+					href="/admin/restaurants"
 				/>
 				<KpiCard
 					label="إجمالي المستخدمين"
 					value={stats.totalUsers}
 					icon={Users}
-					iconBg="bg-purple-50/80 dark:bg-purple-950/20"
-					iconColor="text-purple-600 dark:text-purple-400"
+					iconBg="bg-info/10 dark:bg-info/15"
+					iconColor="text-info"
 					trend={stats.userGrowthPct}
+					href="/admin/users"
 				/>
 				<KpiCard
 					label="الإيراد الشهري"
@@ -306,7 +309,7 @@ export default function AdminDashboard() {
 						<AreaChart
 							data={stats.orderVolumeTrend.map((d) => ({ label: d.date.slice(5), value: d.count }))}
 							height={220}
-							color="#22c55e"
+							color="oklch(0.62 0.18 145)"
 							gradientId="order-gradient"
 						/>
 					) : (
@@ -350,7 +353,7 @@ export default function AdminDashboard() {
 							<p className="text-2xl font-bold mt-1">{toArabicNumber(Number(stats.avgOrderValue.toFixed(2)))} د.ل</p>
 							<p className="text-[11px] text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
 						</div>
-						<div className="rounded-md bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
+						<div className="rounded-md bg-success/10 dark:bg-success/15 p-4">
 							<p className="text-xs text-success">مدفوع</p>
 							<p className="text-2xl font-bold mt-1 text-success">
 								{toArabicNumber(stats.paidPlanCount)}
@@ -400,7 +403,7 @@ export default function AdminDashboard() {
 											<p className="text-sm font-medium">{r.name}</p>
 											<p className="text-xs text-muted-foreground">
 												{r.owner ? r.owner.name : '—'}
-												<span className="mr-1 text-[10px] opacity-60">
+												<span className="ms-1 text-[10px] opacity-60">
 													{formatDate(new Date(r.createdAt))}
 												</span>
 											</p>
@@ -437,16 +440,16 @@ export default function AdminDashboard() {
 								>
 									<div className="flex items-center gap-3">
 										<div
-											className="size-9 rounded-xl bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center"
+											className="size-9 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center"
 											aria-hidden="true"
 										>
-											<Users className="size-4 text-purple-600 dark:text-purple-400" />
+											<Users className="size-4 text-info" />
 										</div>
 										<div>
 											<p className="text-sm font-medium">{u.name}</p>
 											<p className="text-xs text-muted-foreground">
 												{u.restaurant?.name || '—'}
-												<span className="mr-1 text-[10px] opacity-60">
+												<span className="ms-1 text-[10px] opacity-60">
 													{u.lastLoginAt ? formatDate(new Date(u.lastLoginAt)) : ''}
 												</span>
 											</p>
@@ -464,22 +467,28 @@ export default function AdminDashboard() {
 				</div>
 
 				{/* Top Restaurants by Orders */}
-				{stats.topRestaurants && stats.topRestaurants.length > 0 && (
-					<div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
-						<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
-							<div className="flex items-center gap-2">
-								<AnimatedBarChart3 className="size-4 text-muted-foreground" />
-								<h3 className="text-sm font-semibold">المطاعم الأكثر طلباً</h3>
-							</div>
+				<div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
+					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
+						<div className="flex items-center gap-2">
+							<AnimatedBarChart3 className="size-4 text-muted-foreground" />
+							<h3 className="text-sm font-semibold">المطاعم الأكثر طلباً</h3>
 						</div>
+					</div>
+					{stats.topRestaurants && stats.topRestaurants.length > 0 ? (
 						<HorizontalBar
 							data={stats.topRestaurants.map((r) => ({
 								label: r.restaurant?.name ?? '—',
 								value: r.orderCount,
 							}))}
 						/>
-					</div>
-				)}
+					) : (
+						<EmptyState
+							icon={BarChart3}
+							title="لا توجد بيانات بعد"
+							description="ستظهر المطاعم هنا بعد تسجيل أول الطلبات"
+						/>
+					)}
+				</div>
 			</div>
 
 			{/* Quick actions */}
@@ -489,7 +498,7 @@ export default function AdminDashboard() {
 					{[
 						{ label: 'إضافة مطعم', href: '/admin/restaurants', icon: Store, color: 'text-orange' },
 						{ label: 'الطلبات', href: '/admin/orders', icon: ShoppingCart, color: 'text-orange' },
-						{ label: 'المستخدمين', href: '/admin/users', icon: Users, color: 'text-purple-600' },
+						{ label: 'المستخدمين', href: '/admin/users', icon: Users, color: 'text-info' },
 						{
 							label: 'سجل التدقيق',
 							href: '/admin/audit-logs',
@@ -499,17 +508,16 @@ export default function AdminDashboard() {
 					].map((item, i) => {
 						const Icon = item.icon;
 						return (
-							<Link key={i} href={item.href}>
-								<button
-									type="button"
-									className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-orange-muted/30 dark:hover:bg-orange-muted transition-all group"
-								>
-									<Icon
-										className={cn('size-5 group-hover:scale-110 transition-transform', item.color)}
-										aria-hidden="true"
-									/>
-									<span className="text-xs font-medium">{item.label}</span>
-								</button>
+							<Link
+								key={i}
+								href={item.href}
+								className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-orange-muted/30 dark:hover:bg-orange-muted transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+							>
+								<Icon
+									className={cn('size-5 group-hover:scale-110 transition-transform', item.color)}
+									aria-hidden="true"
+								/>
+								<span className="text-xs font-medium">{item.label}</span>
 							</Link>
 						);
 					})}

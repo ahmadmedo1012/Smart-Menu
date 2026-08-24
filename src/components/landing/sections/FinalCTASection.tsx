@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion } from "motion/react"
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { Button } from "@/components/ui/button"
 import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
@@ -63,7 +63,7 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
             className="relative"
           >
             <Link href="/subscribe">
-              <Button variant="flame" size="lg">ابدأ مجاناً <MotionArrowLeft className="size-4 sm:size-5" /></Button>
+              <Button variant="flame" size="lg">ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" /></Button>
             </Link>
           </motion.div>
           <Link href="/pricing">

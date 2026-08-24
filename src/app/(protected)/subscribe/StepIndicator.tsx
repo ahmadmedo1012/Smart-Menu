@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { MotionCheck } from '@/components/ui/motion-icons';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 
 export type WizardStep = 'plan' | 'menu' | 'account' | 'review';
 
@@ -27,10 +27,11 @@ export function StepIndicator({
 	current: WizardStep;
 	onNavigate?: (s: WizardStep) => void;
 }) {
+	const reduceMotion = useReducedMotion();
 	const currentIdx = stepIndex(current);
 
 	return (
-		<div className="flex items-center justify-center mb-10">
+		<nav aria-label="خطوات الاشتراك" className="flex items-center justify-center mb-10">
 			{STEP_ORDER.map((s, i) => {
 				const isActive = s === current;
 				const isDone = i < currentIdx;
@@ -44,19 +45,19 @@ export function StepIndicator({
 							disabled={!clickable}
 							onClick={() => clickable && onNavigate?.(s)}
 							className={cn(
-								'flex flex-col items-center gap-1.5 group outline-none',
+								'flex flex-col items-center gap-1.5 group outline-none focus-visible:ring-2 focus-visible:ring-orange/40 rounded-full',
 								!clickable && 'cursor-default'
 							)}
 							aria-current={isActive ? 'step' : undefined}
+							aria-disabled={!clickable || undefined}
 						>
 							<motion.div
-								animate={{
-									scale: isActive ? 1 : 0.92,
-								}}
+								initial={false}
+								whileTap={clickable && !reduceMotion ? { scale: 0.94 } : undefined}
 								className={cn(
 									'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-300',
 									isActive
-										? 'bg-orange text-white border-orange shadow-lg shadow-orange/25'
+										? 'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] border-transparent shadow-lg shadow-orange/30 font-extrabold'
 										: isDone
 											? 'bg-orange/15 text-orange border-orange/40'
 											: 'bg-muted/50 text-muted-foreground border-border/40'
@@ -71,7 +72,7 @@ export function StepIndicator({
 							<span
 								className={cn(
 									'text-[11px] sm:text-xs font-medium transition-colors hidden sm:block',
-									isActive ? 'text-orange' : isDone ? 'text-foreground/70' : 'text-muted-foreground/50'
+									isActive ? 'text-orange font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/50'
 								)}
 							>
 								{STEP_LABELS[s]}
@@ -90,6 +91,6 @@ export function StepIndicator({
 					</div>
 				);
 			})}
-		</div>
+		</nav>
 	);
 }

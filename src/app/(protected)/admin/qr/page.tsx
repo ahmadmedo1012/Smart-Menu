@@ -223,7 +223,7 @@ export default function AdminQRPage() {
 									className="size-11 shrink-0"
 								>
 									{copied ? (
-										<MotionCheck className="size-4 text-green-500" />
+										<MotionCheck className="size-4 text-success" />
 									) : (
 										<AnimatedCopy className="size-4" />
 									)}

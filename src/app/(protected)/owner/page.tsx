@@ -236,8 +236,28 @@ export default function OwnerDashboard() {
 				</div>
 			)}
 
-			{/* Tab navigation */}
-			<div role="tablist" className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+			{/* Tab navigation — complete APG tabs pattern:
+				id + aria-controls on each tab, matching role=tabpanel panels below,
+				and roving-tabindex arrow-key navigation. RTL arrow semantics: the LEFT
+				arrow moves to the NEXT tab in reading order (right-to-left), RIGHT goes back. */}
+			<div
+				role="tablist"
+				aria-label="أقسام لوحة التحكم"
+				className="flex gap-2 overflow-x-auto pb-1 scrollbar-none"
+				onKeyDown={(e) => {
+					if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+					e.preventDefault();
+					const ids = ['overview', 'analytics'] as const;
+					const cur = ids.indexOf(tab);
+					let nextId: (typeof ids)[number];
+					if (e.key === 'Home') nextId = ids[0];
+					else if (e.key === 'End') nextId = ids[ids.length - 1];
+					else if (e.key === 'ArrowLeft') nextId = ids[(cur + 1) % ids.length];
+					else nextId = ids[(cur - 1 + ids.length) % ids.length];
+					setTab(nextId);
+					document.getElementById(`owner-tab-${nextId}`)?.focus();
+				}}
+			>
 				{[
 					{ id: 'overview', label: 'نظرة عامة', icon: Activity },
 					{ id: 'analytics', label: 'تحليلات', icon: BarChart3 },
@@ -248,16 +268,19 @@ export default function OwnerDashboard() {
 							key={t.id}
 							type="button"
 							role="tab"
+							id={`owner-tab-${t.id}`}
 							aria-selected={tab === t.id}
+							aria-controls={`owner-panel-${t.id}`}
+							tabIndex={tab === t.id ? 0 : -1}
 							onClick={() => setTab(t.id as any)}
 							className={cn(
-								'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2',
+								'snap-start shrink-0 px-4 py-2 min-h-11 rounded-xl text-sm font-medium border transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								tab === t.id
 									? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
 									: 'border-border/30 hover:border-orange/20'
 							)}
 						>
-							<TIcon className="size-4" /> {t.label}
+							<TIcon className="size-4" aria-hidden="true" /> {t.label}
 						</button>
 					);
 				})}
@@ -298,47 +321,63 @@ export default function OwnerDashboard() {
 				</div>
 			)}
 
-			{tab === 'overview' && (
-				<>
-					<OwnerKpiGrid stats={stats} />
+			{/* a11y: panels stay mounted with hidden toggling so each tab's
+				aria-controls always references an existing tabpanel in the DOM */}
+			<div
+				role="tabpanel"
+				id="owner-panel-overview"
+				aria-labelledby="owner-tab-overview"
+				tabIndex={0}
+				hidden={tab !== 'overview'}
+				className="space-y-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2 rounded-md"
+			>
+				<OwnerKpiGrid stats={stats} />
 
-					<div className="grid gap-6 lg:grid-cols-3">
-						<StatusBreakdown stats={stats} statusTotal={statusTotal} />
-						<PopularItems items={stats?.popularItems ?? []} />
-						<RecentOrders orders={stats?.recentOrders ?? []} />
-					</div>
+				<div className="grid gap-6 lg:grid-cols-3">
+					<StatusBreakdown stats={stats} statusTotal={statusTotal} />
+					<PopularItems items={stats?.popularItems ?? []} />
+					<RecentOrders orders={stats?.recentOrders ?? []} />
+				</div>
 
-					{/* Quick actions */}
-					<div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm">
-						<h3 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h3>
-						<div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-							{[
-								{ href: '/owner/menu', icon: ClipboardList, label: 'إدارة المنيو' },
-								{ href: '/owner/orders', icon: ShoppingCart, label: 'الطلبات' },
-								{ href: '/owner/qr', icon: QrCode, label: 'رمز QR' },
-								{ href: '/owner/settings', icon: Settings, label: 'الإعدادات' },
-							].map(({ href, icon: Icon, label }) => (
-								<Link key={href} href={href}>
-									<div
-										className="group relative overflow-hidden rounded-md border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
-									>
-										<div className="absolute inset-0 bg-gradient-to-br from-orange/0 to-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-										<div className="relative flex flex-col items-center gap-1.5">
-											<Icon className="size-4 text-orange dark:text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" />
-											<span className="text-xs font-medium">{label}</span>
-										</div>
+				{/* Quick actions */}
+				<div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm">
+					<h3 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h3>
+					<div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+						{[
+							{ href: '/owner/menu', icon: ClipboardList, label: 'إدارة المنيو' },
+							{ href: '/owner/orders', icon: ShoppingCart, label: 'الطلبات' },
+							{ href: '/owner/qr', icon: QrCode, label: 'رمز QR' },
+							{ href: '/owner/settings', icon: Settings, label: 'الإعدادات' },
+						].map(({ href, icon: Icon, label }) => (
+							<Link key={href} href={href}>
+								<div
+									className="group relative overflow-hidden rounded-md border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-orange/60"
+								>
+									<div className="absolute inset-0 bg-gradient-to-br from-orange/0 to-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+									<div className="relative flex flex-col items-center gap-1.5">
+										<Icon className="size-4 text-orange dark:text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" aria-hidden="true" />
+										<span className="text-xs font-medium">{label}</span>
 									</div>
-								</Link>
-							))}
-						</div>
+								</div>
+							</Link>
+						))}
 					</div>
-				</>
-			)}
+				</div>
+			</div>
 
-			{/* Analytics tab */}
-			{tab === 'analytics' && stats?.advancedStats && (
-				<AnalyticsTab advancedStats={stats.advancedStats} />
-			)}
+			{/* Analytics tab panel */}
+			<div
+				role="tabpanel"
+				id="owner-panel-analytics"
+				aria-labelledby="owner-tab-analytics"
+				tabIndex={0}
+				hidden={tab !== 'analytics' || !stats?.advancedStats}
+				className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2 rounded-md"
+			>
+				{tab === 'analytics' && stats?.advancedStats && (
+					<AnalyticsTab advancedStats={stats.advancedStats} />
+				)}
+			</div>
 
 			{/* Share your menu card */}
 			{restaurant && (

@@ -50,9 +50,13 @@ const CATEGORY_PILLS = [
 const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }> = {
 	create: { label: 'إنشاء', color: 'text-success', bg: 'bg-success/10' },
 	update: { label: 'تحديث', color: 'text-orange', bg: 'bg-orange-muted dark:bg-orange-muted' },
-	delete: { label: 'حذف', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/30' },
+	delete: {
+		label: 'حذف',
+		color: 'text-destructive',
+		bg: 'bg-destructive/10 dark:bg-destructive/20',
+	},
 	login: { label: 'دخول', color: 'text-orange', bg: 'bg-orange/10' },
-	export: { label: 'تصدير', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30' },
+	export: { label: 'تصدير', color: 'text-info', bg: 'bg-info/10 dark:bg-info/20' },
 	other: { label: 'أخرى', color: 'text-muted-foreground', bg: 'bg-muted' },
 };
 
@@ -204,7 +208,7 @@ export default function AdminAuditLogsPage() {
 					<Activity className="size-5 text-white" />
 				</div>
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">سجل التدقيق</h2>
+					<h1 className="text-2xl font-bold tracking-normal">سجل التدقيق</h1>
 					<p className="text-sm text-muted-foreground">{toArabicNumber(total)} سجل</p>
 				</div>
 			</div>
@@ -346,7 +350,7 @@ export default function AdminAuditLogsPage() {
 													<Button
 														variant="ghost"
 														size="icon"
-														className="size-7 opacity-0 group-hover:opacity-100 transition-opacity"
+														className="size-7 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus-visible:opacity-100"
 														onClick={() => setExpandedId(isExpanded ? null : log.id)}
 														aria-label={isExpanded ? 'إخفاء التفاصيل' : 'إظهار التفاصيل'}
 													>

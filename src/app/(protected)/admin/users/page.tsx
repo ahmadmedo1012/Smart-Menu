@@ -156,7 +156,7 @@ export default function AdminUsersPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-normal">إدارة المستخدمين</h2>
+          <h1 className="text-2xl font-bold tracking-normal">إدارة المستخدمين</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مستخدم</p>
         </div>
       </div>
@@ -167,17 +167,17 @@ export default function AdminUsersPage() {
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-md bg-purple-50 dark:bg-purple-950/20 border border-purple-200/30 p-4">
-          <p className="text-xs text-purple-600">مديرون</p>
-          <p className="text-2xl font-bold mt-1 text-purple-600">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
+        <div className="rounded-md bg-info/10 dark:bg-info/15 border border-info/20 p-4">
+          <p className="text-xs text-info">مديرون</p>
+          <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
         <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange">أصحاب مطاعم</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
-        <div className="rounded-md bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
-          <p className="text-xs text-emerald-600">مرتبط بمطعم</p>
-          <p className="text-2xl font-bold mt-1 text-emerald-600">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
+        <div className="rounded-md bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+          <p className="text-xs text-success">مرتبط بمطعم</p>
+          <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
         </div>
       </div>
 
@@ -225,10 +225,10 @@ export default function AdminUsersPage() {
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       "size-11 rounded-xl flex items-center justify-center shrink-0",
-                      user.role === "admin" ? "bg-purple-50 dark:bg-purple-950/30" : "bg-orange-muted dark:bg-orange-muted"
+                      user.role === "admin" ? "bg-info/10 dark:bg-info/15" : "bg-orange-muted dark:bg-orange-muted"
                     )} aria-hidden="true">
                       {user.role === "admin"
-                        ? <Shield className="size-5 text-purple-600 dark:text-purple-400" />
+                        ? <Shield className="size-5 text-info" />
                         : <UserPlus className="size-5 text-orange dark:text-orange" />
                       }
                     </div>
@@ -237,7 +237,7 @@ export default function AdminUsersPage() {
                         <p className="font-bold">{user.name}</p>
                         <Badge className={cn(
                           "text-[10px]",
-                          user.role === "admin" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-orange-muted text-orange/80 dark:bg-orange-muted dark:text-orange"
+                          user.role === "admin" ? "bg-info/15 text-info dark:bg-info/25" : "bg-orange-muted text-orange/80 dark:bg-orange-muted dark:text-orange"
                         )}>
                           {user.role === "admin" ? "مدير" : "مالك"}
                         </Badge>
@@ -327,7 +327,7 @@ export default function AdminUsersPage() {
               >
                 <MotionChevronLeft className="size-4" />
               </Button>
-              <span className="text-xs text-muted-foreground mr-2">
+              <span className="text-xs text-muted-foreground ms-2">
                 الصفحة {toArabicNumber(page)} من {toArabicNumber(totalPages)}
               </span>
             </div>

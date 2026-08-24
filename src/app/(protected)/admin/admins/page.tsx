@@ -206,7 +206,7 @@ export default function AdminAdminsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-normal">إدارة المسؤولين</h2>
+          <h1 className="text-2xl font-bold tracking-normal">إدارة المسؤولين</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(admins.length)} مسؤول</p>
         </div>
         <Button onClick={() => setInviteOpen(true)} className="gap-2">
@@ -220,17 +220,17 @@ export default function AdminAdminsPage() {
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(admins.length)}</p>
         </div>
-        <div className="rounded-md bg-purple-50 dark:bg-purple-950/20 border border-purple-200/30 p-4">
-          <p className="text-xs text-purple-600">مدير عام</p>
-          <p className="text-2xl font-bold mt-1 text-purple-600">{toArabicNumber(superAdmins.length)}</p>
+        <div className="rounded-md bg-info/10 dark:bg-info/15 border border-info/20 p-4">
+          <p className="text-xs text-info">مدير عام</p>
+          <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(superAdmins.length)}</p>
         </div>
         <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange">مسؤول</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(subAdmins.length)}</p>
         </div>
-        <div className="rounded-md bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
-          <p className="text-xs text-emerald-600">نشط اليوم</p>
-          <p className="text-2xl font-bold mt-1 text-emerald-600">{toArabicNumber(admins.filter(a => {
+        <div className="rounded-md bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+          <p className="text-xs text-success">نشط اليوم</p>
+          <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(admins.filter(a => {
             if (!a.lastLoginAt) return false
             return new Date(a.lastLoginAt).getTime() > todayMs - 86400000
           }).length)}</p>
@@ -240,7 +240,7 @@ export default function AdminAdminsPage() {
       {/* Super Admins Section */}
       <section>
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Shield className="size-5 text-purple-500" />
+          <Shield className="size-5 text-info" />
           المدراء العامون
         </h3>
         {superAdmins.length === 0 ? (
@@ -254,15 +254,15 @@ export default function AdminAdminsPage() {
               <div key={admin.id} className="rounded-md bg-card/50 border border-border/30 p-5">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="size-11 rounded-xl bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center">
-                      <Shield className="size-5 text-purple-600 dark:text-purple-400" />
+                    <div className="size-11 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center">
+                      <Shield className="size-5 text-info" />
                     </div>
                     <div>
                       <p className="font-bold">{admin.name}</p>
                       <p className="text-xs text-muted-foreground">@{admin.username}</p>
                     </div>
                   </div>
-                  <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 text-[10px]">
+                  <Badge className="bg-info/15 text-info dark:bg-info/25 text-[10px]">
                     مدير عام
                   </Badge>
                 </div>

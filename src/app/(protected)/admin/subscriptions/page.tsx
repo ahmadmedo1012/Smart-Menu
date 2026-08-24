@@ -48,11 +48,11 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 	},
 	verified: {
 		label: 'تم التحقق',
-		color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+		color: 'bg-success/15 text-success dark:bg-success/25',
 	},
 	cancelled: {
 		label: 'ملغي',
-		color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+		color: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
 	},
 };
 
@@ -198,7 +198,7 @@ export default function AdminSubscriptionsPage() {
 		<div className="space-y-6 animate-fade-in">
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">إدارة الاشتراكات</h2>
+					<h1 className="text-2xl font-bold tracking-normal">إدارة الاشتراكات</h1>
 					<p className="text-sm text-muted-foreground">
 						{toArabicNumber(total)} اشتراك{total !== 1 ? '' : ''}
 					</p>
@@ -217,15 +217,15 @@ export default function AdminSubscriptionsPage() {
 						{toArabicNumber(payments.filter((p) => p.status === 'pending').length)}
 					</p>
 				</div>
-				<div className="rounded-md bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/30 p-4">
-					<p className="text-xs text-emerald-600">تم التحقق</p>
-					<p className="text-2xl font-bold mt-1 text-emerald-600">
+				<div className="rounded-md bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+					<p className="text-xs text-success">تم التحقق</p>
+					<p className="text-2xl font-bold mt-1 text-success">
 						{toArabicNumber(payments.filter((p) => p.status === 'verified').length)}
 					</p>
 				</div>
-				<div className="rounded-md bg-red-50 dark:bg-red-950/20 border border-red-200/30 p-4">
-					<p className="text-xs text-red-600">ملغى</p>
-					<p className="text-2xl font-bold mt-1 text-red-600">
+				<div className="rounded-md bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 p-4">
+					<p className="text-xs text-destructive">ملغى</p>
+					<p className="text-2xl font-bold mt-1 text-destructive">
 						{toArabicNumber(payments.filter((p) => p.status === 'cancelled').length)}
 					</p>
 				</div>
@@ -353,11 +353,11 @@ export default function AdminSubscriptionsPage() {
 														setActionTarget(p);
 														setActionType('verified');
 													}}
-													className="size-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/30 flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+													className="size-9 rounded-xl bg-success/10 dark:bg-success/15 border border-success/25 flex items-center justify-center hover:bg-success/20 dark:hover:bg-success/25 transition-colors"
 													title="تأكيد الدفع"
 													aria-label="تأكيد الدفع"
 												>
-													<MotionCheck className="size-4 text-emerald-600" />
+													<MotionCheck className="size-4 text-success" />
 												</button>
 												<button
 													type="button"
@@ -365,11 +365,11 @@ export default function AdminSubscriptionsPage() {
 														setActionTarget(p);
 														setActionType('cancelled');
 													}}
-													className="size-9 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200/30 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+													className="size-9 rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 flex items-center justify-center hover:bg-destructive/20 transition-colors"
 													title="إلغاء"
 													aria-label="إلغاء"
 												>
-													<AnimatedX className="size-4 text-red-500" />
+													<AnimatedX className="size-4 text-destructive" />
 												</button>
 											</div>
 										)}
