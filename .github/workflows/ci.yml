@@ -48,6 +48,12 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
+      # Schema must exist before build: /menu/[slug] generateStaticParams reads
+      # the DB at build time (TableDoesNotExist otherwise).
+      - run: npx prisma db push --skip-generate && npx prisma db seed || true
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
       - run: npm run lint
 
       # Build-time env validation (src/lib/env.ts) throws in production mode —
@@ -79,8 +85,6 @@ jobs:
       # Start server for E2E tests (always runs, uses CI Postgres service)
       - name: Start server for E2E
         run: |
-          npx prisma db push --skip-generate
-          npx prisma db seed || true
           npm run start &
           npx wait-on http://localhost:3000 --timeout 60000
         env:
