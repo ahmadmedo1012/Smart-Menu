@@ -39,7 +39,7 @@ function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
 
   if (anim) {
     return (
-      <div className="size-9 -my-1">
+      <div className="size-10 -my-1 min-h-[40px] min-w-[40px]">
         <LottieAnimation src="/animations/restaurant-loading.lottie" autoplay loop={false} speed={1.5} />
       </div>
     );
@@ -47,8 +47,8 @@ function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
 
   const Icon = cfg.icon;
   return (
-    <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
-      <Icon className="size-[18px]" style={{ color: cfg.color }} />
+    <div className={cn("size-10 min-h-[40px] min-w-[40px] rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
+      <Icon className="size-[18px]" style={{ color: cfg.color }} aria-hidden="true" />
     </div>
   );
 }
@@ -62,8 +62,10 @@ export function premiumToast(
   return toast.custom(
     (t) => (
       <div
+        role="alert"
+        aria-live="polite"
         onClick={() => toast.dismiss(t)}
-        className="pointer-events-auto flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border/40 bg-card/95 p-3.5 shadow-xl backdrop-blur-xl rtl:flex-row-reverse animate-slide-up"
+        className="pointer-events-auto flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border/40 bg-card/95 p-4 shadow-xl backdrop-blur-xl rtl:flex-row-reverse animate-slide-up"
         style={{ animationDuration: "0.35s" }}
       >
         <ToastIcon icon={icon} anim={opts?.anim ?? icon === "cart"} />
@@ -73,10 +75,10 @@ export function premiumToast(
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); toast.dismiss(t); }}
-          className="shrink-0 size-6 rounded-md flex items-center justify-center hover:bg-muted transition-colors opacity-40 hover:opacity-100"
+          className="shrink-0 size-8 min-h-[32px] min-w-[32px] rounded-md flex items-center justify-center hover:bg-muted transition-colors opacity-40 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring/50"
           aria-label="إغلاق"
         >
-          <AnimatedX className="size-3.5 text-muted-foreground" />
+          <AnimatedX className="size-4 text-muted-foreground" aria-hidden="true" />
         </button>
       </div>
     ),

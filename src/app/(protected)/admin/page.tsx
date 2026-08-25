@@ -223,11 +223,11 @@ export default function AdminDashboard() {
 					<p className="text-sm text-muted-foreground mt-0.5">نظرة عامة على شبكة المطاعم</p>
 				</div>
 				<div className="flex items-center gap-2">
-					<Button variant="ghost" size="icon" onClick={load} aria-label="تحديث">
-						<AnimatedRefreshCw className="size-4" />
+					<Button variant="ghost" size="icon" onClick={load} aria-label="تحديث البيانات">
+						<AnimatedRefreshCw className="size-4" aria-hidden="true" />
 					</Button>
 					<Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
-						<Activity className="size-3.5 text-success" />
+						<Activity className="size-3.5 text-success" aria-hidden="true" />
 						مباشر
 					</Badge>
 				</div>
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center justify-between mb-4">
 						<div className="flex items-center gap-2">
-							<TrendingUp className="size-4 text-muted-foreground" />
+							<TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
 							<h3 className="text-sm font-semibold">اتجاه الإيرادات (30 يوم)</h3>
 						</div>
 					</div>
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center justify-between mb-4">
 						<div className="flex items-center gap-2">
-							<AnimatedShoppingCart className="size-4 text-muted-foreground" />
+							<AnimatedShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
 							<h3 className="text-sm font-semibold">حجم الطلبات (30 يوم)</h3>
 						</div>
 					</div>
@@ -326,7 +326,7 @@ export default function AdminDashboard() {
 				{/* Top items */}
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
-						<AnimatedBarChart3 className="size-4 text-muted-foreground" />
+						<AnimatedBarChart3 className="size-4 text-muted-foreground" aria-hidden="true" />
 						<h3 className="text-sm font-semibold">الأصناف الأكثر طلباً</h3>
 					</div>
 					{stats.topItems.length > 0 ? (
@@ -344,7 +344,7 @@ export default function AdminDashboard() {
 				{/* Quick metrics */}
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
-						<Activity className="size-4 text-muted-foreground" />
+						<Activity className="size-4 text-muted-foreground" aria-hidden="true" />
 						<h3 className="text-sm font-semibold">مؤشرات سريعة</h3>
 					</div>
 					<div className="grid grid-cols-2 gap-3">

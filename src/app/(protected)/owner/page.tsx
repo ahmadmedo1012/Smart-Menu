@@ -146,12 +146,17 @@ export default function OwnerDashboard() {
 
 	if (loading)
 		return (
-			<div className="space-y-5 animate-fade-in">
+			<div
+				aria-live="polite"
+				aria-label="جارٍ تحميل بيانات لوحة التحكم"
+				className="space-y-5 animate-fade-in"
+			>
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
 						<div
 							key={i}
 							className="h-32 rounded-md bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse"
+							aria-hidden="true"
 						>
 							<div className="h-3 w-20 rounded-full bg-muted/70" />
 							<div className="h-8 w-28 rounded-sm bg-muted/60" />
@@ -163,6 +168,7 @@ export default function OwnerDashboard() {
 						<div
 							key={i}
 							className="h-52 rounded-md bg-card/50 border border-border/20 p-4 space-y-3 animate-pulse"
+							aria-hidden="true"
 						>
 							<div className="h-3 w-24 rounded-full bg-muted/70" />
 							<div className="h-3 w-full rounded-full bg-muted/50 mt-4" />
@@ -171,7 +177,7 @@ export default function OwnerDashboard() {
 						</div>
 					))}
 				</div>
-				<div className="h-28 rounded-md bg-card/50 border border-border/20 p-4 animate-pulse">
+				<div className="h-28 rounded-md bg-card/50 border border-border/20 p-4 animate-pulse" aria-hidden="true">
 					<div className="h-3 w-20 rounded-full bg-muted/70" />
 				</div>
 			</div>

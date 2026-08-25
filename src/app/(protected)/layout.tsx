@@ -117,7 +117,7 @@ export default async function RootLayout({
 			<body className="min-h-screen flex flex-col antialiased overflow-x-clip bg-[var(--background-radial),var(--background)]">
 				<a
 					href="#main-content"
-					className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:end-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-sm focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none"
+					className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
 				>
 					تخطى إلى المحتوى الرئيسي
 				</a>

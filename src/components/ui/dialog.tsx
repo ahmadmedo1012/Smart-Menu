@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import AnimatedX from "@/components/ui/x-icon"
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+  return <DialogPrimitive.Root data-slot="dialog" modal {...props} />
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
@@ -31,7 +31,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-40 backdrop-blur-sm transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.2,1)]",
+        "fixed inset-0 isolate z-40 backdrop-blur-md transition-opacity duration-500 ease-[cubic-bezier(0.16,1,0.2,1)]",
         "data-starting-style:opacity-0 data-ending-style:opacity-0",
         className
       )}
@@ -55,8 +55,9 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         aria-modal="true"
+        dir="rtl"
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto overscroll-contain -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sm bg-popover p-6 text-sm text-popover-foreground ring-1 ring-foreground/10 shadow-lg outline-none sm:max-w-sm",
+          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto overscroll-contain -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sm bg-popover p-6 text-sm text-popover-foreground ring-1 ring-foreground/10 shadow-xl outline-none sm:max-w-sm",
           "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.2,1)] data-starting-style:opacity-0 data-starting-style:scale-95 data-starting-style:translate-y-4",
           "data-ending-style:opacity-0 data-ending-style:scale-95 data-ending-style:translate-y-4",
           className
@@ -70,7 +71,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-2 end-2"
+                className="absolute top-3 end-3 min-h-[48px] min-w-[48px]"
                 size="icon"
                 aria-label="إغلاق"
               />
