@@ -41,7 +41,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # prisma.config.ts resolves DATABASE_URL at load time (PrismaConfigEnvError
+      # otherwise), even for `generate` which never touches the DB — a dummy URL
+      # satisfies the config loader in CI.
       - run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
       - run: npm run lint
 
