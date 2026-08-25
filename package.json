@@ -81,5 +81,6 @@
   "bugs": {
     "url": "https://github.com/ahmadmedo1012/Smart-Menu/issues"
   },
-  "homepage": "https://github.com/ahmadmedo1012/Smart-Menu#readme"
+  "homepage": "https://github.com/ahmadmedo1012/Smart-Menu#readme",
+  "packageManager": "pnpm@11.9.0"
 }
