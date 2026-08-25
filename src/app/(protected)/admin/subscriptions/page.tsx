@@ -21,6 +21,7 @@ import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import {CreditCard, FilterX, AlertCircle, Smartphone, AlertTriangle, Landmark, ImageIcon} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
@@ -162,6 +163,7 @@ export default function AdminSubscriptionsPage() {
 	if (loading && payments.length === 0) {
 		return (
 			<div className="space-y-3 animate-fade-in">
+				<LoadingAnnouncer loading message="جارٍ تحميل الاشتراكات..." />
 				{[1, 2, 3].map((i) => (
 					<div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />
 				))}
@@ -267,7 +269,7 @@ export default function AdminSubscriptionsPage() {
 							return (
 								<div
 									key={p.id}
-									className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all"
+									className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]"
 								>
 									<div className="flex items-start justify-between gap-4">
 										<div className="flex items-center gap-3 flex-1 min-w-0">
@@ -280,7 +282,7 @@ export default function AdminSubscriptionsPage() {
 													<Badge className={cn('text-[10px]', st.color)}>{st.label}</Badge>
 												</div>
 												<div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
-													<span>{p.amount} د.ل</span>
+													<span className="tabular-nums">{p.amount} د.ل</span>
 													<span>•</span>
 													<span>{PROVIDER_NAMES[p.provider] ?? p.provider}</span>
 													{p.planName && (
@@ -317,13 +319,13 @@ export default function AdminSubscriptionsPage() {
 														{senderName && (
 															<div className="flex justify-between gap-2">
 																<span className="text-muted-foreground">اسم المُرسِل</span>
-																<span className="font-semibold text-left">{senderName}</span>
+																<span className="font-semibold">{senderName}</span>
 															</div>
 														)}
 														{senderNumber && (
 															<div className="flex justify-between gap-2">
 																<span className="text-muted-foreground">رقم الحساب</span>
-																<span className="font-mono text-left" dir="ltr">
+																<span className="font-mono" dir="ltr">
 																	{senderNumber}
 																</span>
 															</div>
@@ -353,7 +355,7 @@ export default function AdminSubscriptionsPage() {
 														setActionTarget(p);
 														setActionType('verified');
 													}}
-													className="size-9 rounded-xl bg-success/10 dark:bg-success/15 border border-success/25 flex items-center justify-center hover:bg-success/20 dark:hover:bg-success/25 transition-colors"
+													className="size-11 rounded-xl bg-success/10 dark:bg-success/15 border border-success/25 flex items-center justify-center hover:bg-success/20 dark:hover:bg-success/25 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/60"
 													title="تأكيد الدفع"
 													aria-label="تأكيد الدفع"
 												>
@@ -365,7 +367,7 @@ export default function AdminSubscriptionsPage() {
 														setActionTarget(p);
 														setActionType('cancelled');
 													}}
-													className="size-9 rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 flex items-center justify-center hover:bg-destructive/20 transition-colors"
+													className="size-11 rounded-xl bg-destructive/10 dark:bg-destructive/15 border border-destructive/20 flex items-center justify-center hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
 													title="إلغاء"
 													aria-label="إلغاء"
 												>

@@ -58,7 +58,7 @@ export function PlanSelector({
 							onClick={() => onSelect(plan.id)}
 							aria-pressed={isSelected}
 							className={cn(
-								'relative flex flex-col rounded-md p-5 text-start transition-all duration-300 border-2 hover:shadow-xl',
+								'relative flex flex-col rounded-md p-5 text-start transition-[border-color,box-shadow] duration-300 border-2 hover:shadow-xl outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								isSelected
 									? 'border-orange ring-2 ring-orange/40 bg-orange-muted/50 dark:bg-orange-muted shadow-lg shadow-orange/15'
 									: 'border-border/30 hover:border-orange/30 hover:shadow-orange/5 bg-card/50'
@@ -92,7 +92,7 @@ export function PlanSelector({
 							</span>
 							<h3 className="font-bold text-lg mb-1">{plan.nameAr}</h3>
 							<div className="flex items-baseline gap-1 mb-3">
-								<span className="text-2xl font-bold">
+								<span className="text-2xl font-bold tabular-nums">
 									{Number(plan.price) === 0 ? 'مجاني' : toArabicNumber(plan.price)}
 								</span>
 								{Number(plan.price) > 0 && (
@@ -122,7 +122,7 @@ export function PlanSelector({
 				<Button
 					size="lg"
 					variant={selected ? 'flame' : 'outline'}
-					className={cn('px-10 h-14 text-lg rounded-sm transition-all')}
+					className={cn('px-10 h-14 text-lg rounded-sm')}
 					disabled={!selectedPlan}
 					onClick={onContinue}
 				>

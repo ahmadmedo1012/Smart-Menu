@@ -28,6 +28,7 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from '@/components/ui/dialog';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
 const PICKUP_LABELS: Record<string, string> = {
 	inside: 'داخل المكان',
@@ -76,6 +77,8 @@ export default function CartPage() {
 	const [animateItems, setAnimateItems] = useState(false);
 	const [deliveryAddress, setDeliveryAddress] = useState('');
 	const [supportedPickupTypes, setSupportedPickupTypes] = useState<string[]>([]);
+	const [isFetchingPickupTypes, setIsFetchingPickupTypes] = useState(false);
+	const [pickupTypesError, setPickupTypesError] = useState(false);
 	const [waError, setWaError] = useState(false);
 	const submittingRef = useRef(false);
 
@@ -89,9 +92,14 @@ export default function CartPage() {
 		return () => window.removeEventListener('beforeunload', handler);
 	}, [items.length, confirmed]);
 
-	// Fetch restaurant's supported pickup types
-	useEffect(() => {
-		if (!restaurantId) return;
+	// Fetch restaurant's supported pickup types.
+	// Reads the latest pickupType through a ref so the effect only re-runs on
+	// restaurant change — every tab switch used to fire a redundant fetch +
+	// screen-reader announcement, and out-of-order responses could revert the
+	// user's fresh selection against a stale `pickupType` closure.
+	const loadPickupTypes = () => {
+		setIsFetchingPickupTypes(true);
+		setPickupTypesError(false);
 		fetch(`/api/restaurants/${restaurantId}`)
 			.then((r) => r.json())
 			.then((d) => {
@@ -102,10 +110,26 @@ export default function CartPage() {
 				);
 				setSupportedPickupTypes(arr);
 				// Reset pickupType if current selection isn't supported
-				if (!arr.includes(pickupType)) setPickupType(arr[0] || 'takeaway');
+				if (!arr.includes(pickupTypeRef.current)) setPickupType(arr[0] || 'takeaway');
 			})
-			.catch(() => setSupportedPickupTypes(['inside', 'takeaway', 'delivery']));
-	}, [restaurantId, pickupType, setPickupType]);
+			.catch(() => {
+				// Visible error state instead of silent fallback — user can retry.
+				setPickupTypesError(true);
+				setSupportedPickupTypes(['inside', 'takeaway', 'delivery']);
+			})
+			.finally(() => setIsFetchingPickupTypes(false));
+	};
+
+	const pickupTypeRef = useRef(pickupType);
+	useEffect(() => {
+		pickupTypeRef.current = pickupType;
+	}, [pickupType]);
+
+	useEffect(() => {
+		if (!restaurantId) return;
+		loadPickupTypes();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [restaurantId, setPickupType]);
 
 	const filteredPickupOptions = PICKUP_OPTIONS.filter(
 		(o) => supportedPickupTypes.length === 0 || supportedPickupTypes.includes(o.value)
@@ -211,12 +235,21 @@ export default function CartPage() {
 					</div>
 					<h2 className="text-2xl font-bold">السلة فارغة</h2>
 					<p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
-					<Link href="/menu">
-						<Button size="lg" className="px-8 gap-2">
-							<MotionArrowLeft className="size-4" />
-							العودة إلى القائمة
-						</Button>
-					</Link>
+					<div className="flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
+						<Link href="/menu">
+							<Button size="lg" className="px-8 gap-2">
+								<MotionArrowLeft className="size-4" />
+								العودة إلى القائمة
+							</Button>
+						</Link>
+						{/* Secondary CTA — direct path back to browsing the menu */}
+						<Link href="/menu">
+							<Button size="lg" variant="outline" className="px-8 gap-2">
+								<AnimatedCart className="size-4" />
+								تصفح المنيو
+							</Button>
+						</Link>
+					</div>
 					{/* Popular suggestions — reduces friction for first-time carts */}
 					{restaurantId ? (
 						<div className="mt-6 w-full max-w-md">
@@ -229,7 +262,7 @@ export default function CartPage() {
 										key={s}
 										type="button"
 										onClick={() => addSuggested()}
-										className="rounded-lg border border-border/40 bg-card/60 px-3 py-2.5 text-sm font-arabic hover:border-orange/40 hover:bg-orange-muted/30 transition-colors"
+										className="min-h-[44px] rounded-lg border border-border/40 bg-card/60 px-3 py-2.5 text-sm font-arabic hover:border-orange/40 hover:bg-orange-muted/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 									>
 										<MotionPlus className="size-3.5 text-orange ms-1" /> {s}
 									</button>
@@ -268,7 +301,8 @@ export default function CartPage() {
 				<div className="flex items-center gap-4 mb-8 animate-slide-down">
 					<Link
 						href="/menu"
-						className="text-muted-foreground hover:text-foreground transition-colors"
+						className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+						aria-label="العودة إلى القائمة"
 					>
 						<MotionArrowLeft className="size-5" />
 					</Link>
@@ -290,7 +324,7 @@ export default function CartPage() {
 					].map((step, i) => (
 						<div key={step.n} className="flex items-center gap-1.5 flex-1">
 							<div className={cn(
-								'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold transition-all duration-300',
+								'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold transition-[color,background-color,border-color] duration-300',
 								i === 0
 									? 'bg-orange/15 text-orange border border-orange/30'
 									: 'bg-muted/40 text-muted-foreground/60 border border-border/30'
@@ -307,6 +341,20 @@ export default function CartPage() {
 				</div>
 
 				{/* Pickup type selector */}
+				<LoadingAnnouncer
+					loading={isFetchingPickupTypes}
+					message="جاري تحميل خيارات الطلب..."
+					completedMessage="تم تحميل خيارات الطلب"
+				/>
+				{pickupTypesError && (
+					<button
+						type="button"
+						onClick={loadPickupTypes}
+						className="mb-4 w-full rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+					>
+						تعذر تحميل خيارات الطلب — انقر لإعادة المحاولة
+					</button>
+				)}
 				<div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up delay-100">
 					{filteredPickupOptions.map((opt) => (
 						<button
@@ -314,7 +362,7 @@ export default function CartPage() {
 							type="button"
 							onClick={() => setPickupType(opt.value as typeof pickupType)}
 							className={cn(
-								'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-all duration-300 border overflow-hidden',
+								'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-[transform,translate,scale,rotate,box-shadow,color,background-color,border-color] duration-300 border overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								pickupType === opt.value
 									? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/20 scale-[1.02]'
 									: 'bg-card/50 border-border/30 hover:border-orange/20 hover:shadow-md'
@@ -389,7 +437,7 @@ export default function CartPage() {
 						<div
 							key={item.id}
 							className={cn(
-								'rounded-md bg-card/60 border border-border/30 p-4 transition-all duration-500 hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5',
+								'rounded-md bg-card/60 border border-border/30 p-4 transition-[opacity,transform,translate,scale,rotate,box-shadow,border-color] duration-500 hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5',
 								animateItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
 							)}
 							style={{ transitionDelay: `${idx * 80}ms` }}
@@ -412,7 +460,7 @@ export default function CartPage() {
 									<button
 										type="button"
 										onClick={() => updateQuantity(item.id, item.quantity - 1)}
-										className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
+										className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 										aria-label="إنقاص الكمية"
 									>
 										<MotionMinus className="size-4" />
@@ -423,7 +471,7 @@ export default function CartPage() {
 									<button
 										type="button"
 										onClick={() => updateQuantity(item.id, item.quantity + 1)}
-										className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-all active:scale-90"
+										className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 										aria-label="زيادة الكمية"
 									>
 										<MotionPlus className="size-4" />
@@ -431,7 +479,7 @@ export default function CartPage() {
 									<button
 										type="button"
 										onClick={() => removeItem(item.id)}
-																					className="size-8 sm:size-9 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-all ms-1 active:scale-90"
+																					className="size-11 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,translate,scale,rotate,background-color] ms-1 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
 																					aria-label="حذف الصنف"
 									>
 										<AnimatedTrash className="size-3" />
@@ -444,7 +492,7 @@ export default function CartPage() {
 															aria-label={`ملاحظات للصنف ${item.name}`}
 															value={item.notes}
 															onChange={(e) => updateNotes(item.id, e.target.value)}
-								className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+								className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
 							/>
 						</div>
 					))}
@@ -460,7 +508,7 @@ export default function CartPage() {
 						<button
 							type="button"
 							onClick={() => undoRemove()}
-							className="font-arabic font-bold text-orange hover:underline shrink-0"
+							className="font-arabic font-bold text-orange hover:underline shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 						>
 							تراجع
 						</button>
@@ -486,7 +534,7 @@ export default function CartPage() {
 								maxLength={120}
 								value={notes}
 								onChange={(e) => setOrderNotes(e.target.value)}
-								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
 							/>
 						</div>
 						<div>
@@ -501,7 +549,7 @@ export default function CartPage() {
 								maxLength={15}
 								value={customerPhone}
 								onChange={(e) => setCustomerPhone(e.target.value)}
-								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-all focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 text-left"
+								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 text-left"
 							/>
 							<p className="text-[11px] text-muted-foreground/70 mt-1">
 								ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب
@@ -566,7 +614,7 @@ export default function CartPage() {
 				)}
 
 				<Button
-					className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/30 transition-all duration-300"
+					className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 transition-[box-shadow,transform,translate,scale,rotate] duration-300"
 					onClick={() => setShowPreview(true)}
 					size="lg"
 					disabled={items.length === 0}

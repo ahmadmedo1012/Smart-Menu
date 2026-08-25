@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import Link from "next/link"
 import { error as logError } from "@/lib/logger"
 import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -29,11 +30,11 @@ export default function OrderConfirmedError({
           <Button size="lg" className="text-base px-8 h-12" onClick={() => reset()}>
             إعادة المحاولة
           </Button>
-          <a href="/">
+          <Link href="/">
             <Button variant="outline" size="lg" className="text-base px-8 h-12">
               العودة للرئيسية
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

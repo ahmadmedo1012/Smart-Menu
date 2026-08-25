@@ -187,7 +187,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 				<div className="flex items-center gap-3">
 					<button
 						onClick={() => router.push('/owner/orders')}
-						className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+						className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 					>
 						<MotionChevronLeft className="size-4" />
 					</button>
@@ -216,7 +216,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 									onClick={() => isActive && updateStatus(s)}
 									disabled={!isActive || order.status === 'cancelled'}
 									className={cn(
-										'size-10 rounded-xl flex items-center justify-center transition-all duration-300 border-2',
+										'size-10 rounded-xl flex items-center justify-center transition-[background-color,border-color,transform,translate,scale,rotate] duration-300 border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 										isCurrent
 											? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/25 scale-110'
 											: isActive
@@ -384,7 +384,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 			<div className="grid grid-cols-2 gap-3">
 				<a
 					href={`tel:${order.customerPhone}`}
-					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-all font-medium text-sm"
+					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-[background-color] font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 				>
 					<Phone className="size-4" />
 					اتصال
@@ -392,7 +392,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 				<button
 					type="button"
 					onClick={copyAsWhatsApp}
-					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-green-200/30 text-success hover:bg-success/15 transition-all font-medium text-sm"
+					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-green-200/30 text-success hover:bg-success/15 transition-[background-color] font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 				>
 					<AnimatedMessageCircle className="size-4" />
 					نسخ نص الطلب

@@ -101,9 +101,10 @@ export function ReferralCard({
 						<label className="block text-xs font-medium text-orange/80 dark:text-orange/80 mb-2 text-center">
 							كود الإحالة الخاص بك
 						</label>
-						<div
-							className="mx-auto w-fit rounded-xl bg-white/90 dark:bg-orange-muted/60 border-2 border-orange/50 dark:border-orange/50 px-6 py-3 text-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+						<button
+							type="button"
 							onClick={handleCopyLink}
+							className="mx-auto w-fit block rounded-xl bg-white/90 dark:bg-orange-muted/60 border-2 border-orange/50 dark:border-orange/50 px-6 py-3 text-center cursor-pointer transition-[transform,translate,scale,rotate] outline-none hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1"
 						>
 							<span
 								className="text-2xl font-bold tracking-[0.1em] text-orange dark:text-orange font-mono"
@@ -111,7 +112,7 @@ export function ReferralCard({
 							>
 								{referralCode}
 							</span>
-						</div>
+						</button>
 						<p className="text-[10px] text-orange/60 dark:text-orange/60 text-center mt-1.5">
 							{copied ? (
 								<span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
@@ -150,7 +151,7 @@ export function ReferralCard({
 							<button
 								type="button"
 								onClick={handleShareWhatsApp}
-								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all cursor-pointer"
+								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-green-500/60 focus-visible:ring-offset-1 cursor-pointer"
 							>
 								<AnimatedMessageCircle className="size-4" />
 								واتساب
@@ -158,7 +159,7 @@ export function ReferralCard({
 							<button
 								type="button"
 								onClick={handleCopyLink}
-								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-all cursor-pointer"
+								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
 							>
 								{copied ? <MotionCheck className="size-4" /> : <AnimatedCopy className="size-4" />}
 								نسخ الرابط
@@ -167,7 +168,7 @@ export function ReferralCard({
 								<button
 									type="button"
 									onClick={handleShareSMS}
-									className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-all cursor-pointer"
+									className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
 								>
 									<Smartphone className="size-4" />
 									SMS
@@ -188,7 +189,7 @@ export function ReferralCard({
 							type="button"
 							onClick={handleCopyLink}
 							aria-label="نسخ رابط الإحالة"
-							className="size-9 rounded-lg bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+							className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
 						>
 							{copied ? <MotionCheck className="size-3.5" /> : <Share2 className="size-3.5" />}
 						</button>

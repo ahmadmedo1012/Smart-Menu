@@ -17,6 +17,7 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { toArabicNumber } from "@/lib/format";
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer";
 import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./RestaurantTable";
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
 
@@ -128,6 +129,7 @@ export default function AdminRestaurantsPage() {
   // ---------- Loading ----------
   if (loading && restaurants.length === 0) return (
     <div className="space-y-3 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
+      <LoadingAnnouncer loading message="جارٍ تحميل المطاعم..." />
       {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   );

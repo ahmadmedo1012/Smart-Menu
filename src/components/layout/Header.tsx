@@ -28,12 +28,12 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
       aria-expanded={open}
       aria-controls="mobile-menu"
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
-      className="lg:hidden relative size-11 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-all duration-200 active:scale-90"
+      className="lg:hidden relative size-11 rounded-lg border border-border flex items-center justify-center hover:bg-orange/20 transition-[color,background-color,transform,translate,scale,rotate] duration-200 active:scale-90"
     >
       <span className="relative size-3.5">
-        <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-all duration-300 origin-center", open && "rotate-45 top-[6px]")} />
-        <span className={cn("absolute inset-x-0 top-[6px] h-[2px] rounded-full bg-foreground transition-all duration-300", open && "opacity-0")} />
-        <span className={cn("absolute inset-x-0 bottom-[2px] h-[2px] rounded-full bg-foreground transition-all duration-300 origin-center", open && "-rotate-45 bottom-[6px]")} />
+        <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300 origin-center", open && "rotate-45 top-[6px]")} />
+        <span className={cn("absolute inset-x-0 top-[6px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300", open && "opacity-0")} />
+        <span className={cn("absolute inset-x-0 bottom-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300 origin-center", open && "-rotate-45 bottom-[6px]")} />
       </span>
     </button>
   )
@@ -186,7 +186,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <>
       <header className={cn(
-        "fixed top-0 inset-x-0 z-30 h-16 transition-all duration-500 will-change-transform backface-hidden",
+        "fixed top-0 inset-x-0 z-30 h-16 transition-[transform,translate,scale,rotate,background-color,box-shadow,height] duration-500 will-change-transform backface-hidden",
         visible ? "translate-y-0" : "-translate-y-full",
         scrolled ? "bg-background/80 backdrop-blur-2xl border-b border-border/30 shadow-md" : "bg-background/0",
         className

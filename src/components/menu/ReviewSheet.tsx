@@ -211,7 +211,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 									key={star ?? 'all'}
 									onClick={() => setFilterStar(star)}
 									className={cn(
-										'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border',
+										'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border',
 										filterStar === star
 											? 'bg-orange text-white border-orange shadow-sm'
 											: 'bg-muted/30 text-muted-foreground border-border/20 hover:bg-muted/50'
@@ -281,7 +281,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								onClick={handleSubmit}
 								disabled={formRating < 1 || submitting}
 								className={cn(
-									'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all',
+									'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-[color,background-color]',
 									formRating < 1
 										? 'bg-muted/40 text-muted-foreground/40 cursor-not-allowed'
 										: 'bg-orange text-white shadow-sm hover:shadow-md active:scale-[0.97]'

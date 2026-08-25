@@ -135,7 +135,7 @@ export function GalleryCarousel({
 								}
 							}}
 							className={cn(
-								'absolute inset-0 transition-all duration-700 ease-out cursor-pointer',
+								'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-700 ease-out cursor-pointer',
 								i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
 							)}
 							onClick={() => openLightbox(i)}
@@ -165,7 +165,7 @@ export function GalleryCarousel({
 								prev();
 							}}
 							aria-label="الصورة السابقة"
-							className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+							className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 						>
 							<MotionChevronLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
 						</button>
@@ -176,7 +176,7 @@ export function GalleryCarousel({
 								next();
 							}}
 							aria-label="الصورة التالية"
-							className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+							className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 						>
 							<MotionChevronRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
 						</button>
@@ -188,7 +188,7 @@ export function GalleryCarousel({
 								setPaused((p) => !p);
 							}}
 							aria-label={paused ? 'تشغيل العرض التلقائي' : 'إيقاف العرض التلقائي'}
-							className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+							className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 						>
 							{paused ? (
 								<Play className="size-3.5" aria-hidden="true" />
@@ -208,7 +208,7 @@ export function GalleryCarousel({
 										goTo(i);
 									}}
 									className={cn(
-										'h-1.5 rounded-full transition-all duration-300',
+										'h-1.5 rounded-full transition-[width,height,background-color] duration-300',
 										i === current
 											? 'w-6 bg-orange shadow-md'
 											: 'w-1.5 bg-white/40 hover:bg-white/60'
@@ -226,7 +226,7 @@ export function GalleryCarousel({
 						e.stopPropagation();
 						openLightbox(current);
 					}}
-					className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+					className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 					aria-label="تكبير الصورة"
 				>
 					<Maximize2 className="size-3.5" aria-hidden="true" />
@@ -248,7 +248,7 @@ export function GalleryCarousel({
 						type="button"
 						onClick={closeLightbox}
 						aria-label="إغلاق"
-						className="absolute top-4 start-4 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-all z-10"
+						className="absolute top-4 start-4 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-[background-color,opacity] z-10"
 					>
 						<AnimatedX className="size-5" aria-hidden="true" />
 					</button>
@@ -275,7 +275,7 @@ export function GalleryCarousel({
 										setLightboxIdx((prev) => (prev - 1 + images.length) % images.length)
 									}
 									aria-label="الصورة السابقة"
-									className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg"
+									className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-[background-color,box-shadow] shadow-lg"
 								>
 									<MotionChevronLeft className="size-5 rtl:-scale-x-100" aria-hidden="true" />
 								</button>
@@ -284,7 +284,7 @@ export function GalleryCarousel({
 									ref={lightboxNextRef}
 									onClick={() => setLightboxIdx((prev) => (prev + 1) % images.length)}
 									aria-label="الصورة التالية"
-									className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-all shadow-lg"
+									className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-[background-color,box-shadow] shadow-lg"
 								>
 									<MotionChevronRight className="size-5 rtl:-scale-x-100" aria-hidden="true" />
 								</button>
@@ -297,7 +297,7 @@ export function GalleryCarousel({
 											onClick={() => setLightboxIdx(i)}
 											aria-label={`صورة ${i + 1}`}
 											className={cn(
-												'h-1.5 rounded-full transition-all duration-300',
+												'h-1.5 rounded-full transition-[width,height,background-color] duration-300',
 												i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
 											)}
 										/>

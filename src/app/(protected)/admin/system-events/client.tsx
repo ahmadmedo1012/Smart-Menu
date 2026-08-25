@@ -7,6 +7,7 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { EmptyState } from '@/components/ui/empty-state';
 import { cn } from '@/lib/utils';
 import { formatDate, toArabicNumber } from '@/lib/format';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
 type SystemEvent = {
 	id: number;
@@ -96,12 +97,13 @@ export function SystemEventsClient() {
 	if (loading)
 		return (
 			<div className="flex justify-center p-12">
-				<Loader2 className="size-6 animate-spin text-orange" />
+				<LoadingAnnouncer loading message="جارٍ تحميل أحداث النظام..." />
+				<Loader2 className="size-6 animate-spin text-orange" aria-hidden="true" />
 			</div>
 		);
 	if (error)
 		return (
-			<div className="flex flex-col items-center gap-3 p-4 rounded-lg border border-destructive/30 bg-destructive/10">
+			<div role="alert" className="flex flex-col items-center gap-3 p-4 rounded-lg border border-destructive/30 bg-destructive/10">
 				<p className="text-destructive">{error}</p>
 				<button
 					type="button"

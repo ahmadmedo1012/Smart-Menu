@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { compressImage } from '@/lib/image-compress';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 
@@ -205,6 +206,7 @@ export default function OwnerSettingsPage() {
 	if (loading)
 		return (
 			<div className="space-y-5 animate-fade-in">
+				<LoadingAnnouncer loading={true} message="جارٍ تحميل الإعدادات..." />
 				<div className="h-36 skeleton rounded-md" />
 				<div className="h-80 skeleton rounded-md" />
 			</div>
@@ -262,7 +264,7 @@ export default function OwnerSettingsPage() {
 									type="button"
 									onClick={() => setLogo('')}
 									aria-label="حذف الشعار"
-									className="absolute top-1.5 right-1.5 size-8 sm:size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+									className="absolute top-1.5 end-1.5 size-8 sm:size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
 								>
 									<AnimatedX className="size-3" aria-hidden="true" />
 								</button>
@@ -358,15 +360,16 @@ export default function OwnerSettingsPage() {
 										<AnimatedX className="size-3.5" aria-hidden="true" />
 									</button>
 								</div>
-								<div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+								{/* RTL-neutral centering: inset-x-0 + justify-center (no left/right) */}
+								<div className="absolute bottom-1.5 inset-x-0 flex justify-center gap-0.5 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
 									{i > 0 && (
 										<button
 											type="button"
 											onClick={() => moveGalleryImage(i, i - 1)}
 											aria-label={`نقل صورة ${i + 1} إلى اليمين`}
-											className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+											className="size-11 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 transition-[background-color]"
 										>
-											→
+											<span aria-hidden="true">→</span>
 										</button>
 									)}
 									{i < gallery.length - 1 && (
@@ -374,9 +377,9 @@ export default function OwnerSettingsPage() {
 											type="button"
 											onClick={() => moveGalleryImage(i, i + 1)}
 											aria-label={`نقل صورة ${i + 1} إلى اليسار`}
-											className="size-10 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+											className="size-11 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 transition-[background-color]"
 										>
-											←
+											<span aria-hidden="true">←</span>
 										</button>
 									)}
 								</div>
@@ -467,7 +470,7 @@ export default function OwnerSettingsPage() {
 								dir="ltr"
 								value={form.phone}
 								onChange={(e) => setForm({ ...form, phone: e.target.value })}
-								className="h-10 rounded-xl mt-1 text-sm text-left"
+								className="h-10 rounded-xl mt-1 text-sm text-start"
 							/>
 						</div>
 						<div>
@@ -476,7 +479,7 @@ export default function OwnerSettingsPage() {
 								dir="ltr"
 								value={form.whatsapp}
 								onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-								className="h-10 rounded-xl mt-1 text-sm text-left"
+								className="h-10 rounded-xl mt-1 text-sm text-start"
 							/>
 						</div>
 					</div>
@@ -487,7 +490,7 @@ export default function OwnerSettingsPage() {
 							dir="ltr"
 							value={form.email}
 							onChange={(e) => setForm({ ...form, email: e.target.value })}
-							className="h-10 rounded-xl mt-1 text-sm text-left"
+							className="h-10 rounded-xl mt-1 text-sm text-start"
 						/>
 					</div>
 					<div className="grid grid-cols-2 gap-3">

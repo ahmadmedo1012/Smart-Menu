@@ -245,7 +245,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						}}
 						aria-label={`تقييم ${displayName}`}
 						className={cn(
-							'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-all duration-300',
+							'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-300',
 							'bg-white/20 dark:bg-white/10 backdrop-blur-md border-white/30 dark:border-white/10 shadow-sm',
 							hasRating
 								? 'text-amber-600 dark:text-amber-400 hover:bg-white/30 dark:hover:bg-white/20'
@@ -314,7 +314,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							onOrder(item);
 						}}
 						aria-label={`خيارات ${displayName}`}
-						className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-orange/40 bg-orange/5 text-orange dark:text-orange hover:bg-orange/10 active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+						className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-orange/40 bg-orange/5 text-orange dark:text-orange hover:bg-orange/10 active:scale-95 transition-[background-color,transform,translate,scale,rotate,box-shadow,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 					>
 						<Settings2 className="size-4" aria-hidden="true" />
 						<span className="text-xs font-bold">خيارات</span>
@@ -333,7 +333,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									onAddToCart(item);
 								}}
 								aria-label={`إضافة ${displayName} إلى السلة`}
-								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-[48px] rounded-xl text-xs font-bold bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-all duration-200"
+								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-[48px] rounded-xl text-xs font-bold bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-[filter,transform,translate,scale,rotate,box-shadow] duration-200"
 							>
 								<MotionPlus className="size-4" />
 								أضف

@@ -79,7 +79,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
 	return (
 		<div
 			className={cn(
-				'rounded-md p-4 border transition-all',
+				'rounded-md p-4 border transition-[border-color,box-shadow]',
 				isAt
 					? 'bg-red-50 dark:bg-red-950/20 border-red-200/30'
 					: isNear
@@ -112,7 +112,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
 			<div className="h-2 rounded-full bg-muted overflow-hidden">
 				<div
 					className={cn(
-						'h-full rounded-full transition-all duration-700',
+						'h-full rounded-full transition-[width,background-color] duration-700',
 						isAt
 							? 'bg-destructive'
 							: isNear

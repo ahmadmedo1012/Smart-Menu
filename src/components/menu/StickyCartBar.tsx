@@ -61,7 +61,7 @@ function StickyCartBar({
 			inert={!isVisible}
 			className={cn(
 				'fixed inset-x-0 bottom-0 z-30',
-				'transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none',
+				'transition-[transform,translate,scale,rotate,opacity] duration-300 ease-out motion-reduce:transition-none',
 				isVisible
 					? 'translate-y-0 opacity-100'
 					: 'pointer-events-none translate-y-full opacity-0',
@@ -87,7 +87,7 @@ function StickyCartBar({
 							type="button"
 							onClick={onCta}
 							tabIndex={isVisible ? 0 : -1}
-							className="inline-flex min-h-11 items-center justify-center rounded-md border-0 bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] px-5 text-sm font-bold whitespace-nowrap text-flame-ink shadow-lg shadow-orange/25 transition-[filter,transform] hover:brightness-110 active:scale-[0.97]"
+							className="inline-flex min-h-11 items-center justify-center rounded-md border-0 bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] px-5 text-sm font-bold whitespace-nowrap text-flame-ink shadow-lg shadow-orange/25 transition-[filter,transform,translate,scale,rotate] hover:brightness-110 active:scale-[0.97]"
 						>
 							{label}
 						</button>
@@ -95,7 +95,7 @@ function StickyCartBar({
 						<Link
 							href={href}
 							tabIndex={isVisible ? undefined : -1}
-							className="inline-flex min-h-11 items-center justify-center rounded-md border-0 bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] px-5 text-sm font-bold whitespace-nowrap text-flame-ink shadow-lg shadow-orange/25 transition-[filter,transform] hover:brightness-110 active:scale-[0.97]"
+							className="inline-flex min-h-11 items-center justify-center rounded-md border-0 bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] px-5 text-sm font-bold whitespace-nowrap text-flame-ink shadow-lg shadow-orange/25 transition-[filter,transform,translate,scale,rotate] hover:brightness-110 active:scale-[0.97]"
 						>
 							{label}
 						</Link>

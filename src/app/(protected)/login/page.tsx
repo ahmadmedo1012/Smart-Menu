@@ -206,7 +206,7 @@ function LoginForm() {
 							<Label htmlFor="username" className="font-arabic text-sm font-medium">
 								اسم المستخدم
 							</Label>
-							<div className="glow-within rounded-lg border border-input/60 bg-background/50 transition-all duration-300">
+							<div className="glow-within rounded-lg border border-input/60 bg-background/50 transition-[border-color,box-shadow] duration-300">
 								<Input
 									id="username"
 									type="text"
@@ -226,7 +226,7 @@ function LoginForm() {
 							<Label htmlFor="password" className="font-arabic text-sm font-medium">
 								كلمة المرور
 							</Label>
-							<div className="glow-within relative rounded-lg border border-input/60 bg-background/50 transition-all duration-300">
+							<div className="glow-within relative rounded-lg border border-input/60 bg-background/50 transition-[border-color,box-shadow] duration-300">
 								<Input
 									id="password"
 									type={showPassword ? 'text' : 'password'}

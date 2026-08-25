@@ -106,7 +106,7 @@ function NavPill({
     <button
       onClick={onClick}
       className={cn(
-        "rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
+        "rounded-full transition-[width,height,background-color] duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
         i === active ? "w-6 h-[5px] bg-orange" : "w-[5px] h-[5px] bg-border/50 hover:bg-orange/40",
       )}
       aria-label={`التقييم ${i + 1}`}
@@ -176,7 +176,7 @@ export function ClientsSection() {
             <div className="flex items-center justify-center gap-4 mt-6 pt-5 border-t border-border/30">
               <button
                 onClick={prev}
-                className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-all duration-300 text-muted-foreground/50"
+                className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
                 aria-label="السابق"
               >
                 <MotionChevronRight className="size-4 group-hover:text-white transition-colors" />
@@ -188,7 +188,7 @@ export function ClientsSection() {
               </div>
               <button
                 onClick={next}
-                className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-all duration-300 text-muted-foreground/50"
+                className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
                 aria-label="التالي"
               >
                 <MotionChevronLeft className="size-4 group-hover:text-white transition-colors" />

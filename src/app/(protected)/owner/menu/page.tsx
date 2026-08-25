@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
 import { ItemDialog } from '@/components/owner/ItemDialog';
 import { premiumToast } from '@/lib/premium-toast';
@@ -257,6 +258,7 @@ export default function OwnerMenuPage() {
 	if (loading)
 		return (
 			<div className="space-y-4 animate-fade-in">
+				<LoadingAnnouncer loading={true} message="جارٍ تحميل التصنيفات..." />
 				{[1, 2, 3].map((i) => (
 					<div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />
 				))}
@@ -335,7 +337,7 @@ export default function OwnerMenuPage() {
 					{filteredCategories.map((cat) => (
 						<div
 							key={cat.id}
-							className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-all hover:border-orange/30 hover:shadow-md"
+							className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
 						>
 							<div
 								className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20"
@@ -568,7 +570,7 @@ export default function OwnerMenuPage() {
 								value={catForm.nameAr}
 								onChange={(e) => setCatForm({ ...catForm, nameAr: e.target.value })}
 								placeholder="Hot Drinks"
-								className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 text-left"
+								className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 text-start"
 								dir="ltr"
 							/>
 						</div>
@@ -585,7 +587,7 @@ export default function OwnerMenuPage() {
 											type="button"
 											onClick={() => setCatForm({ ...catForm, icon: iconName })}
 											className={cn(
-												'size-10 rounded-[4px] flex items-center justify-center border transition-all',
+												'size-10 rounded-[4px] flex items-center justify-center border transition-[border-color,background-color,transform,translate,scale,rotate] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 												catForm.icon === iconName
 													? 'border-orange bg-orange-muted dark:bg-orange-muted scale-110'
 													: 'border-border/30 hover:border-orange/30'

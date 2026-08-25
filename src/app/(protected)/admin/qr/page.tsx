@@ -155,7 +155,7 @@ export default function AdminQRPage() {
 											setSelectedName(r.name);
 										}}
 										className={cn(
-											'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all',
+											'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											selectedSlug === r.slug
 												? 'bg-orange-muted border-orange/30 text-orange'
 												: 'border-border/30 hover:border-orange/30'
@@ -176,7 +176,7 @@ export default function AdminQRPage() {
 									<img
 										src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=a86b1f`}
 										alt={`QR - ${selectedName}`}
-										className="rounded-xl shadow-lg transition-all group-hover:shadow-xl"
+										className="rounded-xl shadow-lg transition-shadow group-hover:shadow-xl"
 										style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
 									/>
 									<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -198,7 +198,7 @@ export default function AdminQRPage() {
 										type="button"
 										onClick={() => setQrSize(s.value)}
 										className={cn(
-											'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all',
+											'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											qrSize === s.value
 												? 'bg-orange-muted border-orange/30 text-orange'
 												: 'border-border/30 hover:border-orange/30'

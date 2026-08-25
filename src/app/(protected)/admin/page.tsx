@@ -10,6 +10,7 @@ import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
 import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
 import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart, BarChart3} from 'lucide-react';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
@@ -140,6 +141,7 @@ export default function AdminDashboard() {
 				aria-label="جارٍ التحميل"
 				className="max-w-6xl mx-auto space-y-8 animate-fade-in"
 			>
+				<LoadingAnnouncer loading message="جارٍ تحميل لوحة التحكم..." />
 				<div className="flex items-center justify-between">
 					<div className="space-y-2">
 						<div className="h-8 w-48 skeleton rounded-lg" />
@@ -350,24 +352,24 @@ export default function AdminDashboard() {
 					<div className="grid grid-cols-2 gap-3">
 						<div className="rounded-md bg-orange-muted/50 p-4">
 							<p className="text-xs text-muted-foreground">معدل الطلب</p>
-							<p className="text-2xl font-bold mt-1">{toArabicNumber(Number(stats.avgOrderValue.toFixed(2)))} د.ل</p>
+							<p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(Number(stats.avgOrderValue.toFixed(2)))} د.ل</p>
 							<p className="text-[11px] text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
 						</div>
 						<div className="rounded-md bg-success/10 dark:bg-success/15 p-4">
 							<p className="text-xs text-success">مدفوع</p>
-							<p className="text-2xl font-bold mt-1 text-success">
+							<p className="text-2xl font-bold mt-1 text-success tabular-nums">
 								{toArabicNumber(stats.paidPlanCount)}
 							</p>
 							<p className="text-[11px] text-muted-foreground mt-0.5">اشتراك مدفوع</p>
 						</div>
 						<div className="rounded-md bg-orange-muted/50 p-4">
 							<p className="text-xs text-orange">مرتبط</p>
-							<p className="text-2xl font-bold mt-1">{toArabicNumber(stats.linkedRestaurants)}</p>
+							<p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.linkedRestaurants)}</p>
 							<p className="text-[11px] text-muted-foreground mt-0.5">مطعم مرتبط</p>
 						</div>
 						<div className="rounded-md bg-orange-muted/50 p-4">
 							<p className="text-xs text-orange">طلبات اليوم</p>
-							<p className="text-2xl font-bold mt-1">{toArabicNumber(stats.ordersToday.count)}</p>
+							<p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.ordersToday.count)}</p>
 							<p className="text-[11px] text-muted-foreground mt-0.5">
 								{toArabicNumber(Number(stats.ordersToday.revenue))} د.ل إيراد
 							</p>
@@ -511,7 +513,7 @@ export default function AdminDashboard() {
 							<Link
 								key={i}
 								href={item.href}
-								className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-orange-muted/30 dark:hover:bg-orange-muted transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+								className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-orange-muted/30 dark:hover:bg-orange-muted transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 							>
 								<Icon
 									className={cn('size-5 group-hover:scale-110 transition-transform', item.color)}

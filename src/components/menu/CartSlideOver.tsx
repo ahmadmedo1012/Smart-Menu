@@ -56,7 +56,7 @@ export function CartSlideOver() {
 						'bg-orange/90 backdrop-blur-xl',
 						'shadow-2xl shadow-orange/30 ring-1 ring-white/10',
 						'hover:shadow-orange/40 hover:scale-105',
-						'active:scale-95 transition-all duration-300 ease-out',
+						'active:scale-95 transition-transform duration-300 ease-out',
 						bounce && 'scale-110'
 					)}
 				>
@@ -67,7 +67,7 @@ export function CartSlideOver() {
 								'absolute -top-2.5 -end-2.5 min-w-[18px] h-[18px] rounded-full',
 								'bg-orange-foreground text-orange text-[10px] font-bold',
 								'flex items-center justify-center px-1',
-								'transition-all duration-300',
+								'transition-transform duration-300',
 								bounce && 'scale-125'
 							)}
 						>

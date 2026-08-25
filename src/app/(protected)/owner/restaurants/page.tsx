@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { toArabicNumber } from '@/lib/format';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
 
 type RestaurantInfo = {
@@ -121,7 +122,9 @@ export default function OwnerRestaurantsPage() {
 	if (loading)
 		return (
 			<div className="flex items-center justify-center py-24">
-				<Loader2 className="size-6 animate-spin text-primary" />
+				<LoadingAnnouncer loading={true} message="جارٍ تحميل المنيوهات..." />
+				<Loader2 className="size-6 animate-spin text-primary motion-reduce:hidden" aria-hidden="true" />
+				<span className="sr-only">جارٍ التحميل...</span>
 			</div>
 		);
 
@@ -168,7 +171,7 @@ export default function OwnerRestaurantsPage() {
 										})
 									}
 									placeholder="al-jabal"
-									className="h-11 rounded-[4px] -me-[2px] text-left"
+									className="h-11 rounded-[4px] -me-[2px] text-start"
 									dir="ltr"
 								/>
 							</div>

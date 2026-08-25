@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { premiumToast } from '@/lib/premium-toast';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { TierChart } from './TierChart';
 import { ReferrerList } from './ReferrerList';
 import { TransactionTable } from './TransactionTable';
@@ -67,6 +68,12 @@ function AnimatedCount({ value, suffix = '' }: { value: number; suffix?: string 
 	useEffect(() => {
 		const start = prev.current;
 		const end = value;
+		// Reduced motion: jump straight to the final value, no rAF count-up
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			prev.current = end;
+			setDisplay(end);
+			return;
+		}
 		const duration = 800;
 		const startTime = performance.now();
 		if (start === end) {
@@ -113,7 +120,7 @@ function StatCard({
 }) {
 	return (
 		<div className="group card-premium relative overflow-hidden rounded-md bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-border/20 shadow-lg shadow-black/5 dark:shadow-black/20">
-			<div className="pointer-events-none absolute -inset-full z-0 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-700 group-hover:inset-0 group-hover:skew-x-0 dark:via-white/5" />
+			<div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-1/3 group-hover:skew-x-0 dark:via-white/5" />
 			<div className="relative z-10 flex items-start justify-between">
 				<div className="space-y-1">
 					<p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -151,7 +158,7 @@ function ConversionRate({
 			</div>
 			<div className="h-3 rounded-full bg-muted overflow-hidden mb-2">
 				<div
-					className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 transition-all duration-1000 ease-out"
+					className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 transition-[width] duration-1000 ease-out"
 					style={{ width: `${rate}%` }}
 				/>
 			</div>
@@ -216,6 +223,7 @@ export default function OwnerLoyaltyPage() {
 	if (loading)
 		return (
 			<div className="space-y-6 animate-fade-in">
+				<LoadingAnnouncer loading message="جاري تحميل بيانات الولاء..." completedMessage="تم تحميل بيانات الولاء" />
 				<div className="grid gap-4 sm:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
 						<div key={i} className="h-28 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
@@ -441,9 +449,9 @@ export default function OwnerLoyaltyPage() {
 						</div>
 						<Badge
 							variant="outline"
-							className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5"
+							className="text-[10px] tabular-nums border-white/20 bg-white/30 dark:bg-white/5"
 						>
-							{stats?.totalReferrals ?? 0} إجمالي
+							{toArabicNumber(stats?.totalReferrals ?? 0)} إجمالي
 						</Badge>
 					</div>
 					<ReferrerList referrals={stats?.recentReferrals ?? []} />
@@ -469,9 +477,9 @@ export default function OwnerLoyaltyPage() {
 					</div>
 					<Badge
 						variant="outline"
-						className="text-[10px] border-white/20 bg-white/30 dark:bg-white/5"
+						className="text-[10px] tabular-nums border-white/20 bg-white/30 dark:bg-white/5"
 					>
-						{stats?.totalLoyaltyCards ?? 0} إجمالي
+						{toArabicNumber(stats?.totalLoyaltyCards ?? 0)} إجمالي
 					</Badge>
 				</div>
 				<div className="p-5">

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { premiumToast } from '@/lib/premium-toast';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import {Award, Gift} from 'lucide-react';
 import AnimatedSave from '@/components/ui/save-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
@@ -113,6 +114,7 @@ export function LoyaltySettings({ onSaved }: Props) {
 	if (loading) {
 		return (
 			<Card className="animate-pulse">
+				<LoadingAnnouncer loading message="جاري تحميل إعدادات الولاء..." completedMessage="تم تحميل الإعدادات" />
 				<CardContent className="h-64" />
 			</Card>
 		);

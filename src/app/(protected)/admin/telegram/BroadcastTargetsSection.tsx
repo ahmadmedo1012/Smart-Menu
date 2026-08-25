@@ -89,7 +89,7 @@ export function BroadcastTargetsSection({
             </div>
           )}
           <p className="text-sm text-muted-foreground">
-            <Users className="size-4 inline-block align-text-bottom ml-1" />
+            <Users className="size-4 inline-block align-text-bottom me-1" />
             عدد المشرفين المرتبطين: {linkedAdmins}
           </p>
         </div>

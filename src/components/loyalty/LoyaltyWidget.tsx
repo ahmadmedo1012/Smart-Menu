@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { toArabicNumber } from '@/lib/format';
 import { Phone, Award, Star, Sparkles, Medal, Gift, Stamp } from 'lucide-react';
 import { csrfFetch } from '@/lib/csrf-client';
@@ -78,6 +78,8 @@ export function LoyaltyWidget({
 
 	const tier = data ? (TIER_CONFIG[data.card.tier] ?? TIER_CONFIG.bronze) : TIER_CONFIG.bronze;
 	const TierIcon = tier.icon;
+	// WCAG: skip spring/rotate stamp animation when user prefers reduced motion
+	const shouldReduceMotion = useReducedMotion();
 
 	const handleCheck = useCallback(async () => {
 		const cleaned = phone.trim();
@@ -165,7 +167,7 @@ export function LoyaltyWidget({
 									onChange={(e) => setPhone(e.target.value)}
 									onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
 									placeholder="رقم هاتفك للولاء"
-									className="w-full h-10 pe-10 px-3 bg-transparent text-sm outline-none rounded-xl"
+									className="w-full h-10 pe-10 px-3 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-orange/60"
 									dir="ltr"
 								/>
 							</div>
@@ -173,7 +175,7 @@ export function LoyaltyWidget({
 								type="button"
 								onClick={handleCheck}
 								disabled={loading}
-								className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-50 shrink-0"
+								className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md transition-[box-shadow] outline-none hover:shadow-lg focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 disabled:opacity-50 shrink-0"
 							>
 								{loading ? (
 									<span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin block" />
@@ -223,16 +225,20 @@ export function LoyaltyWidget({
 											return (
 												<motion.div
 													key={i}
-													initial={{ scale: 0, rotate: -90 }}
+													initial={shouldReduceMotion ? false : { scale: 0, rotate: -90 }}
 													animate={{ scale: 1, rotate: 0 }}
-													transition={{
-														delay: i * 0.06,
-														type: 'spring',
-														stiffness: 200,
-														damping: 15,
-													}}
+													transition={
+														shouldReduceMotion
+															? { duration: 0 }
+															: {
+																delay: i * 0.06,
+																type: 'spring',
+																stiffness: 200,
+																damping: 15,
+															}
+													}
 													className={cn(
-														'size-9 rounded-lg flex items-center justify-center text-xs font-bold border transition-all',
+														'size-9 rounded-lg flex items-center justify-center text-xs font-bold border transition-[background-color,border-color,box-shadow]',
 														isFilled
 															? 'bg-orange text-white border-orange shadow-sm shadow-orange/25'
 															: 'bg-muted/30 text-muted-foreground/30 border-border/20'
@@ -271,9 +277,9 @@ export function LoyaltyWidget({
 										</div>
 										<div className="h-2.5 rounded-full bg-muted/50 overflow-hidden">
 											<motion.div
-												initial={{ width: 0 }}
+												initial={shouldReduceMotion ? false : { width: 0 }}
 												animate={{ width: `${pct}%` }}
-												transition={{ duration: 0.8, ease: 'easeOut' }}
+												transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, ease: 'easeOut' }}
 												className={cn('h-full rounded-full', TIER_CONFIG[nextTier].gradient)}
 											/>
 										</div>

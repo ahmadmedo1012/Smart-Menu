@@ -6,9 +6,6 @@ import { describe, it, expect } from "vitest";
 import {
 	toggleModifierOption,
 	validateModifierGroups,
-	modifierDelta,
-	buildModifierSummary,
-	modifierGroupHint,
 	type ModifierGroupProp,
 } from "@/components/menu/menu-types";
 

@@ -160,7 +160,7 @@ export function MenuClientSection(props: {
 									<QrCornerMark label="" size={52} />
 								</div>
 							{/* Orbital glow ring */}
-							<div className="absolute -inset-6 rounded-full bg-orange/5 blur-[50px] group-hover:blur-[70px] transition-all duration-700" />
+							<div className="absolute -inset-6 rounded-full bg-orange/5 blur-[50px] group-hover:blur-[70px] transition-[filter] duration-700" />
 							<div className="absolute -inset-3 rounded-full border border-orange/10 animate-hero-glow-pulse" />
 							<div
 								className="absolute -inset-2 rounded-full border border-orange/5 animate-hero-glow-pulse"
@@ -220,7 +220,7 @@ export function MenuClientSection(props: {
 						<a
 							href={`/menu/${slug}/print`}
 							target="_blank"
-							className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-all duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
+							className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
 						>
 							<svg
 								className="size-3.5"
@@ -242,7 +242,7 @@ export function MenuClientSection(props: {
 								<a
 									href={`tel:${restaurant.phone}`}
 									dir="ltr"
-									className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-all duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
+									className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
 								>
 									<svg
 										className="size-3.5"
@@ -261,7 +261,7 @@ export function MenuClientSection(props: {
 									href={`https://wa.me/${normalizeWaNumber(restaurant.whatsapp)}`}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-green-100 dark:hover:bg-green-900/40 transition-all duration-300 backdrop-blur-md border border-green-200/30 dark:border-green-800/30 text-green-700 dark:text-green-400 shadow-lg shadow-green-500/10 dark:shadow-green-500/5"
+									className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors duration-300 backdrop-blur-md border border-green-200/30 dark:border-green-800/30 text-green-700 dark:text-green-400 shadow-lg shadow-green-500/10 dark:shadow-green-500/5"
 								>
 									<span className="relative flex size-2">
 										<span className="absolute inline-flex size-full animate-ping rounded-full bg-[#25D366] opacity-60" />
@@ -276,7 +276,7 @@ export function MenuClientSection(props: {
 							{restaurant.email && (
 								<a
 									href={`mailto:${restaurant.email}`}
-									className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-all duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
+									className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
 								>
 									<svg
 										className="size-3.5"

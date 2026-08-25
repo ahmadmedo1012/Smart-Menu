@@ -8,6 +8,7 @@ import {Star, Crown, Building2, Sparkles, ChevronDown, type LucideIcon} from 'lu
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import { Button } from '@/components/ui/button';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
@@ -88,7 +89,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 			viewport={{ once: true, margin: "-40px" }}
 			transition={{ ...springDefault, delay: index * 0.08 }}
 			className={cn(
-				'group relative flex flex-col rounded-2xl border p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1',
+				'group relative flex flex-col rounded-2xl border p-6 sm:p-8 transition-[transform,translate,scale,rotate,border-color,box-shadow] duration-500 hover:-translate-y-1',
 				isPopular
 					? 'border-orange/40 bg-card shadow-lg shadow-orange/15 dark:shadow-orange/10'
 					: 'border-border/50 bg-card hover:border-orange-muted/60 hover:shadow-lg hover:shadow-orange/10'
@@ -106,7 +107,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 			)}
 
 			<div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
-				<div className="absolute -inset-full z-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:inset-0 transition-all duration-700 dark:via-white/10" />
+				<div className="absolute inset-0 z-0 w-[300%] translate-x-2/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-out group-hover:-translate-x-1/3 dark:via-white/10" />
 			</div>
 
 			{isPopular && (
@@ -132,10 +133,10 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 
 				<div className="mb-6">
 					{isFree ? (
-						<div className="text-3xl sm:text-4xl font-bold">مجاني</div>
+						<div className="text-3xl sm:text-4xl font-bold tabular-nums">مجاني</div>
 					) : (
 						<div className="flex items-baseline gap-1">
-							<span className="text-3xl sm:text-4xl font-bold tracking-normal">
+							<span className="text-3xl sm:text-4xl font-bold tracking-normal tabular-nums">
 								{toArabicNumber(displayPrice)}
 							</span>
 							<span className="text-sm sm:text-lg text-muted-foreground font-medium">د.ل</span>
@@ -173,10 +174,10 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					{plan.features.map((feature: string, i: number) => (
 						<div
 							key={i}
-							className="flex items-start gap-3 text-sm transition-all duration-300 hover:translate-x-[-4px] rtl:hover:translate-x-[4px]"
+							className="flex items-start gap-3 text-sm transition-transform duration-300 hover:translate-x-[-4px] rtl:hover:translate-x-[4px]"
 						>
 							<div className="relative shrink-0 mt-0.5">
-								<MotionCheck className="size-4 text-orange transition-all duration-300 group-hover/feature:scale-110" />
+								<MotionCheck className="size-4 text-orange transition-transform duration-300 group-hover/feature:scale-110" />
 								<span className="absolute inset-0 size-4 rounded-full bg-orange/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
 							</div>
 							<span>{feature}</span>
@@ -199,6 +200,10 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 		</motion.div>
 	);
 }
+
+// Yearly billing = 10× the monthly price (two months free) → fixed savings
+// anchor shown on the toggle. Derived from the same math as PlanCard.displayPrice.
+const YEARLY_SAVINGS_PCT = Math.round((1 - 10 / 12) * 100);
 
 export default function PricingPage() {
 	const [plans, setPlans] = useState<Plan[]>([]);
@@ -249,7 +254,7 @@ export default function PricingPage() {
 							type="button"
 							onClick={() => setYearly(false)}
 							className={cn(
-								'px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-all relative',
+								'px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								yearly ? 'text-muted-foreground' : 'text-orange bg-orange-muted'
 							)}
 						>
@@ -262,11 +267,11 @@ export default function PricingPage() {
 							type="button"
 							onClick={() => setYearly(true)}
 							className={cn(
-								'px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-all relative',
+								'px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								yearly ? 'text-orange bg-orange-muted' : 'text-muted-foreground'
 							)}
 						>
-							سنوي ·<span className="ms-1 text-xs text-orange font-bold">وفر شهرين</span>
+							سنوي ·<span className="ms-1 text-xs text-orange font-bold">وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
 							{yearly && (
 								<span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />
 							)}
@@ -278,7 +283,9 @@ export default function PricingPage() {
 			<section className="pb-16 sm:pb-24">
 				<div className="max-w-6xl mx-auto px-4">
 					{loading ? (
-						<div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+						<>
+							<LoadingAnnouncer loading={loading} message="جاري تحميل الباقات..." />
+							<div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
 							{[...Array(4)].map((_, i) => (
 								<div key={i} className="rounded-sm border border-border/30 p-6 sm:p-8">
 									<div className="flex items-center gap-3 mb-4">
@@ -302,7 +309,8 @@ export default function PricingPage() {
 									<div className="h-12 skeleton rounded-sm" />
 								</div>
 							))}
-						</div>
+							</div>
+						</>
 					) : error ? (
 						<div className="flex flex-col items-center gap-4 py-20 text-muted-foreground">
 							<span>{error}</span>
@@ -346,15 +354,15 @@ export default function PricingPage() {
 						].map((faq, i) => (
 							<details
 								key={i}
-								className="group rounded-sm border border-border/40 bg-card open:border-border/60 open:shadow-sm transition-all duration-300 overflow-hidden"
+								className="group rounded-sm border border-border/40 bg-card open:border-border/60 open:shadow-sm transition-[border-color,box-shadow] duration-300 overflow-hidden"
 							>
-								<summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4">
+								<summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-orange/60">
 																	{faq.q}
 																	<span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300 text-xs">
 																		<ChevronDown className="size-4" />
 																	</span>
 																</summary>
-								<div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-all duration-300">
+								<div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-[grid-template-rows] duration-300">
 									<div className="overflow-hidden">
 										<p className="px-4 sm:px-5 pb-3 sm:pb-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
 											{faq.a}
@@ -369,7 +377,7 @@ export default function PricingPage() {
 
 			<section className="pb-16 sm:pb-24">
 				<div className="max-w-2xl mx-auto px-4 text-center">
-					<div className="glass-strong rounded-sm p-6 sm:p-8 md:p-12 relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
+					<div className="glass-strong rounded-sm p-6 sm:p-8 md:p-12 relative overflow-hidden transition-[transform,translate,scale,rotate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-xl">
 						<div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-orange to-transparent rounded-full" />
 						<div className="absolute -top-8 -right-8 size-24 sm:size-32 rounded-full bg-gradient-to-br from-orange/10 to-transparent blur-2xl pointer-events-none" />
 						<div className="absolute -bottom-8 -left-8 size-24 sm:size-28 rounded-full bg-gradient-to-tr from-orange/10 to-transparent blur-2xl pointer-events-none" />

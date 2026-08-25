@@ -72,7 +72,7 @@ export function RestaurantSwitcher() {
 			<button
 				type="button"
 				onClick={() => setOpen((o) => !o)}
-				className="flex w-full items-center gap-2 rounded-md border border-border/30 bg-background/60 px-3 py-2 text-start hover:bg-accent/50 transition-colors"
+				className="flex w-full items-center gap-2 rounded-md border border-border/30 bg-background/60 px-3 py-2 text-start hover:bg-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 				aria-expanded={open}
 			>
 				<Store className="size-4 shrink-0 text-primary" />
@@ -90,7 +90,7 @@ export function RestaurantSwitcher() {
 							type="button"
 							onClick={() => switchTo(r.id)}
 							className={cn(
-								'flex w-full items-center gap-2 px-3 py-2.5 text-start text-sm hover:bg-accent/60 transition-colors',
+								'flex w-full items-center gap-2 px-3 py-2.5 text-start text-sm hover:bg-accent/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								r.id === activeId && 'bg-accent/40'
 							)}
 						>
@@ -110,7 +110,7 @@ export function RestaurantSwitcher() {
 								setOpen(false);
 								router.push('/owner/restaurants');
 							}}
-							className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-primary hover:bg-accent/60"
+							className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-primary hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 						>
 							<MotionPlus className="size-3.5" /> إدارة المنيوهات
 						</button>

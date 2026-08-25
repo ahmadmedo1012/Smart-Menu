@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { premiumToast } from '@/lib/premium-toast';
 import { useOrderNotifier } from '@/components/layout/OrderNotifier';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { OwnerKpiGrid } from './OwnerKpiGrid';
 import { StatusBreakdown, PopularItems, RecentOrders } from './OwnerOrdersList';
 import { AnalyticsTab } from './OwnerCharts';
@@ -151,6 +152,7 @@ export default function OwnerDashboard() {
 				aria-label="جارٍ تحميل بيانات لوحة التحكم"
 				className="space-y-5 animate-fade-in"
 			>
+				<LoadingAnnouncer loading={true} message="جارٍ تحميل بيانات لوحة التحكم..." />
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
 						<div
@@ -280,7 +282,7 @@ export default function OwnerDashboard() {
 							tabIndex={tab === t.id ? 0 : -1}
 							onClick={() => setTab(t.id as any)}
 							className={cn(
-								'snap-start shrink-0 px-4 py-2 min-h-11 rounded-xl text-sm font-medium border transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+								'snap-start shrink-0 px-4 py-2 min-h-11 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								tab === t.id
 									? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
 									: 'border-border/30 hover:border-orange/20'
@@ -357,11 +359,11 @@ export default function OwnerDashboard() {
 						].map(({ href, icon: Icon, label }) => (
 							<Link key={href} href={href}>
 								<div
-									className="group relative overflow-hidden rounded-md border border-border/20 bg-card/40 p-3.5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-orange/60"
+									className="group relative overflow-hidden rounded-md border border-border/20 bg-card/40 p-3.5 transition-[box-shadow,transform,translate,scale,rotate] duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-orange/60"
 								>
 									<div className="absolute inset-0 bg-gradient-to-br from-orange/0 to-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 									<div className="relative flex flex-col items-center gap-1.5">
-										<Icon className="size-4 text-orange dark:text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-all duration-300" aria-hidden="true" />
+										<Icon className="size-4 text-orange dark:text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-300 motion-reduce:transition-none" aria-hidden="true" />
 										<span className="text-xs font-medium">{label}</span>
 									</div>
 								</div>

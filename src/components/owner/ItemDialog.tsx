@@ -222,7 +222,7 @@ export function ItemDialog({
 								value={form.nameAr}
 								onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
 								placeholder="Cappuccino"
-								className="h-11 rounded-md mt-1.5 text-left"
+								className="h-11 rounded-md mt-1.5 text-start"
 								dir="ltr"
 							/>
 						</div>
@@ -242,7 +242,7 @@ export function ItemDialog({
 							<Textarea
 								value={form.descriptionAr}
 								onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })}
-								className="mt-1.5 rounded-md text-left"
+								className="mt-1.5 rounded-md text-start"
 								rows={2}
 								dir="ltr"
 							/>
@@ -279,13 +279,13 @@ export function ItemDialog({
 							<Input
 								value={form.image}
 								onChange={(e) => setForm({ ...form, image: e.target.value })}
-								className="h-11 rounded-md text-left flex-1"
+								className="h-11 rounded-md text-start flex-1"
 								dir="ltr"
 								placeholder="https://..."
 								disabled={uploading}
 							/>
 							<label
-								className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0"
+								className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
 								style={{ opacity: uploading ? 0.5 : 1, pointerEvents: uploading ? 'none' : 'auto' }}
 							>
 								<input
@@ -340,7 +340,7 @@ export function ItemDialog({
 									type="button"
 									onClick={() => setForm({ ...form, status: s })}
 									className={cn(
-										'flex-1 py-2.5 rounded-md text-sm font-medium border transition-colors',
+										'flex-1 py-2.5 rounded-md text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 										form.status === s
 											? s === 'available'
 												? 'bg-success/10 border-success/30 text-success'
@@ -373,7 +373,7 @@ export function ItemDialog({
 											})
 										}
 										className={cn(
-											'text-[11px] px-2 py-1 rounded-sm border transition-colors',
+											'text-[11px] px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											active
 												? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
 												: 'border-border/30 hover:border-emerald-300/50 text-muted-foreground'
@@ -405,7 +405,7 @@ export function ItemDialog({
 											})
 										}
 										className={cn(
-											'text-[11px] px-2 py-1 rounded-sm border transition-colors',
+											'text-[11px] px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											active
 												? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300'
 												: 'border-border/30 hover:border-amber-300/50 text-muted-foreground'

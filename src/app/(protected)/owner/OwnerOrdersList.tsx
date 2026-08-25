@@ -72,7 +72,7 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
               const count = stats!.statusBreakdown[status] ?? 0
               if (count === 0) return null
               const pct = statusTotal > 0 ? (count / statusTotal) * 100 : 0
-              return <div key={status} className={cn("h-full first:rounded-s-full last:rounded-e-full transition-all duration-500", config.bg)}
+              return <div key={status} className={cn("h-full first:rounded-s-full last:rounded-e-full transition-[width] duration-500", config.bg)}
                 style={{ width: `${pct}%` }} title={`${config.label}: ${count}`} />
             })}
           </div>

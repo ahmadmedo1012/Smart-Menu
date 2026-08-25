@@ -136,7 +136,7 @@ export function OrderDialog({
 	const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 
 	const glassPillInput =
-		'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-sm outline-none transition-all focus-visible:border-orange/40 focus-visible:ring-4 focus-visible:ring-orange/10';
+		'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-sm outline-none transition-[border-color,box-shadow] focus-visible:border-orange/40 focus-visible:ring-4 focus-visible:ring-orange/10';
 	const glassPillCard = 'rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border';
 
 	const innerContent = (
@@ -254,7 +254,7 @@ export function OrderDialog({
 								type="button"
 								onClick={() => setQuantity(Math.max(1, quantity - 1))}
 								disabled={quantity <= 1}
-								className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-all"
+								className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow]"
 								aria-label="إنقاص الكمية"
 							>
 								<MotionMinus className="size-4" />
@@ -266,7 +266,7 @@ export function OrderDialog({
 								type="button"
 								onClick={() => setQuantity(Math.min(99, quantity + 1))}
 								disabled={quantity >= 99}
-								className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-all"
+								className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow]"
 								aria-label="زيادة الكمية"
 							>
 								<MotionPlus className="size-4" />
@@ -309,7 +309,7 @@ export function OrderDialog({
 								tabIndex={orderType === type ? 0 : -1}
 								onClick={() => setOrderType(type)}
 								className={cn(
-									'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+									'flex-1 py-2.5 rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 									orderType === type
 										? 'bg-orange text-white shadow-md'
 										: 'text-muted-foreground hover:text-foreground'
@@ -331,7 +331,7 @@ export function OrderDialog({
 									aria-pressed={notes.includes(note)}
 									onClick={() => toggleQuickNote(note)}
 									className={cn(
-										'px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border',
+										'px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border',
 										notes.includes(note)
 											? 'bg-orange/10 border-orange/30 text-orange'
 											: 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground'
@@ -366,7 +366,7 @@ export function OrderDialog({
 						</div>
 						<button
 							type="button"
-							className="w-full h-12 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] shadow-lg shadow-[#25D366]/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-all active:scale-[0.98]"
+							className="w-full h-12 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] shadow-lg shadow-[#25D366]/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98]"
 							onClick={handleConfirm}
 							disabled={submitting || !restaurantWhatsapp}
 						>

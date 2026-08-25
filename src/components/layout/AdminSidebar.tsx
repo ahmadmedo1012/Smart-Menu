@@ -58,7 +58,7 @@ function LogoutButton() {
           }
         } catch { /* ignore */ }
       }}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:bg-destructive/10 hover:text-destructive"
     >
       <AnimatedLogOut className="size-4" />
       تسجيل الخروج
@@ -115,7 +115,7 @@ export function AdminSidebar() {
         <LogoutButton />
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 group"
+          className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors duration-200 group"
         >
           <MotionChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180" />
           العودة للموقع

@@ -10,6 +10,7 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils";
 import { toArabicNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useRouter } from "next/navigation";
 import { useActiveRestaurant } from "@/components/owner/useActiveRestaurant";
 
@@ -98,7 +99,7 @@ export default function OwnerReviewsPage() {
                 <span className="w-8 shrink-0">{d.star} ⭐</span>
                 <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-amber-400 transition-all"
+                    className="h-full rounded-full bg-amber-400 transition-[width] duration-700"
                     style={{ width: `${stats.total > 0 ? (d.count / stats.total) * 100 : 0}%` }}
                   />
                 </div>
@@ -116,7 +117,7 @@ export default function OwnerReviewsPage() {
             key={star ?? "all"}
             onClick={() => setFilterStar(star)}
             className={cn(
-              "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border",
+              "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange",
               filterStar === star
                 ? "bg-orange text-white border-orange shadow-sm"
@@ -131,6 +132,7 @@ export default function OwnerReviewsPage() {
       {/* Reviews list */}
       {loading ? (
         <div className="space-y-3">
+          <LoadingAnnouncer loading={true} message="جارٍ تحميل التقييمات..." />
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-24 rounded-md bg-card/30 animate-pulse" />
           ))}

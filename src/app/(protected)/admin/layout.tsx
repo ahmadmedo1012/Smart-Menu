@@ -33,7 +33,7 @@ function MobileNav({
 				{onNavClick && (
 					<button
 						onClick={onNavClick}
-						className="flex size-8 items-center justify-center rounded-lg hover:bg-accent"
+						className="flex size-11 items-center justify-center rounded-lg hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						aria-label="إغلاق"
 					>
 						<AnimatedX className="size-4" />
@@ -78,7 +78,7 @@ function MobileNav({
 							/* ignore */
 						}
 					}}
-					className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
+					className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				>
 					<AnimatedLogOut className="size-4" />
 					تسجيل الخروج

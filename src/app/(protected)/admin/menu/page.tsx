@@ -10,6 +10,7 @@ import { premiumToast } from "@/lib/premium-toast"
 import { Package, Store, Activity, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { Badge } from "@/components/ui/badge"
 
 interface Item {
@@ -141,6 +142,7 @@ export default function AdminMenuPage() {
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in">
+      <LoadingAnnouncer loading message="جارٍ تحميل المنيو..." />
       {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
@@ -188,19 +190,19 @@ export default function AdminMenuPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold">{toArabicNumber(items.length)}</p>
+          <p className="text-2xl font-bold tabular-nums">{toArabicNumber(items.length)}</p>
           <p className="text-xs text-muted-foreground">إجمالي الأصناف</p>
         </div>
         <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold text-success">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
+          <p className="text-2xl font-bold text-success tabular-nums">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
           <p className="text-xs text-muted-foreground">متوفر</p>
         </div>
         <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold text-destructive">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
+          <p className="text-2xl font-bold text-destructive tabular-nums">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
           <p className="text-xs text-muted-foreground">غير متوفر</p>
         </div>
         <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
-          <p className="text-2xl font-bold">{toArabicNumber(restaurants.length)}</p>
+          <p className="text-2xl font-bold tabular-nums">{toArabicNumber(restaurants.length)}</p>
           <p className="text-xs text-muted-foreground">مطاعم</p>
         </div>
       </div>

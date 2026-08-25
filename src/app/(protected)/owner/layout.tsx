@@ -35,7 +35,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
 				{onNavClick && (
 					<button
 						onClick={onNavClick}
-						className="flex size-8 items-center justify-center rounded-lg hover:bg-accent"
+						className="flex size-11 items-center justify-center rounded-lg hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 						aria-label="إغلاق"
 					>
 						<AnimatedX className="size-4" />
@@ -97,7 +97,7 @@ function LogoutButton() {
 					premiumToast('error', 'فشل تسجيل الخروج');
 				}
 			}}
-			className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-destructive/10 hover:text-destructive"
+			className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-[color,background-color] duration-300 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 		>
 			<AnimatedLogOut className="size-4" />
 			تسجيل الخروج

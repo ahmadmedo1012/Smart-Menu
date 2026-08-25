@@ -12,7 +12,7 @@ import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
 
 type Plan = {
@@ -86,6 +86,7 @@ export function SubscribeForm({
 }) {
 	const [fieldTouched, setFieldTouched] = useState<Record<string, boolean>>({});
 	const [submitted, setSubmitted] = useState(false);
+	const reduceMotion = useReducedMotion();
 
 	const touchField = (field: string) => setFieldTouched((prev) => ({ ...prev, [field]: true }));
 	const fieldError = (field: string) => {
@@ -238,9 +239,9 @@ export function SubscribeForm({
 							})()}
 						</div>
 						<div>
-							<p className="font-bold">{currentPlan.nameAr}</p>
+							<p className="font-bold tabular-nums">{currentPlan.nameAr}</p>
 							<p className="text-xs text-muted-foreground">
-								{Number(currentPlan.price) === 0 ? 'مجاني' : `${currentPlan.price} د.ل/شهر`}
+								{Number(currentPlan.price) === 0 ? 'مجاني' : toArabicNumber(currentPlan.price) + ' د.ل/شهر'}
 								{' • '}
 								{currentPlan.maxItems === 9999
 									? 'أصناف غير محدودة'
@@ -257,10 +258,10 @@ export function SubscribeForm({
 			<AnimatePresence mode="wait">
 				<motion.div
 					key={step}
-					initial={{ opacity: 0, x: 24 }}
+					initial={reduceMotion ? false : { opacity: 0, x: 24 }}
 					animate={{ opacity: 1, x: 0 }}
-					exit={{ opacity: 0, x: -24 }}
-					transition={{ duration: 0.25 }}
+					exit={reduceMotion ? undefined : { opacity: 0, x: -24 }}
+					transition={reduceMotion ? { duration: 0 } : { duration: 0.25 }}
 				>
 					{/* ── STEP: MENU ── */}
 					{step === 'menu' && (
@@ -406,6 +407,7 @@ export function SubscribeForm({
 									<Label htmlFor="account-username">اسم المستخدم *</Label>
 									<Input
 										id="account-username"
+										autoComplete="username"
 										value={form.username}
 										onChange={(e) => {
 											onFormChange({ ...form, username: e.target.value });
@@ -433,6 +435,7 @@ export function SubscribeForm({
 									<Input
 										id="account-password"
 										type="password"
+										autoComplete="new-password"
 										value={form.password}
 										onChange={(e) => {
 											onFormChange({ ...form, password: e.target.value });
@@ -513,8 +516,8 @@ export function SubscribeForm({
 									</div>
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">السعر</span>
-										<span className="font-medium">
-											{Number(currentPlan.price) === 0 ? 'مجاني' : `${currentPlan.price} د.ل/شهر`}
+										<span className="font-medium tabular-nums">
+											{Number(currentPlan.price) === 0 ? 'مجاني' : `${toArabicNumber(currentPlan.price)} د.ل/شهر`}
 										</span>
 									</div>
 									<div className="flex justify-between">

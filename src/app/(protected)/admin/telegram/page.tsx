@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { premiumToast } from '@/lib/premium-toast';
 import { Loader2, AlertTriangle, Lightbulb } from 'lucide-react';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { TelegramConfigSection } from './TelegramConfigSection';
 import { BroadcastTargetsSection } from './BroadcastTargetsSection';
 import { DiagnosticsSection } from './DiagnosticsSection';
@@ -262,7 +263,8 @@ export default function AdminTelegramPage() {
 	if (loading)
 		return (
 			<div className="flex items-center justify-center py-20" aria-live="polite">
-				<Loader2 className="size-6 animate-spin text-muted-foreground" />
+				<LoadingAnnouncer loading message="جارٍ تحميل إعدادات التليجرام..." />
+				<Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden="true" />
 			</div>
 		);
 

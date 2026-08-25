@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 // ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
 import { Store, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
 import { fetchJson } from '@/lib/fetch-json';
@@ -328,6 +330,7 @@ function SubscribeContent() {
 	if (loading)
 		return (
 			<div className="min-h-screen flex items-center justify-center">
+				<LoadingAnnouncer loading={loading} message="جاري تحميل صفحة الاشتراك..." />
 				<Loader2 className="size-8 animate-spin text-primary" />
 			</div>
 		);
@@ -354,8 +357,15 @@ function SubscribeContent() {
 				{/* Step indicator */}
 				<StepIndicator current={step} onNavigate={setStep} />
 
-				{/* Step 1: Plan selector */}
-				{step === 'plan' && (
+				{/* Step 1: Plan selector (with visible error state when plans never loaded) */}
+				{step === 'plan' && plans.length === 0 ? (
+					<div className="flex flex-col items-center gap-4 py-16 text-center animate-fade-in">
+						<p className="text-muted-foreground">تعذر تحميل الباقات. يرجى المحاولة مرة أخرى.</p>
+						<Button variant="outline" onClick={handleRetryPlans}>
+							إعادة المحاولة
+						</Button>
+					</div>
+				) : step === 'plan' && (
 					<PlanSelector
 						plans={plans}
 						selectedPlan={selectedPlan}

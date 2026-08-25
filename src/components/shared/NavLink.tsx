@@ -26,7 +26,7 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 overflow-hidden",
+        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-[color,background-color,box-shadow] duration-200 overflow-hidden",
         isActive
           ? "bg-gradient-to-r from-orange/15 to-orange/10 text-foreground shadow-xs dark:from-orange/15 dark:to-orange/10"
           : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
@@ -42,7 +42,7 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       {isActive && <span className="sr-only">(الصفحة الحالية)</span>}
       <Icon
         className={cn(
-          "size-4 shrink-0 transition-all duration-200",
+          "size-4 shrink-0 transition-[color,transform,translate,scale,rotate,filter] duration-200",
           isActive && "text-orange dark:text-orange",
           !isActive && "group-hover:scale-110 group-hover:text-primary/70 group-hover:drop-shadow-sm",
         )}

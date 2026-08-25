@@ -73,7 +73,7 @@ export const KpiCard = memo(function KpiCard({
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-				className="group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm transition-all duration-300 hover:border-orange/30 hover:shadow-lg hover:-translate-y-0.5"
+				className="group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm transition-[border-color,box-shadow,transform,translate,scale,rotate] duration-300 hover:border-orange/30 hover:shadow-lg hover:-translate-y-0.5"
 			>
 				<Link
 					href={href}
@@ -91,7 +91,7 @@ export const KpiCard = memo(function KpiCard({
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-			className="group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-all duration-300"
+			className="group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-[border-color,box-shadow] duration-300"
 		>
 			{body}
 		</motion.div>

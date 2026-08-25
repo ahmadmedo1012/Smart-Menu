@@ -25,7 +25,7 @@ function Card({
       tabIndex={interactive ? 0 : undefined}
       className={cn(
         "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-md bg-card py-(--card-spacing) text-sm text-card-foreground border border-border/50 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
-        "will-change-transform transition-all duration-300 ease-out",
+        "will-change-transform transition-[transform,translate,scale,rotate,box-shadow,border-color] duration-300 ease-out",
         // Elevated: hover with lift and premium shadow-glow (default, backward-compatible)
         "data-[elevation=elevated]:hover:shadow-[var(--shadow-xl),var(--shadow-glow)] data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-orange/30 data-[elevation=elevated]:focus-visible:ring-2 data-[elevation=elevated]:focus-visible:ring-orange/50 data-[elevation=elevated]:focus-visible:ring-offset-2",
         // Flat: no hover transform or shadow

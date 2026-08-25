@@ -131,7 +131,7 @@ export function ConfigEditor() {
 						type="button"
 						onClick={() => setActiveCategory(cat)}
 						className={cn(
-							'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all',
+							'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] ',
 							activeCategory === cat
 								? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
 								: 'border-border/30 hover:border-orange/20'

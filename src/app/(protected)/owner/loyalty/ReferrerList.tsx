@@ -4,6 +4,7 @@ import { useState } from "react"
 import { SearchInput } from "@/components/ui/search-input"
 import { Gift, FilterX } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from '@/lib/format';
 
 interface ReferralRow {
   id: number
@@ -61,7 +62,8 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
         <div className="flex gap-1">
           {["all", "pending", "converted", "expired"].map((s) => (
             <button key={s} type="button" onClick={() => setStatusFilter(s)}
-              className={cn("h-9 rounded-lg px-3 text-xs font-medium transition-all",
+              aria-pressed={statusFilter === s}
+              className={cn("h-11 rounded-lg px-3 text-xs font-medium transition-[background-color,border-color,color] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1",
                 statusFilter === s
                   ? "bg-orange/10 text-orange dark:text-orange border border-orange/20"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent")}>
@@ -99,8 +101,8 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
         )}
       </div>
       {filtered.length > 0 && filtered.length < referrals.length && (
-        <div className="px-5 py-2 text-center text-xs text-muted-foreground border-t border-border/20">
-          عرض {filtered.length} من {referrals.length}
+        <div className="px-5 py-2 text-center text-xs tabular-nums text-muted-foreground border-t border-border/20">
+          عرض {toArabicNumber(filtered.length)} من {toArabicNumber(referrals.length)}
         </div>
       )}
     </div>

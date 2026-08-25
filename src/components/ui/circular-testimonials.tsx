@@ -94,7 +94,7 @@ function ArrowBtn({
 				'shadow-sm',
 				'hover:bg-orange hover:border-orange/50 hover:shadow-[0_0_16px_-4px_var(--orange)]',
 				'active:scale-[0.92]',
-				'transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]',
+				'transition-[opacity,transform,translate,scale,rotate] duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]',
 				'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange'
 			)}
 			aria-label={label}
@@ -237,7 +237,7 @@ export function CircularTestimonials({
 										key={i}
 										onClick={() => goTo(i)}
 										className={cn(
-											'rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]',
+											'rounded-full transition-[opacity,transform,translate,scale,rotate,width,height,background-color] duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]',
 											i === active
 												? 'w-5 h-[5px] bg-orange'
 												: 'w-[5px] h-[5px] bg-border/60 hover:bg-border'

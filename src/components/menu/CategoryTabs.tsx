@@ -152,7 +152,7 @@ function TabButton({
         "relative snap-start shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2",
         /* premium glass pill */
         "px-4 sm:px-5 py-2.5 sm:py-3 min-h-11 rounded-full",
-        "text-xs sm:text-sm font-medium transition-all duration-200",
+        "text-xs sm:text-sm font-medium transition-[color,background-color,transform,translate,scale,rotate,box-shadow] duration-200",
         /* hover + active with scale */
         isActive
           ? "bg-orange text-white shadow-lg shadow-orange/30 scale-105"

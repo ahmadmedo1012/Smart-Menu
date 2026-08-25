@@ -226,7 +226,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 							<button
 								onClick={prev}
 								type="button"
-								className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
+								className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
 								aria-label="السابق"
 							>
 								<MotionArrowLeft className="size-5" />
@@ -234,7 +234,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 							<button
 								onClick={next}
 								type="button"
-								className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-all duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
+								className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
 								aria-label="التالي"
 							>
 								<MotionArrowRight className="size-5" />
@@ -265,7 +265,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 								key={item.id}
 								type="button"
 								onClick={() => go(i, i > slide ? 1 : -1)}
-								className={`rounded-full transition-all duration-300 ${
+								className={`rounded-full transition-[width,height,background-color,box-shadow] duration-300 ${
 									i === slide
 										? 'w-9 h-3 bg-orange shadow-md shadow-orange/30'
 										: 'w-3 h-3 bg-muted-foreground/20 hover:bg-muted-foreground/40'

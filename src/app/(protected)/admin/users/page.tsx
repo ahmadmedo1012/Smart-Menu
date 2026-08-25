@@ -24,6 +24,7 @@ import AnimatedTrash2 from '@/components/ui/trash-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 
 interface OwnerUser {
   id: number; username: string; name: string; role: string
@@ -124,6 +125,7 @@ export default function AdminUsersPage() {
   if (loading && users.length === 0) {
     return (
       <div className="space-y-3 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
+        <LoadingAnnouncer loading message="جارٍ تحميل المستخدمين..." />
         {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
       </div>
     )
@@ -220,7 +222,7 @@ export default function AdminUsersPage() {
         <>
           <div className="space-y-3">
             {users.map(user => (
-              <div key={user.id} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-all">
+              <div key={user.id} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
@@ -258,7 +260,7 @@ export default function AdminUsersPage() {
                     <button
                       type="button"
                       onClick={() => { setResetTarget(user); setNewPassword("") }}
-                      className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+                      className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="إعادة تعيين كلمة المرور"
                       aria-label={`إعادة تعيين كلمة مرور ${user.name}`}
                     >
@@ -268,7 +270,7 @@ export default function AdminUsersPage() {
                       <button
                         type="button"
                         onClick={() => setDeleteTarget(user)}
-                        className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors"
+                        className="size-11 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                         title="حذف"
                         aria-label={`حذف ${user.name}`}
                       >

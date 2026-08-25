@@ -170,7 +170,7 @@ export function MenuToolbar({
 			{/* Search input — glass card wrapper */}
 			{!hideSearch && (
 				<div className="flex-1 relative">
-					<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-all duration-300">
+					<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-[box-shadow,background-color,border-color] duration-300">
 						<MotionSearch className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
 						<input
 							ref={inputRef}
@@ -220,7 +220,7 @@ export function MenuToolbar({
 						role="listbox"
 						aria-label="اقتراحات البحث"
 						className={cn(
-							'glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-all duration-200',
+							'glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-[opacity,transform,translate,scale,rotate] duration-200',
 							dropdownVisible
 								? 'opacity-100 visible translate-y-0'
 								: 'opacity-0 invisible -translate-y-1 pointer-events-none'
@@ -278,7 +278,7 @@ export function MenuToolbar({
 							setShowSort(true);
 						}
 					}}
-					className="glass-card rounded-xl h-12 sm:h-14 w-12 sm:w-14 flex items-center justify-center transition-all duration-300 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none"
+					className="glass-card rounded-xl h-12 sm:h-14 w-12 sm:w-14 flex items-center justify-center transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none"
 				>
 					<svg
 						className="size-4"

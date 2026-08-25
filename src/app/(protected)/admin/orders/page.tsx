@@ -10,6 +10,7 @@ import {ClipboardList, Store, Clock, ChefHat, CheckCircle, XCircle, Activity, Al
 import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 
 interface Order {
   id: number; orderNo: string; customerName: string; status: string
@@ -154,6 +155,7 @@ export default function AdminOrdersPage() {
 
   if (loading && orders.length === 0) return (
     <div className="space-y-4 animate-fade-in">
+      <LoadingAnnouncer loading message="جارٍ تحميل الطلبات..." />
       {[1,2,3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
@@ -252,7 +254,7 @@ export default function AdminOrdersPage() {
           title="إلى تاريخ" aria-label="إلى تاريخ" />
         {(dateFrom || dateTo) && (
           <button type="button" onClick={() => { setDateFrom(""); setDateTo("") }}
-            className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-all shrink-0">إلغاء</button>
+            className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">إلغاء</button>
         )}
       </div>
 
@@ -260,7 +262,7 @@ export default function AdminOrdersPage() {
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {TABS.map(tab => (
           <button key={tab.value} type="button" onClick={() => { setFilter(tab.value); setPage(1) }}
-            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
+            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[background-color,color,border-color,box-shadow] duration-300",
               filter === tab.value
                 ? "bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25"
                 : "bg-card/50 border border-border/30 hover:border-orange/30"
@@ -280,7 +282,7 @@ export default function AdminOrdersPage() {
             const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
             const next = nextStatus[order.status]
             return (
-              <div key={order.id} role="link" tabIndex={0} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
+              <div key={order.id} role="link" tabIndex={0} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 onClick={() => router.push(`/admin/orders/${order.id}`)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -317,7 +319,7 @@ export default function AdminOrdersPage() {
                 {next && (
                   <div className="flex gap-2 mt-3 pt-3 border-t border-border/20">
                     <button type="button" onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
-                      className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-all border",
+                      className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-colors border",
                         next === "preparing" && "border-orange/30 text-orange hover:bg-orange-muted",
                         next === "ready" && "border-green-200/30 text-success hover:bg-success/15",
                         next === "completed" && "border-orange/30 text-orange hover:bg-orange-muted",
@@ -336,7 +338,7 @@ export default function AdminOrdersPage() {
       {orders.length < totalCount && (
         <div className="flex justify-center pt-4">
           <button type="button" onClick={() => { const np = page + 1; setPage(np); fetchOrders(np, true) }}
-            className="px-6 py-2 rounded-full border border-border/30 text-sm font-medium hover:bg-accent transition-all">
+            className="px-6 py-2 rounded-full border border-border/30 text-sm font-medium hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             عرض المزيد ({toArabicNumber(totalCount - orders.length)})
           </button>
         </div>

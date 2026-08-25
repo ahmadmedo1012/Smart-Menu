@@ -2,6 +2,7 @@
 
 import AnimatedClock from "@/components/ui/clock-icon"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from '@/lib/format';
 
 interface Transaction {
   id: number; type: string; points: number; description: string; createdAt: string
@@ -35,7 +36,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
               </div>
             </div>
             <span className={cn("text-sm font-semibold tabular-nums", isEarn ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
-              {isEarn ? "+" : "-"}{tx.points}
+              {isEarn ? "+" : "-"}{toArabicNumber(tx.points)}
             </span>
           </div>
         )

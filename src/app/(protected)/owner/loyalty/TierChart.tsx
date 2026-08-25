@@ -2,6 +2,7 @@
 
 import { Sparkles, Star, Medal, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toArabicNumber } from '@/lib/format';
 
 const TIERS = [
   { key: "platinum", label: "بلاتيني", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
@@ -26,11 +27,11 @@ export function TierChart({ distribution }: { distribution: Record<string, numbe
                 <span className="font-medium">{tier.label}</span>
               </div>
               <span className="text-muted-foreground tabular-nums">
-                {count} <span className="text-xs">({pct}%)</span>
+                {toArabicNumber(count)} <span className="text-xs">({toArabicNumber(pct)}%)</span>
               </span>
             </div>
             <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-all duration-700", tier.bar)} style={{ width: `${pct}%` }} />
+              <div className={cn("h-full rounded-full transition-[width] duration-700", tier.bar)} style={{ width: `${pct}%` }} />
             </div>
           </div>
         )

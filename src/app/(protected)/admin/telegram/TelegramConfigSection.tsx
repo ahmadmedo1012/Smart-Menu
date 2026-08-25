@@ -42,7 +42,7 @@ export function TelegramConfigSection({
       <div className="flex items-center gap-2 mb-4">
         <Bot className="size-5 text-muted-foreground" />
         <h3 className="text-lg font-semibold">إعدادات البوت</h3>
-        <Badge variant={config.isActive ? "default" : "secondary"} className="mr-auto">
+        <Badge variant={config.isActive ? "default" : "secondary"} className="ms-auto">
           {config.isActive ? "نشط" : "غير نشط"}
         </Badge>
       </div>
@@ -60,9 +60,9 @@ export function TelegramConfigSection({
             <div className="relative mt-1.5">
               <Input id="tg-bot-token" type={showToken ? "text" : "password"} value={config.botToken}
                 onChange={(e) => onConfigChange({ ...config, botToken: e.target.value })}
-                placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="h-11 rounded-xl text-left ltr ps-10" dir="ltr" />
+                placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="h-11 rounded-xl text-left ltr ps-10 pe-12" dir="ltr" />
               <button type="button" onClick={onToggleShowToken}
-                className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute end-3 top-1/2 -translate-y-1/2 size-11 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}>
                 {showToken ? <AnimatedEyeOff className="size-4" /> : <AnimatedEye className="size-4" />}
               </button>

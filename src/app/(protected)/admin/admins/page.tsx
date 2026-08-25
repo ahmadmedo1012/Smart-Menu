@@ -15,6 +15,7 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import AnimatedLogOut from "@/components/ui/logout-icon"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatDate } from "@/lib/format"
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 
 interface AdminUser {
   id: number; username: string; name: string; role: string
@@ -169,7 +170,8 @@ export default function AdminAdminsPage() {
   // Loading
   if (loading) {
     return (
-      <div className="space-y-4 animate-fade-in" aria-live="polite">
+      <div className="space-y-4 animate-fade-in">
+        <LoadingAnnouncer loading message="جارٍ تحميل المسؤولين..." />
         {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-md bg-muted/50 animate-breath" />)}
       </div>
     )
@@ -289,7 +291,7 @@ export default function AdminAdminsPage() {
         ) : (
           <div className="space-y-2">
             {subAdmins.map(admin => (
-              <div key={admin.id} className="rounded-md bg-card/50 border border-border/30 p-5 hover:border-orange/20 transition-all">
+              <div key={admin.id} className="rounded-md bg-card/50 border border-border/30 p-5 hover:border-orange/20 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="size-11 rounded-xl bg-orange-muted flex items-center justify-center">
@@ -321,7 +323,7 @@ export default function AdminAdminsPage() {
                     <button
                       type="button"
                       onClick={() => openEdit(admin)}
-                      className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+                      className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="تعديل الصلاحيات" aria-label="تعديل الصلاحيات"
                     >
                       <Key className="size-4" />
@@ -329,7 +331,7 @@ export default function AdminAdminsPage() {
                     <button
                       type="button"
                       onClick={() => handleRevokeSessions(admin)}
-                      className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+                      className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="إلغاء الجلسات" aria-label="إلغاء الجلسات"
                     >
                       <AnimatedLogOut className="size-4" />
@@ -337,7 +339,7 @@ export default function AdminAdminsPage() {
                     <button
                       type="button"
                       onClick={() => setDeleteTarget(admin)}
-                      className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors"
+                      className="size-11 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                       title="حذف" aria-label="حذف"
                     >
                       <AnimatedTrash2 className="size-4" />
@@ -380,7 +382,7 @@ export default function AdminAdminsPage() {
                   const enabled = invitePerms.includes(p.value)
                   return (
                     <label key={p.value} className={cn(
-                      "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                      "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-colors",
                       enabled ? "border-orange/30 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 hover:border-orange/20"
                     )}>
                       <Switch checked={enabled} onCheckedChange={() => toggleInvitePerm(p.value)} />
@@ -416,7 +418,7 @@ export default function AdminAdminsPage() {
               const enabled = editPerms.includes(p.value)
               return (
                 <label key={p.value} className={cn(
-                  "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                  "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-colors",
                   enabled ? "border-orange/30 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 hover:border-orange/20"
                 )}>
                   <Switch checked={enabled} onCheckedChange={() => {

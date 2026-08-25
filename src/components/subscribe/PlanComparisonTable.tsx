@@ -24,7 +24,7 @@ export function PlanComparisonTable({
 
 	return (
 		<details className="group/compare max-w-5xl mx-auto rounded-2xl border border-border/50 bg-card open:shadow-lg open:shadow-orange/5 transition-shadow duration-300">
-			<summary className="flex items-center justify-between cursor-pointer list-none select-none px-5 sm:px-6 py-4">
+			<summary className="flex items-center justify-between cursor-pointer list-none select-none px-5 sm:px-6 py-4 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-orange/60">
 				<span className="font-bold text-base sm:text-lg">قارن الباقات بالتفصيل</span>
 				<span
 					className="size-8 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground group-open/compare:rotate-180 transition-transform duration-300"
@@ -60,7 +60,7 @@ export function PlanComparisonTable({
 										{row.label}
 									</th>
 									{row.values.map((v, i) => (
-										<td key={i} className="p-3 text-center font-semibold whitespace-nowrap">
+										<td key={i} className="p-3 text-center font-semibold whitespace-nowrap tabular-nums">
 											{v}
 										</td>
 									))}

@@ -108,7 +108,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
   const planGrad = (r.plan?.name && PLAN_COLORS[r.plan.name]) || "from-gray-400 to-gray-500"
 
   return (
-    <div className={cn("rounded-md border p-5 transition-all", isSelected ? "border-orange/40 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 bg-card/50 hover:border-orange/20 hover:shadow-md")}>
+    <div className={cn("rounded-md border p-5 transition-[border-color,box-shadow]", isSelected ? "border-orange/40 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 bg-card/50 hover:border-orange/20 hover:shadow-md")}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <input type="checkbox" checked={isSelected} onChange={() => onToggle(r.id)}
@@ -140,12 +140,12 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <a href={`/menu/${r.slug}`} target="_blank" rel="noopener noreferrer"
-            className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+            className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             title="عرض المنيو" aria-label={`عرض منيو ${r.name}`}>
             <AnimatedExternalLink className="size-4" aria-hidden="true" />
           </a>
           <button type="button" onClick={() => onToggleShowOnLanding(r.id, !r.showOnLanding)}
-            className={cn("size-9 rounded-xl border flex items-center justify-center transition-colors",
+            className={cn("size-11 rounded-xl border flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               r.showOnLanding
                 ? "border-orange/30 bg-orange/10 text-orange hover:bg-orange/20"
                 : "border-border/30 text-muted-foreground/40 hover:text-muted-foreground hover:bg-accent"
@@ -155,12 +155,12 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
             <AnimatedSparkles className="size-3.5" aria-hidden="true" />
           </button>
           <button type="button" onClick={() => onEdit(r)}
-            className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+            className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             title="تعديل" aria-label={`تعديل ${r.name}`}>
             <Pencil className="size-4" aria-hidden="true" />
           </button>
           <button type="button" onClick={() => onDelete(r)}
-            className="size-9 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors"
+            className="size-11 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
             title="حذف" aria-label={`حذف ${r.name}`}>
             <AnimatedTrash2 className="size-4" aria-hidden="true" />
           </button>

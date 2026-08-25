@@ -16,9 +16,15 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
   const [display, setDisplay] = useState(0)
   const ref = useRef<number | null>(null)
   const mounted = useRef(false)
+  // Reduced motion: skip the count-up entirely and show the final value.
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
     mounted.current = true
+    if (reduceMotion) {
+      setDisplay(value)
+      return
+    }
     const start = performance.now()
     const from = display
     const to = value
@@ -35,9 +41,9 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
     ref.current = requestAnimationFrame(tick)
     return () => { mounted.current = false; if (ref.current) cancelAnimationFrame(ref.current) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+  }, [value, reduceMotion])
 
-  return <span>{toArabicNumber(display)}{suffix}</span>
+  return <span className="tabular-nums">{toArabicNumber(display)}{suffix}</span>
 }
 
 /* ---------- Loading skeleton (matches StatCard shape exactly) ---------- */
@@ -99,7 +105,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
         animate={{ opacity: 1, y: 0 }}
         transition={entranceTransition}
         className={cn(
-          "group relative rounded-md bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm transition-all duration-300",
+          "group relative rounded-md bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm transition-[border-color,box-shadow,transform,translate,scale,rotate] duration-300",
           "hover:border-orange/30 hover:shadow-lg hover:-translate-y-0.5",
         )}>
         {/* stretched-link pattern: whole card is one link target */}
@@ -120,7 +126,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
       animate={{ opacity: 1, y: 0 }}
       transition={entranceTransition}
       className={cn(
-        "group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-all duration-300",
+        "group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-[border-color] duration-300",
       )}>
       {card}
     </motion.div>

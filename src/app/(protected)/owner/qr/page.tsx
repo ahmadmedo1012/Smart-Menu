@@ -156,7 +156,7 @@ export default function OwnerQRPage() {
 								<img
 									src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=a86b1f`}
 									alt={`QR Code - ${name}`}
-									className="rounded-xl shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02]"
+									className="rounded-xl shadow-lg transition-[transform,translate,scale,rotate,box-shadow] duration-300 group-hover:shadow-xl group-hover:scale-[1.02] motion-reduce:transition-none"
 									style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
 								/>
 								{/* Overlay with store icon */}
@@ -183,7 +183,7 @@ export default function OwnerQRPage() {
 										type="button"
 										onClick={() => setQrSize(s.value)}
 										className={cn(
-											'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all',
+											'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											qrSize === s.value
 												? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
 												: 'border-border/30 hover:border-orange/20'

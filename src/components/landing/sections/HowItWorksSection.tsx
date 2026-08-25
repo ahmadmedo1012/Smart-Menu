@@ -29,7 +29,7 @@ export function HowItWorksSection() {
             {/* Icon container */}
             <div className="relative mb-4">
               <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] opacity-15 blur-md group-hover:blur-lg transition-colors duration-500" />
-              <div className="relative size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] border border-orange/30 flex items-center justify-center group-hover:border-orange/50 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange/20 transition-all duration-500">
+              <div className="relative size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] border border-orange/30 flex items-center justify-center group-hover:border-orange/50 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange/20 transition-[border-color,transform,translate,scale,rotate,box-shadow] duration-500">
                 <step.icon className="size-6 sm:size-7 text-[#1a130b]" />
               </div>
 

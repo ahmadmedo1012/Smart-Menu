@@ -26,6 +26,7 @@ import {
 } from '@/lib/order-status';
 import { LivePollIndicator } from '@/components/orders/LivePollIndicator';
 import { OrderCardSkeleton } from '@/components/orders/OrderCardSkeleton';
+import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
 interface Order {
 	id: number;
@@ -313,6 +314,7 @@ export default function OwnerOrdersPage() {
 	if (loading)
 		return (
 			<div className="space-y-4 animate-fade-in">
+				<LoadingAnnouncer loading={true} message="جارٍ تحميل الطلبات..." />
 				{/* Back button skeleton */}
 				<div className="h-8 w-24 rounded-md bg-muted/40 animate-pulse" />
 				{/* Title skeleton */}
@@ -331,7 +333,11 @@ export default function OwnerOrdersPage() {
 
 	if (error && orders.length === 0)
 		return (
-			<div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
+			<div
+				className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in"
+				role="alert"
+			>
+				<LoadingAnnouncer loading={false} message="" completedMessage="فشل تحميل الطلبات" />
 				<div className="size-20 rounded-md bg-destructive/10 flex items-center justify-center">
 					<AlertCircle className="size-10 text-destructive/60" />
 				</div>
@@ -365,7 +371,7 @@ export default function OwnerOrdersPage() {
 						type="button"
 						onClick={exportCsv}
 						disabled={filtered.length === 0 || exporting}
-						className="h-9 px-4 rounded-full border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-all disabled:opacity-40 flex items-center gap-2"
+						className="h-9 px-4 rounded-full border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-[background-color] disabled:opacity-40 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 					>
 						{exporting ? (
 							<Loader2 className="size-4 animate-spin motion-reduce:hidden" />
@@ -416,7 +422,7 @@ export default function OwnerOrdersPage() {
 							setDateTo('');
 							fetchOrders(filter, 1, false, '', '');
 						}}
-						className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-all"
+						className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 					>
 						إلغاء
 					</button>
@@ -436,7 +442,7 @@ export default function OwnerOrdersPage() {
 						onClick={() => setFilter(tab.value)}
 						aria-pressed={filter === tab.value}
 						className={cn(
-							'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2',
+							'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color] duration-300 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 							filter === tab.value
 								? 'bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25'
 								: 'bg-card/50 border border-border/30 hover:border-orange/30'
@@ -547,7 +553,7 @@ function OrderCard({
 			role="link"
 			tabIndex={0}
 			className={cn(
-				'rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-ring',
+				'rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 				isBusy && 'opacity-80'
 			)}
 			onClick={onOpen}
@@ -616,7 +622,7 @@ function OrderCard({
 									if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟'))
 										onCancel();
 								}}
-								className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 disabled:opacity-50 transition-all"
+								className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 disabled:opacity-50 transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/60"
 							>
 								إلغاء
 							</button>
@@ -630,7 +636,7 @@ function OrderCard({
 								onAdvance();
 							}}
 							className={cn(
-								'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all border disabled:opacity-60',
+								'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-[background-color] border disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								targetStatus === 'preparing'
 									? 'border-info/30 text-sky-800 dark:text-sky-300 hover:bg-info/10'
 									: 'border-success/25 text-emerald-800 dark:text-emerald-300 hover:bg-success/10'

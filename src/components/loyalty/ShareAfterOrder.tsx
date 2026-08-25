@@ -153,7 +153,7 @@ ${referralUrl}
 					<div className="absolute -bottom-10 -start-10 size-32 rounded-full bg-white/5 blur-3xl" />
 
 					{/* Sparkle decoration */}
-					<div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2">
+					<div className="absolute top-1/2 start-1/2 -translate-y-1/2 rtl:translate-x-1/2 ltr:-translate-x-1/2">
 						<AnimatedSparkles className="size-12 text-white/20 animate-spin-slow" />
 					</div>
 
@@ -209,7 +209,7 @@ ${referralUrl}
 											value={phone}
 											onChange={(e) => setPhone(e.target.value)}
 											placeholder="0912345678"
-											className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-xl"
+											className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-orange/60"
 											dir="ltr"
 										/>
 									</div>
@@ -240,7 +240,7 @@ ${referralUrl}
 								<button
 									type="button"
 									onClick={() => onOpenChange(false)}
-									className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors pt-1 cursor-pointer"
+									className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 rounded-md cursor-pointer"
 								>
 									لا شكراً
 								</button>
@@ -270,7 +270,7 @@ ${referralUrl}
 										type="button"
 										onClick={handleCopyLink}
 										aria-label="نسخ رابط الإحالة"
-										className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer"
+										className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
 									>
 										{copied ? <MotionCheck className="size-4" /> : <AnimatedCopy className="size-4" />}
 									</button>
@@ -282,7 +282,7 @@ ${referralUrl}
 								<button
 									type="button"
 									onClick={handleShareWhatsApp}
-									className="h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all cursor-pointer"
+									className="h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-green-500/60 focus-visible:ring-offset-1 cursor-pointer"
 								>
 									<AnimatedMessageCircle className="size-5" />
 									واتساب
@@ -290,7 +290,7 @@ ${referralUrl}
 								<button
 									type="button"
 									onClick={handleShareInstagram}
-									className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-all cursor-pointer"
+									className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
 								>
 									<Camera className="size-5" />
 									إنستغرام

@@ -19,7 +19,7 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
 				"flex items-center justify-center",
 				"shadow-xl shadow-orange/30",
 				"hover:bg-orange/90 hover:scale-105 hover:shadow-2xl hover:shadow-orange/40",
-				"transition-all duration-300",
+				"transition-[background-color,transform,translate,scale,rotate,box-shadow] duration-300",
 				"animate-fade-in"
 			)}
 			aria-label="تواصل عبر واتساب"

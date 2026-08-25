@@ -217,13 +217,13 @@ export default function AdminAuditLogsPage() {
 			<div className="flex flex-col gap-4">
 				{/* Search input */}
 				<div className="relative">
-					<MotionSearch className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+					<MotionSearch className="absolute start-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
 					<input
 						type="text"
 						value={searchInput}
 						onChange={(e) => setSearchInput(e.target.value)}
 						placeholder="بحث في الإجراءات والأنواع وعناوين IP..."
-						className="w-full h-11 pe-10 ps-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						className="w-full h-11 pe-4 ps-11 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						aria-label="بحث"
 					/>
 				</div>
@@ -239,7 +239,7 @@ export default function AdminAuditLogsPage() {
 									setPage(1);
 								}}
 								className={cn(
-									'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+									'px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 									actionFilter === pill.value
 										? 'bg-orange text-white shadow-sm'
 										: 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -303,11 +303,11 @@ export default function AdminAuditLogsPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
-									<TableHead className="text-right">الإجراء</TableHead>
-									<TableHead className="text-right">الهدف</TableHead>
-									<TableHead className="text-right">الجهة الفاعلة</TableHead>
-									<TableHead className="text-right hidden md:table-cell">IP</TableHead>
-									<TableHead className="text-right hidden sm:table-cell">التاريخ</TableHead>
+									<TableHead className="text-end">الإجراء</TableHead>
+									<TableHead className="text-end">الهدف</TableHead>
+									<TableHead className="text-end">الجهة الفاعلة</TableHead>
+									<TableHead className="text-end hidden md:table-cell">IP</TableHead>
+									<TableHead className="text-end hidden sm:table-cell">التاريخ</TableHead>
 									<TableHead className="w-8" />
 								</TableRow>
 							</TableHeader>

@@ -17,6 +17,7 @@ import AnimatedMapPin from "@/components/ui/map-pin-icon"
 import AnimatedClock from "@/components/ui/clock-icon"
 import AnimatedSave from "@/components/ui/save-icon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 
 interface Restaurant {
   id: number; name: string; slug: string; description: string
@@ -181,6 +182,7 @@ export default function AdminSettingsPage() {
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in" aria-live="polite">
+      <LoadingAnnouncer loading message="جارٍ تحميل الإعدادات..." />
       {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
     </div>
   )
@@ -201,7 +203,7 @@ export default function AdminSettingsPage() {
               aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all flex items-center gap-2",
+                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
                 activeTab === tab.id
                   ? "bg-orange-muted border-orange/30 text-orange/80 dark:text-orange"
                   : "border-border/30 hover:border-orange/20"
@@ -228,7 +230,7 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={() => setSelectedId(r.id)}
               className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all",
+                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
                 selectedId === r.id
                   ? "bg-orange-muted border-orange/30 text-orange/80 dark:text-orange"
                   : "border-border/30 hover:border-orange/20"
