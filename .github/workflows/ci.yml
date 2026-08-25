@@ -49,8 +49,9 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
       # Schema must exist before build: /menu/[slug] generateStaticParams reads
-      # the DB at build time (TableDoesNotExist otherwise).
-      - run: npx prisma db push --skip-generate && npx prisma db seed || true
+      # the DB at build time (TableDoesNotExist otherwise). NOTE: Prisma 7
+      # removed `db push --skip-generate`; plain `db push` is correct here.
+      - run: npx prisma db push && (npx prisma db seed || true)
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
