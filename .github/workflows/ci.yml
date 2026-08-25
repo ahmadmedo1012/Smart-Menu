@@ -50,7 +50,16 @@ jobs:
 
       - run: npm run lint
 
+      # Build-time env validation (src/lib/env.ts) throws in production mode —
+      # supply CI-safe values so page-data collection can import API routes.
+      # These are placeholders only; the E2E server step sets its own.
       - run: npm run build
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
 
       - name: Check for committed .env files
         run: |
