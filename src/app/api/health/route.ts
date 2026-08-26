@@ -20,3 +20,7 @@ export async function GET() {
     { status: ok ? 200 : 503 },
   );
 }
+
+// Health probes must never be cached — a cached "ok" would mask an outage
+// for the cache TTL and defeat the whole point of the endpoint.
+export const revalidate = 0;

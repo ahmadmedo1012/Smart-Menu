@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, error, handleError, paginated } from '@/lib/api-helpers';
 
@@ -100,6 +101,13 @@ export async function POST(request: NextRequest) {
 				restaurantId: rid,
 			},
 		});
+		logAudit({
+			action: 'create',
+			actorId: auth.userId,
+			targetType: 'menuCategory',
+			targetId: data.id,
+			metadata: { restaurantId: rid, name: body.name },
+		}).catch(() => {});
 		return success(data, 201);
 	} catch (e) {
 		return handleError(e);

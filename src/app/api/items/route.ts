@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, handleError, error, paginated } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
@@ -149,6 +150,13 @@ export async function POST(request: NextRequest) {
 				},
 			});
 		});
+		logAudit({
+			action: 'create',
+			actorId: auth.userId,
+			targetType: 'menuItem',
+			targetId: data.id,
+			metadata: { restaurantId: category.restaurant.id, name: data.name },
+		}).catch(() => {});
 		return success(data, 201);
 	} catch (e) {
 		if (e instanceof ItemLimitError) return error(e.message, 403);

@@ -1,3 +1,4 @@
+import { error as logError, warn as logWarn } from '@/lib/logger';
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -28,14 +29,14 @@ declare global {
 export function validateEnv() {
 	const parsed = envSchema.safeParse(process.env);
 	if (!parsed.success) {
-		console.error('Invalid environment variables:');
+		logError('Invalid environment variables:');
 		for (const issue of parsed.error.issues) {
-			console.error(`  - ${issue.path.join('.')}: ${issue.message}`);
+			logError(`  - ${issue.path.join('.')}: ${issue.message}`);
 		}
 		if (process.env.NODE_ENV === 'production') {
 			throw new Error('Environment validation failed');
 		}
-		console.warn('Using partial defaults in development');
+		logWarn('Using partial defaults in development');
 		return envSchema.partial().parse(process.env);
 	}
 	return parsed.data;

@@ -2,6 +2,7 @@
  * Build a WhatsApp receipt message for an order.
  * Shared between OrderDialog and CartPage.
  */
+import { formatPrice, toArabicNumber } from "@/lib/format";
 
 const SEP = "━━━━━━━━━━━━━━━━━━━━━━";
 const SEP_L = "──────────────────────";
@@ -55,11 +56,11 @@ export function buildReceiptMessage(opts: {
   lines.push("📦 *الأصناف المطلوبة*");
   lines.push(SEP_L);
   opts.items.forEach((item, i) => {
-    const lineTotal = (item.qty * item.price).toFixed(2);
-    const qtyStr = `${item.qty}`;
-    const priceStr = `${item.price.toFixed(2)}`;
-    const totalStr = `${lineTotal}`;
-    lines.push(`   ${i + 1}. *${item.name}*`);
+    // Canonical formatters: Western digits + "د.ل", same as the rest of the app
+    const qtyStr = toArabicNumber(item.qty);
+    const priceStr = formatPrice(item.price, { decimals: 2, suffix: "" }).trim();
+    const totalStr = formatPrice(item.qty * item.price, { decimals: 2, suffix: "" }).trim();
+    lines.push(`   ${toArabicNumber(i + 1)}. *${item.name}*`);
     lines.push(`      ${qtyStr} × ${priceStr} د.ل  =  ${totalStr} د.ل`);
     if (item.notes) lines.push(`      📝 _${item.notes}_`);
   });
@@ -68,7 +69,7 @@ export function buildReceiptMessage(opts: {
 
   // ── Total ──
   lines.push(`💵 *الإجمالي*`);
-  lines.push(`   ${opts.totalPrice.toFixed(2)} د.ل`);
+  lines.push(`   ${formatPrice(opts.totalPrice, { decimals: 2 })}`);
   lines.push(SEP);
   lines.push("");
 
@@ -108,17 +109,17 @@ export function buildOrderShareText(o: {
   const items = o.items
     .map(
       (oi) =>
-        `• ${oi.item.nameAr || oi.item.name} ×${oi.quantity} = ${(oi.price * oi.quantity).toFixed(1)} د.ل`
+        `• ${oi.item.nameAr || oi.item.name} ×${toArabicNumber(oi.quantity)} = ${formatPrice(oi.price * oi.quantity, { decimals: 1 })}`
     )
     .join("\n");
   const type =
     o.pickupType === "delivery" ? "توصيل" : o.pickupType === "takeaway" ? "سفري" : "داخل المكان";
-  return `📋 طلب ${o.orderNo}
+  return `📋 طلب ${toArabicNumber(o.orderNo)}
 ━━━━━━━━━━━━━
 👤 ${o.customerName} | ${o.customerPhone ?? ""}
 📍 ${type}
 ━━━━━━━━━━━━━
 ${items}
 ━━━━━━━━━━━━━
-💰 الإجمالي: ${Number(o.total).toFixed(1)} د.ل`;
+💰 الإجمالي: ${formatPrice(Number(o.total), { decimals: 1 })}`;
 }

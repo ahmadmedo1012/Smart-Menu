@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/owner/", "/api/"],
+      disallow: ["/admin/", "/owner/", "/api/", "/cart", "/order-confirmed", "/menu/*/print"],
     },
     sitemap: `${process.env.NEXT_PUBLIC_DOMAIN || "https://smart-link.ly"}/sitemap.xml`,
   }

@@ -1,3 +1,4 @@
+import { error as logError } from "@/lib/logger";
 import { prisma } from "./db";
 import { getAesGcmKeyRaw } from "./keys";
 
@@ -80,14 +81,14 @@ export async function getDecryptedBotToken(): Promise<string | null> {
   try {
     const token = await decryptValue(config.botToken);
     if (!TELEGRAM_TOKEN_RE.test(token)) {
-      console.error("Decrypted bot token has invalid format");
+      logError("Decrypted bot token has invalid format");
       return null;
     }
     return token;
   } catch {
     // Fallback for legacy plaintext tokens still in DB
     if (TELEGRAM_TOKEN_RE.test(config.botToken)) return config.botToken;
-    console.error("Bot token decryption failed and fallback has invalid format");
+    logError("Bot token decryption failed and fallback has invalid format");
     return null;
   }
 }

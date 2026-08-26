@@ -13,8 +13,11 @@ export async function GET() {
   try {
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
+    // Bounded list — this table grows with every broadcast; 500 is far above
+    // any realistic target count while keeping the payload sane.
     const targets = await prisma.telegramBroadcastTarget.findMany({
       orderBy: { createdAt: "desc" },
+      take: 500,
     });
     return success(targets);
   } catch (e) {

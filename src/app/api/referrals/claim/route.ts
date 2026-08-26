@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createHash } from 'crypto';
+import { error as logError } from '@/lib/logger';
 import { prisma } from '@/lib/db';
 import { success, error as apiError } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
 
 		return success({ registered: true });
 	} catch (e) {
-		console.error('referral claim error', e);
+		logError('referral claim error', { error: String(e) });
 		return apiError('فشل تسجيل الإحالة', 500);
 	}
 }

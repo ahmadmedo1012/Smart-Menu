@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, notFound, handleError, error } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
@@ -112,6 +113,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			include: { category: { select: { id: true, name: true, nameAr: true } } },
 		});
 
+		logAudit({
+			action: 'update',
+			actorId: auth.userId,
+			targetType: 'menuItem',
+			targetId: itemId,
+			metadata: { restaurantId: existing.category.restaurantId, fields: Object.keys(updateData) },
+		}).catch(() => {});
+
 		// Delete old image from blob only after DB update succeeds
 		if (body.image && existing.image && body.image !== existing.image) {
 			deleteBlob(existing.image);
@@ -154,6 +163,14 @@ export async function DELETE(
 		}
 
 		await prisma.menuItem.delete({ where: { id: delId } });
+
+		logAudit({
+			action: 'delete',
+			actorId: auth.userId,
+			targetType: 'menuItem',
+			targetId: delId,
+			metadata: { restaurantId: existing.category.restaurantId, name: existing.name },
+		}).catch(() => {});
 
 		// Delete item image from blob only after DB delete succeeds
 		if (existing.image) deleteBlob(existing.image);

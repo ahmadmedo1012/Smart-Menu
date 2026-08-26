@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
 	turbopack: {
 		root: process.cwd(),
 	},
+	// Resolve generateMetadata BEFORE streaming starts on every request. The
+	// public /menu/[slug] route has a loading.tsx boundary, so its 404 path
+	// (unknown slug → notFound()) was streamed with HTTP 200 + a noindex meta.
+	// Blocking metadata lets Next set the real 404 status before headers flush,
+	// which is what we want: menu URLs are the SEO surface of the product, and
+	// soft-404s at 200 pollute crawl budgets and analytics. TTFB cost is one
+	// cached restaurant lookup (~ms) — worth it here.
+	htmlLimitedBots: /.*/,
 	images: {
 		remotePatterns: [
 			{ protocol: 'https', hostname: 'vercel.app' },

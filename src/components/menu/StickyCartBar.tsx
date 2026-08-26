@@ -5,16 +5,16 @@ import { ShoppingCartIcon } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { formatPrice } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { getArabicPlural } from '@/lib/arabic-plural';
 
 /**
  * Arabic count label following project digit convention (Western digits only,
  * per lib/format.ts — never Arabic-Indic numerals).
  */
 function cartCountLabel(count: number): string {
-	if (count === 1) return 'صنف واحد في السلة';
-	if (count === 2) return 'صنفان في السلة';
-	if (count <= 10) return `${count} أصناف في السلة`;
-	return `${count} صنفاً في السلة`;
+	// Canonical Arabic pluralization via lib/arabic-plural (zero/one/two/few/many
+	// states) instead of hand-rolled branches that missed the 0 and 100+ cases.
+	return `${getArabicPlural(count, 'صنف', 'صنفان', 'أصناف')} في السلة`;
 }
 
 type StickyCartBarProps = {

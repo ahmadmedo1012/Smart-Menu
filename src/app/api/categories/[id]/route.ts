@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
 import { prisma } from "@/lib/db";
 import { success, error, notFound, handleError } from "@/lib/api-helpers";
 
@@ -43,6 +44,13 @@ export async function PUT(
     }
 
     const data = await prisma.menuCategory.update({ where: { id: catId }, data: body });
+    logAudit({
+      action: "update",
+      actorId: auth.userId,
+      targetType: "menuCategory",
+      targetId: catId,
+      metadata: { restaurantId: existing.restaurantId, fields: Object.keys(body) },
+    }).catch(() => {});
     return success(data);
   } catch (e) {
     return handleError(e);
@@ -79,6 +87,13 @@ export async function DELETE(
     }
 
     await prisma.menuCategory.delete({ where: { id: catId } });
+    logAudit({
+      action: "delete",
+      actorId: auth.userId,
+      targetType: "menuCategory",
+      targetId: catId,
+      metadata: { restaurantId: existing.restaurantId, name: existing.name },
+    }).catch(() => {});
     return success({ id: catId });
   } catch (e) {
     return handleError(e);

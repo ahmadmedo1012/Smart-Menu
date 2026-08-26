@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { GlowPool } from "@/components/ui/GlowPool";
+import { toArabicNumber } from '@/lib/format';
 
 function AnimatedNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
@@ -19,7 +20,7 @@ function AnimatedNumber({ value }: { value: number }) {
     }, 30);
     return () => clearInterval(timer);
   }, [value]);
-  return <span ref={ref} dir="ltr">{count.toLocaleString()}</span>;
+  return <span ref={ref}>{toArabicNumber(count)}</span>;
 }
 
 export function StatsSection({ stats }: { stats: { totalRestaurants: number; totalUsers: number } }) {
