@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useRouter } from "next/navigation";
 import { useActiveRestaurant } from "@/components/owner/useActiveRestaurant";
+import { error as logError } from '@/lib/logger';
 
 type ReviewWithItem = {
   id: number;
@@ -44,7 +45,7 @@ export default function OwnerReviewsPage() {
       const json = await res.json();
       if (json.success) setReviews(json.data);
       else setError("تعذر تحميل التقييمات — حاول مجدداً");
-    } catch { console.error("Failed to load reviews"); setError("تعذر تحميل التقييمات — تحقق من الاتصال وحاول مجدداً"); } finally { setLoading(false); }
+    } catch { logError("Failed to load reviews"); setError("تعذر تحميل التقييمات — تحقق من الاتصال وحاول مجدداً"); } finally { setLoading(false); }
   }, [filterStar, activeId]);
 
   useEffect(() => { load(); }, [load]);
