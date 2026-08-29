@@ -145,7 +145,7 @@ export default function OwnerRestaurantsPage() {
 			{/* Add form */}
 			{showAdd && (
 				<div className="rounded-md border border-border/40 p-5 space-y-4 bg-card/50 animate-fade-in">
-					<h3 className="font-bold">منيو جديد</h3>
+					<h2 className="font-bold">منيو جديد</h2>
 					<div className="grid sm:grid-cols-2 gap-4">
 						<div>
 							<Label>اسم المطعم *</Label>
@@ -217,7 +217,7 @@ export default function OwnerRestaurantsPage() {
 										<Store className="size-5 text-white" />
 									</div>
 									<div className="min-w-0">
-										<h3 className="font-bold truncate">{r.name}</h3>
+										<h2 className="font-bold truncate">{r.name}</h2>
 										<p className="text-xs text-muted-foreground truncate" dir="ltr">
 											/menu/{r.slug}
 										</p>

@@ -147,7 +147,15 @@ export default function AdminTelegramPage() {
 	}, [loadAll]);
 
 	const handleSave = async () => {
-		if (!config.botToken.trim() || !config.chatId.trim()) {
+		if (!config.chatId.trim()) {
+			premiumToast('error', 'يرجى إدخال معرف المحادثة');
+			return;
+		}
+		// A masked load puts •••• in the field — sending it back would encrypt the
+		// dots over the real token and brick the bot. Only send a token the admin
+		// actually typed; otherwise omit it so the server keeps the stored one.
+		const isMasked = config.botTokenMasked === true;
+		if (!isMasked && !config.botToken.trim()) {
 			premiumToast('error', 'يرجى إدخال رمز البوت ومعرف المحادثة');
 			return;
 		}
@@ -158,6 +166,7 @@ export default function AdminTelegramPage() {
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					...config,
+					botToken: isMasked ? undefined : config.botToken.trim(),
 					events: eventsInput
 						.split(',')
 						.map((e) => e.trim())
@@ -253,7 +262,7 @@ export default function AdminTelegramPage() {
 				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
 					<AlertTriangle className="size-8 text-destructive" />
 				</div>
-				<h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
 				<p className="text-sm text-muted-foreground max-w-xs">
 					لا تملك الصلاحية للوصول إلى إعدادات التليجرام. يرجى التواصل مع المدير العام.
 				</p>
@@ -270,7 +279,7 @@ export default function AdminTelegramPage() {
 
 	return (
 		<div className="space-y-8 animate-fade-in max-w-3xl">
-			<h2 className="text-2xl font-bold tracking-normal">إعدادات تليجرام</h2>
+			<h1 className="text-2xl font-bold tracking-normal">إعدادات تليجرام</h1>
 
 			{loadError && (
 				<div
@@ -324,10 +333,10 @@ export default function AdminTelegramPage() {
 			{/* Broadcast guide */}
 			<section>
 				<div className="rounded-md bg-muted/30 border border-border/20 p-5">
-					<h3 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+					<h2 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
 						<Lightbulb className="size-4 text-primary" />
 						خطوات التفعيل
-					</h3>
+					</h2>
 					<ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
 						<li>قم بإضافة البوت الخاص بالمنصة كمشرف (Admin) داخل قناتك أو مجموعتك الخاصة.</li>
 						<li>تأكد من تفعيل صلاحية &quot;نشر الرسائل&quot; (Post Messages).</li>
@@ -339,7 +348,7 @@ export default function AdminTelegramPage() {
 			{/* Help */}
 			<section>
 				<div className="rounded-md bg-muted/30 border border-border/20 p-5">
-					<h3 className="text-sm font-semibold mb-2">كيفية الإعداد</h3>
+					<h2 className="text-sm font-semibold mb-2">كيفية الإعداد</h2>
 					<ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
 						<li>
 							افتح{' '}

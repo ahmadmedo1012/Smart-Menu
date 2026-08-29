@@ -113,8 +113,10 @@ export function PaymentDialog({
 	const sentRef = useRef(false);
 	const handleSent = async () => {
 		if (sentRef.current) return; // C3 fix: block double-click double-payment
-		sentRef.current = true;
 		const isBank = provider === 'bank';
+		// Validate BEFORE latching the guard — a failed validation must leave
+		// the button usable (previously the latch ran first and any validation
+		// failure bricked submission until full page reload).
 		if (!isBank && !phone.trim()) {
 			premiumToast('error', 'يرجى إدخال رقم هاتفك');
 			return;
@@ -129,6 +131,7 @@ export function PaymentDialog({
 				return;
 			}
 		}
+		sentRef.current = true;
 		setSubmitting(true);
 		try {
 			const endpoint = upgradeRestaurantId ? '/api/subscriptions/upgrade' : '/api/subscriptions';
@@ -254,6 +257,7 @@ export function PaymentDialog({
 		(open: boolean) => {
 			if (!open) {
 				cleanup();
+				sentRef.current = false; // fresh submit allowed on reopen
 				setStep('form');
 				setCountdown(30);
 				setPhone('');

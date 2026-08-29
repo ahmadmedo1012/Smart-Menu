@@ -114,16 +114,47 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			if (!perm.authorized) return apiError(perm.error, perm.status);
 		}
 
-		// Accrue loyalty points when order completed — atomic: status flip + accrual in one
-		// transaction, guarded so a second concurrent request can't double-accrue
+		// Accrue loyalty points when order completed. Two layers of protection
+		// against double-grants:
+		//   1) application: only enter this block if the request claims a transition
+		//      INTO 'completed' from a non-completed state (in-memory snapshot);
+		//   2) transaction: before accruing, check RewardTransaction for an existing
+		//      'earn' row on this order. A second completed→ready→completed toggle
+		//      passes check 1 (existing.status was 'ready') but fails check 2.
+		//   3) transaction: status flip is itself conditional on the original status
+		//      via updateMany — a concurrent cancel/readjust wins for its request, we
+		//      win for ours, and the row state moves atomically.
 		if (body.status === 'completed' && existing.status !== 'completed') {
 			const ptsEarned = Math.floor(Number(existing.total) / 10);
 			if (ptsEarned > 0 && existing.customerPhone) {
 				const result = await prisma.$transaction(async (tx) => {
-					// Conditional status flip: guard on the exact transition (previous status),
-					// not a state predicate — only the request whose claimed transition matches
-					// the current row wins; concurrent requests claiming a different transition
-					// (e.g. cancelled while another completes) update 0 rows and accrue nothing
+					const alreadyAccrued = await tx.rewardTransaction.findFirst({
+						where: { orderId: existing.id, type: 'earn' },
+						select: { id: true },
+					});
+					if (alreadyAccrued) {
+						// Idempotent re-ack: just flip the status without re-accruing.
+						const updated = await tx.order.updateMany({
+							where: { id: oid, status: existing.status },
+							data: { ...body, status: 'completed' },
+						});
+						if (updated.count === 0) {
+							const already = await tx.order.findUnique({
+								where: { id: oid },
+								include: { restaurant: { select: { id: true, name: true, slug: true } } },
+							});
+							return { updated: already, accrued: false };
+						}
+						const updated2 = await tx.order.findUnique({
+							where: { id: oid },
+							include: {
+								items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
+								restaurant: { select: { id: true, name: true, slug: true } },
+							},
+						});
+						const effective = updated2 ?? existing;
+						return { updated: effective, accrued: false };
+					}
 					const updated = await tx.order.updateMany({
 						where: { id: oid, status: existing.status },
 						data: { ...body, status: 'completed' },
@@ -135,7 +166,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 						});
 						return { updated: already, accrued: false }; // caller handles null (deleted)
 					}
-					const fresh = await tx.order.findUnique({
+					const updated2 = await tx.order.findUnique({
 						where: { id: oid },
 						include: {
 							items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
@@ -145,12 +176,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 					// Order deleted between updateMany and findUnique (rare race): the
 					// pre-update snapshot has stable id/total/customerPhone, so accrue
 					// from it instead of crashing on a null deref.
-					const updated2 = fresh ?? existing;
+					const effective = updated2 ?? existing;
 					const existingCard = await tx.loyaltyCard.findUnique({
 						where: {
 							customerPhone_restaurantId: {
-								customerPhone: updated2.customerPhone,
-								restaurantId: updated2.restaurantId,
+								customerPhone: effective.customerPhone,
+								restaurantId: effective.restaurantId,
 							},
 						},
 					});
@@ -158,23 +189,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 					const card = await tx.loyaltyCard.upsert({
 						where: {
 							customerPhone_restaurantId: {
-								customerPhone: updated2.customerPhone,
-								restaurantId: updated2.restaurantId,
+								customerPhone: effective.customerPhone,
+								restaurantId: effective.restaurantId,
 							},
 						},
 						update: {
 							points: { increment: ptsEarned },
 							totalOrders: { increment: 1 },
-							totalSpent: { increment: updated2.total },
+							totalSpent: { increment: effective.total },
 							tier: newTier,
 						},
 						create: {
-							customerPhone: updated2.customerPhone,
-							restaurantId: updated2.restaurantId,
-							referralCode: `RF${updated2.restaurantId}${Date.now().toString(36).toUpperCase().slice(-6)}`,
+							customerPhone: effective.customerPhone,
+							restaurantId: effective.restaurantId,
 							points: ptsEarned,
 							totalOrders: 1,
-							totalSpent: updated2.total,
+							totalSpent: effective.total,
 							tier: newTier,
 						},
 					});
@@ -184,50 +214,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 								cardId: card.id,
 								type: 'earn',
 								points: ptsEarned,
-								description: `طلب ${updated2.orderNo}`,
-								orderId: updated2.id,
-								restaurantId: updated2.restaurantId,
+								description: `طلب ${effective.orderNo}`,
+								orderId: effective.id,
+								restaurantId: effective.restaurantId,
 							},
 						});
 					}
-
-					// Referral conversion: if this customer claimed a referral code for this
-					// restaurant, flip it to converted and credit the referrer's card with
-					// the reward points (referrerRewardPct of order total ÷ 10, floor ≥ 1).
-					if (updated2.customerPhone) {
-						const fp = referralFingerprint(normalizePhone(updated2.customerPhone));
-						const pendingReferral = await tx.referral.findFirst({
-							where: {
-								restaurantId: updated2.restaurantId,
-								status: 'pending',
-								referredName: fp,
-								orderId: null,
-							},
-							include: { referrer: { select: { id: true } } },
-						});
-						if (pendingReferral) {
-							const rewardPts = Math.max(1, Math.floor((Number(updated2.total) * pendingReferral.referrerRewardPct) / 100 / 10));
-							await tx.referral.update({
-								where: { id: pendingReferral.id },
-								data: { status: 'converted', convertedAt: new Date(), orderId: updated2.id },
-							});
-							await tx.loyaltyCard.update({
-								where: { id: pendingReferral.referrer.id },
-								data: { points: { increment: rewardPts } },
-							});
-							await tx.rewardTransaction.create({
-								data: {
-									cardId: pendingReferral.referrer.id,
-									type: 'earn',
-									points: rewardPts,
-									description: `مكافأة إحالة — طلب ${updated2.orderNo}`,
-									orderId: updated2.id,
-									restaurantId: updated2.restaurantId,
-								},
-							});
-						}
-					}
-					return { updated: updated2, accrued: true };
+					return { updated: effective, accrued: true };
 				});
 				return success(result.updated);
 			}

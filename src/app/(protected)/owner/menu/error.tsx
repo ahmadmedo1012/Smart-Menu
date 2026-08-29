@@ -22,7 +22,7 @@ export default function OwnerMenuError({
         </div>
         <div className="absolute -inset-2 rounded-full bg-destructive/10 blur-xl -z-10" />
       </div>
-      <h2 className="text-xl font-bold mb-2">حدث خطأ في إدارة المنيو</h2>
+      <h1 className="text-xl font-bold mb-2">حدث خطأ في إدارة المنيو</h1>
       <p className="text-muted-foreground text-center max-w-md mb-6">
         تعذر تحميل صفحة إدارة المنيو. حاول مرة أخرى.
       </p>

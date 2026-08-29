@@ -9,7 +9,7 @@ import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
 import { Package, Store, Activity, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from "@/lib/format"
+import { toArabicNumber, formatPrice } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { Badge } from "@/components/ui/badge"
 
@@ -154,7 +154,7 @@ export default function AdminMenuPage() {
       <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
         <AlertTriangle className="size-8 text-destructive" />
       </div>
-      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
       <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
     </div>
   )
@@ -219,7 +219,7 @@ export default function AdminMenuPage() {
             <div key={restName} className="rounded-md border border-border/30 overflow-hidden shadow-sm">
               <div className="bg-muted/30 px-5 py-3 border-b border-border/20 flex items-center gap-2">
                 <Store className="size-4 text-primary" />
-                <h3 className="font-bold text-base">{restName}</h3>
+                <h2 className="font-bold text-base">{restName}</h2>
                 <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full me-auto">
                   {toArabicNumber(Object.values(cats).reduce((s, c) => s + c.length, 0))} صنف
                 </span>
@@ -240,9 +240,9 @@ export default function AdminMenuPage() {
                             {item.nameAr || item.name}
                           </span>
                         </div>
-                        <div className="text-end shrink-0">
+                        <div className="text-end shrink-0 tabular-nums whitespace-nowrap">
                           <span className={cn("font-bold text-sm tabular-nums", item.discountedPrice ? "text-destructive" : "")}>
-                            {toArabicNumber((item.discountedPrice ?? item.price).toFixed(1))}
+                            {formatPrice(item.discountedPrice ?? item.price, { decimals: 1, suffix: "" })}
                           </span>
                           <span className="text-xs text-muted-foreground ms-1">د.ل</span>
                         </div>

@@ -177,7 +177,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 	);
 
 	return (
-		<div className="min-h-screen relative overflow-x-clip">
+		<main className="min-h-screen relative overflow-x-clip">
 			<ReferralHandler />
 			<div className="fixed inset-0 -z-10 bg-[var(--menu-glow)] pointer-events-none" />
 
@@ -195,6 +195,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 				serializedItems={serializedItems}
 				hasContact={hasContact}
 			/>
-		</div>
+		</main>
 	);
 }

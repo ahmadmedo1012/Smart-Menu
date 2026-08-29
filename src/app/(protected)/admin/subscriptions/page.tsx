@@ -189,7 +189,7 @@ export default function AdminSubscriptionsPage() {
 				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
 					<AlertTriangle className="size-8 text-destructive" />
 				</div>
-				<h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
 				<p className="text-sm text-muted-foreground max-w-xs">
 					لا تملك الصلاحية للوصول إلى هذه الصفحة.
 				</p>
@@ -282,7 +282,7 @@ export default function AdminSubscriptionsPage() {
 													<Badge className={cn('text-[10px]', st.color)}>{st.label}</Badge>
 												</div>
 												<div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
-													<span className="tabular-nums">{p.amount} د.ل</span>
+													<span className="tabular-nums whitespace-nowrap">{p.amount} د.ل</span>
 													<span>•</span>
 													<span>{PROVIDER_NAMES[p.provider] ?? p.provider}</span>
 													{p.planName && (

@@ -96,7 +96,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 
 			{/* Revenue chart */}
 			<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
-				<h3 className="text-sm font-semibold mb-4">اتجاه الإيرادات (7 أيام)</h3>
+				<h2 className="text-sm font-semibold mb-4">اتجاه الإيرادات (7 أيام)</h2>
 				{chartData.length > 0 ? (
 					<AreaChart data={chartData} height={200} />
 				) : (
@@ -113,7 +113,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 				<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
 						<AnimatedClock className="size-4 text-muted-foreground" />
-						<h3 className="text-sm font-semibold">توزيع الطلبات حسب الساعة</h3>
+						<h2 className="text-sm font-semibold">توزيع الطلبات حسب الساعة</h2>
 					</div>
 					{hourlyData.length > 0 ? (
 						<HorizontalBar data={hourlyData} barHeight={20} />
@@ -130,7 +130,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 				<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
 						<AnimatedBarChart3 className="size-4 text-muted-foreground" />
-						<h3 className="text-sm font-semibold">الأكثر طلباً (نمو)</h3>
+						<h2 className="text-sm font-semibold">الأكثر طلباً (نمو)</h2>
 					</div>
 					{advancedStats.topItems.length > 0 ? (
 						<div className="space-y-2">

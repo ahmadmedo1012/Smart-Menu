@@ -67,12 +67,11 @@ export default function CartPage() {
 	const [showPreview, setShowPreview] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	// Popular-suggestion shortcuts for empty carts (quick add without browsing)
-	const popularSuggestions = ['قهوة تركي', 'كابتشينو', 'تشيز كيك', 'برجر'];
-	const addSuggested = () => {
-		// Jump to the restaurant menu — quick path back to browsing.
-		window.location.href = '/menu/al-waha-cafe';
-	};
+	// Empty-cart shortcut: return to THIS restaurant's menu, never a hardcoded
+	// one (the old '/menu/al-waha-cafe' link sent every other restaurant's
+	// customers to the wrong menu). The slug comes from the same fetch that
+	// loads pickup types; until it arrives we simply don't render shortcuts.
+	const [restaurantSlug, setRestaurantSlug] = useState<string | null>(null);
 	const [confirmed, setConfirmed] = useState(false);
 	const [animateItems, setAnimateItems] = useState(false);
 	const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -109,6 +108,7 @@ export default function CartPage() {
 					(t: string): t is 'inside' | 'takeaway' | 'delivery' => all.includes(t as any)
 				);
 				setSupportedPickupTypes(arr);
+				setRestaurantSlug(d.data?.slug ?? null);
 				// Reset pickupType if current selection isn't supported
 				if (!arr.includes(pickupTypeRef.current)) setPickupType(arr[0] || 'takeaway');
 			})
@@ -233,7 +233,7 @@ export default function CartPage() {
 					<div className="size-16 rounded-[4px] bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
 						<AnimatedCart className="size-12 text-muted-foreground" />
 					</div>
-					<h2 className="text-2xl font-bold">السلة فارغة</h2>
+					<h1 className="text-2xl font-bold">السلة فارغة</h1>
 					<p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
 					<div className="flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
 						<Link href="/menu">
@@ -250,24 +250,17 @@ export default function CartPage() {
 							</Button>
 						</Link>
 					</div>
-					{/* Popular suggestions — reduces friction for first-time carts */}
-					{restaurantId ? (
+					{/* Back-to-menu shortcut for empty carts — honest label, correct
+				    restaurant. Rendered only once we know the real slug. */}
+					{restaurantId && restaurantSlug ? (
 						<div className="mt-6 w-full max-w-md">
-							<p className="font-arabic text-sm font-medium text-muted-foreground mb-3">
-								الأكثر طلباً هذا الأسبوع
-							</p>
-							<div className="grid grid-cols-2 gap-2">
-								{popularSuggestions.map((s) => (
-									<button
-										key={s}
-										type="button"
-										onClick={() => addSuggested()}
-										className="min-h-[44px] rounded-lg border border-border/40 bg-card/60 px-3 py-2.5 text-sm font-arabic hover:border-orange/40 hover:bg-orange-muted/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-									>
-										<MotionPlus className="size-3.5 text-orange ms-1" /> {s}
-									</button>
-								))}
-							</div>
+							<Link
+								href={`/menu/${restaurantSlug}`}
+								className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-border/40 bg-card/60 px-4 py-2.5 text-sm font-arabic hover:border-orange/40 hover:bg-orange-muted/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+							>
+								<MotionPlus className="size-3.5 text-orange" />
+								متابعة التسوق من {restaurantName || 'قائمة المطعم'}
+							</Link>
 						</div>
 					) : null}
 				</div>

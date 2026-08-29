@@ -108,7 +108,7 @@ export default function AdminQRPage() {
 				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
 					<AlertTriangle className="size-8 text-destructive" />
 				</div>
-				<h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
 				<p className="text-sm text-muted-foreground max-w-xs">
 					لا تملك الصلاحية للوصول إلى هذه الصفحة.
 				</p>
@@ -122,7 +122,7 @@ export default function AdminQRPage() {
 					<AnimatedQrCode className="size-5 text-[#1a130b]" />
 				</div>
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">رمز QR</h2>
+					<h1 className="text-2xl font-bold tracking-normal">رمز QR</h1>
 					<p className="text-sm text-muted-foreground">إنشاء رمز QR لكل مطعم</p>
 				</div>
 			</div>
@@ -132,7 +132,7 @@ export default function AdminQRPage() {
 					<div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
 						<AnimatedQrCode className="size-7 text-orange/40" />
 					</div>
-					<h3 className="text-lg font-semibold mb-1">لا توجد مطاعم</h3>
+					<h2 className="text-lg font-semibold mb-1">لا توجد مطاعم</h2>
 					<p className="text-sm text-muted-foreground max-w-xs">
 						لم يتم العثور على مطاعم. قم بإضافة مطعم أولاً لإنشاء رمز QR.
 					</p>

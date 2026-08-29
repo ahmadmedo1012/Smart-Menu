@@ -22,7 +22,7 @@ export default function OwnerRestaurantsError({
         </div>
         <div className="absolute -inset-2 rounded-full bg-destructive/10 blur-xl -z-10" />
       </div>
-      <h2 className="text-xl font-bold mb-2">حدث خطأ في إدارة المطاعم</h2>
+      <h1 className="text-xl font-bold mb-2">حدث خطأ في إدارة المطاعم</h1>
       <p className="text-muted-foreground text-center max-w-md mb-6">
         تعذر تحميل صفحة المطاعم. حاول مرة أخرى.
       </p>

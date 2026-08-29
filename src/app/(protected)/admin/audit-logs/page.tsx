@@ -190,7 +190,7 @@ export default function AdminAuditLogsPage() {
 				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
 					<AlertTriangle className="size-8 text-destructive" />
 				</div>
-				<h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
 				<p className="text-sm text-muted-foreground max-w-xs">
 					لا تملك الصلاحية للوصول إلى هذه الصفحة.
 				</p>
@@ -300,7 +300,7 @@ export default function AdminAuditLogsPage() {
 			) : (
 				<>
 					<div className="rounded-md border border-border/30 bg-card/50 overflow-x-auto">
-						<Table>
+						<Table className="min-w-[600px]">
 							<TableHeader>
 								<TableRow>
 									<TableHead className="text-end">الإجراء</TableHead>

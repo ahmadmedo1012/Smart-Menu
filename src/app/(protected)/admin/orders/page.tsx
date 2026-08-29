@@ -165,7 +165,7 @@ export default function AdminOrdersPage() {
       <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
         <AlertTriangle className="size-8 text-destructive" />
       </div>
-      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
       <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
     </div>
   )
@@ -174,7 +174,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-6 animate-fade-in overflow-x-clip">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-normal">الطلبات</h2>
+          <h1 className="text-2xl font-bold tracking-normal">الطلبات</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(totalCount)} طلب</p>
         </div>
         <Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20 self-start">
@@ -209,7 +209,7 @@ export default function AdminOrdersPage() {
           <div className="rounded-md bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <AnimatedBarChart3 className="size-4 text-success" />
-              <h3 className="text-sm font-semibold">المطاعم الأكثر طلبات</h3>
+              <h2 className="text-sm font-semibold">المطاعم الأكثر طلبات</h2>
             </div>
             <div className="space-y-2">
               {topRests.map(([name, data], i) => (
@@ -226,7 +226,7 @@ export default function AdminOrdersPage() {
           <div className="rounded-md bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <AnimatedBarChart3 className="size-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold">المطاعم الأقل طلبات</h3>
+              <h2 className="text-sm font-semibold">المطاعم الأقل طلبات</h2>
             </div>
             <div className="space-y-2">
               {bottomRests.map(([name, data], i) => (
@@ -298,7 +298,10 @@ export default function AdminOrdersPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-bold">{order.orderNo}</p>
-                        <Badge className={cn("text-xs", config.bg, config.color)}>{config.label}</Badge>
+                        <Badge className={cn("text-xs", config.bg, config.color)}>
+                          <config.icon className="size-3" aria-hidden="true" />
+                          {config.label}
+                        </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{order.customerName}</p>
                       <div className="flex items-center gap-2 mt-0.5">

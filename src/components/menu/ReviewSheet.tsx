@@ -279,6 +279,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 							{/* Submit */}
 							<button
 								onClick={handleSubmit}
+								aria-label="إرسال التقييم"
 								disabled={formRating < 1 || submitting}
 								className={cn(
 									'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-[color,background-color]',

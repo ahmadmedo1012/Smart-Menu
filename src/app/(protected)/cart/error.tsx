@@ -16,7 +16,7 @@ export default function CartError({
   useEffect(() => { logError(error?.message || "Cart error") }, [error])
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+    <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 via-background to-primary/5" />
       <div className="relative z-10 flex flex-col items-center text-center px-6 animate-fade-in">
         <div className="relative mb-8">
@@ -33,6 +33,6 @@ export default function CartError({
           <Link href="/" className="text-sm text-muted-foreground underline self-center">العودة إلى القائمة الرئيسية</Link>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

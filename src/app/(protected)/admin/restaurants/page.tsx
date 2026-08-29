@@ -146,7 +146,7 @@ export default function AdminRestaurantsPage() {
   if (accessDenied) return (
     <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
       <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4"><AlertTriangle className="size-8 text-destructive" /></div>
-      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
       <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
     </div>
   );
@@ -156,7 +156,7 @@ export default function AdminRestaurantsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-normal">إدارة المطاعم</h2>
+          <h1 className="text-2xl font-bold tracking-normal">إدارة المطاعم</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مطعم</p>
         </div>
         <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-white">

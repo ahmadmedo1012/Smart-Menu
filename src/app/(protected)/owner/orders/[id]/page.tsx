@@ -192,7 +192,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 						<MotionChevronLeft className="size-4" />
 					</button>
 					<div>
-						<h2 className="text-xl font-bold">طلب <bdi dir="ltr">#{order.orderNo}</bdi></h2>
+						<h1 className="text-xl font-bold">طلب <bdi dir="ltr">#{order.orderNo}</bdi></h1>
 						<p className="text-xs text-muted-foreground">{formatDate(new Date(order.createdAt))}</p>
 					</div>
 				</div>
@@ -203,7 +203,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 
 			{/* Status Timeline */}
 			<div className="rounded-md bg-card/50 border border-border/30 p-6">
-				<h3 className="text-sm font-semibold text-muted-foreground mb-4">حالة الطلب</h3>
+				<h2 className="text-sm font-semibold text-muted-foreground mb-4">حالة الطلب</h2>
 				<div className="flex items-center">
 					{STATUS_FLOW.map((s, idx) => {
 						const StatusIcon = STATUS_CONFIG[s].icon;
@@ -288,9 +288,9 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 			<div className="grid gap-4 md:grid-cols-2">
 				{/* Customer info */}
 				<div className="rounded-md bg-card/50 border border-border/30 p-5">
-					<h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
+					<h2 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
 						<User className="size-4" /> معلومات العميل
-					</h3>
+					</h2>
 					<div className="space-y-3">
 						<div>
 							<p className="text-xs text-muted-foreground">الاسم</p>
@@ -329,9 +329,9 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 
 				{/* Order summary */}
 				<div className="rounded-md bg-card/50 border border-border/30 p-5">
-					<h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
+					<h2 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
 						<AnimatedShoppingCart className="size-4" /> ملخص الطلب
-					</h3>
+					</h2>
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">المجموع الفرعي</span>
@@ -351,10 +351,10 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 			{/* Items */}
 			<div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
 				<div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
-					<h3 className="font-semibold flex items-center gap-2">
+					<h2 className="font-semibold flex items-center gap-2">
 						<FileText className="size-4 text-muted-foreground" />
 						الأصناف ({toArabicNumber(order.items.length)})
-					</h3>
+					</h2>
 					<Button variant="outline" size="sm" onClick={copyAsWhatsApp} className="gap-1">
 						{copied ? <MotionCheck className="size-3.5 text-success" /> : <AnimatedCopy className="size-3.5" />}
 						نسخ للواتساب

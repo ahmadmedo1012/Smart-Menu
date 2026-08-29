@@ -18,7 +18,7 @@ import { BackButton } from '@/components/shared/BackButton';
 import { csrfFetch } from '@/lib/csrf-client';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatPrice } from '@/lib/format';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
@@ -283,7 +283,7 @@ export default function OwnerMenuPage() {
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<BackButton href="/owner" />
-					<h2 className="text-2xl font-bold tracking-normal">إدارة المنيو</h2>
+					<h1 className="text-2xl font-bold tracking-normal">إدارة المنيو</h1>
 					<p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
 				</div>
 				<Button
@@ -462,19 +462,19 @@ export default function OwnerMenuPage() {
 															</p>
 														)}
 													</div>
-													<div className="text-end shrink-0">
+													<div className="text-end shrink-0 tabular-nums whitespace-nowrap">
 														<span
 															className={cn(
 																'font-bold text-sm tabular-nums',
 																item.discountedPrice && 'text-destructive'
 															)}
 														>
-															{toArabicNumber((item.discountedPrice ?? item.price).toFixed(1))}
+															{formatPrice(item.discountedPrice ?? item.price, { decimals: 1, suffix: '' })}
 														</span>
 														<span className="text-xs text-muted-foreground ms-0.5">د.ل</span>
 														{item.discountedPrice && (
-															<span className="text-xs text-muted-foreground/50 line-through block">
-																{toArabicNumber(item.price.toFixed(1))}
+															<span className="text-xs text-muted-foreground/50 line-through block tabular-nums">
+																{formatPrice(item.price, { decimals: 1, suffix: '' })}
 															</span>
 														)}
 													</div>

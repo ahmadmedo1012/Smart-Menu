@@ -209,7 +209,7 @@ export default function AdminDashboard() {
 				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
 					<AlertTriangle className="size-8 text-destructive" />
 				</div>
-				<h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
 				<p className="text-sm text-muted-foreground max-w-xs">
 					لا تملك الصلاحية للوصول إلى هذه الصفحة.
 				</p>
@@ -280,7 +280,7 @@ export default function AdminDashboard() {
 					<div className="flex items-center justify-between mb-4">
 						<div className="flex items-center gap-2">
 							<TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
-							<h3 className="text-sm font-semibold">اتجاه الإيرادات (30 يوم)</h3>
+							<h2 className="text-sm font-semibold">اتجاه الإيرادات (30 يوم)</h2>
 						</div>
 					</div>
 					{stats.revenueTrend.length > 0 ? (
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
 					<div className="flex items-center justify-between mb-4">
 						<div className="flex items-center gap-2">
 							<AnimatedShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
-							<h3 className="text-sm font-semibold">حجم الطلبات (30 يوم)</h3>
+							<h2 className="text-sm font-semibold">حجم الطلبات (30 يوم)</h2>
 						</div>
 					</div>
 					{stats.orderVolumeTrend.length > 0 ? (
@@ -329,7 +329,7 @@ export default function AdminDashboard() {
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
 						<AnimatedBarChart3 className="size-4 text-muted-foreground" aria-hidden="true" />
-						<h3 className="text-sm font-semibold">الأصناف الأكثر طلباً</h3>
+						<h2 className="text-sm font-semibold">الأصناف الأكثر طلباً</h2>
 					</div>
 					{stats.topItems.length > 0 ? (
 						<HorizontalBar
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
 				<div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
 						<Activity className="size-4 text-muted-foreground" aria-hidden="true" />
-						<h3 className="text-sm font-semibold">مؤشرات سريعة</h3>
+						<h2 className="text-sm font-semibold">مؤشرات سريعة</h2>
 					</div>
 					<div className="grid grid-cols-2 gap-3">
 						<div className="rounded-md bg-orange-muted/50 p-4">
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<UserPlus className="size-4 text-muted-foreground" aria-hidden="true" />
-							<h3 className="text-sm font-semibold">آخر الاشتراكات</h3>
+							<h2 className="text-sm font-semibold">آخر الاشتراكات</h2>
 						</div>
 					</div>
 					{stats.recentSignups.length > 0 ? (
@@ -430,7 +430,7 @@ export default function AdminDashboard() {
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<MotionLogIn className="size-4 text-muted-foreground" aria-hidden="true" />
-							<h3 className="text-sm font-semibold">آخر تسجيلات الدخول</h3>
+							<h2 className="text-sm font-semibold">آخر تسجيلات الدخول</h2>
 						</div>
 					</div>
 					{stats.recentLogins.length > 0 ? (
@@ -473,7 +473,7 @@ export default function AdminDashboard() {
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<AnimatedBarChart3 className="size-4 text-muted-foreground" />
-							<h3 className="text-sm font-semibold">المطاعم الأكثر طلباً</h3>
+							<h2 className="text-sm font-semibold">المطاعم الأكثر طلباً</h2>
 						</div>
 					</div>
 					{stats.topRestaurants && stats.topRestaurants.length > 0 ? (
@@ -495,7 +495,7 @@ export default function AdminDashboard() {
 
 			{/* Quick actions */}
 			<div className="rounded-md bg-card/70 border border-border/30 p-5 shadow-sm">
-				<h3 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h3>
+				<h2 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h2>
 				<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 					{[
 						{ label: 'إضافة مطعم', href: '/admin/restaurants', icon: Store, color: 'text-orange' },

@@ -118,7 +118,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-lg">{r.name}</h3>
+              <h2 className="font-bold text-lg">{r.name}</h2>
               {r.plan ? (
                 <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full text-white bg-gradient-to-r", planGrad)}>{r.plan.nameAr}</span>
               ) : (

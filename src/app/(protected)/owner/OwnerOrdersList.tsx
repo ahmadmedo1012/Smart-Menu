@@ -64,7 +64,7 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
   const hasBreakdown = !!stats && Object.keys(stats.statusBreakdown).length > 0
   return (
     <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
-      <h3 className="text-xs font-semibold text-muted-foreground mb-3">حالة الطلبات</h3>
+      <h2 className="text-xs font-semibold text-muted-foreground mb-3">حالة الطلبات</h2>
       {hasBreakdown ? (
         <>
           <div className="h-2.5 rounded-full bg-muted/50 overflow-hidden flex ring-1 ring-inset ring-black/5">
@@ -105,7 +105,7 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
 export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
   return (
     <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
-      <h3 className="text-xs font-semibold text-muted-foreground mb-3">الأكثر طلباً</h3>
+      <h2 className="text-xs font-semibold text-muted-foreground mb-3">الأكثر طلباً</h2>
       {items && items.length > 0 ? (
         <div className="space-y-1">
           {items.slice(0, 8).map((item, idx) => (
@@ -139,7 +139,7 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
   return (
     <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-muted-foreground">آخر الطلبات</h3>
+        <h2 className="text-xs font-semibold text-muted-foreground">آخر الطلبات</h2>
         <Link href="/owner/orders"><span className="text-xs text-primary font-medium">عرض الكل</span></Link>
       </div>
       {orders && orders.length > 0 ? (

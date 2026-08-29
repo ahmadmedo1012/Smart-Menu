@@ -58,81 +58,85 @@ function OrderContent() {
 
 	if (isSubscription) {
 		return (
-			<div className="min-h-screen bg-background flex flex-col">
+			<>
 				<Header />
-				<div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-					<div className="size-20 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center animate-scale-in">
-						<CheckCircle className="size-10 text-orange" />
+				<main className="min-h-screen bg-background flex flex-col">
+					<div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
+						<div className="size-20 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center animate-scale-in">
+							<CheckCircle className="size-10 text-orange" />
+						</div>
+						<div className="space-y-2">
+							<h1 className="text-2xl font-bold">تم إرسال طلب الاشتراك!</h1>
+							<p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
+								شكراً لاشتراكك في <strong>الربط الذكي</strong>.
+								<br />
+								<br />
+								تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من الدفع وتفعيل حسابك خلال 24
+								ساعة. سيتم إشعارك عند اكتمال التفعيل.
+							</p>
+						</div>
+						<div className="flex flex-col gap-3 w-full max-w-xs">
+							<Link href="/login">
+								<Button className="w-full">تسجيل الدخول</Button>
+							</Link>
+							<Link href="/">
+								<Button variant="outline" className="w-full">
+									<MotionArrowLeft className="ms-2 size-4" />
+									العودة للرئيسية
+								</Button>
+							</Link>
+						</div>
 					</div>
-					<div className="space-y-2">
-						<h1 className="text-2xl font-bold">تم إرسال طلب الاشتراك!</h1>
-						<p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
-							شكراً لاشتراكك في <strong>الربط الذكي</strong>.
-							<br />
-							<br />
-							تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من الدفع وتفعيل حسابك خلال 24
-							ساعة. سيتم إشعارك عند اكتمال التفعيل.
-						</p>
-					</div>
-					<div className="flex flex-col gap-3 w-full max-w-xs">
-						<Link href="/login">
-							<Button className="w-full">تسجيل الدخول</Button>
-						</Link>
-						<Link href="/">
-							<Button variant="outline" className="w-full">
-								<MotionArrowLeft className="ms-2 size-4" />
-								العودة للرئيسية
-							</Button>
-						</Link>
-					</div>
-				</div>
-			</div>
+				</main>
+			</>
 		);
 	}
 
 	return (
-		<div className="min-h-screen bg-background flex flex-col">
+		<>
 			<Header />
 			<Suspense fallback={null}>
 				<Confetti active={showConfetti} />
 			</Suspense>
-			<div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-				<div className="size-20 rounded-full bg-green-500/10 flex items-center justify-center animate-scale-in">
-					<CheckCircle className="size-10 text-green-500" />
-				</div>
+			<main className="min-h-screen bg-background flex flex-col">
+				<div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
+					<div className="size-20 rounded-full bg-green-500/10 flex items-center justify-center animate-scale-in">
+						<CheckCircle className="size-10 text-green-500" />
+					</div>
 
-				<div className="space-y-2">
-					<h1 className="text-2xl font-bold">تم تأكيد الطلب!</h1>
-					<p className="text-muted-foreground">رقم الطلب</p>
-					<p className="text-3xl font-bold text-orange tabular-nums">
-						<bdi dir="ltr">{displayOrderNo ?? '---'}</bdi>
+					<div className="space-y-2">
+						<h1 className="text-2xl font-bold">تم تأكيد الطلب!</h1>
+						<p className="text-muted-foreground">رقم الطلب</p>
+						<p className="text-3xl font-bold text-orange tabular-nums">
+							<bdi dir="ltr">{displayOrderNo ?? '---'}</bdi>
+						</p>
+					</div>
+
+					<p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
+						سيتم تجهيز طلبك وإرسال إشعار عند الاستلام.
 					</p>
-				</div>
 
-				<p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
-					سيتم تجهيز طلبك وإرسال إشعار عند الاستلام.
-				</p>
-
-				<div className="flex flex-col gap-3 w-full max-w-xs">
-					<Button className="w-full" onClick={handleWhatsApp}>
-						<AnimatedMessageCircle className="ms-2 size-4" />
-						إرسال عبر واتساب
-					</Button>
-					<Link href="/menu">
-						<Button variant="outline" className="w-full">
-							<MotionArrowLeft className="ms-2 size-4" />
-							العودة إلى القائمة
+					<div className="flex flex-col gap-3 w-full max-w-xs">
+						<Button className="w-full" onClick={handleWhatsApp}>
+							<AnimatedMessageCircle className="ms-2 size-4" />
+							إرسال عبر واتساب
 						</Button>
-					</Link>
+						<Link href="/menu">
+							<Button variant="outline" className="w-full">
+								<MotionArrowLeft className="ms-2 size-4" />
+								العودة إلى القائمة
+							</Button>
+						</Link>
+					</div>
 				</div>
-			</div>
 
-			<ShareAfterOrder
-				orderNo={displayOrderNo ?? '---'}
-				open={showShare}
-				onOpenChange={setShowShare}
-			/>
-		</div>
+				<ShareAfterOrder
+					orderNo={displayOrderNo ?? '---'}
+					open={showShare}
+					onOpenChange={setShowShare}
+				/>
+			</main>
+		</>
 	);
 }
 

@@ -175,7 +175,7 @@ export default function AdminSettingsPage() {
       <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
         <AlertTriangle className="size-8 text-destructive" />
       </div>
-      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
       <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى إعدادات النظام. يرجى التواصل مع المدير العام.</p>
     </div>
   )
@@ -189,7 +189,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8 animate-fade-in max-w-3xl">
-      <h2 className="text-2xl font-bold tracking-normal">الإعدادات</h2>
+      <h1 className="text-2xl font-bold tracking-normal">الإعدادات</h1>
 
       {/* Tab navigation */}
       <div role="tablist" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -220,7 +220,7 @@ export default function AdminSettingsPage() {
       {activeTab === "restaurants" && <section>
         <div className="flex items-center gap-2 mb-4">
           <Store className="size-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold">إعدادات المطاعم</h3>
+          <h2 className="text-lg font-semibold">إعدادات المطاعم</h2>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -320,7 +320,7 @@ export default function AdminSettingsPage() {
       {activeTab === "profile" && <section>
         <div className="flex items-center gap-2 mb-4">
           <User className="size-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold">الملف الشخصي</h3>
+          <h2 className="text-lg font-semibold">الملف الشخصي</h2>
         </div>
 
         <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
@@ -332,7 +332,7 @@ export default function AdminSettingsPage() {
                     {profile.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-bold text-lg">{profile.name}</h4>
+                    <h3 className="font-bold text-lg">{profile.name}</h3>
                     <p className="text-sm text-muted-foreground">@{profile.username}</p>
                   </div>
                 </div>
@@ -392,7 +392,7 @@ export default function AdminSettingsPage() {
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Settings className="size-5 text-muted-foreground" />
-            <h3 className="text-lg font-semibold">إعدادات النظام</h3>
+            <h2 className="text-lg font-semibold">إعدادات النظام</h2>
           </div>
           <ConfigEditor />
         </section>

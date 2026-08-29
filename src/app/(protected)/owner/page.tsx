@@ -202,6 +202,9 @@ export default function OwnerDashboard() {
 
 	return (
 		<div className="mx-auto max-w-6xl space-y-6 animate-page-enter">
+			{/* a11y: page h1 — visually hidden so design is untouched */}
+			<h1 className="sr-only">لوحة التحكم</h1>
+
 			{/* Welcome banner (new owners) */}
 			{restaurant && stats && stats.totalOrders === 0 && (
 				<div className="rounded-md bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted/20 dark:to-card border border-orange/20 dark:border-orange/15 p-5 animate-fade-in">
@@ -210,12 +213,12 @@ export default function OwnerDashboard() {
 							<AnimatedSparkles className="size-6 text-white" />
 						</div>
 						<div className="flex-1 min-w-[200px]">
-							<h3 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
+							<h2 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
 						<span className="inline-flex items-center gap-1 text-[10px] font-medium text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">
 							<PlugConnectedIcon className="size-3" />
 							متصل — يستقبل الطلبات
 						</span>
-					</h3>
+					</h2>
 							<p className="text-xs text-muted-foreground mb-3 max-w-md leading-relaxed">
 								ابدأ بإضافة أصنافك في المنيو، ثم شارك الرابط مع زبائنك. أول طلب سيصل هنا مباشرة!
 							</p>
@@ -349,7 +352,7 @@ export default function OwnerDashboard() {
 
 				{/* Quick actions */}
 				<div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm">
-					<h3 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h3>
+					<h2 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h2>
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
 						{[
 							{ href: '/owner/menu', icon: ClipboardList, label: 'إدارة المنيو' },
@@ -385,6 +388,17 @@ export default function OwnerDashboard() {
 				{tab === 'analytics' && stats?.advancedStats && (
 					<AnalyticsTab advancedStats={stats.advancedStats} />
 				)}
+				{/* Empty state instead of a blank page when analytics haven't
+				    loaded yet — previously both panels hid and the body emptied */}
+				{tab === 'analytics' && !stats?.advancedStats && (
+					<div className="flex flex-col items-center justify-center py-16 text-center">
+						<BarChart3 className="size-10 text-muted-foreground/40 mb-4" aria-hidden="true" />
+						<p className="font-semibold text-lg mb-1">لا توجد بيانات تحليلات بعد</p>
+						<p className="text-sm text-muted-foreground max-w-md">
+							ستظهر التحليلات المتقدمة هنا بعد وصول أول الطلبات. جرّب تحديث الصفحة لاحقاً.
+						</p>
+					</div>
+				)}
 			</div>
 
 			{/* Share your menu card */}
@@ -396,7 +410,7 @@ export default function OwnerDashboard() {
 								<AnimatedQrCode className="size-5 text-white" />
 							</div>
 							<div>
-								<h3 className="text-sm font-bold mb-1">شارك منيو مطعمك</h3>
+								<h2 className="text-sm font-bold mb-1">شارك منيو مطعمك</h2>
 								<p className="text-xs text-muted-foreground max-w-md leading-relaxed">
 									امسح رمز QR أو شارك الرابط مع زبائنك ليصبح بإمكانهم الطلب مباشرة
 								</p>
@@ -444,7 +458,7 @@ export default function OwnerDashboard() {
 					<div className="flex items-center justify-between flex-wrap gap-2 mb-3">
 						<div className="flex items-center gap-2">
 							<Award className="size-4 text-orange dark:text-orange" />
-							<h3 className="text-xs font-semibold">برنامج الولاء والإحالات</h3>
+							<h2 className="text-xs font-semibold">برنامج الولاء والإحالات</h2>
 						</div>
 						<Link href="/owner/loyalty">
 							<Button

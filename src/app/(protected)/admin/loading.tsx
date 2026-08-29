@@ -1,6 +1,9 @@
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+
 export default function AdminLoading() {
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 animate-fade-in">
+      <LoadingAnnouncer loading message="جارٍ التحميل..." completedMessage="تم تحميل الصفحة" />
       {/* Header skeleton */}
       <div className="flex items-center gap-3">
         <div className="h-8 w-48 skeleton rounded-lg" />

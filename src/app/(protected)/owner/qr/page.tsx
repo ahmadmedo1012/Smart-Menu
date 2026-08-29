@@ -106,7 +106,7 @@ export default function OwnerQRPage() {
 					<AnimatedQrCode className="size-5 text-[#1a130b]" />
 				</div>
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">رمز QR</h2>
+					<h1 className="text-2xl font-bold tracking-normal">رمز QR</h1>
 					<p className="text-sm text-muted-foreground">شارك المنيو الرقمي لمطعمك</p>
 				</div>
 			</div>
@@ -174,7 +174,7 @@ export default function OwnerQRPage() {
 					{/* Controls */}
 					<div className="p-5 space-y-5">
 						{/* Size selector */}
-						<div>
+						<div role="group" aria-label="حجم رمز QR">
 							<Label className="text-xs text-muted-foreground">حجم رمز QR</Label>
 							<div className="flex gap-2 mt-1.5">
 								{QR_SIZES.map((s) => (
@@ -182,6 +182,7 @@ export default function OwnerQRPage() {
 										key={s.value}
 										type="button"
 										onClick={() => setQrSize(s.value)}
+										aria-pressed={qrSize === s.value}
 										className={cn(
 											'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											qrSize === s.value
@@ -197,9 +198,9 @@ export default function OwnerQRPage() {
 
 						{/* URL */}
 						<div>
-							<Label className="text-xs text-muted-foreground">رابط المنيو</Label>
+							<Label htmlFor="qr-url-input" className="text-xs text-muted-foreground">رابط المنيو</Label>
 							<div className="flex gap-2 mt-1.5">
-								<Input value={url} readOnly dir="ltr" className="text-sm h-11 rounded-xl" />
+								<Input id="qr-url-input" value={url} readOnly dir="ltr" className="text-sm h-11 rounded-xl" />
 								<Button
 									variant="outline"
 									size="icon"

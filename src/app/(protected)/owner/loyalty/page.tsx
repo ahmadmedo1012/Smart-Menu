@@ -329,7 +329,7 @@ export default function OwnerLoyaltyPage() {
 			</Button>
 			<div className="flex items-center justify-between flex-wrap gap-4">
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">برنامج الولاء</h2>
+					<h1 className="text-2xl font-bold tracking-normal">برنامج الولاء</h1>
 					<p className="text-sm text-muted-foreground mt-1">
 						إدارة برنامج الولاء والإحالات والمكافآت
 					</p>
@@ -383,9 +383,9 @@ export default function OwnerLoyaltyPage() {
 				/>
 
 				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
-					<h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+					<h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
 						<Award className="size-4 text-muted-foreground" /> الإحالات حسب الحالة
-					</h3>
+					</h2>
 					<div className="space-y-3">
 						{[
 							{ label: 'معلق', count: rbs.pending, color: 'bg-orange' },
@@ -406,9 +406,9 @@ export default function OwnerLoyaltyPage() {
 				</div>
 
 				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
-					<h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+					<h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
 						<Share2 className="size-4 text-muted-foreground" /> مشاركة رابط الإحالة
-					</h3>
+					</h2>
 					<div className="flex flex-col items-center gap-3">
 						<ReferralQR url={ownerRefUrl} />
 						<div className="w-full flex gap-2">
@@ -445,7 +445,7 @@ export default function OwnerLoyaltyPage() {
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<Gift className="size-4 text-muted-foreground" />
-							<h3 className="text-sm font-semibold">الإحالات</h3>
+							<h2 className="text-sm font-semibold">الإحالات</h2>
 						</div>
 						<Badge
 							variant="outline"
@@ -461,7 +461,7 @@ export default function OwnerLoyaltyPage() {
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<AnimatedClock className="size-4 text-muted-foreground" />
-							<h3 className="text-sm font-semibold">آخر المعاملات</h3>
+							<h2 className="text-sm font-semibold">آخر المعاملات</h2>
 						</div>
 					</div>
 					<TransactionTable transactions={stats?.recentTransactions ?? []} />
@@ -473,7 +473,7 @@ export default function OwnerLoyaltyPage() {
 				<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 					<div className="flex items-center gap-2">
 						<Award className="size-4 text-muted-foreground" />
-						<h3 className="text-sm font-semibold">توزيع المستويات</h3>
+						<h2 className="text-sm font-semibold">توزيع المستويات</h2>
 					</div>
 					<Badge
 						variant="outline"

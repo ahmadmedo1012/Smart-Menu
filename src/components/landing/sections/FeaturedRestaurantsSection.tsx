@@ -4,17 +4,21 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import {Phone, Store} from 'lucide-react';
+import { Phone, Store } from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import AnimatedStar from '@/components/ui/star-icon';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
+import { Button } from '@/components/ui/button';
 import { SectionContainer } from '@/components/ui/SectionContainer';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import type { FeaturedRestaurant } from '@/lib/landing';
 
 type Props = {
 	restaurants: FeaturedRestaurant[] | null;
+	/** Present only after a fetch failure — renders a retry affordance under the skeleton. */
+	onRetry?: () => void;
 };
 
 const AUTOPLAY_INTERVAL = 5000;
@@ -22,7 +26,7 @@ const AUTOPLAY_INTERVAL = 5000;
 /* ponytail: fast cubic-bezier instead of spring — snappier, no bounce tail */
 const transition = { x: { ease: 'easeOut' as const, duration: 0.4 }, opacity: { duration: 0.25 } };
 
-export function FeaturedRestaurantsSection({ restaurants }: Props) {
+export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 	const [[slide, dir], setSlide] = useState([0, 0]);
 	const [paused, setPaused] = useState(false);
 	const timer = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -59,6 +63,14 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 				/>
 				<div className="max-w-[1060px] mx-auto px-1">
 					<div className="h-[380px] sm:h-[460px] rounded-2xl sm:rounded-3xl bg-card/50 animate-pulse" />
+					{onRetry && (
+						<div className="mt-4 flex justify-center">
+							<Button variant="ghost" size="sm" onClick={onRetry}>
+								<AnimatedRefreshCw className="size-3.5" aria-hidden="true" />
+								إعادة المحاولة
+							</Button>
+						</div>
+					)}
 				</div>
 			</SectionContainer>
 		);
@@ -211,7 +223,7 @@ export function FeaturedRestaurantsSection({ restaurants }: Props) {
 												عرض المنيو
 												{/* HeroSection:95 pattern — ArrowRight + rtl:rotate-180 keeps glyph and hover
 												nudge coherent in both directions (translate-x is physical in TW4) */}
-											<MotionArrowRight className="size-4 transition-transform duration-200 group-hover/link:translate-x-1 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
+												<MotionArrowRight className="size-4 transition-transform duration-200 group-hover/link:translate-x-1 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
 											</span>
 										</motion.div>
 									</div>

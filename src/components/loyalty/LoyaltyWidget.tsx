@@ -174,6 +174,7 @@ export function LoyaltyWidget({
 							<button
 								type="button"
 								onClick={handleCheck}
+								aria-label="تحقق"
 								disabled={loading}
 								className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md transition-[box-shadow] outline-none hover:shadow-lg focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 disabled:opacity-50 shrink-0"
 							>

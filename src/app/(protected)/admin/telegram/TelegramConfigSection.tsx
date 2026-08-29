@@ -41,7 +41,7 @@ export function TelegramConfigSection({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <Bot className="size-5 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">إعدادات البوت</h3>
+        <h2 className="text-lg font-semibold">إعدادات البوت</h2>
         <Badge variant={config.isActive ? "default" : "secondary"} className="ms-auto">
           {config.isActive ? "نشط" : "غير نشط"}
         </Badge>

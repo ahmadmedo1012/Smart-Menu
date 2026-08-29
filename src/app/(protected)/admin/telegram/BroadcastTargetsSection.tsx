@@ -50,7 +50,7 @@ export function BroadcastTargetsSection({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <AnimatedSend className="size-5 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">جهات الإرسال (Broadcast Targets)</h3>
+        <h2 className="text-lg font-semibold">جهات الإرسال (Broadcast Targets)</h2>
       </div>
       <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
         <div className="p-5 space-y-4">

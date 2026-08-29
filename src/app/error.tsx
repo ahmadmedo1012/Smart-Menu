@@ -17,10 +17,10 @@ export default function Error({
     logError(error?.message || "Client error")
   }, [error])
 
-  return (
+return (
     <>
       <Header />
-      <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+      <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 via-background to-primary/5" />
         <div className="absolute top-10 right-10 size-56 rounded-full bg-destructive/5 blur-3xl animate-float" />
         <div className="absolute bottom-10 left-10 size-64 rounded-full bg-primary/5 blur-3xl animate-float-delayed" />
@@ -37,17 +37,17 @@ export default function Error({
           <p className="text-lg text-muted-foreground max-w-md mb-8 leading-relaxed">يرجى المحاولة مرة أخرى</p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="text-base px-8 h-12" onClick={() => reset()}>
-              إعادة المحاولة
+             重新尝试
             </Button>
             <a href="/">
               <Button variant="outline" size="lg" className="text-base px-8 h-12">
-                العودة للرئيسية
+                العودة لل_principal
               </Button>
             </a>
           </div>
         </div>
         <p className="relative z-10 mt-16 text-xs text-muted-foreground/50 select-none">الربط الذكي &mdash; Smart Menu</p>
-      </div>
+      </main>
     </>
   )
 }

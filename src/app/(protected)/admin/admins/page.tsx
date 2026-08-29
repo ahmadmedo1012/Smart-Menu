@@ -198,7 +198,7 @@ export default function AdminAdminsPage() {
       <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
         <AlertTriangle className="size-8 text-destructive" />
       </div>
-      <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
+      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
       <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
     </div>
   )
@@ -241,10 +241,10 @@ export default function AdminAdminsPage() {
 
       {/* Super Admins Section */}
       <section>
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Shield className="size-5 text-info" />
           المدراء العامون
-        </h3>
+        </h2>
         {superAdmins.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
             <Shield className="size-10 text-muted-foreground/50" />
@@ -276,10 +276,10 @@ export default function AdminAdminsPage() {
 
       {/* Sub Admins Section */}
       <section>
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <UserPlus className="size-5 text-orange" />
           المسؤولون
-        </h3>
+        </h2>
         {subAdmins.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
             <UserPlus className="size-10 text-muted-foreground/50" />

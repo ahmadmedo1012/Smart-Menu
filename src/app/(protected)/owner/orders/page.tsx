@@ -360,7 +360,7 @@ export default function OwnerOrdersPage() {
 
 			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-2xl font-bold tracking-normal">الطلبات</h2>
+					<h1 className="text-2xl font-bold tracking-normal">الطلبات</h1>
 					<p className="text-sm text-muted-foreground">
 						{toArabicNumber(filtered.length)} طلب
 					</p>
@@ -578,6 +578,7 @@ function OrderCard({
 						<div className="flex items-center gap-2 flex-wrap">
 							<p className="font-bold">{order.orderNo}</p>
 							<Badge className={cn('text-xs', config.badgeClassName)}>
+								<StatusIcon className="size-3" aria-hidden="true" />
 								{config.label}
 							</Badge>
 						</div>

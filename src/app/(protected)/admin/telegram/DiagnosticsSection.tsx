@@ -94,7 +94,7 @@ export function DiagnosticsSection({
 			<section>
 				<div className="flex items-center gap-2 mb-4">
 					<AnimatedUserCheck className="size-5 text-muted-foreground" />
-					<h3 className="text-lg font-semibold">الموافقون على الاشتراكات</h3>
+					<h2 className="text-lg font-semibold">الموافقون على الاشتراكات</h2>
 				</div>
 				<div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
 					<div className="p-5 space-y-4">
@@ -188,7 +188,7 @@ export function DiagnosticsSection({
 				<section>
 					<div className="flex items-center gap-2 mb-4">
 						<Stethoscope className="size-5 text-muted-foreground" />
-						<h3 className="text-lg font-semibold">نتيجة التشخيص</h3>
+						<h2 className="text-lg font-semibold">نتيجة التشخيص</h2>
 					</div>
 					<div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
 						<div className="p-5 space-y-3">
@@ -236,7 +236,7 @@ export function DiagnosticsSection({
 							)}
 							{diagnose.broadcastTargets && diagnose.broadcastTargets.length > 0 && (
 								<div>
-									<h4 className="text-sm font-semibold mb-2">نتائج جهات الإرسال</h4>
+									<h3 className="text-sm font-semibold mb-2">نتائج جهات الإرسال</h3>
 									<div className="space-y-2">
 										{diagnose.broadcastTargets.map((t) => (
 											<div

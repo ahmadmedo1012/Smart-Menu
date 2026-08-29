@@ -19,7 +19,7 @@ const SUGGESTIONS = [
 
 export default function NotFound() {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+    <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
       <Header />
       <div className="fixed start-4 top-20 z-50">
         <ThemeToggle />
@@ -36,26 +36,26 @@ export default function NotFound() {
           </div>
           <div className="absolute -inset-2 rounded-full bg-primary/10 blur-xl -z-10" />
         </div>
-        <div className="text-8xl md:text-9xl font-bold text-foreground leading-none mb-4 select-none">404</div>
+        <div className="text-8xl md:text-9xl font-bold text-foreground leading-none mb-4 select-none" aria-hidden="true">404</div>
         <h1 className="text-3xl md:text-4xl font-bold mb-4">الصفحة غير موجودة</h1>
         <p className="text-lg text-muted-foreground max-w-md mb-6 leading-relaxed">
           الرابط الذي تبحث عنه غير صحيح أو تم نقله
         </p>
 
         {/* Suggestions */}
-        <div className="flex flex-wrap justify-center gap-3 mb-8">
+        <nav aria-label="اقتراحات التنقل" className="flex flex-wrap justify-center gap-3 mb-8">
           {SUGGESTIONS.map((s) => {
             const Icon = s.icon
             return (
               <Link key={s.href} href={s.href}>
                 <Button variant="outline" size="sm" className="gap-2 h-10">
-                  <Icon className="size-4" />
+                  <Icon className="size-4" aria-hidden="true" />
                   {s.label}
                 </Button>
               </Link>
             )
           })}
-        </div>
+        </nav>
 
         <div className="flex flex-col sm:flex-row gap-4">
           <Link href="/">
@@ -64,11 +64,11 @@ export default function NotFound() {
             </Button>
           </Link>
         </div>
-      </div>
 
-      <p className="relative z-10 mt-16 text-xs text-muted-foreground/50 select-none">
-        الربط الذكي &mdash; Smart Menu
-      </p>
-    </div>
+        <p className="mt-16 text-xs text-muted-foreground/50 select-none">
+          الربط الذكي &mdash; Smart Menu
+        </p>
+      </div>
+    </main>
   )
 }

@@ -216,6 +216,9 @@ export default function OwnerSettingsPage() {
 		<div className="max-w-2xl space-y-5 animate-page-enter">
 			<BackButton href="/owner" />
 
+			{/* a11y: page h1 — visually hidden so design is untouched */}
+			<h1 className="sr-only">إعدادات المطعم</h1>
+
 			{/* Plan card */}
 			<div className="rounded-md bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
 				<div className="p-5">
@@ -437,8 +440,9 @@ export default function OwnerSettingsPage() {
 				</div>
 				<div className="space-y-3.5">
 					<div>
-						<Label className="text-xs">اسم المطعم</Label>
+						<Label htmlFor="restaurant-name" className="text-xs">اسم المطعم</Label>
 						<Input
+							id="restaurant-name"
 							value={form.name}
 							onChange={(e) => {
 								setForm({ ...form, name: e.target.value });
@@ -455,8 +459,9 @@ export default function OwnerSettingsPage() {
 						)}
 					</div>
 					<div>
-						<Label className="text-xs">الوصف</Label>
+						<Label htmlFor="restaurant-description" className="text-xs">الوصف</Label>
 						<Textarea
+							id="restaurant-description"
 							value={form.description}
 							onChange={(e) => setForm({ ...form, description: e.target.value })}
 							className="mt-1 rounded-xl text-sm"
@@ -465,8 +470,9 @@ export default function OwnerSettingsPage() {
 					</div>
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<Label className="text-xs">الهاتف</Label>
+							<Label htmlFor="restaurant-phone" className="text-xs">الهاتف</Label>
 							<Input
+								id="restaurant-phone"
 								dir="ltr"
 								value={form.phone}
 								onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -474,8 +480,9 @@ export default function OwnerSettingsPage() {
 							/>
 						</div>
 						<div>
-							<Label className="text-xs">واتساب</Label>
+							<Label htmlFor="restaurant-whatsapp" className="text-xs">واتساب</Label>
 							<Input
+								id="restaurant-whatsapp"
 								dir="ltr"
 								value={form.whatsapp}
 								onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
@@ -484,8 +491,9 @@ export default function OwnerSettingsPage() {
 						</div>
 					</div>
 					<div>
-						<Label className="text-xs">البريد</Label>
+						<Label htmlFor="restaurant-email" className="text-xs">البريد</Label>
 						<Input
+							id="restaurant-email"
 							type="email"
 							dir="ltr"
 							value={form.email}
@@ -495,16 +503,18 @@ export default function OwnerSettingsPage() {
 					</div>
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<Label className="text-xs">العنوان</Label>
+							<Label htmlFor="restaurant-address" className="text-xs">العنوان</Label>
 							<Input
+								id="restaurant-address"
 								value={form.address}
 								onChange={(e) => setForm({ ...form, address: e.target.value })}
 								className="h-10 rounded-xl mt-1 text-sm"
 							/>
 						</div>
 						<div>
-							<Label className="text-xs">ساعات العمل</Label>
+							<Label htmlFor="restaurant-hours" className="text-xs">ساعات العمل</Label>
 							<Input
+								id="restaurant-hours"
 								value={form.workingHours}
 								onChange={(e) => setForm({ ...form, workingHours: e.target.value })}
 								placeholder="8:00 صباحاً - 12:00 منتصف الليل"

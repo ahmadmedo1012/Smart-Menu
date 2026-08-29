@@ -17,7 +17,7 @@ export default function GlobalError({
   return (
     <html lang="ar" dir="rtl">
       <body>
-        <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-background px-6">
+        <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-background px-6">
           <div className="relative z-10 flex flex-col items-center text-center animate-fade-in">
             <div className="size-24 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-8">
               <AlertTriangle className="size-12 text-destructive" />
@@ -31,7 +31,7 @@ export default function GlobalError({
               تحديث الصفحة
             </button>
           </div>
-        </div>
+        </main>
       </body>
     </html>
   )
