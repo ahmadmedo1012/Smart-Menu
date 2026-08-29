@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { createHash } from 'crypto';
+import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, notFound, handleError } from '@/lib/api-helpers';
@@ -9,16 +9,8 @@ import { createDbRateLimiter } from '@/lib/rate-limit';
 
 const orderDetailDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
-// Mirrors POST /api/referrals/claim fingerprinting — 16 hex chars of the
-// SHA-256 digest — so completion can recompute the same key over the
-// customer's phone and match rows created by the anonymous claim flow.
-function referralFingerprint(s: string): string {
-	return createHash('sha256').update(s).digest('hex').slice(0, 16);
-}
-
-// Digits-only phone comparison (same normalization as loyalty/referral/route.ts).
-function normalizePhone(p: string): string {
-	return p.replace(/[^\d]/g, '').replace(/^00/, '');
+function generateReferralCode(): string {
+	return randomBytes(4).toString('hex').toUpperCase();
 }
 
 const updateSchema = z.object({
@@ -202,6 +194,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 						create: {
 							customerPhone: effective.customerPhone,
 							restaurantId: effective.restaurantId,
+							referralCode: generateReferralCode(),
 							points: ptsEarned,
 							totalOrders: 1,
 							totalSpent: effective.total,

@@ -77,6 +77,7 @@ export const useCart = create<CartStore>()(
 		(set, get) => ({
 			items: [],
 			lastRemoved: null,
+			pendingMismatch: null,
 			customerName: '',
 			customerPhone: '',
 			notes: '',
@@ -159,7 +160,7 @@ export const useCart = create<CartStore>()(
 			setOrderNotes: (n) => set({ notes: n }),
 			setPickupType: (t) => set({ pickupType: t }),
 			setRestaurantId: (id) => set({ restaurantId: id }),
-			setPendingMismatch: (m) => set({ pendingMismatch: m }),
+			setPendingMismatch: (m: CartStore['pendingMismatch']) => set({ pendingMismatch: m }),
 
 			clearCart: () =>
 				set({
