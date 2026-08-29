@@ -21,11 +21,12 @@ const heroItem = {
 	}),
 };
 
-export function HeroSection({ totalRestaurants }: { totalRestaurants?: number }) {
+export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?: number; isLoading?: boolean }) {
 	const reduceMotion = useReducedMotion();
 	// Real count from fetchPublicStats (never hard-code marketing numbers —
 	// round 82: "أكثر من 500 مطعم" fabricated while API returned 136).
 	const trustCount = totalRestaurants && totalRestaurants > 0 ? totalRestaurants : 0;
+	const showTrustBadge = !isLoading && trustCount > 0;
 
 	return (
 		<>
@@ -101,10 +102,18 @@ export function HeroSection({ totalRestaurants }: { totalRestaurants?: number })
 							</Button>
 						</Link>
 					</motion.div>
-					<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
-						<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
-						أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
-					</motion.div>
+					{/* Trust badge — shows real count, loading skeleton, or hidden when unavailable */}
+					{isLoading ? (
+						<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 mt-6">
+							<span className="size-1.5 rounded-full bg-orange/40 animate-pulse" />
+							<span className="h-3 w-24 rounded bg-orange/20 animate-pulse" />
+						</motion.div>
+					) : showTrustBadge ? (
+						<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
+							<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
+							أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
+						</motion.div>
+					) : null}
 				</motion.div>
 				}
 			>

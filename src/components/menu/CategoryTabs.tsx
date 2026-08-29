@@ -1,6 +1,7 @@
 "use client"
 
 import { motion, LayoutGroup } from "motion/react"
+import { useRef, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import {
@@ -85,6 +86,15 @@ export function CategoryTabs({
   itemCounts,
   className,
 }: CategoryTabsProps) {
+  const tabsRef = useRef<HTMLDivElement>(null)
+
+  const handleSelect = useCallback((id: number | null) => {
+    onSelect(id)
+    setTimeout(() => {
+      tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }, 50)
+  }, [onSelect])
+
   return (
     <LayoutGroup>
       {/* a11y decision: these are FILTER buttons, not ARIA tabs — selecting one
@@ -94,6 +104,7 @@ export function CategoryTabs({
           (APG "toggle button" filter pattern), which screen readers announce as
           "pressed/not pressed" without the tab-panel contract. */}
       <div
+        ref={tabsRef}
         role="group"
         aria-label="تصفية الأصناف حسب القسم"
         aria-describedby="category-tabs-hint"
@@ -113,7 +124,7 @@ export function CategoryTabs({
           label="الكل"
           count={itemCounts.get(null) ?? 0}
           isActive={activeCategory === null}
-          onClick={() => onSelect(null)}
+          onClick={() => handleSelect(null)}
         />
         {categories.map((cat) => (
           <TabButton
@@ -122,7 +133,7 @@ export function CategoryTabs({
             icon={cat.icon}
             count={itemCounts.get(cat.id) ?? 0}
             isActive={activeCategory === cat.id}
-            onClick={() => onSelect(cat.id)}
+            onClick={() => handleSelect(cat.id)}
           />
         ))}
       </div>
