@@ -77,8 +77,6 @@ function readSSE(path, opts = {}) {
   });
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
 async function main() {
   console.log('\n=== SSE Comprehensive Testing: ' + BASE + ' ===\n');
 

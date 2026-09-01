@@ -1,9 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { ActionSearchBar } from "@/components/ui/action-search-bar"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
-import {} from 'lucide-react';
 import { MotionMenu } from '@/components/ui/motion-icons';
 
 interface LayoutHeaderProps {
@@ -14,29 +12,11 @@ interface LayoutHeaderProps {
 }
 
 export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, role = "admin", menuOpen = false }: LayoutHeaderProps) {
-  const [visible, setVisible] = useState(true)
-
-  useEffect(() => {
-    let lastScrollY = window.scrollY
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setVisible(false)
-      } else {
-        setVisible(true)
-      }
-      lastScrollY = currentScrollY
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
   return (
     <header
-      className="sticky top-0 z-30 border-b border-border/30 bg-background/70 backdrop-blur-2xl transition-transform duration-300"
-      style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
+      className="sticky top-0 z-30 border-b border-border/60 bg-background/92 backdrop-blur-xl"
     >
-      <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
+      <div className="flex h-16 items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <button
             type="button"

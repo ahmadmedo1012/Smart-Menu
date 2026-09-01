@@ -29,9 +29,7 @@ test("subs: plan cap — free account cannot exceed 1 menu (403 on 2nd)", async 
   test.setTimeout(loginBudget());
   await login(page, OWNER, PASS);
   // owner is Pro (3 menus) — verify a 4th menu is rejected with clear message
-  const body = await page.goto("/owner/menus", { waitUntil: "networkidle" }).then(() =>
-    page.locator("body").innerText()
-  );
+  await page.goto("/owner/menus", { waitUntil: "networkidle" });
   // ensure authenticated before API (retry login if redirected)
   if (page.url().includes("/login")) {
     await login(page, OWNER, PASS);

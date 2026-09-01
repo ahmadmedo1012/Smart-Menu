@@ -72,7 +72,7 @@ export function RestaurantSwitcher() {
 			<button
 				type="button"
 				onClick={() => setOpen((o) => !o)}
-				className="flex w-full items-center gap-2 rounded-md border border-border/30 bg-background/60 px-3 py-2 text-start hover:bg-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+				className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-border/60 bg-background px-3 py-2 text-start transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 				aria-expanded={open}
 			>
 				<Store className="size-4 shrink-0 text-primary" />
@@ -83,7 +83,7 @@ export function RestaurantSwitcher() {
 			</button>
 
 			{open && (
-				<div className="absolute z-30 mt-1 w-[calc(100%-24px)] rounded-md border border-border/30 bg-card shadow-xl">
+				<div className="absolute z-30 mt-1 w-[calc(100%-24px)] overflow-hidden rounded-lg border border-border/70 bg-popover shadow-lg">
 					{restaurants.map((r) => (
 						<button
 							key={r.id}

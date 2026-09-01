@@ -108,7 +108,7 @@ export default function OwnerMenuPage() {
 			const j = await r.json();
 			const cats = j.events ?? j.data ?? j;
 			setCategories(Array.isArray(cats) ? cats : []);
-		} catch (e) {
+		} catch {
 			setError('فشل تحميل التصنيفات');
 			premiumToast('error', 'فشل تحميل التصنيفات');
 			/* ponytail: auto-retry once after 3s */ setTimeout(() => {
@@ -427,8 +427,7 @@ export default function OwnerMenuPage() {
 												>
 													<GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100" />
 													{item.image ? (
-														// eslint-disable-next-line @next/next/no-img-element
-														<img
+									<img
 															src={item.image}
 															alt={item.name}
 															loading="lazy"

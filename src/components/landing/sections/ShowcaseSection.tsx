@@ -20,9 +20,9 @@ export function ShowcaseSection() {
 	return (
 		<SectionContainer ref={ref}>
 			<SectionHeader
-				eyebrow="المنيو الذكي في العمل"
-				title="شاهد منيو مطعمك النابض"
-				subtitle="منيو رقمي احترافي صُمم ليحوّل الزائر إلى طلب — كل تفصيلة في مكانها الصحيح"
+				align="start"
+				title="منيو يشرح نفسه"
+				subtitle="تجربة رقمية واضحة تعرض أصنافك وتوصل الطلب إلى واتساب دون خطوات مربكة."
 			/>
 
 			<motion.div
@@ -31,22 +31,20 @@ export function ShowcaseSection() {
 				viewport={{ once: true, margin: "-60px" }}
 				transition={springGentle}
 			>
-				<div className="relative bg-black/5 dark:bg-white/5 p-1.5 sm:p-2 rounded-[2rem] ring-1 ring-black/5 dark:ring-white/10">
-					<div className="relative overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2rem-0.375rem)] sm:rounded-[calc(2rem-0.5rem)]">
+				<div className="relative bg-foreground/[0.035] dark:bg-white/[0.045] p-1.5 sm:p-2 rounded-2xl ring-1 ring-foreground/10 dark:ring-white/10">
+					<div className="relative overflow-hidden rounded-[calc(1rem-0.375rem)] sm:rounded-[calc(1rem-0.5rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
 						<motion.div style={{ scale: imageScale, y: imageY }}>
 							<Image
 								src="/main21.webp"
 								alt="معاينة المنيو الرقمي الذكي من الربط الذكي"
 								width={1536}
 								height={1024}
-								className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover"
+								className="w-full h-[360px] sm:h-[460px] md:h-[560px] object-cover"
 								priority
 							/>
 						</motion.div>
 
-						<div className="absolute inset-0 pointer-events-none"
-							style={{ background: "radial-gradient(ellipse at center, transparent 50%, var(--background) 100%)" }}
-						/>
+						<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-background/25" />
 					</div>
 				</div>
 

@@ -7,8 +7,6 @@
 import { test, expect } from "@playwright/test";
 
 const MENU = "/menu/al-waha-cafe-demo";
-const ts = Date.now().toString().slice(-8);
-
 test("P1: real customer order journey", async ({ page }) => {
   test.setTimeout(90000);
   const consoleErrors: string[] = [];

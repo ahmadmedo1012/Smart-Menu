@@ -89,10 +89,10 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 			viewport={{ once: true, margin: "-40px" }}
 			transition={{ ...springDefault, delay: index * 0.08 }}
 			className={cn(
-				'group relative flex flex-col rounded-2xl border p-6 sm:p-8 transition-[transform,translate,scale,rotate,border-color,box-shadow] duration-500 hover:-translate-y-1',
+				'group relative flex flex-col rounded-xl border p-6 transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 sm:p-8',
 				isPopular
-					? 'border-orange/40 bg-card shadow-lg shadow-orange/15 dark:shadow-orange/10'
-					: 'border-border/50 bg-card hover:border-orange-muted/60 hover:shadow-lg hover:shadow-orange/10'
+					? 'border-orange/45 bg-card shadow-md shadow-orange/10'
+					: 'border-border/60 bg-card hover:border-orange/35 hover:shadow-md'
 			)}
 		>
 			{meta.badge && (
@@ -106,24 +106,17 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 				</div>
 			)}
 
-			<div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
-				<div className="absolute inset-0 z-0 w-[300%] translate-x-2/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-out group-hover:-translate-x-1/3 dark:via-white/10" />
-			</div>
-
-			{isPopular && (
-				<div className="absolute bottom-0 inset-x-0 h-1/2 rounded-b-2xl bg-gradient-to-t from-orange/5 to-transparent pointer-events-none" />
-			)}
-
 			<div className="relative z-10 flex flex-col flex-1">
 				<div className="flex items-center gap-3 mb-4">
 					<div
 						className={cn(
-							'size-11 rounded-sm bg-gradient-to-br flex items-center justify-center shadow-lg',
-							meta.gradient,
-							meta.glow
+							'flex size-11 items-center justify-center rounded-lg border',
+							isFree
+								? 'border-border bg-muted text-muted-foreground'
+								: 'border-orange/20 bg-orange/10 text-orange'
 						)}
 					>
-						<Icon className={cn('size-5', isFree ? 'text-white' : 'text-[#1a130b]')} />
+						<Icon className="size-5" />
 					</div>
 					<div>
 						<h2 className="text-base sm:text-lg font-bold">{plan.nameAr}</h2>
@@ -162,7 +155,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					].map(([label, val]) => (
 						<div
 							key={label as string}
-							className="flex items-center justify-between rounded-sm bg-muted/40 px-3 py-2 text-sm"
+							className="flex items-center justify-between rounded-lg bg-muted/45 px-3 py-2 text-sm"
 						>
 							<span className="text-muted-foreground">{label as string}</span>
 							<span className="font-semibold">{val as string}</span>
@@ -174,7 +167,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					{plan.features.map((feature: string, i: number) => (
 						<div
 							key={i}
-							className="flex items-start gap-3 text-sm transition-transform duration-300 hover:translate-x-[-4px] rtl:hover:translate-x-[4px]"
+							className="flex items-start gap-3 text-sm"
 						>
 							<div className="relative shrink-0 mt-0.5">
 								<MotionCheck className="size-4 text-orange transition-transform duration-300 group-hover/feature:scale-110" />
@@ -231,16 +224,13 @@ export default function PricingPage() {
 	}, [loadPlans]);
 
 	return (
-		<div className="min-h-screen bg-background overflow-x-clip">
+		<div className="min-h-dvh overflow-x-clip bg-background">
 			<Header />
 
-			<section className="relative pt-20 sm:pt-24 pb-12 sm:pb-16 text-center overflow-hidden">
-				<div className="absolute inset-0 bg-gradient-to-b from-orange/5 via-transparent to-transparent" />
-				<div className="absolute top-20 left-10 size-48 sm:size-64 rounded-full bg-orange-muted blur-3xl" />
-				<div className="absolute bottom-20 right-10 size-48 sm:size-80 rounded-full bg-orange/5 blur-3xl" />
+			<section className="relative border-b border-border/50 pb-16 pt-24 text-center sm:pb-20 sm:pt-28">
 
 				<div className="relative z-10 max-w-3xl mx-auto px-4">
-					<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-orange-muted text-orange text-sm mb-6">
+					<div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange/20 bg-orange/8 px-4 py-1.5 text-sm text-orange">
 						<AnimatedSparkles className="size-4" />
 						خطط تناسب جميع الأحجام
 					</div>
@@ -249,13 +239,13 @@ export default function PricingPage() {
 						ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
 					</p>
 
-					<div className="inline-flex items-center gap-3 mt-6 sm:mt-8">
+					<div className="mt-6 inline-flex items-center gap-1 rounded-lg border border-border/60 bg-card p-1 sm:mt-8">
 						<button
 							type="button"
 							onClick={() => setYearly(false)}
 							className={cn(
-								'px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
-								yearly ? 'text-muted-foreground' : 'text-orange bg-orange-muted'
+								'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
+								yearly ? 'text-muted-foreground' : 'bg-orange-muted text-orange'
 							)}
 						>
 							شهري
@@ -267,8 +257,8 @@ export default function PricingPage() {
 							type="button"
 							onClick={() => setYearly(true)}
 							className={cn(
-								'px-4 py-1.5 rounded-sm text-xs sm:text-sm font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
-								yearly ? 'text-orange bg-orange-muted' : 'text-muted-foreground'
+								'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
+								yearly ? 'bg-orange-muted text-orange' : 'text-muted-foreground'
 							)}
 						>
 							سنوي ·<span className="ms-1 text-xs text-orange font-bold">وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
@@ -354,7 +344,7 @@ export default function PricingPage() {
 						].map((faq, i) => (
 							<details
 								key={i}
-								className="group rounded-sm border border-border/40 bg-card open:border-border/60 open:shadow-sm transition-[border-color,box-shadow] duration-300 overflow-hidden"
+								className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color,box-shadow] duration-200 open:border-orange/25 open:shadow-sm"
 							>
 								<summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-orange/60">
 																	{faq.q}
@@ -377,10 +367,8 @@ export default function PricingPage() {
 
 			<section className="pb-16 sm:pb-24">
 				<div className="max-w-2xl mx-auto px-4 text-center">
-					<div className="glass-strong rounded-sm p-6 sm:p-8 md:p-12 relative overflow-hidden transition-[transform,translate,scale,rotate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-						<div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-orange to-transparent rounded-full" />
-						<div className="absolute -top-8 -right-8 size-24 sm:size-32 rounded-full bg-gradient-to-br from-orange/10 to-transparent blur-2xl pointer-events-none" />
-						<div className="absolute -bottom-8 -left-8 size-24 sm:size-28 rounded-full bg-gradient-to-tr from-orange/10 to-transparent blur-2xl pointer-events-none" />
+					<div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-6 shadow-sm sm:p-8 md:p-12">
+						<div className="absolute inset-x-0 top-0 mx-auto h-1 w-20 bg-orange" />
 						<h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
 							مستعد لانطلاق مطعمك الرقمي؟
 						</h2>

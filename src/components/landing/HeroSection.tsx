@@ -34,28 +34,12 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 				className="absolute inset-0 -z-10 overflow-clip pointer-events-none"
 				aria-hidden="true"
 			>
-				{/* Kitchen glow — warm ember bowl behind the phone (colourway: warm flame/ember/saffron) */}
+				{/* One restrained warmth layer keeps the phone as the focal point. */}
 				<div
-					className="absolute top-[8%] left-1/2 -translate-x-1/2 size-[min(80vmin,720px)] rounded-full"
+					className="absolute top-[12%] left-1/2 -translate-x-1/2 size-[min(72vmin,680px)] rounded-full"
 					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.20) 0%, oklch(0.55 0.19 45 / 0.06) 48%, transparent 72%)",
-						filter: "blur(70px)",
-					}}
-				/>
-				{/* Saffron mist — upper atmosphere warmth */}
-				<div
-					className="absolute top-0 end-0 size-[50vmin] rounded-full"
-					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.78 0.14 70 / 0.10) 0%, transparent 70%)",
-						filter: "blur(110px)",
-					}}
-				/>
-				{/* Ember floor wash — ground the hero, haze along the base */}
-				<div
-					className="absolute bottom-0 start-1/4 size-[56vmin] rounded-full"
-					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.44 0.17 52 / 0.10) 0%, transparent 70%)",
-						filter: "blur(100px)",
+						background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.12) 0%, oklch(0.55 0.19 45 / 0.035) 48%, transparent 72%)",
+						filter: "blur(54px)",
 					}}
 				/>
 			</div>
@@ -74,7 +58,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.1, ...springDefault }}
 					>
-						<Eyebrow className="mb-5">منيو رقمي · طلب مباشر على واتساب</Eyebrow>
+					<Eyebrow className="mb-5">منيو رقمي، طلب مباشر على واتساب</Eyebrow>
 					</motion.div>
 					<motion.h1
 						variants={heroItem}
@@ -86,11 +70,10 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 							<span className="text-gradient-orange">الطلبات تصل</span> على واتساب
 						</span>
 					</motion.h1>
-					<motion.div variants={heroItem} custom={1} className="mx-auto mt-5 w-16 h-0.5 rounded-full bg-gradient-to-r from-orange/0 via-orange to-orange/0" />
-					<motion.p variants={heroItem} custom={2} className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8">
-						هل أنت مستعد لبدء رحلة تحولية لمطعمك؟ منيو رقمي احترافي مع طلب عبر واتساب.
+					<motion.p variants={heroItem} custom={1} className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8">
+						أنشئ منيو واضحاً، استقبل الطلبات على واتساب، وتابع أداء مطعمك من لوحة واحدة.
 					</motion.p>
-					<motion.div variants={heroItem} custom={3} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
+					<motion.div variants={heroItem} custom={2} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
 						<Link href="/subscribe">
 							<Button variant="flame" size="lg" className="text-sm sm:text-base">
 								ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
@@ -104,12 +87,12 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 					</motion.div>
 					{/* Trust badge — shows real count, loading skeleton, or hidden when unavailable */}
 					{isLoading ? (
-						<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 mt-6">
+						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 mt-6">
 							<span className="size-1.5 rounded-full bg-orange/40 animate-pulse" />
 							<span className="h-3 w-24 rounded bg-orange/20 animate-pulse" />
 						</motion.div>
 					) : showTrustBadge ? (
-						<motion.div variants={heroItem} custom={4} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
+						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
 							<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
 							أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
 						</motion.div>

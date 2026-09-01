@@ -26,6 +26,7 @@ import {
 } from '@/lib/order-status';
 import { LivePollIndicator } from '@/components/orders/LivePollIndicator';
 import { OrderCardSkeleton } from '@/components/orders/OrderCardSkeleton';
+import { NewOrdersBar } from '@/components/orders/NewOrdersBar';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
 interface Order {
@@ -129,7 +130,7 @@ export default function OwnerOrdersPage() {
 				else setLoadingMore(false);
 			}
 		},
-		[dateFrom, dateTo, activeId]
+		[dateFrom, dateTo, activeId, setLoadingMore]
 	);
 
 	const loadMore = () => fetchOrders(filter, page + 1, true);
@@ -258,6 +259,11 @@ export default function OwnerOrdersPage() {
 						: orders.filter((o) => o.status === tab.value).length,
 			})),
 		[orders, totalOrders]
+	);
+
+	const newOrderIds = useMemo(
+		() => orders.filter((o) => o.status === 'new').map((o) => o.id),
+		[orders]
 	);
 
 	const hasActiveFilters = Boolean(search || filter || dateFrom || dateTo);
@@ -514,6 +520,13 @@ export default function OwnerOrdersPage() {
 					</Button>
 				</div>
 			)}
+
+			<NewOrdersBar
+				newOrderIds={newOrderIds}
+				pendingStatus={pendingStatus}
+				onOrdersRefresh={() => fetchOrders(filter, 1, false)}
+				updateStatus={updateStatus}
+			/>
 		</div>
 	);
 }

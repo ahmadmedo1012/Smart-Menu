@@ -136,13 +136,13 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 	if (!authLoaded) return null;
 
 	return (
-		<div className="flex min-h-screen">
+		<div className="flex min-h-dvh">
 			{/* Desktop sidebar — premium glass card */}
 			<aside
 				className={cn(
 					'relative hidden w-60 shrink-0 flex-col lg:flex',
-					'border-s border-border/20 bg-card/80 backdrop-blur-xl',
-					'shadow-[4px_0_24px_-8px_rgba(0,0,0,0.08)] rtl:shadow-[-4px_0_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_-8px_rgba(0,0,0,0.3)] dark:rtl:shadow-[-4px_0_24px_-8px_rgba(0,0,0,0.3)]'
+					'border-s border-border/60 bg-card',
+					'shadow-sm'
 				)}
 			>
 				<SidebarContent />
@@ -161,7 +161,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 				<main
 					aria-live="polite"
 					aria-label="محتوى الصفحة"
-					className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--color-border)_0%,_transparent_70%)] p-4 md:p-6 lg:p-8"
+					className="flex-1 bg-background p-4 md:p-6 lg:p-8"
 				>
 					<UserBannerNotifier />
 					<PageFade>{children}</PageFade>

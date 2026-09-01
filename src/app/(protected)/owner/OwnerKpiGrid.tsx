@@ -52,7 +52,7 @@ export function OwnerKpiGridSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden="true">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="rounded-md border border-border/30 bg-card/60 p-5 shadow-sm">
+        <div key={i} className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1 space-y-2.5">
               <Skeleton className="h-3 w-20" />
@@ -105,13 +105,13 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
         animate={{ opacity: 1, y: 0 }}
         transition={entranceTransition}
         className={cn(
-          "group relative rounded-md bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm transition-[border-color,box-shadow,transform,translate,scale,rotate] duration-300",
-          "hover:border-orange/30 hover:shadow-lg hover:-translate-y-0.5",
+          "group relative rounded-xl border border-border/60 bg-card shadow-sm transition-[border-color,box-shadow,transform] duration-200",
+          "hover:border-orange/30 hover:shadow-md hover:-translate-y-0.5",
         )}>
         {/* stretched-link pattern: whole card is one link target */}
         <Link
           href={href}
-          className="absolute inset-0 z-10 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+          className="absolute inset-0 z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
         >
           <span className="sr-only">{label}</span>
         </Link>
@@ -126,7 +126,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
       animate={{ opacity: 1, y: 0 }}
       transition={entranceTransition}
       className={cn(
-        "group relative overflow-hidden rounded-md bg-card/60 backdrop-blur-sm border border-border/30 p-5 shadow-sm transition-[border-color] duration-300",
+        "group relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-sm transition-[border-color] duration-200",
       )}>
       {card}
     </motion.div>
@@ -175,7 +175,7 @@ export function OwnerKpiGrid({ stats, isLoading = false, error = null, onRetry }
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard index={0} label="إجمالي الطلبات" value={stats?.totalOrders ?? 0} icon={ShoppingCart} subtitle="كل الوقت"
-        color="text-night" bg="bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] shadow-lg shadow-orange/15 group-hover:shadow-orange/25"
+      color="text-orange" bg="bg-orange/10"
         href="/owner/orders" />
       <StatCard index={1} label="طلبات اليوم" value={stats?.todayOrders ?? 0} icon={TrendingUp}
         subtitle={stats?.todayRevenue ? `${toArabicNumber(stats.todayRevenue.toFixed(1))} د.ل` : undefined}

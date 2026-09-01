@@ -8,8 +8,6 @@ import { login as qaLogin, loginBudget } from "./qa-helpers";
 
 const OWNER = "testmulti1568";
 const PASS = "testpass123";
-const ts = Date.now().toString().slice(-8);
-
 async function login(page: Page) {
   test.setTimeout(loginBudget());
   await qaLogin(page, OWNER, PASS);

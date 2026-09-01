@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 export const revalidate = 60;
 export const dynamicParams = true;
-import { prisma, withRetry } from '@/lib/db';
+import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
@@ -11,18 +11,10 @@ import { ReferralHandler } from '@/components/menu/ReferralHandler';
 // NOT per request — keeps the route static-friendly (revalidate=60 works).
 const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-export async function generateStaticParams() {
-	// Retry transient Neon timeouts: build hits this with 15 parallel workers
-	// against a small pool; a cold connection that fails once shouldn't abort
-	// the whole build.
-	const restaurants = await withRetry(() =>
-		prisma.restaurant.findMany({
-			where: { isActive: true },
-			select: { slug: true },
-		})
-	);
-	return restaurants.map((r) => ({ slug: r.slug }));
-}
+// Menu slugs are resolved on demand instead of all being prerendered during
+// every build. A growing restaurant list could otherwise open hundreds of DB
+// queries at once and make deployment depend on a transient Neon timeout.
+// The 60-second revalidation still keeps subsequent requests warm and fresh.
 
 export async function generateMetadata({
 	params,
@@ -177,7 +169,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 	);
 
 	return (
-		<main className="min-h-screen relative overflow-x-clip">
+		<main className="relative min-h-dvh overflow-x-clip">
 			<ReferralHandler />
 			<div className="fixed inset-0 -z-10 bg-[var(--menu-glow)] pointer-events-none" />
 

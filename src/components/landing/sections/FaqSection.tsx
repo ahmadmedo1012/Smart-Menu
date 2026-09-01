@@ -1,6 +1,5 @@
 "use client"
 
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { motion } from "motion/react"
 import { MotionChevronDown } from "@/components/ui/motion-icons"
 import { SectionContainer } from "@/components/ui/SectionContainer"
@@ -17,10 +16,7 @@ const FAQS = [
 export function FaqSection() {
   return (
     <SectionContainer>
-      <SectionHeader icon={<AnimatedMessageCircle className="size-3" />}
-        title="أسئلة شائعة"
-        subtitle="إجابات سريعة لأكثر الأسئلة تردداً"
-      />
+      <SectionHeader align="start" title="أسئلة شائعة" subtitle="إجابات سريعة لأكثر الأسئلة تردداً." />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}

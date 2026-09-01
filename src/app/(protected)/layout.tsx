@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { connection } from 'next/server';
-import { headers } from 'next/headers';
+import { headers } from 'next/headers.js';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
@@ -65,11 +65,10 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	// ponytail: dynamic rendering required for CSP nonce support — Next.js stamps
-	// inline scripts with the nonce from the request's CSP header during SSR.
-	// Without this, pages are prerendered at build time (no request headers) and
-	// inline hydration scripts carry no nonce → strict CSP blocks them.
-	void connection();
+	// Protected-group pages are served behind a per-request CSP nonce from
+	// proxy.ts. Opt into dynamic rendering so the nonce is available to the
+	// client-side theme bootstrap script during SSR.
+	await connection();
 	const nonce = (await headers()).get('x-nonce') ?? '';
 	return (
 		<html lang="ar" dir="rtl" suppressHydrationWarning>
@@ -98,23 +97,8 @@ export default async function RootLayout({
 				 * the fallback families (Noto Naskh / Noto Sans / Readex Pro), which are
 				 * unused in the UI. Preloading them wasted ~277KB on mobile. */}
 				{/* Cairo handles via next/font/google — no render-blocking external CSS */}
-				<script
-					type="application/ld+json"
-					nonce={nonce}
-					dangerouslySetInnerHTML={{
-						__html: JSON.stringify({
-							'@context': 'https://schema.org',
-							'@type': 'SoftwareApplication',
-							name: 'الربط الذكي | Smart Menu',
-							description: 'منيو رقمي ذكي للمطاعم والمقاهي',
-							applicationCategory: 'BusinessApplication',
-							operatingSystem: 'Web',
-							offers: { '@type': 'Offer', price: '0', priceCurrency: 'LYD' },
-						}),
-					}}
-				/>
 			</head>
-			<body className="min-h-screen flex flex-col antialiased overflow-x-clip bg-[var(--background-radial),var(--background)]">
+			<body className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased">
 				<a
 					href="#main-content"
 					className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
@@ -129,6 +113,7 @@ export default async function RootLayout({
 						className="[color:var(--grid-line)] [mask-image:radial-gradient(1200px_circle_at_50%_25%,white_20%,transparent)]"
 						style={
 							{
+								opacity: 0.14,
 								'--grid-fill': 'var(--grid-fill)',
 								'--grid-square': 'var(--grid-square)',
 							} as React.CSSProperties

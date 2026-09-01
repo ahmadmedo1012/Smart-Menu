@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'motion/react';
-import {} from 'lucide-react';
 import { MotionMenu } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -73,14 +72,14 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 				{/* logo — rounded-lg */}
 				<div
 					className={cn(
-						'size-8 rounded-lg flex items-center justify-center shadow-sm shrink-0 overflow-hidden transition-[box-shadow,outline-color] duration-300',
+					'size-8 shrink-0 overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm flex items-center justify-center transition-[box-shadow,outline-color] duration-300',
 						scrolled
 							? logo
 								? 'ring-1 ring-border/30'
-								: 'bg-gradient-to-br from-orange to-orange/80'
+								: 'bg-orange'
 							: logo
 								? 'ring-1 ring-white/20'
-								: 'bg-gradient-to-br from-orange/80 to-orange/60'
+								: 'bg-orange/90'
 					)}
 				>
 					{logo ? (
@@ -129,7 +128,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 						aria-expanded={mobileOpen}
 						aria-controls="mobile-global-drawer"
 						onClick={() => setMobileOpen((o) => !o)}
-						className="md:hidden inline-flex items-center justify-center size-11 rounded-full bg-card border border-border hover:bg-accent/40 transition-colors"
+						className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 md:hidden"
 					>
 						<MotionMenu className="size-5" />
 					</button>
@@ -148,7 +147,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 						initial={{ opacity: 0, y: -8 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -8 }}
-						className="md:hidden fixed inset-x-3 top-16 z-40 rounded-2xl border border-border/40 bg-background/95 backdrop-blur-xl shadow-2xl p-3 flex flex-col gap-1"
+						className="fixed inset-x-3 top-16 z-40 flex flex-col gap-1 rounded-xl border border-border/70 bg-popover p-3 shadow-xl md:hidden"
 					>
 						{menuGlobalLinks.map((l) => (
 							<Link

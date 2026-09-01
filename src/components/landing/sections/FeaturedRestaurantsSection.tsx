@@ -56,10 +56,9 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 		return (
 			<SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
 				<SectionHeader
-					icon={<Store className="size-3" />}
-					eyebrow="منيو حقيقي"
+					align="start"
 					title="اطلع على منيو هذه المطاعم"
-					subtitle="تصفح منيو مطاعم حقيقية تستخدم المنصة وشاهد تجربة الزبائن"
+					subtitle="تصفح منيو مطاعم تستخدم المنصة وشاهد كيف تبدو التجربة من جهة الزبون."
 				/>
 				<div className="max-w-[1060px] mx-auto px-1">
 					<div className="h-[380px] sm:h-[460px] rounded-2xl sm:rounded-3xl bg-card/50 animate-pulse" />
@@ -82,10 +81,9 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 	return (
 		<SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
 			<SectionHeader
-				icon={<Store className="size-3" />}
-				eyebrow="منيو حقيقي"
+				align="start"
 				title="اطلع على منيو هذه المطاعم"
-				subtitle="تصفح منيو مطاعم حقيقية تستخدم المنصة وشاهد تجربة الزبائن"
+				subtitle="تصفح منيو مطاعم تستخدم المنصة وشاهد كيف تبدو التجربة من جهة الزبون."
 			/>
 
 			<div
@@ -117,7 +115,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 							<Link href={`/menu/${r.slug}`} className="block size-full group">
 								{/* Full-bleed background image */}
 								<div className="absolute inset-0">
-									{r.logo && (
+									{r.logo ? (
 										<Image
 											src={r.logo}
 											alt=""
@@ -127,6 +125,10 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 											quality={85}
 											priority
 										/>
+									) : (
+										<div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))]">
+											<Store className="size-32 text-white/25" aria-hidden="true" />
+										</div>
 									)}
 									<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
 									<div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent rtl:bg-gradient-to-l" />
@@ -238,7 +240,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 							<button
 								onClick={prev}
 								type="button"
-								className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
+								className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100"
 								aria-label="السابق"
 							>
 								<MotionArrowLeft className="size-5" />
@@ -246,7 +248,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 							<button
 								onClick={next}
 								type="button"
-								className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-0 group-hover:opacity-100 md:opacity-70 md:hover:opacity-100"
+								className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100"
 								aria-label="التالي"
 							>
 								<MotionArrowRight className="size-5" />
@@ -277,7 +279,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 								key={item.id}
 								type="button"
 								onClick={() => go(i, i > slide ? 1 : -1)}
-								className={`rounded-full transition-[width,height,background-color,box-shadow] duration-300 ${
+									className={`min-h-11 min-w-11 rounded-full transition-[width,height,background-color,box-shadow] duration-300 ${
 									i === slide
 										? 'w-9 h-3 bg-orange shadow-md shadow-orange/30'
 										: 'w-3 h-3 bg-muted-foreground/20 hover:bg-muted-foreground/40'

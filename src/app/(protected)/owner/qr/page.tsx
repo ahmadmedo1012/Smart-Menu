@@ -49,7 +49,7 @@ export default function OwnerQRPage() {
 			})
 			.catch(() => premiumToast('error', 'فشل تحميل إعدادات المطعم'))
 			.finally(() => setLoaded(true));
-	}, []);
+	}, [activeId]);
 
 	const copy = () => {
 		navigator.clipboard.writeText(url).then(() => {

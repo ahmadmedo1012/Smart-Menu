@@ -94,7 +94,7 @@ export function ShareAfterOrder({
 		} finally {
 			setLoading(false);
 		}
-	}, [phone]);
+	}, [phone, cartRestaurantId]);
 
 	// ─── Copy referral link ────────────────────────────────────────────
 

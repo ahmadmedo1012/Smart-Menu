@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, memo, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'motion/react';
+import { useState, memo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed } from 'lucide-react';
@@ -13,9 +13,6 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 /* ponytail: shared spring config — deduped from 3 inline copies */
 const CARD_SPRING = { type: 'spring' as const, stiffness: 500, damping: 25 };
 const HOVER_SPRING = { type: 'spring' as const, stiffness: 300, damping: 20 };
-
-/* ponytail: 3D-tilt spring */
-const TILT_SPRING = { stiffness: 200, damping: 30 };
 
 const DIETARY_ICONS: Record<string, string> = {
 	vegetarian: '🌿',
@@ -101,7 +98,6 @@ const MenuItemCard = memo(function MenuItemCard({
 	const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 	const hasRating = item.avgRating != null && item.ratingCount != null && item.ratingCount > 0;
 	const [imageError, setImageError] = useState(false);
-	const cardRef = useRef<HTMLDivElement>(null);
 
 	/**
 	 * Card-level activation (Enter/Space) opens the order dialog — but only when
@@ -117,53 +113,19 @@ const MenuItemCard = memo(function MenuItemCard({
 		onOrder(item);
 	};
 
-	/* ponytail: 3D tilt via mouse position */
-	const mx = useMotionValue(0);
-	const my = useMotionValue(0);
-	const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [10, -10]), TILT_SPRING);
-	const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), TILT_SPRING);
-
-	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (!cardRef.current) return;
-		const rect = cardRef.current.getBoundingClientRect();
-		mx.set((e.clientX - rect.left) / rect.width - 0.5);
-		my.set((e.clientY - rect.top) / rect.height - 0.5);
-	};
-
-	const handleMouseLeave = () => {
-		mx.set(0);
-		my.set(0);
-	};
-
 	const isFeatured = variant === 'featured';
 
 	return (
 		<motion.div
-			ref={cardRef}
-			/* tiltIn entrance */
-			initial={{ opacity: 0, y: 40, rotateX: -5 }}
-			whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+			initial={{ opacity: 0, y: 24 }}
+			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true, margin: '-60px' }}
 			transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-			style={{ perspective: 1000, rotateX, rotateY }}
-			onMouseMove={handleMouseMove}
-			onMouseLeave={handleMouseLeave}
-			whileHover={{ y: -10, scale: 1.02, transition: HOVER_SPRING }}
-			whileTap={{ scale: 0.97, transition: HOVER_SPRING }}
+			whileHover={{ y: -3, transition: HOVER_SPRING }}
+			whileTap={{ scale: 0.99, transition: HOVER_SPRING }}
 			className={cn(
-				'group relative flex w-full cursor-pointer overflow-hidden rounded-xl flex-col outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
-				/* glassmorphism base */
-				'bg-white/70 dark:bg-white/[0.07] backdrop-blur-xl',
-				'border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/20',
-				/* hover glow */
-				'hover:border-orange/50 dark:hover:border-orange/40',
-				'hover:shadow-orange/15 dark:hover:shadow-orange/20 hover:shadow-2xl',
-				'transition-shadow duration-500',
-				/* shimmer sweep — slides across on hover */
-				'after:absolute after:inset-0 after:pointer-events-none',
-				'after:opacity-0 group-hover:after:opacity-100 after:transition-opacity after:duration-300',
-				'after:bg-[linear-gradient(105deg,transparent_35%,rgba(255,255,255,0.15)_50%,transparent_65%)]',
-				'after:-translate-x-full group-hover:after:translate-x-full after:transition-transform after:duration-700 after:ease-in-out',
+				'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-200 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
+				'hover:border-orange/35 hover:shadow-md',
 				isFeatured && 'md:col-span-2'
 			)}
 			tabIndex={0}
@@ -177,7 +139,7 @@ const MenuItemCard = memo(function MenuItemCard({
 		>
 			{/* Image — aspect-4/3 with zoom */}
 			<div className="relative w-full aspect-[4/3] overflow-hidden">
-				<div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-125">
+				<div className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105">
 					{item.image && !imageError ? (
 						<OptimizedImage
 							src={item.image}
@@ -205,7 +167,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							initial={{ scale: 0, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							transition={CARD_SPRING}
-							className="text-[10px] font-bold px-2 py-1 rounded-lg bg-orange/85 dark:bg-orange/90 backdrop-blur-sm text-white shadow-lg flex items-center gap-1"
+							className="flex items-center gap-1 rounded-md bg-orange px-2 py-1 text-[10px] font-bold text-orange-foreground"
 						>
 							<AnimatedStar className="size-2.5 fill-current" />
 							الأكثر طلباً
@@ -216,7 +178,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							initial={{ scale: 0, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							transition={{ ...CARD_SPRING, delay: 0.1 }}
-							className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/85 dark:bg-emerald-500/90 backdrop-blur-sm text-white shadow-lg"
+							className="rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white"
 						>
 							<Sparkles className="size-2.5 fill-current" />
 						جديد
@@ -226,7 +188,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
 				{/* Discount badge — top-end */}
 				{hasDiscount && (
-					<div className="absolute top-3 end-3 z-10 bg-destructive/85 backdrop-blur-sm text-destructive-foreground text-[10px] font-bold px-2 py-1 rounded-lg shadow-lg">
+					<div className="absolute top-3 end-3 z-10 rounded-md bg-destructive px-2 py-1 text-[10px] font-bold text-destructive-foreground">
 						-{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
 					</div>
 				)}
@@ -246,7 +208,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						aria-label={`تقييم ${displayName}`}
 						className={cn(
 							'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-300',
-							'bg-white/20 dark:bg-white/10 backdrop-blur-md border-white/30 dark:border-white/10 shadow-sm',
+							'border-border/60 bg-muted/60 shadow-none',
 							hasRating
 								? 'text-amber-600 dark:text-amber-400 hover:bg-white/30 dark:hover:bg-white/20'
 								: 'text-muted-foreground hover:text-amber-500 hover:bg-white/20'
@@ -274,7 +236,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						{item.dietaryTags?.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 backdrop-blur-sm text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+								className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-600 dark:text-emerald-400"
 							>
 								{DIETARY_ICONS[tag] || '🌿'} {DIETARY_LABELS[tag] || tag}
 							</span>
@@ -282,7 +244,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						{item.allergens?.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-500/15 backdrop-blur-sm text-amber-600 dark:text-amber-400 border border-amber-500/20"
+								className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-600 dark:text-amber-400"
 							>
 								<AlertTriangle className="size-3 text-amber-600 dark:text-amber-400" /> {ALLERGEN_LABELS[tag] || tag}
 							</span>
@@ -333,7 +295,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									onAddToCart(item);
 								}}
 								aria-label={`إضافة ${displayName} إلى السلة`}
-								className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 min-h-[48px] rounded-xl text-xs font-bold bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] shadow-lg hover:shadow-orange/30 hover:brightness-110 active:scale-95 transition-[filter,transform,translate,scale,rotate,box-shadow] duration-200"
+						className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm transition-[background-color,box-shadow] duration-200 hover:bg-orange/90 hover:shadow-md active:scale-[0.99]"
 							>
 								<MotionPlus className="size-4" />
 								أضف

@@ -58,7 +58,7 @@ function LogoutButton() {
           }
         } catch { /* ignore */ }
       }}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:bg-destructive/10 hover:text-destructive"
+      className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
     >
       <AnimatedLogOut className="size-4" />
       تسجيل الخروج
@@ -91,10 +91,10 @@ export function AdminSidebar() {
     : allNavItems.filter((item) => hasItemPermission(item, role, permissions));
 
   return (
-    <aside aria-label="شريط التنقل الجانبي" className="hidden h-screen w-60 shrink-0 border-s border-border/20 bg-card/80 backdrop-blur-2xl lg:flex lg:flex-col shadow-md">
+    <aside aria-label="شريط التنقل الجانبي" className="hidden min-h-dvh w-60 shrink-0 border-s border-border/60 bg-card lg:flex lg:flex-col shadow-sm">
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">
-        <div className="size-8 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-sm">
+        <div className="flex size-8 items-center justify-center rounded-lg bg-orange">
           <Store className="size-4 text-white" />
         </div>
         <div>
@@ -115,7 +115,7 @@ export function AdminSidebar() {
         <LogoutButton />
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors duration-200 group"
+          className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors duration-200 hover:bg-accent/50 hover:text-foreground group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
         >
           <MotionChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180" />
           العودة للموقع

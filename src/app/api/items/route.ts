@@ -107,10 +107,16 @@ export async function POST(request: NextRequest) {
 		});
 		if (!category) return error('التصنيف غير موجود', 404);
 
-		// Owners can only add items to their own restaurant's categories
-			if (auth.role === 'owner' && auth.restaurantId !== category.restaurant.id) {
-				return error('غير مصرح', 401);
-			}
+		// Owners can only add items to categories of restaurants they manage —
+		// multi-menu aware via UserRestaurant links (same pattern as items/[id],
+		// categories, and categories/[id]; previously this route only checked
+		// the primary restaurantId, breaking multi-menu owners)
+		if (auth.role === 'owner' && auth.restaurantId !== category.restaurant.id) {
+			const link = await prisma.userRestaurant.findUnique({
+				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: category.restaurant.id } },
+			});
+			if (!link) return error('غير مصرح', 403);
+		}
 		// Staff roles (admin/sub_admin — super_admin passes automatically) may only
 		// add items to arbitrary restaurants when they hold MANAGE_RESTAURANTS
 		if (auth.role !== 'owner') {

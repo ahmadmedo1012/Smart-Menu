@@ -157,7 +157,7 @@ export default function OwnerDashboard() {
 					{[1, 2, 3, 4].map((i) => (
 						<div
 							key={i}
-							className="h-32 rounded-md bg-card/50 border border-border/20 p-5 space-y-3 animate-pulse"
+					className="h-32 rounded-xl border border-border/60 bg-card p-5 space-y-3 animate-pulse"
 							aria-hidden="true"
 						>
 							<div className="h-3 w-20 rounded-full bg-muted/70" />
@@ -169,7 +169,7 @@ export default function OwnerDashboard() {
 					{[1, 2, 3].map((i) => (
 						<div
 							key={i}
-							className="h-52 rounded-md bg-card/50 border border-border/20 p-4 space-y-3 animate-pulse"
+							className="h-52 rounded-xl border border-border/60 bg-card p-4 space-y-3 animate-pulse"
 							aria-hidden="true"
 						>
 							<div className="h-3 w-24 rounded-full bg-muted/70" />
@@ -179,7 +179,7 @@ export default function OwnerDashboard() {
 						</div>
 					))}
 				</div>
-				<div className="h-28 rounded-md bg-card/50 border border-border/20 p-4 animate-pulse" aria-hidden="true">
+				<div className="h-28 rounded-xl border border-border/60 bg-card p-4 animate-pulse" aria-hidden="true">
 					<div className="h-3 w-20 rounded-full bg-muted/70" />
 				</div>
 			</div>
@@ -207,9 +207,9 @@ export default function OwnerDashboard() {
 
 			{/* Welcome banner (new owners) */}
 			{restaurant && stats && stats.totalOrders === 0 && (
-				<div className="rounded-md bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted/20 dark:to-card border border-orange/20 dark:border-orange/15 p-5 animate-fade-in">
+				<div className="rounded-xl border border-orange/20 bg-orange-muted/35 p-5 animate-fade-in">
 					<div className="flex items-start gap-4 flex-wrap">
-						<div className="size-12 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shrink-0">
+						<div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
 							<AnimatedSparkles className="size-6 text-white" />
 						</div>
 						<div className="flex-1 min-w-[200px]">
@@ -226,7 +226,7 @@ export default function OwnerDashboard() {
 								<Link href="/owner/menu">
 									<Button
 										size="sm"
-										className="gap-1.5 text-xs bg-gradient-to-r from-orange to-orange/80"
+										className="gap-1.5 text-xs"
 									>
 										<ClipboardList className="size-3.5" /> أضف أصنافك
 									</Button>
@@ -285,7 +285,7 @@ export default function OwnerDashboard() {
 							tabIndex={tab === t.id ? 0 : -1}
 							onClick={() => setTab(t.id as any)}
 							className={cn(
-								'snap-start shrink-0 px-4 py-2 min-h-11 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+								'snap-start flex min-h-11 shrink-0 items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								tab === t.id
 									? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
 									: 'border-border/30 hover:border-orange/20'
@@ -299,10 +299,10 @@ export default function OwnerDashboard() {
 
 			{/* Restaurant header */}
 			{restaurant && (
-				<div className="relative overflow-hidden rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
+				<div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-sm">
 					<div className="flex items-start justify-between flex-wrap gap-3">
 						<div className="flex items-center gap-3">
-							<div className="size-12 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 shrink-0">
+							<div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
 								<Store className="size-6 text-white" />
 							</div>
 							<div>
@@ -351,7 +351,7 @@ export default function OwnerDashboard() {
 				</div>
 
 				{/* Quick actions */}
-				<div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm">
+				<div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
 					<h2 className="text-xs font-semibold text-muted-foreground mb-3">إجراءات سريعة</h2>
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
 						{[
@@ -362,9 +362,8 @@ export default function OwnerDashboard() {
 						].map(({ href, icon: Icon, label }) => (
 							<Link key={href} href={href}>
 								<div
-									className="group relative overflow-hidden rounded-md border border-border/20 bg-card/40 p-3.5 transition-[box-shadow,transform,translate,scale,rotate] duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-orange/60"
+									className="group relative overflow-hidden rounded-lg border border-border/50 bg-background p-3.5 transition-[box-shadow,transform] duration-200 hover:border-orange/30 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-orange/60"
 								>
-									<div className="absolute inset-0 bg-gradient-to-br from-orange/0 to-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 									<div className="relative flex flex-col items-center gap-1.5">
 										<Icon className="size-4 text-orange dark:text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-300 motion-reduce:transition-none" aria-hidden="true" />
 										<span className="text-xs font-medium">{label}</span>
@@ -403,10 +402,10 @@ export default function OwnerDashboard() {
 
 			{/* Share your menu card */}
 			{restaurant && (
-				<div className="rounded-md bg-gradient-to-br from-orange-muted/60 to-orange-muted/30 dark:from-orange-muted/20 dark:to-orange-muted/10 border border-orange/20 dark:border-orange/10 p-5 animate-fade-in">
+				<div className="rounded-xl border border-orange/20 bg-orange-muted/30 p-5 animate-fade-in">
 					<div className="flex items-start justify-between flex-wrap gap-4">
 						<div className="flex items-start gap-3">
-							<div className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/20 shrink-0">
+							<div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-orange">
 								<AnimatedQrCode className="size-5 text-white" />
 							</div>
 							<div>
@@ -443,7 +442,7 @@ export default function OwnerDashboard() {
 						<Link href="/owner/qr">
 							<Button
 								size="sm"
-								className="h-8 text-xs gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white"
+								className="h-8 gap-1.5 text-xs"
 							>
 								<AnimatedQrCode className="size-3.5" /> عرض QR
 							</Button>
@@ -454,7 +453,7 @@ export default function OwnerDashboard() {
 
 			{/* Loyalty quick stats */}
 			{(loyaltyStats.totalLoyaltyCards ?? 0) > 0 && (
-				<div className="rounded-md bg-gradient-to-br from-orange/5 to-orange/5 border border-orange/20 dark:border-orange/10 p-4">
+				<div className="rounded-xl border border-orange/20 bg-orange-muted/15 p-4">
 					<div className="flex items-center justify-between flex-wrap gap-2 mb-3">
 						<div className="flex items-center gap-2">
 							<Award className="size-4 text-orange dark:text-orange" />
@@ -463,7 +462,7 @@ export default function OwnerDashboard() {
 						<Link href="/owner/loyalty">
 							<Button
 								size="sm"
-								className="gap-1.5 bg-gradient-to-r from-orange to-orange/80 text-white text-xs shadow-sm h-8"
+								className="h-8 gap-1.5 text-xs"
 							>
 								إدارة <MotionArrowLeft className="size-3" />
 							</Button>

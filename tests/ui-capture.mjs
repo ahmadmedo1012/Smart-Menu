@@ -8,8 +8,6 @@ const BASE = "https://menu.smart-link.ly";
 const pageKey = process.argv[2];
 const viewport = process.argv[3] || "desktop"; // mobile|tablet|desktop|wide
 const dark = process.argv[4] === "dark";
-const OWNER = { username: "waha", password: "waha123" };
-
 const VPS = {
   mobile: { width: 375, height: 667 },
   tablet: { width: 768, height: 1024 },

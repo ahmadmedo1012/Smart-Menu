@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
-import { GlowPool } from "@/components/ui/GlowPool";
 import { toArabicNumber } from '@/lib/format';
 
 function AnimatedNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
   // Start counting immediately; the section is below the fold so we don't
   // want to wait for an in-view trigger that may never fire on short pages.
   useEffect(() => {
@@ -20,7 +18,7 @@ function AnimatedNumber({ value }: { value: number }) {
     }, 30);
     return () => clearInterval(timer);
   }, [value]);
-  return <span ref={ref}>{toArabicNumber(count)}</span>;
+  return <span>{toArabicNumber(count)}</span>;
 }
 
 export function StatsSection({ stats }: { stats: { totalRestaurants: number; totalUsers: number } }) {
@@ -30,15 +28,12 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
   const items = [
     { value: Math.max(stats.totalRestaurants, 0), suffix: "+", label: "مطعم مسجل", sub: "يستخدمون المنيو الرقمي" },
     { value: Math.max(stats.totalUsers, 0), suffix: "+", label: "حساب نشط", sub: "أصحاب مطاعم ومقاهٍ على المنصة" },
-    { value: 97, suffix: "%", label: "رضا العملاء", sub: "بناءً على تقييمات المطاعم" },
   ];
 
   return (
     <SectionContainer tone="alt">
-      <GlowPool position="-top-20 left-1/2" size="size-72" color="orange/5" />
-
-      <div className="glass-strong rounded-[20px] mx-auto max-w-4xl p-6 sm:p-8">
-        <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+      <div className="mx-auto max-w-3xl rounded-xl border border-border/60 bg-card p-6 shadow-sm sm:p-8">
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:gap-6">
           {items.map((item, i) => (
             <motion.div
               key={item.label}
@@ -59,7 +54,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
             </motion.div>
           ))}
         </div>
-        <div className="mx-auto mt-6 w-16 h-[2px] rounded-full bg-gradient-to-r from-orange/0 via-orange to-orange/0" />
+        <div className="mx-auto mt-6 h-px w-16 bg-orange/60" />
       </div>
     </SectionContainer>
   );

@@ -170,7 +170,7 @@ export function MenuToolbar({
 			{/* Search input — glass card wrapper */}
 			{!hideSearch && (
 				<div className="flex-1 relative">
-					<div className="glass-card rounded-xl flex items-center px-4 h-12 sm:h-14 gap-3 focus-within:ring-2 focus-within:ring-orange/30 transition-[box-shadow,background-color,border-color] duration-300">
+					<div className="flex h-12 items-center gap-3 rounded-lg border border-border/70 bg-card px-4 shadow-sm transition-[box-shadow,border-color] duration-200 focus-within:border-orange/45 focus-within:ring-2 focus-within:ring-orange/15 sm:h-14">
 						<MotionSearch className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
 						<input
 							ref={inputRef}
@@ -207,7 +207,7 @@ export function MenuToolbar({
 									setShowSuggestions(false);
 									inputRef.current?.focus();
 								}}
-								className="size-5 rounded-sm bg-muted/80 flex items-center justify-center hover:bg-muted transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+								className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted/80 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 							>
 								<AnimatedX className="size-3" aria-hidden="true" />
 							</button>
@@ -220,7 +220,7 @@ export function MenuToolbar({
 						role="listbox"
 						aria-label="اقتراحات البحث"
 						className={cn(
-							'glass-strong rounded-xl mt-2 overflow-hidden shadow-glass-lg transition-[opacity,transform,translate,scale,rotate] duration-200',
+							'mt-2 overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg transition-[opacity,transform,translate,scale,rotate] duration-200',
 							dropdownVisible
 								? 'opacity-100 visible translate-y-0'
 								: 'opacity-0 invisible -translate-y-1 pointer-events-none'
@@ -278,7 +278,7 @@ export function MenuToolbar({
 							setShowSort(true);
 						}
 					}}
-					className="glass-card rounded-xl h-12 sm:h-14 w-12 sm:w-14 flex items-center justify-center transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none"
+					className="flex h-12 w-12 items-center justify-center rounded-lg border border-border/70 bg-card shadow-sm transition-[background-color,border-color] duration-200 hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none sm:h-14 sm:w-14"
 				>
 					<svg
 						className="size-4"
@@ -295,7 +295,7 @@ export function MenuToolbar({
 					<>
 						<div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} aria-hidden="true" />
 						<div
-							className="absolute end-0 sm:end-auto sm:start-0 top-full mt-2 z-50 w-48 sm:w-52 rounded-xl shadow-glass-lg overflow-hidden origin-top-right animate-scale-in"
+							className="absolute end-0 top-full z-50 mt-2 w-48 origin-top-right overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg animate-scale-in sm:end-auto sm:start-0 sm:w-52"
 							role="menu"
 							aria-label="خيارات الترتيب"
 							tabIndex={-1}
@@ -328,7 +328,7 @@ export function MenuToolbar({
 										setShowSort(false);
 									}}
 									className={cn(
-										'glass-strong w-full text-start px-4 py-3 text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:bg-accent focus-visible:outline-none',
+										'w-full px-4 py-3 text-start text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:bg-accent focus-visible:outline-none',
 										sort === opt.value && 'bg-accent font-medium text-primary'
 									)}
 								>

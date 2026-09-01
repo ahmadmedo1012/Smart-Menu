@@ -4,20 +4,24 @@ import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+/**
+ * Shared action primitive. Keep feedback quick and quiet so the button reads
+ * as an action, not as decoration.
+ */
 const buttonVariants = cva(
-	"group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent font-display text-sm font-bold whitespace-nowrap cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,translate,scale,rotate,opacity] duration-300 outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 min-h-[48px] min-w-[48px]",
+	"group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent font-sans text-sm font-bold whitespace-nowrap cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,translate,scale,rotate,opacity] duration-200 outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 min-h-11 min-w-11",
 	{
 		variants: {
 			variant: {
 				orange:
-					'bg-orange text-orange-foreground hover:brightness-110 hover:scale-[1.02] shadow-lg shadow-orange/20 hover:shadow-xl hover:shadow-orange/25 border-0 dark:hover:brightness-125 dark:shadow-orange/30 dark:hover:shadow-orange/40',
+					'bg-orange text-orange-foreground hover:bg-orange/90 shadow-md shadow-orange/15 hover:shadow-lg hover:shadow-orange/20 border-0',
 				// "flame" (ember→saffron warm) is the signature CTA treatment — QR-corner moments.
 				flame:
-					'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] hover:brightness-110 hover:scale-[1.02] shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 border-0 dark:hover:brightness-120 dark:shadow-orange/35 dark:hover:shadow-orange/45',
+					'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] hover:brightness-105 shadow-md shadow-orange/20 hover:shadow-lg hover:shadow-orange/25 border-0',
 				outline:
-					'border-border bg-transparent text-foreground hover:bg-foreground/5 hover:border-foreground/30 hover:scale-[1.02] dark:hover:bg-foreground/10 dark:hover:border-foreground/40',
+					'border-border bg-transparent text-foreground hover:bg-foreground/5 hover:border-foreground/30 dark:hover:bg-foreground/10 dark:hover:border-foreground/40',
 				ghost:
-					'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent active:scale-[0.97] dark:hover:bg-foreground/15',
+					'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent dark:hover:bg-foreground/15',
 				destructive:
 					'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/15 dark:hover:bg-destructive/25',
 			},

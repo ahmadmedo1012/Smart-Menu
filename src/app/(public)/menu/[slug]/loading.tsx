@@ -1,6 +1,6 @@
 export default function MenuSlugLoading() {
   return (
-    <div className="min-h-screen relative overflow-x-clip">
+	<div className="relative min-h-dvh overflow-x-clip">
       {/* Background glow matching page.tsx */}
       <div className="fixed inset-0 -z-10 bg-[var(--menu-glow)] pointer-events-none" />
 

@@ -30,16 +30,7 @@ function FloatingShapes() {
 	return (
 		<div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
 			<div
-				className="absolute -top-20 -right-20 h-72 w-72 animate-spin-slow rounded-full bg-gradient-to-br from-orange/15 to-orange/5 blur-3xl dark:from-orange/10 dark:to-orange/5"
-				style={{ animationDuration: '20s' }}
-			/>
-			<div
-				className="absolute -bottom-32 -left-32 h-96 w-96 animate-spin-slow rounded-full bg-gradient-to-tr from-orange/10 to-orange/5 blur-3xl dark:from-orange/8 dark:to-orange/5"
-				style={{ animationDuration: '25s' }}
-			/>
-			<div
-				className="absolute left-1/3 top-1/4 h-48 w-48 animate-float-delayed rounded-full bg-gradient-to-b from-orange/15 to-transparent blur-2xl dark:from-orange/8"
-				style={{ animationDelay: '1s', animationDuration: '8s' }}
+				className="absolute -end-28 -top-24 size-[26rem] rounded-full bg-orange/8 blur-[120px] dark:bg-orange/6"
 			/>
 		</div>
 	);
@@ -93,11 +84,11 @@ function LoginForm() {
 				}
 			})
 			.catch(() => setCheckingAuth(false));
-	}, []);
+	}, [rawRedirect]);
 
 	if (checkingAuth) {
 		return (
-			<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background">
+			<div className="flex min-h-dvh items-center justify-center bg-background">
 				<div className="flex flex-col items-center gap-3">
 					<div className="size-10 animate-pulse rounded-full bg-orange/40" />
 					<span className="animate-breath font-arabic text-sm text-muted-foreground">
@@ -153,9 +144,9 @@ function LoginForm() {
 	}
 
 	return (
-		<div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6">
+		<div className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6">
 			{/* Background gradient */}
-			<div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-orange-muted/20 to-background" />
+			<div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_78%_10%,oklch(0.55_0.19_45_/_0.10),transparent_34%),radial-gradient(circle_at_14%_88%,oklch(0.55_0.19_45_/_0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_78%_10%,oklch(0.55_0.19_45_/_0.12),transparent_34%),radial-gradient(circle_at_14%_88%,oklch(0.55_0.19_45_/_0.08),transparent_30%)]" />
 
 			<FloatingShapes />
 
@@ -177,7 +168,7 @@ function LoginForm() {
 			{/* Decorative top bar */}
 			<div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-r from-orange via-orange/80 to-orange/60 dark:from-orange dark:via-orange/80 dark:to-orange/60" />
 
-			<Card className="animate-scale-in relative z-10 w-full max-w-sm border border-orange/20 bg-card/80 shadow-2xl shadow-orange/5 backdrop-blur-2xl backdrop-saturate-150 sm:max-w-md sm:rounded-md dark:border-orange/10 dark:bg-card/80 dark:shadow-2xl dark:shadow-orange/10">
+			<Card className="animate-scale-in relative z-10 w-full max-w-sm border-border/70 bg-card shadow-xl shadow-black/5 sm:max-w-md dark:shadow-black/20">
 				{/* Logo area */}
 				<CardHeader className="pb-2 pt-8 text-center">
 					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
@@ -206,7 +197,7 @@ function LoginForm() {
 							<Label htmlFor="username" className="font-arabic text-sm font-medium">
 								اسم المستخدم
 							</Label>
-							<div className="glow-within rounded-lg border border-input/60 bg-background/50 transition-[border-color,box-shadow] duration-300">
+							<div className="rounded-lg border border-input bg-muted/25 transition-[border-color,box-shadow] duration-200 focus-within:border-orange/50 focus-within:ring-2 focus-within:ring-orange/10">
 								<Input
 									id="username"
 									type="text"
@@ -226,7 +217,7 @@ function LoginForm() {
 							<Label htmlFor="password" className="font-arabic text-sm font-medium">
 								كلمة المرور
 							</Label>
-							<div className="glow-within relative rounded-lg border border-input/60 bg-background/50 transition-[border-color,box-shadow] duration-300">
+							<div className="relative rounded-lg border border-input bg-muted/25 transition-[border-color,box-shadow] duration-200 focus-within:border-orange/50 focus-within:ring-2 focus-within:ring-orange/10">
 								<Input
 									id="password"
 									type={showPassword ? 'text' : 'password'}
@@ -254,7 +245,7 @@ function LoginForm() {
 						<Button
 							type="submit"
 							variant="orange"
-							className="magnetic-btn mt-2 h-10 w-full rounded-xl font-arabic text-base font-semibold"
+							className="mt-2 h-12 w-full rounded-lg font-arabic text-base font-semibold"
 							disabled={loading}
 						>
 							{loading ? (
@@ -337,7 +328,7 @@ export default function LoginPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-orange-muted/20 to-background">
+				<div className="flex min-h-dvh items-center justify-center bg-background">
 					<div className="flex flex-col items-center gap-3">
 						<div className="size-10 animate-pulse rounded-full bg-orange/40" />
 						<span className="animate-breath font-arabic text-sm text-muted-foreground">

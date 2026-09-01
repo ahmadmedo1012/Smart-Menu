@@ -188,7 +188,9 @@ export function Header({ className }: HeaderProps) {
       <header className={cn(
         "fixed top-0 inset-x-0 z-30 h-16 transition-[transform,translate,scale,rotate,background-color,box-shadow,height] duration-500 will-change-transform backface-hidden",
         visible ? "translate-y-0" : "-translate-y-full",
-        scrolled ? "bg-background/80 backdrop-blur-2xl border-b border-border/30 shadow-md" : "bg-background/0",
+        scrolled
+          ? "bg-background/75 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/30 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.18)]"
+          : "bg-background/0",
         className
       )}>
         <nav className="max-w-[1220px] mx-auto px-4 sm:px-6 lg:px-10 h-full flex items-center justify-between" aria-label="الرئيسية">

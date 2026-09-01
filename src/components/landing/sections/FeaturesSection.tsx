@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react"
 import { Smartphone, BarChart3, QrCode, Gift, MessageCircle, CheckCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
@@ -18,10 +19,13 @@ const features = [
 export function FeaturesSection() {
 	return (
 		<SectionContainer tone="alt">
-			<SectionHeader eyebrow="إليك ما يمكنك تحقيقه معنا" title="ميزات متكاملة لمطعمك" />
+			<SectionHeader align="start" title="كل ما يحتاجه مطعمك في مكان واحد" subtitle="منيو واضح للزبون، طلب مرتب على واتساب، وأدوات تمنحك صورة أفضل عن عملك." />
 
-			<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				{features.map((feat, i) => (
+			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{features.map((feat, i) => {
+					// The first feature anchors the grid without hiding its content behind a mask.
+					const isHero = i === 0;
+					return (
 					<motion.div
 						key={i}
 						initial={{ opacity: 0, y: 24 }}
@@ -29,26 +33,24 @@ export function FeaturesSection() {
 						viewport={{ once: true, margin: "-60px" }}
 						transition={{ ...springDefault, delay: i * 0.06 }}
 						whileHover={{ y: -5, transition: springSnappy }}
-						className={`group rounded-[20px] bg-card border p-4 md:p-6 lg:p-8 shadow-sm transition-colors duration-300 ${
-												i === 0
-													? "border-orange/30 shadow-md"
-													: "border-border/50 hover:border-orange/30 hover:shadow-md hover:bg-[var(--surface-sunken)]/50"
-											}`}
+						className={cn(
+							"group relative rounded-xl bg-card border p-5 md:p-6 lg:p-8 shadow-sm transition-[transform,box-shadow,border-color,background-color] duration-300",
+							isHero
+								? "border-orange/35 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--card)_88%,var(--orange)),var(--card))] shadow-md shadow-orange/10"
+								: "border-border/50 hover:border-orange/30 hover:shadow-md hover:bg-[var(--surface-sunken)]/50",
+							isHero && "spotlight-border",
+						)}
 					>
-						<div className="relative">
-							{i === 0 && (
-								<span className="absolute -top-3 -end-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange text-white">
-									الأكثر طلباً
-								</span>
-							)}
-							<div className="size-10 sm:size-12 rounded-xl bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center mb-4 shadow-lg shadow-orange/20 transition-transform duration-300 group-hover:scale-105">
-								<feat.icon className="size-5 sm:size-6 text-[#1a130b]" />
+						<div className="relative z-10">
+							<div className="mb-5 flex size-11 items-center justify-center rounded-lg bg-orange/12 text-orange ring-1 ring-orange/20 transition-transform duration-300 group-hover:scale-105">
+								<feat.icon className="size-5 sm:size-6" />
 							</div>
-					</div>
-						<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
-						<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
+							<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
+							<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
+						</div>
 					</motion.div>
-				))}
+					);
+				})}
 			</div>
 		</SectionContainer>
 	)

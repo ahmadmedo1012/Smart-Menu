@@ -16,7 +16,7 @@ export const SectionContainer = forwardRef<HTMLDivElement, SectionContainerProps
 			<section
 				ref={ref}
 				className={cn(
-					"relative py-12 sm:py-16 overflow-hidden transition-colors",
+					"relative scroll-mt-20 py-16 sm:py-24 lg:py-28 overflow-hidden transition-[background-color,border-color] duration-300",
 					tone === "alt" && "bg-[var(--surface-sunken)]/60 border-y border-border/40",
 					className
 				)}

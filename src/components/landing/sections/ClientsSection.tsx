@@ -5,11 +5,9 @@ import { motion, AnimatePresence } from "motion/react"
 import {Quote} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import AnimatedStar from '@/components/ui/star-icon';
-import { MotionBuilding2 } from '@/components/ui/motion-icons';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
-import { GlowPool } from "@/components/ui/GlowPool"
 import { AvatarInitials } from "@/components/ui/AvatarInitials"
 import { springGentle, springSnappy } from "@/lib/motion"
 import { cn } from "@/lib/utils"
@@ -23,40 +21,24 @@ const PARTNERS = [
 
 /* ── Testimonials ── */
 const TESTIMONIALS = [
-  { quote: "المنصة سهلت علينا عملية الطلب بشكل كبير. عملاؤنا صاروا يطلبون بضغطة زر والطلبات تصلنا منظمة بدون أخطاء.", name: "SOHO", designation: "مقهى — طرابلس" },
-  { quote: "نظام المنيو الرقمي والواتساب المتكامل خلى طلبات التيك أوي أسرع وأدق. أقل من خطأ بنسبة 95٪.", name: "Telepizza", designation: "مطعم بيتزا — بنغازي" },
-  { quote: "برنامج الولاء حقق زيادة 30٪ في عودة الزبائن. النقاط والمكافآت حفزت عملائنا على الطلب المتكرر.", name: "The Cheese", designation: "مطعم برغر — مصراتة" },
-  { quote: "سهولة استخدام المنيو الرقمي وربطه بالواتساب وفر علينا وقت وجهد كبيرين. تجربة ممتازة.", name: "Empire", designation: "مقهى — طرابلس" },
-  { quote: "من أفضل القرارات اللي أخذناها لمنشأنا. الإحصائيات والتقارير ساعدتنا نفهم سلوك الزبائن ونطور الخدمة.", name: "Kubaba", designation: "مطعم — بنغازي" },
-  { quote: "منذ استخدام الربط الذكي، زادت طلباتنا عبر واتساب. الزبائن صاروا يطلبون مباشرة من المنيو دون الاتصال بنا.", name: "أحمد المبروك", designation: "مقهى الواحة — طرابلس" },
-  { quote: "نظام الولاء والنقاط جعل الزبائن يعودون باستمرار. زيادة واضحة في المبيعات الشهرية.", name: "عمر بن عاشور", designation: "بيتزا روما — مصراتة" },
+  { quote: "المنصة سهلت علينا عملية الطلب بشكل كبير. عملاؤنا صاروا يطلبون بضغطة زر والطلبات تصلنا منظمة بدون أخطاء.", name: "SOHO", designation: "مقهى، طرابلس" },
+  { quote: "نظام المنيو الرقمي والواتساب المتكامل خلى طلبات التيك أوي أسرع وأدق. صارت الأخطاء أقل بكثير.", name: "Telepizza", designation: "مطعم بيتزا، بنغازي" },
+  { quote: "برنامج الولاء حفز عملاءنا على الطلب المتكرر. النقاط والمكافآت صارت جزءاً من تجربتهم معنا.", name: "The Cheese", designation: "مطعم برغر، مصراتة" },
+  { quote: "سهولة استخدام المنيو الرقمي وربطه بالواتساب وفر علينا وقت وجهد كبيرين. تجربة ممتازة.", name: "Empire", designation: "مقهى، طرابلس" },
+  { quote: "الإحصائيات والتقارير ساعدتنا نفهم سلوك الزبائن ونطور الخدمة بثقة.", name: "Kubaba", designation: "مطعم، بنغازي" },
+  { quote: "الزبائن صاروا يطلبون مباشرة من المنيو دون الاتصال بنا. الطلبات تصل مرتبة وواضحة.", name: "أحمد المبروك", designation: "مقهى الواحة، طرابلس" },
+  { quote: "نظام الولاء والنقاط جعل الزبائن يعودون باستمرار. لاحظنا فرقاً واضحاً في المبيعات.", name: "عمر بن عاشور", designation: "بيتزا روما، مصراتة" },
 ]
 
 /* ── Partner marquee ── */
 function PartnerMarquee() {
-  const doubled = [...PARTNERS, ...PARTNERS]
   return (
-    <div className="relative overflow-hidden mb-12 sm:mb-14 py-5 sm:py-6 border-y border-orange/5">
-      <div className="absolute inset-y-0 start-0 w-16 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-      <div className="absolute inset-y-0 end-0 w-16 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none" />
-      <motion.div
-        className="flex gap-8 sm:gap-14 items-center"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-      >
-        {doubled.map((p, i) => (
-          <div key={i} className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            <span className="size-2 rounded-full bg-orange/40 shrink-0" />
-            <span className="text-sm sm:text-base font-semibold text-muted-foreground/70 whitespace-nowrap">
-              {p.name}
-            </span>
-            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-orange/15 bg-orange/5 px-2 py-0.5 text-[10px] font-medium text-orange/70">
-              <span className="size-1 rounded-full bg-orange/60" />
-              عميل
-            </span>
-          </div>
-        ))}
-      </motion.div>
+    <div className="mb-12 sm:mb-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/50 bg-border/50 sm:grid-cols-4">
+      {PARTNERS.map((p) => (
+        <div key={p.name} className="bg-card px-4 py-5 text-center text-sm font-semibold text-muted-foreground/80">
+          {p.name}
+        </div>
+      ))}
     </div>
   )
 }
@@ -134,15 +116,8 @@ export function ClientsSection() {
   const activeT = TESTIMONIALS[active]
 
   return (
-    <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
-      <GlowPool position="top-1/2 right-1/4" size="size-[50vmin]" color="orange/5" />
-
-      <SectionHeader
-        icon={<MotionBuilding2 className="size-3" />}
-        eyebrow="منصتنا"
-        title="عملاؤنا"
-        subtitle="آلاف المطاعم والمقاهي تثق في منصتنا الرقمية"
-      />
+    <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.012] to-background">
+      <SectionHeader title="تجارب من المطاعم" subtitle="ما يقوله أصحاب المطاعم عن إدارة المنيو والطلبات يومياً." />
 
       {/* Partner strip */}
       <motion.div

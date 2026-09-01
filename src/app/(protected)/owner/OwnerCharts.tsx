@@ -95,7 +95,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 			</div>
 
 			{/* Revenue chart */}
-			<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
+			<div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
 				<h2 className="text-sm font-semibold mb-4">اتجاه الإيرادات (7 أيام)</h2>
 				{chartData.length > 0 ? (
 					<AreaChart data={chartData} height={200} />
@@ -110,7 +110,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 
 			<div className="grid gap-6 lg:grid-cols-2">
 				{/* Hourly distribution */}
-				<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
+				<div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
 						<AnimatedClock className="size-4 text-muted-foreground" />
 						<h2 className="text-sm font-semibold">توزيع الطلبات حسب الساعة</h2>
@@ -127,7 +127,7 @@ export function AnalyticsTab({ advancedStats }: { advancedStats: AdvancedStats }
 				</div>
 
 				{/* Top items with growth */}
-				<div className="rounded-md bg-card/50 border border-border/30 p-5 shadow-sm">
+				<div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
 					<div className="flex items-center gap-2 mb-4">
 						<AnimatedBarChart3 className="size-4 text-muted-foreground" />
 						<h2 className="text-sm font-semibold">الأكثر طلباً (نمو)</h2>

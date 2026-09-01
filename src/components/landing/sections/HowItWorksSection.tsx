@@ -5,36 +5,32 @@ import { STEPS } from "@/components/landing/landing-data"
 import { springGentle, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
-import { GlowPool } from "@/components/ui/GlowPool"
 
 export function HowItWorksSection() {
   return (
     <SectionContainer tone="alt">
-      <GlowPool position="top-1/3 right-1/4 rtl:left-1/4" size="size-[50vmin]" color="orange/4" />
-      <GlowPool position="bottom-1/3 left-1/4 rtl:right-1/4" size="size-[30vmin]" color="orange/3" />
-
-      <SectionHeader eyebrow="خطوات بسيطة" title="ابدأ في 3 خطوات فقط" subtitle="من التسجيل إلى استقبال الطلبات في دقائق" />
+      <SectionHeader align="start" title="من التسجيل إلى أول طلب" subtitle="ثلاث خطوات واضحة، ثم تدير كل شيء من لوحة واحدة." />
 
       {/* Steps grid */}
       <div className="grid md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {STEPS.map((step, i) => (
           <motion.div
             key={step.title}
-            initial={{ opacity: 0, y: 32, rotate: -3, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ ...springGentle, delay: i * 0.15 }}
             className="relative flex flex-col items-center text-center group"
           >
             {/* Icon container */}
             <div className="relative mb-4">
-              <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] opacity-15 blur-md group-hover:blur-lg transition-colors duration-500" />
-              <div className="relative size-18 sm:size-22 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] border border-orange/30 flex items-center justify-center group-hover:border-orange/50 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange/20 transition-[border-color,transform,translate,scale,rotate,box-shadow] duration-500">
-                <step.icon className="size-6 sm:size-7 text-[#1a130b]" />
+              <div className="absolute inset-0 size-18 sm:size-22 rounded-full bg-orange/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative size-18 sm:size-22 rounded-full bg-orange/10 border border-orange/30 flex items-center justify-center group-hover:border-orange/60 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-orange/15 transition-[border-color,transform,translate,scale,rotate,box-shadow] duration-300">
+                <step.icon className="size-6 sm:size-7 text-orange" />
               </div>
 
               {/* Step badge */}
-              <div className="absolute -top-1 -end-1 size-6 rounded-full bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-[#1a130b] text-[0.6rem] font-bold flex items-center justify-center shadow-lg shadow-orange/40 animate-pulse-glow">
+              <div className="absolute -top-1 -end-1 size-6 rounded-full bg-orange text-orange-foreground text-[0.6rem] font-bold flex items-center justify-center shadow-md shadow-orange/25">
                 {i + 1}
               </div>
 

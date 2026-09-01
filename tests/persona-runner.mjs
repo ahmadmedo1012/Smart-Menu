@@ -355,7 +355,7 @@ const journeys = {
   mobile_landing: async () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await tryStep('mobile landing loads', async () => {
-      const s = await goto('/');
+      await goto('/');
       if (s !== 200) throw new Error(`status ${s}`);
     });
     await tryStep('mobile no horizontal scroll', async () => {
@@ -399,7 +399,7 @@ const journeys = {
   tablet_landing: async () => {
     await page.setViewportSize({ width: 768, height: 1024 });
     await tryStep('tablet landing', async () => {
-      const s = await goto('/');
+      await goto('/');
       if (s !== 200) throw new Error(`status ${s}`);
     });
     await tryStep('tablet no overflow', async () => {
@@ -701,7 +701,7 @@ const journeys = {
   },
   whatsup_link: async () => {
     await tryStep('whatsapp link valid', async () => {
-      const s = await goto('/');
+      await goto('/');
       const links = page.locator('a[href*="wa.me"], a[href*="whatsapp"]');
       const c = await links.count();
       if (c === 0) step('whatsapp link valid', true, 'no wa links');
@@ -714,7 +714,7 @@ const journeys = {
   },
   logo_brand: async () => {
     await tryStep('brand icon renders', async () => {
-      const s = await goto('/');
+      await goto('/');
       const imgs = page.locator('img[alt*="الربط"], img[src*="brand"]');
       const c = await imgs.count();
       if (c === 0) step('brand icon renders', true, 'no brand img found');
@@ -726,14 +726,13 @@ const journeys = {
       const btn = page.locator('button[aria-label*="داكن"], button[aria-label*="dark"], button[aria-label*="الوضع"]').first();
       await btn.click().catch(() => {});
       await page.waitForTimeout(500);
-      const html = await page.locator('html').getAttribute('class');
       const dark = await page.evaluate(() => document.documentElement.classList.contains('dark'));
       step('dark theme renders', true, `dark=${dark}`);
     });
   },
   arabic_content: async () => {
     await tryStep('arabic content intact', async () => {
-      const s = await goto('/');
+      await goto('/');
       const text = await page.locator('body').innerText();
       if (!/[\u0600-\u06FF]/.test(text)) throw new Error('arabic missing');
     });

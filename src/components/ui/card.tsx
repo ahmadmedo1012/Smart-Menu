@@ -4,16 +4,20 @@ import { cn } from "@/lib/utils"
 
 function Card({
   className,
+  children,
   size = "default",
   variant = "default",
-  elevation = "elevated",
+  elevation = "flat",
   interactive = false,
+  spotlight = false,
   ...props
 }: React.ComponentProps<"div"> & {
   size?: "default" | "sm";
   variant?: "default" | "glass" | "gradient";
   elevation?: "elevated" | "flat" | "outlined";
   interactive?: boolean;
+  /** Spotlight border: conic-gradient that illuminates on hover */
+  spotlight?: boolean;
 }) {
   return (
     <div
@@ -24,16 +28,16 @@ function Card({
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-md bg-card py-(--card-spacing) text-sm text-card-foreground border border-border/50 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
-        "will-change-transform transition-[transform,translate,scale,rotate,box-shadow,border-color] duration-300 ease-out",
-        // Elevated: hover with lift and premium shadow-glow (default, backward-compatible)
-        "data-[elevation=elevated]:hover:shadow-[var(--shadow-xl),var(--shadow-glow)] data-[elevation=elevated]:hover:-translate-y-1 data-[elevation=elevated]:hover:border-orange/30 data-[elevation=elevated]:focus-visible:ring-2 data-[elevation=elevated]:focus-visible:ring-orange/50 data-[elevation=elevated]:focus-visible:ring-offset-2",
+        "group/card relative flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border/50 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out",
+        // Elevated is opt-in for cards that represent a clear interactive surface.
+        "data-[elevation=elevated]:hover:shadow-lg data-[elevation=elevated]:hover:-translate-y-0.5 data-[elevation=elevated]:hover:border-orange/30 data-[elevation=elevated]:focus-visible:ring-2 data-[elevation=elevated]:focus-visible:ring-orange/50 data-[elevation=elevated]:focus-visible:ring-offset-2",
         // Flat: no hover transform or shadow
         "data-[elevation=flat]:hover:shadow-none data-[elevation=flat]:hover:translate-y-0 data-[elevation=flat]:focus-visible:ring-2 data-[elevation=flat]:focus-visible:ring-orange/50",
         // Outlined: prominent border, no hover effects
         "data-[elevation=outlined]:border-2 data-[elevation=outlined]:border-foreground/10 data-[elevation=outlined]:hover:shadow-none data-[elevation=outlined]:hover:translate-y-0 data-[elevation=outlined]:focus-visible:ring-2 data-[elevation=outlined]:focus-visible:ring-orange/50",
         // Interactive: enhanced cursor and keyboard feedback
-        interactive && "cursor-pointer hover:bg-card/80 active:scale-[0.99] focus-visible:outline-none",
+        interactive && "cursor-pointer hover:bg-card/80 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50 focus-visible:ring-offset-2",
         variant === "glass" && "glass-card backdrop-blur-xl",
         variant === "gradient" && "bg-gradient-to-br from-orange/[0.03] via-card to-secondary/50",
         className
@@ -44,7 +48,24 @@ function Card({
         }
       }}
       {...props}
-    />
+    >
+      {children}
+      {/* Spotlight border overlay — conic-gradient that sweeps on hover */}
+      {spotlight && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+          style={{
+            background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, oklch(0.55 0.19 45 / 0.6) 30deg, transparent 50deg)",
+            mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            maskComposite: "exclude",
+            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "xor",
+            padding: "1px",
+          }}
+        />
+      )}
+    </div>
   )
 }
 

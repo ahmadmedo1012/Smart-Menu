@@ -63,7 +63,7 @@ interface StatusSectionProps {
 export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
   const hasBreakdown = !!stats && Object.keys(stats.statusBreakdown).length > 0
   return (
-    <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
+    <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
       <h2 className="text-xs font-semibold text-muted-foreground mb-3">حالة الطلبات</h2>
       {hasBreakdown ? (
         <>
@@ -104,7 +104,7 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
 
 export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
   return (
-    <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
+    <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
       <h2 className="text-xs font-semibold text-muted-foreground mb-3">الأكثر طلباً</h2>
       {items && items.length > 0 ? (
         <div className="space-y-1">
@@ -113,7 +113,7 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
               <div className="flex items-center gap-2">
                 <span className={cn(
                   "flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold",
-                  idx === 0 ? "bg-gradient-to-br from-orange to-orange/80 text-white" :
+                  idx === 0 ? "bg-orange text-orange-foreground" :
                   idx < 3 ? "bg-orange-muted text-orange" :
                   "bg-muted text-muted-foreground"
                 )}>{toArabicNumber(idx + 1)}</span>
@@ -137,7 +137,7 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
 
 export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) {
   return (
-    <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm h-full">
+    <div className="h-full rounded-xl border border-border/60 bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs font-semibold text-muted-foreground">آخر الطلبات</h2>
         <Link href="/owner/orders"><span className="text-xs text-primary font-medium">عرض الكل</span></Link>

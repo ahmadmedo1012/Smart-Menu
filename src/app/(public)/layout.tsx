@@ -105,7 +105,7 @@ export default async function RootLayout({
 					}}
 				/>
 			</head>
-			<body className="min-h-screen flex flex-col antialiased overflow-x-clip bg-[var(--background-radial),var(--background)]">
+			<body className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased">
 				<a
 					href="#main-content"
 					className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
@@ -120,6 +120,7 @@ export default async function RootLayout({
 						className="[color:var(--grid-line)] [mask-image:radial-gradient(1200px_circle_at_50%_25%,white_20%,transparent)]"
 						style={
 							{
+								opacity: 0.14,
 								'--grid-fill': 'var(--grid-fill)',
 								'--grid-square': 'var(--grid-square)',
 							} as React.CSSProperties

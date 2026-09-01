@@ -7,7 +7,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const page = await context.newPage();
 
   const results = [];
-  const safeEval = async (p, fn, label) => {
+  const safeEval = async (p, fn, _label) => {
     try { return await p.evaluate(fn); }
     catch (e) { return `EVAL_ERR:${e.message.slice(0, 80)}`; }
   };

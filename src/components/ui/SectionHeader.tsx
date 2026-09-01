@@ -12,6 +12,7 @@ type SectionHeaderProps = {
   subtitle?: ReactNode;
   className?: string;
   icon?: ReactNode;
+  align?: "center" | "start";
 };
 
 const fadeUpSpring = {
@@ -24,7 +25,8 @@ const fadeUpSnappy = {
   visible: { opacity: 1, y: 0, transition: springSnappy },
 };
 
-export function SectionHeader({ eyebrow, title, subtitle, className, icon }: SectionHeaderProps) {
+export function SectionHeader({ eyebrow, title, subtitle, className, icon, align = "center" }: SectionHeaderProps) {
+  const centered = align === "center";
   return (
     <motion.div
       initial="hidden"
@@ -33,15 +35,26 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon }: Sec
       variants={{
         visible: { transition: { staggerChildren: 0.08 } },
       }}
-      className={cn("text-center mb-12 sm:mb-14", className)}
+      className={cn(
+        "mb-12 sm:mb-16",
+        centered ? "text-center" : "text-start",
+        className
+      )}
     >
-      <motion.div variants={fadeUpSnappy}>
-        <Eyebrow className="mb-5">{icon}{icon && " "}{eyebrow}</Eyebrow>
-      </motion.div>
+      {eyebrow && (
+        <motion.div variants={fadeUpSnappy}>
+          <Eyebrow className={centered ? "justify-center" : "justify-start"}>
+            {icon}{icon && " "}{eyebrow}
+          </Eyebrow>
+        </motion.div>
+      )}
       {title && (
         <motion.h2
           variants={fadeUpSpring}
-          className="text-3xl sm:text-4xl font-semibold leading-[1.35]"
+          className={cn(
+            "text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.2] tracking-tight text-balance",
+            centered ? "mx-auto" : "max-w-2xl"
+          )}
         >
           {title}
         </motion.h2>
@@ -49,7 +62,10 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon }: Sec
       {subtitle && (
         <motion.p
           variants={fadeUpSnappy}
-          className="text-sm text-muted-foreground/90 mt-3 max-w-lg mx-auto"
+          className={cn(
+            "text-base text-muted-foreground/90 mt-4 max-w-[48ch] leading-relaxed",
+            centered ? "mx-auto" : ""
+          )}
         >
           {subtitle}
         </motion.p>

@@ -7,9 +7,7 @@ import { test, expect } from "@playwright/test";
 import { login } from "./qa-helpers";
 
 const OWNER_A = "testmulti1568"; // restaurants 313/315
-const OWNER_B = "newuser300528"; // restaurant 317
 const PASS = "testpass123";
-const ts = Date.now().toString().slice(-8);
 
 test("IDOR: owner A cannot access owner B's restaurant settings", async ({ page }) => {
   await login(page, OWNER_A, PASS);
@@ -70,7 +68,6 @@ test("XSS: item <script> stored and rendered as text (not executed)", async ({ p
   await login(page, OWNER_A, PASS);
   expect(page.url()).toContain("/owner");
 
-  const rid = 316; // مقهى النخبة — owned by OWNER_A, has categories
   await page.goto("/owner/menu", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3000);
 

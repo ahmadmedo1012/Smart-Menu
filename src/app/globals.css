@@ -158,10 +158,10 @@
 	--duration-slow: 0.7s;
 
 	/* ── Dark theme (default) — deeper, richer ── */
-	--background: oklch(0.025 0.004 55);
+	--background: oklch(0.045 0.006 55);
 	--background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.68 0.19 45 / 0.08), transparent 70%);
 	--foreground: oklch(0.93 0.008 70);
-	--card: oklch(0.11 0.008 60);
+	--card: oklch(0.115 0.009 60);
 	--card-foreground: oklch(0.93 0.008 70);
 	--popover: oklch(0.11 0.008 60);
 	--popover-foreground: oklch(0.93 0.008 70);
@@ -218,7 +218,7 @@
 	/* Surface variants — richer depth */
 	--surface-raised: oklch(0.14 0.008 60);
 	--surface-overlay: oklch(0.11 0.008 60);
-	--surface-sunken: oklch(0.055 0.007 60);
+	--surface-sunken: oklch(0.07 0.007 60);
 
 	/* Gradients */
 	--gradient-orange: linear-gradient(135deg, oklch(0.55 0.19 45 / 0.12), oklch(0.52 0.19 45 / 0.06));
@@ -244,7 +244,7 @@
 	--shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
 	--shadow-lg: 0 12px 40px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
 	--shadow-xl: 0 24px 60px rgba(0,0,0,0.45), 0 8px 16px rgba(0,0,0,0.35);
-	--shadow-glow: 0 0 25px oklch(0.55 0.19 45 / 0.3);
+	--shadow-glow: 0 8px 24px oklch(0.55 0.19 45 / 0.14);
 }
 
 /* ── Light theme ── */
@@ -337,7 +337,7 @@
 	--shadow-md: 0 4px 16px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.05);
 	--shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
 	--shadow-xl: 0 24px 60px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.08);
-	--shadow-glow: 0 0 20px oklch(0.55 0.19 45 / 0.18);
+	--shadow-glow: 0 8px 24px oklch(0.55 0.19 45 / 0.10);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -346,6 +346,94 @@
 
 @utility font-arabic {
 	font-family: var(--font-arabic);
+}
+
+/* ── Spotlight border: illuminate on hover ── */
+@utility spotlight-border {
+	position: relative;
+}
+
+/* ── Ambient glow pulse ── */
+@utility ambient-glow {
+	animation: ambient-glow-pulse 4s ease-in-out infinite;
+}
+
+/* ── Shimmer sweep (click/press feedback) ── */
+@utility shimmer-press {
+	position: relative;
+	overflow: hidden;
+}
+
+/* ── Premium shimmer (slow ambient) ── */
+@utility shimmer-ambient {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Pseudo-element rules for the @utility classes above. Tailwind 4 forbids
+   `@utility name::before { ... }`; we use plain CSS selectors instead. */
+.spotlight-border::before {
+	content: "";
+	position: absolute;
+	inset: -1px;
+	border-radius: inherit;
+	background: conic-gradient(
+		from 0deg,
+		transparent 0deg,
+		oklch(0.55 0.19 45) 30deg,
+		transparent 50deg
+	);
+	mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+	-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+	padding: 1px;
+	opacity: 0;
+	transition: opacity 0.4s ease;
+	pointer-events: none;
+}
+.spotlight-border-active::before,
+.spotlight-border:hover::before {
+	opacity: 1;
+}
+
+.shimmer-press::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(105deg, transparent 30%, oklch(1 0 0 / 0.12) 50%, transparent 70%);
+	transform: translateX(-100%);
+	transition: transform 0.5s ease;
+	pointer-events: none;
+}
+.shimmer-press:active::after {
+	transform: translateX(100%);
+}
+
+.shimmer-ambient::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		transparent 0%,
+		oklch(1 0 0 / 0.04) 40%,
+		oklch(1 0 0 / 0.08) 50%,
+		oklch(1 0 0 / 0.04) 60%,
+		transparent 100%
+	);
+	background-size: 200% 100%;
+	animation: shimmer-slow 3s ease-in-out infinite;
+	pointer-events: none;
+	border-radius: inherit;
+}
+@keyframes shimmer-slow {
+	0% { background-position: -200% 0; }
+	100% { background-position: 200% 0; }
+}
+@keyframes ambient-glow-pulse {
+	0%, 100% { opacity: 0.6; transform: scale(1); }
+	50%      { opacity: 1;   transform: scale(1.05); }
 }
 
 @utility animate-shimmer {
@@ -523,8 +611,8 @@
 
 	p, li, .body-text {
 		font-family: var(--font-sans);
-		font-weight: 500;
-		line-height: 1.5;
+		font-weight: 400;
+		line-height: 1.65;
 	}
 
 	[dir="rtl"] p, [dir="rtl"] li, [dir="rtl"] .body-text {
@@ -658,15 +746,15 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 .glass-card, .glass {
 	background: var(--glass-bg);
-	backdrop-filter: blur(32px) saturate(1.4);
-	-webkit-backdrop-filter: blur(32px) saturate(1.4);
+	backdrop-filter: blur(16px) saturate(1.1);
+	-webkit-backdrop-filter: blur(16px) saturate(1.1);
 	border: 1px solid var(--glass-border);
 	box-shadow: var(--glass-shadow);
 }
 .glass-strong {
 	background: var(--glass-bg-strong);
-	backdrop-filter: blur(24px) saturate(1.5);
-	-webkit-backdrop-filter: blur(24px) saturate(1.5);
+	backdrop-filter: blur(16px) saturate(1.15);
+	-webkit-backdrop-filter: blur(16px) saturate(1.15);
 	border: 1px solid var(--glass-border-strong);
 	box-shadow: var(--glass-shadow-lg);
 }
@@ -807,9 +895,9 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 		transform 0.3s var(--ease-out-quart);
 }
 .card-premium:hover {
-	transform: translateY(-3px);
-	box-shadow: var(--shadow-lg), var(--shadow-glow);
-	border-color: var(--orange);
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+	border-color: color-mix(in oklab, var(--orange) 45%, var(--border));
 }
 
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
@@ -839,15 +927,15 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 	-webkit-backface-visibility: hidden;
 }
 
-.grain-overlay { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.grain-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .grain-overlay::before {
 	content: ''; position: absolute; inset: 0;
-	opacity: 0.035;
+	opacity: 0.022;
 	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 	background-size: 256px 256px;
 	animation: none;
 }
-@media (prefers-color-scheme: light) { .grain-overlay::before { opacity: 0.018; } }
+@media (prefers-color-scheme: light) { .grain-overlay::before { opacity: 0.012; } }
 
 .phone-mask {
 	-webkit-mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
