@@ -1,4 +1,8 @@
 export { AreaChart } from './AreaChart';
+export { ChartCard } from './ChartCard';
+export { ColumnChart } from './ColumnChart';
+export { DoughnutChart } from './DoughnutChart';
+export { SplineAreaChart } from './SplineAreaChart';
 export { BackButton } from './BackButton';
 export { Confetti } from './Confetti';
 export { DefaultError } from './DefaultError';

@@ -57,12 +57,18 @@ interface LoyaltyStats {
 }
 
 interface AdvancedStats {
+	range?: 'today' | 'week' | 'month';
 	revenue7d: { date: string; revenue: number }[];
 	orders7d: { date: string; count: number }[];
 	topItems: { itemId: number; name: string; totalSold: number; growth: number }[];
 	hourlyDistribution: { hour: number; count: number }[];
 	aovTrend: { date: string; aov: number }[];
 	growthPct: number;
+	categoryBreakdown?: { categoryId: number; name: string; count: number; pct: number }[];
+	dailyActivity?: {
+		current: { date: string; count: number }[];
+		previous: { date: string; count: number }[];
+	};
 }
 
 /* ================================================================
@@ -381,15 +387,15 @@ export default function OwnerDashboard() {
 				id="owner-panel-analytics"
 				aria-labelledby="owner-tab-analytics"
 				tabIndex={0}
-				hidden={tab !== 'analytics' || !stats?.advancedStats}
+				hidden={tab !== 'analytics'}
 				className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2 rounded-md"
 			>
-				{tab === 'analytics' && stats?.advancedStats && (
-					<AnalyticsTab advancedStats={stats.advancedStats} />
-				)}
-				{/* Empty state instead of a blank page when analytics haven't
-				    loaded yet — previously both panels hid and the body emptied */}
-				{tab === 'analytics' && !stats?.advancedStats && (
+				{tab === 'analytics' && restaurant?.id ? (
+					<AnalyticsTab
+						advancedStats={stats?.advancedStats}
+						restaurantId={restaurant.id}
+					/>
+				) : tab === 'analytics' ? (
 					<div className="flex flex-col items-center justify-center py-16 text-center">
 						<BarChart3 className="size-10 text-muted-foreground/40 mb-4" aria-hidden="true" />
 						<p className="font-semibold text-lg mb-1">لا توجد بيانات تحليلات بعد</p>
@@ -397,7 +403,7 @@ export default function OwnerDashboard() {
 							ستظهر التحليلات المتقدمة هنا بعد وصول أول الطلبات. جرّب تحديث الصفحة لاحقاً.
 						</p>
 					</div>
-				)}
+				) : null}
 			</div>
 
 			{/* Share your menu card */}

@@ -176,6 +176,11 @@ describe('stats advanced GET — role gate & tenant isolation', () => {
 		expect(body.data).toHaveProperty('revenue7d');
 		expect(body.data).toHaveProperty('topItems');
 		expect(body.data).toHaveProperty('growthPct');
+		expect(body.data).toHaveProperty('categoryBreakdown');
+		expect(body.data).toHaveProperty('dailyActivity');
+		expect(body.data).toHaveProperty('hourlyDistribution');
+		expect(body.data.hourlyDistribution).toHaveLength(24);
+		expect(body.data.range).toBe('week');
 	});
 
 	it('admin role CAN read advanced stats of any restaurant (200)', async () => {

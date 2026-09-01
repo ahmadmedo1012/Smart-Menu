@@ -1,127 +1,230 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
-import { success, handleError, error } from "@/lib/api-helpers";
-import { requireAuth } from "@/lib/auth";
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/db';
+import { success, handleError, error } from '@/lib/api-helpers';
+import { requireAuth } from '@/lib/auth';
+import {
+	parseAnalyticsRange,
+	rangeBounds,
+	previousBounds,
+	fillHours,
+	fillDailySeries,
+	fillRevenueSeries,
+	categoryShares,
+} from '@/lib/chart-stats';
 
 export async function GET(request: NextRequest) {
-  try {
-    const auth = await requireAuth();
-    if (!auth.authorized) return error("غير مصرح", 401);
+	try {
+		const auth = await requireAuth();
+		if (!auth.authorized) return error('غير مصرح', 401);
 
-    const { searchParams } = new URL(request.url);
-    let restaurantId: number | undefined = Number(searchParams.get("restaurantId")) || undefined;
+		const { searchParams } = new URL(request.url);
+		let restaurantId: number | undefined = Number(searchParams.get('restaurantId')) || undefined;
+		const range = parseAnalyticsRange(searchParams.get('range'));
 
-    if (auth.role === "owner") {
-      // Multi-menu: verify ownership of requested restaurantId via UserRestaurant
-      if (restaurantId && restaurantId !== auth.restaurantId) {
-        const link = await prisma.userRestaurant.findUnique({
-          where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
-        });
-        if (!link) return error("غير مصرح", 403);
-      } else {
-        restaurantId = auth.restaurantId ?? undefined;
-      }
-      if (!restaurantId) return error("لا يوجد مطعم مرتبط", 400);
-    } else if (auth.role !== "admin" && auth.role !== "super_admin" && auth.role !== "sub_admin") {
-      // Regular users must never read advanced stats (revenue/orders) or customer PII of any restaurant
-      return error("غير مصرح", 403);
-    }
-    if (!restaurantId) return error("معرف المطعم مطلوب", 400);
+		if (auth.role === 'owner') {
+			if (restaurantId && restaurantId !== auth.restaurantId) {
+				const link = await prisma.userRestaurant.findUnique({
+					where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
+				});
+				if (!link) return error('غير مصرح', 403);
+			} else {
+				restaurantId = auth.restaurantId ?? undefined;
+			}
+			if (!restaurantId) return error('لا يوجد مطعم مرتبط', 400);
+		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+			return error('غير مصرح', 403);
+		}
+		if (!restaurantId) return error('معرف المطعم مطلوب', 400);
 
-    const now = new Date();
-    const sevenDaysAgo = new Date(now);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const fourteenDaysAgo = new Date(now);
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+		const now = new Date();
+		const current = rangeBounds(range, now);
+		const previous = previousBounds(range, current);
+		const sevenDaysAgo = new Date(now);
+		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // Revenue last 7 days
-    const revenue7d = await prisma.$queryRaw<{ date: string; revenue: number }[]>`
-      SELECT DATE("createdAt") as date, COALESCE(SUM(total), 0) as revenue
-      FROM "Order"
-      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
-      GROUP BY DATE("createdAt") ORDER BY date ASC
-    `;
+		const monthStart = rangeBounds('month', now).start;
+		const prevMonth = previousBounds('month', { start: monthStart, end: now });
 
-    // Orders last 7 days
-    const orders7d = await prisma.$queryRaw<{ date: string; count: bigint }[]>`
-      SELECT DATE("createdAt") as date, COUNT(*) as count
-      FROM "Order"
-      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
-      GROUP BY DATE("createdAt") ORDER BY date ASC
-    `;
+		const [
+			revenue7dRaw,
+			orders7dRaw,
+			revenueRangeRaw,
+			ordersRangeRaw,
+			topItemsCurrent,
+			topItemsPrev,
+			hourlyRaw,
+			aovTrendRaw,
+			currentCount,
+			prevCount,
+			categoryRaw,
+			dailyCurrentRaw,
+			dailyPrevRaw,
+		] = await Promise.all([
+			prisma.$queryRaw<{ date: string; revenue: number }[]>`
+				SELECT DATE("createdAt") as date, COALESCE(SUM(total), 0) as revenue
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+			prisma.$queryRaw<{ date: string; count: bigint }[]>`
+				SELECT DATE("createdAt") as date, COUNT(*) as count
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+			prisma.$queryRaw<{ date: string; revenue: number }[]>`
+				SELECT DATE("createdAt") as date, COALESCE(SUM(total), 0) as revenue
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+			prisma.$queryRaw<{ date: string; count: bigint }[]>`
+				SELECT DATE("createdAt") as date, COUNT(*) as count
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+			prisma.orderItem.groupBy({
+				by: ['itemId'],
+				_sum: { quantity: true },
+				where: { order: { restaurantId, createdAt: { gte: current.start } } },
+				orderBy: { _sum: { quantity: 'desc' } },
+				take: 10,
+			}),
+			prisma.orderItem.groupBy({
+				by: ['itemId'],
+				_sum: { quantity: true },
+				where: { order: { restaurantId, createdAt: { gte: previous.start, lt: current.start } } },
+				orderBy: { _sum: { quantity: 'desc' } },
+				take: 10,
+			}),
+			prisma.$queryRaw<{ hour: number; count: bigint }[]>`
+				SELECT EXTRACT(HOUR FROM "createdAt")::int as hour, COUNT(*)::int as count
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+				GROUP BY hour ORDER BY hour ASC
+			`,
+			prisma.$queryRaw<{ date: string; aov: number }[]>`
+				SELECT DATE("createdAt") as date, AVG(total)::decimal(10,2) as aov
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+			prisma.order.count({ where: { restaurantId, createdAt: { gte: current.start } } }),
+			prisma.order.count({
+				where: { restaurantId, createdAt: { gte: previous.start, lt: current.start } },
+			}),
+			prisma.$queryRaw<{ categoryId: number; name: string; count: bigint }[]>`
+				SELECT c.id as "categoryId", COALESCE(NULLIF(c."nameAr", ''), c.name) as name, COALESCE(SUM(oi.quantity), 0)::int as count
+				FROM "OrderItem" oi
+				INNER JOIN "Order" o ON o.id = oi."orderId"
+				INNER JOIN "MenuItem" mi ON mi.id = oi."itemId"
+				INNER JOIN "MenuCategory" c ON c.id = mi."categoryId"
+				WHERE o."restaurantId" = ${restaurantId} AND o."createdAt" >= ${current.start}
+				GROUP BY c.id, c."nameAr", c.name
+				ORDER BY count DESC
+			`,
+			prisma.$queryRaw<{ date: string; count: bigint }[]>`
+				SELECT DATE("createdAt") as date, COUNT(*) as count
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${monthStart}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+			prisma.$queryRaw<{ date: string; count: bigint }[]>`
+				SELECT DATE("createdAt") as date, COUNT(*) as count
+				FROM "Order"
+				WHERE "restaurantId" = ${restaurantId}
+					AND "createdAt" >= ${prevMonth.start}
+					AND "createdAt" < ${monthStart}
+				GROUP BY DATE("createdAt") ORDER BY date ASC
+			`,
+		]);
 
-    // Top items with growth
-    const topItemsCurrent = await prisma.orderItem.groupBy({
-      by: ["itemId"],
-      _sum: { quantity: true },
-      where: { order: { restaurantId, createdAt: { gte: sevenDaysAgo } } },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 10,
-    });
+		const topItemIds = topItemsCurrent.map((t) => t.itemId);
+		const topItemDetails =
+			topItemIds.length > 0
+				? await prisma.menuItem.findMany({
+						where: { id: { in: topItemIds } },
+						select: { id: true, name: true, nameAr: true },
+					})
+				: [];
+		const itemMap = new Map(
+			topItemDetails.map((i) => [i.id, i.nameAr?.trim() ? i.nameAr : i.name])
+		);
+		const prevMap = new Map(topItemsPrev.map((t) => [t.itemId, t._sum.quantity ?? 0]));
 
-    const topItemsPrev = await prisma.orderItem.groupBy({
-      by: ["itemId"],
-      _sum: { quantity: true },
-      where: { order: { restaurantId, createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo } } },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 10,
-    });
+		const topItems = topItemsCurrent.map((t) => {
+			const prev = prevMap.get(t.itemId) ?? 0;
+			const curr = t._sum.quantity ?? 0;
+			return {
+				itemId: t.itemId,
+				name: itemMap.get(t.itemId) ?? 'Unknown',
+				totalSold: curr,
+				growth: prev > 0 ? Math.round(((curr - prev) / prev) * 100) : curr > 0 ? 100 : 0,
+			};
+		});
 
-    const topItemIds = topItemsCurrent.map((t) => t.itemId);
-    const topItemDetails = topItemIds.length > 0
-      ? await prisma.menuItem.findMany({ where: { id: { in: topItemIds } }, select: { id: true, name: true } })
-      : [];
-    const itemMap = new Map(topItemDetails.map((i) => [i.id, i.name]));
-    const prevMap = new Map(topItemsPrev.map((t) => [t.itemId, t._sum.quantity ?? 0]));
+		const growthPct =
+			prevCount > 0 ? Math.round(((currentCount - prevCount) / prevCount) * 100) : 0;
 
-    const topItems = topItemsCurrent.map((t) => {
-      const prev = prevMap.get(t.itemId) ?? 0;
-      const curr = t._sum.quantity ?? 0;
-      return {
-        itemId: t.itemId,
-        name: itemMap.get(t.itemId) ?? "Unknown",
-        totalSold: curr,
-        growth: prev > 0 ? Math.round(((curr - prev) / prev) * 100) : 100,
-      };
-    });
+		const hourlyDistribution = fillHours(
+			hourlyRaw.map((h) => ({ hour: Number(h.hour), count: Number(h.count) }))
+		);
 
-    // Hourly distribution
-    const hourlyDistribution = await prisma.$queryRaw<{ hour: number; count: bigint }[]>`
-      SELECT EXTRACT(HOUR FROM "createdAt")::int as hour, COUNT(*)::int as count
-      FROM "Order"
-      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
-      GROUP BY hour ORDER BY hour ASC
-    `;
+		const categoryBreakdown = categoryShares(
+			categoryRaw.map((c) => ({
+				categoryId: Number(c.categoryId),
+				name: c.name,
+				count: Number(c.count),
+			}))
+		);
 
-    // AOV trend
-    const aovTrend = await prisma.$queryRaw<{ date: string; aov: number }[]>`
-      SELECT DATE("createdAt") as date, AVG(total)::decimal(10,2) as aov
-      FROM "Order"
-      WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${sevenDaysAgo}
-      GROUP BY DATE("createdAt") ORDER BY date ASC
-    `;
+		const dailyCurrent = fillDailySeries(
+			dailyCurrentRaw.map((r) => ({ date: r.date, count: Number(r.count) })),
+			monthStart,
+			now
+		);
+		const dailyPrevious = fillDailySeries(
+			dailyPrevRaw.map((r) => ({ date: r.date, count: Number(r.count) })),
+			prevMonth.start,
+			prevMonth.end
+		);
 
-    // Growth vs prev period
-    const [currentCount, prevCount] = await Promise.all([
-      prisma.order.count({ where: { restaurantId, createdAt: { gte: sevenDaysAgo } } }),
-      prisma.order.count({
-        where: { restaurantId, createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo } },
-      }),
-    ]);
+		const alignedPrev = dailyCurrent.map((_, i) => dailyPrevious[i]?.count ?? 0);
 
-    const growthPct = prevCount > 0
-      ? Math.round(((currentCount - prevCount) / prevCount) * 100)
-      : 0;
-
-    return success({
-      revenue7d: revenue7d.map((r) => ({ date: r.date, revenue: Number(r.revenue) })),
-      orders7d: orders7d.map((r) => ({ date: r.date, count: Number(r.count) })),
-      topItems,
-      hourlyDistribution: hourlyDistribution.map((h) => ({ hour: h.hour, count: Number(h.count) })),
-      aovTrend: aovTrend.map((a) => ({ date: a.date, aov: Number(a.aov) })),
-      growthPct,
-    });
-  } catch (e) {
-    return handleError(e);
-  }
+		return success({
+			range,
+			revenue7d: fillRevenueSeries(
+				revenue7dRaw.map((r) => ({ date: r.date, revenue: Number(r.revenue) })),
+				sevenDaysAgo,
+				now
+			),
+			orders7d: fillDailySeries(
+				orders7dRaw.map((r) => ({ date: r.date, count: Number(r.count) })),
+				sevenDaysAgo,
+				now
+			),
+			revenueRange: fillRevenueSeries(
+				revenueRangeRaw.map((r) => ({ date: r.date, revenue: Number(r.revenue) })),
+				current.start,
+				now
+			),
+			ordersRange: fillDailySeries(
+				ordersRangeRaw.map((r) => ({ date: r.date, count: Number(r.count) })),
+				current.start,
+				now
+			),
+			topItems,
+			hourlyDistribution,
+			aovTrend: aovTrendRaw.map((a) => ({ date: a.date, aov: Number(a.aov) })),
+			growthPct,
+			categoryBreakdown,
+			dailyActivity: {
+				current: dailyCurrent,
+				previous: dailyCurrent.map((d, i) => ({ date: d.date, count: alignedPrev[i] ?? 0 })),
+			},
+		});
+	} catch (e) {
+		return handleError(e);
+	}
 }
