@@ -243,6 +243,7 @@ export default function PricingPage() {
 						<button
 							type="button"
 							onClick={() => setYearly(false)}
+							aria-pressed={!yearly}
 							className={cn(
 								'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
 								yearly ? 'text-muted-foreground' : 'bg-orange-muted text-orange'
@@ -256,6 +257,7 @@ export default function PricingPage() {
 						<button
 							type="button"
 							onClick={() => setYearly(true)}
+							aria-pressed={yearly}
 							className={cn(
 								'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
 								yearly ? 'bg-orange-muted text-orange' : 'text-muted-foreground'
