@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
 
 export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: number }) {
   // Real count from fetchPublicStats — never fabricate marketing numbers
@@ -23,58 +24,64 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[min(60vmin,720px)] rounded-full border border-orange/10 pointer-events-none z-0" />
 
       <div className="relative z-10 text-center">
-        <SectionHeader
-          title="جهّز مطعمك للانطلاق الرقمي"
-          subtitle={
-            <>
-              {trustCount > 0 ? (
-                <>
-                  انطلق الآن. انضم إلى{" "}
-                  <span className="font-bold text-foreground">
-                    أكثر من {trustCount.toLocaleString("ar")} مطعم ومقهى
-                  </span>
-                  .{" "}
-                </>
-              ) : (
-                <>انطلق الآن. انضم إلى عائلتنا. </>
-              )}
-              استقبل الطلبات عبر واتساب وابدأ في دقائق.
-            </>
-          }
-        />
+        <ScrollReveal y={20}>
+          <SectionHeader
+            title="جهّز مطعمك للانطلاق الرقمي"
+            subtitle={
+              <>
+                {trustCount > 0 ? (
+                  <>
+                    انطلق الآن. انضم إلى{" "}
+                    <span className="font-bold text-foreground">
+                      أكثر من {trustCount.toLocaleString("ar")} مطعم ومقهى
+                    </span>
+                    .{" "}
+                  </>
+                ) : (
+                  <>انطلق الآن. انضم إلى عائلتنا. </>
+                )}
+                استقبل الطلبات عبر واتساب وابدأ في دقائق.
+              </>
+            }
+          />
+        </ScrollReveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ ...springSnappy, delay: 0.4 }}
-          className="flex gap-4 justify-center flex-wrap"
-        >
+        <ScrollReveal y={20} delay={150}>
           <motion.div
-            animate={{ scale: [1, 1.04, 1] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ ...springSnappy, delay: 0.4 }}
+            className="flex gap-4 justify-center flex-wrap"
           >
-            <Link href="/subscribe">
-              <Button variant="flame" size="lg">ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" /></Button>
+            <motion.div
+              animate={{ scale: [1, 1.04, 1] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="relative"
+            >
+              <Link href="/subscribe">
+                <Button variant="flame" size="lg">ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" /></Button>
+              </Link>
+            </motion.div>
+            <Link href="/pricing">
+              <Button variant="outline" size="lg">
+                عرض الخطط
+              </Button>
             </Link>
           </motion.div>
-          <Link href="/pricing">
-            <Button variant="outline" size="lg">
-              عرض الخطط
-            </Button>
-          </Link>
-        </motion.div>
+        </ScrollReveal>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ ...springDefault, delay: 0.5 }}
-          className="text-xs text-muted-foreground/60 mt-6"
-        >
-          مجاناً بدون بطاقة ائتمان · إلغاء في أي وقت · دعم فني متكامل
-        </motion.p>
+        <ScrollReveal y={10} delay={250}>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ ...springDefault, delay: 0.5 }}
+            className="text-xs text-muted-foreground/60 mt-6"
+          >
+            مجاناً بدون بطاقة ائتمان · إلغاء في أي وقت · دعم فني متكامل
+          </motion.p>
+        </ScrollReveal>
       </div>
     </SectionContainer>
   )

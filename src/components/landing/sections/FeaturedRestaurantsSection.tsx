@@ -12,6 +12,7 @@ import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import { Button } from '@/components/ui/button';
 import { SectionContainer } from '@/components/ui/SectionContainer';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { ScrollReveal } from '@/components/ui/scroll-reveal';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import type { FeaturedRestaurant } from '@/lib/landing';
 
@@ -80,12 +81,15 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 
 	return (
 		<SectionContainer className="bg-gradient-to-b from-background via-orange/[0.015] to-background">
-			<SectionHeader
-				align="start"
-				title="اطلع على منيو هذه المطاعم"
-				subtitle="تصفح منيو مطاعم تستخدم المنصة وشاهد كيف تبدو التجربة من جهة الزبون."
-			/>
+			<ScrollReveal y={20}>
+				<SectionHeader
+					align="start"
+					title="اطلع على منيو هذه المطاعم"
+					subtitle="تصفح منيو مطاعم تستخدم المنصة وشاهد كيف تبدو التجربة من جهة الزبون."
+				/>
+			</ScrollReveal>
 
+			<ScrollReveal y={30} delay={100}>
 			<div
 				className="relative max-w-[1060px] mx-auto px-1"
 				onMouseEnter={() => setPaused(true)}
@@ -290,6 +294,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 					</div>
 				)}
 			</div>
+		</ScrollReveal>
 		</SectionContainer>
 	);
 }

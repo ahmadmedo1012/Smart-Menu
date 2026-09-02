@@ -9,6 +9,7 @@ import { MotionChevronRight } from '@/components/ui/motion-icons';
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { AvatarInitials } from "@/components/ui/AvatarInitials"
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
 import { springGentle, springSnappy } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
@@ -33,13 +34,15 @@ const TESTIMONIALS = [
 /* ── Partner marquee ── */
 function PartnerMarquee() {
   return (
-    <div className="mb-12 sm:mb-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/50 bg-border/50 sm:grid-cols-4">
-      {PARTNERS.map((p) => (
-        <div key={p.name} className="bg-card px-4 py-5 text-center text-sm font-semibold text-muted-foreground/80">
-          {p.name}
-        </div>
-      ))}
-    </div>
+    <ScrollReveal y={16}>
+      <div className="mb-12 sm:mb-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/50 bg-border/50 sm:grid-cols-4">
+        {PARTNERS.map((p) => (
+          <div key={p.name} className="bg-card px-4 py-5 text-center text-sm font-semibold text-muted-foreground/80">
+            {p.name}
+          </div>
+        ))}
+      </div>
+    </ScrollReveal>
   )
 }
 
@@ -117,77 +120,76 @@ export function ClientsSection() {
 
   return (
     <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.012] to-background">
-      <SectionHeader title="تجارب من المطاعم" subtitle="ما يقوله أصحاب المطاعم عن إدارة المنيو والطلبات يومياً." />
+      <ScrollReveal y={20}>
+        <SectionHeader title="تجارب من المطاعم" subtitle="ما يقوله أصحاب المطاعم عن إدارة المنيو والطلبات يومياً." />
+      </ScrollReveal>
 
       {/* Partner strip */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ ...springGentle, delay: 0.05 }}
-      >
-        <PartnerMarquee />
-      </motion.div>
+      <PartnerMarquee />
 
       {/* Testimonial panel */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ ...springGentle, delay: 0.1 }}
-        className="max-w-lg mx-auto"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onFocusCapture={() => setPaused(true)}
-        onBlurCapture={() => setPaused(false)}
-      >
-        <div className="relative rounded-[20px] bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
-          <AnimatePresence mode="wait">
-            <TestimonialCard key={active} t={activeT} />
-          </AnimatePresence>
+      <ScrollReveal y={16} delay={100}>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ ...springGentle, delay: 0.1 }}
+          className="max-w-lg mx-auto"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
+        >
+          <div className="relative rounded-[20px] bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
+            <AnimatePresence mode="wait">
+              <TestimonialCard key={active} t={activeT} />
+            </AnimatePresence>
 
-          {/* Navigation */}
-          {n > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-6 pt-5 border-t border-border/30">
-              <button
-                onClick={prev}
-                className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
-                aria-label="السابق"
-              >
-                <MotionChevronRight className="size-4 group-hover:text-white transition-colors" />
-              </button>
-              <div className="flex gap-1.5">
-                {TESTIMONIALS.map((_, i) => (
-                  <NavPill key={i} i={i} active={active} onClick={() => goTo(i)} />
-                ))}
+            {/* Navigation */}
+            {n > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-6 pt-5 border-t border-border/30">
+                <button
+                  onClick={prev}
+                  className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
+                  aria-label="السابق"
+                >
+                  <MotionChevronRight className="size-4 group-hover:text-white transition-colors" />
+                </button>
+                <div className="flex gap-1.5">
+                  {TESTIMONIALS.map((_, i) => (
+                    <NavPill key={i} i={i} active={active} onClick={() => goTo(i)} />
+                  ))}
+                </div>
+                <button
+                  onClick={next}
+                  className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
+                  aria-label="التالي"
+                >
+                  <MotionChevronLeft className="size-4 group-hover:text-white transition-colors" />
+                </button>
               </div>
-              <button
-                onClick={next}
-                className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
-                aria-label="التالي"
-              >
-                <MotionChevronLeft className="size-4 group-hover:text-white transition-colors" />
-              </button>
-            </div>
-          )}
-        </div>
-      </motion.div>
+            )}
+          </div>
+        </motion.div>
+      </ScrollReveal>
 
       {/* Trust badge — social proof */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ ...springSnappy, delay: 0.3 }}
-        className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 sm:mt-10 text-xs text-muted-foreground/50"
-      >
-        {["متجر رسمي", "دعم فني متكامل", "تحديثات مستمرة", "ضمان استرداد"].map((label) => (
-          <span key={label} className="flex items-center gap-1.5">
-            <span className="size-1 rounded-full bg-orange/50" />
-            {label}
-          </span>
-        ))}
-      </motion.div>
+      <ScrollReveal y={10} delay={200}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ ...springSnappy, delay: 0.3 }}
+          className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 sm:mt-10 text-xs text-muted-foreground/50"
+        >
+          {["متجر رسمي", "دعم فني متكامل", "تحديثات مستمرة", "ضمان استرداد"].map((label) => (
+            <span key={label} className="flex items-center gap-1.5">
+              <span className="size-1 rounded-full bg-orange/50" />
+              {label}
+            </span>
+          ))}
+        </motion.div>
+      </ScrollReveal>
     </SectionContainer>
   )
 }

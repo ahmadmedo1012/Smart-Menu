@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { toArabicNumber } from '@/lib/format';
 
 function AnimatedNumber({ value }: { value: number }) {
@@ -32,30 +33,32 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
 
   return (
     <SectionContainer tone="alt">
-      <div className="mx-auto max-w-3xl rounded-xl border border-border/60 bg-card p-6 shadow-sm sm:p-8">
-        <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:gap-6">
-          {items.map((item, i) => (
-            <motion.div
-              key={item.label}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ ...springSnappy, delay: i * 0.1 }}
-            >
-              <div className="text-center">
-                <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2">
-                  <span className="text-orange">
-                    <AnimatedNumber value={item.value} />{item.suffix}
-                  </span>
+      <ScrollReveal y={24}>
+        <div className="mx-auto max-w-3xl rounded-xl border border-border/60 bg-card p-6 shadow-sm sm:p-8">
+          <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:gap-6">
+            {items.map((item, i) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ ...springSnappy, delay: i * 0.1 }}
+              >
+                <div className="text-center">
+                  <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2">
+                    <span className="text-orange">
+                      <AnimatedNumber value={item.value} />{item.suffix}
+                    </span>
+                  </div>
+                  <div className="text-xs sm:text-sm font-medium text-muted-foreground/95">{item.label}</div>
+                  <div className="mt-3 text-xs text-muted-foreground/75">{item.sub}</div>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-muted-foreground/95">{item.label}</div>
-                <div className="mt-3 text-xs text-muted-foreground/75">{item.sub}</div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
+          <div className="mx-auto mt-6 h-px w-16 bg-orange/60" />
         </div>
-        <div className="mx-auto mt-6 h-px w-16 bg-orange/60" />
-      </div>
+      </ScrollReveal>
     </SectionContainer>
   );
 }

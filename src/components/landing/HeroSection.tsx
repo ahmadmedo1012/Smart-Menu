@@ -9,6 +9,7 @@ import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { QrCornerMark } from "@/components/ui/QrCornerMark"
 import { Eyebrow } from "@/components/ui/Eyebrow"
 import { IPhoneMockup } from "@/components/ui/iphone-mockup"
+import { ScrollParallax } from "@/components/ui/scroll-parallax"
 import { springDefault } from "@/lib/motion"
 
 // Staggered entrance for hero content — professional premium reveal
@@ -35,13 +36,20 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 				aria-hidden="true"
 			>
 				{/* One restrained warmth layer keeps the phone as the focal point. */}
-				<div
-					className="absolute top-[12%] left-1/2 -translate-x-1/2 size-[min(72vmin,680px)] rounded-full"
-					style={{
-						background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.12) 0%, oklch(0.55 0.19 45 / 0.035) 48%, transparent 72%)",
-						filter: "blur(54px)",
-					}}
-				/>
+				{/* scroll-craft drift: subtle parallax on the warmth layer */}
+				<ScrollParallax
+					rate={-0.15}
+					maxTravel={30}
+					className="absolute inset-0"
+				>
+					<div
+						className="absolute top-[12%] left-1/2 -translate-x-1/2 size-[min(72vmin,680px)] rounded-full"
+						style={{
+							background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.12) 0%, oklch(0.55 0.19 45 / 0.035) 48%, transparent 72%)",
+							filter: "blur(54px)",
+						}}
+					/>
+				</ScrollParallax>
 			</div>
 
 			<ContainerScroll
@@ -105,7 +113,12 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 					<div aria-hidden="true" className="absolute -top-4 end-[4%] sm:end-[12%] md:end-[16%] -z-10 opacity-90">
 						<QrCornerMark label="" size={84} className="opacity-25 blur-[1px]" />
 					</div>
-					<div className="relative w-full max-w-[240px] sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px]">
+					{/* scroll-craft parallax: phone recedes slightly, foreground cards float */}
+					<ScrollParallax
+						rate={-0.1}
+						maxTravel={20}
+						className="relative w-full max-w-[240px] sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px]"
+					>
 						<IPhoneMockup
 							model="15-pro"
 							color="natural-titanium"
@@ -114,55 +127,55 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 							scale={1}
 							className="w-full"
 						/>
-						{/* Order ticket — the WhatsApp handoff, itemized like a real till receipt */}
-						<motion.div
-							initial={{ opacity: 0, y: 14, scale: 0.95 }}
-							animate={{ opacity: 1, y: 0, scale: 1 }}
-							transition={{ delay: 0.55, ...springDefault }}
-							className="absolute top-5 -start-2 sm:-start-5 md:-start-8 z-10"
-						>
-							<div className="animate-float-slow">
-								<div className="glass-strong rounded-2xl px-3.5 py-3 flex flex-col gap-2 shadow-xl">
-									<div className="flex items-center gap-2.5">
-										<div className="relative size-9 rounded-full bg-[#25D366]/15 flex items-center justify-center shrink-0">
-											<MessageCircle className="size-4 text-[#25D366]" />
-											<span className="absolute -top-0.5 -end-0.5 size-2.5 rounded-full bg-[#25D366] ring-2 ring-background" />
-										</div>
-										<div className="text-start">
-											<p className="text-xs font-bold text-foreground leading-tight">طلب جديد وصل</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">عبر واتساب</p>
-										</div>
-									</div>
-									<div className="animate-ticket-drop flex items-center justify-between gap-3 rounded-xl bg-background/70 border border-border/40 px-3 py-1.5">
-										<div className="flex items-center gap-1.5">
-											<span className="size-1.5 rounded-full bg-[#25D366]" />
-											<span className="text-[10px] font-bold text-foreground">بيتزا مارغريتا ×2</span>
-										</div>
-										<span dir="ltr" className="text-[10px] font-bold text-orange">32.00 د.ل</span>
-									</div>
-								</div>
-							</div>
-						</motion.div>
-						{/* Monthly growth — retail numerals, LTR */}
-						<motion.div
-							initial={{ opacity: 0, y: 14, scale: 0.95 }}
-							animate={{ opacity: 1, y: 0, scale: 1 }}
-							transition={{ delay: 0.75, ...springDefault }}
-							className="absolute bottom-24 -end-2 sm:-end-5 md:-end-8 z-10"
-						>
-							<div className="animate-float-slow [animation-delay:1.5s]">
-								<div className="glass-strong rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-xl">
-									<div className="size-9 rounded-full bg-orange/15 flex items-center justify-center shrink-0">
-										<TrendingUp className="size-4 text-orange" />
+					</ScrollParallax>
+					{/* Order ticket — the WhatsApp handoff, itemized like a real till receipt */}
+					<motion.div
+						initial={{ opacity: 0, y: 14, scale: 0.95 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						transition={{ delay: 0.55, ...springDefault }}
+						className="absolute top-5 -start-2 sm:-start-5 md:-start-8 z-10"
+					>
+						<div className="animate-float-slow">
+							<div className="glass-strong rounded-2xl px-3.5 py-3 flex flex-col gap-2 shadow-xl">
+								<div className="flex items-center gap-2.5">
+									<div className="relative size-9 rounded-full bg-[#25D366]/15 flex items-center justify-center shrink-0">
+										<MessageCircle className="size-4 text-[#25D366]" />
+										<span className="absolute -top-0.5 -end-0.5 size-2.5 rounded-full bg-[#25D366] ring-2 ring-background" />
 									</div>
 									<div className="text-start">
-										<p dir="ltr" className="text-sm font-bold text-foreground leading-none">+32%</p>
-										<p className="text-[10px] text-muted-foreground mt-1 whitespace-nowrap">نمو الطلبات الشهرية</p>
+										<p className="text-xs font-bold text-foreground leading-tight">طلب جديد وصل</p>
+										<p className="text-[10px] text-muted-foreground mt-0.5">عبر واتساب</p>
 									</div>
 								</div>
+								<div className="animate-ticket-drop flex items-center justify-between gap-3 rounded-xl bg-background/70 border border-border/40 px-3 py-1.5">
+									<div className="flex items-center gap-1.5">
+										<span className="size-1.5 rounded-full bg-[#25D366]" />
+										<span className="text-[10px] font-bold text-foreground">بيتزا مارغريتا ×2</span>
+									</div>
+									<span dir="ltr" className="text-[10px] font-bold text-orange">32.00 د.ل</span>
+								</div>
 							</div>
-						</motion.div>
-					</div>
+						</div>
+					</motion.div>
+					{/* Monthly growth — retail numerals, LTR */}
+					<motion.div
+						initial={{ opacity: 0, y: 14, scale: 0.95 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						transition={{ delay: 0.75, ...springDefault }}
+						className="absolute bottom-24 -end-2 sm:-end-5 md:-end-8 z-10"
+					>
+						<div className="animate-float-slow [animation-delay:1.5s]">
+							<div className="glass-strong rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-xl">
+								<div className="size-9 rounded-full bg-orange/15 flex items-center justify-center shrink-0">
+									<TrendingUp className="size-4 text-orange" />
+								</div>
+								<div className="text-start">
+									<p dir="ltr" className="text-sm font-bold text-foreground leading-none">+32%</p>
+									<p className="text-[10px] text-muted-foreground mt-1 whitespace-nowrap">نمو الطلبات الشهرية</p>
+								</div>
+							</div>
+						</div>
+					</motion.div>
 				</div>
 			</ContainerScroll>
 		</>
