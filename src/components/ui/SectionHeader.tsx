@@ -36,7 +36,7 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
         visible: { transition: { staggerChildren: 0.08 } },
       }}
       className={cn(
-        "mb-12 sm:mb-16",
+        "mb-14 sm:mb-20",
         centered ? "text-center" : "text-start",
         className
       )}

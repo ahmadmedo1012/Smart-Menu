@@ -1,9 +1,7 @@
 "use client"
 
-import { motion } from "motion/react"
 import { Smartphone, BarChart3, QrCode, Gift, MessageCircle, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
@@ -26,7 +24,7 @@ export function FeaturesSection() {
 
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{features.map((feat, i) => {
-					// The first feature anchors the grid without hiding its content behind a mask.
+					// The first feature anchors the grid with a warm gradient + spotlight border
 					const isHero = i === 0
 					return (
 					<ScrollReveal
@@ -34,14 +32,9 @@ export function FeaturesSection() {
 						y={24}
 						delay={i * 60}
 					>
-						<motion.div
-							initial={{ opacity: 0, y: 24 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true, margin: "-60px" }}
-							transition={{ ...springDefault, delay: i * 0.06 }}
-							whileHover={{ y: -5, transition: springSnappy }}
+						<div
 							className={cn(
-								"group relative rounded-xl bg-card border p-5 md:p-6 lg:p-8 shadow-sm transition-[transform,box-shadow,border-color,background-color] duration-300",
+								"group relative h-full rounded-xl bg-card border p-5 md:p-6 lg:p-8 shadow-sm transition-[transform,box-shadow,border-color,background-color] duration-300 hover:-translate-y-1",
 								isHero
 									? "border-orange/35 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--card)_88%,var(--orange)),var(--card))] shadow-md shadow-orange/10"
 									: "border-border/50 hover:border-orange/30 hover:shadow-md hover:bg-[var(--surface-sunken)]/50",
@@ -55,7 +48,7 @@ export function FeaturesSection() {
 								<h3 className="text-lg font-medium mb-2">{feat.title}</h3>
 								<p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
 							</div>
-						</motion.div>
+						</div>
 					</ScrollReveal>
 					);
 				})}

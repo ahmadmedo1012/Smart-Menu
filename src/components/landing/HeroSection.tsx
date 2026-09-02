@@ -42,11 +42,36 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 					maxTravel={30}
 					className="absolute inset-0"
 				>
+					{/* Kitchen glow — pulses with ambient breath */}
 					<div
-						className="absolute top-[12%] left-1/2 -translate-x-1/2 size-[min(72vmin,680px)] rounded-full"
+						className="absolute top-[12%] left-1/2 -translate-x-1/2 size-[min(72vmin,680px)] rounded-full animate-hero-glow-pulse"
 						style={{
-							background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.12) 0%, oklch(0.55 0.19 45 / 0.035) 48%, transparent 72%)",
+							background: "radial-gradient(ellipse at center, oklch(0.55 0.19 45 / 0.14) 0%, oklch(0.55 0.19 45 / 0.04) 48%, transparent 72%)",
 							filter: "blur(54px)",
+						}}
+					/>
+					{/* Saffron mist — upper atmosphere warmth */}
+					<div
+						className="absolute top-0 end-0 size-[50vmin] rounded-full"
+						style={{
+							background: "radial-gradient(ellipse at center, oklch(0.78 0.14 70 / 0.08) 0%, transparent 70%)",
+							filter: "blur(110px)",
+						}}
+					/>
+					{/* Ember floor wash — ground warmth */}
+					<div
+						className="absolute bottom-0 start-1/4 size-[56vmin] rounded-full"
+						style={{
+							background: "radial-gradient(ellipse at center, oklch(0.44 0.17 52 / 0.08) 0%, transparent 70%)",
+							filter: "blur(100px)",
+						}}
+					/>
+					{/* Ambient micro-orb — subtle depth particle */}
+					<div
+						className="absolute top-[30%] start-[15%] size-32 rounded-full animate-orb-float opacity-30"
+						style={{
+							background: "radial-gradient(circle, oklch(0.78 0.14 70 / 0.4) 0%, transparent 70%)",
+							filter: "blur(40px)",
 						}}
 					/>
 				</ScrollParallax>
