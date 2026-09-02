@@ -103,7 +103,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 							<span className="text-gradient-orange">الطلبات تصل</span> على واتساب
 						</span>
 					</motion.h1>
-					<motion.p variants={heroItem} custom={1} className="text-sm sm:text-base text-foreground/60 max-w-2xl mx-auto leading-relaxed mb-8">
+					<motion.p variants={heroItem} custom={1} className="text-sm sm:text-base text-foreground/65 max-w-2xl mx-auto leading-[1.75] mb-8">
 						أنشئ منيو واضحاً، استقبل الطلبات على واتساب، وتابع أداء مطعمك من لوحة واحدة.
 					</motion.p>
 					<motion.div variants={heroItem} custom={2} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
@@ -125,7 +125,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 							<span className="h-3 w-24 rounded bg-orange/20 animate-pulse" />
 						</motion.div>
 					) : showTrustBadge ? (
-						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 text-[11px] font-medium text-orange mt-6">
+						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/25 bg-orange/8 px-3.5 py-1.5 text-[11px] font-medium text-orange mt-6 shadow-sm">
 							<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
 							أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
 						</motion.div>

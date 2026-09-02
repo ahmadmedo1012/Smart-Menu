@@ -91,7 +91,7 @@ export function AdminSidebar() {
     : allNavItems.filter((item) => hasItemPermission(item, role, permissions));
 
   return (
-    <aside aria-label="شريط التنقل الجانبي" className="hidden min-h-dvh w-60 shrink-0 border-s border-border/60 bg-card lg:flex lg:flex-col shadow-sm">
+    <aside aria-label="شريط التنقل الجانبي" className="hidden min-h-dvh w-60 shrink-0 border-s border-border/50 bg-card/80 backdrop-blur-md lg:flex lg:flex-col shadow-sm">
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">
         <div className="flex size-8 items-center justify-center rounded-lg bg-orange">

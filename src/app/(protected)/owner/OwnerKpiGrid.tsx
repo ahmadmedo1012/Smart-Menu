@@ -52,7 +52,7 @@ export function OwnerKpiGridSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden="true">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
+        <div key={i} className="rounded-2xl border border-border/50 bg-card/80 p-5 shadow-sm backdrop-blur-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1 space-y-2.5">
               <Skeleton className="h-3 w-20" />
@@ -82,7 +82,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
           <p className="text-3xl font-bold tracking-normal"><AnimatedCounter value={value} /></p>
           {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
         </div>
-        <div className={cn("rounded-md p-3 ring-1 ring-border/30", bg)}>
+        <div className={cn("rounded-xl p-3 ring-1 ring-border/30 shadow-sm", bg)}>
           <Icon className={cn("size-5", color)} aria-hidden="true" />
         </div>
       </div>
@@ -105,8 +105,8 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
         animate={{ opacity: 1, y: 0 }}
         transition={entranceTransition}
         className={cn(
-          "group relative rounded-xl border border-border/60 bg-card shadow-sm transition-[border-color,box-shadow,transform] duration-200",
-          "hover:border-orange/30 hover:shadow-md hover:-translate-y-0.5",
+          "group relative rounded-2xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-300",
+          "hover:border-orange/40 hover:shadow-lg hover:shadow-orange/10 hover:-translate-y-1",
         )}>
         {/* stretched-link pattern: whole card is one link target */}
         <Link
@@ -126,7 +126,7 @@ const StatCard = memo(function StatCard({ label, value, icon: Icon, subtitle, co
       animate={{ opacity: 1, y: 0 }}
       transition={entranceTransition}
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-sm transition-[border-color] duration-200",
+        "group relative overflow-hidden rounded-2xl border border-border/50 bg-card/80 p-5 shadow-sm backdrop-blur-sm transition-[border-color] duration-200",
       )}>
       {card}
     </motion.div>

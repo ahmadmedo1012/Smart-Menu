@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 	},
 
+	allowedDevOrigins: ['.monkeycode-ai.live'],
 	experimental: {
 		optimizePackageImports: ['lucide-react', '@base-ui/react', 'sonner'],
 		// Local builds: Next sizes its build/static worker pool from cpus; on

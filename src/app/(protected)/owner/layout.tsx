@@ -97,7 +97,7 @@ function LogoutButton() {
 					premiumToast('error', 'فشل تسجيل الخروج');
 				}
 			}}
-			className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-[color,background-color] duration-300 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+			className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-[color,background-color] duration-300 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 		>
 			<AnimatedLogOut className="size-4" />
 			تسجيل الخروج
@@ -141,7 +141,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 			<aside
 				className={cn(
 					'relative hidden w-60 shrink-0 flex-col lg:flex',
-					'border-s border-border/60 bg-card',
+					'border-s border-border/50 bg-card/80 backdrop-blur-md',
 					'shadow-sm'
 				)}
 			>

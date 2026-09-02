@@ -14,13 +14,13 @@ interface LayoutHeaderProps {
 export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, role = "admin", menuOpen = false }: LayoutHeaderProps) {
   return (
     <header
-      className="sticky top-0 z-30 border-b border-border/60 bg-background/92 backdrop-blur-xl"
+      className="sticky top-0 z-30 border-b border-border/40 bg-background/85 backdrop-blur-2xl backdrop-saturate-150"
     >
       <div className="flex h-16 items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="flex rounded-lg p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
+            className="flex size-11 items-center justify-center rounded-xl p-1.5 text-muted-foreground hover:bg-orange/10 hover:text-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
             onClick={onMenuClick}
             aria-expanded={menuOpen}
             aria-controls="mobile-nav-sheet"

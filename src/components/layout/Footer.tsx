@@ -29,7 +29,7 @@ export function Footer({ className }: FooterProps) {
 			whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true, margin: "-40px" }}
 				transition={{ duration: 0.5, ease: 'easeOut' }}
-				className={cn('border-t border-border/50 pt-12 sm:pt-16 pb-8 sm:pb-10', className)}
+				className={cn('border-t border-border/40 bg-card/30 pt-12 sm:pt-16 pb-8 sm:pb-10', className)}
 			>
 				<div className="max-w-[1220px] mx-auto px-4 sm:px-6">
 				<div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-10 sm:mb-12">
@@ -48,7 +48,7 @@ export function Footer({ className }: FooterProps) {
 						<div className="flex gap-2">
 							<a
 								href={waLink}
-								className="flex size-11 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-orange/30 hover:bg-orange/10"
+								className="flex size-11 items-center justify-center rounded-xl border border-border/60 bg-card transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-orange/40 hover:bg-orange/10 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-orange/60"
 								aria-label="واتساب"
 							>
 								<AnimatedMessageCircle className="size-4" />
@@ -63,7 +63,7 @@ export function Footer({ className }: FooterProps) {
 								<Link
 									key={link.label}
 									href={link.href}
-									className="block w-fit hover:text-foreground hover:underline underline-offset-4 transition-colors"
+									className="block w-fit hover:text-foreground hover:underline underline-offset-4 transition-colors focus-visible:ring-2 focus-visible:ring-orange/60 rounded-sm"
 								>
 									{link.label}
 								</Link>

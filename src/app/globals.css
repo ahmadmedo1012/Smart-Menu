@@ -72,10 +72,10 @@
 	--color-overlay: var(--overlay);
 
 	/* ── Radius scale ── */
-	--radius-sm: 6px;
-	--radius-md: 10px;
-	--radius-lg: 16px;
-	--radius-xl: 24px;
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 18px;
+	--radius-xl: 28px;
 
 	/* ── Spacing scale (8pt) ── */
 	--space-xs: 0.25rem;   /* 4px */
@@ -232,12 +232,12 @@
 	--image-shimmer: oklch(0.2 0 0 / 0.15);
 
 	/* Glass — dark, with oxide-tinted edge */
-	--glass-bg: oklch(0.10 0.008 60 / 0.4);
-	--glass-bg-strong: oklch(0.13 0.01 60 / 0.55);
-	--glass-border: oklch(0.55 0.19 45 / 0.06);
-	--glass-border-strong: oklch(0.55 0.19 45 / 0.15);
-	--glass-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
-	--glass-shadow-lg: 0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+	--glass-bg: oklch(0.11 0.01 60 / 0.52);
+	--glass-bg-strong: oklch(0.14 0.012 60 / 0.68);
+	--glass-border: oklch(0.55 0.19 45 / 0.10);
+	--glass-border-strong: oklch(0.55 0.19 45 / 0.22);
+	--glass-shadow: 0 10px 40px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.06);
+	--glass-shadow-lg: 0 16px 56px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.08);
 
 	/* 4-tier shadow system — dark, cross-browser */
 	--shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.22);
@@ -324,12 +324,12 @@
 	--surface-sunken: oklch(0.94 0.006 70);
 
 	/* Glass — light */
-	--glass-bg: oklch(1 0.002 70 / 0.6);
-	--glass-bg-strong: oklch(1 0.002 70 / 0.8);
-	--glass-border: oklch(0.86 0.008 70 / 0.5);
-	--glass-border-strong: oklch(0.55 0.19 45 / 0.12);
-	--glass-shadow: 0 4px 30px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
-	--glass-shadow-lg: 0 8px 48px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+	--glass-bg: oklch(1 0.002 70 / 0.72);
+	--glass-bg-strong: oklch(1 0.002 70 / 0.88);
+	--glass-border: oklch(0.86 0.008 70 / 0.55);
+	--glass-border-strong: oklch(0.55 0.19 45 / 0.18);
+	--glass-shadow: 0 8px 36px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.72);
+	--glass-shadow-lg: 0 16px 56px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.86);
 
 	/* 4-tier shadow system — light, cross-browser (raised slightly for
    visible card elevation on near-white page — round101) */
@@ -753,10 +753,97 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 }
 .glass-strong {
 	background: var(--glass-bg-strong);
-	backdrop-filter: blur(16px) saturate(1.15);
-	-webkit-backdrop-filter: blur(16px) saturate(1.15);
+	backdrop-filter: blur(20px) saturate(1.2);
+	-webkit-backdrop-filter: blur(20px) saturate(1.2);
 	border: 1px solid var(--glass-border-strong);
 	box-shadow: var(--glass-shadow-lg);
+}
+
+/* Magic UI — glowing border (conic sweep, hover-activated) */
+.glow-border {
+	position: relative;
+	isolation: isolate;
+}
+.glow-border::before {
+	content: "";
+	position: absolute;
+	inset: -1px;
+	border-radius: inherit;
+	padding: 1px;
+	background: conic-gradient(
+		from var(--glow-angle, 0deg),
+		transparent 0%,
+		oklch(0.55 0.19 45 / 0.0) 20%,
+		oklch(0.78 0.14 70 / 0.85) 38%,
+		oklch(0.55 0.19 45 / 0.95) 50%,
+		oklch(0.78 0.14 70 / 0.85) 62%,
+		transparent 80%
+	);
+	mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+	-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+	opacity: 0;
+	transition: opacity 0.45s var(--ease-smooth);
+	pointer-events: none;
+	z-index: 1;
+}
+.glow-border:hover::before,
+.glow-border:focus-visible::before,
+.glow-border[data-active="true"]::before {
+	opacity: 1;
+	animation: glow-spin 3.6s linear infinite;
+}
+@keyframes glow-spin {
+	to { --glow-angle: 360deg; }
+}
+@property --glow-angle {
+	syntax: "<angle>";
+	initial-value: 0deg;
+	inherits: false;
+}
+
+/* Aceternity — aurora wash behind hero / CTA bands */
+.aurora-wash {
+	position: relative;
+	overflow: hidden;
+}
+.aurora-wash::after {
+	content: "";
+	position: absolute;
+	inset: -20% -10% auto;
+	height: 70%;
+	background:
+		radial-gradient(ellipse 50% 60% at 20% 40%, oklch(0.55 0.19 45 / 0.16), transparent 70%),
+		radial-gradient(ellipse 45% 55% at 80% 30%, oklch(0.78 0.14 70 / 0.12), transparent 70%),
+		radial-gradient(ellipse 40% 50% at 50% 80%, oklch(0.44 0.17 52 / 0.10), transparent 70%);
+	filter: blur(40px);
+	pointer-events: none;
+	z-index: 0;
+	animation: aurora-drift 18s ease-in-out infinite;
+}
+@keyframes aurora-drift {
+	0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+	50% { transform: translate3d(2%, -3%, 0) scale(1.04); }
+}
+
+/* Soft mesh behind elevated surfaces */
+.mesh-surface {
+	background-image:
+		radial-gradient(at 12% 8%, oklch(0.55 0.19 45 / 0.08), transparent 42%),
+		radial-gradient(at 88% 92%, oklch(0.78 0.14 70 / 0.06), transparent 46%);
+}
+
+/* Premium hover lift — cards, KPI, pricing */
+.hover-lift {
+	transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth), border-color 0.35s var(--ease-smooth);
+}
+.hover-lift:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+.hover-lift:active {
+	transform: translateY(-1px);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -883,8 +970,8 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .card-premium {
 	min-width: 0;
 	background: var(--card);
-	border: 1px solid var(--border);
-	border-radius: var(--radius-md);
+	border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+	border-radius: var(--radius-lg);
 	box-shadow: var(--shadow-sm);
 	transform: translateZ(0);
 	transition:
@@ -895,9 +982,9 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 		transform 0.3s var(--ease-out-quart);
 }
 .card-premium:hover {
-	transform: translateY(-2px);
-	box-shadow: var(--shadow-md);
-	border-color: color-mix(in oklab, var(--orange) 45%, var(--border));
+	transform: translateY(-3px);
+	box-shadow: var(--shadow-lg), var(--shadow-glow);
+	border-color: color-mix(in oklab, var(--orange) 40%, var(--border));
 }
 
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
@@ -962,5 +1049,10 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 	.animate-marquee { animation: none; }
 	.card-premium { transition: none !important; }
 	.card-premium:hover { transform: none !important; }
+	.hover-lift:hover { transform: none !important; }
+	.glow-border:hover::before,
+	.glow-border:focus-visible::before,
+	.glow-border[data-active="true"]::before { animation: none; }
+	.aurora-wash::after { animation: none; }
 	.grain-overlay::before { animation: none; }
 }

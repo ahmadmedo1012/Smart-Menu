@@ -32,10 +32,10 @@ function EmptyState({
 		>
 			<span
 				data-slot="empty-state-icon"
-				className="flex size-14 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-muted-foreground"
+				className="flex size-16 items-center justify-center rounded-2xl border border-orange/20 bg-orange/8 text-orange shadow-sm"
 				aria-hidden="true"
 			>
-				<Icon className="size-6" />
+				<Icon className="size-7" />
 			</span>
 			<p data-slot="empty-state-title" className="mt-1 text-sm font-bold text-foreground">
 				{title}

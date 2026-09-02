@@ -124,8 +124,8 @@ const MenuItemCard = memo(function MenuItemCard({
 			whileHover={{ y: -3, transition: HOVER_SPRING }}
 			whileTap={{ scale: 0.99, transition: HOVER_SPRING }}
 			className={cn(
-				'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-200 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
-				'hover:border-orange/35 hover:shadow-md',
+				'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-300 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
+				'hover:border-orange/40 hover:shadow-lg hover:shadow-orange/10',
 				isFeatured && 'md:col-span-2'
 			)}
 			tabIndex={0}
@@ -295,7 +295,7 @@ const MenuItemCard = memo(function MenuItemCard({
 									onAddToCart(item);
 								}}
 								aria-label={`إضافة ${displayName} إلى السلة`}
-						className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-lg bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm transition-[background-color,box-shadow] duration-200 hover:bg-orange/90 hover:shadow-md active:scale-[0.99]"
+						className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm shadow-orange/20 transition-[background-color,box-shadow] duration-200 hover:bg-orange/90 hover:shadow-md hover:shadow-orange/30 active:scale-[0.99]"
 							>
 								<MotionPlus className="size-4" />
 								أضف

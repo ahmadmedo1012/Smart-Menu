@@ -52,7 +52,7 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
         <motion.h2
           variants={fadeUpSpring}
           className={cn(
-            "text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.2] tracking-tight text-balance",
+            "text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.25] tracking-tight text-balance",
             centered ? "mx-auto" : "max-w-2xl"
           )}
         >

@@ -34,15 +34,15 @@ export function FeaturesSection() {
 					>
 						<div
 							className={cn(
-								"group relative h-full rounded-xl bg-card border p-5 md:p-6 lg:p-8 shadow-sm transition-[transform,box-shadow,border-color,background-color] duration-300 hover:-translate-y-1",
+								"group relative h-full rounded-2xl bg-card border p-5 md:p-6 lg:p-8 shadow-sm transition-[transform,box-shadow,border-color,background-color] duration-300 hover:-translate-y-1.5",
 								isHero
-									? "border-orange/35 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--card)_88%,var(--orange)),var(--card))] shadow-md shadow-orange/10"
-									: "border-border/50 hover:border-orange/30 hover:shadow-md hover:bg-[var(--surface-sunken)]/50",
+									? "border-orange/40 bg-[linear-gradient(135deg,color-mix(in_oklab,var(--card)_86%,var(--orange)),var(--card))] shadow-lg shadow-orange/12"
+									: "border-border/40 hover:border-orange/35 hover:shadow-lg hover:shadow-orange/8 hover:bg-[var(--surface-sunken)]/50",
 								isHero && "spotlight-border",
 							)}
 						>
 							<div className="relative z-10">
-								<div className="mb-5 flex size-11 items-center justify-center rounded-lg bg-orange/12 text-orange ring-1 ring-orange/20 transition-transform duration-300 group-hover:scale-105">
+								<div className="mb-5 flex size-12 items-center justify-center rounded-xl bg-orange/12 text-orange ring-1 ring-orange/25 shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:shadow-md">
 									<feat.icon className="size-5 sm:size-6" />
 								</div>
 								<h3 className="text-lg font-medium mb-2">{feat.title}</h3>

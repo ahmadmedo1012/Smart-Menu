@@ -26,10 +26,10 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "group relative flex min-h-11 items-center gap-3 overflow-hidden rounded-lg px-3 py-2 text-sm font-medium transition-[color,background-color,box-shadow] duration-200",
+        "group relative flex min-h-11 items-center gap-3 overflow-hidden rounded-xl px-3 py-2 text-sm font-medium transition-[color,background-color,box-shadow] duration-200 focus-visible:ring-2 focus-visible:ring-orange/60",
         isActive
-          ? "bg-orange/10 text-foreground shadow-xs"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+          ? "bg-orange/12 text-foreground shadow-xs"
+          : "text-muted-foreground hover:bg-orange/8 hover:text-foreground",
       )}
     >
       {isActive && (

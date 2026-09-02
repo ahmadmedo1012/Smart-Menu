@@ -28,8 +28,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={isDark ? "الوضع النهاري" : "الوضع الليلي"}
       className={cn(
         "relative size-11 rounded-full",
-        "bg-card border border-border",
-        "hover:bg-orange-muted hover:border-orange/30",
+        "bg-card/80 border border-border/60 backdrop-blur-sm shadow-sm",
+        "hover:bg-orange-muted hover:border-orange/40 hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
         "cursor-pointer",
         "flex items-center justify-center",

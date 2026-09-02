@@ -15,7 +15,7 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
   // count is unknown: the trust line renders without a number.
   const trustCount = totalRestaurants && totalRestaurants > 0 ? totalRestaurants : 0;
   return (
-    <SectionContainer className="border-t border-orange/10">
+    <SectionContainer className="aurora-wash border-t border-orange/15">
       {/* ponytail: removed Unsplash external image (caused 500/503 from Next.js Image Optimization).
            Replaced with pure CSS subtle pattern. Upgrade to a localized blurred photo if marketing needs it. */}
       <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-orange/[0.02] via-transparent to-orange/[0.01]" />

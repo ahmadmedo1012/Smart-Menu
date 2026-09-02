@@ -168,7 +168,7 @@ function LoginForm() {
 			{/* Decorative top bar */}
 			<div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-r from-orange via-orange/80 to-orange/60 dark:from-orange dark:via-orange/80 dark:to-orange/60" />
 
-			<Card className="animate-scale-in relative z-10 w-full max-w-sm border-border/70 bg-card shadow-xl shadow-black/5 sm:max-w-md dark:shadow-black/20">
+			<Card className="animate-scale-in relative z-10 w-full max-w-sm border-border/50 bg-card/90 shadow-2xl shadow-black/8 backdrop-blur-xl sm:max-w-md dark:shadow-black/30" elevation="elevated">
 				{/* Logo area */}
 				<CardHeader className="pb-2 pt-8 text-center">
 					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
@@ -197,7 +197,7 @@ function LoginForm() {
 							<Label htmlFor="username" className="font-arabic text-sm font-medium">
 								اسم المستخدم
 							</Label>
-							<div className="rounded-lg border border-input bg-muted/25 transition-[border-color,box-shadow] duration-200 focus-within:border-orange/50 focus-within:ring-2 focus-within:ring-orange/10">
+							<div className="rounded-xl border border-input bg-muted/20 shadow-xs transition-[border-color,box-shadow] duration-200 focus-within:border-orange/50 focus-within:ring-2 focus-within:ring-orange/15">
 								<Input
 									id="username"
 									type="text"
@@ -217,7 +217,7 @@ function LoginForm() {
 							<Label htmlFor="password" className="font-arabic text-sm font-medium">
 								كلمة المرور
 							</Label>
-							<div className="relative rounded-lg border border-input bg-muted/25 transition-[border-color,box-shadow] duration-200 focus-within:border-orange/50 focus-within:ring-2 focus-within:ring-orange/10">
+							<div className="relative rounded-xl border border-input bg-muted/20 shadow-xs transition-[border-color,box-shadow] duration-200 focus-within:border-orange/50 focus-within:ring-2 focus-within:ring-orange/15">
 								<Input
 									id="password"
 									type={showPassword ? 'text' : 'password'}

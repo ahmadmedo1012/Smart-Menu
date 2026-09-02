@@ -89,10 +89,10 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 			viewport={{ once: true, margin: "-40px" }}
 			transition={{ ...springDefault, delay: index * 0.08 }}
 			className={cn(
-				'group relative flex flex-col rounded-xl border p-6 transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 sm:p-8',
+				'group relative flex flex-col rounded-2xl border p-6 transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 sm:p-8',
 				isPopular
-					? 'border-orange/45 bg-card shadow-md shadow-orange/10'
-					: 'border-border/60 bg-card hover:border-orange/35 hover:shadow-md'
+					? 'border-orange/50 bg-card shadow-lg shadow-orange/15 glow-border'
+					: 'border-border/50 bg-card hover:border-orange/40 hover:shadow-lg hover:shadow-orange/8'
 			)}
 		>
 			{meta.badge && (
