@@ -80,5 +80,12 @@ export default defineConfig({
       testMatch: "tests/e2e/auth-fix-verification.spec.ts",
       use: { baseURL: "http://localhost:3000" },
     },
+    {
+      // round79 Stage C — full customer journey matrix (serial, own project)
+      name: "round79-c",
+      testMatch: "tests/e2e/round79-phaseC-journey.spec.ts",
+      // fail fast on any stuck action instead of silently eating the budget
+      use: { actionTimeout: 15000 },
+    },
   ],
 });

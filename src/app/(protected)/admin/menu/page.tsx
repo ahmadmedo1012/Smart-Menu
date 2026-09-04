@@ -246,7 +246,12 @@ export default function AdminMenuPage() {
                           </span>
                           <span className="text-xs text-muted-foreground ms-1">د.ل</span>
                         </div>
-                        <Switch size="sm" checked={item.status === "available"} onCheckedChange={() => toggleStatus(item)} />
+                        <Switch
+                          size="sm"
+                          checked={item.status === "available"}
+                          onCheckedChange={() => toggleStatus(item)}
+                          aria-label={`تغيير حالة توفر ${item.name}`}
+                        />
                       </div>
                     ))}
                   </div>

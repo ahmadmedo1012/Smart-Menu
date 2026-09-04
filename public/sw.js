@@ -1,6 +1,10 @@
-const CACHE_NAME = 'smart-menu-v4';
+const CACHE_NAME = 'smart-menu-v5';
 // REMINDER: bump CACHE_VERSION whenever this file changes
 const STATIC_ASSETS = ['/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+
+// Public, read-only, session-free endpoints safe for stale-while-revalidate.
+// EVERYTHING else under /api/ is network-only (see fetch handler comment).
+const API_CACHEABLE = [/^\/api\/public\//];
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
@@ -38,12 +42,19 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// API: network-first, cache only VALID JSON responses for public menu/data
-	// GET endpoints (offline reading). Never cache HTML error pages — a cached
-	// text/html under /api/ bricks the dashboard ("فشل تحميل البيانات") because
-	// res.json() throws. Auth/owner/orders endpoints stay network-only.
+	// API: stale-while-revalidate ONLY for the public read-only allowlist
+	// (/api/public/* — landing featured/stats). Everything else is
+	// network-only. round79 Stage C caught the previous behavior caching
+	// authenticated endpoints too: after creating a category (POST 201 +
+	// "تمت الإضافة" toast) the list GET was served the PRE-POST cached
+	// response, so the new category stayed invisible until a later
+	// navigation. Same staleness risk applies to /api/auth/* (session),
+	// payment status polls, and all owner/admin management data — none of
+	// them may ever be served stale.
 	if (url.pathname.startsWith('/api/')) {
-		if (request.method === 'GET' && !url.pathname.includes('/orders') && !url.pathname.includes('/stream')) {
+		const cacheable =
+			request.method === 'GET' && API_CACHEABLE.some((re) => re.test(url.pathname));
+		if (cacheable) {
 			event.respondWith(staleWhileRevalidateJSON(request));
 		} else {
 			event.respondWith(networkOnly(request));
@@ -108,20 +119,6 @@ async function networkOnly(request) {
 	} catch {
 		return new Response(null, { status: 503 });
 	}
-}
-
-async function staleWhileRevalidate(request) {
-	const cached = await caches.match(request);
-	try {
-		const res = await fetch(request);
-		if (res.ok) {
-			const cache = await caches.open(CACHE_NAME);
-			cache.put(request, res.clone());
-		}
-	} catch {
-		/* offline — serve stale */
-	}
-	return cached || caches.match('/offline.html');
 }
 
 async function networkFirst(request) {

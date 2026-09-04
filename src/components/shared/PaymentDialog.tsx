@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useId } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -56,6 +56,12 @@ export function PaymentDialog({
 	const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || '0942119637';
 
 	const [phone, setPhone] = useState('');
+	// round79 Stage C: axe caught the bank form fields having unassociated
+	// <Label> siblings (no htmlFor/id) — the amount input (no placeholder)
+	// had NO accessible name at all (critical). Associate visible labels:
+	const bankAmountId = useId();
+	const senderNameId = useId();
+	const senderNumberId = useId();
 	const [bankAmount, setBankAmount] = useState(price);
 	const [senderAccountName, setSenderAccountName] = useState('');
 	const [senderAccountNumber, setSenderAccountNumber] = useState('');
@@ -65,7 +71,6 @@ export function PaymentDialog({
 		'form'
 	);
 	const [resolutionMsg, setResolutionMsg] = useState('');
-	const [countdown, setCountdown] = useState(30);
 	const [submitting, setSubmitting] = useState(false);
 	const [paymentId, setPaymentId] = useState<number | null>(null);
 	const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -161,7 +166,6 @@ export function PaymentDialog({
 			if (!res.ok) throw new Error(json.error ?? 'فشل إرسال طلب الدفع');
 			setPaymentId(json.data.id);
 			setStep('waiting');
-			setCountdown(30);
 		} catch (e: any) {
 			premiumToast('error', e.message);
 			sentRef.current = false; // allow retry on failure
@@ -176,26 +180,10 @@ export function PaymentDialog({
 		onSuccess();
 	}, [cleanup, onOpenChange, onSuccess]);
 
-	const deadlineRef = useRef(0);
-
-	// Smooth countdown tick + poll for admin approval
+	// Poll for admin approval — every provider waits for a human decision
+	// (no auto-verify). Success only via poll status=verified.
 	useEffect(() => {
 		if (step !== 'waiting') return;
-
-		// All providers (libyana/madar/bank) wait for admin approval — no auto-verify lie.
-		// Countdown shows elapsed waiting time; success only via poll status=verified.
-		const autoVerify = false;
-		deadlineRef.current = Date.now() + 30000;
-		const tick = setInterval(() => {
-			if (!autoVerify) return;
-			const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
-			setCountdown(remaining);
-			if (remaining <= 0) {
-				clearInterval(tick);
-				cleanup();
-				setStep('success');
-			}
-		}, 100);
 
 		if (paymentId && (provider === 'libyana' || provider === 'madar' || provider === 'bank')) {
 			let pollFailures = 0;
@@ -207,13 +195,11 @@ export function PaymentDialog({
 						const json = await res.json();
 						pollFailures = 0;
 						if (json.data?.status === 'verified') {
-							clearInterval(tick);
 							cleanup();
 							setResolutionMsg('تم الموافقة على اشتراكك بنجاح! سيتم توجيهك إلى لوحة التحكم.');
 							setStep('approved');
 						}
 						if (json.data?.status === 'cancelled') {
-							clearInterval(tick);
 							cleanup();
 							setResolutionMsg(
 								json.data?.message ||
@@ -248,7 +234,6 @@ export function PaymentDialog({
 		}
 
 		return () => {
-			clearInterval(tick);
 			cleanup();
 		};
 	}, [step, paymentId, provider, cleanup, finishFlow]);
@@ -259,7 +244,6 @@ export function PaymentDialog({
 				cleanup();
 				sentRef.current = false; // fresh submit allowed on reopen
 				setStep('form');
-				setCountdown(30);
 				setPhone('');
 				setBankAmount(price);
 				setSenderAccountName('');
@@ -440,8 +424,9 @@ export function PaymentDialog({
 
 									{/* Bank amount — no 99 cap (server enforces plan price) */}
 									<div>
-										<Label>المبلغ (د.ل)</Label>
+										<Label htmlFor={bankAmountId}>المبلغ (د.ل)</Label>
 										<Input
+											id={bankAmountId}
 											type="number"
 											value={bankAmount}
 											onChange={(e) => {
@@ -456,8 +441,9 @@ export function PaymentDialog({
 
 									{/* Sender account name */}
 									<div>
-										<Label>اسم صاحب الحساب المُرسِل *</Label>
+										<Label htmlFor={senderNameId}>اسم صاحب الحساب المُرسِل *</Label>
 										<Input
+											id={senderNameId}
 											value={senderAccountName}
 											onChange={(e) => setSenderAccountName(e.target.value)}
 											placeholder="الاسم كما يظهر في الحساب"
@@ -467,8 +453,9 @@ export function PaymentDialog({
 
 									{/* Sender account number */}
 									<div>
-										<Label>رقم حساب المُرسِل *</Label>
+										<Label htmlFor={senderNumberId}>رقم حساب المُرسِل *</Label>
 										<Input
+											id={senderNumberId}
 											value={senderAccountNumber}
 											onChange={(e) => setSenderAccountNumber(e.target.value)}
 											placeholder="رقم الحساب الذي حُوّل منه"
@@ -608,22 +595,10 @@ export function PaymentDialog({
 								</span>
 							</div>
 
-							{/* Auto-verification progress bar — libyana only; bank/madar wait for admin */}
-							{provider === 'libyana' && (
-								<div className="w-48 space-y-1.5">
-									<div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
-										<motion.div
-											initial={{ scaleX: 0 }}
-											animate={{ scaleX: (30 - countdown) / 30 }}
-											className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 origin-left rtl:origin-right"
-											transition={{ duration: 0.5 }}
-										/>
-									</div>
-									<p className="text-[10px] text-muted-foreground text-center">
-										الإشتراك سينتهي خلال {countdown} ثانية
-									</p>
-								</div>
-							)}
+							{/* All providers (libyana/madar/bank) wait for ADMIN approval —
+							   the honest status pill above replaces the old libyana-only
+							   countdown bar, which froze at "30 ثانية" and implied an
+							   auto-verification that never happens (round79 Stage C fix). */}
 						</div>
 					)}
 

@@ -495,6 +495,7 @@ export default function OwnerMenuPage() {
 															checked={item.status === 'available'}
 															disabled={pendingToggleId === item.id}
 															onCheckedChange={() => toggleStatus(item)}
+													aria-label={`تغيير حالة توفر ${item.name}`}
 														/>
 														<span
 															className={cn(
