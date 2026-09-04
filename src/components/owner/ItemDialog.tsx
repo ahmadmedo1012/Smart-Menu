@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { Switch } from '@/components/ui/switch';
+import SparklesIcon from '@/components/ui/sparkles-icon';
 import { csrfFetch } from '@/lib/csrf-client';
 import { compressImage } from '@/lib/image-compress';
 
@@ -26,6 +28,9 @@ interface Item {
 	categoryId: number;
 	dietaryTags?: string[];
 	allergens?: string[];
+	isFeatured?: boolean;
+	featuredRank?: number | null;
+	showcaseTag?: string | null;
 }
 
 const DIETARY_OPTIONS = [
@@ -98,6 +103,9 @@ const initForm = (catId: number) => ({
 	image: '',
 	dietaryTags: [] as string[],
 	allergens: [] as string[],
+	isFeatured: false,
+	featuredRank: '',
+	showcaseTag: '',
 });
 
 const IMAGE_URL_RE = /^(https?:\/\/|data:image\/)/i;
@@ -137,6 +145,9 @@ export function ItemDialog({
 							image: editing.image,
 							dietaryTags: editing.dietaryTags ?? [],
 							allergens: editing.allergens ?? [],
+							isFeatured: editing.isFeatured ?? false,
+							featuredRank: editing.featuredRank != null ? String(editing.featuredRank) : '',
+							showcaseTag: editing.showcaseTag ?? '',
 						}
 					: initForm(categoryId)
 			);
@@ -153,6 +164,13 @@ export function ItemDialog({
 			premiumToast('error', 'رابط الصورة غير صالح');
 			return;
 		}
+		if (form.isFeatured && form.featuredRank) {
+			const rank = Number(form.featuredRank);
+			if (!Number.isInteger(rank) || rank < 1 || rank > 5) {
+				premiumToast('error', 'ترتيب الظهور يجب أن يكون رقمًا صحيحًا من 1 إلى 5');
+				return;
+			}
+		}
 		setSaving(true);
 		try {
 			const body = {
@@ -167,6 +185,9 @@ export function ItemDialog({
 				categoryId: form.categoryId,
 				dietaryTags: form.dietaryTags,
 				allergens: form.allergens,
+				isFeatured: form.isFeatured,
+				featuredRank: form.isFeatured && form.featuredRank ? Number(form.featuredRank) : null,
+				showcaseTag: form.isFeatured && form.showcaseTag.trim() ? form.showcaseTag.trim() : null,
 				modifierGroups: undefined,
 			};
 			const res = editing
@@ -352,6 +373,53 @@ export function ItemDialog({
 								</button>
 							))}
 						</div>
+					</div>
+
+					{/* Stage H (round79) — featured-showcase control */}
+					<div className="rounded-md border border-orange/25 bg-orange/5 p-3">
+						<div className="flex items-center justify-between gap-3">
+							<div className="flex items-start gap-2">
+								<SparklesIcon className="size-4 text-ember mt-0.5 shrink-0" aria-hidden="true" />
+								<div>
+									<Label htmlFor="item-featured-switch">عرض في قسم الأصناف المميزة</Label>
+									<p className="text-xs text-muted-foreground mt-0.5">
+										يظهر الصنف أعلى صفحة المنيو داخل العرض السينمائي (حتى 5 أصناف)
+									</p>
+								</div>
+							</div>
+							<Switch
+								id="item-featured-switch"
+								aria-label="تمييز الصنف في القسم السينمائي"
+								checked={form.isFeatured}
+								onCheckedChange={(v) => setForm({ ...form, isFeatured: v })}
+							/>
+						</div>
+						{form.isFeatured && (
+							<div className="grid grid-cols-2 gap-3 mt-3">
+								<div>
+									<Label>ترتيب الظهور</Label>
+									<Input
+										type="number"
+										min="1"
+										max="5"
+										value={form.featuredRank}
+										onChange={(e) => setForm({ ...form, featuredRank: e.target.value })}
+										className="h-11 rounded-md mt-1.5"
+										placeholder="تلقائي"
+									/>
+								</div>
+								<div>
+									<Label>شارة العرض</Label>
+									<Input
+										value={form.showcaseTag}
+										onChange={(e) => setForm({ ...form, showcaseTag: e.target.value })}
+										maxLength={40}
+										className="h-11 rounded-md mt-1.5"
+										placeholder="مقرمش"
+									/>
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Dietary tags */}

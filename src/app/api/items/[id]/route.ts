@@ -47,6 +47,12 @@ const updateSchema = z.object({
 	// A status-only toggle (no tags in body) would wipe them via ...body.
 	dietaryTags: z.array(z.string()).optional(),
 	allergens: z.array(z.string()).optional(),
+	// Stage H (round79) — showcase fields. All optional (no .default()): an
+	// omitted field must never overwrite a stored showcase value (same rule
+	// as the tag arrays above). The updateData loop below carries them as-is.
+	isFeatured: z.boolean().optional(),
+	featuredRank: z.number().int().min(1, 'الترتيب يجب أن يكون 1 على الأقل').max(5, 'الترتيب يجب ألا يتجاوز 5').nullable().optional(),
+	showcaseTag: z.string().max(40, 'الشارة يجب ألا تتجاوز 40 حرفًا').nullable().optional(),
 }).superRefine((v, ctx) => {
 	if (v.discountedPrice != null && v.price != null && v.discountedPrice > v.price) {
 		ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });

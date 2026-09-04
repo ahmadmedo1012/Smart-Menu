@@ -1,0 +1,17 @@
+=== ast-grep proof: Stage H non-duplication (2026-09-04T20:09:12Z) ===
+--- P1: autoplay setInterval (GalleryCarousel logic) ---
+GalleryCarousel:
+1
+src/components/menu/GalleryCarousel.tsx:52:			if (!intervalRef.current) intervalRef.current = setInterval(next, 5000);
+FeaturedShowcase:
+(empty = zero matches)
+--- P2: lazy-load Set state (GalleryCarousel pattern) ---
+GalleryCarousel:
+src/components/menu/GalleryCarousel.tsx:30:	const [loaded, setLoaded] = useState<Set<number>>(new Set([0]));
+FeaturedShowcase:
+(empty = zero matches)
+--- P3: lightbox dialog state ---
+GalleryCarousel:
+src/components/menu/GalleryCarousel.tsx:26:	const [lightbox, setLightbox] = useState(false);
+FeaturedShowcase:
+(empty = zero matches)

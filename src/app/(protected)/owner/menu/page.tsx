@@ -23,6 +23,7 @@ import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
 import { ItemDialog } from '@/components/owner/ItemDialog';
+import SparklesIcon from '@/components/ui/sparkles-icon';
 import { premiumToast } from '@/lib/premium-toast';
 
 interface Category {
@@ -47,6 +48,9 @@ interface Item {
 	status: string;
 	sortOrder: number;
 	categoryId: number;
+	isFeatured?: boolean;
+	featuredRank?: number | null;
+	showcaseTag?: string | null;
 }
 
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
@@ -452,6 +456,14 @@ export default function OwnerMenuPage() {
 															{item.nameAr && (
 																<span className="text-xs text-muted-foreground/60 hidden sm:inline">
 																	{item.nameAr}
+																</span>
+															)}
+															{item.isFeatured && (
+																<span
+																	title="مميز — يظهر في القسم السينمائي"
+																	className="inline-flex items-center gap-0.5 text-[10px] font-bold text-ember dark:text-saffron bg-orange/10 border border-orange/25 rounded-full px-1.5 py-0.5"
+																>
+																	<SparklesIcon className="size-2.5" aria-hidden="true" />
 																</span>
 															)}
 														</div>

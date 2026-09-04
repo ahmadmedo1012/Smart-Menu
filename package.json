@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/round79-db-sync.mjs && next build",
     "start": "next start",
     "clean": "rm -rf .next",
     "lint": "eslint src/ tests/",

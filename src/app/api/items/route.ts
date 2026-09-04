@@ -19,6 +19,10 @@ const createSchema = z.object({
 	categoryId: z.number().int().positive(),
 	dietaryTags: z.array(z.string()).optional().default([]),
 	allergens: z.array(z.string()).optional().default([]),
+	// Stage H (round79) — cinematic featured-showcase fields.
+	isFeatured: z.boolean().optional().default(false),
+	featuredRank: z.number().int().min(1, 'الترتيب يجب أن يكون 1 على الأقل').max(5, 'الترتيب يجب ألا يتجاوز 5').nullable().optional(),
+	showcaseTag: z.string().max(40, 'الشارة يجب ألا تتجاوز 40 حرفًا').nullable().optional(),
 }).superRefine((v, ctx) => {
 	if (v.discountedPrice != null && v.discountedPrice > v.price) {
 		ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
@@ -150,6 +154,9 @@ export async function POST(request: NextRequest) {
 					categoryId: body.categoryId,
 					dietaryTags: body.dietaryTags ?? [],
 					allergens: body.allergens ?? [],
+					isFeatured: body.isFeatured ?? false,
+					featuredRank: body.isFeatured ? (body.featuredRank ?? null) : null,
+					showcaseTag: body.isFeatured ? (body.showcaseTag?.trim() || null) : null,
 				},
 				include: {
 					category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } },

@@ -61,14 +61,23 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 	const restaurant = await getRestaurantBySlug(slug);
 	if (!restaurant) notFound();
 
-	const [categories, items, popularData] = await Promise.all([
+	const [categories, items, popularData, featuredData] = await Promise.all([
 		prisma.menuCategory.findMany({
 			where: { isActive: true, restaurantId: restaurant.id },
 			orderBy: { sortOrder: 'asc' },
 		}),
+		// Stage H: explicit select WITHOUT the new featured columns — the
+		// deployed database may not have them yet (schema sync there is a
+		// manual `prisma db push`, see README). Featured flags arrive via the
+		// guarded raw query below, so a schema-lagging DB degrades to "no
+		// showcase" instead of a broken menu page / failed build.
 		prisma.menuItem.findMany({
 			where: { status: 'available', category: { is: { restaurantId: restaurant.id } } },
-			include: {
+			select: {
+				id: true, name: true, nameAr: true, description: true, descriptionAr: true,
+				price: true, discountedPrice: true, image: true, sortOrder: true,
+				categoryId: true, createdAt: true, status: true,
+				dietaryTags: true, allergens: true, avgRating: true, ratingCount: true,
 				category: {
 					select: { id: true, name: true, nameAr: true, icon: true, sortOrder: true, isActive: true, restaurantId: true, createdAt: true, updatedAt: true },
 				},
@@ -88,9 +97,23 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 			orderBy: { _sum: { quantity: 'desc' } },
 			take: 10,
 		}),
+		// Stage H: featured flags via guarded raw SQL — returns empty on a
+		// DB that hasn't received the new columns yet (P2022/42703 → []).
+		prisma
+			.$queryRaw<Array<{ id: number; isFeatured: boolean; featuredRank: number | null; showcaseTag: string | null }>>`
+				SELECT "id", "isFeatured", "featuredRank", "showcaseTag"
+				FROM "MenuItem"
+				WHERE "isFeatured" = true
+			`
+			.catch(() => [] as Array<{ id: number; isFeatured: boolean; featuredRank: number | null; showcaseTag: string | null }>),
 	]);
 
 	const popularIds = new Set(popularData.map((o) => o.itemId));
+	const featuredMap = new Map(
+		featuredData
+			.filter((f) => items.some((i) => i.id === f.id))
+			.map((f) => [f.id, { isFeatured: f.isFeatured, featuredRank: f.featuredRank, showcaseTag: f.showcaseTag }])
+	);
 	const serializedCategories = categories.map((c) => ({
 		...c,
 		createdAt: c.createdAt.toISOString(),
@@ -117,6 +140,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
 			ratingCount,
 			isPopular: popularIds.has(rest.id),
 			isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_AGO.getTime(),
+			isFeatured: featuredMap.get(rest.id)?.isFeatured ?? false,
+			featuredRank: featuredMap.get(rest.id)?.featuredRank ?? null,
+			showcaseTag: featuredMap.get(rest.id)?.showcaseTag ?? null,
 			category: {
 				id: category.id,
 				name: category.name,

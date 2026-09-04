@@ -109,6 +109,9 @@ type SerializedItem = {
 	ratingCount: number;
 	isPopular: boolean;
 	isNew: boolean;
+	isFeatured: boolean;
+	featuredRank: number | null;
+	showcaseTag: string | null;
 	createdAt: string;
 	category: {
 		id: number;

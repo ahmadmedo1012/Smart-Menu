@@ -9,6 +9,7 @@ import { premiumToast } from '@/lib/premium-toast';
 import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
 import { MenuToolbar } from './MenuToolbar';
+import { FeaturedShowcase, type FeaturedItem } from './FeaturedShowcase';
 import { OrderDialog } from './OrderDialog';
 import { ReviewSheet } from './ReviewSheet';
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
@@ -32,7 +33,7 @@ function MenuPageClientInner({
 	restaurantLogo,
 }: {
 	categories: CategoryProp[];
-	items: (MenuItemProp & { category: CategoryProp })[];
+	items: Array<MenuItemProp & { category: CategoryProp } & FeaturedItem>;
 	restaurantWhatsapp?: string;
 	restaurantName?: string;
 	restaurantId: number;
@@ -197,6 +198,11 @@ function MenuPageClientInner({
 
 	return (
 		<>
+			{/* Stage H — cinematic featured showcase (addition only; the
+				full grid below stays untouched). Renders nothing when no
+				item is featured. */}
+			<FeaturedShowcase items={items} />
+
 			<MenuToolbar
 				search={search}
 				onSearchChange={(v) => updateURL({ q: v })}
@@ -346,7 +352,7 @@ function MenuPageClientInner({
 // The dynamic() in MenuClientSection can't reliably catch re-suspension during React 19 transitions
 export function MenuPageClient(props: {
 	categories: CategoryProp[];
-	items: (MenuItemProp & { category: CategoryProp })[];
+	items: Array<MenuItemProp & { category: CategoryProp } & FeaturedItem>;
 	restaurantWhatsapp?: string;
 	restaurantName?: string;
 	restaurantId: number;
