@@ -227,8 +227,8 @@ export function AnalyticsTab({
 					label="متوسط قيمة الطلب"
 					value={aovAvg}
 					icon={TrendingUp}
-					iconBg="bg-purple-50/80 dark:bg-purple-950/20"
-					iconColor="text-purple-600"
+					iconBg="bg-info/15"
+					iconColor="text-info"
 					suffix=" د.ل"
 				/>
 				<KpiCard
@@ -307,7 +307,7 @@ export function AnalyticsTab({
 										<span
 											className={cn(
 												'font-medium',
-												item.growth > 0 ? 'text-success' : 'text-red-500'
+												item.growth > 0 ? 'text-success' : 'text-destructive'
 											)}
 										>
 											{item.growth > 0 ? '↑' : '↓'}

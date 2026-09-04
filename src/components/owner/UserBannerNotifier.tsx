@@ -82,8 +82,8 @@ export function UserBannerNotifier() {
 						transition={{ type: 'spring', stiffness: 300, damping: 25 }}
 						className={cn(
 							'mx-4 mt-4 rounded-xl border-2 border-destructive/30',
-							'bg-gradient-to-r from-destructive/10 to-red-500/5',
-							'dark:from-destructive/20 dark:to-red-500/10',
+							'bg-gradient-to-r from-destructive/10 to-destructive/5',
+							'dark:from-destructive/20 dark:to-destructive/10',
 							'p-4 backdrop-blur-sm'
 						)}
 						role="alert"

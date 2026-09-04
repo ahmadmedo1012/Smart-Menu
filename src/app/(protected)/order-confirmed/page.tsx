@@ -100,8 +100,8 @@ function OrderContent() {
 			</Suspense>
 			<main className="min-h-screen bg-background flex flex-col">
 				<div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-					<div className="size-20 rounded-full bg-green-500/10 flex items-center justify-center animate-scale-in">
-						<CheckCircle className="size-10 text-green-500" />
+					<div className="size-20 rounded-full bg-success/10 flex items-center justify-center animate-scale-in">
+						<CheckCircle className="size-10 text-success" />
 					</div>
 
 					<div className="space-y-2">

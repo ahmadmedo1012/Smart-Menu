@@ -300,8 +300,8 @@ export default function OwnerLoyaltyPage() {
 			label: 'إجمالي الإحالات',
 			value: stats?.totalReferrals ?? 0,
 			icon: Gift,
-			color: 'text-emerald-600 dark:text-emerald-400',
-			bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+			color: 'text-success',
+			bg: 'bg-success/10',
 		},
 		{
 			label: 'تم التحويل',
@@ -314,8 +314,8 @@ export default function OwnerLoyaltyPage() {
 			label: 'النقاط المكتسبة',
 			value: stats?.totalRewardPoints ?? 0,
 			icon: Award,
-			color: 'text-purple-600 dark:text-purple-400',
-			bg: 'bg-purple-50 dark:bg-purple-950/30',
+			color: 'text-ember dark:text-saffron',
+			bg: 'bg-saffron/20 dark:bg-saffron/10',
 		},
 	];
 
@@ -389,8 +389,8 @@ export default function OwnerLoyaltyPage() {
 					<div className="space-y-3">
 						{[
 							{ label: 'معلق', count: rbs.pending, color: 'bg-orange' },
-							{ label: 'تم التحويل', count: rbs.converted, color: 'bg-emerald-500' },
-							{ label: 'منتهي', count: rbs.expired, color: 'bg-slate-400' },
+							{ label: 'تم التحويل', count: rbs.converted, color: 'bg-success' },
+							{ label: 'منتهي', count: rbs.expired, color: 'bg-muted-foreground/60' },
 						].map((s) => (
 							<div key={s.label} className="flex items-center justify-between">
 								<div className="flex items-center gap-2">

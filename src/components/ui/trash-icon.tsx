@@ -3,6 +3,31 @@ import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
 import { motion, useAnimate } from "motion/react";
 
+/**
+ * Resolve a CSS token (e.g. "--destructive") into a concrete color string that
+ * framer-motion can interpolate. Uses a detached probe element + canvas
+ * normalization; falls back to the :root token value for SSR/no-DOM contexts.
+ */
+function resolveTokenColor(token: string, fallback: string): string {
+  if (typeof window === "undefined" || typeof document === "undefined") return fallback;
+  try {
+    const probe = document.createElement("span");
+    probe.style.color = `var(${token})`;
+    document.body.appendChild(probe);
+    const computed = getComputedStyle(probe).color;
+    probe.remove();
+    if (!computed) return fallback;
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (ctx) {
+      ctx.fillStyle = computed;
+      return ctx.fillStyle; // normalized rgb/hex — safe for motion interpolation
+    }
+    return computed;
+  } catch {
+    return fallback;
+  }
+}
+
 export interface TrashIconProps extends AnimatedIconProps {
   shakeOnClick?: boolean;
   dangerHover?: boolean;
@@ -59,7 +84,7 @@ const TrashIcon = forwardRef<AnimatedIconHandle, TrashIconProps>(
 
       await animate(
         ".trash-icon",
-        { stroke: "#ef4444" },
+        { stroke: resolveTokenColor("--destructive", "oklch(0.6 0.22 25)") },
         { duration: 0.2, delay: 0.1, ease: "easeInOut" },
       );
     }, [animate, dangerHover]);

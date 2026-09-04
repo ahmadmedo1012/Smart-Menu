@@ -375,8 +375,8 @@ export function ItemDialog({
 										className={cn(
 											'text-[11px] px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											active
-												? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300'
-												: 'border-border/30 hover:border-emerald-300/50 text-muted-foreground'
+												? 'bg-basil/15 border-basil/40 text-basil'
+												: 'border-border/30 hover:border-basil/40 text-muted-foreground'
 										)}
 									>
 										{DIETARY_ICONS[t] || '🌿'} {DIETARY_LABELS[t] || t}
@@ -407,11 +407,11 @@ export function ItemDialog({
 										className={cn(
 											'text-[11px] px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 											active
-												? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300'
-												: 'border-border/30 hover:border-amber-300/50 text-muted-foreground'
+												? 'bg-warning/15 border-warning/40 text-warning'
+												: 'border-border/30 hover:border-warning/40 text-muted-foreground'
 										)}
 									>
-										<AlertTriangle className="size-3 inline-block me-1 text-amber-600 dark:text-amber-400" />{ALLERGEN_LABELS[t] || t}
+										<AlertTriangle className="size-3 inline-block me-1 text-warning" />{ALLERGEN_LABELS[t] || t}
 									</button>
 								);
 							})}

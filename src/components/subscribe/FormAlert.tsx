@@ -19,9 +19,9 @@ export function FormAlert({
 	return (
 		<div
 			role="alert"
-			className="animate-fade-in flex items-start gap-3 rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 mb-6"
+			className="animate-fade-in flex items-start gap-3 rounded-md border border-warning/30 bg-warning/10 px-4 py-3 mb-6"
 		>
-			<AlertTriangle className="size-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+			<AlertTriangle className="size-4 mt-0.5 shrink-0 text-warning" aria-hidden="true" />
 			<div className="flex-1 min-w-0">
 				<p className="text-sm text-foreground/90 leading-relaxed">{message}</p>
 				{onRetry && (

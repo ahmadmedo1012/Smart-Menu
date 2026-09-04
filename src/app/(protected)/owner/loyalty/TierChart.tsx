@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils"
 import { toArabicNumber } from '@/lib/format';
 
 const TIERS = [
-  { key: "platinum", label: "بلاتيني", color: "text-cyan-600 dark:text-cyan-300", bg: "bg-gradient-to-br from-cyan-400 via-purple-400 to-cyan-500", bar: "bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-500", icon: Sparkles },
-  { key: "gold", label: "ذهبي", color: "text-orange dark:text-orange", bg: "bg-gradient-to-br from-orange to-orange/80", bar: "bg-gradient-to-r from-orange to-orange/80", icon: Star },
-  { key: "silver", label: "فضي", color: "text-slate-500 dark:text-slate-300", bg: "bg-gradient-to-br from-slate-300 to-slate-500", bar: "bg-gradient-to-r from-slate-300 to-slate-500", icon: Medal },
-  { key: "bronze", label: "برونزي", color: "text-orange/70 dark:text-orange/60", bg: "bg-gradient-to-br from-orange/40 to-orange/60", bar: "bg-gradient-to-r from-orange/40 to-orange/60", icon: Award },
+  { key: "platinum", label: "بلاتيني", color: "text-info", bg: "bg-gradient-to-br from-info to-info/70", bar: "bg-gradient-to-r from-info to-info/70", icon: Sparkles },
+  { key: "gold", label: "ذهبي", color: "text-ember dark:text-saffron", bg: "bg-gradient-to-br from-saffron to-ember", bar: "bg-gradient-to-r from-saffron to-ember", icon: Star },
+  { key: "silver", label: "فضي", color: "text-muted-foreground", bg: "bg-gradient-to-br from-muted-foreground/40 to-muted-foreground/70", bar: "bg-gradient-to-r from-muted-foreground/40 to-muted-foreground/70", icon: Medal },
+  { key: "bronze", label: "برونزي", color: "text-ember/80", bg: "bg-gradient-to-br from-ember/60 to-ember/85", bar: "bg-gradient-to-r from-ember/60 to-ember/85", icon: Award },
 ]
 
 export function TierChart({ distribution }: { distribution: Record<string, number> }) {

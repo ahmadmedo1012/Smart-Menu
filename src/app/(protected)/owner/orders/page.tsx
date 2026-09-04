@@ -636,7 +636,7 @@ function OrderCard({
 									if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟'))
 										onCancel();
 								}}
-								className="px-4 py-2 rounded-xl text-sm font-medium border border-red-200/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 disabled:opacity-50 transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/60"
+								className="px-4 py-2 rounded-xl text-sm font-medium border border-destructive/30 text-destructive hover:bg-destructive/10 disabled:opacity-50 transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/60"
 							>
 								إلغاء
 							</button>
@@ -652,8 +652,8 @@ function OrderCard({
 							className={cn(
 								'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-[background-color] border disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								targetStatus === 'preparing'
-									? 'border-info/30 text-sky-800 dark:text-sky-300 hover:bg-info/10'
-									: 'border-success/25 text-emerald-800 dark:text-emerald-300 hover:bg-success/10'
+									? 'border-info/30 text-info hover:bg-info/10'
+									: 'border-success/25 text-success hover:bg-success/10'
 							)}
 						>
 							{isBusy && (

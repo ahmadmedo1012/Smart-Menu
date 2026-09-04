@@ -359,8 +359,8 @@ export function PaymentDialog({
 									</div>
 
 									{/* Quick transfer code */}
-									<div className="rounded-xl bg-gradient-to-br from-green-50/80 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/10 border border-green-200/30 dark:border-green-800/20 p-3">
-										<p className="text-xs font-medium text-green-700 dark:text-green-400 mb-1.5">
+									<div className="rounded-xl bg-success/10 border border-success/25 p-3">
+										<p className="text-xs font-medium text-success mb-1.5">
 											رمز التحويل السريع
 										</p>
 										<div className="flex items-center justify-between gap-2">
@@ -378,7 +378,7 @@ export function PaymentDialog({
 															window.location.href = `tel:${encodedUSSD}`;
 														}, 150);
 													}}
-													className="h-9 px-3 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+													className="h-9 px-3 rounded-lg bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors"
 													title="نسخ الرمز وفتح الاتصال"
 												>
 													<AnimatedCopy className="size-3.5" />
@@ -534,7 +534,7 @@ export function PaymentDialog({
 												<button
 													type="button"
 													onClick={() => setReceiptImageUrl('')}
-													className="text-xs text-red-500 hover:underline shrink-0"
+													className="text-xs text-destructive hover:underline shrink-0"
 												>
 													حذف الصورة
 												</button>
@@ -635,18 +635,18 @@ export function PaymentDialog({
 								className="relative size-20"
 							>
 								<div
-									className="absolute inset-0 rounded-full bg-green-500/20 animate-ping opacity-75"
+									className="absolute inset-0 rounded-full bg-success/20 animate-ping opacity-75"
 									style={{ animationDuration: '1.5s' }}
 								/>
-								<div className="relative size-full rounded-full bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-green-500/30">
-									<CheckCircle2 className="size-10 text-white" />
+								<div className="relative size-full rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center shadow-lg shadow-success/30">
+									<CheckCircle2 className="size-10 text-success-foreground" />
 								</div>
 							</motion.div>
 							<div className="text-center space-y-2">
 								<motion.p
 									initial={{ opacity: 0, y: 10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="text-lg font-bold text-green-600 dark:text-green-400"
+									className="text-lg font-bold text-success"
 								>
 									تم الموافقة على الاشتراك
 								</motion.p>
@@ -665,7 +665,7 @@ export function PaymentDialog({
 								transition={{ delay: 0.3 }}
 							>
 								<Button
-									className="w-full h-11 rounded-xl bg-green-600 hover:bg-green-700 text-white"
+									className="w-full h-11 rounded-xl bg-success hover:bg-success/90 text-success-foreground"
 									onClick={() => {
 										onOpenChange(false);
 										onSuccess();
@@ -685,18 +685,18 @@ export function PaymentDialog({
 								className="relative size-20"
 							>
 								<div
-									className="absolute inset-0 rounded-full bg-red-500/20 animate-ping opacity-75"
+									className="absolute inset-0 rounded-full bg-destructive/20 animate-ping opacity-75"
 									style={{ animationDuration: '1.5s' }}
 								/>
-								<div className="relative size-full rounded-full bg-gradient-to-br from-red-500 to-rose-400 flex items-center justify-center shadow-lg shadow-red-500/30">
-									<XCircle className="size-10 text-white" />
+								<div className="relative size-full rounded-full bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center shadow-lg shadow-destructive/30">
+									<XCircle className="size-10 text-destructive-foreground" />
 								</div>
 							</motion.div>
 							<div className="text-center space-y-2">
 								<motion.p
 									initial={{ opacity: 0, y: 10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="text-lg font-bold text-red-600 dark:text-red-400"
+									className="text-lg font-bold text-destructive"
 								>
 									تم رفض طلب الاشتراك
 								</motion.p>
@@ -747,9 +747,9 @@ export function PaymentDialog({
 					{step === 'success' && (
 						<div className="flex flex-col items-center py-8 space-y-6">
 							<div className="relative size-20">
-								<div className="absolute inset-0 rounded-full bg-green-500/10 animate-scale-in" />
-								<div className="relative size-full rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/10 flex items-center justify-center">
-									<CheckCircle2 className="size-10 text-green-500" />
+								<div className="absolute inset-0 rounded-full bg-success/10 animate-scale-in" />
+								<div className="relative size-full rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center">
+									<CheckCircle2 className="size-10 text-success" />
 								</div>
 							</div>
 							<div className="text-center space-y-1">

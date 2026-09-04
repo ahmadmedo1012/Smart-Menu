@@ -119,7 +119,7 @@ export default function AdminQRPage() {
 		<div className="space-y-6 animate-fade-in max-w-xl mx-auto">
 			<div className="flex items-center gap-3">
 				<div className="size-11 rounded-md bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center shadow-lg shadow-orange/25">
-					<AnimatedQrCode className="size-5 text-[#1a130b]" />
+					<AnimatedQrCode className="size-5 text-espresso" />
 				</div>
 				<div>
 					<h1 className="text-2xl font-bold tracking-normal">رمز QR</h1>

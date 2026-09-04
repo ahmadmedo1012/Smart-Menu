@@ -29,11 +29,11 @@ type Plan = {
 };
 
 const PLAN_GRADIENTS: Record<string, string> = {
-	Free: 'from-gray-400 to-gray-500',
+	Free: 'from-muted-foreground/60 to-muted-foreground/80',
 	Basic: 'from-orange to-orange/80',
 	Premium: 'from-orange to-orange/80',
-	Pro: 'from-orange to-rose-600',
-	Enterprise: 'from-rose-500 to-orange-600',
+	Pro: 'from-primary to-bloom',
+	Enterprise: 'from-bloom to-primary',
 };
 const PLAN_ICONS: Record<string, LucideIcon> = {
 	Free: Sparkles,

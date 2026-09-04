@@ -24,7 +24,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: 
   preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
   ready: { label: "جاهز", icon: CheckCircle, color: "text-success", bg: "bg-success/10" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-muted-foreground", bg: "bg-muted" },
-  cancelled: { label: "ملغي", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30" },
+  cancelled: { label: "ملغي", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
 }
 
 const TABS = [
@@ -177,7 +177,7 @@ export default function AdminOrdersPage() {
           <h1 className="text-2xl font-bold tracking-normal">الطلبات</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(totalCount)} طلب</p>
         </div>
-        <Badge variant="outline" className="gap-1.5 bg-emerald-50/50 dark:bg-emerald-950/20 self-start">
+        <Badge variant="outline" className="gap-1.5 bg-success/10 self-start">
           <Activity className="size-3.5 text-success animate-pulse" />
           تحديث تلقائي
         </Badge>
@@ -324,7 +324,7 @@ export default function AdminOrdersPage() {
                     <button type="button" onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
                       className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-colors border",
                         next === "preparing" && "border-orange/30 text-orange hover:bg-orange-muted",
-                        next === "ready" && "border-green-200/30 text-success hover:bg-success/15",
+                        next === "ready" && "border-success/25 text-success hover:bg-success/15",
                         next === "completed" && "border-orange/30 text-orange hover:bg-orange-muted",
                       )}>
                       ← {STATUS_CONFIG[next]?.label}

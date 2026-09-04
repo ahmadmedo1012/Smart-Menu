@@ -115,7 +115,7 @@ export function ReferralCard({
 						</button>
 						<p className="text-[10px] text-orange/60 dark:text-orange/60 text-center mt-1.5">
 							{copied ? (
-								<span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                                                <span className="inline-flex items-center gap-1 text-success">
 									<MotionCheck className="size-3" /> تم النسخ!
 								</span>
 							) : (
@@ -151,7 +151,7 @@ export function ReferralCard({
 							<button
 								type="button"
 								onClick={handleShareWhatsApp}
-								className="flex-1 h-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-green-500/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                className="flex-1 h-11 rounded-xl bg-whatsapp hover:bg-whatsapp-deep flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-whatsapp/25 hover:shadow-xl hover:shadow-whatsapp/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/60 focus-visible:ring-offset-1 cursor-pointer"
 							>
 								<AnimatedMessageCircle className="size-4" />
 								واتساب

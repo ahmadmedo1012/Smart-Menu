@@ -22,10 +22,10 @@ const TIER_CONFIG: Record<
 	},
 	silver: {
 		labelAr: 'فضي',
-		gradient: 'from-slate-300 to-slate-500',
+		gradient: 'from-muted-foreground/40 to-muted-foreground/70',
 		icon: Award,
 		minPoints: 50,
-		color: 'text-slate-500',
+		color: 'text-muted-foreground',
 	},
 	gold: {
 		labelAr: 'ذهبي',

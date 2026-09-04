@@ -366,7 +366,7 @@ export function OrderDialog({
 						</div>
 						<button
 							type="button"
-							className="w-full h-12 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] shadow-lg shadow-[#25D366]/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98]"
+							className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98]"
 							onClick={handleConfirm}
 							disabled={submitting || !restaurantWhatsapp}
 						>

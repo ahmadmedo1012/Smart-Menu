@@ -3,7 +3,7 @@
 import { motion } from "motion/react"
 import { VideoWrapper } from "@/components/ui/VideoWrapper"
 
-const BG = "#070708"
+const BG = "var(--c-device-void)"
 
 export function PhoneVideo() {
   return (

@@ -27,7 +27,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
         return (
           <div key={tx.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/20">
             <div className="flex items-center gap-3">
-              <div className={cn("size-2 rounded-full shrink-0", isEarn ? "bg-emerald-500" : "bg-red-500")} />
+              <div className={cn("size-2 rounded-full shrink-0", isEarn ? "bg-success" : "bg-destructive")} />
               <div>
                 <p className="text-sm font-medium">{tx.description || (isEarn ? "نقاط مكتسبة" : "نقاط مستردة")}</p>
                 <p className="text-xs text-muted-foreground">
@@ -35,7 +35,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                 </p>
               </div>
             </div>
-            <span className={cn("text-sm font-semibold tabular-nums", isEarn ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
+            <span className={cn("text-sm font-semibold tabular-nums", isEarn ? "text-success" : "text-destructive")}>
               {isEarn ? "+" : "-"}{toArabicNumber(tx.points)}
             </span>
           </div>

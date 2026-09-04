@@ -20,13 +20,13 @@ interface ReferralRow {
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
     pending: { label: "معلق", classes: "bg-orange/10 text-orange dark:bg-orange/10 dark:text-orange" },
-    converted: { label: "تم التحويل", classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
-    expired: { label: "منتهي", classes: "bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400" },
+    converted: { label: "تم التحويل", classes: "bg-success/15 text-success" },
+    expired: { label: "منتهي", classes: "bg-muted text-muted-foreground" },
   }
   const m = map[status] ?? { label: status, classes: "bg-muted text-muted-foreground" }
   return (
     <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", m.classes)}>
-      <span className={cn("size-1.5 rounded-full", status === "pending" && "bg-orange", status === "converted" && "bg-emerald-500", status === "expired" && "bg-slate-400")} />
+      <span className={cn("size-1.5 rounded-full", status === "pending" && "bg-orange", status === "converted" && "bg-success", status === "expired" && "bg-muted-foreground/60")} />
       {m.label}
     </span>
   )
@@ -93,7 +93,7 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
                   {new Date(r.createdAt).toLocaleDateString("ar-LY", { month: "short", day: "numeric" })}
                 </span>
                 {r.status === "converted" && (
-                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">+{r.discountPercent}%</span>
+                  <span className="text-xs font-medium text-success tabular-nums">+{r.discountPercent}%</span>
                 )}
               </div>
             </div>

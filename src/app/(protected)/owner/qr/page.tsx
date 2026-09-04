@@ -103,7 +103,7 @@ export default function OwnerQRPage() {
 
 			<div className="flex items-center gap-3">
 				<div className="size-11 rounded-md bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center shadow-lg shadow-orange/25">
-					<AnimatedQrCode className="size-5 text-[#1a130b]" />
+					<AnimatedQrCode className="size-5 text-espresso" />
 				</div>
 				<div>
 					<h1 className="text-2xl font-bold tracking-normal">رمز QR</h1>
@@ -161,7 +161,7 @@ export default function OwnerQRPage() {
 								/>
 								{/* Overlay with store icon */}
 								<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-									<div className="size-12 md:size-16 rounded-md bg-white/90 dark:bg-gray-900/90 shadow-lg flex items-center justify-center backdrop-blur-sm">
+									<div className="size-12 md:size-16 rounded-md bg-card/90 dark:bg-night/90 shadow-lg flex items-center justify-center backdrop-blur-sm">
 										<Store className="size-6 md:size-8 text-orange" />
 									</div>
 								</div>
@@ -209,7 +209,7 @@ export default function OwnerQRPage() {
 									className="size-11 shrink-0"
 								>
 									{copied ? (
-										<MotionCheck className="size-4 text-green-500" />
+										<MotionCheck className="size-4 text-success" />
 									) : (
 										<AnimatedCopy className="size-4" />
 									)}

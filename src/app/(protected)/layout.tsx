@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { BRAND_THEME_COLOR } from '@/lib/brand';
 import { connection } from 'next/server';
 import { headers } from 'next/headers.js';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-	themeColor: '#d97706',
+        themeColor: BRAND_THEME_COLOR,
 };
 
 export default async function RootLayout({
@@ -79,9 +80,9 @@ export default async function RootLayout({
 				<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
 				{/* ponytail: generate /apple-touch-icon.png (180x180) from public/icon-512.png via any image resizer */}
 				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-				{/* ponytail: theme-color unified to brand orange #d97706 (manifest + offline.html + both layouts) */}
-				<meta name="theme-color" media="(prefers-color-scheme: light)" content="#d97706" />
-				<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#d97706" />
+                                {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
+                                <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
+                                <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
 				<meta name="mobile-web-app-capable" content="yes" />
 				<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 				<meta name="apple-mobile-web-app-title" content="Smart Menu" />

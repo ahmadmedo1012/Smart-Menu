@@ -36,8 +36,8 @@ const PLAN_META: Record<
 > = {
 	Free: {
 		icon: Sparkles,
-		gradient: 'from-gray-400 to-gray-500',
-		glow: 'shadow-gray-400/20',
+		gradient: 'from-muted-foreground/60 to-muted-foreground/80',
+		glow: 'shadow-muted-foreground/20',
 		badge: '',
 		badgeColor: '',
 	},
@@ -67,7 +67,7 @@ const PLAN_META: Record<
 		gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
 		glow: 'shadow-orange/25',
 		badge: 'للشركات الكبرى',
-		badgeColor: 'bg-gradient-to-r from-orange-600 to-rose-700 text-white dark:text-white',
+		badgeColor: 'bg-gradient-to-r from-primary to-bloom text-primary-foreground dark:text-primary-foreground',
 	},
 };
 const DEFAULT_META = PLAN_META.Free;

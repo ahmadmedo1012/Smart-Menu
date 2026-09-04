@@ -188,7 +188,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								<h3 className="text-base font-bold">تقييمات {menuItemName}</h3>
 								{stats.totalCount > 0 && (
 									<p className="text-xs text-muted-foreground mt-0.5">
-										<span className="text-amber-500 font-bold">
+										<span className="text-warning font-bold">
 											{toArabicNumber(stats.avgRating?.toFixed(1) ?? '0')}
 										</span>{' '}
 										⭐ · {toArabicNumber(stats.totalCount)} تقييم
@@ -241,11 +241,11 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 										className={cn(
 											'transition-colors cursor-pointer',
 											s <= formRating
-												? 'text-amber-400'
-												: 'text-muted-foreground/20 hover:text-amber-300/50'
+												? 'text-saffron'
+												: 'text-muted-foreground/20 hover:text-saffron/50'
 										)}
 									>
-										<AnimatedStar className={cn('size-6', s <= formRating && 'fill-amber-400')} />
+										<AnimatedStar className={cn('size-6', s <= formRating && 'fill-saffron')} />
 									</motion.button>
 								))}
 							</div>
@@ -272,7 +272,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 							/>
 							{/* Error */}
 							{submitError && (
-								<p className="text-xs text-red-500" role="alert">
+								<p className="text-xs text-destructive" role="alert">
 									{submitError}
 								</p>
 							)}
@@ -342,7 +342,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 														className={cn(
 															'size-3',
 															s <= review.rating
-																? 'text-amber-400 fill-amber-400'
+																? 'text-saffron fill-saffron'
 																: 'text-muted-foreground/20'
 														)}
 													/>

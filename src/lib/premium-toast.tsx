@@ -20,16 +20,16 @@ const LottieAnimation = dynamic(
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 
 const iconConfig = {
-  success: { icon: CheckCircle, bg: "bg-emerald-500/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  success: { icon: CheckCircle, bg: "bg-success/12", color: "var(--success, oklch(0.62 0.18 145))" },
   error: { icon: AlertCircle, bg: "bg-destructive/12", color: "var(--destructive, oklch(0.6 0.22 25))" },
   info: { icon: Info, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
   cart: { icon: ShoppingCart, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
-  login: { icon: LogIn, bg: "bg-emerald-500/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  login: { icon: LogIn, bg: "bg-success/12", color: "var(--success, oklch(0.62 0.18 145))" },
   logout: { icon: LogOut, bg: "bg-muted", color: "var(--muted-foreground)" },
-  star: { icon: Star, bg: "bg-amber-500/12", color: "var(--warning, oklch(0.7 0.16 80))" },
+  star: { icon: Star, bg: "bg-warning/12", color: "var(--warning, oklch(0.7 0.16 80))" },
   gift: { icon: Gift, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
   refresh: { icon: RefreshCw, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
-  save: { icon: Save, bg: "bg-emerald-500/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  save: { icon: Save, bg: "bg-success/12", color: "var(--success, oklch(0.62 0.18 145))" },
   trash: { icon: Trash2, bg: "bg-destructive/12", color: "var(--destructive, oklch(0.6 0.22 25))" },
   copy: { icon: Copy, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
 } as const;

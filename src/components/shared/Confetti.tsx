@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const SHAPE_COLORS = ["#D4AF37", "#ef4444", "oklch(0.55 0.19 45)", "#10b981", "#8b5cf6", "#ec4899", "#FFD700"];
+const SHAPE_COLORS = ["var(--confetti-gold)", "var(--confetti-red)", "var(--c-flame)", "var(--confetti-emerald)", "var(--confetti-violet)", "var(--confetti-pink)", "var(--confetti-yellow)"];
 const SHAPES = ["■", "●", "▲", "★", "♦"];
-const RECT_COLORS = ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#D4AF37", "#DDA0DD", "#FF8C00"];
+const RECT_COLORS = ["var(--confetti-yellow)", "var(--confetti-coral)", "var(--confetti-teal)", "var(--confetti-sky)", "var(--confetti-sage)", "var(--confetti-gold)", "var(--confetti-plum)", "var(--confetti-orange)"];
 
 type Variant = "shapes" | "rects";
 

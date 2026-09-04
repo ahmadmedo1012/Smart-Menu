@@ -62,7 +62,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
 
 	if (error) {
 		return (
-			<div className="rounded-md p-4 border border-red-200/30 bg-red-50/50 dark:bg-red-950/10">
+			<div className="rounded-md p-4 border border-destructive/30 bg-destructive/10">
 				<p className="text-xs text-destructive flex items-center gap-1">
 					<AlertTriangle className="size-3" /> {error}
 				</p>
@@ -81,7 +81,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
 			className={cn(
 				'rounded-md p-4 border transition-[border-color,box-shadow]',
 				isAt
-					? 'bg-red-50 dark:bg-red-950/20 border-red-200/30'
+					? 'bg-destructive/10 border-destructive/30'
 					: isNear
 						? 'bg-orange/[0.06] dark:bg-orange/10 border-orange/20'
 						: 'bg-card/50 border-border/30'

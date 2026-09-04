@@ -17,13 +17,13 @@ const PLAN_META: Record<
 	string,
 	{ icon: typeof Sparkles; gradient: string; recommended?: boolean }
 > = {
-	Free: { icon: Sparkles, gradient: 'from-gray-400 to-gray-500' },
+	Free: { icon: Sparkles, gradient: 'from-muted-foreground/60 to-muted-foreground/80' },
 	Basic: { icon: Star, gradient: 'from-orange to-orange/80', recommended: true },
-	Premium: { icon: Crown, gradient: 'from-amber-500 to-orange-600' },
-	Pro: { icon: Building2, gradient: 'from-orange to-rose-600' },
-	Enterprise: { icon: Building2, gradient: 'from-rose-500 to-orange-600' },
+	Premium: { icon: Crown, gradient: 'from-saffron to-primary' },
+	Pro: { icon: Building2, gradient: 'from-primary to-bloom' },
+	Enterprise: { icon: Building2, gradient: 'from-bloom to-primary' },
 };
-const DEFAULT_META = { icon: Sparkles, gradient: 'from-gray-400 to-gray-500' };
+const DEFAULT_META = { icon: Sparkles, gradient: 'from-muted-foreground/60 to-muted-foreground/80' };
 
 export function PlanSelector({
 	plans,
@@ -77,7 +77,7 @@ export function PlanSelector({
 								<MotionCheck className="size-3.5 text-white" />
 							</span>
 							{meta.recommended && !upgradeMode && (
-								<span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--c-ember)] to-[var(--c-saffron)] px-2.5 py-0.5 text-[10px] font-bold text-[#1a130b] shadow-sm">
+								<span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--c-ember)] to-[var(--c-saffron)] px-2.5 py-0.5 text-[10px] font-bold text-espresso shadow-sm">
 									<Flame className="size-3" aria-hidden="true" />
 									الأكثر شعبية
 								</span>

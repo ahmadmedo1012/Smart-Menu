@@ -88,7 +88,7 @@ export default function OwnerReviewsPage() {
         </div>
         <div className="rounded-md bg-card/60 border border-border/20 p-4">
           <p className="text-sm text-muted-foreground">متوسط التقييم</p>
-          <p className="text-3xl font-bold mt-1 text-amber-500">
+          <p className="text-3xl font-bold mt-1 text-ember dark:text-saffron">
             {stats.avg > 0 ? stats.avg.toFixed(1) : "---"}
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function OwnerReviewsPage() {
                 <span className="w-8 shrink-0">{d.star} ⭐</span>
                 <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-amber-400 transition-[width] duration-700"
+                    className="h-full rounded-full bg-saffron transition-[width] duration-700"
                     style={{ width: `${stats.total > 0 ? (d.count / stats.total) * 100 : 0}%` }}
                   />
                 </div>
@@ -172,7 +172,7 @@ export default function OwnerReviewsPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20")} />
+                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-saffron fill-saffron" : "text-muted-foreground/20")} />
                       ))}
                     </div>
                     <span className="text-xs text-muted-foreground">

@@ -163,9 +163,9 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 						<div className="animate-float-slow">
 							<div className="glass-strong rounded-2xl px-3.5 py-3 flex flex-col gap-2 shadow-xl">
 								<div className="flex items-center gap-2.5">
-									<div className="relative size-9 rounded-full bg-[#25D366]/15 flex items-center justify-center shrink-0">
-										<MessageCircle className="size-4 text-[#25D366]" />
-										<span className="absolute -top-0.5 -end-0.5 size-2.5 rounded-full bg-[#25D366] ring-2 ring-background" />
+									<div className="relative size-9 rounded-full bg-whatsapp/15 flex items-center justify-center shrink-0">
+										<MessageCircle className="size-4 text-whatsapp" />
+										<span className="absolute -top-0.5 -end-0.5 size-2.5 rounded-full bg-whatsapp ring-2 ring-background" />
 									</div>
 									<div className="text-start">
 										<p className="text-xs font-bold text-foreground leading-tight">طلب جديد وصل</p>
@@ -174,7 +174,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 								</div>
 								<div className="animate-ticket-drop flex items-center justify-between gap-3 rounded-xl bg-background/70 border border-border/40 px-3 py-1.5">
 									<div className="flex items-center gap-1.5">
-										<span className="size-1.5 rounded-full bg-[#25D366]" />
+										<span className="size-1.5 rounded-full bg-whatsapp" />
 										<span className="text-[10px] font-bold text-foreground">بيتزا مارغريتا ×2</span>
 									</div>
 									<span dir="ltr" className="text-[10px] font-bold text-orange">32.00 د.ل</span>

@@ -282,7 +282,7 @@ ${referralUrl}
 								<button
 									type="button"
 									onClick={handleShareWhatsApp}
-									className="h-12 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-green-500/60 focus-visible:ring-offset-1 cursor-pointer"
+									className="h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-whatsapp/25 hover:shadow-xl hover:shadow-whatsapp/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/60 focus-visible:ring-offset-1 cursor-pointer"
 								>
 									<AnimatedMessageCircle className="size-5" />
 									واتساب
@@ -290,7 +290,7 @@ ${referralUrl}
 								<button
 									type="button"
 									onClick={handleShareInstagram}
-									className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
+									className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
 								>
 									<Camera className="size-5" />
 									إنستغرام

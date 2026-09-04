@@ -178,7 +178,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							initial={{ scale: 0, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							transition={{ ...CARD_SPRING, delay: 0.1 }}
-							className="rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white"
+							className="rounded-md bg-success px-2 py-1 text-[10px] font-bold text-success-foreground"
 						>
 							<Sparkles className="size-2.5 fill-current" />
 						جديد
@@ -210,12 +210,12 @@ const MenuItemCard = memo(function MenuItemCard({
 							'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-300',
 							'border-border/60 bg-muted/60 shadow-none',
 							hasRating
-								? 'text-amber-600 dark:text-amber-400 hover:bg-white/30 dark:hover:bg-white/20'
-								: 'text-muted-foreground hover:text-amber-500 hover:bg-white/20'
+								? 'text-ember dark:text-saffron hover:bg-white/30 dark:hover:bg-white/20'
+								: 'text-muted-foreground hover:text-ember dark:hover:text-saffron hover:bg-white/20'
 						)}
 					>
 						<AnimatedStar
-							className={cn('size-3', hasRating && 'fill-amber-500 dark:fill-amber-400')}
+							className={cn('size-3', hasRating && 'fill-saffron')}
 							aria-hidden="true"
 						/>
 						{hasRating ? toArabicNumber(item.avgRating!.toFixed(1)) : 'قيّم'}
@@ -236,7 +236,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						{item.dietaryTags?.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-600 dark:text-emerald-400"
+								className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-[10px] text-basil"
 							>
 								{DIETARY_ICONS[tag] || '🌿'} {DIETARY_LABELS[tag] || tag}
 							</span>
@@ -244,9 +244,9 @@ const MenuItemCard = memo(function MenuItemCard({
 						{item.allergens?.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-600 dark:text-amber-400"
+								className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-[10px] text-warning"
 							>
-								<AlertTriangle className="size-3 text-amber-600 dark:text-amber-400" /> {ALLERGEN_LABELS[tag] || tag}
+								<AlertTriangle className="size-3 text-warning" /> {ALLERGEN_LABELS[tag] || tag}
 							</span>
 						))}
 					</div>

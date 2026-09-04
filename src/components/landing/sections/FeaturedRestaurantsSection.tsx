@@ -192,7 +192,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 												transition={{ delay: 0.2, duration: 0.3 }}
 												className="flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white/90"
 											>
-												<AnimatedStar className="size-3.5 text-yellow-400" />
+												<AnimatedStar className="size-3.5 text-saffron" />
 												{r.orderCount}
 											</motion.div>
 										)}
@@ -225,7 +225,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 													{r.phone}
 												</span>
 											)}
-											<span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange hover:text-orange-300 transition-colors group/link">
+											<span className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-orange hover:text-saffron transition-colors group/link">
 												عرض المنيو
 												{/* HeroSection:95 pattern — ArrowRight + rtl:rotate-180 keeps glyph and hover
 												nudge coherent in both directions (translate-x is physical in TW4) */}

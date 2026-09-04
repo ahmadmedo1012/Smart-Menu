@@ -27,7 +27,7 @@ export function LivePollIndicator({
 			className={cn(
 				'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
 				isActive
-					? 'border-success/25 bg-success/10 text-emerald-800 dark:text-emerald-300'
+					? 'border-success/25 bg-success/10 text-success'
 					: 'border-border/30 bg-muted/40 text-muted-foreground',
 				className
 			)}

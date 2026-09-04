@@ -56,8 +56,8 @@ const STATUS_CONFIG: Record<
 	cancelled: {
 		label: 'ملغي',
 		icon: XCircle,
-		color: 'text-red-600 dark:text-red-400',
-		bg: 'bg-red-100 dark:bg-red-900/30',
+		color: 'text-destructive',
+		bg: 'bg-destructive/15',
 	},
 };
 
@@ -190,7 +190,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 										isCurrent
 											? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/25 scale-110'
 											: isActive
-												? 'bg-success/15 text-emerald-600 border-success/30'
+												? 'bg-success/15 text-success border-success/30'
 												: 'bg-muted/30 text-muted-foreground/30 border-border/20'
 									)}
 								>
@@ -213,7 +213,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 										className={cn(
 											'h-0.5 w-full -mt-6 me-10',
 											isActive && idx < currentIdx
-												? 'bg-emerald-300 dark:bg-emerald-700'
+												? 'bg-success/50 dark:bg-success/70'
 												: isActive
 													? 'bg-orange/60 dark:bg-orange'
 													: 'bg-border/20'
@@ -241,7 +241,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 								onClick={() => {
 									if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) updateStatus('cancelled');
 								}}
-								className="rounded-xl h-11 border-red-200/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+								className="rounded-xl h-11 border-destructive/30 text-destructive hover:bg-destructive/10"
 							>
 								إلغاء الطلب
 							</Button>
@@ -356,7 +356,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 				<button
 					type="button"
 					onClick={copyAsWhatsApp}
-					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-green-200/30 text-success hover:bg-success/15 transition-colors font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-success/25 text-success hover:bg-success/15 transition-colors font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				>
 					<AnimatedMessageCircle className="size-4" />
 					نسخ للواتساب

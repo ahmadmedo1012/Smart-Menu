@@ -52,6 +52,13 @@
 	--color-warning-foreground: var(--warning-foreground);
 	--color-info: var(--info);
 	--color-info-foreground: var(--info-foreground);
+        --color-destructive-foreground: var(--destructive-foreground);
+
+        /* External brand + semantic extensions */
+        --color-whatsapp: var(--whatsapp);
+        --color-whatsapp-deep: var(--whatsapp-deep);
+        --color-espresso: var(--c-espresso);
+        --color-bloom: var(--c-bloom);
 
 	/* Orange accent */
 	--color-orange: var(--orange);
@@ -176,6 +183,7 @@
 	--accent: oklch(0.55 0.19 45 / 0.15);
 	--accent-foreground: oklch(0.55 0.19 45);
 	--destructive: oklch(0.6 0.22 25);
+	--destructive-foreground: oklch(0.98 0 0);
 	--border: oklch(0.23 0.01 60);
 	--input: oklch(0.23 0.01 60);
 	--ring: oklch(0.55 0.19 45);
@@ -189,7 +197,7 @@
 	--warning-foreground: oklch(0.1 0 0);
 
 	/* Info — cool blue */
-	--info: oklch(0.55 0.14 240);
+		--info: oklch(0.62 0.13 245);      /* lighter in dark for AA text on dark surfaces */
 	--info-foreground: oklch(0.98 0 0);
 
 	/* Orange palette — use darkened primary for AA */
@@ -206,6 +214,33 @@
 	--c-ash-pale: oklch(0.18 0.01 60);         /* deep warm surface wash (dark) */
 	--c-night: oklch(0.16 0.02 55);            /* deep warm charcoal base */
 	--c-basil: oklch(0.64 0.14 150);           /* fresh contrast (dietary/health) */
+        --c-espresso: #1a130b;                    /* deep coffee — foreground on flame/saffron surfaces */
+        --c-bloom: oklch(0.56 0.2 16);            /* brand pink heat (j66: orange/pink identity) */
+
+        /* External brand colors — theme-independent by definition */
+        --whatsapp: #25D366;                      /* WhatsApp official green */
+        --whatsapp-deep: #20bd5a;                 /* WhatsApp pressed/hover green */
+
+        /* Device mockup materials — physical, theme-independent */
+        --c-device-black: #0b0b0d;                /* iPhone black frame */
+        --c-device-ti: #837a72;                   /* titanium frame */
+        --c-device-ti-natural: #a69a8a;           /* natural titanium frame */
+        --c-device-screen: #000000;               /* screen off state */
+        --c-device-void: #070708;                 /* video letterbox near-black */
+
+        /* Celebration confetti palette — decorative particles, theme-independent */
+        --confetti-gold: #D4AF37;
+        --confetti-yellow: #FFD700;
+        --confetti-red: #ef4444;
+        --confetti-coral: #FF6B6B;
+        --confetti-teal: #4ECDC4;
+        --confetti-sky: #45B7D1;
+        --confetti-sage: #96CEB4;
+        --confetti-plum: #DDA0DD;
+        --confetti-orange: #FF8C00;
+        --confetti-emerald: #10b981;
+        --confetti-violet: #8b5cf6;
+        --confetti-pink: #ec4899;
 
 	/* Overlay backdrop — dark */
 	--overlay: oklch(0 0 0 / 0.55);
@@ -266,19 +301,20 @@
 	--accent: oklch(0.55 0.19 45 / 0.12);
 	--accent-foreground: oklch(0.55 0.19 45);
 	--destructive: oklch(0.58 0.2 25);
+	--destructive-foreground: oklch(0.98 0 0);
 	--border: oklch(0.86 0.008 70);
 	--input: oklch(0.86 0.008 70);
 	--ring: oklch(0.55 0.19 45);
 
-	--success: oklch(0.62 0.18 145);
+	--success: oklch(0.48 0.15 150);   /* darker in light for AA text on white (dual-lightness like --primary) */
 	--success-foreground: oklch(0.98 0 0);
 
 	/* Warning — amber */
-	--warning: oklch(0.7 0.16 80);
+	--warning: oklch(0.52 0.13 60);   /* darker in light for AA text on white (dual-lightness like --primary) */
 	--warning-foreground: oklch(0.1 0 0);
 
 	/* Info — cool blue */
-	--info: oklch(0.55 0.14 240);
+	--info: oklch(0.48 0.13 245);      /* darker in light for AA text on white (dual-lightness like --primary) */
 	--info-foreground: oklch(0.98 0 0);
 
 	/* Grid pattern colors — light */

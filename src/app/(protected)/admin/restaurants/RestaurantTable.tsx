@@ -97,7 +97,7 @@ const PLAN_ICONS: Record<string, typeof Sparkles> = {
   "Free": Sparkles, "Basic": Star, "Pro": Crown, "Enterprise": Building2,
 }
 const PLAN_COLORS: Record<string, string> = {
-  "Free": "from-gray-400 to-gray-500",
+  "Free": "from-muted-foreground/60 to-muted-foreground/80",
   "Basic": "from-orange to-orange/80",
   "Pro": "from-orange to-orange/80",
   "Enterprise": "from-orange to-orange/80",
@@ -105,7 +105,7 @@ const PLAN_COLORS: Record<string, string> = {
 
 export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, onToggleShowOnLanding }: RestaurantListItemProps) {
   const PlanIcon = (r.plan?.name && PLAN_ICONS[r.plan.name]) || Sparkles
-  const planGrad = (r.plan?.name && PLAN_COLORS[r.plan.name]) || "from-gray-400 to-gray-500"
+  const planGrad = (r.plan?.name && PLAN_COLORS[r.plan.name]) || "from-muted-foreground/60 to-muted-foreground/80"
 
   return (
     <div className={cn("rounded-md border p-5 transition-[border-color,box-shadow]", isSelected ? "border-orange/40 bg-orange-muted/30 dark:bg-orange-muted" : "border-border/30 bg-card/50 hover:border-orange/20 hover:shadow-md")}>

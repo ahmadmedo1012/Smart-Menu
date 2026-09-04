@@ -40,25 +40,17 @@ const SPECS: Record<
 };
 
 const COLORS: Record<string, string> = {
-	black: '#0b0b0d',
-	titanium: '#837a72',
-	'natural-titanium': '#a69a8a',
+        black: 'var(--c-device-black)',
+        titanium: 'var(--c-device-ti)',
+        'natural-titanium': 'var(--c-device-ti-natural)',
 };
-
-function shade(hex: string, pct: number): string {
-	const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.trim());
-	if (!m) return hex;
-	const k = (100 + pct) / 100;
-	const to = (v: number) => Math.max(0, Math.min(255, Math.round(v * k)));
-	return `#${to(parseInt(m[1]!, 16)).toString(16).padStart(2, '0')}${to(parseInt(m[2]!, 16)).toString(16).padStart(2, '0')}${to(parseInt(m[3]!, 16)).toString(16).padStart(2, '0')}`;
-}
 
 export function IPhoneMockup({
 	model = '15-pro',
 	color = 'natural-titanium',
 	scale = 1,
 	shadow = true,
-	screenBg = '#000',
+        screenBg = 'var(--c-device-screen)',
 	wallpaper,
 	wallpaperFit = 'cover',
 	className,
@@ -70,7 +62,7 @@ export function IPhoneMockup({
 	const outerH = spec.h + spec.bezel * 2;
 	const colorHex = COLORS[color] ?? color;
 
-	const frameGrad = `linear-gradient(135deg, ${shade(colorHex, 8)} 0%, ${colorHex} 40%, ${shade(colorHex, -14)} 100%)`;
+        const frameGrad = `linear-gradient(135deg, color-mix(in srgb, ${colorHex} 92%, white) 0%, ${colorHex} 40%, color-mix(in srgb, ${colorHex} 86%, black) 100%)`;
 	const dropShadow = shadow ? '0 12px 30px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.22)' : 'none';
 	const innerShadowCss =
 		'inset 0 0 0 1px rgba(255,255,255,0.03), inset 0 10px 20px rgba(0,0,0,0.35), inset 0 -8px 16px rgba(0,0,0,0.28)';
@@ -133,7 +125,7 @@ export function IPhoneMockup({
 							width: 126,
 							height: 37,
 							borderRadius: 20,
-							background: '#000',
+							background: 'var(--c-device-screen)',
 							zIndex: 2,
 							boxShadow: '0 1px 2px rgba(0,0,0,0.7)',
 						}}
