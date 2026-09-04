@@ -3,9 +3,10 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
+import { usernameOptional } from "@/lib/validation";
 
 const validateSchema = z.object({
-  username: z.string().min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل").optional(),
+  username: usernameOptional,
   slug: z.string().min(3, "الرابط يجب أن يكون 3 أحرف على الأقل").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط").optional(),
   slugs: z.array(z.string().min(3).regex(/^[a-z0-9-]+$/)).optional(),
 });

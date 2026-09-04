@@ -1,0 +1,187 @@
+/**
+ * Shared stats query builders (round79 Stage D — merge of the د3 duplication).
+ *
+ * The popular-items query (+ its hydration), the today-revenue aggregate, and
+ * the restaurant-scope resolution were re-implemented in parallel across:
+ *   - src/app/api/stats/route.ts
+ *   - src/app/api/admin/stats/route.ts
+ *   - src/app/api/stats/advanced/route.ts
+ *
+ * Only query CONSTRUCTION and hydration moved here — every route keeps its
+ * own auth guard, response shaping, and HTTP semantics, so API responses are
+ * byte-identical to before the merge.
+ */
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { error } from '@/lib/api-helpers';
+import type { Prisma } from '@/generated/prisma/client';
+
+/* ---------- Restaurant scope resolution ---------- */
+
+export interface ScopeAuth {
+        userId: number;
+        role: string;
+        restaurantId: number | null;
+}
+
+export type ScopeResult =
+        | { ok: true; restaurantId: number }
+        | { ok: false; response: NextResponse };
+
+/**
+ * Resolve which restaurant's stats the caller may read:
+ * - owner → own restaurant (or an explicitly linked one, verified via UserRestaurant)
+ * - admin / super_admin / sub_admin → any restaurant (must be passed explicitly)
+ * - anything else → 403
+ *
+ * Identical logic + error messages previously duplicated in both
+ * api/stats/route.ts and api/stats/advanced/route.ts.
+ */
+export async function resolveRestaurantScope(
+        auth: ScopeAuth,
+        searchParams: URLSearchParams
+): Promise<ScopeResult> {
+        let restaurantId: number | undefined = Number(searchParams.get('restaurantId')) || undefined;
+
+        if (auth.role === 'owner') {
+                // Multi-menu: if a restaurantId is explicitly requested, verify the
+                // owner manages it (via UserRestaurant). Otherwise default to primary.
+                if (restaurantId && restaurantId !== auth.restaurantId) {
+                        const link = await prisma.userRestaurant.findUnique({
+                                where: { userId_restaurantId: { userId: auth.userId, restaurantId } },
+                        });
+                        if (!link) return { ok: false, response: error('غير مصرح', 403) };
+                } else {
+                        restaurantId = auth.restaurantId ?? undefined;
+                }
+                if (!restaurantId) return { ok: false, response: error('لا يوجد مطعم مرتبط', 400) };
+        } else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+                // Regular users must never read stats (revenue/orders) or customer PII of any restaurant
+                return { ok: false, response: error('غير مصرح', 403) };
+        }
+        if (!restaurantId) return { ok: false, response: error('معرف المطعم مطلوب', 400) };
+
+        return { ok: true, restaurantId };
+}
+
+/* ---------- Popular items (top-selling menu items) ---------- */
+
+export interface PopularItemsOptions {
+        restaurantId?: number;
+        /** Inclusive lower bound on the order date (period start). */
+        since?: Date;
+        /** Exclusive upper bound on the order date (period end). */
+        before?: Date;
+        /** How many items to return. Defaults to 10. */
+        take?: number;
+}
+
+/** groupBy requires orderBy to be present (TS-level) — narrow the args type. */
+export type PopularItemsArgs = Prisma.OrderItemGroupByArgs & {
+        orderBy: Prisma.OrderItemOrderByWithAggregationInput;
+};
+
+/**
+ * Build the orderItem groupBy that ranks items by quantity sold.
+ * Previously hand-written 4 times across the 3 stats routes
+ * (take drifted between 10 and 15 — now explicit per call site).
+ */
+export function popularItemsQuery(opts: PopularItemsOptions = {}): PopularItemsArgs {
+        const period: { gte?: Date; lt?: Date } = {};
+        if (opts.since !== undefined) period.gte = opts.since;
+        if (opts.before !== undefined) period.lt = opts.before;
+        const hasPeriod = opts.since !== undefined || opts.before !== undefined;
+        const hasRestaurant = opts.restaurantId !== undefined;
+
+        const args: PopularItemsArgs = {
+                by: ['itemId'],
+                _sum: { quantity: true },
+                orderBy: { _sum: { quantity: 'desc' } },
+                take: opts.take ?? 10,
+                ...(hasRestaurant || hasPeriod
+                        ? {
+                                        where: {
+                                                order: {
+                                                        ...(hasRestaurant ? { restaurantId: opts.restaurantId } : {}),
+                                                        ...(hasPeriod ? { createdAt: period } : {}),
+                                                },
+                                        },
+                                }
+                        : {}),
+        };
+        return args;
+}
+
+export interface PopularItemsRow {
+        itemId: number;
+        _sum?: { quantity?: number | null } | null;
+}
+
+/** How to resolve the display name of an item. */
+export type NameMode =
+        | 'name' /** plain name field */
+        | 'nameAr-fallback' /** nameAr || name */
+        | 'nameAr-trimmed-fallback' /** nameAr.trim() ? nameAr : name */;
+
+/**
+ * Hydrate grouped popular-items rows with item names.
+ * Previously re-implemented in all 3 stats routes (~15 lines each).
+ * The three name modes preserve each route's exact pre-merge behavior.
+ */
+export async function hydratePopularItems(
+        rows: readonly PopularItemsRow[],
+        nameMode: NameMode = 'name'
+): Promise<{ itemId: number; name: string; totalSold: number }[]> {
+        const ids = rows.map((r) => r.itemId);
+        const withNameAr = nameMode !== 'name';
+        /** nameAr is only selected when a mode needs it — optional keeps both shapes assignable. */
+        type NameRow = { id: number; name: string; nameAr?: string | null };
+        const items: NameRow[] =
+                ids.length > 0
+                        ? await prisma.menuItem.findMany({
+                                        where: { id: { in: ids } },
+                                        select: withNameAr ? { id: true, name: true, nameAr: true } : { id: true, name: true },
+                                })
+                        : [];
+
+        const map = new Map<number, string>();
+        for (const i of items) {
+                if (nameMode === 'name') map.set(i.id, i.name);
+                else if (nameMode === 'nameAr-fallback') map.set(i.id, i.nameAr || i.name);
+                else map.set(i.id, i.nameAr?.trim() ? i.nameAr : i.name);
+        }
+
+        return rows.map((r) => ({
+                itemId: r.itemId,
+                name: map.get(r.itemId) ?? 'Unknown',
+                totalSold: r._sum?.quantity ?? 0,
+        }));
+}
+
+/* ---------- Today revenue aggregate ---------- */
+
+/**
+ * Build the order aggregate for revenue-in-a-period.
+ * Previously written twice (api/stats with restaurantId + api/admin/stats
+ * platform-wide with _count). `_count: true` only when `withCount` —
+ * preserves each route's exact aggregate shape.
+ */
+export function revenueAggregate(opts: {
+        restaurantId?: number;
+        since: Date;
+        before?: Date;
+        withCount?: boolean;
+}): Prisma.OrderAggregateArgs {
+        const args: Prisma.OrderAggregateArgs = {
+                where: {
+                        ...(opts.restaurantId !== undefined ? { restaurantId: opts.restaurantId } : {}),
+                        createdAt: {
+                                gte: opts.since,
+                                ...(opts.before !== undefined ? { lt: opts.before } : {}),
+                        },
+                },
+                ...(opts.withCount ? { _count: true } : {}),
+                _sum: { total: true },
+        };
+        return args;
+}

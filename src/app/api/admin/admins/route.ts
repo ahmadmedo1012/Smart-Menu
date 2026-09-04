@@ -6,13 +6,14 @@ import { requirePermission } from "@/lib/auth";
 import { AuditAction, Permission } from "@/generated/prisma/enums";
 import { logAudit } from "@/lib/audit";
 import { z } from "zod";
+import { usernameField, passwordField, nameField } from "@/lib/validation";
 
 const permissionValues = Object.values(Permission) as [string, ...string[]];
 
 const inviteSchema = z.object({
-  username: z.string().min(3).max(50),
-  password: z.string().min(8).max(100),
-  name: z.string().min(1).max(100),
+  username: usernameField,
+  password: passwordField,
+  name: nameField,
   permissions: z.array(z.enum(permissionValues)).default([]),
 });
 

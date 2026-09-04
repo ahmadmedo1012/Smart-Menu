@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
+import { popularItemsQuery, hydratePopularItems, revenueAggregate } from "@/lib/stats-queries";
 
 export async function GET() {
   try {
@@ -50,11 +51,7 @@ export async function GET() {
           restaurant: { select: { id: true, name: true } },
         },
       }),
-      prisma.order.aggregate({
-        where: { createdAt: { gte: today } },
-        _count: true,
-        _sum: { total: true },
-      }),
+      prisma.order.aggregate(revenueAggregate({ since: today, withCount: true })),
       prisma.systemEvent.findMany({
         take: 10,
         orderBy: { createdAt: "desc" },
@@ -106,27 +103,9 @@ export async function GET() {
     `;
 
     // Top items across all restaurants
-    const topItems = await prisma.orderItem.groupBy({
-      by: ["itemId"],
-      _sum: { quantity: true },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 15,
-    });
+    const topItems = await prisma.orderItem.groupBy(popularItemsQuery({ take: 15 }));
 
-    const topItemIds = topItems.map((t) => t.itemId);
-    const topItemDetails = topItemIds.length > 0
-      ? await prisma.menuItem.findMany({
-          where: { id: { in: topItemIds } },
-          select: { id: true, name: true, nameAr: true },
-        })
-      : [];
-    const topItemMap = new Map(topItemDetails.map((i) => [i.id, i.nameAr || i.name]));
-
-    const topItemsFormatted = topItems.map((t) => ({
-      itemId: t.itemId,
-      name: topItemMap.get(t.itemId) ?? "Unknown",
-      totalSold: t._sum.quantity ?? 0,
-    }));
+    const topItemsFormatted = await hydratePopularItems(topItems, "nameAr-fallback");
 
     // Growth rates (MoM)
     const thirtyDaysBefore = new Date();
@@ -197,7 +176,7 @@ export async function GET() {
         lastLoginAt: u.lastLoginAt,
         restaurant: u.restaurant,
       })),
-      ordersToday: { count: ordersToday._count, revenue: ordersToday._sum.total ?? 0 },
+      ordersToday: { count: ordersToday._count ?? 0, revenue: ordersToday._sum?.total ?? 0 },
       systemEvents,
       topRestaurants: topRestaurantsFormatted,
       linkedRestaurants,

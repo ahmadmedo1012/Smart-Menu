@@ -7,10 +7,11 @@ import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
 import { createSession } from '@/lib/session';
 import { verifyHash } from '@/lib/hash';
+import { usernamePresence, passwordPresence } from '@/lib/validation';
 
 const loginSchema = z.object({
-	username: z.string().min(1, 'اسم المستخدم مطلوب'),
-	password: z.string().min(1, 'كلمة المرور مطلوبة'),
+	username: usernamePresence,
+	password: passwordPresence,
 });
 
 const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });

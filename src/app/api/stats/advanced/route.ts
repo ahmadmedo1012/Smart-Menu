@@ -11,6 +11,7 @@ import {
 	fillRevenueSeries,
 	categoryShares,
 } from '@/lib/chart-stats';
+import { resolveRestaurantScope, popularItemsQuery, hydratePopularItems } from '@/lib/stats-queries';
 
 export async function GET(request: NextRequest) {
 	try {
@@ -18,23 +19,11 @@ export async function GET(request: NextRequest) {
 		if (!auth.authorized) return error('غير مصرح', 401);
 
 		const { searchParams } = new URL(request.url);
-		let restaurantId: number | undefined = Number(searchParams.get('restaurantId')) || undefined;
 		const range = parseAnalyticsRange(searchParams.get('range'));
 
-		if (auth.role === 'owner') {
-			if (restaurantId && restaurantId !== auth.restaurantId) {
-				const link = await prisma.userRestaurant.findUnique({
-					where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
-				});
-				if (!link) return error('غير مصرح', 403);
-			} else {
-				restaurantId = auth.restaurantId ?? undefined;
-			}
-			if (!restaurantId) return error('لا يوجد مطعم مرتبط', 400);
-		} else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
-			return error('غير مصرح', 403);
-		}
-		if (!restaurantId) return error('معرف المطعم مطلوب', 400);
+		const scope = await resolveRestaurantScope(auth, searchParams);
+		if (!scope.ok) return scope.response;
+		const { restaurantId } = scope;
 
 		const now = new Date();
 		const current = rangeBounds(range, now);
@@ -84,20 +73,12 @@ export async function GET(request: NextRequest) {
 				WHERE "restaurantId" = ${restaurantId} AND "createdAt" >= ${current.start}
 				GROUP BY DATE("createdAt") ORDER BY date ASC
 			`,
-			prisma.orderItem.groupBy({
-				by: ['itemId'],
-				_sum: { quantity: true },
-				where: { order: { restaurantId, createdAt: { gte: current.start } } },
-				orderBy: { _sum: { quantity: 'desc' } },
-				take: 10,
-			}),
-			prisma.orderItem.groupBy({
-				by: ['itemId'],
-				_sum: { quantity: true },
-				where: { order: { restaurantId, createdAt: { gte: previous.start, lt: current.start } } },
-				orderBy: { _sum: { quantity: 'desc' } },
-				take: 10,
-			}),
+			prisma.orderItem.groupBy(
+				popularItemsQuery({ restaurantId, since: current.start, take: 10 })
+					),
+			prisma.orderItem.groupBy(
+				popularItemsQuery({ restaurantId, since: previous.start, before: current.start, take: 10 })
+					),
 			prisma.$queryRaw<{ hour: number; count: bigint }[]>`
 				SELECT EXTRACT(HOUR FROM "createdAt")::int as hour, COUNT(*)::int as count
 				FROM "Order"
@@ -140,25 +121,15 @@ export async function GET(request: NextRequest) {
 			`,
 		]);
 
-		const topItemIds = topItemsCurrent.map((t) => t.itemId);
-		const topItemDetails =
-			topItemIds.length > 0
-				? await prisma.menuItem.findMany({
-						where: { id: { in: topItemIds } },
-						select: { id: true, name: true, nameAr: true },
-					})
-				: [];
-		const itemMap = new Map(
-			topItemDetails.map((i) => [i.id, i.nameAr?.trim() ? i.nameAr : i.name])
-		);
-		const prevMap = new Map(topItemsPrev.map((t) => [t.itemId, t._sum.quantity ?? 0]));
+		const topItemsCurrentNamed = await hydratePopularItems(topItemsCurrent, 'nameAr-trimmed-fallback');
+		const prevMap = new Map(topItemsPrev.map((t) => [t.itemId, t._sum?.quantity ?? 0]));
 
-		const topItems = topItemsCurrent.map((t) => {
+		const topItems = topItemsCurrent.map((t, i) => {
 			const prev = prevMap.get(t.itemId) ?? 0;
-			const curr = t._sum.quantity ?? 0;
+			const curr = t._sum?.quantity ?? 0;
 			return {
 				itemId: t.itemId,
-				name: itemMap.get(t.itemId) ?? 'Unknown',
+				name: topItemsCurrentNamed[i]?.name ?? 'Unknown',
 				totalSold: curr,
 				growth: prev > 0 ? Math.round(((curr - prev) / prev) * 100) : curr > 0 ? 100 : 0,
 			};

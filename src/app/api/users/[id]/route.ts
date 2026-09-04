@@ -3,11 +3,12 @@ import { prisma } from "@/lib/db";
 import { requirePermission } from "@/lib/auth";
 import { success, error as apiError, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
+import { nameOptional, usernamePresenceOptional } from "@/lib/validation";
 
 const updateUserSchema = z.object({
   role: z.enum(["admin", "owner"]).optional(),
-  name: z.string().min(1).optional(),
-  username: z.string().min(1).optional(),
+  name: nameOptional,
+  username: usernamePresenceOptional,
   restaurantId: z.number().positive().nullable().optional(),
 });
 

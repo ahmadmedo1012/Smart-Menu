@@ -7,10 +7,11 @@ import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
 import { verifyHash, hashPassword } from "@/lib/hash";
+import { nameOptional } from "@/lib/validation";
 
 const updateSchema = z
   .object({
-    name: z.string().min(1).max(100).optional(),
+    name: nameOptional,
     email: z.string().email().optional().or(z.literal("")),
     phone: z.string().optional(),
     currentPassword: z.string().optional(),

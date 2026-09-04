@@ -3,11 +3,12 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth";
+import { usernameField, passwordField, nameField } from "@/lib/validation";
 
 const schema = z.object({
-  username: z.string().min(3),
-  password: z.string().min(8),
-  name: z.string().min(1),
+  username: usernameField,
+  password: passwordField,
+  name: nameField,
   restaurantId: z.number().int().positive(),
 });
 

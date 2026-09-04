@@ -8,6 +8,7 @@ import { getDecryptedBotToken } from '@/lib/config';
 import { sendMessageWithKeyboard } from '@/lib/telegram-api';
 import { error as logError } from '@/lib/logger';
 import { z } from 'zod';
+import { usernameOptional } from '@/lib/validation';
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -26,7 +27,7 @@ export const createPaymentSchema = z
 		amount: z.number().positive(),
 		provider: z.enum(['libyana', 'madar', 'bank']),
 		planId: z.number().int().positive(),
-		tempUsername: z.string().min(3).optional(),
+		tempUsername: usernameOptional,
 		tempRestaurants: z
 			.array(
 				z.object({
