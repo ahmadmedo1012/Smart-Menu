@@ -48,10 +48,17 @@
 7. حارس localhost في سكربت الرحلة لكلمة مرور الأدمن + توحيد trim للشارة في PUT (G-SEC LOW-2/4).
 
 ## 5) الالتزامات الإلزامية على المالك (قبل أي إعلان إطلاق)
+> **واقعة ما بعد F (مهمة):** تحويل المستودع لخاص (F) **حظر آخر نشرين** على Vercel
+> ("Deployment was blocked" — تكامل Vercel/GitHub فقد الوصول). استُعدت العلنية
+> مؤقتًا وكوميت إعادة التشغيل ab8c184d نشر بنجاح — **إصلاح تباين G مثبت حي على
+> الإنتاج** (الشحة 1bbd11oyqi0xp يحمل السلسلة المصلحة). الترتيب الصحيح للخصوصية
+> النهائية (مُحدَّث):
 
-1. **تدوير أسرار Vercel**: `JWT_SECRET` و`AUTH_SECRET` (64 hex عشوائي جديد) + Redeploy — ثم `TELEGRAM_BOT_TOKEN` إن استُخدم + `CRON_SECRET` + كلمة مرور قاعدة Neon (القائمة الكاملة في `docs/round79-phaseF-security.md` §7).
-2. **إبطال توكن GitHub** المقدَّم لهذه الجولة فور اكتمال الاستخدام (GitHub → Settings → Developer settings → Personal access tokens).
-3. (اختياري) تحديث قيم `.env` المحلية الضعيفة.
+1. **تدوير أسرار Vercel أولًا**: `JWT_SECRET` و`AUTH_SECRET` (64 hex عشوائي جديد) + Redeploy — ثم `TELEGRAM_BOT_TOKEN` إن استُخدم + `CRON_SECRET` + كلمة مرور قاعدة Neon (القائمة الكاملة في `docs/round79-phaseF-security.md` §7).
+2. **إعادة تفويض Vercel↔GitHub للوصول الخاص**: Vercel → Project → Settings → Git (إعادة الربط) أو GitHub → Settings → Applications → Vercel → Repository access (ضم Smart-Menu).
+3. **عندها فقط** تحويل المستودع لخاص مجددًا (GitHub → Settings → Danger Zone) والتحقق بنشر اختباري واحد ناجح وهو خاص.
+4. **إبطال توكن GitHub** المقدَّم لهذه الجولة فور اكتمام الاستخدام (GitHub → Settings → Developer settings → Personal access tokens).
+5. (اختياري) تحديث قيم `.env` المحلية الضعيفة.
 
 ## 6) الحكم النهائي
 
