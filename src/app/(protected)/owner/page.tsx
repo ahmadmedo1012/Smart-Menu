@@ -260,10 +260,10 @@ export default function OwnerDashboard() {
 					document.getElementById(`owner-tab-${nextId}`)?.focus();
 				}}
 			>
-				{[
+				{([
 					{ id: 'overview', label: 'نظرة عامة', icon: Activity },
 					{ id: 'analytics', label: 'تحليلات', icon: BarChart3 },
-				].map((t) => {
+				] as const).map((t) => {
 					const TIcon = t.icon;
 					return (
 						<button
@@ -274,7 +274,7 @@ export default function OwnerDashboard() {
 							aria-selected={tab === t.id}
 							aria-controls={`owner-panel-${t.id}`}
 							tabIndex={tab === t.id ? 0 : -1}
-							onClick={() => setTab(t.id as any)}
+							onClick={() => setTab(t.id)}
 							className={cn(
 								'snap-start flex min-h-11 shrink-0 items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
 								tab === t.id

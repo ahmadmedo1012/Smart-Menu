@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { premiumToast } from "@/lib/premium-toast"
 import {
   Store, Phone, Mail, Image,
-  Settings, User, AlertTriangle,
+  Settings, User,
 } from "lucide-react"
 import { ConfigEditor } from "@/components/admin/ConfigEditor"
 import { cn } from "@/lib/utils"
@@ -19,6 +19,8 @@ import AnimatedClock from "@/components/ui/clock-icon"
 import AnimatedSave from "@/components/ui/save-icon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
 
 interface Restaurant {
   id: number; name: string; slug: string; description: string
@@ -49,7 +51,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 export default function AdminSettingsPage() {
-  const [accessDenied, setAccessDenied] = useState(false);
+  const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'EDIT_SETTINGS'));
   const [activeTab, setActiveTab] = useState("restaurants")
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -72,18 +74,7 @@ export default function AdminSettingsPage() {
   const selected = restaurants.find(r => r.id === selectedId)
 
   // Permission check on mount
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!d.success) { setAccessDenied(true); return; }
-        const { role, permissions } = d.data;
-        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("EDIT_SETTINGS")) {
-          setAccessDenied(true);
-        }
-      })
-      .catch(() => setAccessDenied(true));
-  }, []);
+
 
   useEffect(() => {
     Promise.all([
@@ -171,15 +162,7 @@ export default function AdminSettingsPage() {
     } finally { setProfileSaving(false) }
   }
 
-  if (accessDenied) return (
-    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-        <AlertTriangle className="size-8 text-destructive" />
-      </div>
-      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
-      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى إعدادات النظام. يرجى التواصل مع المدير العام.</p>
-    </div>
-  )
+    if (access === 'denied') return <AccessDenied />
 
   if (loading) return (
     <div className="space-y-4 animate-fade-in" aria-live="polite">

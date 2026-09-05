@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect, type ReactNode, type CSSProperties } from "react"
-import { motion, useReducedMotion } from "motion/react"
+import { motion, useReducedMotion, type Transition } from "motion/react"
 
 type KineticMode = "lines" | "words" | "chars"
 
@@ -14,8 +14,8 @@ interface KineticTextProps {
 	delay?: number
 	/** Time to complete full reveal (ms) */
 	duration?: number
-	/** Easing function */
-	ease?: string | number[]
+	/** Easing function (motion's Transition["ease"] — named easings or cubic-bezier array) */
+	ease?: Transition["ease"]
 	style?: CSSProperties
 }
 
@@ -129,7 +129,7 @@ export function KineticText({
 						transition={{
 							duration: prefersReducedMotion ? 0 : duration / 1000,
 							delay: prefersReducedMotion ? 0 : (delay + index * staggerDelay * 1000) / 1000,
-							ease: ease as any,
+							ease,
 						}}
 					>
 						{text}

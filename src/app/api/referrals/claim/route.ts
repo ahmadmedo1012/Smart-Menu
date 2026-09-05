@@ -13,8 +13,8 @@ const claimDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
 /**
  * POST /api/referrals/claim — register a referral click/order intent.
  * Creates a pending Referral keyed by an anonymous session fingerprint so
- * repeat visits don't duplicate rows. Converts to `converted` when the
- * referred order completes (handled in the order flow).
+ * repeat visits don't duplicate rows. (No conversion path exists — the
+ * pending→converted reward payout is a deferred owner decision.)
  */
 export async function POST(request: NextRequest) {
         try {

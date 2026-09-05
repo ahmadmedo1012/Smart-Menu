@@ -18,12 +18,14 @@ import {
 	TableRow,
 	TableCell,
 } from '@/components/ui/table';
-import {ChevronUp, AlertCircle, Activity, FilterX, History, AlertTriangle} from 'lucide-react';
+import { ChevronUp, AlertCircle, Activity, FilterX, History } from 'lucide-react';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { MotionSearch } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
+import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
 
 interface AuditLogEntry {
 	id: number;
@@ -71,26 +73,8 @@ const TARGET_TYPE_OPTIONS = [
 ];
 
 export default function AdminAuditLogsPage() {
-	const [accessDenied, setAccessDenied] = useState(false);
-	useEffect(() => {
-		fetch('/api/auth/me')
-			.then((r) => r.json())
-			.then((d) => {
-				if (!d.success) {
-					setAccessDenied(true);
-					return;
-				}
-				const { role, permissions } = d.data;
-				if (
-					role !== 'super_admin' &&
-					role !== 'admin' &&
-					!(permissions ?? []).includes('VIEW_ANALYTICS')
-				) {
-					setAccessDenied(true);
-				}
-			})
-			.catch(() => setAccessDenied(true));
-	}, []);
+	const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'VIEW_ANALYTICS'));
+
 
 	const [logs, setLogs] = useState<AuditLogEntry[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -184,18 +168,7 @@ export default function AdminAuditLogsPage() {
 		);
 	}
 
-	if (accessDenied)
-		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-					<AlertTriangle className="size-8 text-destructive" />
-				</div>
-				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
-				<p className="text-sm text-muted-foreground max-w-xs">
-					لا تملك الصلاحية للوصول إلى هذه الصفحة.
-				</p>
-			</div>
-		);
+		if (access === 'denied') return <AccessDenied />
 
 	return (
 		<div className="space-y-6 animate-fade-in">

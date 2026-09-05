@@ -7,11 +7,13 @@ import { usePollWhenVisible } from "@/hooks/usePollWhenVisible"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import {ClipboardList, Store, Clock, ChefHat, CheckCircle, XCircle, Activity, AlertTriangle} from 'lucide-react';
+import { ClipboardList, Store, Clock, ChefHat, CheckCircle, XCircle, Activity } from 'lucide-react';
 import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
 
 interface Order {
   id: number; orderNo: string; customerName: string; status: string
@@ -38,19 +40,8 @@ const TABS = [
 ]
 
 export default function AdminOrdersPage() {
-  const [accessDenied, setAccessDenied] = useState(false)
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!d.success) { setAccessDenied(true); return }
-        const { role, permissions } = d.data
-        if (role !== "super_admin" && role !== "admin" && !(permissions ?? []).includes("APPROVE_ORDERS")) {
-          setAccessDenied(true)
-        }
-      })
-      .catch(() => setAccessDenied(true))
-  }, [])
+  const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'APPROVE_ORDERS'));
+
 
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -176,15 +167,7 @@ export default function AdminOrdersPage() {
     </div>
   )
 
-  if (accessDenied) return (
-    <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-      <div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-        <AlertTriangle className="size-8 text-destructive" />
-      </div>
-      <h1 className="text-xl font-bold mb-2">غير مصرح</h1>
-      <p className="text-sm text-muted-foreground max-w-xs">لا تملك الصلاحية للوصول إلى هذه الصفحة.</p>
-    </div>
-  )
+    if (access === 'denied') return <AccessDenied />
 
   return (
     <div className="space-y-6 animate-fade-in overflow-x-clip">

@@ -3,6 +3,18 @@ import { sendTelegramNotification } from "@/lib/telegram";
 import { error } from "@/lib/logger";
 import { getDecryptedBotToken } from "@/lib/config";
 
+// round87-C4: the decision handlers below used to accept the raw (nullable)
+// findUnique result, forcing a non-null `!` on every `existing` field access.
+// The caller already null-checks before dispatching — model that invariant in
+// the type (and the user include) and the assertions disappear. Pure type-level.
+function loadPayment(paymentId: number) {
+  return prisma.subscriptionPayment.findUnique({
+    where: { id: paymentId },
+    include: { user: { select: { id: true, telegramChatId: true } } },
+  });
+}
+type ExistingPayment = NonNullable<Awaited<ReturnType<typeof loadPayment>>>;
+
 async function notifyUserViaTelegram(chatId: string | null, text: string) {
   if (!chatId) return;
   // Dynamic token — supports both env var and DB-configured token
@@ -29,10 +41,7 @@ export async function resolveSubscriptionPayment(
   paymentId: number,
   decision: Decision,
 ): Promise<ResolveResult> {
-  const existing = await prisma.subscriptionPayment.findUnique({
-    where: { id: paymentId },
-    include: { user: { select: { id: true, telegramChatId: true } } },
-  });
+  const existing = await loadPayment(paymentId);
   if (!existing) return { ok: false, reason: "الطلب غير موجود" };
   if (existing.status !== "pending") return { ok: false, reason: "تمت معالجة هذا الطلب مسبقاً" };
 
@@ -43,8 +52,8 @@ export async function resolveSubscriptionPayment(
   return handleCancelled(existing);
 }
 
-async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscriptionPayment.findUnique>>): Promise<ResolveResult> {
-  const meta = existing!.metadata as {
+async function handleVerified(existing: ExistingPayment): Promise<ResolveResult> {
+  const meta = existing.metadata as {
     tempUsername?: string;
     tempRestaurantName?: string;
     tempRestaurantSlug?: string;
@@ -58,19 +67,19 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     try {
       const result = await prisma.$transaction(async (tx) => {
         await tx.subscriptionPayment.update({
-          where: { id: existing!.id, status: "pending" },
+          where: { id: existing.id, status: "pending" },
           data: { status: "verified" },
         });
 
         const plan = await tx.subscriptionPlan.findUnique({
-          where: { id: existing!.planId },
+          where: { id: existing.planId },
           select: { id: true, nameAr: true, maxItems: true, maxOrders: true },
         });
 
         const restaurant = await tx.restaurant.update({
-          where: { id: meta!.upgradeRestaurantId },
+          where: { id: meta.upgradeRestaurantId },
           data: {
-            planId: existing!.planId,
+            planId: existing.planId,
             planStart: new Date(),
             planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             maxItems: plan?.maxItems ?? undefined,
@@ -79,9 +88,12 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         });
 
         await tx.user.update({
-          where: { id: existing!.userId! },
+          // upgrade payments are always user-linked (requireAuth'd /api/subscriptions/upgrade
+          // always writes userId); if a null ever slipped through, this update fails the
+          // transaction — identical pre-C4 behavior, hence the single domain `!`
+          where: { id: existing.userId! },
           data: {
-            planId: existing!.planId,
+            planId: existing.planId,
             subscriptionStatus: "PAID",
           },
         });
@@ -91,20 +103,20 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           data: {
             eventType: "payment",
             title: "ترقية اشتراك",
-            message: `تم تأكيد ترقية ${existing!.planName} — ${restaurant.name}`,
+            message: `تم تأكيد ترقية ${existing.planName} — ${restaurant.name}`,
             severity: "info",
-            metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
+            metadata: { amount: existing.amount, planName: existing.planName, phone: existing.phone, userId: existing.userId },
           },
         });
 
-        if (existing!.userId) {
+        if (existing.userId) {
           await tx.systemEvent.create({
             data: {
               eventType: "subscription_approved",
               title: "تم تفعيل الترقية",
               message: "تم ترقية خطتك بنجاح!",
               severity: "info",
-              metadata: { userId: existing!.userId, upgradeRestaurantId: meta.upgradeRestaurantId },
+              metadata: { userId: existing.userId, upgradeRestaurantId: meta.upgradeRestaurantId },
             },
           });
         }
@@ -114,10 +126,10 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
 
       // Ponytail: Telegram notification fire-and-forget. At this point DB is
       // fully committed. If Telegram fails, the payment is still active.
-      const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${result.restaurant.name}\n• الخطة: ${result.plan?.nameAr ?? existing!.planName}\n• المبلغ: ${existing!.amount} د.ل`;
+      const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${result.restaurant.name}\n• الخطة: ${result.plan?.nameAr ?? existing.planName}\n• المبلغ: ${existing.amount} د.ل`;
       sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] telegram notify failed:", { error: e }));
 
-      return { ok: true, action: "verified", paymentId: existing!.id };
+      return { ok: true, action: "verified", paymentId: existing.id };
     } catch (e: unknown) {
       error("[subscription-decisions] upgrade error:", { error: e });
       return { ok: false, reason: "حدث خطأ أثناء ترقية الخطة" };
@@ -129,12 +141,15 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
   const menus = meta?.tempRestaurants?.length
     ? meta.tempRestaurants
     : meta?.tempRestaurantSlug
-      ? [{ name: meta.tempRestaurantName ?? `مطعم ${existing!.phone}`, slug: meta.tempRestaurantSlug }]
-      : [{ name: `مطعم ${existing!.phone}`, slug: `restaurant-${existing!.id}` }];
+      ? [{ name: meta.tempRestaurantName ?? `مطعم ${existing.phone}`, slug: meta.tempRestaurantSlug }]
+      : [{ name: `مطعم ${existing.phone}`, slug: `restaurant-${existing.id}` }];
 
   try {
-    let primaryRestaurant: { id: number; name: string; slug: string } | null = null as { id: number; name: string; slug: string } | null;
     const result = await prisma.$transaction(async (tx) => {
+      // primary (first) created restaurant — returned by this callback so the
+      // post-transaction code reads it from `result.restaurant` (round87-C4:
+      // the old outer-scope let + `null as …` self-cast confused flow analysis)
+      let primaryRestaurant: { id: number; name: string; slug: string } | null = null;
       // Check ALL slugs unique
       for (const m of menus) {
         const slugTaken = await tx.restaurant.findUnique({ where: { slug: m.slug } });
@@ -142,14 +157,14 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
       }
 
       await tx.subscriptionPayment.update({
-        where: { id: existing!.id, status: "pending" },
+        where: { id: existing.id, status: "pending" },
         data: { status: "verified" },
       });
 
       let user = null;
-      if (existing!.userId) {
+      if (existing.userId) {
         const plan = await tx.subscriptionPlan.findUnique({
-          where: { id: existing!.planId },
+          where: { id: existing.planId },
           select: { maxItems: true, maxOrders: true },
         });
 
@@ -160,8 +175,8 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
             data: {
               name: m.name,
               slug: m.slug,
-              phone: existing!.phone,
-              planId: existing!.planId,
+              phone: existing.phone,
+              planId: existing.planId,
               planStart: new Date(),
               planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
               maxItems: plan?.maxItems ?? undefined,
@@ -172,7 +187,7 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
           if (i === 0) primaryRestaurant = created;
           // Link every restaurant to the user via UserRestaurant (many-to-many)
           await tx.userRestaurant.create({
-            data: { userId: existing!.userId, restaurantId: created.id, isPrimary: i === 0 },
+            data: { userId: existing.userId, restaurantId: created.id, isPrimary: i === 0 },
           });
           // Auto-seed default categories so a fresh menu is never empty
           await tx.menuCategory.createMany({
@@ -186,12 +201,12 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         }
 
         user = await tx.user.update({
-          where: { id: existing!.userId },
+          where: { id: existing.userId },
           data: {
             role: "owner",
             subscriptionStatus: "PAID",
-            planId: existing!.planId,
-            restaurantId: primaryRestaurant!.id,
+            planId: existing.planId,
+            restaurantId: primaryRestaurant!.id, // first loop pass always assigns (menus is never empty)
           },
           select: { id: true, username: true, role: true, subscriptionStatus: true, restaurantId: true },
         });
@@ -202,20 +217,20 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
         data: {
           eventType: "payment",
           title: "اشتراك جديد",
-          message: `تم تأكيد دفع ${existing!.planName} — ${primaryRestaurant?.name ?? menus[0]?.name ?? ''}`,
+          message: `تم تأكيد دفع ${existing.planName} — ${primaryRestaurant?.name ?? menus[0]?.name ?? ''}`,
           severity: "info",
-          metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
+          metadata: { amount: existing.amount, planName: existing.planName, phone: existing.phone, userId: existing.userId },
         },
       });
 
-      if (existing!.userId) {
+      if (existing.userId) {
         await tx.systemEvent.create({
           data: {
             eventType: "subscription_approved",
             title: "تم تفعيل الحساب",
             message: "تم تفعيل حسابك بنجاح!",
             severity: "info",
-            metadata: { userId: existing!.userId, restaurantSlug: primaryRestaurant?.slug ?? menus[0]?.slug ?? '' },
+            metadata: { userId: existing.userId, restaurantSlug: primaryRestaurant?.slug ?? menus[0]?.slug ?? '' },
           },
         });
       }
@@ -226,18 +241,17 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
     // Post-transaction Telegram notifications (fire-and-forget, best-effort)
     const userPart = result.user ? `• المستخدم: ${result.user.username}\n` : "";
     const menuList = menus.map((m) => `• ${m.name} → /menu/${m.slug}`).join("\n");
-    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المنيوهات:\n${menuList}\n• الخطة: ${existing!.planName}`;
+    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المنيوهات:\n${menuList}\n• الخطة: ${existing.planName}`;
     sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] telegram failed:", { error: e }));
 
-    const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
-    const userChatId = existingUser.user?.telegramChatId;
+    const userChatId = existing.user?.telegramChatId;
     if (userChatId) {
       notifyUserViaTelegram(String(userChatId),
         `✅ *تم تفعيل حسابك في Smart Menu!*\n\n${menuList}\n\nيمكنك الآن تسجيل الدخول والبدء في استقبال الطلبات.`)
         .catch((e) => error("[subscription] notify user failed:", { error: e }));
     }
 
-    return { ok: true, action: "verified", paymentId: existing!.id, restaurant: primaryRestaurant ? { id: primaryRestaurant.id, name: primaryRestaurant.name, slug: primaryRestaurant.slug } : undefined, user: result.user ?? undefined };
+    return { ok: true, action: "verified", paymentId: existing.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: result.restaurant.name, slug: result.restaurant.slug } : undefined, user: result.user ?? undefined };
   } catch (e: unknown) {
     error("[subscription-decisions] new user error:", { error: e });
     const errMsg = e instanceof Error ? e.message : "";
@@ -250,18 +264,18 @@ async function handleVerified(existing: Awaited<ReturnType<typeof prisma.subscri
   }
 }
 
-async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscriptionPayment.findUnique>>): Promise<ResolveResult> {
+async function handleCancelled(existing: ExistingPayment): Promise<ResolveResult> {
   try {
     await prisma.$transaction(async (tx) => {
       const result = await tx.subscriptionPayment.updateMany({
-        where: { id: existing!.id, status: "pending" },
+        where: { id: existing.id, status: "pending" },
         data: { status: "cancelled" },
       });
       if (result.count === 0) return; // Already processed by another route
 
-      if (existing!.userId) {
+      if (existing.userId) {
         await tx.user.updateMany({
-          where: { id: existing!.userId, subscriptionStatus: "UNPAID" },
+          where: { id: existing.userId, subscriptionStatus: "UNPAID" },
           data: { subscriptionStatus: "REJECTED" },
         });
       }
@@ -271,38 +285,37 @@ async function handleCancelled(existing: Awaited<ReturnType<typeof prisma.subscr
         data: {
           eventType: "payment_rejected",
           title: "رفض اشتراك",
-          message: `تم رفض دفع ${existing!.planName}`,
+          message: `تم رفض دفع ${existing.planName}`,
           severity: "warning",
-          metadata: { amount: existing!.amount, planName: existing!.planName, phone: existing!.phone, userId: existing!.userId },
+          metadata: { amount: existing.amount, planName: existing.planName, phone: existing.phone, userId: existing.userId },
         },
       });
 
-      if (existing!.userId) {
+      if (existing.userId) {
         await tx.systemEvent.create({
           data: {
             eventType: "subscription_rejected",
             title: "رفض طلب التفعيل",
             message: "عذراً، تم رفض طلب تفعيل الحساب. يرجى مراجعة تفاصيل الدفع أو التواصل مع الدعم الفني.",
             severity: "warning",
-            metadata: { userId: existing!.userId, paymentId: existing!.id },
+            metadata: { userId: existing.userId, paymentId: existing.id },
           },
         });
       }
     });
 
     // Post-transaction notifications
-    const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing!.phone}\n• المبلغ: ${existing!.amount} د.ل\n• الخطة: ${existing!.planName}`;
+    const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
     sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] cancel telegram failed:", { error: e }));
 
-    const existingUser = existing as typeof existing & { user: { id: number; telegramChatId: string | null } | null };
-    const userChatId = existingUser.user?.telegramChatId;
+    const userChatId = existing.user?.telegramChatId;
     if (userChatId) {
       notifyUserViaTelegram(String(userChatId),
         `❌ *عذراً، تم رفض طلب تفعيل حسابك في Smart Menu.*\n\nإذا كنت تعتقد أن هناك خطأ، يرجى التواصل مع الدعم الفني.`)
         .catch((e) => error("[subscription] cancel notify user failed:", { error: e }));
     }
 
-    return { ok: true, action: "cancelled", paymentId: existing!.id };
+    return { ok: true, action: "cancelled", paymentId: existing.id };
   } catch (e: unknown) {
     error("[subscription-decisions] cancel error:", { error: e });
     return { ok: false, reason: "حدث خطأ أثناء رفض الطلب" };

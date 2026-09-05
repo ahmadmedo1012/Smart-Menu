@@ -9,7 +9,7 @@ import { MotionCheck } from '@/components/ui/motion-icons';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { csrfFetch } from '@/lib/csrf-client';
 
@@ -138,6 +138,8 @@ ${referralUrl}
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-md gap-0 p-0 overflow-hidden rounded-md">
+				{/* Screen-reader name — base-ui warns and SR announces bare "dialog" without a Title */}
+				<DialogTitle className="sr-only">مشاركة الطلب</DialogTitle>
 				{/* Confetti header */}
 				<div className="relative h-36 bg-gradient-to-br from-orange via-orange to-orange/80 overflow-hidden">
 					<Confetti

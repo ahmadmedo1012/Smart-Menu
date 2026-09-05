@@ -105,7 +105,7 @@ export default function CartPage() {
 				const types = d.data?.pickupTypes || '';
 				const all = ['inside', 'takeaway', 'delivery'] as const;
 				const arr = (types ? types.split(',') : [...all]).filter(
-					(t: string): t is 'inside' | 'takeaway' | 'delivery' => all.includes(t as any)
+					(t: string): t is 'inside' | 'takeaway' | 'delivery' => all.some((p) => p === t)
 				);
 				setSupportedPickupTypes(arr);
 				setRestaurantSlug(d.data?.slug ?? null);

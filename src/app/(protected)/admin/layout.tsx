@@ -11,7 +11,7 @@ import AnimatedX from '@/components/ui/x-icon';
 import AnimatedLogOut from '@/components/ui/logout-icon';
 import { PageFade } from '@/components/shared/PageFade';
 import { AdminEventNotifier } from '@/components/admin/AdminEventNotifier';
-import { csrfFetch } from '@/lib/csrf-client';
+import { performLogout } from '@/lib/logout';
 
 function MobileNav({
 	onNavClick,
@@ -63,21 +63,7 @@ function MobileNav({
 			</nav>
 			<div className="border-t border-border/20 px-3 py-3">
 				<button
-					onClick={async () => {
-						try {
-							const res = await csrfFetch('/api/auth/logout', { method: 'POST' });
-							if (res.ok) {
-								// Flag for /login: suppress its auto-redirect race (see login page).
-								try { sessionStorage.setItem('just-logged-out', '1'); } catch { /* private mode */ }
-								// window.location.replace avoids the router.push + router.refresh
-								// race (a refresh re-validates the still-set session cookie and
-								// bounces the user back while the push is in flight)
-								window.location.replace('/login');
-							}
-						} catch {
-							/* ignore */
-						}
-					}}
+					onClick={() => performLogout()}
 					className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				>
 					<AnimatedLogOut className="size-4" />

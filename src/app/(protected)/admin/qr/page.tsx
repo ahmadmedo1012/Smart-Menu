@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { premiumToast } from '@/lib/premium-toast';
-import {Store, AlertTriangle} from 'lucide-react';
+import { Store } from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import AnimatedDownload from '@/components/ui/download-icon';
 import AnimatedExternalLink from '@/components/ui/external-link-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
+import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
 
 interface Restaurant {
 	id: number;
@@ -27,26 +29,8 @@ const QR_SIZES = [
 ];
 
 export default function AdminQRPage() {
-	const [accessDenied, setAccessDenied] = useState(false);
-	useEffect(() => {
-		fetch('/api/auth/me')
-			.then((r) => r.json())
-			.then((d) => {
-				if (!d.success) {
-					setAccessDenied(true);
-					return;
-				}
-				const { role, permissions } = d.data;
-				if (
-					role !== 'super_admin' &&
-					role !== 'admin' &&
-					!(permissions ?? []).includes('MANAGE_RESTAURANTS')
-				) {
-					setAccessDenied(true);
-				}
-			})
-			.catch(() => setAccessDenied(true));
-	}, []);
+	const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'MANAGE_RESTAURANTS'));
+
 
 	const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
 	const [selectedSlug, setSelectedSlug] = useState('');
@@ -102,18 +86,7 @@ export default function AdminQRPage() {
 		}
 	};
 
-	if (accessDenied)
-		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-					<AlertTriangle className="size-8 text-destructive" />
-				</div>
-				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
-				<p className="text-sm text-muted-foreground max-w-xs">
-					لا تملك الصلاحية للوصول إلى هذه الصفحة.
-				</p>
-			</div>
-		);
+		if (access === 'denied') return <AccessDenied />
 
 	return (
 		<div className="space-y-6 animate-fade-in max-w-xl mx-auto">

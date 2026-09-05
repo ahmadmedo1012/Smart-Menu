@@ -115,11 +115,10 @@ function Card({
 }) {
   return (
     <motion.div
-      // ponytail: MotionValue pass-through for framer-motion's style prop
-      style={isMobile
-        ? { scale, opacity } as unknown as React.CSSProperties
-        : { rotateX, scale } as unknown as React.CSSProperties
-      }
+      // ponytail: MotionValue pass-through — motion's style prop accepts
+      // MotionValues directly (round87-C9: dropped the `as unknown as
+      // CSSProperties` bridge that hid this from the compiler)
+      style={isMobile ? { scale, opacity } : { rotateX, scale }}
       className={cn(
         "relative w-full overflow-hidden rounded-[20px] md:rounded-[28px]",
         "ring-1 ring-border/40 bg-card",

@@ -5,7 +5,7 @@ import Link from "next/link"
 import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield} from 'lucide-react';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedLogOut from "@/components/ui/logout-icon"
-import { csrfFetch } from "@/lib/csrf-client"
+import { performLogout } from "@/lib/logout"
 import { NavLink } from "@/components/shared/NavLink"
 
 export interface NavItem {
@@ -45,19 +45,7 @@ export function hasItemPermission(
 function LogoutButton() {
   return (
     <button
-      onClick={async () => {
-        try {
-          const res = await csrfFetch("/api/auth/logout", { method: "POST" })
-          if (res.ok) {
-            // Flag for /login: suppress its auto-redirect race (see login page).
-            try { sessionStorage.setItem("just-logged-out", "1"); } catch { /* private mode */ }
-            // window.location.replace avoids the router.push + router.refresh
-            // race (a refresh re-validates the still-set session cookie and
-            // bounces the user back while the push is in flight)
-            window.location.replace("/login")
-          }
-        } catch { /* ignore */ }
-      }}
+      onClick={() => performLogout()}
       className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
     >
       <AnimatedLogOut className="size-4" />

@@ -13,11 +13,13 @@ import { HorizontalBar } from '@/components/shared/HorizontalBar';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
-import {Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, AlertTriangle, ShoppingCart, BarChart3} from 'lucide-react';
+import { Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, ShoppingCart, BarChart3 } from 'lucide-react';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { MotionLogIn } from '@/components/ui/motion-icons';
 import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
+import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
 
 interface StatsData {
 	totalUsers: number;
@@ -65,26 +67,8 @@ interface StatsData {
 }
 
 export default function AdminDashboard() {
-	const [accessDenied, setAccessDenied] = useState(false);
-	useEffect(() => {
-		fetch('/api/auth/me')
-			.then((r) => r.json())
-			.then((d) => {
-				if (!d.success) {
-					setAccessDenied(true);
-					return;
-				}
-				const { role, permissions } = d.data;
-				if (
-					role !== 'super_admin' &&
-					role !== 'admin' &&
-					!(permissions ?? []).includes('VIEW_ANALYTICS')
-				) {
-					setAccessDenied(true);
-				}
-			})
-			.catch(() => setAccessDenied(true));
-	}, []);
+	const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'VIEW_ANALYTICS'));
+
 
 	const [stats, setStats] = useState<StatsData | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -189,18 +173,7 @@ export default function AdminDashboard() {
 		);
 	}
 
-	if (accessDenied)
-		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-					<AlertTriangle className="size-8 text-destructive" />
-				</div>
-				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
-				<p className="text-sm text-muted-foreground max-w-xs">
-					لا تملك الصلاحية للوصول إلى هذه الصفحة.
-				</p>
-			</div>
-		);
+		if (access === 'denied') return <AccessDenied />
 
 	return (
 		<div className="max-w-6xl mx-auto space-y-8 animate-fade-in">

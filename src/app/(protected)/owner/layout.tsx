@@ -3,13 +3,12 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { LayoutHeader } from '@/components/layout/LayoutHeader';
 import {Store, LayoutDashboard, ClipboardList, Settings, QrCode, Gift, Star} from 'lucide-react';
 import AnimatedLogOut from '@/components/ui/logout-icon';
 import AnimatedX from '@/components/ui/x-icon';
-import { csrfFetch } from '@/lib/csrf-client';
-import { premiumToast } from '@/lib/premium-toast';
+import { performLogout } from '@/lib/logout';
 import { cn } from '@/lib/utils';
 import { NavLink } from '@/components/shared/NavLink';
 import { PageFade } from '@/components/shared/PageFade';
@@ -81,22 +80,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
 function LogoutButton() {
 	return (
 		<button
-			onClick={async () => {
-				try {
-					const res = await csrfFetch('/api/auth/logout', { method: 'POST' });
-					// Flag for /login: suppress its auto-redirect race (see login page).
-					try { sessionStorage.setItem('just-logged-out', '1'); } catch { /* private mode */ }
-					if (res.ok) {
-						premiumToast('logout', 'تم تسجيل الخروج');
-						// window.location.replace avoids the router.push + router.refresh
-						// race (a refresh re-validates the still-set session cookie and
-						// bounces the user back to /owner while the push is in flight)
-						window.location.replace('/login');
-					}
-				} catch {
-					premiumToast('error', 'فشل تسجيل الخروج');
-				}
-			}}
+			onClick={() => performLogout({ toast: 'owner' })}
 			className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-[color,background-color] duration-300 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
 		>
 			<AnimatedLogOut className="size-4" />
@@ -151,6 +135,8 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
 			{/* Mobile sheet */}
 			<Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
 				<SheetContent id="mobile-nav-sheet" side="left" className="w-60 border-0 bg-card" showCloseButton={false}>
+					{/* Screen-reader name — the sheet needs a Title for an accessible name */}
+					<SheetTitle className="sr-only">القائمة الجانبية</SheetTitle>
 					<SidebarContent onNavClick={() => setSheetOpen(false)} />
 				</SheetContent>
 			</Sheet>

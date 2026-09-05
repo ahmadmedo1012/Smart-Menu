@@ -84,11 +84,14 @@ export function ScrollReveal({
 		return () => observer.disconnect()
 	}, [threshold, rootMargin, once, prefersReducedMotion])
 
-	const Component = motion[as as keyof typeof motion] as any
+	// round87-C9: dynamic tag — every motion DOM component shares the same prop
+	// shape; narrow the union to the div flavor instead of `any` (the ref is
+	// bridged to the HTMLElement ref below via a callback)
+	const Component = motion[as] as typeof motion.div
 
 	return (
 		<Component
-			ref={ref as any}
+			ref={(node) => { ref.current = node }}
 			className={className}
 			style={style}
 			initial={{ opacity: 0, y, x }}

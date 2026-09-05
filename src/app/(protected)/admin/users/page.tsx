@@ -25,6 +25,11 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { useAccessGate } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
+// users gate: super_admin/sub_admin always; legacy admin needs MANAGE_USERS.
+const allowUsersGate = (me: { role: string | null; permissions: string[] }) =>
+	me.role === 'super_admin' || me.role === 'sub_admin' || (me.role === 'admin' && me.permissions.includes('MANAGE_USERS'));
 
 interface OwnerUser {
   id: number; username: string; name: string; role: string
@@ -33,7 +38,7 @@ interface OwnerUser {
 }
 
 export default function AdminUsersPage() {
-  const [accessDenied, setAccessDenied] = useState(false)
+  const access = useAccessGate(allowUsersGate);
   const [users, setUsers] = useState<OwnerUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -69,22 +74,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
 
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((me) => {
-        const role = me?.user?.role ?? me?.role
-        if (role !== "super_admin" && role !== "sub_admin" && role !== "admin") {
-          setAccessDenied(true)
-        }
-        // `admin` (legacy) is NOT allowed to manage users — super_admin/sub_admin with permission only
-        if (role === "admin") {
-          const perms = me?.user?.permissions ?? me?.permissions ?? []
-          if (!perms.includes("MANAGE_USERS")) setAccessDenied(true)
-        }
-      })
-      .catch(() => {})
-  }, [])
+
 
   // Debounce search
   useEffect(() => {
@@ -145,14 +135,7 @@ export default function AdminUsersPage() {
   }
 
   // ---------- Access denied ----------
-  if (accessDenied) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
-        <AlertCircle className="size-10 text-destructive" />
-        <p className="text-lg font-medium">لا تملك صلاحية الوصول لهذه الصفحة</p>
-      </div>
-    )
-  }
+    if (access === 'denied') return <AccessDenied />
 
   return (
     <div className="space-y-6 animate-fade-in">

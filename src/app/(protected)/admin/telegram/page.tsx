@@ -4,12 +4,14 @@ import { getErrorMessage } from '@/lib/get-error-message';
 import { csrfFetch } from '@/lib/csrf-client';
 import { useEffect, useState, useCallback } from 'react';
 import { premiumToast } from '@/lib/premium-toast';
-import { Loader2, AlertTriangle, Lightbulb } from 'lucide-react';
+import { Loader2, Lightbulb } from 'lucide-react';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { TelegramConfigSection } from './TelegramConfigSection';
 import { BroadcastTargetsSection } from './BroadcastTargetsSection';
 import { DiagnosticsSection } from './DiagnosticsSection';
+import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
+import { AccessDenied } from '@/components/shared/AccessDenied';
 
 interface TelegramConfig {
 	botToken: string;
@@ -52,7 +54,9 @@ interface Approver {
 }
 
 export default function AdminTelegramPage() {
-	const [accessDenied, setAccessDenied] = useState(false);
+	// round87-C1: unified access gate (was a hand-rolled /api/auth/me check
+	// inside loadAll — plus 10 drifting sibling copies across admin pages)
+	const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'EDIT_SETTINGS'));
 	const [config, setConfig] = useState<TelegramConfig>({
 		botToken: '',
 		chatId: '',
@@ -76,29 +80,7 @@ export default function AdminTelegramPage() {
 		setLoading(true);
 		setLoadError(null);
 
-		// One-time access check (not retried — permission is server-enforced anyway)
-		fetch('/api/auth/me')
-			.then((r) => r.json())
-			.then((d) => {
-				if (d.success) {
-					const { role, permissions } = d.data;
-					if (
-						role !== 'super_admin' &&
-						role !== 'admin' &&
-						!(permissions ?? []).includes('EDIT_SETTINGS')
-					) {
-						setAccessDenied(true);
-						setLoading(false);
-						return;
-					}
-				}
-			})
-			.catch(() => {
-				setAccessDenied(true);
-				setLoading(false);
-				return;
-			});
-
+		// round87-C1: access gate extracted to useAccessGate above.
 		fetch('/api/telegram/config')
 			.then((r) => r.json())
 			.then((json) => {
@@ -257,18 +239,7 @@ export default function AdminTelegramPage() {
 		}
 	};
 
-	if (accessDenied)
-		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-				<div className="size-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-					<AlertTriangle className="size-8 text-destructive" />
-				</div>
-				<h1 className="text-xl font-bold mb-2">غير مصرح</h1>
-				<p className="text-sm text-muted-foreground max-w-xs">
-					لا تملك الصلاحية للوصول إلى إعدادات التليجرام. يرجى التواصل مع المدير العام.
-				</p>
-			</div>
-		);
+	if (access === 'denied') return <AccessDenied />
 
 	if (loading)
 		return (

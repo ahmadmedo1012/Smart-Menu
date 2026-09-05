@@ -67,9 +67,10 @@ const nextConfig: NextConfig = {
                                 ],
                         },
                         // round85-B7: immutable caching for fingerprint-free public assets.
-                        // ~1.6MB of fonts/video/lottie files previously revalidated on every
+                        // ~1.6MB of fonts/video files previously revalidated on every
                         // QR visit (Vercel static default is must-revalidate) — now cached for
                         // a year with zero round trips for repeat visitors.
+                        // (round87-C2: /animations rule dropped — the .lottie cluster was deleted)
                         {
                                 source: '/fonts/:path*',
                                 headers: [
@@ -78,12 +79,6 @@ const nextConfig: NextConfig = {
                         },
                         {
                                 source: '/video/:path*',
-                                headers: [
-                                        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-                                ],
-                        },
-                        {
-                                source: '/animations/:path*',
                                 headers: [
                                         { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
                                 ],
