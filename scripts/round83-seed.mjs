@@ -13,6 +13,14 @@ import { randomBytes, pbkdf2Sync } from 'node:crypto';
 import pg from 'pg';
 
 const url = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5434/smartmenu';
+
+// round86-D9: production guard (mirrors ci-seed.mjs) — this script writes a
+// test restaurant + waha_owner user; an env export pointing at production
+// must never seed it silently.
+if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
+  console.error('Refusing to seed production (ALLOW_SEED not set)');
+  process.exit(1);
+}
 const client = new pg.Client({ connectionString: url });
 
 function hashPassword(password) {

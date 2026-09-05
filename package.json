@@ -24,7 +24,6 @@
     "@prisma/client": "^7.8.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.6.1",
-    "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.20.0",
@@ -56,12 +55,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
-    "tsx": "^4.22.4",
     "typescript": "^5",
     "vitest": "^4.1.10"
   },
   "description": "**منصة رقمية متكاملة لإدارة منيو المطاعم واستقبال الطلبات عبر واتساب**",
-  "main": "index.js",
   "directories": {
     "doc": "docs",
     "test": "tests"
@@ -72,7 +69,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "type": "module",
   "bugs": {
     "url": "https://github.com/ahmadmedo1012/Smart-Menu/issues"

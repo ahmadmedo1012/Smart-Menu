@@ -48,3 +48,5 @@
 > **ملاحظة حفظ**: لا تحذف الأرشيف — هو سجل قرارات المشروع الوحيد. الملفات
 > المؤرخة قبل الجولة 75 تُقرأ "as-of-date" فقط: الأعداد والأوامر فيها لا
 > تعكس الحاضر (المصدر الحقيقي دائماً README/PROJECT/package.json).
+
+- [ops-runbook.md](ops-runbook.md) — production ops runbook (round86)

@@ -16,12 +16,11 @@ import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import { BackButton } from '@/components/shared/BackButton';
 import { csrfJson } from '@/lib/csrf-client';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatPrice } from '@/lib/format';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
-import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
+import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 import { ItemDialog } from '@/components/owner/ItemDialog';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { premiumToast } from '@/lib/premium-toast';
@@ -81,7 +80,6 @@ const CATEGORY_ICONS = [
 ];
 
 export default function OwnerMenuPage() {
-	const router = useRouter();
 	const [restaurantId, setRestaurantId] = useState(0);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -127,36 +125,13 @@ export default function OwnerMenuPage() {
 		fetchCatsRef.current = fetchCats;
 	}, [fetchCats]);
 
+	// round86-C4: shared active-restaurant hook (this page previously hand-rolled
+	// it WITHOUT the switch event subscription — switching restaurants from the
+	// switcher left the editor on the OLD restaurant until reload)
+	const { activeId } = useActiveRestaurant();
 	useEffect(() => {
-		fetch('/api/auth/me')
-			.then((r) => {
-				if (!r.ok) throw Error();
-				return r.json();
-			})
-			.then(async (d) => {
-				// Prefer the active restaurant from localStorage (multi-menu switcher),
-				// else the user's primary restaurantId from /api/auth/me.
-				const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));
-				let rid = stored || d.data?.restaurantId;
-				// Validate the stored id belongs to this user (fetch owner restaurants)
-				try {
-					const r = await fetch('/api/owner/restaurants');
-					const j = await r.json();
-					// Array.isArray guard: 401 error bodies are objects, not lists.
-					const list = Array.isArray(j.data) ? j.data : [];
-					if (list.length > 0 && !list.some((x: { id: number }) => x.id === rid)) {
-						rid = list.find((x: { isPrimary: boolean }) => x.isPrimary)?.id ?? list[0].id;
-						localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(rid));
-					} else if (list.length > 0 && stored) {
-						rid = stored;
-					}
-				} catch {
-					/* fallback to /api/auth/me */
-				}
-				if (rid) setRestaurantId(rid);
-			})
-			.catch(() => router.push('/login'));
-	}, [router]);
+		if (activeId) setRestaurantId(activeId);
+	}, [activeId]);
 
 	useEffect(() => {
 		if (restaurantId) fetchCats();

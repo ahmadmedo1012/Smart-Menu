@@ -18,7 +18,8 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
-vi.mock('@/lib/blob', () => ({ deleteBlob: mockDeleteBlob }));
+// round86-A3: the route also imports mediaUrlError — permissive mock
+vi.mock('@/lib/blob', () => ({ deleteBlob: mockDeleteBlob, mediaUrlError: () => null }));
 
 // requireAuth resolves per-test via a mutable holder
 const authHolder = vi.hoisted(() => ({
@@ -104,7 +105,7 @@ describe('settings PUT — tenant isolation', () => {
 			})
 		);
 		// old logo cleaned after successful update
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-logo.com/a.png');
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-logo.com/a.png', { restaurantId: 1 });
 	});
 
 	it('does NOT delete the old logo when the logo is unchanged', async () => {

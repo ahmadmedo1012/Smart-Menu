@@ -23,7 +23,9 @@ if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') 
   process.exit(1);
 }
 
-// Same KDF as src/lib/hash.ts (pbkdf2Sync, sha512, 100k, 64B, salt:hash)
+// INTENTIONALLY the legacy KDF (pbkdf2Sync, sha512, 100k, 64B, salt:hash) —
+// src/lib/hash.ts now uses 600k (v2); the seed account stays on the legacy
+// format so e2e exercises the verify + rehash-on-login upgrade path.
 function hashPassword(password) {
   const salt = randomBytes(32).toString('hex');
   const hash = pbkdf2Sync(password, salt, 100_000, 64, 'sha512').toString('hex');

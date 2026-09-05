@@ -1,46 +1,77 @@
 import pg from 'pg';
 
+/**
+ * round86-D1 hardening of the P1002 unstick script (still in the build chain:
+ * `node scripts/db-unstick.mjs && prisma migrate deploy && next build`).
+ *
+ * What changed:
+ *  - FULL try/catch: a transient DB blip (Neon cold start, network hiccup)
+ *    previously crashed the whole Vercel build BEFORE `migrate deploy` ever
+ *    ran. The unstick step is best-effort diagnostics — a failing probe must
+ *    never fail the deploy. (If the DB is truly down, `migrate deploy` is the
+ *    step that SHOULD fail — loudly, with Prisma's own error.)
+ *  - Terminates only lock holders that are IDLE (stale build sessions).
+ *    Active holders (a live migration in flight, application traffic holding
+ *    an advisory lock) are logged but NOT killed — they might be doing real
+ *    work. This bounds the blast radius on the shared production pooler.
+ *  - connect() now also has its own timeout guard (connectionTimeoutMillis
+ *    does not cover all pooler edge cases).
+ */
+
 const url = process.env.DATABASE_URL;
 const c = new pg.Client({
   connectionString: url,
   statement_timeout: 20000,
   connectionTimeoutMillis: 20000,
 });
-await c.connect();
-console.log('connected to', (url || '').replace(/:[^:@/]*@/, ':***@'));
 
-// 1) who holds advisory locks right now?
-const { rows: holders } = await c.query(`
-  SELECT pid, state, application_name,
-         backend_start::text AS started,
-         wait_event_type, wait_event,
-         left(coalesce(query, ''), 70) AS q
-  FROM pg_stat_activity
-  WHERE pid IN (SELECT pid FROM pg_locks WHERE locktype = 'advisory')
-    AND pid <> pg_backend_pid()
-`);
-console.log('ADVISORY_LOCK_HOLDERS =', JSON.stringify(holders, null, 2));
+async function main() {
+  await c.connect();
+  console.log('connected to', (url || '').replace(/:[^:@/]*@/, ':***@'));
 
-// 2) terminate them (stale build sessions)
-for (const h of holders) {
-  try {
-    await c.query('SELECT pg_terminate_backend($1)', [h.pid]);
-    console.log('TERMINATED pid=' + h.pid + ' state=' + h.state + ' started=' + h.started);
-  } catch (e) {
-    console.log('FAILED to terminate pid=' + h.pid + ': ' + e.message);
+  // 1) who holds advisory locks right now?
+  const { rows: holders } = await c.query(`
+    SELECT pid, state, application_name,
+           backend_start::text AS started,
+           wait_event_type, wait_event,
+           left(coalesce(query, ''), 70) AS q
+    FROM pg_stat_activity
+    WHERE pid IN (SELECT pid FROM pg_locks WHERE locktype = 'advisory')
+      AND pid <> pg_backend_pid()
+  `);
+  console.log('ADVISORY_LOCK_HOLDERS =', JSON.stringify(holders, null, 2));
+
+  // 2) terminate only IDLE holders (stale build sessions); log active ones
+  for (const h of holders) {
+    if (h.state !== 'idle') {
+      console.log('SKIPPED (active) pid=' + h.pid + ' state=' + h.state + ' q=' + (h.q || ''));
+      continue;
+    }
+    try {
+      await c.query('SELECT pg_terminate_backend($1)', [h.pid]);
+      console.log('TERMINATED pid=' + h.pid + ' state=' + h.state + ' started=' + h.started);
+    } catch (e) {
+      console.log('FAILED to terminate pid=' + h.pid + ': ' + e.message);
+    }
   }
+
+  // 3) overall activity snapshot
+  const { rows: act } = await c.query(
+    `SELECT state, count(*) AS n FROM pg_stat_activity GROUP BY state ORDER BY n DESC`);
+  console.log('ACTIVITY =', JSON.stringify(act));
+
+  // 4) confirm the advisory lock is acquirable now (acquire + release)
+  await c.query('SELECT pg_advisory_lock(72707369)');
+  console.log('ADVISORY_LOCK_ACQUIRED_OK');
+  await c.query('SELECT pg_advisory_unlock(72707369)');
+  console.log('ADVISORY_LOCK_RELEASED_OK');
 }
 
-// 3) overall activity snapshot
-const { rows: act } = await c.query(
-  `SELECT state, count(*) AS n FROM pg_stat_activity GROUP BY state ORDER BY n DESC`);
-console.log('ACTIVITY =', JSON.stringify(act));
-
-// 4) confirm the advisory lock is acquirable now (acquire + release)
-await c.query('SELECT pg_advisory_lock(72707369)');
-console.log('ADVISORY_LOCK_ACQUIRED_OK');
-await c.query('SELECT pg_advisory_unlock(72707369)');
-console.log('ADVISORY_LOCK_RELEASED_OK');
-
-await c.end();
-console.log('UNSTICK DONE');
+main()
+  .then(() => c.end().then(() => console.log('UNSTICK DONE')))
+  .catch((e) => {
+    // best-effort diagnostics: never fail the build from here. A genuinely
+    // broken DB will fail in `prisma migrate deploy` with a proper error.
+    console.log('UNSTICK SKIPPED (non-fatal): ' + (e?.message || e));
+    return c.end().catch(() => {});
+  });

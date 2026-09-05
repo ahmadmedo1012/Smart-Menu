@@ -137,9 +137,11 @@ Multi-tenant restaurant SaaS. QR-scannable digital menus, WhatsApp ordering, mod
 ```
 src/
 ├── app/
-│   ├── layout.tsx          ← Root layout: Cairo font, ThemeProvider, Toaster, Motion, GridPattern
-│   ├── page.tsx            ← Landing page → HomePage component
-│   ├── globals.css         ← ~560 سطر: tokens, utilities, keyframes, glass, animations
+│   ├── (public)/layout.tsx    ← Public layout: self-hosted fonts (/fonts/fonts.css +
+│   │                            preload links — NOT next/font), ThemeProvider, Toaster
+│   ├── (protected)/layout.tsx ← Authenticated-area layout (owner/admin)
+│   ├── (public)/page.tsx      ← Landing: server wrapper (ISR 60s) → HomePage component
+│   ├── globals.css            ← tokens, utilities, keyframes, glass, animations
 │   ├── proxy.ts            ← Next16 middleware: cookie gate + CSP nonce + security headers + CSRF origin (round85: matcher يستثني الأصول الثابتة)
 │   ├── instrumentation.ts
 │   │
@@ -343,10 +345,10 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `sharp@0.35.3` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (520 unit + 181 e2e في CI)
+## Tests (534 unit + e2e متعددة المشاريع في CI)
 
 ```
-✓ unit/ (27 ملف، 520 حالة)  — auth, core, csrf, rate-limit, loyalty-subscription,
+✓ unit/ (28 ملف، 534 حالة)  — auth, core, csrf, rate-limit, loyalty-subscription,
                               receipt-whatsapp-format (round85 الجديدة), regression...
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
 ✓ qa-teams (production)    — 19 spec تعمل ضد الإنتاج (continue-on-error)

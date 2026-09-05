@@ -4,11 +4,27 @@ on:
   schedule:
     - cron: '*/12 * * * *'
 
+# round86-D6: least-privilege + cancelled superseded runs
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
 jobs:
   ping:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Ping Server
         # Production URL (was: smart-menu-sigma.vercel.app — a dead/old project
         # URL that no longer serves this app). Ping the real domain.
-        run: curl -I https://menu.smart-link.ly
+        run: |
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://menu.smart-link.ly)
+          echo "HTTP $CODE"
+          # round86-D6: surface persistent outages in the job summary (visible
+          # on the Actions page without log-diving)
+          if [ "$CODE" != "200" ]; then
+            echo "::warning::menu.smart-link.ly returned HTTP $CODE"
+          fi

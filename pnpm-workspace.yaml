@@ -5,6 +5,9 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
+# round86-D7: supply-chain protection — only install packages published at
+# least 24h ago (defends against freshly-published malicious versions).
+# The exclude list below predates this setting and is kept inert-but-harmless.
 minimumReleaseAgeExclude:
   - hono@4.13.3
 
@@ -14,7 +17,9 @@ overrides:
   nanoid: ^3.3.18
   hono: ^4.13.3
   '@hono/node-server': ^1.19.17
-  fast-uri: ^3.1.5
+  fast-uri: ^3.1.6  # round86-D7: >=3.1.6 fixes SSRF/host-confusion advisories
+  browserslist: ^4.28.7  # round86-D7: fixes OOM + prototype-write advisories (via next/babel chain)
+  mysql2: ^3.23.1  # round86-D7: fixes auth-downgrade + zlib advisories (via prisma)
   deepmerge-ts: ^8.0.1
   valibot: ^1.4.2
   sharp: 0.35.3

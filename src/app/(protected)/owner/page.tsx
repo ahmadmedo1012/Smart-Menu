@@ -16,7 +16,10 @@ import { toArabicNumber } from '@/lib/format';
 import Link from 'next/link';
 import { premiumToast } from '@/lib/premium-toast';
 import { useOrderNotifier } from '@/components/layout/OrderNotifier';
-import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
+import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
+// round86-C4: active-restaurant resolution via the shared hook (this page
+// previously hand-rolled it WITHOUT the switch event subscription — a
+// restaurant switch left stale data until reload)
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { OwnerKpiGrid } from './OwnerKpiGrid';
 import { StatusBreakdown, PopularItems, RecentOrders } from './OwnerOrdersList';
@@ -77,6 +80,7 @@ interface AdvancedStats {
 
 export default function OwnerDashboard() {
 	const router = useRouter();
+	const { activeId, loaded: activeLoaded } = useActiveRestaurant();
 	const [restaurant, setRestaurant] = useState<RestaurantData | null>(null);
 	const [stats, setStats] = useState<(StatsData & { advancedStats?: AdvancedStats }) | null>(null);
 	const [loyaltyStats, setLoyaltyStats] = useState<LoyaltyStats>({});
@@ -84,38 +88,8 @@ export default function OwnerDashboard() {
 	const [error, setError] = useState<string | null>(null);
 	const [tab, setTab] = useState<'overview' | 'analytics'>('overview');
 
-	const load = useCallback(async () => {
+	const load = useCallback(async (rid: number) => {
 		try {
-			const meRes = await fetch('/api/auth/me');
-			if (!meRes.ok) {
-				router.push('/login');
-				return;
-			}
-			const userData = await meRes.json();
-			if (!userData.data?.restaurantId) {
-				setError('لم يتم تفعيل حسابك بعد. يرجى الانتظار حتى يتم تأكيد الدفع من الإدارة.');
-				setLoading(false);
-				return;
-			}
-
-			// Multi-menu: prefer active restaurant (localStorage) validated against
-			// the owner's list, else fall back to the primary restaurantId
-			let rid = userData.data?.restaurantId;
-			const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));
-			try {
-				const ownerRes = await fetch('/api/owner/restaurants');
-				const ownerJson = await ownerRes.json();
-				// Array.isArray guard: 401 error bodies are objects, not lists.
-				const list = Array.isArray(ownerJson.data) ? ownerJson.data : [];
-				if (list.length > 0) {
-					const active = list.find((x: { id: number }) => x.id === stored) ?? list.find((x: { isPrimary: boolean }) => x.isPrimary) ?? list[0];
-					rid = active.id;
-					localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(active.id));
-				}
-			} catch {
-				/* fallback to auth/me */
-			}
-
 			const [restRes, statsRes, loyaltyRes, advancedRes] = await Promise.all([
 				fetch(`/api/restaurants/${rid}`),
 				fetch(`/api/stats?restaurantId=${rid}`),
@@ -123,6 +97,10 @@ export default function OwnerDashboard() {
 				fetch(`/api/stats/advanced?restaurantId=${rid}`),
 			]);
 
+			if (statsRes.status === 401) {
+				router.push('/login');
+				return;
+			}
 			if (restRes.ok) {
 				const restData = await restRes.json();
 				setRestaurant(restData.data ?? restData);
@@ -147,8 +125,15 @@ export default function OwnerDashboard() {
 	}, [router]);
 
 	useEffect(() => {
-		load();
-	}, [load]);
+		if (!activeLoaded) return;
+		if (!activeId) {
+			// no restaurant linked — subscription not activated yet
+			setError('لم يتم تفعيل حسابك بعد. يرجى الانتظار حتى يتم تأكيد الدفع من الإدارة.');
+			setLoading(false);
+			return;
+		}
+		load(activeId);
+	}, [activeLoaded, activeId, load, router]);
 	useOrderNotifier(restaurant?.id);
 
 	if (loading)
@@ -198,7 +183,7 @@ export default function OwnerDashboard() {
 					<AlertCircle className="size-6 text-destructive/60" />
 				</div>
 				<p className="text-base font-semibold">{error}</p>
-				<Button variant="outline" size="sm" onClick={() => load()}>
+				<Button variant="outline" size="sm" onClick={() => activeId && load(activeId)}>
 					إعادة المحاولة
 				</Button>
 			</div>

@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { createHmac } from 'crypto';
 import { timingSafeEqualStrings } from '@/lib/secure-compare';
+import { parseCallbackData, resolveDecision } from '@/lib/telegram-callback';
 import { prisma } from '@/lib/db';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { error as logError, warn as logWarn, info as logInfo } from '@/lib/logger';
@@ -62,36 +63,28 @@ async function handleCallbackQuery(
                 return new Response('OK', { status: 200 });
         }
 
+        // round86-D4: parsing + decision logic via the shared (and now
+        // unit-tested) helpers in lib/telegram-callback
         const callbackData = cq.data ?? '';
-        const colonIdx = callbackData.indexOf(':');
-        if (colonIdx === -1) {
+        const parsed = parseCallbackData(callbackData);
+        if (!parsed) {
                 await answerCallbackQuery(botToken, cq.id, 'بيانات غير صالحة', true);
                 return new Response('OK', { status: 200 });
         }
+        const { action, paymentId } = parsed;
 
-        const action = callbackData.slice(0, colonIdx);
-        const paymentId = Number(callbackData.slice(colonIdx + 1));
-        if (!Number.isFinite(paymentId) || paymentId <= 0) {
-                await answerCallbackQuery(botToken, cq.id, 'بيانات غير صالحة', true);
-                return new Response('OK', { status: 200 });
-        }
-
-        let decision: 'verified' | 'cancelled';
-        let toastSuccess: string;
-        let statusLine: string;
-
-        if (action === 'sub_app') {
-                decision = 'verified';
-                toastSuccess = '✅ تم التفعيل والموافقة';
-                statusLine = '\n\n⚡ [الحالة: تم التفعيل والموافقة بواسطة المشرف]';
-        } else if (action === 'sub_rej') {
-                decision = 'cancelled';
-                toastSuccess = '❌ تم رفض الطلب';
-                statusLine = '\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]';
-        } else {
+        const decision = resolveDecision(action);
+        if (!decision) {
                 await answerCallbackQuery(botToken, cq.id, 'إجراء غير معروف', true);
                 return new Response('OK', { status: 200 });
         }
+
+        const toastSuccess: string =
+                decision === 'verified' ? '✅ تم التفعيل والموافقة' : '❌ تم رفض الطلب';
+        const statusLine: string =
+                decision === 'verified'
+                        ? '\n\n⚡ [الحالة: تم التفعيل والموافقة بواسطة المشرف]'
+                        : '\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]';
 
         const result = await resolveSubscriptionPayment(paymentId, decision);
 

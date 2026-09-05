@@ -27,7 +27,12 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
-vi.mock('@/lib/blob', () => ({ deleteBlob: mockDeleteBlob }));
+// round86-A3: the route also imports mediaUrlError (write-side guard) —
+// mock it as permissive so the tests exercise deleteBlob ordering only.
+vi.mock('@/lib/blob', () => ({
+	deleteBlob: mockDeleteBlob,
+	mediaUrlError: () => null,
+}));
 vi.mock('@/lib/auth', () => ({
 	requireAuth: () => Promise.resolve({ authorized: true, role: 'admin', restaurantId: 1 }),
 	// `admin` (legacy) passes every permission except MANAGE_USERS — mirrors auth.ts
@@ -80,7 +85,7 @@ describe('items PUT — deleteBlob ordering', () => {
 		expect(res.status).toBe(200);
 		// prisma.update called before deleteBlob
 		expect(mockUpdate).toHaveBeenCalled();
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-image.com/old.jpg');
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-image.com/old.jpg', { restaurantId: 1 });
 	});
 
 	it('does NOT call deleteBlob when prisma.update rejects', async () => {
@@ -127,7 +132,7 @@ describe('items DELETE — deleteBlob ordering', () => {
 
 		expect(res.status).toBe(200);
 		expect(mockDelete).toHaveBeenCalled();
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item.jpg');
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item.jpg', { restaurantId: 1 });
 	});
 
 	it('does NOT call deleteBlob when prisma.delete rejects', async () => {
@@ -181,10 +186,10 @@ describe('restaurants DELETE — deleteBlob ordering', () => {
 
 		expect(res.status).toBe(200);
 		expect(mockDelete).toHaveBeenCalled();
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item1.jpg');
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item2.jpg');
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/logo.jpg');
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery1.jpg');
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery2.jpg');
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item1.jpg', { restaurantId: 1 });
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item2.jpg', { restaurantId: 1 });
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/logo.jpg', { restaurantId: 1 });
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery1.jpg', { restaurantId: 1 });
+		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery2.jpg', { restaurantId: 1 });
 	});
 });

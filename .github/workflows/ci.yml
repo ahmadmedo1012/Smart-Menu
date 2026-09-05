@@ -5,13 +5,24 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+# round86-D6: superseded runs are cancelled instead of queueing ~20min each
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: "24.x"
 
+# round86-D6: least-privilege token permissions
+permissions:
+  contents: read
+
 jobs:
   lint-build-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:16
@@ -39,7 +50,30 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
+      # round86-D6: cache the chromium browser between runs (install step
+      # below becomes a no-op hit)
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
       - run: pnpm install --frozen-lockfile
+
+      # round86-D6: fail-fast ordering — the committed-.env guard is
+      # security-relevant and takes milliseconds; it must not wait behind a
+      # multi-minute build
+      - name: Check for committed .env files
+        run: |
+          STAGED=$(git ls-files '.env' '.env.local' '.env.prod' '.env.development')
+          if [ -n "$STAGED" ]; then
+            echo "❌ SECURITY BLOCKED: .env files are tracked:"
+            echo "$STAGED"
+            exit 1
+          fi
+
+      # round86-D7: dependency audit (prod tree) — new advisories fail CI
+      - run: pnpm audit --prod
 
       # prisma.config.ts resolves DATABASE_URL at load time (PrismaConfigEnvError
       # otherwise), even for `generate` which never touches the DB — a dummy URL
@@ -79,9 +113,17 @@ jobs:
       # scripts — those are checked by their own runners)
       - run: npm run typecheck
 
-      # round85-A7: every API route must be session-gated, secret-gated, or a
-      # documented public endpoint — catches "forgot requireAuth" regressions
+      # round85-A7 (hardened round86-A12 to PER-HANDLER checks): every exported
+      # HTTP handler must be session-gated, secret-gated, or a documented
+      # public endpoint — catches "forgot requireAuth on one verb" regressions
       - run: node scripts/check-api-auth.mjs
+
+      # round86-D5: coverage WITH thresholds — `npm test` (plain run) never
+      # executed the ratchet, so a 0%-covered module failed nothing
+      - run: npm run test:coverage
+        env:
+          TELEGRAM_BOT_TOKEN: "test"
+          TELEGRAM_CHAT_ID: "0"
 
       # Build-time env validation (src/lib/env.ts) throws in production mode —
       # supply CI-safe values so page-data collection can import API routes.
@@ -93,21 +135,6 @@ jobs:
           AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
-
-      - name: Check for committed .env files
-        run: |
-          STAGED=$(git ls-files '.env' '.env.local' '.env.prod' '.env.development')
-          if [ -n "$STAGED" ]; then
-            echo "❌ SECURITY BLOCKED: .env files are tracked:"
-            echo "$STAGED"
-            exit 1
-          fi
-
-      # Unit tests — no DB needed
-      - run: npm test
-        env:
-          TELEGRAM_BOT_TOKEN: "test"
-          TELEGRAM_CHAT_ID: "0"
 
       # Start server for E2E tests (always runs, uses CI Postgres service).
       # Standalone server (output: standalone) — `next start` warns and can
@@ -129,17 +156,33 @@ jobs:
 
       # E2E tests against localhost (not production).
       # DB-backed via the CI Postgres service at top of this job.
-      - name: E2E tests
-        run: npx playwright install --with-deps chromium && npm run test:e2e
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests (core projects)
+        run: npm run test:e2e
         env:
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
 
+      # round86-D2: the deep journeys (payments/owner-CRUD/IDOR/personas) were
+      # LOCAL-ONLY before — CI never executed ~63 cases, including the
+      # team4 payments flow and the round80/86 security suites. Runs against
+      # the same CI server (seeds already loaded), so it is a BLOCKING gate.
+      - name: E2E deep journeys (qa-teams + security suites, localhost)
+        run: npx playwright test --project=qa-teams --project=round79-c --workers=2
+        env:
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          RATE_LIMIT_RELAX: "1"
+
       # round85-D2: keep the HTML report + traces when e2e fails (was lost)
       - name: Upload Playwright report
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
@@ -148,11 +191,35 @@ jobs:
             test-results/
           retention-days: 7
 
-      # Live-production QA regression (qa-teams project) — runs the deep suites
-      # against https://menu.smart-link.ly on every push to main. Catches
-      # production-only regressions that localhost CI cannot see.
-      - name: Production QA regression (qa-teams)
-        run: npx playwright install --with-deps chromium && npx playwright test tests/e2e/team1-auth.spec.ts tests/e2e/team2-customer.spec.ts tests/e2e/team5-admin.spec.ts tests/e2e/team6-a11y.spec.ts --project=qa-teams --workers=1
+  # round86-D2: production QA is now a SEPARATE job — previously it ran with
+  # continue-on-error inside the blocking job, and the report upload (if:
+  # failure()) ran BEFORE it, so prod-QA failures left zero artifacts.
+  prod-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Production QA regression (team1/2/5/6)
+        id: prodqa
+        run: npx playwright test tests/e2e/team1-auth.spec.ts tests/e2e/team2-customer.spec.ts tests/e2e/team5-admin.spec.ts tests/e2e/team6-a11y.spec.ts --project=qa-teams --workers=1
         env:
           BASE_URL: https://menu.smart-link.ly
-        continue-on-error: true # never block deploys on flaky rate-limits; report in logs
+        continue-on-error: true # never block deploys on flaky rate-limits
+      - name: Upload production QA report
+        if: always() && steps.prodqa.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-qa-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

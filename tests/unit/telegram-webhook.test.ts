@@ -1,26 +1,15 @@
 /**
  * Telegram webhook tests — permission check, callback parsing, message cleanup
+ * round86-D4: imports the REAL helpers (lib/telegram-callback) — the previous
+ * version re-implemented them inline, silently testing a copy that could
+ * drift from the route's behavior.
  */
 import { describe, it, expect } from "vitest";
-
-function parseCallbackData(data: string): { action: string; paymentId: number } | null {
-  const colonIdx = data.indexOf(":");
-  if (colonIdx === -1) return null;
-  const action = data.slice(0, colonIdx);
-  const paymentId = Number(data.slice(colonIdx + 1));
-  if (!Number.isFinite(paymentId) || paymentId <= 0) return null;
-  return { action, paymentId };
-}
-
-function resolveDecision(action: string): "verified" | "cancelled" | null {
-  if (action === "sub_app") return "verified";
-  if (action === "sub_rej") return "cancelled";
-  return null;
-}
-
-function checkAdminPermission(fromId: number, adminIds: number[]): boolean {
-  return adminIds.includes(fromId);
-}
+import {
+  parseCallbackData,
+  resolveDecision,
+  checkAdminPermission,
+} from "../../src/lib/telegram-callback";
 
 describe("Telegram webhook", () => {
   describe("Callback data parsing", () => {

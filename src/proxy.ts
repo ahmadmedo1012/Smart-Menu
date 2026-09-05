@@ -10,6 +10,12 @@ const SESSION_COOKIE = 'smart-menu-session';
 const PROTECTED_ROOTS = ['/admin', '/owner'];
 
 export function proxy(request: NextRequest) {
+        // round86-D6: real request correlation — the logger reads
+        // globalThis.__requestId and previously always fell back to a fresh
+        // random id per log line (correlation was fake). One id per request
+        // now ties all its log lines together.
+        (globalThis as Record<string, unknown>).__requestId =
+                request.headers.get('x-request-id') ?? crypto.randomUUID().slice(0, 8);
         const { pathname } = request.nextUrl;
 
         const isProtected = PROTECTED_ROOTS.some(
