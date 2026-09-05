@@ -42,7 +42,11 @@ export async function fillSubscribeForm(
 export async function chooseFreePlan(page: Page): Promise<void> {
   await page.locator("button").filter({ hasText: "مجاني" }).first().click();
   await page.waitForTimeout(800);
-  await page.locator("button").filter({ hasText: "اخترت" }).first().click();
+  // round85: plan cards select IN PLACE — the confirm text is now the stepper
+  // CTA "متابعة مع خطة ...". The old "اخترت" button was removed from the UI a
+  // long time ago; this helper silently broke and nothing caught it because
+  // the CI trigger never matched main (fixed this round).
+  await page.locator("button").filter({ hasText: "متابعة مع خطة" }).first().click();
   await page.waitForTimeout(2000);
 }
 
@@ -50,7 +54,7 @@ export async function chooseFreePlan(page: Page): Promise<void> {
 export async function choosePlanByPrice(page: Page, price: string): Promise<void> {
   await page.locator("button").filter({ hasText: price }).first().click();
   await page.waitForTimeout(800);
-  await page.locator("button").filter({ hasText: "اخترت" }).first().click();
+  await page.locator("button").filter({ hasText: "متابعة مع خطة" }).first().click();
   await page.waitForTimeout(2000);
 }
 
