@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 		description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب',
 		url: '/',
 		siteName: 'الربط الذكي',
-		images: [{ url: '/icon-512.png', width: 512, height: 512, alt: 'Smart Menu' }],
+		images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'الربط الذكي — منيو رقمي ذكي للمطاعم والمقاهي' }],
 		locale: 'ar_LY',
 		type: 'website',
 	},
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 		card: 'summary_large_image',
 		title: 'الربط الذكي | Smart Menu',
 		description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب',
-		images: ['/icon-512.png'],
+		images: ['/og-default.png'],
 	},
 	robots: {
 		index: true,

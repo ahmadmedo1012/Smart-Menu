@@ -25,7 +25,7 @@ export async function generateMetadata({
         const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
         const restaurant = await getRestaurantBySlug(slug);
         if (!restaurant) notFound();
-        const ogImage = restaurant.logo || '/icon-512.png';
+        const ogImage = restaurant.logo || '/og-default.png';
         return {
                 title: restaurant.name,
                 description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
@@ -45,7 +45,9 @@ export async function generateMetadata({
                         type: 'website',
                 },
                 twitter: {
-                        card: 'summary',
+                        // round84: wide card when the 1200×630 branded fallback is used,
+                        // small square card when the restaurant has its own logo.
+                        card: restaurant.logo ? 'summary' : 'summary_large_image',
                         title: restaurant.name,
                         description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
                         images: [ogImage],
