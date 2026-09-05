@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
-import { success, handleError, error, paginated } from '@/lib/api-helpers';
+import { success, handleError, error, paginated, parsePagination } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { mediaUrlError } from '@/lib/blob';
@@ -36,9 +36,9 @@ const createSchema = z.object({
 
 export async function GET(request: NextRequest) {
         try {
-                const { searchParams } = new URL(request.url);
-                const page = Math.max(1, Number(searchParams.get('page')) || 1);
-                const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
+                const url = new URL(request.url);
+                const { searchParams } = url;
+                const { page, pageSize } = parsePagination(url);
                 const categoryId = searchParams.get('categoryId')
                         ? Number(searchParams.get('categoryId'))
                         : undefined;

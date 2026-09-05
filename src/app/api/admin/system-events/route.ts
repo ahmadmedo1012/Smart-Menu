@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { success, error, handleError, notFound } from "@/lib/api-helpers";
+import { success, error, handleError, notFound, parsePagination } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 
@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
     const auth = await requirePermission("VIEW_ANALYTICS");
     if (!auth.authorized) return error(auth.error ?? "غير مصرح", auth.status ?? 403);
 
-    const { searchParams } = new URL(request.url);
-    const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 20));
+    const url = new URL(request.url);
+    const { searchParams } = url;
+    const { page, pageSize } = parsePagination(url, { pageSize: 20 });
 
     // round87-B6: incremental cursor for the 15s admin notifier poll — was
     // re-downloading 50 full event rows every tick. Semantics: id > sinceId,

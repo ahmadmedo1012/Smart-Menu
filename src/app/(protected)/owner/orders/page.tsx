@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { SearchInput } from '@/components/ui/search-input';
 import { EmptyState } from '@/components/ui/empty-state';
 import { premiumToast } from '@/lib/premium-toast';
-import { csrfFetch } from '@/lib/csrf-client';
+import { csrfJson } from '@/lib/csrf-client';
+import { getErrorMessage } from '@/lib/get-error-message';
 import {
         ClipboardList,
         SearchX,
@@ -109,8 +110,9 @@ export default function OwnerOrdersPage() {
                                         window.location.href = '/login';
                                         return;
                                 }
-                                if (!res.ok) throw new Error();
-                                const json = await res.json();
+                                const json = await res.json().catch(() => null);
+                                // round87-C3: surface the server's Arabic error (was: empty throw -> generic toast)
+                                if (!res.ok || !json?.success) throw new Error(json?.error ?? `فشل الطلب (${res.status})`);
                                 const newOrders: Order[] = Array.isArray(json.data) ? json.data : [];
                                 if (json?.meta?.total !== undefined) setTotalOrders(json.meta.total);
                                 if (append) {
@@ -125,9 +127,9 @@ export default function OwnerOrdersPage() {
                                 }
                                 setHasMore(newOrders.length === PAGE_SIZE);
                                 setPage(pageNum);
-                        } catch {
-                                setError('فشل تحميل الطلبات');
-                                premiumToast('error', 'فشل تحميل الطلبات');
+                        } catch (e) {
+                                setError(getErrorMessage(e, 'فشل تحميل الطلبات'));
+                                premiumToast('error', getErrorMessage(e, 'فشل تحميل الطلبات'));
                         } finally {
                                 if (pageNum === 1) setLoading(false);
                                 else setLoadingMore(false);
@@ -206,20 +208,19 @@ export default function OwnerOrdersPage() {
                 setPendingStatus((prev) => ({ ...prev, [orderId]: newStatus }));
                 setStatusEverywhere(newStatus);
                 try {
-                        const res = await csrfFetch(`/api/orders/${orderId}`, {
+                        await csrfJson(`/api/orders/${orderId}`, {
                                 method: 'PUT',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ status: newStatus }),
                         });
-                        if (!res.ok) throw new Error();
                         premiumToast(
                                 'save',
                                 `تم تغيير الحالة إلى ${getOrderStatusMeta(newStatus).label}`
                         );
-                } catch {
+                } catch (e) {
                         // Rollback to the exact previous state
                         setStatusEverywhere(prevStatus);
-                        premiumToast('error', 'فشل تحديث الحالة — أُعيدت الحالة السابقة');
+                        premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة — أُعيدت الحالة السابقة'));
                 } finally {
                         setPendingStatus((prev) => {
                                 if (!(orderId in prev)) return prev;

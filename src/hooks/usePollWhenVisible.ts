@@ -13,30 +13,59 @@ import { useEffect, useRef } from 'react';
  *   - pauses while the tab is hidden (timers are throttled anyway)
  *   - never stacks a second interval on visibility flips
  *
+ * round87-C7 — options (all backward-compatible defaults):
+ *   - enabled: false suspends the loop entirely (call sites no longer need an
+ *     if-gate effect around the hook)
+ *   - immediate: false skips the first tick (e.g. payment status: the request
+ *     was just created — first check only after one interval)
+ *   - inFlightGuard: true never overlaps a slow tick with the next one
+ *
  * @param fn   the poll body — receives a stable function ref, so deps stay
  *             minimal; put dynamic values in `deps`
  * @param ms   poll interval in milliseconds
  * @param deps extra values that should restart the loop when they change
  *             (filters, active restaurant, …)
  */
-export function usePollWhenVisible(fn: () => void | Promise<void>, ms: number, deps: unknown[] = []): void {
+export type PollWhenVisibleOptions = {
+        enabled?: boolean;
+        immediate?: boolean;
+        inFlightGuard?: boolean;
+};
+
+export function usePollWhenVisible(
+        fn: () => void | Promise<void>,
+        ms: number,
+        deps: unknown[] = [],
+        options: PollWhenVisibleOptions = {}
+): void {
+        const { enabled = true, immediate = true, inFlightGuard = false } = options;
         const fnRef = useRef(fn);
         useEffect(() => {
                 fnRef.current = fn;
         }, [fn]);
 
         useEffect(() => {
+                if (!enabled) return;
                 let intervalId: ReturnType<typeof setInterval> | undefined;
+                let inFlight = false;
 
-                const tick = () => {
-                        void fnRef.current();
+                const tick = async () => {
+                        if (inFlightGuard) {
+                                if (inFlight) return;
+                                inFlight = true;
+                        }
+                        try {
+                                await fnRef.current();
+                        } finally {
+                                inFlight = false;
+                        }
                 };
 
                 const startPolling = () => {
                         // Guard: visibilitychange can fire while an interval is already
                         // running — never stack a second interval on top of the first.
                         if (intervalId) return;
-                        tick();
+                        if (immediate) tick();
                         intervalId = setInterval(tick, ms);
                 };
                 const stopPolling = () => {
@@ -57,5 +86,5 @@ export function usePollWhenVisible(fn: () => void | Promise<void>, ms: number, d
                         document.removeEventListener('visibilitychange', onVisibilityChange);
                 };
                 // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [ms, ...deps]);
+        }, [ms, enabled, immediate, inFlightGuard, ...deps]);
 }

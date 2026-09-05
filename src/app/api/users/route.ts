@@ -1,18 +1,18 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
-import { success, error as apiError, handleError } from "@/lib/api-helpers";
+import { success, error as apiError, handleError, parsePagination } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireAuth();
     if (!auth.authorized || !["super_admin", "sub_admin", "admin"].includes(auth.role ?? "")) return apiError("غير مصرح", 401);
-    const { searchParams } = new URL(request.url);
+    const url = new URL(request.url);
+    const { searchParams } = url;
     const restaurantId = searchParams.get("restaurantId")
       ? Number(searchParams.get("restaurantId"))
       : undefined;
-    const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
+    const { page, pageSize } = parsePagination(url);
     const search = searchParams.get("search")?.trim();
     const roleFilter = searchParams.get("role");
 

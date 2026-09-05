@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import { success, error as apiError, handleError, paginated } from '@/lib/api-helpers';
+import { success, error as apiError, handleError, paginated, parsePagination } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 
@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
 
-                const { searchParams } = new URL(request.url);
+                const url = new URL(request.url);
+                const { searchParams } = url;
                 let restaurantId = Number(searchParams.get('restaurantId')) || undefined;
 
                 // Owners can only see their own restaurant's orders; regular users can't read any order history
@@ -53,8 +54,7 @@ export async function GET(request: NextRequest) {
                         return apiError('غير مصرح', 403);
                 }
 
-                const page = Math.max(1, Number(searchParams.get('page')) || 1);
-                const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
+                const { page, pageSize } = parsePagination(url);
                 const status = searchParams.get('status') || undefined;
 
                 const where: Record<string, unknown> = {};

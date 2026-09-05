@@ -1,6 +1,7 @@
 "use client"
 
-import { csrfFetch } from "@/lib/csrf-client";
+import { csrfJson } from "@/lib/csrf-client";
+import { getErrorMessage } from "@/lib/get-error-message";
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef, useCallback } from "react"
 import { usePollWhenVisible } from "@/hooks/usePollWhenVisible"
@@ -119,17 +120,23 @@ export default function AdminOrdersPage() {
   }, 5_000, [fetchOrders, filter, dateFrom, dateTo])
 
   const updateStatus = async (id: number, status: string) => {
+    const prev = orders.find(o => o.id === id)?.status
+    // round87-C3: optimistic flip + rollback — was a silent no-op when the
+    // server rejected the change (no toast, no revert), and the catch hid
+    // the server's Arabic error message.
+    setOrders(prevList => prevList.map(o => (o.id === id ? { ...o, status } : o)))
     try {
-      const res = await csrfFetch(`/api/orders/${id}`, {
+      await csrfJson(`/api/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       })
-      if (res.ok) {
-        premiumToast("refresh", `تم تغيير الحالة`)
-        fetchOrders(1)
-      }
-    } catch { premiumToast("error", "فشل التحديث") }
+      premiumToast("refresh", `تم تغيير الحالة`)
+      fetchOrders(1)
+    } catch (e) {
+      if (prev !== undefined) setOrders(prevList => prevList.map(o => (o.id === id ? { ...o, status: prev } : o)))
+      premiumToast("error", getErrorMessage(e, "فشل التحديث"))
+    }
   }
 
   const nextStatus: Record<string, string> = {

@@ -7,7 +7,7 @@ import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import AnimatedSend from '@/components/ui/send-icon';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatDateShort } from '@/lib/format';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 import AnimatedStar from '@/components/ui/star-icon';
@@ -350,7 +350,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 											</div>
 											<span className="text-xs text-muted-foreground">
 												{review.customerName || 'مجهول'} ·{' '}
-												{new Date(review.createdAt).toLocaleDateString('ar-LY')}
+												{formatDateShort(new Date(review.createdAt))}
 											</span>
 										</div>
 										{review.comment && (

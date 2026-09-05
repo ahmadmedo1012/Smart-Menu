@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { error, handleError, success, validationError } from '@/lib/api-helpers';
+import { error, handleError, success, validationError, parsePagination } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { z } from 'zod';
 
@@ -27,7 +27,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                         return NextResponse.json({ success: false, error: 'Invalid ID' }, { status: 400 });
                 }
 
-                const { searchParams } = new URL(req.url);
+                const url = new URL(req.url);
+                const { searchParams } = url;
                 const minRating = searchParams.get('minRating');
 
                 // round85-C8: structurally typed where (ReviewWhereInput-compatible)
@@ -39,8 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                         }
                 }
 
-                const page = Math.max(1, Number(searchParams.get('page')) || 1);
-                const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
+                const { page, pageSize } = parsePagination(url);
 
                 const auth = await requireAuth().catch(() => ({ authorized: false as const }));
                 // PII leak guard (round-77): an 'owner' must not read customer

@@ -44,6 +44,30 @@ export function paginated<T>(
   });
 }
 
+/**
+ * round87-C10: single pagination parser — the exact inline pattern was
+ * copy-pasted in 10 API routes with identical semantics but divergent
+ * defaults. Behavior preserved byte-for-byte:
+ *   page     = Math.max(1, Number(param) || pageDefault)          (NaN/0 -> default)
+ *   pageSize = Math.min(max, Math.max(1, Number(param) || pageSizeDefault))
+ * Routes whose effective defaults differ from (page 1 / pageSize 50 / max 100)
+ * pass overrides: system-events + audit-logs (pageSize 20), restaurants (10).
+ */
+export function parsePagination(
+  url: URL,
+  defaults?: { page?: number; pageSize?: number; maxPageSize?: number },
+): { page: number; pageSize: number } {
+  const pageDefault = defaults?.page ?? 1;
+  const pageSizeDefault = defaults?.pageSize ?? 50;
+  const maxPageSize = defaults?.maxPageSize ?? 100;
+  const page = Math.max(1, Number(url.searchParams.get("page")) || pageDefault);
+  const pageSize = Math.min(
+    maxPageSize,
+    Math.max(1, Number(url.searchParams.get("pageSize")) || pageSizeDefault),
+  );
+  return { page, pageSize };
+}
+
 export function handleError(e: unknown) {
   // Use duck-typing instead of ZodError instanceof (avoids dual-package hazard in Zod 4)
   if (e && typeof e === "object" && "issues" in e && Array.isArray((e as Record<string, unknown>).issues)) {

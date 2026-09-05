@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { success, error, handleError, notFound } from "@/lib/api-helpers";
+import { success, error, handleError, notFound, parsePagination } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 import { resolveSubscriptionPayment } from "@/lib/subscription-decisions";
@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
     const auth = await requirePermission("MANAGE_SUBSCRIPTIONS");
     if (!auth.authorized) return error(auth.error, auth.status);
 
-    const { searchParams } = new URL(request.url);
+    const url = new URL(request.url);
+    const { searchParams } = url;
     const status = searchParams.get("status") || "pending";
-    const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 50));
+    const { page, pageSize } = parsePagination(url);
 
     const where = status !== "all" ? { status: status as "pending" | "verified" | "cancelled" } : {};
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { handleError, paginated } from '@/lib/api-helpers';
+import { handleError, paginated, parsePagination } from '@/lib/api-helpers';
 import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import type { Prisma } from '@/generated/prisma/client';
 
@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json({ success: false, error: 'اشتراكك منتهي. جدّد اشتراكك للمتابعة.' }, { status: 403 });
 		}
 
-		const { searchParams } = new URL(req.url);
+		const url = new URL(req.url);
+		const { searchParams } = url;
 		const minRating = searchParams.get('minRating');
 		// Multi-menu: allow explicit restaurantId (verify ownership), else primary
 		let restaurantId = auth.restaurantId;
@@ -43,8 +44,7 @@ export async function GET(req: NextRequest) {
 			}
 		}
 
-		const page = Math.max(1, Number(searchParams.get('page')) || 1);
-		const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
+		const { page, pageSize } = parsePagination(url);
 
 		// round87-C5: stats computed server-side over the FULL tenant set — the
 		// client used to compute them over the (filtered!) first 50 rows, so the

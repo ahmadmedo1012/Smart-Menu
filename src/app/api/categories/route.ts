@@ -3,7 +3,7 @@ import { requireAuth, requirePermission } from '@/lib/auth';
 import { z } from 'zod';
 import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
-import { success, error, handleError, paginated } from '@/lib/api-helpers';
+import { success, error, handleError, paginated, parsePagination } from '@/lib/api-helpers';
 import { revalidateMenu } from '@/lib/menu-cache';
 
 const createSchema = z.object({
@@ -17,7 +17,8 @@ const createSchema = z.object({
 
 export async function GET(request: NextRequest) {
         try {
-                const { searchParams } = new URL(request.url);
+                const url = new URL(request.url);
+                const { searchParams } = url;
                 const restaurantId = Number(searchParams.get('restaurantId'));
                 if (!restaurantId) return error('معرف المطعم مطلوب', 400);
 
@@ -38,8 +39,7 @@ export async function GET(request: NextRequest) {
                         return error('غير مصرح', 403);
                 }
 
-                const page = Math.max(1, Number(searchParams.get('page')) || 1);
-                const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
+                const { page, pageSize } = parsePagination(url);
                 const where = { restaurantId };
                 const [data, total] = await Promise.all([
                         prisma.menuCategory.findMany({

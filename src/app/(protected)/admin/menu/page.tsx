@@ -1,6 +1,7 @@
 "use client"
 
 import { csrfJson } from "@/lib/csrf-client";
+import { getErrorMessage } from "@/lib/get-error-message";
 import { useEffect, useState, useCallback, useRef } from "react"
 import { usePollWhenVisible } from "@/hooks/usePollWhenVisible"
 import { Button } from "@/components/ui/button"
@@ -140,7 +141,7 @@ export default function AdminMenuPage() {
       })
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: ns } : i))
       premiumToast(ns === "available" ? "success" : "error", ns === "available" ? "متوفر" : "غير متوفر")
-    } catch { premiumToast("error", "فشل التحديث") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل التحديث")) }
   }
 
   const deleteItem = async () => {
@@ -150,7 +151,7 @@ export default function AdminMenuPage() {
       premiumToast("success", "تم حذف الصنف")
       setDeleteTarget(null)
       fetchData()
-    } catch { premiumToast("error", "فشل الحذف") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف")) }
   }
 
   if (loading) return (

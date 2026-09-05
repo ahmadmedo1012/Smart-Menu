@@ -19,7 +19,8 @@ import {
 	DialogFooter,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { csrfFetch } from '@/lib/csrf-client';
+import { csrfJson } from '@/lib/csrf-client';
+import { getErrorMessage } from '@/lib/get-error-message';
 
 interface ConfigItem {
 	id: number;
@@ -84,7 +85,8 @@ export function ConfigEditor() {
 
 	const saveConfig = async (item: ConfigItem) => {
 		try {
-			const res = await csrfFetch('/api/admin/config', {
+			// round87-C3: csrfJson throws with the server's Arabic message on rejection
+			await csrfJson('/api/admin/config', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -95,27 +97,23 @@ export function ConfigEditor() {
 					description: item.description,
 				}),
 			});
-			const json = await res.json();
-			if (!json.success) throw new Error();
 			premiumToast('save', 'تم الحفظ');
 			loadConfig();
-		} catch {
-			premiumToast('error', 'فشل الحفظ');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل الحفظ'));
 		}
 	};
 
 	const deleteConfig = async (key: string) => {
 		try {
-			const res = await csrfFetch(`/api/admin/config?key=${encodeURIComponent(key)}`, {
+			await csrfJson(`/api/admin/config?key=${encodeURIComponent(key)}`, {
 				method: 'DELETE',
 			});
-			const json = await res.json();
-			if (!json.success) throw new Error();
 			premiumToast('trash', 'تم الحذف');
 			setDeleteTarget(null);
 			loadConfig();
-		} catch {
-			premiumToast('error', 'فشل الحذف');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل الحذف'));
 		}
 	};
 

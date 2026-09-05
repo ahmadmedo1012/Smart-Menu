@@ -339,7 +339,7 @@ export default function OwnerSettingsPage() {
 					<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
 						{gallery.map((url, i) => (
 							<div
-								key={i}
+								key={url}
 								className="group relative aspect-square rounded-xl overflow-hidden bg-muted/20 border border-border/20"
 							>
 								<OptimizedImage src={url} alt={`صورة ${i + 1}`} className="size-full" />

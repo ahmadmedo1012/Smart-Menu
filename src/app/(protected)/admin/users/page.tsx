@@ -1,6 +1,7 @@
 "use client"
 
-import { csrfFetch } from "@/lib/csrf-client";
+import { csrfJson } from "@/lib/csrf-client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
@@ -63,12 +64,13 @@ export default function AdminUsersPage() {
       if (roleFilter !== "all") params.set("role", roleFilter)
 
       const res = await fetch(`/api/users?${params.toString()}`)
-      if (!res.ok) throw Error()
-      const json = await res.json()
+      const json = await res.json().catch(() => null)
+      // round87-C3: surface the server's Arabic error (was: empty throw -> generic message)
+      if (!res.ok || !json?.success) throw new Error(json?.error ?? `فشل الطلب (${res.status})`)
       // Array.isArray guard: error bodies are objects, not lists.
       setUsers(Array.isArray(json.data?.users) ? json.data.users : []);
       setTotal(json.data?.total ?? json.meta?.total ?? 0)
-    } catch { setError("فشل تحميل المستخدمين") }
+    } catch (e) { setError(getErrorMessage(e, "فشل تحميل المستخدمين")) }
     finally { setLoading(false) }
   }, [page, search, roleFilter])
 
@@ -88,11 +90,10 @@ export default function AdminUsersPage() {
   const deleteUser = async () => {
     if (!deleteTarget) return
     try {
-      const res = await csrfFetch(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error()
+      await csrfJson(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
       premiumToast("success", "تم حذف المستخدم")
       setDeleteTarget(null); fetchUsers()
-    } catch { premiumToast("error", "فشل الحذف") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف")) }
   }
 
   const resetPassword = async () => {
@@ -100,15 +101,14 @@ export default function AdminUsersPage() {
       premiumToast("error", "كلمة المرور يجب أن تكون 4 أحرف على الأقل"); return
     }
     try {
-      const res = await csrfFetch("/api/admin/reset-password", {
+      await csrfJson("/api/admin/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: resetTarget.id, newPassword }),
       })
-      if (!res.ok) throw Error()
       premiumToast("refresh", "تم إعادة تعيين كلمة المرور")
       setResetTarget(null); setNewPassword("")
-    } catch { premiumToast("error", "فشل إعادة التعيين") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل إعادة التعيين")) }
   }
 
   // ---------- Loading ----------

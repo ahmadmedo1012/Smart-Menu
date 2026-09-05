@@ -52,7 +52,7 @@
 |---|---|---|
 | TypeScript (tsc --noEmit) | صفر أخطاء | ✅ |
 | ESLint | صفر تحذيرات | ✅ |
-| Vitest | **520 اختبارًا** في 27 ملفًا (جولة 85: +73 اختبار منطق حرج) | ✅ |
+| Vitest | **534 اختبارًا** في 28 ملفًا (جولتا 85-86: +87 اختبار منطق حرج) | ✅ |
 | Playwright E2E + أمن | 29 ملف سيناريو (رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
 | axe-core WCAG 2.x | أساس صفري على صفحات المنيو | ✅ |
 | سلسلة الهجرات | **قابلة لإعادة التشغيل من الصفر + مطابقة schema.prisma حرفيًا** (فرق فارغ) | ✅ |
@@ -86,7 +86,7 @@ pnpm dev                    # → http://localhost:3000
 
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
-- **Database**: PostgreSQL + Prisma 7 (14 هجرة، قابلة لإعادة التشغيل)
+- **Database**: PostgreSQL + Prisma 7 (16 هجرة، قابلة لإعادة التشغيل)
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon

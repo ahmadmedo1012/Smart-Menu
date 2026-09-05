@@ -27,3 +27,7 @@ export function libyanaUssdCode(phone: string, amountLyD: number): string {
 export function madarUssdCode(phone: string, amountLyD: number): string {
 	return `*140*4*1*${amountLyD}*${phone}#`;
 }
+
+/** round87-C7: the payment channel discriminator, shared by the dialog and
+ * the extracted ProviderPicker/ReceiptUpload components. */
+export type PaymentProvider = 'libyana' | 'madar' | 'bank';

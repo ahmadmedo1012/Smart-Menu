@@ -1,6 +1,7 @@
 "use client";
 
 import { csrfJson } from "@/lib/csrf-client";
+import { getErrorMessage } from "@/lib/get-error-message";
 import type { PlanSummary as Plan } from '@/lib/plan-types';
 
 import { useEffect, useState, useCallback } from "react";
@@ -87,7 +88,7 @@ export default function AdminRestaurantsPage() {
     try {
       await csrfJson(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
       premiumToast("trash", "تم حذف المطعم"); setDeleteTarget(null); fetchData();
-    } catch { premiumToast("error", "فشل الحذف") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف")) }
   };
 
   const toggleSelect = (id: number) => {
@@ -107,7 +108,7 @@ export default function AdminRestaurantsPage() {
       })
       premiumToast("save", show ? "تم تفعيل الظهور في الرئيسية" : "تم إخفاء المطعم من الرئيسية")
       fetchData()
-    } catch { premiumToast("error", "فشل التحديث") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل التحديث")) }
   }
 
   const bulkDelete = async () => {
@@ -117,7 +118,7 @@ export default function AdminRestaurantsPage() {
     try {
       await Promise.all([...selectedIds].map(id => csrfJson(`/api/restaurants/${id}`, { method: "DELETE" })));
       premiumToast("trash", `تم حذف ${toArabicNumber(count)} مطعم`); setSelectedIds(new Set()); fetchData();
-    } catch { premiumToast("error", "فشل الحذف الجماعي") }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف الجماعي")) }
   };
 
   // ---------- Loading ----------

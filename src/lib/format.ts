@@ -44,6 +44,16 @@ function formatDate(date: Date): string {
 }
 
 /**
+ * round87-C8: unified short Arabic date (day + month, e.g. "5 سبتمبر").
+ * Same style rules as formatDate: Western digits via toArabicNumber and the
+ * local ARABIC_MONTHS names — replaces 3 competing toLocaleDateString('ar-LY')
+ * variants (full numeric / short-month) in public + owner surfaces.
+ */
+function formatDateShort(date: Date): string {
+  return `${toArabicNumber(date.getDate())} ${ARABIC_MONTHS[date.getMonth()]}`;
+}
+
+/**
  * Single canonical price formatter (round-77 code-quality agent).
  * Unifies 3 competing patterns (toFixed(1) site displays vs toFixed(2)
  * receipt vs plain price) — always Western digit + space + "د.ل".
@@ -55,4 +65,4 @@ export function formatPrice(n: number | string | null | undefined, opts?: { deci
   return `${toArabicNumber(num.toFixed(dec))}${suffix}`;
 }
 
-export { toArabicNumber, formatDate };
+export { toArabicNumber, formatDate, formatDateShort };

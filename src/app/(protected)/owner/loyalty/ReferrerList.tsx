@@ -4,7 +4,7 @@ import { useState } from "react"
 import { SearchInput } from "@/components/ui/search-input"
 import { Gift, FilterX } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatDateShort } from '@/lib/format';
 
 interface ReferralRow {
   id: number
@@ -90,7 +90,7 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
               <div className="flex items-center gap-3 shrink-0">
                 <ReferralStatusBadge status={r.status} />
                 <span className="text-xs text-muted-foreground tabular-nums">
-                  {new Date(r.createdAt).toLocaleDateString("ar-LY", { month: "short", day: "numeric" })}
+                  {formatDateShort(new Date(r.createdAt))}
                 </span>
                 {r.status === "converted" && (
                   <span className="text-xs font-medium text-success tabular-nums">+{r.discountPercent}%</span>

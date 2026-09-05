@@ -22,8 +22,8 @@ export default async function MenuPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-4 text-center animate-fade-in">
-      <h2 className="text-xl font-semibold">No restaurants available</h2>
-      <p className="text-muted-foreground">Please check back later.</p>
+      <h2 className="text-xl font-semibold">لا توجد مطاعم متاحة حالياً</h2>
+      <p className="text-muted-foreground">يرجى زيارتنا لاحقاً.</p>
     </div>
   );
 }

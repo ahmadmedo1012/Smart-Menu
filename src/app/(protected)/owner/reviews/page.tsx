@@ -8,7 +8,7 @@ import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils";
-import { toArabicNumber } from "@/lib/format";
+import { toArabicNumber, formatDateShort } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useRouter } from "next/navigation";
@@ -197,7 +197,7 @@ export default function OwnerReviewsPage() {
                   )}
                 </div>
                 <span className="shrink-0 text-[11px] text-muted-foreground">
-                  {new Date(review.createdAt).toLocaleDateString("ar-LY")}
+                  {formatDateShort(new Date(review.createdAt))}
                 </span>
               </div>
             </motion.div>
