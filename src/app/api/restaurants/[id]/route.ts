@@ -4,42 +4,70 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
-import { deleteBlob } from '@/lib/blob';
+import { deleteBlob, mediaUrlError } from '@/lib/blob';
 // round86-A3: deleteBlob below is scoped to the deleted restaurant's tenant
 
+// round87-A2: the PUT path previously had NO bounds at all (round86-A7 only
+// bounded POST) — no .max on any string, no slug format check, and logo/gallery
+// were persisted unvalidated. Bounds mirror the POST schema.
+const SLUG_RE = /^[a-z0-9-]+$/;
+
+const slugField = z
+        .string()
+        .min(1)
+        .max(100)
+        .regex(SLUG_RE, 'الرابط المختصر يجب أن يحتوي أحرفاً لاتينية صغيرة وأرقاماً وشرطات فقط');
+
 const updateSchema = z.object({
-        name: z.string().min(1).optional(),
-        slug: z.string().min(1).optional(),
-        description: z.string().optional(),
-        phone: z.string().optional(),
-        whatsapp: z.string().optional(),
-        email: z.string().optional(),
-        address: z.string().optional(),
-        workingHours: z.string().optional(),
-        logo: z.string().optional(),
-        gallery: z.array(z.string()).optional(),
+        name: z.string().min(1).max(200).optional(),
+        slug: slugField.optional(),
+        description: z.string().max(1000).optional(),
+        phone: z.string().max(30).optional(),
+        whatsapp: z.string().max(30).optional(),
+        email: z.string().max(254).email().optional(),
+        address: z.string().max(300).optional(),
+        workingHours: z.string().max(500).optional(),
+        logo: z.string().max(2000).optional(),
+        gallery: z.array(z.string().max(2000)).max(10).optional(),
 });
 
 const adminUpdateSchema = z.object({
-        name: z.string().min(1).optional(),
-        slug: z.string().min(1).optional(),
-        description: z.string().optional(),
-        phone: z.string().optional(),
-        whatsapp: z.string().optional(),
-        email: z.string().optional(),
-        address: z.string().optional(),
-        workingHours: z.string().optional(),
-        logo: z.string().optional(),
-        gallery: z.array(z.string()).optional(),
+        name: z.string().min(1).max(200).optional(),
+        slug: slugField.optional(),
+        description: z.string().max(1000).optional(),
+        phone: z.string().max(30).optional(),
+        whatsapp: z.string().max(30).optional(),
+        email: z.string().max(254).email().optional(),
+        address: z.string().max(300).optional(),
+        workingHours: z.string().max(500).optional(),
+        logo: z.string().max(2000).optional(),
+        gallery: z.array(z.string().max(2000)).max(10).optional(),
         planId: z.number().int().optional(),
         planStart: z.string().datetime().optional(),
         planEnd: z.string().datetime().optional(),
         maxItems: z.number().int().positive().optional(),
         maxOrders: z.number().int().positive().optional(),
-        city: z.string().optional(),
+        city: z.string().max(100).optional(),
         showOnLanding: z.boolean().optional(),
         featuredRank: z.number().int().optional(),
 });
+
+/** round87-A2: validate logo/gallery media values against the acting tenant
+ *  before any write (same guard items-POST has used since round86-A3). */
+function restaurantMediaError(
+        parsed: { logo?: string; gallery?: string[] },
+        tenantId: number
+): string | null {
+        if (parsed.logo) {
+                const e = mediaUrlError(parsed.logo, tenantId);
+                if (e) return e;
+        }
+        for (const g of parsed.gallery ?? []) {
+                const e = mediaUrlError(g, tenantId);
+                if (e) return e;
+        }
+        return null;
+}
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
         try {
@@ -47,10 +75,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                 const rId = Number(id);
                 if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
                 const auth = await requireAuth();
-                const isOwnerOrAdmin =
-                        auth.authorized &&
-                        (auth.role === 'super_admin' || auth.role === 'sub_admin' || auth.role === 'admin' ||
-                                (auth.role === 'owner' && auth.restaurantId === rId));
+                // round87-A5: sub_admin needs VIEW_ANALYTICS for the full-detail branch —
+                // a zero-permission sub_admin used to read any restaurant's complete row
+                // (contact + billing PII). super_admin/admin (legacy full-trust) and the
+                // record's own owner keep full detail; everyone else gets the public
+                // projection below.
+                let isOwnerOrAdmin = false;
+                if (auth.authorized) {
+                        if (auth.role === 'super_admin' || auth.role === 'admin') isOwnerOrAdmin = true;
+                        else if (auth.role === 'sub_admin') {
+                                const perm = await requirePermission('VIEW_ANALYTICS');
+                                isOwnerOrAdmin = perm.authorized;
+                        } else if (auth.role === 'owner') {
+                                isOwnerOrAdmin = auth.restaurantId === rId;
+                        }
+                }
                 if (!isOwnerOrAdmin) {
                         // Public consumers (menu / cart pages) get only the fields needed to
                         // display the menu & place an order — no operational details.
@@ -121,6 +160,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                 if (!link) return apiError('غير مصرح', 403);
                         }
                         const parsed = updateSchema.parse(body);
+                        const mediaErr = restaurantMediaError(parsed, rId);
+                        if (mediaErr) return apiError(mediaErr, 422);
                         data = await prisma.restaurant.update({
                                 where: { id: rId },
                                 data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
@@ -132,6 +173,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         const perm = await requirePermission('MANAGE_RESTAURANTS');
                         if (perm.authorized) {
                                 const parsed = adminUpdateSchema.parse(body);
+                                const mediaErr = restaurantMediaError(parsed, rId);
+                                if (mediaErr) return apiError(mediaErr, 422);
                                 data = await prisma.restaurant.update({
                                         where: { id: rId },
                                         data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),
@@ -147,6 +190,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                         if (!link) return apiError('لا تملك الصلاحية', 403);
                                 }
                                 const parsed = updateSchema.parse(body);
+                                const mediaErr = restaurantMediaError(parsed, rId);
+                                if (mediaErr) return apiError(mediaErr, 422);
                                 data = await prisma.restaurant.update({
                                         where: { id: rId },
                                         data: Object.fromEntries(Object.entries(parsed).filter(([, v]) => v !== undefined)),

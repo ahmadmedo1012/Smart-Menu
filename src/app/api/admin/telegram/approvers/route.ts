@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
     if (!/^\d{1,20}$/.test(rawId) || rawId === "0") {
       return error("معرف تليجرام غير صالح", 400);
     }
+    // round87-A4: bound the label free-text (DB bloat class)
+    const label = String(body.label ?? "").trim().slice(0, 100);
 
     const telegramId = BigInt(rawId);
 
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     const approver = await prisma.telegramApprover.create({
       data: {
         telegramId,
-        label: String(body.label ?? "").trim(),
+        label,
         addedById: auth.userId,
       },
       include: { addedBy: { select: { id: true, name: true, username: true } } },

@@ -27,14 +27,23 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                 });
                 if (!item) return notFound('MenuItem');
 
-                // round86-A9: hidden/unavailable items are staff-only — an
-                // unauthenticated (or USER) caller must not read draft rows by id
+                // round87-A8: hidden/unavailable items are staff-only — an
+                // unauthenticated (or USER) caller must not read draft rows by id.
+                // Owners are additionally tenant-scoped (same ownership rule as
+                // PUT/DELETE in this file) — an owner of restaurant A must not
+                // read restaurant B's draft rows.
                 if (item.status !== 'available') {
                         const auth = await requireAuth();
                         const staff =
                                 auth.authorized &&
                                 ['owner', 'admin', 'super_admin', 'sub_admin'].includes(auth.role);
                         if (!staff) return notFound('MenuItem');
+                        if (auth.role === 'owner' && auth.restaurantId !== item.category.restaurantId) {
+                                const link = await prisma.userRestaurant.findUnique({
+                                        where: { userId_restaurantId: { userId: auth.userId!, restaurantId: item.category.restaurantId } },
+                                });
+                                if (!link) return notFound('MenuItem');
+                        }
                 }
 
                 return success(item);
@@ -153,6 +162,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         return error('السعر المخفض لا يمكن أن يتجاوز السعر الأصلي', 422);
                 }
 
+                // round87-A1: media-URL guard must run BEFORE the write (it used to run
+                // after the update — the row was already persisted by the time the 422
+                // returned) and must validate ANY supplied image, including the first
+                // one on items that had none (old condition required existing.image).
+                if (body.image) {
+                        const imgErr = mediaUrlError(body.image, existing.category.restaurantId);
+                        if (imgErr) return error(imgErr, 422);
+                }
+
                 const data = await prisma.menuItem.update({
                         where: { id: itemId },
                         data: updateData,
@@ -168,10 +186,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 }).catch(() => {});
 
                 // Delete old image from blob only after DB update succeeds
-                // round86-A3: scoped to the item's tenant
+                // round86-A3: scoped to the item's tenant (new image already
+                // validated above before the write — round87-A1)
                 if (body.image && existing.image && body.image !== existing.image) {
-                        const imgErr = mediaUrlError(body.image, existing.category.restaurantId);
-                        if (imgErr) return error(imgErr, 422);
                         deleteBlob(existing.image, { restaurantId: existing.category.restaurantId });
                 }
                 // round85-B9: purge the ISR cache so the owner sees the edit instantly

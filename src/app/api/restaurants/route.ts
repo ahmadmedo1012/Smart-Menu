@@ -140,6 +140,21 @@ export async function POST(request: NextRequest) {
                 }
 
                 const result = await prisma.$transaction(async (tx) => {
+                        // round87-A6: public self-registration must run at the FREE plan's
+                        // advertised caps (10 items / 100 orders). Previously the row kept
+                        // schema defaults (50/500) — 5× the advertised free tier, enforced
+                        // nowhere because planId stays null until payment. planId is left
+                        // untouched (payment semantics unchanged) — only the caps are written.
+                        let freeCaps = { maxItems: 10, maxOrders: 100 };
+                        if (isPublicRegistration) {
+                                const freePlan = await tx.subscriptionPlan.findFirst({
+                                        where: { price: 0, isActive: true },
+                                        orderBy: { sortOrder: 'asc' },
+                                        select: { maxItems: true, maxOrders: true },
+                                });
+                                if (freePlan) freeCaps = { maxItems: freePlan.maxItems, maxOrders: freePlan.maxOrders };
+                        }
+
                         // Normalize: array form (new) or legacy single-fields form
                         const menus = body.restaurants?.length
                                 ? body.restaurants
@@ -174,6 +189,7 @@ export async function POST(request: NextRequest) {
                                                 address: body.address ?? '',
                                                 workingHours: body.workingHours ?? '',
                                                 planId: body.planId ?? null,
+                                                ...(isPublicRegistration ? freeCaps : {}),
                                         },
                                 });
                                 if (i === 0) primary = restaurant;

@@ -16,7 +16,9 @@ const PHONE_RE = /^\+?[0-9]{7,15}$/;
 
 const createSchema = z.object({
         customerPhone: z.string().regex(PHONE_RE, 'Invalid phone number'),
-        customerName: z.string().optional(),
+        // round87-A4: bound public free-text (values render in the owner's
+        // loyalty dashboard — unbounded strings were a client-side DoS vector)
+        customerName: z.string().max(50).optional(),
         restaurantId: z.number().int().positive().optional(),
 });
 

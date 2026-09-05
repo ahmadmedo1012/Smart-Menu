@@ -6,9 +6,11 @@ import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const referralSchema = z.object({
-  referralCode: z.string().min(1),
-  referredPhone: z.string().optional(),
-  referredName: z.string().optional(),
+  referralCode: z.string().min(1).max(20),
+  // round87-A4: bound public free-text (rendered back to the owner in
+  // loyalty/stats recentReferrals — same class as customerName above)
+  referredPhone: z.string().max(30).optional(),
+  referredName: z.string().max(50).optional(),
 });
 
 const referralDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });

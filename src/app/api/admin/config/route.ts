@@ -10,11 +10,28 @@ import { encryptValue } from "@/lib/config";
 
 const upsertSchema = z.object({
   key: z.string().min(1).max(100),
+  // round87-A10: value is a Json column, so any JSON shape is legitimate —
+  // but its serialized size must be bounded (DB-bloat class; previously
+  // z.any() accepted multi-MB payloads). The size check runs after parse.
   value: z.any(),
   category: z.string().min(1).max(50).optional().default("general"),
-  isSecret: z.boolean().optional().default(false),
-  description: z.string().optional().default(""),
+  // round87-A10: NO default — an omitted flag must preserve the stored
+  // isSecret instead of silently declassifying the row (the old .default(false)
+  // flipped a secret row to plain on any save that omitted the flag).
+  isSecret: z.boolean().optional(),
+  description: z.string().max(500).optional().default(""),
 });
+
+/** round87-A10: serialized size bound for the Json value. */
+function configValueError(value: unknown): string | null {
+  try {
+    const s = typeof value === "string" ? value : JSON.stringify(value ?? null);
+    if (s.length > 20_000) return "قيمة الإعداد كبيرة جداً (الحد 20 ألف حرف)";
+    return null;
+  } catch {
+    return "قيمة الإعداد غير قابلة للتخزين";
+  }
+}
 
 export async function GET() {
   try {
@@ -44,9 +61,22 @@ export async function PUT(request: NextRequest) {
 
     const body = upsertSchema.parse(await request.json());
 
+    // round87-A10: bound the serialized value size
+    const valueErr = configValueError(body.value);
+    if (valueErr) return error(valueErr, 422);
+
+    // round87-A10: resolve isSecret — explicit flag wins, omitted preserves the
+    // stored flag (create defaults to false). A masked-save can no longer
+    // declassify an existing secret row by omitting the field.
+    const existingRow = await prisma.systemConfig.findUnique({
+      where: { key: body.key },
+      select: { isSecret: true },
+    });
+    const isSecret = body.isSecret ?? existingRow?.isSecret ?? false;
+
     // Mask placeholder means "unchanged" for secret fields — never write the bullets
     // back over the real value (that silently destroyed the stored secret).
-    if (body.isSecret && body.value === "••••••••") {
+    if (isSecret && body.value === "••••••••") {
       const existing = await prisma.systemConfig.findUnique({ where: { key: body.key } });
       if (existing) {
         return success({
@@ -62,8 +92,8 @@ export async function PUT(request: NextRequest) {
     }
 
     // Encrypt secret values at rest — serialize non-strings so encryption always runs
-    const value = body.isSecret
-      ? await encryptValue(typeof body.value === "string" ? body.value : JSON.stringify(body.value))
+    const value = isSecret
+      ? await encryptValue(typeof body.value === "string" ? body.value : JSON.stringify(body.value ?? null))
       : body.value;
 
     const config = await prisma.$transaction(async (tx) => {
@@ -72,7 +102,7 @@ export async function PUT(request: NextRequest) {
         update: {
           value,
           category: body.category,
-          isSecret: body.isSecret,
+          isSecret,
           description: body.description,
           updatedBy: auth.userId ?? undefined,
         },
@@ -80,7 +110,7 @@ export async function PUT(request: NextRequest) {
           key: body.key,
           value,
           category: body.category,
-          isSecret: body.isSecret,
+          isSecret,
           description: body.description,
           updatedBy: auth.userId ?? undefined,
         },
