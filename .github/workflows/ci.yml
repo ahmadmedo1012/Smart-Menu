@@ -94,8 +94,10 @@ jobs:
 
       # Start server for E2E tests (always runs, uses CI Postgres service).
       # Standalone server (output: standalone) — `next start` warns and can
-      # misbehave with it. Runtime env validation requires AUTH_SECRET too
-      # (verified locally: without it some server components 500).
+      # misbehave with it. NOTE: the standalone server is a NEW process —
+      # build-time env does NOT carry over, and src/lib/env.ts validates
+      # NEXT_PUBLIC_WHATSAPP_NUMBER at RUNTIME too; without it every
+      # env-validating route 500s (verified: CI run 498 webhook/login tests).
       - name: Start server for E2E
         run: |
           node .next/standalone/server.js &
@@ -105,6 +107,8 @@ jobs:
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
           AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
+          TELEGRAM_BOT_TOKEN: "test"
 
       # E2E tests against localhost (not production).
       # DB-backed via the CI Postgres service at top of this job.

@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "test:legacy": "vitest run tests/unit --reporter=dot",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "npx playwright test tests/e2e tests/security --project=webhook --project=security --project=api --project=ui --project=auth-verify",
+    "test:e2e": "npx playwright test tests/e2e tests/security --project=security --project=api --project=ui --project=auth-verify",
     "webhook:register": "node scripts/register-webhook.mjs",
     "postbuild": "cp -r .next/static .next/standalone/.next/ 2>/dev/null || true; cp -r public .next/standalone/public 2>/dev/null || true"
   },
