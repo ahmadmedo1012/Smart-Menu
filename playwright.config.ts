@@ -6,7 +6,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : 2,
-  reporter: [["html", { outputFolder: "test-results/report" }], ["list"]],
+  // HTML report lives OUTSIDE the tests output dir: Playwright refuses to run
+  // when the reporter output folder is nested inside outputDir (test-results/),
+  // which previously broke every `--reporter=html` run (round80 §7.2 debt).
+  outputDir: "test-results",
+  reporter: [["html", { outputFolder: "playwright-report" }], ["list"]],
   use: {
     // Dev default: localhost. Next dev normalizes the middleware request URL
     // to localhost, and the nonce-based CSP stamps scripts only for that

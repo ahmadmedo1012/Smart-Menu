@@ -25,7 +25,10 @@ import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const BASE = process.env.BASE_URL || "http://localhost:3002";
-const OUT = "/home/z/my-project/download/round79-phaseC";
+// Artifacts dir: env-overridable, relative by default. Previously hardcoded to
+// an agent-workspace absolute path (/home/z/...) that does not exist on CI
+// runners — EACCES killed the whole E2E job before any test ran.
+const OUT = process.env.PHASEC_OUT_DIR || "test-artifacts/round79-phaseC";
 const SHOTS = join(OUT, "screenshots");
 mkdirSync(SHOTS, { recursive: true });
 

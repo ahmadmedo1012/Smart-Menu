@@ -87,10 +87,13 @@ test.describe("Auth Fix Verification", () => {
 
   // ── 5. Login correct returns success with user data ────────────────────
   test("5. Login with correct credentials returns user data", async ({ page }) => {
+    // Must match scripts/ci-seed.mjs default (SEED_ADMIN_PASS) — the CI/local
+    // admin is seeded with this credential. Was "admin123" (stale era).
+    const adminPass = process.env.SEED_ADMIN_PASS || "admin123456";
     await page.goto("/login");
     const headers = await csrfHeadersFor(page);
     const res = await page.request.post(`${BASE}/api/auth/login`, {
-      data: { username: "admin", password: "admin123" },
+      data: { username: "admin", password: adminPass },
       headers,
     });
     expect(res.status()).toBe(200);

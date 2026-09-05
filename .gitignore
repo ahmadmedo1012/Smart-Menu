@@ -1,5 +1,7 @@
 
 # ── AI / Tooling ──────────────────────────
+.agents/
+test-screenshots/
 *.bak
 # ── Base ──────────────────────────────────
 /build
@@ -62,6 +64,8 @@ docs/superpowers/
 *.swp
 # testing
 test-results/
+playwright-report/
+test-artifacts/
 Thumbs.db
 # Tool artifacts
 *.tsbuildinfo

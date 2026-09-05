@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  NODE_VERSION: "22.x"
+  NODE_VERSION: "24.x"
 
 jobs:
   lint-build-test:
@@ -49,9 +49,18 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
       # Schema must exist before build: /menu/[slug] generateStaticParams reads
-      # the DB at build time (TableDoesNotExist otherwise). NOTE: Prisma 7
-      # removed `db push --skip-generate`; plain `db push` is correct here.
-      - run: npx prisma db push && (npx prisma db seed || true)
+      # the DB at build time (TableDoesNotExist otherwise). Use the SAME channel
+      # as production — `prisma migrate deploy` (package.json build runs it too):
+      # a previous `prisma db push` step created the schema WITHOUT the
+      # _prisma_migrations table, so the build's own `migrate deploy` then failed
+      # with P3005 ("database schema is not empty") on every CI run.
+      - run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
+      # CI/local seed (admin + default plans) without the /api/seed admin-auth
+      # chicken-and-egg. E2E auth suites log in as this admin.
+      - run: node scripts/ci-seed.mjs
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
@@ -83,14 +92,18 @@ jobs:
           TELEGRAM_BOT_TOKEN: "test"
           TELEGRAM_CHAT_ID: "0"
 
-      # Start server for E2E tests (always runs, uses CI Postgres service)
+      # Start server for E2E tests (always runs, uses CI Postgres service).
+      # Standalone server (output: standalone) — `next start` warns and can
+      # misbehave with it. Runtime env validation requires AUTH_SECRET too
+      # (verified locally: without it some server components 500).
       - name: Start server for E2E
         run: |
-          npm run start &
+          node .next/standalone/server.js &
           npx wait-on http://localhost:3000 --timeout 60000
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
 
       # E2E tests against localhost (not production).

@@ -9,4 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Server
-        run: curl -I https://smart-menu-sigma.vercel.app
+        # Production URL (was: smart-menu-sigma.vercel.app — a dead/old project
+        # URL that no longer serves this app). Ping the real domain.
+        run: curl -I https://menu.smart-link.ly

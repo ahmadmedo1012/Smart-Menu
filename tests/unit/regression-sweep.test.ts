@@ -64,16 +64,18 @@ describe("Race condition: approve vs cancel cross-race", () => {
 // ════════════════════════════════════════════════════════════════
 
 describe("Telegram webhook secret", () => {
+  // Mirror of the PRODUCTION gate (round81): unset secret = fail-closed 403,
+  // identical to a bad-token probe (was 503 — disclosed configuration state).
   function verifyWebhookGate(
     envSecret: string | undefined,
     allowUnverified: string | undefined,
     incomingHeader: string | null,
-  ): 200 | 403 | 503 {
+  ): 200 | 403 {
     const expectedSecret = envSecret?.trim();
     const allow = allowUnverified === "true";
 
     if (!expectedSecret) {
-      if (!allow) return 503;
+      if (!allow) return 403; // fail-closed
       return 200;
     }
     if (incomingHeader !== expectedSecret) return 403;
@@ -86,8 +88,8 @@ describe("Telegram webhook secret", () => {
   it(".trim() fixes leading whitespace mismatch", () => {
     expect(verifyWebhookGate("  my-secret", undefined, "my-secret")).toBe(200);
   });
-  it("no secret + no allow -> 503 hard fail", () => {
-    expect(verifyWebhookGate(undefined, undefined, null)).toBe(503);
+  it("no secret + no allow -> fail-closed 403", () => {
+    expect(verifyWebhookGate(undefined, undefined, null)).toBe(403);
   });
   it("allowUnverified=true bypasses when secret absent", () => {
     expect(verifyWebhookGate(undefined, "true", null)).toBe(200);
@@ -98,8 +100,8 @@ describe("Telegram webhook secret", () => {
   it("exact secret+header match passes", () => {
     expect(verifyWebhookGate("exact-match", undefined, "exact-match")).toBe(200);
   });
-  it("empty env var treated as unset -> 503", () => {
-    expect(verifyWebhookGate("", undefined, null)).toBe(503);
+  it("empty env var treated as unset -> fail-closed 403", () => {
+    expect(verifyWebhookGate("", undefined, null)).toBe(403);
   });
 });
 

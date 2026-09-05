@@ -12,16 +12,19 @@ import { join } from "node:path";
 // ══════════════════════════════════════════════════════════════
 
 describe("Telegram webhook secret check", () => {
+  // Mirror of the PRODUCTION gate in src/app/api/telegram/webhook/route.ts
+  // (round81): no configured secret = fail-closed 403 "forbidden" — same as a
+  // bad-token probe. A distinct 503 would disclose configuration state.
   function checkWebhookGate(
     envSecret: string | undefined,
     envAllowUnverified: string | undefined,
     incomingHeader: string | null,
-  ): "ok" | "misconfig" | "forbidden" {
+  ): "ok" | "forbidden" {
     const expectedSecret = envSecret?.trim();
     const allowUnverified = envAllowUnverified === "true";
 
     if (!expectedSecret) {
-      if (!allowUnverified) return "misconfig";
+      if (!allowUnverified) return "forbidden"; // fail-closed (was 503/misconfig)
       return "ok";
     }
     if (incomingHeader !== expectedSecret) return "forbidden";
@@ -37,8 +40,8 @@ describe("Telegram webhook secret check", () => {
   it("missing incoming header -> forbidden even without allowUnverified", () => {
     expect(checkWebhookGate("my-secret", undefined, null)).toBe("forbidden");
   });
-  it("no secret, no allowUnverified -> misconfig (503)", () => {
-    expect(checkWebhookGate(undefined, undefined, null)).toBe("misconfig");
+  it("no secret, no allowUnverified -> fail-closed forbidden (403)", () => {
+    expect(checkWebhookGate(undefined, undefined, null)).toBe("forbidden");
   });
   it("allowUnverified=true bypasses when no secret set", () => {
     expect(checkWebhookGate(undefined, "true", "garbage")).toBe("ok");
@@ -46,11 +49,11 @@ describe("Telegram webhook secret check", () => {
   it("allowUnverified=true does NOT bypass when secret IS set", () => {
     expect(checkWebhookGate("real-secret", "true", "wrong")).toBe("forbidden");
   });
-  it("empty string env var treated as unset -> misconfig", () => {
-    expect(checkWebhookGate("", undefined, null)).toBe("misconfig");
+  it("empty string env var treated as unset -> fail-closed forbidden", () => {
+    expect(checkWebhookGate("", undefined, null)).toBe("forbidden");
   });
-  it("empty allowUnverified treated as false -> misconfig", () => {
-    expect(checkWebhookGate(undefined, "", null)).toBe("misconfig");
+  it("empty allowUnverified treated as false -> fail-closed forbidden", () => {
+    expect(checkWebhookGate(undefined, "", null)).toBe("forbidden");
   });
 });
 
