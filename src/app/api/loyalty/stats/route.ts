@@ -29,18 +29,27 @@ export async function GET(request: NextRequest) {
                 if (!scope.ok) return scope.response;
                 const restaurantId = scope.restaurantId;
 
-                const [totalLoyaltyCards, tierDistribution] = await Promise.all([
+                // round87-B8: this route ran 7 queries in 5-6 sequential waves.
+                // All of them are mutually independent (only the top-5 referrer
+                // name hydration below depends on wave-1 results), so they now run
+                // in ONE Promise.all — one DB round-trip instead of five.
+                // Round-77 (data agent): groupBy directly by restaurantId instead of
+                // materializing an unbounded IN of every card id (Postgres IN ~32k cap).
+                const [
+                        totalLoyaltyCards,
+                        tierDistribution,
+                        referralCounts,
+                        referralsByStatus,
+                        rewardAgg,
+                        recentTransactions,
+                        recentReferrals,
+                ] = await Promise.all([
                         prisma.loyaltyCard.count({ where: { restaurantId } }),
                         prisma.loyaltyCard.groupBy({
                                 by: ['tier'],
                                 where: { restaurantId },
                                 _count: { id: true },
                         }),
-                ]);
-
-                // Round-77 (data agent): groupBy directly by restaurantId instead of
-                // materializing an unbounded IN of every card id (Postgres IN ~32k cap).
-                const [referralCounts, referralsByStatus, rewardAgg] = await Promise.all([
                         prisma.referral.groupBy({
                                 by: ['referrerId'],
                                 where: { restaurantId },
@@ -54,6 +63,34 @@ export async function GET(request: NextRequest) {
                         prisma.rewardTransaction.aggregate({
                                 where: { restaurantId },
                                 _sum: { points: true },
+                        }),
+                        prisma.rewardTransaction.findMany({
+                                where: { restaurantId },
+                                orderBy: { createdAt: 'desc' },
+                                take: 10,
+                                select: {
+                                        id: true,
+                                        type: true,
+                                        points: true,
+                                        description: true,
+                                        createdAt: true,
+                                },
+                        }),
+                        prisma.referral.findMany({
+                                where: { restaurantId },
+                                orderBy: { createdAt: 'desc' },
+                                take: 50,
+                                select: {
+                                        id: true,
+                                        referredName: true,
+                                        referredPhone: true,
+                                        status: true,
+                                        discountPercent: true,
+                                        referrerRewardPct: true,
+                                        createdAt: true,
+                                        convertedAt: true,
+                                        referrer: { select: { customerName: true } },
+                                },
                         }),
                 ]);
 
@@ -93,18 +130,8 @@ export async function GET(request: NextRequest) {
                         tierDist[t.tier] = t._count.id;
                 }
 
-                const recentTransactions = await prisma.rewardTransaction.findMany({
-                        where: { restaurantId },
-                        orderBy: { createdAt: 'desc' },
-                        take: 10,
-                        select: {
-                                id: true,
-                                type: true,
-                                points: true,
-                                description: true,
-                                createdAt: true,
-                        },
-                });
+                // round87-B8: recentTransactions was a separate sequential await
+                // here — now part of the single Promise.all above.
 
                 const conversionRate =
                         totalReferrals > 0 ? Math.round((convertedReferrals / totalReferrals) * 100) : 0;
@@ -116,22 +143,8 @@ export async function GET(request: NextRequest) {
                         rbs[r.status] = r._count.id;
                 }
 
-                const recentReferrals = await prisma.referral.findMany({
-                        where: { restaurantId },
-                        orderBy: { createdAt: 'desc' },
-                        take: 50,
-                        select: {
-                                id: true,
-                                referredName: true,
-                                referredPhone: true,
-                                status: true,
-                                discountPercent: true,
-                                referrerRewardPct: true,
-                                createdAt: true,
-                                convertedAt: true,
-                                referrer: { select: { customerName: true } },
-                        },
-                });
+                // round87-B8: recentReferrals was a separate sequential await here
+                // — now part of the single Promise.all above.
 
                 return success({
                         totalLoyaltyCards,

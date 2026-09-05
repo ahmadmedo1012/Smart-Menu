@@ -15,6 +15,11 @@ export async function GET(request: NextRequest) {
 
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
+		// round87-B2: bound the popular-items groupBy to 90 days — the owner route's
+		// twin fix (admin/stats) landed in round86-B9 but this one was missed, so a
+		// mature restaurant aggregated its FULL order history on every dashboard load.
+		const ninetyDaysAgo = new Date();
+		ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
 		const [
 			totalOrders,
@@ -28,7 +33,7 @@ export async function GET(request: NextRequest) {
 			prisma.order.count({ where: { restaurantId } }),
 			prisma.order.count({ where: { restaurantId, createdAt: { gte: today } } }),
 			prisma.menuItem.count({ where: { category: { is: { restaurantId } } } }),
-			prisma.orderItem.groupBy(popularItemsQuery({ restaurantId, take: 10 })),
+			prisma.orderItem.groupBy(popularItemsQuery({ restaurantId, take: 10, since: ninetyDaysAgo })),
 			prisma.order.findMany({
 				where: { restaurantId },
 				orderBy: { createdAt: 'desc' },

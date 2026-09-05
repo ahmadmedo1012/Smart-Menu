@@ -79,13 +79,19 @@ export async function GET(request: NextRequest) {
                 // available-only filter above)
                 if (status && canSeeAll) where.status = status;
 
+                // round87-B9: only the multi-restaurant admin console reads
+                // category.restaurant from this list (search + column). The owner
+                // menu editor never touches it, so owners get a thin category
+                // select instead of the full restaurant embed on every row.
+                const categoryEmbed = isStaff
+                        ? { category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } } }
+                        : { category: { select: { id: true, name: true, nameAr: true } } };
+
                 const [data, total] = await Promise.all([
                         prisma.menuItem.findMany({
                                 where,
                                 orderBy: { sortOrder: 'asc' },
-                                include: {
-                                        category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } },
-                                },
+                                include: categoryEmbed,
                                 skip: (page - 1) * pageSize,
                                 take: pageSize,
                         }),

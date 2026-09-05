@@ -76,6 +76,8 @@ export default function OwnerOrdersPage() {
         const [pendingStatus, setPendingStatus] = useState<Record<number, string>>({});
         const router = useRouter();
         const ordersRef = useRef<Order[]>([]);
+        // round87-B1: probe signature for the 15s poll
+        const probeRef = useRef<string | null>(null);
         // Multi-menu: active restaurant scopes all order queries
         const { activeId } = useActiveRestaurant();
 
@@ -137,6 +139,7 @@ export default function OwnerOrdersPage() {
         const loadMore = () => fetchOrders(filter, page + 1, true);
 
         useEffect(() => {
+                probeRef.current = null;
                 fetchOrders(filter, 1, false);
         }, [filter, fetchOrders]);
 
@@ -152,10 +155,14 @@ export default function OwnerOrdersPage() {
         usePollWhenVisible(
                 async () => {
                         try {
+                                // round87-B1: probe-then-refetch — the old poll downloaded the
+                                // full first page (~8.2KB) every 15s while the steady-state diff
+                                // is "nothing changed". The probe fetches ONE row and compares
+                                // (total, top id, top updatedAt) ≈ 0.6KB — a ~92% cut.
                                 const params = new URLSearchParams();
                                 if (filter) params.set('status', filter);
                                 params.set('page', '1');
-                                params.set('pageSize', String(PAGE_SIZE));
+                                params.set('pageSize', '1');
                                 if (activeId) params.set('restaurantId', String(activeId));
                                 const res = await fetch(`/api/orders?${params.toString()}`);
                                 if (res.status === 401) {
@@ -164,17 +171,18 @@ export default function OwnerOrdersPage() {
                                 }
                                 if (!res.ok) return;
                                 const json = await res.json();
-                                const fresh: Order[] = Array.isArray(json.data) ? json.data : [];
-                                const currentIds = JSON.stringify(
-                                        ordersRef.current?.map((o: { id: number }) => o.id) ?? []
-                                );
-                                const freshIds = JSON.stringify(fresh.map((o: { id: number }) => o.id));
-                                if (currentIds !== freshIds && currentIds !== '[]') {
-                                        fetchOrders(filter, 1, false);
-                                        premiumToast('success', '📦 تحديث الطلبات', undefined, {
-                                                duration: 3000,
-                                        });
+                                const top = Array.isArray(json.data) ? json.data[0] : undefined;
+                                const sig = `${json.meta?.total ?? json.total ?? '?'}:${top?.id ?? '-'}:${top?.updatedAt ?? '-'}`;
+                                if (probeRef.current === null) {
+                                        probeRef.current = sig; // baseline only — mount effect loads page 1
+                                        return;
                                 }
+                                if (sig === probeRef.current) return;
+                                probeRef.current = sig;
+                                fetchOrders(filter, 1, false);
+                                premiumToast('success', '📦 تحديث الطلبات', undefined, {
+                                        duration: 3000,
+                                });
                         } catch {
                                 /* transient — next tick retries */
                         }

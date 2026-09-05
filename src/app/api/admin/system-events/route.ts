@@ -33,6 +33,21 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize")) || 20));
 
+    // round87-B6: incremental cursor for the 15s admin notifier poll — was
+    // re-downloading 50 full event rows every tick. Semantics: id > sinceId,
+    // ascending, bounded by pageSize (same pattern as /api/user/events).
+    const sinceIdRaw = Number(searchParams.get("sinceId"));
+    const sinceId = Number.isFinite(sinceIdRaw) && sinceIdRaw > 0 ? sinceIdRaw : null;
+    if (sinceId !== null) {
+      const data = await prisma.systemEvent.findMany({
+        where: { id: { gt: sinceId } },
+        orderBy: { id: "asc" },
+        take: pageSize,
+        select: { id: true, eventType: true, title: true, message: true, severity: true, metadata: true, read: true, createdAt: true },
+      });
+      return success({ data, sinceId });
+    }
+
     const [data, total] = await Promise.all([
       prisma.systemEvent.findMany({
         orderBy: { createdAt: "desc" },

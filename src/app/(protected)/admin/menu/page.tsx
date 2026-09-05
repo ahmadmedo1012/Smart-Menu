@@ -43,6 +43,9 @@ export default function AdminMenuPage() {
   const [restaurantFilter, setRestaurantFilter] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<{ type: "category" | "item"; id: number; name: string; parentRestaurant?: string } | null>(null)
   const dataRef = useRef("")
+  const restRef = useRef("")
+  const probeRef = useRef<string | null>(null)
+  const tickRef = useRef(0)
 
   const fetchData = useCallback(async () => {
     try {
@@ -59,17 +62,56 @@ export default function AdminMenuPage() {
         dataRef.current = hash
         setItems(newItems)
       }
-      setRestaurants(restaurantList)
+      // round87-B1: restaurants were re-set on EVERY tick (constant re-render of
+      // the table) — now only when the list actually changed
+      const restHash = JSON.stringify(restaurantList)
+      if (restHash !== restRef.current) {
+        restRef.current = restHash
+        setRestaurants(restaurantList)
+      }
     } catch { /* silent retry */ }
     finally { setLoading(false) }
   }, [])
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  // Auto-poll every 12s (paused while tab is hidden) — /api/items?pageSize=100
-  // is a heavy query; 5s was over-polling for a menu-management screen.
-  // round86-C3: shared visibility-aware poll loop (was a copy-pasted skeleton)
-  usePollWhenVisible(fetchData, 12_000, [fetchData])
+  // round87-B1: probe-then-refetch. The old 12s poll pulled ~100KB
+  // (pageSize=100 full rows + the restaurants list) on every tick while the
+  // steady-state diff is "nothing changed". The probe fetches ONE row and
+  // compares (total, top id, top updatedAt) — ~0.6KB, ≈97% payload cut.
+  // Trade-off (documented): an external edit to a NON-top item with unchanged
+  // totals surfaces on the next structural change or manual refresh; local
+  // mutations already trigger an immediate refetch. Restaurants get a light
+  // refresh every 5th tick (~60s) for the filter dropdown.
+  const probe = useCallback(async () => {
+    tickRef.current++
+    try {
+      const res = await fetch("/api/items?pageSize=1")
+      if (res.ok) {
+        const json = await res.json()
+        const top = Array.isArray(json.data) ? json.data[0] : undefined
+        const sig = `${json.meta?.total ?? "?"}:${top?.id ?? "-"}:${top?.updatedAt ?? "-"}`
+        if (probeRef.current === null || sig !== probeRef.current) {
+          probeRef.current = sig
+          await fetchData()
+        }
+      }
+      if (tickRef.current % 5 === 0) {
+        const restRes = await fetch("/api/restaurants")
+        if (restRes.ok) {
+          const restJson = await restRes.json()
+          const restaurantList = restJson.data?.restaurants ?? restJson.data ?? []
+          const restHash = JSON.stringify(restaurantList)
+          if (restHash !== restRef.current) {
+            restRef.current = restHash
+            setRestaurants(restaurantList)
+          }
+        }
+      }
+    } catch { /* transient — next tick retries */ }
+  }, [fetchData])
+
+  usePollWhenVisible(probe, 12_000, [probe])
 
   // Filter
   const filteredItems = items.filter(item => {

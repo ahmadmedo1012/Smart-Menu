@@ -32,31 +32,41 @@ export default function OwnerReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStar, setFilterStar] = useState<number | null>(null);
+  // round87-C5: server-computed stats (full set, unfiltered) — shape from
+  // the paginated() extras field
+  const [stats, setStats] = useState<{ total: number; avg: number; distribution: { star: number; count: number }[] }>({
+    total: 0,
+    avg: 0,
+    distribution: [5, 4, 3, 2, 1].map((star) => ({ star, count: 0 })),
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams();
+      // round87-C5: pageSize=100 so the list covers the whole tenant set (was the
+      // server default 50 with no pagination UI — silently truncated)
+      params.set("pageSize", "100");
       if (filterStar) params.set("minRating", String(filterStar));
       if (activeId) params.set("restaurantId", String(activeId));
-      const qs = params.toString();
-      const res = await fetch(`/api/owner/reviews${qs ? `?${qs}` : ""}`);
+      const res = await fetch(`/api/owner/reviews?${params.toString()}`);
       const json = await res.json();
-      if (json.success) setReviews(json.data);
+      if (json.success) {
+        setReviews(json.data);
+        // round87-C5: stats come from the server (computed over the FULL set,
+        // not the star-filtered first page) via the paginated() extras field
+        if (json.stats) setStats(json.stats);
+      }
       else setError("تعذر تحميل التقييمات — حاول مجدداً");
     } catch { logError("Failed to load reviews"); setError("تعذر تحميل التقييمات — تحقق من الاتصال وحاول مجدداً"); } finally { setLoading(false); }
   }, [filterStar, activeId]);
 
   useEffect(() => { load(); }, [load]);
 
-  const filtered = filterStar ? reviews.filter((r) => r.rating >= filterStar) : reviews;
-
-  const stats = {
-    total: reviews.length,
-    avg: reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : 0,
-    distribution: [5, 4, 3, 2, 1].map((s) => ({ star: s, count: reviews.filter((r) => r.rating === s).length })),
-  };
+  // round87-C5: the server already applies minRating — the old client-side
+  // re-filter was a duplicate of server logic (dual maintenance)
+  const filtered = reviews;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">

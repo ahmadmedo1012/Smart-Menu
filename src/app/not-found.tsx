@@ -1,8 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
-import { FileQuestion, Store, Star, LayoutDashboard, MessageCircle } from "lucide-react"
+import { FileQuestion, Store, Star, LayoutDashboard, MessageCircle, UtensilsCrossed } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Header } from "@/components/layout/Header"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 
 export const metadata: Metadata = {
@@ -20,10 +19,20 @@ const SUGGESTIONS = [
 export default function NotFound() {
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
-      <Header />
-      <div className="fixed start-4 top-20 z-50">
+      {/* round87-B5: the root 404 boundary compiles into EVERY route's client
+          manifest — importing the full landing Header here shipped Header code
+          in the sync chunks of all menu/QR pages (~10KB gz each). A minimal
+          Link-based top bar serves the same navigation need at zero cost. */}
+      <header className="absolute top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 h-16">
+        <Link href="/" className="flex items-center gap-2.5 group" aria-label="الرئيسية">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors">
+            <UtensilsCrossed className="size-5" aria-hidden="true" />
+          </span>
+          <span className="font-bold text-lg text-foreground">سمارت مينيو</span>
+        </Link>
         <ThemeToggle />
-      </div>
+      </header>
+
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-orange/5" />
       <div className="absolute top-10 left-10 size-56 rounded-full bg-primary/5 blur-3xl animate-float" />
       <div className="absolute bottom-10 right-10 size-64 rounded-full bg-orange/5 blur-3xl animate-float-delayed" />

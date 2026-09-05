@@ -30,12 +30,17 @@ export function paginated<T>(
   data: T[],
   total: number,
   page: number,
-  pageSize: number
+  pageSize: number,
+  /** round87-C5: optional extras merged into the envelope (e.g. aggregates
+   *  alongside a paginated list) — keeps the standard shape while letting
+   *  routes attach computed stats without a bespoke response body. */
+  extras?: Record<string, unknown>
 ) {
   return NextResponse.json({
     success: true,
     data,
     meta: { total, page, pageSize, totalPages: Math.ceil(total / pageSize) },
+    ...(extras ?? {}),
   });
 }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { handleError } from '@/lib/api-helpers';
+import { handleError, paginated } from '@/lib/api-helpers';
 import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import type { Prisma } from '@/generated/prisma/client';
 
@@ -29,13 +29,13 @@ export async function GET(req: NextRequest) {
 			restaurantId = requestedId;
 		}
 
-		const where: Prisma.ReviewWhereInput = {};
-		// Get all item IDs for this restaurant (relation doesn't allow nested restaurantId)
-		const itemIds = await prisma.menuItem.findMany({
-			where: { category: { is: { restaurantId } } },
-			select: { id: true },
-		});
-		where.menuItemId = { in: itemIds.map((i) => i.id) };
+		// round87-B7: relation filter instead of materializing every item id of
+		// the restaurant into an IN list (duplicated across the findMany + count).
+		// The nested relation IS expressible — same pattern as items/route.ts.
+		const tenantWhere: Prisma.ReviewWhereInput = {
+			menuItem: { is: { category: { is: { restaurantId } } } },
+		};
+		const where: Prisma.ReviewWhereInput = { ...tenantWhere };
 		if (minRating) {
 			const min = Number(minRating);
 			if (!Number.isNaN(min) && min >= 1 && min <= 5) {
@@ -46,7 +46,10 @@ export async function GET(req: NextRequest) {
 		const page = Math.max(1, Number(searchParams.get('page')) || 1);
 		const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 50));
 
-		const [reviews, total] = await Promise.all([
+		// round87-C5: stats computed server-side over the FULL tenant set — the
+		// client used to compute them over the (filtered!) first 50 rows, so the
+		// summary went wrong past 50 reviews and changed with the star filter.
+		const [reviews, total, statsTotal, statsAvg, distGroup] = await Promise.all([
 			prisma.review.findMany({
 				where,
 				select: {
@@ -64,9 +67,23 @@ export async function GET(req: NextRequest) {
 				take: pageSize,
 			}),
 			prisma.review.count({ where }),
+			prisma.review.count({ where: tenantWhere }),
+			prisma.review.aggregate({ _avg: { rating: true }, where: tenantWhere }),
+			prisma.review.groupBy({ by: ['rating'], _count: { _all: true }, where: tenantWhere }),
 		]);
 
-		return NextResponse.json({ success: true, data: reviews, total, page, pageSize });
+		const distribution = [5, 4, 3, 2, 1].map((star) => ({
+			star,
+			count: distGroup.find((g) => g.rating === star)?._count._all ?? 0,
+		}));
+
+		return paginated(reviews, total, page, pageSize, {
+			stats: {
+				total: statsTotal,
+				avg: statsAvg._avg.rating ? Math.round(statsAvg._avg.rating * 10) / 10 : 0,
+				distribution,
+			},
+		});
 	} catch (e) {
 		return handleError(e);
 	}

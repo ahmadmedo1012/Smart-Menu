@@ -60,87 +60,98 @@ export async function GET() {
       prisma.restaurant.count({ where: { planId: { not: null } } }),
     ]);
 
-    // Top 10 restaurants by order count
-    const topRestaurants = await prisma.order.groupBy({
-      by: ["restaurantId"],
-      _count: { id: true },
-      orderBy: { _count: { id: "desc" } },
-      take: 10,
-    });
-    const topRestIds = topRestaurants.map(t => t.restaurantId);
-    const topRestDetails = topRestIds.length > 0
-      ? await prisma.restaurant.findMany({ where: { id: { in: topRestIds } }, select: { id: true, name: true, isActive: true, slug: true } })
-      : [];
+    // round87-B3: the queries below were 12 sequential await waves on a route
+    // polled every 30s — every wave cost a full DB round trip. All of them are
+    // mutually independent, so they now run in ONE Promise.all alongside the
+    // counts above; only the two hydrations (top-restaurant details, top-item
+    // names) depend on wave-1 results and form wave 2.
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysBefore = new Date();
+    thirtyDaysBefore.setDate(thirtyDaysBefore.getDate() - 60);
+    // round86-B9: bound the window to 90 days — an unbounded full-table
+    // groupBy re-ran on the admin dashboard's 30s poll and grew forever
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    const [
+      topRestaurants,
+      revenueTrend,
+      orderVolumeTrend,
+      topItems,
+      currentMonthUsers,
+      prevMonthUsers,
+      currentMonthRestaurants,
+      prevMonthRestaurants,
+      aovData,
+      aovPrevData,
+    ] = await Promise.all([
+      // Top 10 restaurants by order count
+      prisma.order.groupBy({
+        by: ["restaurantId"],
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+        take: 10,
+      }),
+      // Revenue trend (last 30 days)
+      prisma.$queryRaw<{ date: string; revenue: number }[]>`
+        SELECT
+          DATE("createdAt") as date,
+          COALESCE(SUM(total), 0) as revenue
+        FROM "Order"
+        WHERE "createdAt" >= ${thirtyDaysAgo}
+        GROUP BY DATE("createdAt")
+        ORDER BY date ASC
+      `,
+      // Order volume trend (last 30 days)
+      prisma.$queryRaw<{ date: string; count: bigint }[]>`
+        SELECT
+          DATE("createdAt") as date,
+          COUNT(*) as count
+        FROM "Order"
+        WHERE "createdAt" >= ${thirtyDaysAgo}
+        GROUP BY DATE("createdAt")
+        ORDER BY date ASC
+      `,
+      // Top items across all restaurants (90-day window)
+      prisma.orderItem.groupBy(
+        popularItemsQuery({ take: 15, since: ninetyDaysAgo })
+      ),
+      // Growth rates (MoM)
+      prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+      prisma.user.count({
+        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
+      }),
+      prisma.restaurant.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+      prisma.restaurant.count({
+        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
+      }),
+      // AOV
+      prisma.order.aggregate({
+        _avg: { total: true },
+        where: { createdAt: { gte: thirtyDaysAgo } },
+      }),
+      prisma.order.aggregate({
+        _avg: { total: true },
+        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
+      }),
+    ]);
+
+    // Wave 2 — hydrations that depend on wave-1 results
+    const [topRestDetails, topItemsFormatted] = await Promise.all([
+      (async () => {
+        const topRestIds = topRestaurants.map(t => t.restaurantId);
+        return topRestIds.length > 0
+          ? prisma.restaurant.findMany({ where: { id: { in: topRestIds } }, select: { id: true, name: true, isActive: true, slug: true } })
+          : [];
+      })(),
+      hydratePopularItems(topItems, "nameAr-fallback"),
+    ]);
     const topRestMap = new Map(topRestDetails.map(r => [r.id, r]));
     const topRestaurantsFormatted = topRestaurants.map(t => ({
       restaurant: topRestMap.get(t.restaurantId) || null,
       orderCount: t._count.id,
     }));
-
-    // Revenue trend (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const revenueTrend = await prisma.$queryRaw<{ date: string; revenue: number }[]>`
-      SELECT
-        DATE("createdAt") as date,
-        COALESCE(SUM(total), 0) as revenue
-      FROM "Order"
-      WHERE "createdAt" >= ${thirtyDaysAgo}
-      GROUP BY DATE("createdAt")
-      ORDER BY date ASC
-    `;
-
-    // Order volume trend (last 30 days)
-    const orderVolumeTrend = await prisma.$queryRaw<{ date: string; count: bigint }[]>`
-      SELECT
-        DATE("createdAt") as date,
-        COUNT(*) as count
-      FROM "Order"
-      WHERE "createdAt" >= ${thirtyDaysAgo}
-      GROUP BY DATE("createdAt")
-      ORDER BY date ASC
-    `;
-
-    // Top items across all restaurants
-    // round86-B9: bound the window to 90 days — an unbounded full-table
-    // groupBy re-ran on the admin dashboard's 30s poll and grew forever
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-    const topItems = await prisma.orderItem.groupBy(
-      popularItemsQuery({ take: 15, since: ninetyDaysAgo })
-    );
-
-    const topItemsFormatted = await hydratePopularItems(topItems, "nameAr-fallback");
-
-    // Growth rates (MoM)
-    const thirtyDaysBefore = new Date();
-    thirtyDaysBefore.setDate(thirtyDaysBefore.getDate() - 60);
-
-    const [currentMonthUsers, prevMonthUsers] = await Promise.all([
-      prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-      prisma.user.count({
-        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
-      }),
-    ]);
-
-    const [currentMonthRestaurants, prevMonthRestaurants] = await Promise.all([
-      prisma.restaurant.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-      prisma.restaurant.count({
-        where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
-      }),
-    ]);
-
-    // AOV
-    const aovData = await prisma.order.aggregate({
-      _avg: { total: true },
-      where: { createdAt: { gte: thirtyDaysAgo } },
-    });
-
-    const aovPrevData = await prisma.order.aggregate({
-      _avg: { total: true },
-      where: { createdAt: { gte: thirtyDaysBefore, lt: thirtyDaysAgo } },
-    });
 
     const userGrowthPct = prevMonthUsers > 0
       ? Math.round(((currentMonthUsers - prevMonthUsers) / prevMonthUsers) * 100)
