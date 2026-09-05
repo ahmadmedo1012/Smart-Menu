@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
+import { resolveRestaurantScope } from '@/lib/stats-queries';
 
 const loyaltyStatsLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
@@ -17,22 +18,16 @@ export async function GET(request: NextRequest) {
 
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
-                const { searchParams } = new URL(request.url);
-                const requestedId = Number(searchParams.get('restaurantId')) || 0;
-                const restaurantId =
-                        requestedId ||
-                        auth.restaurantId ||
-                        Number(request.cookies.get('smart-menu-restaurant')?.value);
 
-                // Multi-menu: verify owner manages the requested restaurant
-                if (requestedId && requestedId !== auth.restaurantId) {
-                        const link = await prisma.userRestaurant.findUnique({
-                                where: { userId_restaurantId: { userId: auth.userId!, restaurantId: requestedId } },
-                        });
-                        if (!link) return apiError('غير مصرح', 403);
-                }
-
-                if (!restaurantId) return apiError('معرف المطعم مطلوب', 400);
+                // round86-A2: resolve the restaurant through the shared staff/owner
+                // scope guard (same as /api/stats). The previous resolution fell back
+                // to the client-controlled `smart-menu-restaurant` cookie with an
+                // ownership check that only ran for explicitly-requested ids — a
+                // forged cookie value let USER accounts read another tenant's
+                // referral names/phones (PII) and full loyalty stats.
+                const scope = await resolveRestaurantScope(auth, new URL(request.url).searchParams);
+                if (!scope.ok) return scope.response;
+                const restaurantId = scope.restaurantId;
 
                 const [totalLoyaltyCards, tierDistribution] = await Promise.all([
                         prisma.loyaltyCard.count({ where: { restaurantId } }),

@@ -39,7 +39,7 @@ export const createPaymentSchema = z
 		// Bank transfer fields — only valid when provider === "bank"
 		senderAccountName: z.string().min(1).max(100).optional(),
 		senderAccountNumber: z.string().min(1).max(50).optional(),
-		receiptImageUrl: z.string().url().optional(),
+		receiptImageUrl: z.string().url().refine((u) => u.startsWith('https://'), { message: 'رابط الإيصال يجب أن يكون https' }).optional(),
 	})
 	.refine((d) => d.provider !== 'bank' || (d.senderAccountName && d.senderAccountNumber), {
 		message: 'اسم صاحب الحساب ورقم الحساب إجباريان للتحويل البنكي',

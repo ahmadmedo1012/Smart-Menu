@@ -135,6 +135,8 @@ model MenuCategory {
   items        MenuItem[]
 
   @@index([restaurantId])
+  // round86-B13: public menu ordering (restaurantId+isActive+sortOrder)
+  @@index([restaurantId, isActive, sortOrder])
 }
 
 model MenuItem {
@@ -173,6 +175,8 @@ model MenuItem {
 
   @@index([categoryId])
   @@index([status])
+  // round86-B13: featured showcase query (isFeatured=true + category join)
+  @@index([isFeatured, categoryId])
 }
 
 model Order {
@@ -200,6 +204,8 @@ model Order {
   @@index([restaurantId, status, createdAt])
   @@index([customerPhone])
   @@index([createdAt])
+  // round86-B13: /api/stats date-range counts without status filter
+  @@index([restaurantId, createdAt])
 }
 
 model ModifierGroup {
@@ -325,7 +331,8 @@ model LoyaltyCard {
 
   @@unique([customerPhone, restaurantId])
   @@index([restaurantId])
-  @@index([referralCode])
+  // round86-B13: @@index([referralCode]) removed — @unique on the same column
+  // already indexes it; the duplicate only added write overhead
 }
 
 model Referral {
@@ -395,7 +402,8 @@ model Session {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])
+  // round86-B13: @@index([token]) removed — @unique on the same column already
+  // indexes it; the duplicate only added write overhead
   @@index([userId])
   @@index([expiresAt])
 }

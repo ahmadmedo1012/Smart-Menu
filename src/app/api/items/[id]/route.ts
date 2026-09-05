@@ -6,7 +6,7 @@ import { success, notFound, handleError, error } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
-import { deleteBlob } from '@/lib/blob';
+import { deleteBlob, mediaUrlError } from '@/lib/blob';
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
         try {
@@ -26,6 +26,16 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                         },
                 });
                 if (!item) return notFound('MenuItem');
+
+                // round86-A9: hidden/unavailable items are staff-only — an
+                // unauthenticated (or USER) caller must not read draft rows by id
+                if (item.status !== 'available') {
+                        const auth = await requireAuth();
+                        const staff =
+                                auth.authorized &&
+                                ['owner', 'admin', 'super_admin', 'sub_admin'].includes(auth.role);
+                        if (!staff) return notFound('MenuItem');
+                }
 
                 return success(item);
         } catch (e) {
@@ -158,8 +168,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 }).catch(() => {});
 
                 // Delete old image from blob only after DB update succeeds
+                // round86-A3: scoped to the item's tenant
                 if (body.image && existing.image && body.image !== existing.image) {
-                        deleteBlob(existing.image);
+                        const imgErr = mediaUrlError(body.image, existing.category.restaurantId);
+                        if (imgErr) return error(imgErr, 422);
+                        deleteBlob(existing.image, { restaurantId: existing.category.restaurantId });
                 }
                 // round85-B9: purge the ISR cache so the owner sees the edit instantly
                 revalidateMenu(existing.category.restaurantId).catch(() => {});
@@ -211,7 +224,8 @@ export async function DELETE(
                 }).catch(() => {});
 
                 // Delete item image from blob only after DB delete succeeds
-                if (existing.image) deleteBlob(existing.image);
+                // round86-A3: scoped to the item's tenant
+                if (existing.image) deleteBlob(existing.image, { restaurantId: existing.category.restaurantId });
                 // round85-B9: purge the ISR cache so the removal is live immediately
                 revalidateMenu(existing.category.restaurantId).catch(() => {});
                 return success({ id: delId });

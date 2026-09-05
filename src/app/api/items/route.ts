@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { success, handleError, error, paginated } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
+import { mediaUrlError } from '@/lib/blob';
 import { ItemStatus } from '@/generated/prisma/enums';
 
 const createSchema = z.object({
@@ -124,6 +125,13 @@ export async function POST(request: NextRequest) {
                         select: { restaurant: { select: { id: true, name: true, maxItems: true } } },
                 });
                 if (!category) return error('التصنيف غير موجود', 404);
+
+                // round86-A3: image values must be valid media URLs, and blob URLs
+                // marked for another tenant are rejected (swap-delete replay guard)
+                if (body.image) {
+                        const imgErr = mediaUrlError(body.image, category.restaurant.id);
+                        if (imgErr) return error(imgErr, 422);
+                }
 
                 // Owners can only add items to categories of restaurants they manage —
                 // multi-menu aware via UserRestaurant links (same pattern as items/[id],

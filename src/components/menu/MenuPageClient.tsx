@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { motion } from 'motion/react';
 import { useCart } from '@/store/cart';
@@ -10,8 +10,12 @@ import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
 import { MenuToolbar } from './MenuToolbar';
 import { FeaturedShowcase, type FeaturedItem } from './FeaturedShowcase';
-import { OrderDialog } from './OrderDialog';
-import { ReviewSheet } from './ReviewSheet';
+import dynamic from 'next/dynamic';
+
+// round86-B8: 426 + 369 line dialogs load only when opened — they were
+// statically imported and shipped in the initial menu-page chunks
+const OrderDialog = dynamic(() => import('./OrderDialog').then((m) => ({ default: m.OrderDialog })), { ssr: false });
+const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default: m.ReviewSheet })), { ssr: false });
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { fadeUp } from '@/lib/motion';
 
@@ -21,352 +25,357 @@ const SORT_VALUES = ['default', 'price-asc', 'price-desc', 'name'] as const;
 type SortValue = (typeof SORT_VALUES)[number];
 
 function isValidSort(v: string | null): v is SortValue {
-	return v !== null && (SORT_VALUES as readonly string[]).includes(v);
+        return v !== null && (SORT_VALUES as readonly string[]).includes(v);
 }
 
 function MenuPageClientInner({
-	categories,
-	items,
-	restaurantWhatsapp,
-	restaurantName,
-	restaurantId,
-	restaurantLogo,
+        categories,
+        items,
+        restaurantWhatsapp,
+        restaurantName,
+        restaurantId,
+        restaurantLogo,
 }: {
-	categories: CategoryProp[];
-	items: Array<MenuItemProp & { category: CategoryProp } & FeaturedItem>;
-	restaurantWhatsapp?: string;
-	restaurantName?: string;
-	restaurantId: number;
-	restaurantLogo?: string;
+        categories: CategoryProp[];
+        items: Array<MenuItemProp & FeaturedItem>;
+        restaurantWhatsapp?: string;
+        restaurantName?: string;
+        restaurantId: number;
+        restaurantLogo?: string;
 }) {
-	const searchParams = useSearchParams();
-	const router = useRouter();
+        const searchParams = useSearchParams();
 
-	// Read state from URL params
-	const search = searchParams.get('q') || '';
-	const activeCategory = (() => {
-		const raw = searchParams.get('cat');
-		if (!raw) return null;
-		const n = Number(raw);
-		if (isNaN(n) || !categories.some((c) => c.id === n)) return null;
-		return n;
-	})();
-	const sort = isValidSort(searchParams.get('sort')) ? searchParams.get('sort')! : 'default';
+        // Read state from URL params
+        const search = searchParams.get('q') || '';
+        const activeCategory = (() => {
+                const raw = searchParams.get('cat');
+                if (!raw) return null;
+                const n = Number(raw);
+                if (isNaN(n) || !categories.some((c) => c.id === n)) return null;
+                return n;
+        })();
+        const sort = isValidSort(searchParams.get('sort')) ? searchParams.get('sort')! : 'default';
 
-	const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
-	/* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
-		Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore. */
-	const [reviewItem, setReviewItem] = useState<{ id: number; name: string } | null>(null);
-	const cartItems = useCart((s) => s.items);
-	const addItem = useCart((s) => s.addItem);
-	const updateQuantity = useCart((s) => s.updateQuantity);
-	const setRestaurantDetails = useCart((s) => s.setRestaurantDetails);
+        const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
+        /* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
+                Fed by onReview from each card; keeps ReviewSheet's own focus trap/restore. */
+        const [reviewItem, setReviewItem] = useState<{ id: number; name: string } | null>(null);
+        const cartItems = useCart((s) => s.items);
+        const addItem = useCart((s) => s.addItem);
+        const updateQuantity = useCart((s) => s.updateQuantity);
+        const setRestaurantDetails = useCart((s) => s.setRestaurantDetails);
 
-	// Update URL params (replace, not push, to avoid history spam)
-	const updateURL = useCallback(
-		(updates: { q?: string; cat?: number | null; sort?: string }) => {
-			const p = new URLSearchParams(searchParams.toString());
-			if (updates.q !== undefined) {
-				if (updates.q) p.set('q', updates.q);
-				else p.delete('q');
-			}
-			if (updates.cat !== undefined) {
-				if (updates.cat !== null) p.set('cat', String(updates.cat));
-				else p.delete('cat');
-			}
-			if (updates.sort !== undefined) {
-				if (updates.sort !== 'default') p.set('sort', updates.sort);
-				else p.delete('sort');
-			}
-			const qs = p.toString();
-			router.replace(qs ? `?${qs}` : '', { scroll: false });
-		},
-		[searchParams, router]
-	);
+        // Update URL params (replace, not push, to avoid history spam).
+        // round86-B3: history.replaceState instead of router.replace — the latter is
+        // a NAVIGATION: it re-fetches the RSC payload for /menu/[slug]?q=… from the
+        // server (and every unique query string is a distinct ISR cache key), so a
+        // customer typing 4-6 characters triggered 4-6 server renders + full menu
+        // flights on the QR path. Next syncs useSearchParams with the History API,
+        // so the URL stays shareable with zero server involvement.
+        const updateURL = useCallback(
+                (updates: { q?: string; cat?: number | null; sort?: string }) => {
+                        const p = new URLSearchParams(searchParams.toString());
+                        if (updates.q !== undefined) {
+                                if (updates.q) p.set('q', updates.q);
+                                else p.delete('q');
+                        }
+                        if (updates.cat !== undefined) {
+                                if (updates.cat !== null) p.set('cat', String(updates.cat));
+                                else p.delete('cat');
+                        }
+                        if (updates.sort !== undefined) {
+                                if (updates.sort !== 'default') p.set('sort', updates.sort);
+                                else p.delete('sort');
+                        }
+                        const qs = p.toString();
+                        window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+                },
+                [searchParams]
+        );
 
-	const addLockRef = useRef(false);
-	const addLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+        const addLockRef = useRef(false);
+        const addLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	// Clear the add-lock release timer on unmount so a late ref write can't happen
-	useEffect(() => () => {
-		if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
-	}, []);
+        // Clear the add-lock release timer on unmount so a late ref write can't happen
+        useEffect(() => () => {
+                if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
+        }, []);
 
-	const handleQuickAdd = useCallback(
-		(item: MenuItemProp) => {
-			if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
-			addLockRef.current = true;
-			addItem({
-				itemId: item.id,
-				name: item.nameAr || item.name,
-				price: item.discountedPrice ?? item.price,
-				image: item.image || undefined,
-				restaurantId,
-			});
-			premiumToast('cart', 'تمت الإضافة!', item.nameAr || item.name, {
-				duration: 3200,
-				anim: true,
-			});
-			if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
-			addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
-		},
-		[addItem, restaurantId]
-	);
+        const handleQuickAdd = useCallback(
+                (item: MenuItemProp) => {
+                        if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
+                        addLockRef.current = true;
+                        addItem({
+                                itemId: item.id,
+                                name: item.nameAr || item.name,
+                                price: item.discountedPrice ?? item.price,
+                                image: item.image || undefined,
+                                restaurantId,
+                        });
+                        premiumToast('cart', 'تمت الإضافة!', item.nameAr || item.name, {
+                                duration: 3200,
+                                anim: true,
+                        });
+                        if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
+                        addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
+                },
+                [addItem, restaurantId]
+        );
 
-	const handleDecrement = useCallback(
-		(item: MenuItemProp) => {
-			const existing = cartItems.find((i) => i.itemId === item.id);
-			if (existing) updateQuantity(existing.id, existing.quantity - 1);
-		},
-		[cartItems, updateQuantity]
-	);
+        const handleDecrement = useCallback(
+                (item: MenuItemProp) => {
+                        const existing = cartItems.find((i) => i.itemId === item.id);
+                        if (existing) updateQuantity(existing.id, existing.quantity - 1);
+                },
+                [cartItems, updateQuantity]
+        );
 
-	const getCartQty = useCallback(
-		(itemId: number) => cartItems.find((i) => i.itemId === itemId)?.quantity ?? 0,
-		[cartItems]
-	);
+        const getCartQty = useCallback(
+                (itemId: number) => cartItems.find((i) => i.itemId === itemId)?.quantity ?? 0,
+                [cartItems]
+        );
 
-	useEffect(() => {
-		if (restaurantId)
-			setRestaurantDetails(restaurantId, restaurantWhatsapp || '', restaurantName || '');
-	}, [restaurantId, restaurantWhatsapp, restaurantName, setRestaurantDetails]);
+        useEffect(() => {
+                if (restaurantId)
+                        setRestaurantDetails(restaurantId, restaurantWhatsapp || '', restaurantName || '');
+        }, [restaurantId, restaurantWhatsapp, restaurantName, setRestaurantDetails]);
 
-	/* ── Filtered + sorted items ── */
-	const filteredItems = useMemo(() => {
-		const result = items.filter((item) => {
-			const q = normalizeArabic(search.trim());
-			const matchesSearch =
-				q === '' ||
-				normalizeArabic(item.nameAr || item.name).includes(q) ||
-				normalizeArabic(item.descriptionAr || item.description).includes(q);
-			const matchesCategory = activeCategory === null || item.categoryId === activeCategory;
-			return matchesSearch && matchesCategory;
-		});
+        /* ── Filtered + sorted items ── */
+        const filteredItems = useMemo(() => {
+                const result = items.filter((item) => {
+                        const q = normalizeArabic(search.trim());
+                        const matchesSearch =
+                                q === '' ||
+                                normalizeArabic(item.nameAr || item.name).includes(q) ||
+                                normalizeArabic(item.descriptionAr || item.description).includes(q);
+                        const matchesCategory = activeCategory === null || item.categoryId === activeCategory;
+                        return matchesSearch && matchesCategory;
+                });
 
-		switch (sort) {
-			case 'price-asc':
-				result.sort((a, b) => (a.discountedPrice ?? a.price) - (b.discountedPrice ?? b.price));
-				break;
-			case 'price-desc':
-				result.sort((a, b) => (b.discountedPrice ?? b.price) - (a.discountedPrice ?? a.price));
-				break;
-			case 'name':
-				result.sort((a, b) => (a.nameAr || a.name).localeCompare(b.nameAr || b.name));
-				break;
-		}
-		return result;
-	}, [items, search, activeCategory, sort]);
+                switch (sort) {
+                        case 'price-asc':
+                                result.sort((a, b) => (a.discountedPrice ?? a.price) - (b.discountedPrice ?? b.price));
+                                break;
+                        case 'price-desc':
+                                result.sort((a, b) => (b.discountedPrice ?? b.price) - (a.discountedPrice ?? a.price));
+                                break;
+                        case 'name':
+                                result.sort((a, b) => (a.nameAr || a.name).localeCompare(b.nameAr || b.name));
+                                break;
+                }
+                return result;
+        }, [items, search, activeCategory, sort]);
 
-	/* ── Popular items ── */
-	const popularItems = useMemo(
-		() => (activeCategory === null && search === '' ? items.filter((i) => i.isPopular) : []),
-		[items, activeCategory, search]
-	);
+        /* ── Popular items ── */
+        const popularItems = useMemo(
+                () => (activeCategory === null && search === '' ? items.filter((i) => i.isPopular) : []),
+                [items, activeCategory, search]
+        );
 
-	const normalItems = useMemo(
-		() =>
-			popularItems.length > 0
-				? filteredItems.filter((i) => !popularItems.includes(i))
-				: filteredItems,
-		[filteredItems, popularItems]
-	);
+        const normalItems = useMemo(
+                () =>
+                        popularItems.length > 0
+                                ? filteredItems.filter((i) => !popularItems.includes(i))
+                                : filteredItems,
+                [filteredItems, popularItems]
+        );
 
-	const itemCounts = useMemo(() => {
-		const counts = new Map<number | null, number>();
-		counts.set(null, items.length);
-		for (const cat of categories) {
-			counts.set(cat.id, items.filter((i) => i.categoryId === cat.id).length);
-		}
-		return counts;
-	}, [items, categories]);
+        const itemCounts = useMemo(() => {
+                const counts = new Map<number | null, number>();
+                counts.set(null, items.length);
+                for (const cat of categories) {
+                        counts.set(cat.id, items.filter((i) => i.categoryId === cat.id).length);
+                }
+                return counts;
+        }, [items, categories]);
 
-	// ponytail: dead scroll listener removed — it was an empty useCallback doing nothing
+        // ponytail: dead scroll listener removed — it was an empty useCallback doing nothing
 
-	const handleSuggestionClick = useCallback(
-		(id: number) => {
-			const found = items.find((i) => i.id === id);
-			if (found) setOrderItem(found);
-		},
-		[items]
-	);
+        const handleSuggestionClick = useCallback(
+                (id: number) => {
+                        const found = items.find((i) => i.id === id);
+                        if (found) setOrderItem(found);
+                },
+                [items]
+        );
 
-	const handleReview = useCallback((item: MenuItemProp) => {
-		setReviewItem({ id: item.id, name: item.nameAr || item.name });
-	}, []);
+        const handleReview = useCallback((item: MenuItemProp) => {
+                setReviewItem({ id: item.id, name: item.nameAr || item.name });
+        }, []);
 
-	const hasActiveFilter = search !== '' || activeCategory !== null;
+        const hasActiveFilter = search !== '' || activeCategory !== null;
 
-	return (
-		<>
-			{/* Stage H — cinematic featured showcase (addition only; the
-				full grid below stays untouched). Renders nothing when no
-				item is featured. */}
-			<FeaturedShowcase items={items} />
+        return (
+                <>
+                        {/* Stage H — cinematic featured showcase (addition only; the
+                                full grid below stays untouched). Renders nothing when no
+                                item is featured. */}
+                        <FeaturedShowcase items={items} />
 
-			<MenuToolbar
-				search={search}
-				onSearchChange={(v) => updateURL({ q: v })}
-				sort={sort}
-				onSortChange={(v) => updateURL({ sort: v })}
-				items={items}
-				onSuggestionClick={handleSuggestionClick}
-				hideSearch={items.length < 8}
-			/>
+                        <MenuToolbar
+                                search={search}
+                                onSearchChange={(v) => updateURL({ q: v })}
+                                sort={sort}
+                                onSortChange={(v) => updateURL({ sort: v })}
+                                items={items}
+                                onSuggestionClick={handleSuggestionClick}
+                                hideSearch={items.length < 8}
+                        />
 
-			{hasActiveFilter && (
-				<div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
-					<AnimatedSparkles className="size-3.5 text-primary" />
-					<span>
-						{filteredItems.length === 0
-							? 'لا توجد نتائج'
-							: `تم العثور على ${toArabicNumber(filteredItems.length)} صنف`}
-					</span>
-					{activeCategory !== null && (
-						<button
-							type="button"
-							onClick={() => updateURL({ cat: null })}
-							className="text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-						>
-							إعادة تعيين
-						</button>
-					)}
-				</div>
-			)}
+                        {hasActiveFilter && (
+                                <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
+                                        <AnimatedSparkles className="size-3.5 text-primary" />
+                                        <span>
+                                                {filteredItems.length === 0
+                                                        ? 'لا توجد نتائج'
+                                                        : `تم العثور على ${toArabicNumber(filteredItems.length)} صنف`}
+                                        </span>
+                                        {activeCategory !== null && (
+                                                <button
+                                                        type="button"
+                                                        onClick={() => updateURL({ cat: null })}
+                                                        className="text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                                                >
+                                                        إعادة تعيين
+                                                </button>
+                                        )}
+                                </div>
+                        )}
 
-			<CategoryTabs
-				categories={categories}
-				activeCategory={activeCategory}
-				onSelect={(id) => updateURL({ cat: id })}
-				itemCounts={itemCounts}
-			/>
+                        <CategoryTabs
+                                categories={categories}
+                                activeCategory={activeCategory}
+                                onSelect={(id) => updateURL({ cat: id })}
+                                itemCounts={itemCounts}
+                        />
 
-			{/* Popular grid with stagger entrance + fadeUp */}
-			{popularItems.length >= 2 && (
-				<section id="menu-popular" className="mb-8">
-					<div className="flex items-center gap-2 mb-3 px-1">
-						<span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
-						<h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
-					</div>
-					<motion.div
-						variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
-						initial="hidden"
-						animate="visible"
-						className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-					>
-						{popularItems.slice(0, 6).map((item, index) => (
-							<motion.div
-								key={item.id}
-								variants={fadeUp}
-								transition={{ delay: (index % 6) * 0.06 }}
-							>
-								<MenuItemCard
-									item={item}
-									onOrder={setOrderItem}
-									onAddToCart={handleQuickAdd}
-									onDecrementCart={handleDecrement}
-									onReview={handleReview}
-									cartQty={getCartQty(item.id)}
-									variant="featured"
-									/* LCP: first 4 popular items above the fold → eager + fetchPriority=high */
-									eager={index < 4}
-								/>
-							</motion.div>
-						))}
-					</motion.div>
-				</section>
-			)}
+                        {/* Popular grid with stagger entrance + fadeUp */}
+                        {popularItems.length >= 2 && (
+                                <section id="menu-popular" className="mb-8">
+                                        <div className="flex items-center gap-2 mb-3 px-1">
+                                                <span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
+                                                <h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
+                                        </div>
+                                        <motion.div
+                                                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
+                                                initial="hidden"
+                                                animate="visible"
+                                                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                                        >
+                                                {popularItems.slice(0, 6).map((item, index) => (
+                                                        <motion.div
+                                                                key={item.id}
+                                                                variants={fadeUp}
+                                                                transition={{ delay: (index % 6) * 0.06 }}
+                                                        >
+                                                                <MenuItemCard
+                                                                        item={item}
+                                                                        onOrder={setOrderItem}
+                                                                        onAddToCart={handleQuickAdd}
+                                                                        onDecrementCart={handleDecrement}
+                                                                        onReview={handleReview}
+                                                                        cartQty={getCartQty(item.id)}
+                                                                        variant="featured"
+                                                                        /* LCP: first 4 popular items above the fold → eager + fetchPriority=high */
+                                                                        eager={index < 4}
+                                                                />
+                                                        </motion.div>
+                                                ))}
+                                        </motion.div>
+                                </section>
+                        )}
 
-			{/* Normal grid */}
-			{normalItems.length === 0 ? (
-				<div className="glass-card text-center py-16 sm:py-20 rounded-sm">
-					<div className="empty-state-icon">
-						<AnimatedSparkles className="size-8 text-muted-foreground/30" />
-					</div>
-					<p className="text-muted-foreground text-base sm:text-lg font-medium mb-1">
-						{search ? 'لا توجد أصناف تطابق بحثك' : 'لا توجد أصناف في هذه الفئة'}
-					</p>
-					<p className="text-xs sm:text-sm text-muted-foreground/60">
-						{search ? 'جرب كلمات بحث أخرى' : 'اختر فئة أخرى'}
-					</p>
-					{hasActiveFilter && (
-						<button
-							type="button"
-							onClick={() => {
-								updateURL({ q: '', cat: null });
-							}}
-							className="mt-4 text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-[filter,background-color]"
-						>
-							عرض الكل
-						</button>
-					)}
-				</div>
-			) : (
-				<div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{normalItems.map((item, index) => (
-						<div
-							key={item.id}
-							className="animate-reveal"
-							style={{ animationDelay: `${(index % 6) * 60}ms` }}
-						>
-							<MenuItemCard
-								item={item}
-								onOrder={setOrderItem}
-								onAddToCart={handleQuickAdd}
-								onDecrementCart={handleDecrement}
-								onReview={handleReview}
-								cartQty={getCartQty(item.id)}
-								/* LCP: no popular section → first 4 normal items are above the fold */
-								eager={popularItems.length === 0 && index < 4}
-							/>
-						</div>
-					))}
-				</div>
-			)}
+                        {/* Normal grid */}
+                        {normalItems.length === 0 ? (
+                                <div className="glass-card text-center py-16 sm:py-20 rounded-sm">
+                                        <div className="empty-state-icon">
+                                                <AnimatedSparkles className="size-8 text-muted-foreground/30" />
+                                        </div>
+                                        <p className="text-muted-foreground text-base sm:text-lg font-medium mb-1">
+                                                {search ? 'لا توجد أصناف تطابق بحثك' : 'لا توجد أصناف في هذه الفئة'}
+                                        </p>
+                                        <p className="text-xs sm:text-sm text-muted-foreground/60">
+                                                {search ? 'جرب كلمات بحث أخرى' : 'اختر فئة أخرى'}
+                                        </p>
+                                        {hasActiveFilter && (
+                                                <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                                updateURL({ q: '', cat: null });
+                                                        }}
+                                                        className="mt-4 text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-[filter,background-color]"
+                                                >
+                                                        عرض الكل
+                                                </button>
+                                        )}
+                                </div>
+                        ) : (
+                                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        {normalItems.map((item, index) => (
+                                                <div
+                                                        key={item.id}
+                                                        className="animate-reveal"
+                                                        style={{ animationDelay: `${(index % 6) * 60}ms` }}
+                                                >
+                                                        <MenuItemCard
+                                                                item={item}
+                                                                onOrder={setOrderItem}
+                                                                onAddToCart={handleQuickAdd}
+                                                                onDecrementCart={handleDecrement}
+                                                                onReview={handleReview}
+                                                                cartQty={getCartQty(item.id)}
+                                                                /* LCP: no popular section → first 4 normal items are above the fold */
+                                                                eager={popularItems.length === 0 && index < 4}
+                                                        />
+                                                </div>
+                                        ))}
+                                </div>
+                        )}
 
-			<OrderDialog
-				item={orderItem}
-				open={orderItem !== null}
-				onOpenChange={(open) => {
-					if (!open) setOrderItem(null);
-				}}
-				restaurantWhatsapp={restaurantWhatsapp}
-				restaurantName={restaurantName}
-				restaurantId={restaurantId}
-				restaurantLogo={restaurantLogo}
-			/>
+                        <OrderDialog
+                                item={orderItem}
+                                open={orderItem !== null}
+                                onOpenChange={(open) => {
+                                        if (!open) setOrderItem(null);
+                                }}
+                                restaurantWhatsapp={restaurantWhatsapp}
+                                restaurantName={restaurantName}
+                                restaurantId={restaurantId}
+                                restaurantLogo={restaurantLogo}
+                        />
 
-			{/* Shared reviews dialog — single instance for all cards (a11y + DOM size) */}
-			<ReviewSheet
-				menuItemId={reviewItem?.id ?? 0}
-				menuItemName={reviewItem?.name ?? ''}
-				open={reviewItem !== null}
-				onOpenChange={(o) => {
-					if (!o) setReviewItem(null);
-				}}
-			/>
-		</>
-	);
+                        {/* Shared reviews dialog — single instance for all cards (a11y + DOM size) */}
+                        <ReviewSheet
+                                menuItemId={reviewItem?.id ?? 0}
+                                menuItemName={reviewItem?.name ?? ''}
+                                open={reviewItem !== null}
+                                onOpenChange={(o) => {
+                                        if (!o) setReviewItem(null);
+                                }}
+                        />
+                </>
+        );
 }
 
 // ponytail: dedicated Suspense boundary for useSearchParams
 // The dynamic() in MenuClientSection can't reliably catch re-suspension during React 19 transitions
 export function MenuPageClient(props: {
-	categories: CategoryProp[];
-	items: Array<MenuItemProp & { category: CategoryProp } & FeaturedItem>;
-	restaurantWhatsapp?: string;
-	restaurantName?: string;
-	restaurantId: number;
-	restaurantLogo?: string;
+        categories: CategoryProp[];
+        items: Array<MenuItemProp & FeaturedItem>;
+        restaurantWhatsapp?: string;
+        restaurantName?: string;
+        restaurantId: number;
+        restaurantLogo?: string;
 }) {
-	return (
-		<Suspense
-			fallback={
-				<div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
-					جاري تحميل المنيو...
-				</div>
-			}
-		>
-			<MenuPageClientInner {...props} />
-		</Suspense>
-	);
+        return (
+                <Suspense
+                        fallback={
+                                <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
+                                        جاري تحميل المنيو...
+                                </div>
+                        }
+                >
+                        <MenuPageClientInner {...props} />
+                </Suspense>
+        );
 }

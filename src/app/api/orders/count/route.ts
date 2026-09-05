@@ -43,7 +43,12 @@ export async function GET(request: NextRequest) {
 
                 const count = await prisma.order.count({ where });
 
-                return success({ count, status, restaurantId: restaurantId ?? null });
+                // round86-B11: defense-in-depth — a 5s poll response must never be
+                // cached by intermediaries (Next's dynamic default is no-store, but
+                // make it explicit)
+                const res = success({ count, status, restaurantId: restaurantId ?? null });
+                res.headers.set('Cache-Control', 'no-store');
+                return res;
         } catch (e) {
                 return handleError(e);
         }

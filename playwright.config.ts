@@ -40,6 +40,8 @@ export default defineConfig({
         // round85-D1: referral coverage was orphaned (matched NO project —
         // 12 tests never executed anywhere)
         "tests/e2e/referral-claim.spec.ts",
+        // round86-A12: negative specs for the USER-role gates (A1/A2/A4/A6)
+        "tests/e2e/round86-security.spec.ts",
       ],
     },
     {

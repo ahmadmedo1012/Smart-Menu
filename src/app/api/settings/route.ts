@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
-import { deleteBlob } from '@/lib/blob';
+import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { revalidateMenu } from '@/lib/menu-cache';
 
 const singleSchema = z.object({
@@ -149,6 +149,17 @@ export async function PUT(request: NextRequest) {
                                                         return apiError('صيغة الرابط غير صالحة — أحرف صغيرة وأرقام وشرطات فقط', 422);
                                                 }
                                                 updateData[fieldName] = fieldName === 'gallery' ? safeJsonParse(f.value, []) : f.value;
+                                                // round86-A3: media values must be valid URLs, and blob URLs
+                                                // marked for another tenant are rejected
+                                                if (fieldName === 'logo' || fieldName === 'gallery') {
+                                                        const vals: string[] = fieldName === 'gallery'
+                                                                ? (Array.isArray(updateData[fieldName]) ? (updateData[fieldName] as string[]) : [])
+                                                                : (typeof f.value === 'string' ? [f.value] : []);
+                                                        for (const v of vals) {
+                                                                const err = mediaUrlError(v, restaurantId);
+                                                                if (err) return apiError(err, 422);
+                                                        }
+                                                }
                                         }
                                 }
                                 if (Object.keys(updateData).length > 0) {
@@ -165,14 +176,15 @@ export async function PUT(request: NextRequest) {
                                 }
                         }
                         // Clean up the replaced logo only after the DB write succeeded
+                        // round86-A3: scoped to this restaurant's tenant
                         if (oldLogo && oldLogo !== updateData.logo) {
-                                await deleteBlob(oldLogo);
+                                await deleteBlob(oldLogo, { restaurantId });
                         }
                         // Removed gallery images orphan Blob objects — delete the ones that
                         // were in the old gallery but are gone from the new one
                         if ('gallery' in updateData && Array.isArray(updateData.gallery)) {
                                 const removed = oldGallery.filter((g) => !(updateData.gallery as string[]).includes(g));
-                                for (const url of removed) await deleteBlob(url);
+                                for (const url of removed) await deleteBlob(url, { restaurantId });
                         }
                         // round85-B9: settings feed the public menu (name/slug/logo/gallery/
                         // theme...) — purge so changes are live instantly

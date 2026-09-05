@@ -14,7 +14,7 @@ import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 
 interface Order {
   id: number; orderNo: string; customerName: string; status: string
-  total: number; items: { quantity: number }[]
+  total: number; _count: { items: number }
   restaurant: { id: number; name: string; slug: string } | null
   createdAt: string
 }
@@ -310,7 +310,7 @@ export default function AdminOrdersPage() {
                             <Store className="size-3" />{order.restaurant.name}
                           </span>
                         )}
-                        <span className="text-xs text-muted-foreground/60">{order.items?.length ?? 0} أصناف</span>
+                        <span className="text-xs text-muted-foreground/60">{order._count?.items ?? 0} أصناف</span>
                       </div>
                     </div>
                   </div>

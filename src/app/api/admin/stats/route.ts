@@ -103,7 +103,13 @@ export async function GET() {
     `;
 
     // Top items across all restaurants
-    const topItems = await prisma.orderItem.groupBy(popularItemsQuery({ take: 15 }));
+    // round86-B9: bound the window to 90 days — an unbounded full-table
+    // groupBy re-ran on the admin dashboard's 30s poll and grew forever
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const topItems = await prisma.orderItem.groupBy(
+      popularItemsQuery({ take: 15, since: ninetyDaysAgo })
+    );
 
     const topItemsFormatted = await hydratePopularItems(topItems, "nameAr-fallback");
 

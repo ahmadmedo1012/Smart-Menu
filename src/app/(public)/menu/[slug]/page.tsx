@@ -4,12 +4,17 @@ export const dynamicParams = true;
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
+import { MenuHero } from '@/components/menu/MenuHero';
 import { MenuClientSection } from '@/components/menu/MenuClientSection';
 import { ReferralHandler } from '@/components/menu/ReferralHandler';
 
-// Module-level cutoff: computed once per build/ISR revalidation,
-// NOT per request — keeps the route static-friendly (revalidate=60 works).
-const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+// round86-B12: computed INSIDE the page function — a module-level constant
+// is frozen at process start, so a long-lived lambda would silently widen
+// the "new this week" window by days. Per-render it is ISR-correct (each
+// revalidation re-runs the function and bakes a fresh cutoff).
+function sevenDaysAgo() {
+        return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+}
 
 // Menu slugs are resolved on demand instead of all being prerendered during
 // every build. A growing restaurant list could otherwise open hundreds of DB
@@ -58,6 +63,7 @@ export async function generateMetadata({
 export default async function PublicMenuPage({ params }: { params: Promise<{ slug: string }> }) {
         const { slug } = await params;
         const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+        const SEVEN_DAYS_AGO = sevenDaysAgo();
 
         // Deduped with generateMetadata via React cache() — 1 DB query for both.
         const restaurant = await getRestaurantBySlug(slug);
@@ -76,13 +82,13 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 prisma.menuItem.findMany({
                         where: { status: 'available', category: { is: { restaurantId: restaurant.id } } },
                         select: {
+                                // round86-B7: no per-item category embed (categories are sent
+                                // once and joined by categoryId client-side), no status (the
+                                // query filters to 'available' anyway) — ~15-25% smaller flight
                                 id: true, name: true, nameAr: true, description: true, descriptionAr: true,
                                 price: true, discountedPrice: true, image: true, sortOrder: true,
-                                categoryId: true, createdAt: true, status: true,
+                                categoryId: true, createdAt: true,
                                 dietaryTags: true, allergens: true, avgRating: true, ratingCount: true,
-                                category: {
-                                        select: { id: true, name: true, nameAr: true, icon: true, sortOrder: true, isActive: true, restaurantId: true, createdAt: true, updatedAt: true },
-                                },
                         },
                         orderBy: { sortOrder: 'asc' },
                 }),
@@ -105,6 +111,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 // array column is missing (pre-round83 DB), the fallback re-queries
                 // legacy columns only — the section renders with the single legacy
                 // badge instead of disappearing (zero-downtime migration window).
+                // round86-B2: scope via the category join — MenuItem has NO
+                // restaurantId column in schema.prisma (the old predicate errored
+                // "column does not exist" on every schema-faithful DB, silently
+                // killing the showcase via .catch([])); mirrors round83-seed.mjs.
                 prisma
                         .$queryRaw<
                                 Array<{
@@ -117,7 +127,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         >`
                                 SELECT "id", "isFeatured", "featuredRank", "showcaseTag", "showcaseTags"
                                 FROM "MenuItem"
-                                WHERE "isFeatured" = true AND "restaurantId" = ${restaurant.id}
+                                WHERE "isFeatured" = true
+                                  AND "categoryId" IN (
+                                        SELECT "id" FROM "MenuCategory" WHERE "restaurantId" = ${restaurant.id}
+                                  )
                         `
                         .catch(async () =>
                                 prisma
@@ -131,7 +144,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         >`
                                                 SELECT "id", "isFeatured", "featuredRank", "showcaseTag"
                                                 FROM "MenuItem"
-                                                WHERE "isFeatured" = true AND "restaurantId" = ${restaurant.id}
+                                                WHERE "isFeatured" = true
+                                                  AND "categoryId" IN (
+                                                        SELECT "id" FROM "MenuCategory" WHERE "restaurantId" = ${restaurant.id}
+                                                  )
                                         `
                                         .then(
                                                 (rows) =>
@@ -176,7 +192,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         }));
 
         const serializedItems = items.map(
-                ({ price, discountedPrice, avgRating, ratingCount, category, ...rest }) => ({
+                ({ price, discountedPrice, avgRating, ratingCount, createdAt, ...rest }) => ({
                         id: rest.id,
                         name: rest.name,
                         nameAr: rest.nameAr,
@@ -185,8 +201,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         image: rest.image,
                         sortOrder: rest.sortOrder,
                         categoryId: rest.categoryId,
-                        createdAt: rest.createdAt.toISOString(),
-                        status: rest.status,
+                        createdAt: createdAt.toISOString(),
                         dietaryTags: rest.dietaryTags,
                         allergens: rest.allergens,
                         price: Number(price),
@@ -194,22 +209,11 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         avgRating: avgRating !== null ? Number(avgRating) : null,
                         ratingCount,
                         isPopular: popularIds.has(rest.id),
-                        isNew: !popularIds.has(rest.id) && rest.createdAt.getTime() > SEVEN_DAYS_AGO.getTime(),
+                        isNew: !popularIds.has(rest.id) && createdAt.getTime() > SEVEN_DAYS_AGO.getTime(),
                         isFeatured: featuredMap.get(rest.id)?.isFeatured ?? false,
                         featuredRank: featuredMap.get(rest.id)?.featuredRank ?? null,
                         showcaseTag: featuredMap.get(rest.id)?.showcaseTag ?? null,
                         showcaseTags: featuredMap.get(rest.id)?.showcaseTags ?? null,
-                        category: {
-                                id: category.id,
-                                name: category.name,
-                                nameAr: category.nameAr,
-                                icon: category.icon,
-                                sortOrder: category.sortOrder,
-                                isActive: category.isActive,
-                                restaurantId: category.restaurantId,
-                                createdAt: category.createdAt.toISOString(),
-                                updatedAt: category.updatedAt.toISOString(),
-                        },
                 })
         );
 
@@ -264,14 +268,22 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
                         />
 
-                        {/* Hero + Menu + Loyalty — fully client-rendered to avoid hydration mismatch */}
+                        {/* round86-B6: hero renders on the server (was inside the client
+                            section — ~200 lines of static markup compiled into client chunks);
+                            interactive pieces are islands via MenuIslands */}
+                        <MenuHero restaurant={restaurant} slug={slug} origin={origin} hasContact={hasContact} />
+
+                        {/* Hero + Menu + Loyalty — client islands for the interactive parts */}
                         <MenuClientSection
-                                restaurant={restaurant}
-                                slug={slug}
-                                origin={origin}
+                                restaurant={{
+                                        id: restaurant.id,
+                                        name: restaurant.name,
+                                        slug,
+                                        logo: restaurant.logo,
+                                        whatsapp: restaurant.whatsapp,
+                                }}
                                 categories={serializedCategories}
                                 serializedItems={serializedItems}
-                                hasContact={hasContact}
                         />
                 </div>
         );

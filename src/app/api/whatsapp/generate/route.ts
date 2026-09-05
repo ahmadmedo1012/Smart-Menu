@@ -42,6 +42,9 @@ export async function POST(request: NextRequest) {
         });
         if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
       }
+    } else if (auth.role === "super_admin") {
+      // round86-A11: super_admin passes (the role ladder previously omitted it —
+      // a 403 for the highest-privilege role when generating a receipt)
     } else if (auth.role === "admin" || auth.role === "sub_admin") {
       // admins need explicit permission to read any order's details
       if (!(auth.permissions ?? []).includes("APPROVE_ORDERS")) {

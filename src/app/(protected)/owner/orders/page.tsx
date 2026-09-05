@@ -38,7 +38,7 @@ interface Order {
 	total: number;
 	pickupType: string;
 	createdAt: string;
-	items: { quantity: number }[];
+	_count: { items: number };
 }
 
 const PAGE_SIZE = 20;
@@ -604,7 +604,7 @@ function OrderCard({
 								{getPickupTypeMeta(order.pickupType).label}
 							</span>
 							<span aria-hidden="true">•</span>
-							<span>{toArabicNumber(order.items?.length ?? 0)} أصناف</span>
+							<span>{toArabicNumber(order._count?.items ?? 0)} أصناف</span>
 						</div>
 					</div>
 				</div>

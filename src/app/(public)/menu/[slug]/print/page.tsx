@@ -25,13 +25,19 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
 	});
 	if (!restaurant) notFound();
 
+	// round86-B10: slim item select — the unselected include shipped the image
+	// column (up to 7MB data-URLs per item) for a page that renders zero images
 	const categories = await prisma.menuCategory.findMany({
 		where: { isActive: true, restaurantId: restaurant.id },
 		orderBy: { sortOrder: 'asc' },
-		include: {
+		select: {
+			id: true,
+			name: true,
+			nameAr: true,
 			items: {
 				where: { status: 'available' },
 				orderBy: { sortOrder: 'asc' },
+				select: { id: true, name: true, nameAr: true, description: true, descriptionAr: true, price: true, discountedPrice: true },
 			},
 		},
 	});

@@ -1,21 +1,18 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {CheckCircle, AlertCircle, Info, ShoppingCart, LogOut, LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy} from 'lucide-react';
 import AnimatedX from '@/components/ui/x-icon';
+import ShoppingCartIcon from '@/components/ui/shopping-cart-icon';
+import type { AnimatedIconHandle } from '@/components/ui/types';
 import { cn } from "@/lib/utils";
 
-// Dynamic: LottieAnimation pulls in @dotlottie/react-player (~100KB). A static
-// import here drags dotlottie into the chunk graph of EVERY premium-toast
-// importer (menu page dynamic entries, share buttons, loyalty widgets…), and a
-// stale turbopack loadable-manifest entry then preloads a dotlottie chunk that
-// was never emitted — 404 on every menu-page visit. Only the cart toast
-// renders it anyway.
-const LottieAnimation = dynamic(
-  () => import("@/components/shared/LottieAnimation").then((m) => ({ default: m.LottieAnimation })),
-  { ssr: false }
-);
+// round86-B1: the animated cart toast used to render LottieAnimation here —
+// the FIRST add-to-cart tap lazily pulled the dotlottie runtime (~172KB JS /
+// ~55KB gz) plus the .lottie asset, exactly at the moment a phone customer
+// first interacts with the menu. The lightweight motion-based ShoppingCartIcon
+// (~2KB) keeps the same delightful bounce with zero network cost.
 
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 
@@ -37,18 +34,32 @@ const iconConfig = {
 function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
   const cfg = iconConfig[icon];
 
-  if (anim) {
-    return (
-      <div className="size-10 -my-1 min-h-[40px] min-w-[40px]">
-        <LottieAnimation src="/animations/restaurant-loading.lottie" autoplay loop={false} speed={1.5} />
-      </div>
-    );
+  // round86-B1: animated cart = lightweight motion icon (no dotlottie download)
+  if (anim && icon === "cart") {
+    return <AnimatedCartToastIcon />;
   }
 
   const Icon = cfg.icon;
   return (
     <div className={cn("size-10 min-h-[40px] min-w-[40px] rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
       <Icon className="size-[18px]" style={{ color: cfg.color }} aria-hidden="true" />
+    </div>
+  );
+}
+
+/** Cart toast icon that plays its bounce once on mount. */
+function AnimatedCartToastIcon() {
+  const ref = useRef<AnimatedIconHandle>(null);
+  useEffect(() => {
+    ref.current?.startAnimation();
+  }, []);
+  return (
+    <div className="size-10 min-h-[40px] min-w-[40px] rounded-lg flex items-center justify-center shrink-0 bg-orange-muted">
+      <ShoppingCartIcon
+        ref={ref}
+        size={22}
+        className="text-[var(--orange, oklch(0.55 0.19 45))]"
+      />
     </div>
   );
 }

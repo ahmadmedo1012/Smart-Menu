@@ -8,6 +8,7 @@ import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
 import { verifyHash, hashPassword } from "@/lib/hash";
 import { nameOptional } from "@/lib/validation";
+import { PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE } from "@/lib/constants";
 
 const updateSchema = z
   .object({
@@ -15,7 +16,12 @@ const updateSchema = z
     email: z.string().email().optional().or(z.literal("")),
     phone: z.string().optional(),
     currentPassword: z.string().optional(),
-    newPassword: z.string().min(6).optional(),
+    newPassword: z
+      .string()
+      // round86-A10: align with the shared policy (was 6, policy is 8)
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE)
+      .max(100)
+      .optional(),
   })
   .refine(
     (d) => {

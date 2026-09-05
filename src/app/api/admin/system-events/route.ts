@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError, notFound } from "@/lib/api-helpers";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 
 const createEventSchema = z.object({
@@ -24,8 +24,10 @@ const updateEventSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    // round86-A8: permission-scoped gate (was requireAdmin — a zero-permission
+    // sub_admin could rewrite/delete the ops event feed)
+    const auth = await requirePermission("VIEW_ANALYTICS");
+    if (!auth.authorized) return error(auth.error ?? "غير مصرح", auth.status ?? 403);
 
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
@@ -49,8 +51,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    // round86-A8: permission-scoped gate (was requireAdmin — a zero-permission
+    // sub_admin could rewrite/delete the ops event feed)
+    const auth = await requirePermission("VIEW_ANALYTICS");
+    if (!auth.authorized) return error(auth.error ?? "غير مصرح", auth.status ?? 403);
 
     const body = createEventSchema.parse(await request.json());
     const event = await prisma.systemEvent.create({
@@ -71,8 +75,10 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    // round86-A8: permission-scoped gate (was requireAdmin — a zero-permission
+    // sub_admin could rewrite/delete the ops event feed)
+    const auth = await requirePermission("VIEW_ANALYTICS");
+    if (!auth.authorized) return error(auth.error ?? "غير مصرح", auth.status ?? 403);
 
     const body = updateEventSchema.parse(await request.json());
 
@@ -99,8 +105,10 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const auth = await requireAdmin();
-    if (!auth.authorized) return error("غير مصرح", 401);
+    // round86-A8: permission-scoped gate (was requireAdmin — a zero-permission
+    // sub_admin could rewrite/delete the ops event feed)
+    const auth = await requirePermission("VIEW_ANALYTICS");
+    if (!auth.authorized) return error(auth.error ?? "غير مصرح", auth.status ?? 403);
 
     const { searchParams } = new URL(request.url);
     const id = Number(searchParams.get("id"));

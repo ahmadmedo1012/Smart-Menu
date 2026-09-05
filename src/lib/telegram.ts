@@ -21,9 +21,13 @@ export async function notifyEvent(
   if (activeEvents.length > 0 && !activeEvents.includes(eventType)) {
     return { sent: 0, failed: [] };
   }
-  const lines = [`*${eventType}*`];
+  // round86-A5: escape Telegram Markdown specials in interpolated values — a
+  // user-controlled name like "[click here](https://evil.com)" previously
+  // rendered as a clickable phishing link inside the admins' ops channel.
+  const esc = (s: unknown) => String(s).replace(/([_*\[\]`\\])/g, "\\$1");
+  const lines = [`*${esc(eventType)}*`];
   for (const [k, v] of Object.entries(data)) {
-    lines.push(`• ${k}: ${v}`);
+    lines.push(`• ${esc(k)}: ${esc(v)}`);
   }
   return broadcastToAll(lines.join("\n"), { parseMode: "Markdown", adminOnly: opts?.adminOnly });
 }

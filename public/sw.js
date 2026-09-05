@@ -42,6 +42,15 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
+	// round86-B11: optimized images are content-addressed (?url=&w=&q=) — safe
+	// to cache-first so offline/weak-signal QR re-visits don't re-fetch item
+	// images (previously fell through to network-first because /_next/image
+	// URLs carry no file extension)
+	if (url.pathname.startsWith('/_next/image')) {
+		event.respondWith(cacheFirst(request));
+		return;
+	}
+
 	// API: stale-while-revalidate ONLY for the public read-only allowlist
 	// (/api/public/* — landing featured/stats). Everything else is
 	// network-only. round79 Stage C caught the previous behavior caching

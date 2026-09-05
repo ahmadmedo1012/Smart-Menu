@@ -20,15 +20,15 @@ import { PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE } from '@/lib/constants';
 
 /** Credential policy: 3–30 chars. Shared by register / create-owner / admins / validate. */
 export const usernameField = z
-	.string()
-	.min(3, 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل')
-	.max(30, 'اسم المستخدم يجب ألا يتجاوز 30 حرفًا');
+        .string()
+        .min(3, 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل')
+        .max(30, 'اسم المستخدم يجب ألا يتجاوز 30 حرفًا');
 
 /** Credential policy, optional (updates / partial validation). */
 export const usernameOptional = usernameField.optional();
 
 /** Presence check only — login and partial updates (existing accounts may predate the policy). */
-export const usernamePresence = z.string().min(1, 'اسم المستخدم مطلوب');
+export const usernamePresence = z.string().min(1, 'اسم المستخدم مطلوب').max(100, 'اسم المستخدم طويل جداً');
 
 /** Presence check, optional. */
 export const usernamePresenceOptional = usernamePresence.optional();
@@ -37,16 +37,16 @@ export const usernamePresenceOptional = usernamePresence.optional();
 
 /** Credential policy: 8–100 chars. Shared by register / create-owner / admins. */
 export const passwordField = z
-	.string()
-	.min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE)
-	.max(100, 'كلمة المرور يجب ألا تتجاوز 100 حرف');
+        .string()
+        .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE)
+        .max(100, 'كلمة المرور يجب ألا تتجاوز 100 حرف');
 
 /** Credential policy, optional (e.g. restaurant owner credentials on update). */
 export const passwordOptional = z
-	.string()
-	.min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE)
-	.max(100, 'كلمة المرور يجب ألا تتجاوز 100 حرف')
-	.optional();
+        .string()
+        .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_MESSAGE)
+        .max(100, 'كلمة المرور يجب ألا تتجاوز 100 حرف')
+        .optional();
 
 /** Presence check only — login. */
 export const passwordPresence = z.string().min(1, 'كلمة المرور مطلوبة');
