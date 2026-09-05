@@ -7,142 +7,150 @@ import { createDbRateLimiter } from '@/lib/rate-limit';
 const loyaltyStatsLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 export async function GET(request: NextRequest) {
-	try {
-		const ip =
-			request.headers.get('x-real-ip') ||
-			request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-			'unknown';
-		const { success: allowed } = await loyaltyStatsLimiter.check(`loyalty-stats:${ip}`);
-		if (!allowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
+        try {
+                const ip =
+                        request.headers.get('x-real-ip') ||
+                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+                        'unknown';
+                const { success: allowed } = await loyaltyStatsLimiter.check(`loyalty-stats:${ip}`);
+                if (!allowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
-		const auth = await requireAuth();
-		if (!auth.authorized) return apiError('غير مصرح', 401);
-		const { searchParams } = new URL(request.url);
-		const requestedId = Number(searchParams.get('restaurantId')) || 0;
-		const restaurantId =
-			requestedId ||
-			auth.restaurantId ||
-			Number(request.cookies.get('smart-menu-restaurant')?.value);
+                const auth = await requireAuth();
+                if (!auth.authorized) return apiError('غير مصرح', 401);
+                const { searchParams } = new URL(request.url);
+                const requestedId = Number(searchParams.get('restaurantId')) || 0;
+                const restaurantId =
+                        requestedId ||
+                        auth.restaurantId ||
+                        Number(request.cookies.get('smart-menu-restaurant')?.value);
 
-		// Multi-menu: verify owner manages the requested restaurant
-		if (requestedId && requestedId !== auth.restaurantId) {
-			const link = await prisma.userRestaurant.findUnique({
-				where: { userId_restaurantId: { userId: auth.userId!, restaurantId: requestedId } },
-			});
-			if (!link) return apiError('غير مصرح', 403);
-		}
+                // Multi-menu: verify owner manages the requested restaurant
+                if (requestedId && requestedId !== auth.restaurantId) {
+                        const link = await prisma.userRestaurant.findUnique({
+                                where: { userId_restaurantId: { userId: auth.userId!, restaurantId: requestedId } },
+                        });
+                        if (!link) return apiError('غير مصرح', 403);
+                }
 
-		if (!restaurantId) return apiError('معرف المطعم مطلوب', 400);
+                if (!restaurantId) return apiError('معرف المطعم مطلوب', 400);
 
-		const [totalLoyaltyCards, tierDistribution, cards] = await Promise.all([
-			prisma.loyaltyCard.count({ where: { restaurantId } }),
-			prisma.loyaltyCard.groupBy({
-				by: ['tier'],
-				where: { restaurantId },
-				_count: { id: true },
-			}),
-			prisma.loyaltyCard.findMany({
-				where: { restaurantId },
-				select: { id: true, customerName: true },
-			}),
-		]);
+                const [totalLoyaltyCards, tierDistribution] = await Promise.all([
+                        prisma.loyaltyCard.count({ where: { restaurantId } }),
+                        prisma.loyaltyCard.groupBy({
+                                by: ['tier'],
+                                where: { restaurantId },
+                                _count: { id: true },
+                        }),
+                ]);
 
-		// Round-77 (data agent): groupBy directly by restaurantId instead of
-		// materializing an unbounded IN of every card id (Postgres IN ~32k cap).
-		const [referralCounts, referralsByStatus, rewardAgg] = await Promise.all([
-			prisma.referral.groupBy({
-				by: ['referrerId'],
-				where: { restaurantId },
-				_count: { id: true },
-			}),
-			prisma.referral.groupBy({
-				by: ['status'],
-				where: { restaurantId },
-				_count: { id: true },
-			}),
-			prisma.rewardTransaction.aggregate({
-				where: { restaurantId },
-				_sum: { points: true },
-			}),
-		]);
+                // Round-77 (data agent): groupBy directly by restaurantId instead of
+                // materializing an unbounded IN of every card id (Postgres IN ~32k cap).
+                const [referralCounts, referralsByStatus, rewardAgg] = await Promise.all([
+                        prisma.referral.groupBy({
+                                by: ['referrerId'],
+                                where: { restaurantId },
+                                _count: { id: true },
+                        }),
+                        prisma.referral.groupBy({
+                                by: ['status'],
+                                where: { restaurantId },
+                                _count: { id: true },
+                        }),
+                        prisma.rewardTransaction.aggregate({
+                                where: { restaurantId },
+                                _sum: { points: true },
+                        }),
+                ]);
 
-		const totalReferrals = referralCounts.reduce((sum, r) => sum + r._count.id, 0);
-		const convertedReferrals =
-			referralsByStatus.find((r) => r.status === 'converted')?._count.id ?? 0;
+                const totalReferrals = referralCounts.reduce((sum, r) => sum + r._count.id, 0);
+                const convertedReferrals =
+                        referralsByStatus.find((r) => r.status === 'converted')?._count.id ?? 0;
 
-		const nameMap = new Map(cards.map((c) => [c.id, c.customerName]));
-		const topReferrers = referralCounts
-			.sort((a, b) => b._count.id - a._count.id)
-			.slice(0, 5)
-			.map((r) => ({
-				customerName: nameMap.get(r.referrerId) ?? 'Unknown',
-				referralCount: r._count.id,
-				rewardsGiven: 0, // simplified — could sum RewardTransaction per card
-			}));
+                // round85-B10: names for ONLY the top-5 referrer ids (was: findMany of
+                // every loyalty card row just to build a name map for 5 entries)
+                const topIds = [...referralCounts]
+                        .sort((a, b) => b._count.id - a._count.id)
+                        .slice(0, 5)
+                        .map((r) => r.referrerId);
+                const topCards = topIds.length
+                        ? await prisma.loyaltyCard.findMany({
+                                  where: { id: { in: topIds } },
+                                  select: { id: true, customerName: true },
+                          })
+                        : [];
+                const nameMap = new Map(topCards.map((c) => [c.id, c.customerName]));
+                const topReferrers = referralCounts
+                        .sort((a, b) => b._count.id - a._count.id)
+                        .slice(0, 5)
+                        .map((r) => ({
+                                customerName: nameMap.get(r.referrerId) ?? 'Unknown',
+                                referralCount: r._count.id,
+                                rewardsGiven: 0, // simplified — could sum RewardTransaction per card
+                        }));
 
-		const tierDist: Record<string, number> = {
-			bronze: 0,
-			silver: 0,
-			gold: 0,
-			platinum: 0,
-		};
-		for (const t of tierDistribution) {
-			tierDist[t.tier] = t._count.id;
-		}
+                const tierDist: Record<string, number> = {
+                        bronze: 0,
+                        silver: 0,
+                        gold: 0,
+                        platinum: 0,
+                };
+                for (const t of tierDistribution) {
+                        tierDist[t.tier] = t._count.id;
+                }
 
-		const recentTransactions = await prisma.rewardTransaction.findMany({
-			where: { restaurantId },
-			orderBy: { createdAt: 'desc' },
-			take: 10,
-			select: {
-				id: true,
-				type: true,
-				points: true,
-				description: true,
-				createdAt: true,
-			},
-		});
+                const recentTransactions = await prisma.rewardTransaction.findMany({
+                        where: { restaurantId },
+                        orderBy: { createdAt: 'desc' },
+                        take: 10,
+                        select: {
+                                id: true,
+                                type: true,
+                                points: true,
+                                description: true,
+                                createdAt: true,
+                        },
+                });
 
-		const conversionRate =
-			totalReferrals > 0 ? Math.round((convertedReferrals / totalReferrals) * 100) : 0;
+                const conversionRate =
+                        totalReferrals > 0 ? Math.round((convertedReferrals / totalReferrals) * 100) : 0;
 
-		const totalRewardPoints = Number(rewardAgg._sum.points ?? 0);
+                const totalRewardPoints = Number(rewardAgg._sum.points ?? 0);
 
-		const rbs: Record<string, number> = { pending: 0, converted: 0, expired: 0 };
-		for (const r of referralsByStatus) {
-			rbs[r.status] = r._count.id;
-		}
+                const rbs: Record<string, number> = { pending: 0, converted: 0, expired: 0 };
+                for (const r of referralsByStatus) {
+                        rbs[r.status] = r._count.id;
+                }
 
-		const recentReferrals = await prisma.referral.findMany({
-			where: { restaurantId },
-			orderBy: { createdAt: 'desc' },
-			take: 50,
-			select: {
-				id: true,
-				referredName: true,
-				referredPhone: true,
-				status: true,
-				discountPercent: true,
-				referrerRewardPct: true,
-				createdAt: true,
-				convertedAt: true,
-				referrer: { select: { customerName: true } },
-			},
-		});
+                const recentReferrals = await prisma.referral.findMany({
+                        where: { restaurantId },
+                        orderBy: { createdAt: 'desc' },
+                        take: 50,
+                        select: {
+                                id: true,
+                                referredName: true,
+                                referredPhone: true,
+                                status: true,
+                                discountPercent: true,
+                                referrerRewardPct: true,
+                                createdAt: true,
+                                convertedAt: true,
+                                referrer: { select: { customerName: true } },
+                        },
+                });
 
-		return success({
-			totalLoyaltyCards,
-			totalReferrals,
-			convertedReferrals,
-			conversionRate,
-			topReferrers,
-			tierDistribution: tierDist,
-			recentTransactions,
-			totalRewardPoints,
-			referralsByStatus: rbs,
-			recentReferrals,
-		});
-	} catch (e) {
-		return handleError(e);
-	}
+                return success({
+                        totalLoyaltyCards,
+                        totalReferrals,
+                        convertedReferrals,
+                        conversionRate,
+                        topReferrers,
+                        tierDistribution: tierDist,
+                        recentTransactions,
+                        totalRewardPoints,
+                        referralsByStatus: rbs,
+                        recentReferrals,
+                });
+        } catch (e) {
+                return handleError(e);
+        }
 }

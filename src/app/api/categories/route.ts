@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, error, handleError, paginated } from '@/lib/api-helpers';
+import { revalidateMenu } from '@/lib/menu-cache';
 
 const createSchema = z.object({
 	name: z.string().min(1).max(100),
@@ -108,6 +109,8 @@ export async function POST(request: NextRequest) {
 			targetId: data.id,
 			metadata: { restaurantId: rid, name: body.name },
 		}).catch(() => {});
+		// round85-B9: purge the ISR cache so the new category is live instantly
+		revalidateMenu(rid).catch(() => {});
 		return success(data, 201);
 	} catch (e) {
 		return handleError(e);

@@ -55,42 +55,51 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
       const bucketStart = Math.floor(now / windowMs) * windowMs;
       const deadline = new Date(bucketStart + windowMs);
 
-      // Best-effort cleanup of expired entries for this key
+      // round85-B5: happy path is a SINGLE round trip — the upsert returns the
+      // updated row, so the separate findUnique read is gone (3 queries → 1).
+      // The old per-check deleteMany cleanup is likewise gone: the 120s global
+      // interval above already reaps every expired row, and a probabilistic
+      // 1-in-32 sweep keeps the long tail from piling up without costing a
+      // query on every request.
+      let count: number | null = null;
       try {
-        await prisma.rateLimitEntry.deleteMany({
-          where: { key, windowEnd: { lte: new Date(now) } },
-        });
-      } catch (e) {
-        logWarn("cleanup error", { error: String(e) });
-      }
-
-      // Record this attempt — single row per (key, windowEnd) via the unique
-      // constraint; the count column accumulates attempts.
-      try {
-        await prisma.rateLimitEntry.upsert({
+        const entry = await prisma.rateLimitEntry.upsert({
           where: {
             key_windowEnd: { key, windowEnd: deadline },
           },
           create: { key, windowEnd: deadline, count: 1 },
           update: { count: { increment: 1 } },
-        });
-      } catch (e) {
-        // unique-constraint race is expected under concurrency
-        logWarn("create race", { error: String(e) });
-      }
-
-      // Attempts in current window — read the accumulated count COLUMN, not
-      // the row count. (key, windowEnd) is unique, so count() would return
-      // 0 or 1 — never the attempt total — and the limiter would never block.
-      let count = max + 1; // fail closed on DB error
-      try {
-        const entry = await prisma.rateLimitEntry.findUnique({
-          where: { key_windowEnd: { key, windowEnd: deadline } },
           select: { count: true },
         });
-        count = entry?.count ?? 0;
+        count = entry.count;
       } catch (e) {
-        logWarn("count error — failing closed", { error: String(e) });
+        // unique-constraint race under concurrency (two creators of the same
+        // bucket row) — the row exists, read it back as the fallback.
+        logWarn("create race", { error: String(e) });
+        try {
+          const entry = await prisma.rateLimitEntry.findUnique({
+            where: { key_windowEnd: { key, windowEnd: deadline } },
+            select: { count: true },
+          });
+          count = entry?.count ?? null;
+        } catch (e2) {
+          logWarn("count error — failing closed", { error: String(e2) });
+        }
+      }
+
+      if (count === null) {
+        // fail closed on DB error (both upsert and read failed)
+        count = max + 1;
+      }
+
+      // Probabilistic hygiene sweep (1/32 checks) — replaces the old
+      // unconditional deleteMany that cost a round trip on EVERY check.
+      if (Math.random() < 1 / 32) {
+        try {
+          await prisma.rateLimitEntry.deleteMany({
+            where: { key, windowEnd: { lte: new Date(now) } },
+          });
+        } catch { /* best effort */ }
       }
 
       return {

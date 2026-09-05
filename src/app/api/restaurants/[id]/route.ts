@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { revalidateMenu } from '@/lib/menu-cache';
 import { deleteBlob } from '@/lib/blob';
 
 const updateSchema = z.object({
@@ -155,6 +156,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			return apiError('غير مصرح', 403);
 		}
 
+		// round85-B9: restaurant profile edits (name/slug/logo/theme) feed the
+		// public menu page — purge so changes are live instantly
+		if (data && typeof data === 'object' && 'id' in data) {
+			revalidateMenu((data as { id: number }).id).catch(() => {});
+		}
 		return success(data);
 	} catch (e) {
 		return handleError(e);

@@ -117,7 +117,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         >`
                                 SELECT "id", "isFeatured", "featuredRank", "showcaseTag", "showcaseTags"
                                 FROM "MenuItem"
-                                WHERE "isFeatured" = true
+                                WHERE "isFeatured" = true AND "restaurantId" = ${restaurant.id}
                         `
                         .catch(async () =>
                                 prisma
@@ -131,7 +131,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         >`
                                                 SELECT "id", "isFeatured", "featuredRank", "showcaseTag"
                                                 FROM "MenuItem"
-                                                WHERE "isFeatured" = true
+                                                WHERE "isFeatured" = true AND "restaurantId" = ${restaurant.id}
                                         `
                                         .then(
                                                 (rows) =>

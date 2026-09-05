@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, notFound, handleError, error } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob } from '@/lib/blob';
 
@@ -160,6 +161,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 if (body.image && existing.image && body.image !== existing.image) {
                         deleteBlob(existing.image);
                 }
+                // round85-B9: purge the ISR cache so the owner sees the edit instantly
+                revalidateMenu(existing.category.restaurantId).catch(() => {});
                 return success(data);
         } catch (e) {
                 return handleError(e);
@@ -209,6 +212,8 @@ export async function DELETE(
 
                 // Delete item image from blob only after DB delete succeeds
                 if (existing.image) deleteBlob(existing.image);
+                // round85-B9: purge the ISR cache so the removal is live immediately
+                revalidateMenu(existing.category.restaurantId).catch(() => {});
                 return success({ id: delId });
         } catch (e) {
                 return handleError(e);

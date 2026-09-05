@@ -9,7 +9,9 @@ import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 
 const mockDeleteMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }));
 const mockCreate = vi.hoisted(() => vi.fn().mockResolvedValue({}));
-const mockUpsert = vi.hoisted(() => vi.fn().mockResolvedValue({}));
+// round85-B5: the limiter now reads the count from the upsert RESULT (single
+// round trip) — the mock must return the incremented row like Prisma does.
+const mockUpsert = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 1 }));
 const mockFindUnique = vi.hoisted(() => vi.fn().mockResolvedValue(null));
 const mockCount = vi.hoisted(() => vi.fn().mockResolvedValue(0));
 const mockFindMany = vi.hoisted(() => vi.fn().mockResolvedValue([]));
@@ -62,6 +64,7 @@ describe("createDbRateLimiter", () => {
     mockDeleteMany.mockResolvedValue({ count: 0 });
     mockCreate.mockResolvedValue({});
     mockFindUnique.mockResolvedValue(null);
+    mockUpsert.mockResolvedValue({ count: 1 }); // first attempt in the bucket
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
     const result = await limiter.check("fresh-key");
@@ -72,7 +75,7 @@ describe("createDbRateLimiter", () => {
   it("result has success, remaining (number), reset (number)", async () => {
     mockDeleteMany.mockResolvedValue({ count: 0 });
     mockCreate.mockResolvedValue({});
-    mockFindUnique.mockResolvedValue({ count: 1 });
+    mockUpsert.mockResolvedValue({ count: 1 });
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
     const result = await limiter.check("shape-key");
@@ -89,16 +92,16 @@ describe("createDbRateLimiter", () => {
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 3 });
 
-    mockFindUnique.mockResolvedValue({ count: 1 });
+    mockUpsert.mockResolvedValue({ count: 1 });
     expect((await limiter.check("exceed-key")).success).toBe(true);
 
-    mockFindUnique.mockResolvedValue({ count: 2 });
+    mockUpsert.mockResolvedValue({ count: 2 });
     expect((await limiter.check("exceed-key")).success).toBe(true);
 
-    mockFindUnique.mockResolvedValue({ count: 3 });
+    mockUpsert.mockResolvedValue({ count: 3 });
     expect((await limiter.check("exceed-key")).success).toBe(true);
 
-    mockFindUnique.mockResolvedValue({ count: 4 });
+    mockUpsert.mockResolvedValue({ count: 4 });
     const result = await limiter.check("exceed-key");
     expect(result.success).toBe(false);
     expect(result.remaining).toBe(0);
@@ -111,7 +114,7 @@ describe("createDbRateLimiter", () => {
     mockCreate.mockResolvedValue({});
     // The upserted row holds 22 attempts in its count column. The old code
     // counted ROWS (1) → success always true → 429 never fired.
-    mockFindUnique.mockResolvedValue({ count: 22 });
+    mockUpsert.mockResolvedValue({ count: 22 });
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
     const result = await limiter.check("regression-key");
@@ -135,13 +138,13 @@ describe("createDbRateLimiter", () => {
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
-    mockFindUnique.mockResolvedValue({ count: 1 });
+    mockUpsert.mockResolvedValue({ count: 1 });
     expect((await limiter.check("rem-key")).remaining).toBe(4);
 
-    mockFindUnique.mockResolvedValue({ count: 2 });
+    mockUpsert.mockResolvedValue({ count: 2 });
     expect((await limiter.check("rem-key")).remaining).toBe(3);
 
-    mockFindUnique.mockResolvedValue({ count: 3 });
+    mockUpsert.mockResolvedValue({ count: 3 });
     expect((await limiter.check("rem-key")).remaining).toBe(2);
 
     limiter.destroy();
@@ -151,6 +154,7 @@ describe("createDbRateLimiter", () => {
     const now = Date.now();
     mockDeleteMany.mockResolvedValue({ count: 0 });
     mockCreate.mockResolvedValue({});
+    mockUpsert.mockResolvedValue({ count: 1 });
     mockFindUnique.mockResolvedValue(null);
 
     const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });

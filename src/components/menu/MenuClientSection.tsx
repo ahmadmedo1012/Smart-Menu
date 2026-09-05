@@ -1,13 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense } from 'react';
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import { Store } from 'lucide-react';
 import { QrCornerMark } from '@/components/ui/QrCornerMark';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedClock from '@/components/ui/clock-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { HeroDecor } from './HeroDecor';
 
 const StickyMenuHeader = dynamic(
         () => import('./StickyMenuHeader').then((m) => ({ default: m.StickyMenuHeader })),
@@ -24,10 +25,6 @@ const LoyaltyWidget = dynamic(
         () => import('../loyalty/LoyaltyWidget').then((m) => ({ default: m.LoyaltyWidget })),
         { ssr: false }
 );
-const LottieAnimation = dynamic(
-        () => import('@/components/shared/LottieAnimation').then((m) => ({ default: m.LottieAnimation })),
-        { ssr: false }
-);
 const ShareButton = dynamic(
         () => import('@/components/shared/ShareButton').then((m) => ({ default: m.ShareButton })),
         { ssr: false }
@@ -36,37 +33,6 @@ const GalleryCarousel = dynamic(
         () => import('@/components/menu/GalleryCarousel').then((m) => ({ default: m.GalleryCarousel })),
         { ssr: false }
 );
-
-/** Decorative hero Lotties — pause when scrolled out of view to save mobile GPU/CPU. */
-function HeroLotties() {
-        const ref = useRef<HTMLDivElement>(null);
-        const [inView, setInView] = useState(true);
-
-        useEffect(() => {
-                const el = ref.current;
-                if (!el || typeof IntersectionObserver === 'undefined') return;
-                const obs = new IntersectionObserver(
-                        ([entry]) => setInView(entry.isIntersecting),
-                        { threshold: 0.05 }
-                );
-                obs.observe(el);
-                return () => obs.disconnect();
-        }, []);
-
-        return (
-                <>
-                        <div
-                                ref={ref}
-                                className="absolute top-8 end-8 size-24 md:size-32 opacity-30 dark:opacity-20 pointer-events-none select-none"
-                        >
-                                <LottieAnimation src="/animations/food-choice.lottie" loop autoplay speed={0.6} playing={inView} />
-                        </div>
-                        <div className="absolute bottom-4 start-4 size-20 md:size-28 opacity-25 dark:opacity-15 pointer-events-none select-none">
-                                <LottieAnimation src="/animations/cooking.lottie" loop autoplay speed={0.5} playing={inView} />
-                        </div>
-                </>
-        );
-}
 
 type Restaurant = {
         name: string;
@@ -149,8 +115,8 @@ export function MenuClientSection(props: {
                                         <div className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full bg-orange/4 blur-[140px] animate-orb-float-delayed" />
                                 </div>
 
-                                {/* ── Decorative corner Lottie (paused when hero is out of view) ── */}
-                                <HeroLotties />
+                                {/* ── Decorative corner art (round85-B1: pure SVG — was 2 Lotties + runtime ≈ 360KB) ── */}
+                                <HeroDecor />
 
                                 {/* ── Bottom gradient fade ── */}
                                 <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-background/30 to-background pointer-events-none" />

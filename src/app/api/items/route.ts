@@ -4,6 +4,7 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, handleError, error, paginated } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
 
 const createSchema = z.object({
@@ -186,6 +187,8 @@ export async function POST(request: NextRequest) {
                         targetId: data.id,
                         metadata: { restaurantId: category.restaurant.id, name: data.name },
                 }).catch(() => {});
+                // round85-B9: purge the ISR cache so the new item is live instantly
+                revalidateMenu(category.restaurant.id).catch(() => {});
                 return success(data, 201);
         } catch (e) {
                 if (e instanceof ItemLimitError) return error(e.message, 403);

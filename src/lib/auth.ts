@@ -13,7 +13,13 @@ type AuthResult = {
 export async function requireAuth(opts?: { requireRestaurant?: boolean }): Promise<AuthResult | { authorized: false }> {
   const session = await validateSession();
   if (session.valid && session.userId) {
-    const user = await getUserById(session.userId);
+    // round85-B6: validateSession joins the user row into the same query.
+    // `user === undefined` means a legacy mock/caller didn't provide it —
+    // fall back to the separate lookup (keeps old tests/contract working).
+    let user = session.user;
+    if (user === undefined) {
+      user = await getUserById(session.userId);
+    }
     if (user) {
       if (opts?.requireRestaurant && !user.restaurantId) {
         return { authorized: false } as const;

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { success, error, notFound, handleError } from "@/lib/api-helpers";
 
 import { requireAuth, requirePermission } from "@/lib/auth";
+import { revalidateMenu } from "@/lib/menu-cache";
 const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   nameAr: z.string().nullable().optional(),
@@ -51,6 +52,8 @@ export async function PUT(
       targetId: catId,
       metadata: { restaurantId: existing.restaurantId, fields: Object.keys(body) },
     }).catch(() => {});
+    // round85-B9: purge the ISR cache so the category edit is live instantly
+    revalidateMenu(existing.restaurantId).catch(() => {});
     return success(data);
   } catch (e) {
     return handleError(e);
@@ -94,6 +97,8 @@ export async function DELETE(
       targetId: catId,
       metadata: { restaurantId: existing.restaurantId, name: existing.name },
     }).catch(() => {});
+    // round85-B9: purge the ISR cache so the deletion is live instantly
+    revalidateMenu(existing.restaurantId).catch(() => {});
     return success({ id: catId });
   } catch (e) {
     return handleError(e);

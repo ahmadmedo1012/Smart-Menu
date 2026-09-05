@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { deleteBlob } from '@/lib/blob';
+import { revalidateMenu } from '@/lib/menu-cache';
 
 const singleSchema = z.object({
         key: z.string().min(1).max(100),
@@ -173,6 +174,9 @@ export async function PUT(request: NextRequest) {
                                 const removed = oldGallery.filter((g) => !(updateData.gallery as string[]).includes(g));
                                 for (const url of removed) await deleteBlob(url);
                         }
+                        // round85-B9: settings feed the public menu (name/slug/logo/gallery/
+                        // theme...) — purge so changes are live instantly
+                        revalidateMenu(restaurantId).catch(() => {});
                         return success({ updated: items.length });
                 }
 
@@ -182,6 +186,7 @@ export async function PUT(request: NextRequest) {
                         create: { key: item.key, value: item.value, restaurantId },
                         update: { value: item.value },
                 });
+                revalidateMenu(restaurantId).catch(() => {});
                 return success(item);
         } catch (e) {
                 return handleError(e);
