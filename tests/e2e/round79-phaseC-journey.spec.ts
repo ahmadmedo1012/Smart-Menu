@@ -56,7 +56,13 @@ const MATRIX: Cell[] = [
 ];
 
 /* B-phase post-fix axe baseline (pre-existing color-contrast only).
- * Hard gate = no NEW rule ids; node counts recorded as evidence. */
+ * Hard gate = no NEW rule ids; node counts recorded as evidence.
+ * ROUND80 (2026-09-05): re-measured with the FeaturedShowcase section
+ * VISIBLE (3 featured items) using this exact config (runOnly wcag2a/
+ * wcag2aa/wcag21aa): menu-slug|light = 0 nodes, menu-slug|dark = 0 nodes
+ * — the section adds ZERO WCAG violations (4 landmark best-practice rules
+ * from the full axe ruleset are pre-existing and not wcag-tagged).
+ * Node-count guard added: fails if nodes exceed the recorded baseline. */
 const AXE_BASELINE: Record<string, number> = {
   "home|light": 1, "home|dark": 2,
   "pricing|light": 1, "pricing|dark": 3,
@@ -115,6 +121,10 @@ function watchConsole(page: Page) {
       return errors.filter((e) => {
         if (e.includes("AbortError")) return false;
         if (e.includes("/_vercel/insights/")) return false;
+        // React dev-mode requires eval() for stack reconstruction; the local
+        // dev server's CSP blocks it. React itself states it never uses eval()
+        // in production builds — dev-only artifact, filtered (round80).
+        if (/^eval\(\) is not supported in this environment/.test(e)) return false;
         // fetch-failure console lines for the allowed 401 session probe
         if (/^Failed to load resource: the server responded with a status of 401/.test(e)) return false;
         // bare 404 console lines carry no URL — safe to drop only when every
@@ -142,6 +152,13 @@ async function step(page: Page, cell: Cell, name: string, note = "") {
 async function axeScan(page: Page, key: string, cell: Cell) {
   const row: Record<string, unknown> = { cell: `${cell.w}-${cell.theme}`, page: key };
   try {
+    // round80: transient sonner toasts (e.g. the post-approval success toast)
+    // make scans non-deterministic — wait for them to auto-dismiss (bounded)
+    // before measuring, so the node-count ratchet is stable run-to-run.
+    await page
+      .locator("[data-sonner-toast]")
+      .waitFor({ state: "detached", timeout: 8000 })
+      .catch(() => {});
     await page.addScriptTag({ content: AXE_SRC });
     const violations = await page.evaluate(async () => {
       const r = await (window as unknown as {
@@ -159,13 +176,16 @@ async function axeScan(page: Page, key: string, cell: Cell) {
     const nodes = (violations as Array<{ nodes: number }>).reduce((s, v) => s + v.nodes, 0);
     const baseline = AXE_BASELINE[`${key}|${cell.theme}`] ?? 0;
     const newRules = (violations as Array<{ id: string }>).filter((v) => v.id !== "color-contrast");
+    const detail = (violations as Array<{ id: string; nodes: number }>)
+      .map((v) => `${v.id}(${v.nodes})`)
+      .join(",");
     Object.assign(row, { nodes, baseline, violations });
     axeEvidence.push(row);
-    return { nodes, baseline, newRules };
+    return { nodes, baseline, newRules, detail };
   } catch (e) {
     Object.assign(row, { error: String(e).slice(0, 160) });
     axeEvidence.push(row);
-    return { nodes: -1, baseline: 0, newRules: [{ id: "axe-run-failed" }] };
+    return { nodes: -1, baseline: 0, newRules: [{ id: "axe-run-failed" }], detail: "axe-run-failed" };
   }
 }
 
@@ -202,6 +222,13 @@ async function assertPageHealth(page: Page, cell: Cell, key: string, watch: Retu
   });
   expect(overflow, `${key}: no horizontal overflow @${cell.w}`).toBeFalsy();
   expect(axe.newRules, `${key}: axe — no new rule ids vs B baseline`).toEqual([]);
+  // round80 guard: node budget — fails the run when violation NODES exceed
+  // the recorded baseline (ratchet: fix violations → lower the baseline).
+  // Exceeding it requires updating AXE_BASELINE with a documented reason.
+  expect(
+    axe.nodes,
+    `${key}: axe node count ≤ baseline (${axe.baseline}) — ratchet guard [${axe.detail}]`
+  ).toBeLessThanOrEqual(axe.baseline);
 }
 
 async function settle(page: Page, ms = 2500) {
@@ -380,10 +407,16 @@ for (const cell of MATRIX) {
     expect(approval.loginOk, "admin login for approval").toBeTruthy();
     expect([200, 201]).toContain(approval.verifyStatus);
 
-    /* 9 ── approved panel → enter owner panel */
+    /* 9 ── approved panel → enter owner panel (round80 hardening: the dialog
+       can auto-navigate to /owner before this click lands — tolerate the race;
+       either path must end at the owner dashboard). */
     await expect(dlg.locator('text=تم الموافقة على الاشتراك')).toBeVisible({ timeout: 40000 });
     await step(page, cell, "08-payment-approved");
-    await dlg.locator('button:has-text("الانتقال إلى لوحة التحكم")').first().click();
+    await dlg
+      .locator('button:has-text("الانتقال إلى لوحة التحكم")')
+      .first()
+      .click({ timeout: 5000 })
+      .catch(() => {});
     await page.waitForURL(/\/owner/, { timeout: 30000 });
     await settle(page, 3000);
     await assertPageHealth(page, cell, "owner", watch);
@@ -519,14 +552,34 @@ for (const cell of MATRIX) {
     log(`showcase counter "${before}" → "${after}"`);
     await step(page, cell, "15-menu-showcase");
 
-    // keyboard gate (once — desktop light cell): ArrowLeft = next in RTL
+    // keyboard gate (round80 hardening — once, desktop light cell): ArrowLeft = next in RTL.
+    // The section's onKeyDown only fires when the keydown ORIGINATES inside the
+    // section: clicking the <section> itself (non-focusable) leaves focus on
+    // <body>, so the old version could pass while the press silently no-opped
+    // (counter text was always non-empty). Now: focus an actually-focusable
+    // control INSIDE the section, prove focus landed there, then REQUIRE the
+    // sr-only live counter to CHANGE — the press is proven effective.
     if (cell.w === 1440 && cell.theme === "light") {
-      await showcase.click();
+      await nextBtn.focus();
+      await expect
+        .poll(
+          async () =>
+            page.evaluate(
+              () =>
+                document.activeElement?.closest(
+                  'section[aria-labelledby="featured-showcase-heading"]'
+                ) != null
+            ),
+          { timeout: 5000 }
+        )
+        .toBeTruthy();
+      const kbBefore = await counter();
       await page.keyboard.press("ArrowLeft");
       await settle(page, 700);
-      const kb = await counter();
-      log(`keyboard ArrowLeft → "${kb}"`);
-      expect(kb.length).toBeGreaterThan(0);
+      const kbAfter = await counter();
+      log(`keyboard ArrowLeft "${kbBefore}" → "${kbAfter}"`);
+      expect(kbAfter.length, "sr-only counter non-empty").toBeGreaterThan(0);
+      expect(kbAfter, "ArrowLeft must advance the scene (RTL next)").not.toBe(kbBefore);
     }
 
     // full grid below the showcase stays intact (2 items created above)

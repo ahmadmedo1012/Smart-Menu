@@ -186,9 +186,12 @@ const MenuItemCard = memo(function MenuItemCard({
 					)}
 				</div>
 
-				{/* Discount badge — top-end */}
+				{/* Discount badge — top-end. round80: unified savings semantic —
+				 * discount/savings = success family (same meaning, same color as
+				 * FeaturedShowcase's discounted price). destructive stays reserved
+				 * for errors/unavailability. */}
 				{hasDiscount && (
-					<div className="absolute top-3 end-3 z-10 rounded-md bg-destructive px-2 py-1 text-[10px] font-bold text-destructive-foreground">
+					<div className="absolute top-3 end-3 z-10 rounded-md bg-success px-2 py-1 text-[10px] font-bold text-success-foreground">
 						-{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
 					</div>
 				)}
@@ -252,9 +255,18 @@ const MenuItemCard = memo(function MenuItemCard({
 					</div>
 				)}
 
-				{/* Price row — saffron ink, warm on hover */}
+				{/* Price row — round80: discounted price carries the unified savings
+				 * semantic (text-success, identical to FeaturedShowcase); full price
+				 * keeps the brand primary ink with the warm hover. */}
 				<div className="flex items-center gap-2 flex-wrap">
-					<span className="text-xl font-bold text-primary group-hover:text-[var(--c-ember)] transition-colors duration-300 tabular-nums">
+					<span
+						className={cn(
+							'text-xl font-bold transition-colors duration-300 tabular-nums',
+							hasDiscount
+								? 'text-success'
+								: 'text-primary group-hover:text-[var(--c-ember)]'
+						)}
+					>
 						{toArabicNumber(currentPrice.toFixed(1))}
 					</span>
 					<span className="text-xs text-muted-foreground">د.ل</span>
