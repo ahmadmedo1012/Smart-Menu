@@ -1,4 +1,5 @@
 'use client';
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -247,8 +248,8 @@ function SubscribeContent() {
 				if (!regRes.ok) throw new Error(regJson.error ?? 'فشل إنشاء الحساب');
 				setPaymentOpen(true);
 				setSseOpen(true);
-			} catch (e: any) {
-				premiumToast('error', e.message);
+			} catch (e) {
+				premiumToast('error', getErrorMessage(e));
 				submittedRef.current = false; // allow retry after register failure
 			} finally {
 				setSubmitting(false);
@@ -320,8 +321,8 @@ function SubscribeContent() {
 			}
 			premiumToast('success', 'تم إنشاء الحساب! يمكنك تسجيل الدخول الآن');
 			router.push('/login');
-		} catch (e: any) {
-			premiumToast('error', e.message);
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e));
 		} finally {
 			setSubmitting(false);
 		}

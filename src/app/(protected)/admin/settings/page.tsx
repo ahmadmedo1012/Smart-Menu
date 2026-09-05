@@ -1,4 +1,5 @@
 "use client"
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { csrfFetch } from "@/lib/csrf-client";
 import { useEffect, useState } from "react"
@@ -165,8 +166,8 @@ export default function AdminSettingsPage() {
       const p = await fetch("/api/admin/profile")
       const pj = await p.json()
       if (pj.data) { setProfile(pj.data); setProfileName(pj.data.name); setProfileEmail(pj.data.email ?? ""); setProfilePhone(pj.data.phone ?? "") }
-    } catch (e: any) {
-      premiumToast("error", e.message || "فشل حفظ الملف الشخصي")
+    } catch (e) {
+      premiumToast("error", getErrorMessage(e, "فشل حفظ الملف الشخصي"))
     } finally { setProfileSaving(false) }
   }
 

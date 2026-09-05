@@ -1,4 +1,5 @@
 'use client';
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { csrfFetch } from '@/lib/csrf-client';
 import { useEffect, useState, useCallback } from 'react';
@@ -176,8 +177,8 @@ export default function AdminTelegramPage() {
 			const json = await res.json();
 			if (!json.success) throw new Error(json.error || 'فشل الحفظ');
 			premiumToast('save', 'تم حفظ إعدادات تليجرام');
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل حفظ الإعدادات');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل حفظ الإعدادات'));
 		} finally {
 			setSaving(false);
 		}
@@ -190,8 +191,8 @@ export default function AdminTelegramPage() {
 			const json = await res.json();
 			if (!json.success) throw new Error(json.error || 'فشل الإرسال');
 			premiumToast('success', 'تم إرسال رسالة الاختبار بنجاح!');
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل إرسال رسالة الاختبار');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل إرسال رسالة الاختبار'));
 		} finally {
 			setTesting(false);
 		}
@@ -206,8 +207,8 @@ export default function AdminTelegramPage() {
 			if (!json.success) throw new Error(json.error || 'فشل التشخيص');
 			setDiagnose(json.data);
 			setLinkedAdmins(json.data.linkedAdmins ?? 0);
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل التشخيص');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل التشخيص'));
 		} finally {
 			setDiagnosing(false);
 		}
@@ -224,8 +225,8 @@ export default function AdminTelegramPage() {
 			if (!json.success) throw new Error(json.error || 'فشل الإضافة');
 			setTargets((prev) => [json.data, ...prev]);
 			premiumToast('success', 'تمت إضافة جهة الإرسال');
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل إضافة جهة الإرسال');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل إضافة جهة الإرسال'));
 		}
 	};
 
@@ -239,8 +240,8 @@ export default function AdminTelegramPage() {
 			const json = await res.json();
 			if (!json.success) throw new Error(json.error || 'فشل التحديث');
 			setTargets((prev) => prev.map((t) => (t.id === id ? { ...t, isActive } : t)));
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل تحديث الحالة');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة'));
 		}
 	};
 
@@ -251,8 +252,8 @@ export default function AdminTelegramPage() {
 			if (!json.success) throw new Error(json.error || 'فشل الحذف');
 			setTargets((prev) => prev.filter((t) => t.id !== id));
 			premiumToast('success', 'تم حذف جهة الإرسال');
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل حذف جهة الإرسال');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل حذف جهة الإرسال'));
 		}
 	};
 

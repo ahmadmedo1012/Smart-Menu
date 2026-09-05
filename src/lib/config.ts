@@ -2,31 +2,8 @@ import { error as logError } from "@/lib/logger";
 import { prisma } from "./db";
 import { getAesGcmKeyRaw } from "./keys";
 
-export async function getConfig(key: string): Promise<unknown> {
-  const entry = await prisma.systemConfig.findUnique({ where: { key } });
-  return entry?.value ?? null;
-}
-
-export async function getConfigOrThrow<T>(key: string): Promise<T> {
-  const value = await getConfig(key);
-  if (value === null || value === undefined) {
-    throw new Error(`Config key "${key}" not found`);
-  }
-  return value as T;
-}
-
-export async function getConfigByCategory(category: string) {
-  return prisma.systemConfig.findMany({
-    where: { category },
-    orderBy: { key: "asc" },
-  });
-}
-
-export async function getAllConfigs() {
-  return prisma.systemConfig.findMany({
-    orderBy: [{ category: "asc" }, { key: "asc" }],
-  });
-}
+// round85-C7: dead system-config reader helpers removed (the admin config
+// route queries prisma directly; nothing imported them).
 
 // Config encryption helpers for secret values
 const encoder = new TextEncoder();

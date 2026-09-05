@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
 
 type ActiveRestaurant = {
-	id: number;
-	name: string;
-	slug: string;
+        id: number;
+        name: string;
+        slug: string;
 } | null;
 
 /**
@@ -15,75 +15,80 @@ type ActiveRestaurant = {
  * Pages should pass the returned id as `restaurantId` in API calls.
  */
 export function useActiveRestaurant(): {
-	activeRestaurant: ActiveRestaurant;
-	activeId: number | null;
-	loaded: boolean;
+        activeRestaurant: ActiveRestaurant;
+        activeId: number | null;
+        loaded: boolean;
 } {
-	const [activeRestaurant, setActiveRestaurant] = useState<ActiveRestaurant>(null);
-	const [activeId, setActiveId] = useState<number | null>(null);
-	const [loaded, setLoaded] = useState(false);
+        const [activeRestaurant, setActiveRestaurant] = useState<ActiveRestaurant>(null);
+        const [activeId, setActiveId] = useState<number | null>(null);
+        const [loaded, setLoaded] = useState(false);
 
-	useEffect(() => {
-		let cancelled = false;
+        useEffect(() => {
+                let cancelled = false;
 
-		async function resolve() {
-			try {
-				// 1. localStorage override
-				const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));
-				// 2. Owner's restaurants list (validates ownership + gives name/slug)
-				const res = await fetch('/api/owner/restaurants');
-				const json = await res.json();
+                async function resolve() {
+                        try {
+                                // 1. localStorage override
+                                const stored = Number(localStorage.getItem(ACTIVE_RESTAURANT_KEY));
+                                // 2. Owner's restaurants list (validates ownership + gives name/slug)
+                                const res = await fetch('/api/owner/restaurants');
+                                // round85-C9: res.ok guard — a 401/429/500 HTML or text body
+                                // previously flowed into res.json() and threw an unhelpful
+                                // SyntaxError instead of taking the auth/me fallback path.
+                                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                                const json = await res.json();
                                 // Array.isArray guard: 401 error bodies are objects, not lists.
                                 const list = (Array.isArray(json.data) ? json.data : []) as { id: number; name: string; slug: string; isPrimary: boolean }[];
 
                                 if (list.length === 0) {
-					if (!cancelled) setLoaded(true);
-					return;
-				}
+                                        if (!cancelled) setLoaded(true);
+                                        return;
+                                }
 
-				const match = list.find((r) => r.id === stored);
-				const active = match ?? list.find((r) => r.isPrimary) ?? list[0];
-				if (active && !cancelled) {
-					setActiveRestaurant({ id: active.id, name: active.name, slug: active.slug });
-					setActiveId(active.id);
-					// Persist so the switcher stays in sync
-					localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(active.id));
-				}
-			} catch {
-				// Fallback: /api/auth/me primary
-				try {
-					const meRes = await fetch('/api/auth/me');
-					const meJson = await meRes.json();
-					const rid = meJson.data?.restaurantId;
-					if (rid && !cancelled) {
-						setActiveId(rid);
-						setActiveRestaurant({ id: rid, name: '', slug: '' });
-					}
-				} catch {
-					/* noop */
-				}
-			} finally {
-				if (!cancelled) setLoaded(true);
-			}
-		}
+                                const match = list.find((r) => r.id === stored);
+                                const active = match ?? list.find((r) => r.isPrimary) ?? list[0];
+                                if (active && !cancelled) {
+                                        setActiveRestaurant({ id: active.id, name: active.name, slug: active.slug });
+                                        setActiveId(active.id);
+                                        // Persist so the switcher stays in sync
+                                        localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(active.id));
+                                }
+                        } catch {
+                                // Fallback: /api/auth/me primary
+                                try {
+                                        const meRes = await fetch('/api/auth/me');
+                                        if (!meRes.ok) throw new Error(`HTTP ${meRes.status}`);
+                                        const meJson = await meRes.json();
+                                        const rid = meJson.data?.restaurantId;
+                                        if (rid && !cancelled) {
+                                                setActiveId(rid);
+                                                setActiveRestaurant({ id: rid, name: '', slug: '' });
+                                        }
+                                } catch {
+                                        /* noop */
+                                }
+                        } finally {
+                                if (!cancelled) setLoaded(true);
+                        }
+                }
 
-		resolve();
+                resolve();
 
-		// Re-resolve when the RestaurantSwitcher writes a new active restaurant
-		// (switcher sets localStorage; storage event fires on same-document writes too).
-		const onStorage = () => {
-			if (!cancelled) resolve();
-		};
-		window.addEventListener('storage', onStorage);
-		// Custom event for same-tab switcher changes (storage event only fires cross-tab)
-		window.addEventListener('smartmenu:restaurant-change', onStorage);
+                // Re-resolve when the RestaurantSwitcher writes a new active restaurant
+                // (switcher sets localStorage; storage event fires on same-document writes too).
+                const onStorage = () => {
+                        if (!cancelled) resolve();
+                };
+                window.addEventListener('storage', onStorage);
+                // Custom event for same-tab switcher changes (storage event only fires cross-tab)
+                window.addEventListener('smartmenu:restaurant-change', onStorage);
 
-		return () => {
-			cancelled = true;
-			window.removeEventListener('storage', onStorage);
-			window.removeEventListener('smartmenu:restaurant-change', onStorage);
-		};
-	}, []);
+                return () => {
+                        cancelled = true;
+                        window.removeEventListener('storage', onStorage);
+                        window.removeEventListener('smartmenu:restaurant-change', onStorage);
+                };
+        }, []);
 
-	return { activeRestaurant, activeId, loaded };
+        return { activeRestaurant, activeId, loaded };
 }

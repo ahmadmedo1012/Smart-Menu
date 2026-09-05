@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
-import { csrfFetch } from '@/lib/csrf-client';
-import {AlertCircle, Phone, User, FileText, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import {AlertCircle, Phone, User, FileText} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -15,88 +14,30 @@ import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
-import { buildOrderShareText } from '@/lib/receipt';
+import {
+        useOrderDetail,
+        updateOrderStatus,
+        copyOrderShareText,
+        STATUS_CONFIG,
+        STATUS_FLOW,
+} from '@/components/orders/useOrderDetail';
 
-interface OrderDetail {
-	id: number;
-	orderNo: string;
-	customerName: string;
-	customerPhone: string;
-	notes: string;
-	pickupType: string;
-	status: string;
-	subtotal: number;
-	total: number;
-	createdAt: string;
-	items: {
-		id: number;
-		quantity: number;
-		price: number;
-		item: { name: string; nameAr: string | null };
-	}[];
-}
 
-const STATUS_FLOW = ['new', 'preparing', 'ready', 'completed'] as const;
-const STATUS_CONFIG: Record<
-	string,
-	{ label: string; icon: typeof Clock; color: string; bg: string }
-> = {
-	new: {
-		label: 'جديد',
-		icon: Clock,
-		color: 'text-orange dark:text-orange',
-		bg: 'bg-orange-muted dark:bg-orange-muted',
-	},
-	preparing: {
-		label: 'قيد التحضير',
-		icon: ChefHat,
-		color: 'text-orange dark:text-orange',
-		bg: 'bg-orange-muted dark:bg-orange-muted',
-	},
-	ready: { label: 'جاهز', icon: PackageCheck, color: 'text-success', bg: 'bg-success/10' },
-	completed: { label: 'مكتمل', icon: CheckCircle, color: 'text-muted-foreground', bg: 'bg-muted' },
-	cancelled: {
-		label: 'ملغي',
-		icon: XCircle,
-		color: 'text-destructive',
-		bg: 'bg-destructive/15',
-	},
-};
 
 export default function OwnerOrderDetail({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = use(params);
 	const router = useRouter();
-	const [order, setOrder] = useState<OrderDetail | null>(null);
-	const [loading, setLoading] = useState(true);
+	// round85-C3: shared logic spine (fetch/status/copy) — was duplicated in admin
+	const { order, setOrder, loading, error } = useOrderDetail(id);
 	const [copied, setCopied] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 	const [updating, setUpdating] = useState(false);
-
-	useEffect(() => {
-		setLoading(true);
-		setError(null);
-		fetch(`/api/orders/${id}`)
-			.then((r) => {
-				if (!r.ok) throw new Error('الطلب غير موجود');
-				return r.json();
-			})
-			.then((d) => setOrder(d.data ?? d))
-			.catch(() => setError('فشل تحميل الطلب'))
-			.finally(() => setLoading(false));
-	}, [id]);
 
 	const updateStatus = async (status: string) => {
 		if (updating) return;
 		setUpdating(true);
 		try {
-			const res = await csrfFetch(`/api/orders/${id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ status }),
-			});
-			if (!res.ok) throw Error();
-			const d = await res.json();
-			setOrder(d.data ?? d);
+			const updated = await updateOrderStatus(id, status);
+			setOrder(updated);
 			premiumToast('success', `تم تغيير الحالة إلى ${STATUS_CONFIG[status]?.label}`);
 		} catch {
 			premiumToast('error', 'فشل تحديث الحالة');
@@ -107,8 +48,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 
 	const copyAsWhatsApp = () => {
 		if (!order) return;
-		const text = buildOrderShareText(order);
-		navigator.clipboard.writeText(text).then(() => {
+		copyOrderShareText(order, false).then(() => {
 			setCopied(true);
 			premiumToast('copy', 'تم نسخ نص الطلب');
 			setTimeout(() => setCopied(false), 2000);

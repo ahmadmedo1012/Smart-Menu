@@ -54,7 +54,14 @@ export async function POST(request: NextRequest) {
 
     const body = createEventSchema.parse(await request.json());
     const event = await prisma.systemEvent.create({
-      data: { ...body, read: false } as any,
+      data: {
+        eventType: body.eventType,
+        title: body.title,
+        message: body.message,
+        severity: body.severity,
+        metadata: body.metadata as object,
+        read: false,
+      },
     });
     return success(event, 201);
   } catch (e) {
@@ -75,7 +82,14 @@ export async function PUT(request: NextRequest) {
     const { id, ...data } = body;
     const event = await prisma.systemEvent.update({
       where: { id },
-      data: data as any,
+      data: {
+        ...("eventType" in data && { eventType: data.eventType }),
+        ...("title" in data && { title: data.title }),
+        ...("message" in data && { message: data.message }),
+        ...("severity" in data && { severity: data.severity }),
+        ...("read" in data && { read: data.read }),
+        ...("metadata" in data && { metadata: data.metadata as object }),
+      },
     });
     return success(event);
   } catch (e) {

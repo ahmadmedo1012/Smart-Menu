@@ -1,4 +1,5 @@
 'use client';
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -74,8 +75,8 @@ export default function OwnerRestaurantsPage() {
 			setShowAdd(false);
 			setNewMenu({ name: '', slug: '', description: '' });
 			load();
-		} catch (e: any) {
-			premiumToast('error', e.message);
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e));
 		} finally {
 			setSaving(false);
 		}
@@ -93,8 +94,8 @@ export default function OwnerRestaurantsPage() {
 			premiumToast('success', 'تم تعيين المنيو كأساسي');
 			localStorage.setItem(ACTIVE_RESTAURANT_KEY, String(id));
 			load();
-		} catch (e: any) {
-			premiumToast('error', e.message);
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e));
 		}
 	};
 
@@ -109,8 +110,8 @@ export default function OwnerRestaurantsPage() {
 				localStorage.removeItem(ACTIVE_RESTAURANT_KEY);
 			}
 			load();
-		} catch (e: any) {
-			premiumToast('error', e.message);
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e));
 		}
 	};
 

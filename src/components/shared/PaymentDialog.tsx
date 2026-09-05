@@ -1,4 +1,5 @@
 'use client';
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 import { Button } from '@/components/ui/button';
@@ -166,8 +167,8 @@ export function PaymentDialog({
 			if (!res.ok) throw new Error(json.error ?? 'فشل إرسال طلب الدفع');
 			setPaymentId(json.data.id);
 			setStep('waiting');
-		} catch (e: any) {
-			premiumToast('error', e.message);
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e));
 			sentRef.current = false; // allow retry on failure
 		} finally {
 			setSubmitting(false);

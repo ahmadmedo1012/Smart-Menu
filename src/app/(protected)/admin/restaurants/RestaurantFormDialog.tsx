@@ -34,6 +34,12 @@ interface Restaurant {
 	workingHours: string;
 	planId: number | null;
 	plan: Plan | null;
+	// round85-C8: these fields ARE returned by /api/restaurants — the interface
+	// just didn't list them (hence the three `as any` casts). Optional because
+	// some callers' list types omit them (null-safe reads below).
+	city?: string | null;
+	showOnLanding?: boolean | null;
+	featuredRank?: number | null;
 	_count: { orders: number; categories: number };
 }
 
@@ -95,10 +101,9 @@ export function RestaurantFormDialog({
 				address: editing.address || '',
 				workingHours: editing.workingHours || '',
 				planId: editing.planId ? String(editing.planId) : '',
-				city: (editing as any).city || '',
-				showOnLanding: (editing as any).showOnLanding ?? false,
-				featuredRank:
-					(editing as any).featuredRank != null ? String((editing as any).featuredRank) : '',
+				city: editing.city || '',
+				showOnLanding: editing.showOnLanding ?? false,
+				featuredRank: editing.featuredRank != null ? String(editing.featuredRank) : '',
 			});
 		} else if (o && !editing) {
 			setForm({

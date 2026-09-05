@@ -1,4 +1,5 @@
 'use client';
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
@@ -69,8 +70,8 @@ export function DiagnosticsSection({
 			setNewApproverId('');
 			setNewApproverLabel('');
 			premiumToast('success', 'تمت إضافة الموافق');
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل إضافة الموافق');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل إضافة الموافق'));
 		} finally {
 			setAddingApprover(false);
 		}
@@ -83,8 +84,8 @@ export function DiagnosticsSection({
 			if (!json.success) throw new Error(json.error || 'فشل الحذف');
 			onApproversChange(approvers.filter((x) => x.id !== id));
 			premiumToast('success', 'تم حذف الموافق');
-		} catch (e: any) {
-			premiumToast('error', e.message || 'فشل حذف الموافق');
+		} catch (e) {
+			premiumToast('error', getErrorMessage(e, 'فشل حذف الموافق'));
 		}
 	};
 

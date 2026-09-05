@@ -25,7 +25,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 		const { searchParams } = new URL(req.url);
 		const minRating = searchParams.get('minRating');
 
-		const where: any = { menuItemId: itemId };
+		// round85-C8: structurally typed where (ReviewWhereInput-compatible)
+		const where: { menuItemId: number; rating?: { gte: number } } = { menuItemId: itemId };
 		if (minRating) {
 			const min = Number(minRating);
 			if (!Number.isNaN(min) && min >= 1 && min <= 5) {

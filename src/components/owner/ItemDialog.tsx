@@ -1,5 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
+import {
+        DIETARY_OPTIONS,
+        ALLERGEN_OPTIONS,
+        DIETARY_ICONS,
+        DIETARY_LABELS,
+        ALLERGEN_LABELS,
+} from '@/lib/dietary';
 import {Loader2, AlertTriangle} from 'lucide-react';
 import AnimatedUpload from '@/components/ui/upload-icon';
 import { Button } from '@/components/ui/button';
@@ -34,63 +41,7 @@ interface Item {
         showcaseTags?: string[] | null;
 }
 
-const DIETARY_OPTIONS = [
-        'vegetarian',
-        'vegan',
-        'gluten_free',
-        'dairy_free',
-        'halal',
-        'keto',
-        'sugar_free',
-        'organic',
-        'spicy',
-];
-const ALLERGEN_OPTIONS = [
-        'gluten',
-        'dairy',
-        'eggs',
-        'fish',
-        'shellfish',
-        'tree_nuts',
-        'peanuts',
-        'soy',
-        'sesame',
-];
-const DIETARY_ICONS: Record<string, string> = {
-        vegetarian: '🌿',
-        vegan: '🌱',
-        gluten_free: '🌾',
-        dairy_free: '🧀',
-        halal: '☪️',
-        keto: '🥑',
-        sugar_free: '🚫',
-        organic: '🌍',
-        spicy: '🌶️',
-};
 
-// Arabic labels for dietary/allergen badges (i18n — was showing English keys)
-const DIETARY_LABELS: Record<string, string> = {
-        vegetarian: 'نباتي',
-        vegan: 'نباتي صرف',
-        gluten_free: 'خالٍ من الغلوتين',
-        dairy_free: 'خالٍ من الألبان',
-        halal: 'حلال',
-        keto: 'كيتو',
-        sugar_free: 'بدون سكر',
-        organic: 'عضوي',
-        spicy: 'حار',
-};
-const ALLERGEN_LABELS: Record<string, string> = {
-        gluten: 'غلوتين',
-        dairy: 'ألبان',
-        eggs: 'بيض',
-        fish: 'سمك',
-        shellfish: 'قشريات',
-        tree_nuts: 'مكسرات',
-        peanuts: 'فول سوداني',
-        soy: 'صويا',
-        sesame: 'سمسم',
-};
 
 const initForm = (catId: number) => ({
         name: '',

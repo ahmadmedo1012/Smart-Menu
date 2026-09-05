@@ -1,13 +1,11 @@
 'use client';
 
-import { csrfFetch } from '@/lib/csrf-client';
-import { premiumToast } from '@/lib/premium-toast';
-
-import { useEffect, useState, use } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {AlertCircle, Phone, User, FileText, Store, Clock, ChefHat, PackageCheck, CheckCircle, XCircle} from 'lucide-react';
+import { premiumToast } from '@/lib/premium-toast';
+import {AlertCircle, Phone, User, FileText, Store} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -16,79 +14,32 @@ import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
-import { buildOrderShareText } from '@/lib/receipt';
+import {
+	useOrderDetail,
+	updateOrderStatus,
+	copyOrderShareText,
+	STATUS_CONFIG,
+	STATUS_FLOW,
+} from '@/components/orders/useOrderDetail';
 import Link from 'next/link';
 
-interface OrderDetail {
-	id: number;
-	orderNo: string;
-	customerName: string;
-	customerPhone: string;
-	notes: string;
-	pickupType: string;
-	status: string;
-	subtotal: number;
-	total: number;
-	createdAt: string;
-	restaurant: { id: number; name: string; slug: string } | null;
-	items: {
-		id: number;
-		quantity: number;
-		price: number;
-		item: { name: string; nameAr: string | null };
-	}[];
-}
 
-const STATUS_FLOW = ['new', 'preparing', 'ready', 'completed'] as const;
-const STATUS_CONFIG: Record<
-	string,
-	{ label: string; icon: typeof Clock; color: string; bg: string }
-> = {
-	new: { label: 'جديد', icon: Clock, color: 'text-orange dark:text-orange', bg: 'bg-orange/10' },
-	preparing: {
-		label: 'قيد التحضير',
-		icon: ChefHat,
-		color: 'text-orange dark:text-orange',
-		bg: 'bg-orange/10',
-	},
-	ready: { label: 'جاهز', icon: PackageCheck, color: 'text-success', bg: 'bg-success/10' },
-	completed: { label: 'مكتمل', icon: CheckCircle, color: 'text-muted-foreground', bg: 'bg-muted' },
-	cancelled: {
-		label: 'ملغي',
-		icon: XCircle,
-		color: 'text-destructive',
-		bg: 'bg-destructive/15',
-	},
-};
 
 export default function AdminOrderDetail({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = use(params);
 	const router = useRouter();
-	const [order, setOrder] = useState<OrderDetail | null>(null);
-	const [loading, setLoading] = useState(true);
+	// round85-C3: shared logic spine — also upgrades this page from silent
+	// fetch errors to the owner-grade error state below
+	const { order, setOrder, loading, error } = useOrderDetail(id);
 	const [updating, setUpdating] = useState(false);
 	const [copied, setCopied] = useState(false);
-
-	useEffect(() => {
-		fetch(`/api/orders/${id}`)
-			.then((r) => r.json())
-			.then((d) => setOrder(d.data ?? d))
-			.catch(() => {})
-			.finally(() => setLoading(false));
-	}, [id]);
 
 	const updateStatus = async (status: string) => {
 		if (updating) return;
 		setUpdating(true);
 		try {
-			const res = await csrfFetch(`/api/orders/${id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ status }),
-			});
-			if (!res.ok) throw Error();
-			const d = await res.json();
-			setOrder(d.data ?? d);
+			const updated = await updateOrderStatus(id, status);
+			setOrder(updated);
 			premiumToast('success', 'تم تغيير الحالة', STATUS_CONFIG[status]?.label);
 		} catch {
 			premiumToast('error', 'فشل تحديث الحالة');
@@ -99,10 +50,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 
 	const copyAsWhatsApp = () => {
 		if (!order) return;
-		const body = buildOrderShareText(order);
-		const restaurantLine = order.restaurant?.name ? `🏪 ${order.restaurant.name}\n` : '';
-		const text = restaurantLine + body;
-		navigator.clipboard.writeText(text).then(() => {
+		copyOrderShareText(order, true).then(() => {
 			setCopied(true);
 			premiumToast('success', 'تم نسخ نص الطلب');
 			setTimeout(() => setCopied(false), 2000);
@@ -123,6 +71,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 			<div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
 				<AlertCircle className="size-12 text-destructive/60" />
 				<p className="text-lg font-semibold">الطلب غير موجود</p>
+				{error && <p className="text-sm text-muted-foreground">{error}</p>}
 				<Button variant="outline" onClick={() => router.push('/admin/orders')}>
 					العودة للطلبات
 				</Button>

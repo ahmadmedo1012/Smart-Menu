@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { success, handleError } from "@/lib/api-helpers";
 
+// Landing page hits this on every visit — cached at most every 60s.
 export const revalidate = 60;
 
+// round85-C6: migrated to the shared api-helpers envelope (was the only
+// route returning a bare { error } without the success flag — inconsistent
+// shape for every client that expects { success, data }).
 export async function GET() {
   try {
     const [totalRestaurants, totalUsers] = await Promise.all([
@@ -10,14 +14,8 @@ export async function GET() {
       prisma.user.count(),
     ]);
 
-    return NextResponse.json({
-      totalRestaurants,
-      totalUsers,
-    });
-  } catch {
-    return NextResponse.json(
-      { error: "فشل تحميل الإحصائيات" },
-      { status: 500 }
-    );
+    return success({ totalRestaurants, totalUsers });
+  } catch (e) {
+    return handleError(e);
   }
 }

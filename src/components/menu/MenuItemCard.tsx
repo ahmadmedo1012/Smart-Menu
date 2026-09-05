@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, memo } from 'react';
+import { DIETARY_ICONS, DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
@@ -14,43 +15,7 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 const CARD_SPRING = { type: 'spring' as const, stiffness: 500, damping: 25 };
 const HOVER_SPRING = { type: 'spring' as const, stiffness: 300, damping: 20 };
 
-const DIETARY_ICONS: Record<string, string> = {
-	vegetarian: '🌿',
-	vegan: '🌱',
-	gluten_free: '🌾',
-	dairy_free: '🧀',
-	halal: '☪️',
-	keto: '🥑',
-	sugar_free: '🚫',
-	organic: '🌍',
-	spicy: '🌶️',
-	sugarconscious: '🍃',
-};
 
-// Arabic labels for dietary/allergen badges shown to CUSTOMERS
-const DIETARY_LABELS: Record<string, string> = {
-	vegetarian: 'نباتي',
-	vegan: 'نباتي صرف',
-	gluten_free: 'خالٍ من الغلوتين',
-	dairy_free: 'خالٍ من الألبان',
-	halal: 'حلال',
-	keto: 'كيتو',
-	sugar_free: 'بدون سكر',
-	organic: 'عضوي',
-	spicy: 'حار',
-	sugarconscious: 'سكر معتدل',
-};
-const ALLERGEN_LABELS: Record<string, string> = {
-	gluten: 'غلوتين',
-	dairy: 'ألبان',
-	eggs: 'بيض',
-	fish: 'سمك',
-	shellfish: 'قشريات',
-	tree_nuts: 'مكسرات',
-	peanuts: 'فول سوداني',
-	soy: 'صويا',
-	sesame: 'سمسم',
-};
 
 export type MenuItemProp = {
 	id: number;

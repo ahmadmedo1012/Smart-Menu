@@ -27,24 +27,27 @@ export async function fetchPublicStats(): Promise<PublicStats> {
         throw new Error("Stats unavailable (HTML response)");
       }
       const data2: unknown = await retry.json();
+      const payload2 = (data2 as { data?: PublicStats })?.data;
       if (
-        !data2 ||
-        typeof (data2 as PublicStats).totalRestaurants !== "number" ||
-        typeof (data2 as PublicStats).totalUsers !== "number"
+        !payload2 ||
+        typeof payload2.totalRestaurants !== "number" ||
+        typeof payload2.totalUsers !== "number"
       ) {
         throw new Error("Bad stats payload");
       }
-      return data2 as PublicStats;
+      return payload2;
     }
     const data: unknown = await res.json();
+    // round85-C6: /api/public/stats now uses the shared { success, data } envelope
+    const payload = (data as { data?: PublicStats })?.data;
     if (
-      !data ||
-      typeof (data as PublicStats).totalRestaurants !== "number" ||
-      typeof (data as PublicStats).totalUsers !== "number"
+      !payload ||
+      typeof payload.totalRestaurants !== "number" ||
+      typeof payload.totalUsers !== "number"
     ) {
       throw new Error("Bad stats payload");
     }
-    return data as PublicStats;
+    return payload;
   } catch {
     // Keep the section in its loading state rather than fabricating numbers.
     return { totalRestaurants: 0, totalUsers: 0 };

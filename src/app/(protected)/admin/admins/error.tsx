@@ -1,21 +1,22 @@
 "use client"
 
-import { useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import {AlertCircle} from 'lucide-react';
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';
+import { DefaultError } from "@/components/shared/DefaultError"
 
-export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => { console.error(error) }, [error])
-
-  return (
-    <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in" aria-live="assertive">
-      <AlertCircle className="size-10 text-destructive" />
-      <p className="text-lg font-medium">حدث خطأ</p>
-      <p className="text-sm text-muted-foreground">{error.message}</p>
-      <Button variant="outline" onClick={reset} className="gap-2">
-        <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
-      </Button>
-    </div>
-  )
+export default function ErrorPage({
+        error,
+        reset,
+}: {
+        error: Error & { digest?: string }
+        reset: () => void
+}) {
+        return (
+                <DefaultError
+                        error={error}
+                        reset={reset}
+                        title="حدث خطأ"
+                        description="حدث خطأ"
+                        backHref="/"
+                        backLabel="العودة للرئيسية"
+                />
+        )
 }

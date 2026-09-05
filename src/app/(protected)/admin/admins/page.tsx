@@ -1,4 +1,5 @@
 "use client"
+import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
@@ -107,8 +108,8 @@ export default function AdminAdminsPage() {
       setInviteForm({ username: "", name: "", password: "" })
       setInvitePerms([])
       fetchAdmins()
-    } catch (e: any) {
-      premiumToast("error", e.message || "فشل إنشاء المسؤول")
+    } catch (e) {
+      premiumToast("error", getErrorMessage(e, "فشل إنشاء المسؤول"))
     } finally {
       setInviting(false)
     }
@@ -160,8 +161,8 @@ export default function AdminAdminsPage() {
       premiumToast("trash", "تم حذف المسؤول")
       setDeleteTarget(null)
       fetchAdmins()
-    } catch (e: any) {
-      premiumToast("error", e.message || "فشل حذف المسؤول")
+    } catch (e) {
+      premiumToast("error", getErrorMessage(e, "فشل حذف المسؤول"))
     } finally {
       setDeleting(false)
     }

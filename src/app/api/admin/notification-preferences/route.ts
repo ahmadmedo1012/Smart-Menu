@@ -28,8 +28,14 @@ function defaultMatrix() {
   };
 }
 
+/** round85-C8: typed prefs matrix (stored JSON) — kills the `as any` reads. */
+type PrefsMatrix = {
+  channels?: Record<string, boolean>;
+  events?: Record<string, { in_app?: boolean; telegram?: boolean; system_log?: boolean }>;
+};
+
 /** Derive flat booleans from the events matrix (the page speaks this format). */
-function flatFromMatrix(events: Record<string, { telegram: boolean }>) {
+function flatFromMatrix(events: NonNullable<PrefsMatrix["events"]>) {
   return {
     telegramNotifyOrders: events.new_order?.telegram ?? true,
     telegramNotifyPayments: events.payment?.telegram ?? true,
@@ -65,12 +71,13 @@ export async function GET() {
 
     if (!user) return error("المستخدم غير موجود", 404);
 
-    const prefs = user.notificationPrefs as Record<string, unknown> | null;
-    const matrix = prefs && typeof prefs === "object" && "channels" in prefs
-      ? prefs
-      : defaultMatrix();
+    const prefs = user.notificationPrefs as PrefsMatrix | null;
+    const matrix: PrefsMatrix =
+      prefs && typeof prefs === "object" && "channels" in prefs
+        ? prefs
+        : defaultMatrix();
 
-    return success(flatFromMatrix((matrix as any).events ?? {}));
+    return success(flatFromMatrix(matrix.events ?? {}));
   } catch (e) {
     return handleError(e);
   }

@@ -31,6 +31,8 @@ interface Restaurant {
   workingHours: string; planId: number | null;
   plan: Plan | null;
   city: string; showOnLanding: boolean;
+  // round85-C8: dialog reads these (featuredRank drives the landing order input)
+  featuredRank?: number | null;
   _count: { orders: number; categories: number };
 }
 
