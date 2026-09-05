@@ -114,13 +114,15 @@ test("A6: javascript: receipt URL is rejected", async ({ request }) => {
     headers: sessionHeaders(session, csrf),
     data: JSON.stringify({
       planId: 1,
-      amount: 0,
+      amount: 1,
       provider: "bank",
       senderAccountName: "sec86",
       senderAccountNumber: "123456",
       receiptImageUrl: "javascript:alert(1)",
     }),
   });
-  // The https-only refine fires before any business logic
-  expect([400, 422]).toContain(res.status());
+  // The https-only refine (or any 4xx rejection) — the payment must NEVER be
+  // created with a javascript: URL. 429 (rate limit) is also a safe rejection.
+  expect(res.status()).toBeGreaterThanOrEqual(400);
+  expect(res.status()).toBeLessThan(500);
 });

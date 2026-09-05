@@ -1,5 +1,6 @@
-import { playBeep } from '@/lib/chime';
 'use client';
+
+import { playBeep } from '@/lib/chime';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckCheck, Loader2 } from 'lucide-react';

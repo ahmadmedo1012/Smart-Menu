@@ -56,7 +56,11 @@ test("network: no unexpected 4xx/5xx on key pages", async ({ page }) => {
     if (
       r.status() >= 400 &&
       (host.includes("localhost") || host.includes("127.0.0.1") || host === "menu.smart-link.ly") &&
-      !url.includes("/api/")
+      !url.includes("/api/") &&
+      // round86: @vercel/analytics requests /_vercel/insights/script.js which
+      // only exists as a Vercel-injected route — a localhost 404 is expected
+      // noise, not a product regression
+      !url.includes("/_vercel/")
     ) {
       bad.push(`${r.status()} ${url.slice(0, 80)}`);
     }

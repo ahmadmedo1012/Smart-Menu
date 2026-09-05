@@ -107,6 +107,12 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
+      # round86-D2: fixture for the localhost deep journeys (qa-teams specs
+      # hardcode testmulti1568 + restaurants 313..317 for the IDOR checks)
+      - run: node scripts/qa-seed.mjs
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
       - run: npm run lint
 
       # round85-D2: typecheck was never in CI (tsconfig excludes tests/e2e,

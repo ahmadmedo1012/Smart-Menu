@@ -462,8 +462,13 @@ for (const cell of MATRIX) {
       // id lands on a HIDDEN input, so target the role element directly
       await itemDlg.locator('[role="switch"]').click();
       await itemDlg.locator('[placeholder="تلقائي"]').fill(it.rank);
-      await itemDlg.locator('[placeholder="مقرمش"]').fill(it.tag);
-      await itemDlg.locator('button:has-text("إضافة")').first().click();
+      await itemDlg.locator('[placeholder*="الأكثر طلبًا"]').fill(it.tag);
+      // round86: the tags input commits via Enter (round83 UI) — the dialog
+      // now has an "إضافة" badge button BEFORE the footer submit, so .first()
+      // added the badge but never submitted; commit with Enter, then the
+      // FOOTER submit (last "إضافة" in the dialog) closes the dialog.
+      await itemDlg.locator('[placeholder*="الأكثر طلبًا"]').press('Enter');
+      await itemDlg.locator('button:has-text("إضافة")').last().click();
       await expect(itemDlg).toBeHidden({ timeout: 20000 });
       await settle(page, 1500);
     }
