@@ -72,7 +72,7 @@ export default async function RootLayout({
 				<link rel="icon" type="image/png" href="/favicon.png" />
 				<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
 				<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-				{/* ponytail: generate /apple-touch-icon.png (180x180) from public/icon-512.png via any image resizer */}
+				{/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
 				<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
                                 {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
                                 <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
