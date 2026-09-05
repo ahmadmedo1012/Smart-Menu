@@ -115,8 +115,8 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
 			onKeyDown={onKeyDown}
 		>
 			<div className="flex items-center justify-center gap-2 mb-3">
-				<SparklesIcon className="size-4 text-ember" aria-hidden="true" />
-				<h2 id="featured-showcase-heading" className="text-sm font-bold text-ember tracking-wide">
+				<SparklesIcon className="size-4 text-ember dark:text-saffron" aria-hidden="true" />
+				<h2 id="featured-showcase-heading" className="text-sm font-bold text-ember dark:text-saffron tracking-wide">
 					أصنافنا المميزة
 				</h2>
 			</div>
@@ -199,7 +199,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
 									className="relative rounded-3xl border border-border/40 shadow-xl shadow-orange/25 dark:shadow-orange/15"
 								/>
 							) : (
-								<div className="relative flex aspect-square items-center justify-center rounded-3xl border border-border/40 bg-orange-muted text-ember text-4xl font-black">
+								<div className="relative flex aspect-square items-center justify-center rounded-3xl border border-border/40 bg-orange-muted text-ember dark:text-saffron text-4xl font-black">
 									{displayName.slice(0, 1)}
 								</div>
 							)}

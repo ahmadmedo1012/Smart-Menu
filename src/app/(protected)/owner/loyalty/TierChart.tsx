@@ -8,7 +8,7 @@ const TIERS = [
   { key: "platinum", label: "بلاتيني", color: "text-info", bg: "bg-gradient-to-br from-info to-info/70", bar: "bg-gradient-to-r from-info to-info/70", icon: Sparkles },
   { key: "gold", label: "ذهبي", color: "text-ember dark:text-saffron", bg: "bg-gradient-to-br from-saffron to-ember", bar: "bg-gradient-to-r from-saffron to-ember", icon: Star },
   { key: "silver", label: "فضي", color: "text-muted-foreground", bg: "bg-gradient-to-br from-muted-foreground/40 to-muted-foreground/70", bar: "bg-gradient-to-r from-muted-foreground/40 to-muted-foreground/70", icon: Medal },
-  { key: "bronze", label: "برونزي", color: "text-ember/80", bg: "bg-gradient-to-br from-ember/60 to-ember/85", bar: "bg-gradient-to-r from-ember/60 to-ember/85", icon: Award },
+  { key: "bronze", label: "برونزي", color: "text-ember/80 dark:text-saffron/80", bg: "bg-gradient-to-br from-ember/60 to-ember/85", bar: "bg-gradient-to-r from-ember/60 to-ember/85", icon: Award },
 ]
 
 export function TierChart({ distribution }: { distribution: Record<string, number> }) {

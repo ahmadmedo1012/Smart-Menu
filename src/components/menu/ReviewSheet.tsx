@@ -188,7 +188,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								<h3 className="text-base font-bold">تقييمات {menuItemName}</h3>
 								{stats.totalCount > 0 && (
 									<p className="text-xs text-muted-foreground mt-0.5">
-										<span className="text-warning font-bold">
+										<span className="text-ember dark:text-saffron font-bold">
 											{toArabicNumber(stats.avgRating?.toFixed(1) ?? '0')}
 										</span>{' '}
 										⭐ · {toArabicNumber(stats.totalCount)} تقييم
