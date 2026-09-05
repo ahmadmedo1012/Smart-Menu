@@ -2,10 +2,9 @@ import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { success, handleError, error } from '@/lib/api-helpers';
-import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
-import { getNextTierInfo } from '@/lib/loyalty-tiers';
+import { getNextTierInfo, generateReferralCode } from '@/lib/loyalty-tiers';
 
 const loyaltyDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 // round85-A2: GET is an unauthenticated phone-to-card lookup — without a
@@ -21,9 +20,7 @@ const createSchema = z.object({
         restaurantId: z.number().int().positive().optional(),
 });
 
-function generateReferralCode(): string {
-        return randomBytes(8).toString('hex').toUpperCase();
-}
+
 
 export async function POST(request: NextRequest) {
         try {

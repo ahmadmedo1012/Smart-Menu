@@ -79,6 +79,9 @@ export function useOrderDetail(id: string) {
         const [error, setError] = useState<string | null>(null);
 
         useEffect(() => {
+                // round86-C6: cancellation flag — quick navigation A→B let A's late
+                // response overwrite B's data (same fix useActiveRestaurant has)
+                let cancelled = false;
                 setLoading(true);
                 setError(null);
                 fetch(`/api/orders/${id}`)
@@ -86,9 +89,18 @@ export function useOrderDetail(id: string) {
                                 if (!r.ok) throw new Error('الطلب غير موجود');
                                 return r.json();
                         })
-                        .then((d) => setOrder(d.data ?? d))
-                        .catch(() => setError('فشل تحميل الطلب'))
-                        .finally(() => setLoading(false));
+                        .then((d) => {
+                                if (!cancelled) setOrder(d.data ?? d);
+                        })
+                        .catch(() => {
+                                if (!cancelled) setError('فشل تحميل الطلب');
+                        })
+                        .finally(() => {
+                                if (!cancelled) setLoading(false);
+                        });
+                return () => {
+                        cancelled = true;
+                };
         }, [id]);
 
         return { order, setOrder, loading, error };

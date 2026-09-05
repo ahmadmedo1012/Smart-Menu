@@ -1,6 +1,7 @@
 "use client"
 
 import {Pencil, Crown, Star, Building2, Store, FilterX, Sparkles} from 'lucide-react';
+import type { PlanSummary as Plan } from '@/lib/plan-types';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
@@ -11,10 +12,6 @@ import AnimatedExternalLink from "@/components/ui/external-link-icon"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
-
-interface Plan {
-  id: number; name: string; nameAr: string; price: number;
-}
 
 interface Restaurant {
   id: number; name: string; slug: string; description: string;

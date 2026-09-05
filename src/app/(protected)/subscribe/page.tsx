@@ -1,5 +1,6 @@
 'use client';
 import { getErrorMessage } from '@/lib/get-error-message';
+import type { Plan } from '@/lib/plan-types';
 
 import { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -24,19 +25,6 @@ const UpgradePlanSummary = dynamic(
 	() => import('./PaymentSection').then((m) => ({ default: m.UpgradePlanSummary })),
 	{ ssr: false }
 );
-
-type Plan = {
-	id: number;
-	name: string;
-	nameAr: string;
-	price: number;
-	periodDays: number;
-	features: string[];
-	maxMenus: number;
-	maxItems: number;
-	maxOrders: number;
-	sortOrder: number;
-};
 
 function SubscribeContent() {
 	const router = useRouter();
@@ -72,7 +60,7 @@ function SubscribeContent() {
 		const fetchPlans = async () => {
 			try {
 				const data = await fetchJson<{ data?: Plan[] }>('/api/plans');
-				const p = data.data ?? (data as unknown as Plan[]) ?? [];
+				const p = data.data ?? [];
 				setPlans(p);
 				if (preselectedPlan) {
 					// Try exact id first, then by position (ids may shift in DB)
@@ -106,7 +94,7 @@ function SubscribeContent() {
 		fetch('/api/plans')
 			.then((r) => r.json())
 			.then((data) => {
-				const p = data.data ?? (data as unknown as Plan[]) ?? [];
+				const p = data.data ?? [];
 				setPlans(p);
 				if (preselectedPlan) {
 					const sorted = [...p].sort((a, b) => a.sortOrder - b.sortOrder);

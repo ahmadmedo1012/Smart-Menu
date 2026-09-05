@@ -1,6 +1,7 @@
 "use client";
 
-import { csrfFetch } from "@/lib/csrf-client";
+import { csrfJson } from "@/lib/csrf-client";
+import type { PlanSummary as Plan } from '@/lib/plan-types';
 
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,10 +21,6 @@ import { toArabicNumber } from "@/lib/format";
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer";
 import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./RestaurantTable";
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
-
-interface Plan {
-  id: number; name: string; nameAr: string; price: number;
-}
 
 interface Restaurant {
   id: number; name: string; slug: string; description: string;
@@ -92,7 +89,7 @@ export default function AdminRestaurantsPage() {
   const deleteRestaurant = async () => {
     if (!deleteTarget) return;
     try {
-      await csrfFetch(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
+      await csrfJson(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
       premiumToast("trash", "تم حذف المطعم"); setDeleteTarget(null); fetchData();
     } catch { premiumToast("error", "فشل الحذف") }
   };
@@ -108,11 +105,10 @@ export default function AdminRestaurantsPage() {
 
   const toggleShowOnLanding = async (id: number, show: boolean) => {
     try {
-      const res = await csrfFetch(`/api/restaurants/${id}`, {
+      await csrfJson(`/api/restaurants/${id}`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ showOnLanding: show }),
       })
-      if (!res.ok) throw new Error()
       premiumToast("save", show ? "تم تفعيل الظهور في الرئيسية" : "تم إخفاء المطعم من الرئيسية")
       fetchData()
     } catch { premiumToast("error", "فشل التحديث") }
@@ -123,7 +119,7 @@ export default function AdminRestaurantsPage() {
     if (count === 0) return;
     if (!confirm(`حذف ${toArabicNumber(count)} مطعم${count > 1 ? "اً" : ""}؟`)) return;
     try {
-      await Promise.all([...selectedIds].map(id => csrfFetch(`/api/restaurants/${id}`, { method: "DELETE" })));
+      await Promise.all([...selectedIds].map(id => csrfJson(`/api/restaurants/${id}`, { method: "DELETE" })));
       premiumToast("trash", `تم حذف ${toArabicNumber(count)} مطعم`); setSelectedIds(new Set()); fetchData();
     } catch { premiumToast("error", "فشل الحذف الجماعي") }
   };

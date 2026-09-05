@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useId } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,8 @@ type Props = {
 /* ---------- Component ---------- */
 
 export function LoyaltySettings({ onSaved }: Props) {
+	// round86-C9: label-control associations
+	const lId = useId();
 	const [form, setForm] = useState<LoyaltySettingsData>(DEFAULTS);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
@@ -164,8 +166,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div>
-							<Label>النقاط لكل دينار</Label>
-							<Input
+							<Label htmlFor={`${lId}-points-per-lyd`}>النقاط لكل دينار</Label>
+							<Input id={`${lId}-points-per-lyd`} 
 								type="number"
 								min="0"
 								step="0.5"
@@ -176,8 +178,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 							<p className="text-xs text-muted-foreground mt-1">عدد النقاط لكل دينار يُنفق</p>
 						</div>
 						<div>
-							<Label>خصم الإحالة ٪</Label>
-							<Input
+							<Label htmlFor={`${lId}-ref-discount`}>خصم الإحالة ٪</Label>
+							<Input id={`${lId}-ref-discount`} 
 								type="number"
 								min="0"
 								max="100"
@@ -190,8 +192,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 							</p>
 						</div>
 						<div>
-							<Label>مكافأة المُحيل ٪</Label>
-							<Input
+							<Label htmlFor={`${lId}-ref-reward`}>مكافأة المُحيل ٪</Label>
+							<Input id={`${lId}-ref-reward`} 
 								type="number"
 								min="0"
 								max="100"
@@ -216,8 +218,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-3">
 						<div>
-							<Label>نقاط المكافأة لكل إحالة</Label>
-							<Input
+							<Label htmlFor={`${lId}-ref-points`}>نقاط المكافأة لكل إحالة</Label>
+							<Input id={`${lId}-ref-points`} 
 								type="number"
 								min="0"
 								value={form.loyalty_referral_reward_points}
@@ -229,8 +231,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 							</p>
 						</div>
 						<div>
-							<Label>الحد الأقصى للإحالات للعميل</Label>
-							<Input
+							<Label htmlFor={`${lId}-ref-max`}>الحد الأقصى للإحالات للعميل</Label>
+							<Input id={`${lId}-ref-max`} 
 								type="number"
 								min="0"
 								value={form.loyalty_referral_max_per_customer}
@@ -240,8 +242,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 							<p className="text-xs text-muted-foreground mt-1">0 = غير محدود</p>
 						</div>
 						<div>
-							<Label>Auto-Expiry Days</Label>
-							<Input
+							<Label htmlFor={`${lId}-expiry-days`}>Auto-Expiry Days</Label>
+							<Input id={`${lId}-expiry-days`} 
 								type="number"
 								min="0"
 								value={form.loyalty_referral_expiry_days}
@@ -265,8 +267,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 					</h4>
 					<div className="grid gap-4 sm:grid-cols-3">
 						<div>
-							<Label>فضي (حد أدنى)</Label>
-							<Input
+							<Label htmlFor={`${lId}-silver-min`}>فضي (حد أدنى)</Label>
+							<Input id={`${lId}-silver-min`} 
 								type="number"
 								min="1"
 								value={form.loyalty_tier_silver}
@@ -275,8 +277,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 							/>
 						</div>
 						<div>
-							<Label>ذهبي (حد أدنى)</Label>
-							<Input
+							<Label htmlFor={`${lId}-gold-min`}>ذهبي (حد أدنى)</Label>
+							<Input id={`${lId}-gold-min`} 
 								type="number"
 								min="1"
 								value={form.loyalty_tier_gold}
@@ -285,8 +287,8 @@ export function LoyaltySettings({ onSaved }: Props) {
 							/>
 						</div>
 						<div>
-							<Label>بلاتيني (حد أدنى)</Label>
-							<Input
+							<Label htmlFor={`${lId}-platinum-min`}>بلاتيني (حد أدنى)</Label>
+							<Input id={`${lId}-platinum-min`} 
 								type="number"
 								min="1"
 								value={form.loyalty_tier_platinum}

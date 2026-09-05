@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import { usePollWhenVisible } from '@/hooks/usePollWhenVisible';
 import {AlertTriangle} from 'lucide-react';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
@@ -21,53 +22,24 @@ export function UserBannerNotifier() {
 	const [rejected, setRejected] = useState<RejectionEvent | null>(null);
 	const [dismissed, setDismissed] = useState(false);
 	const lastIdRef = useRef(0);
-	const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-
-	useEffect(() => {
-		const poll = async () => {
-			try {
-				const res = await fetch(`/api/user/events?sinceId=${lastIdRef.current}`);
-				if (!res.ok) return;
-				const json = await res.json();
-				const events: RejectionEvent[] = json.data ?? [];
-				for (const ev of events) {
-					if (ev.id > lastIdRef.current) lastIdRef.current = ev.id;
-					if (ev.eventType === 'subscription_rejected') {
-						setRejected({ eventType: ev.eventType, message: ev.message ?? '', timestamp: ev.createdAt, createdAt: ev.createdAt, id: ev.id });
-						setDismissed(false);
-					}
+	// round86-C3: shared visibility-aware poll loop (was a copy-pasted skeleton)
+	usePollWhenVisible(async () => {
+		try {
+			const res = await fetch(`/api/user/events?sinceId=${lastIdRef.current}`);
+			if (!res.ok) return;
+			const json = await res.json();
+			const events: RejectionEvent[] = json.data ?? [];
+			for (const ev of events) {
+				if (ev.id > lastIdRef.current) lastIdRef.current = ev.id;
+				if (ev.eventType === 'subscription_rejected') {
+					setRejected({ eventType: ev.eventType, message: ev.message ?? '', timestamp: ev.createdAt, createdAt: ev.createdAt, id: ev.id });
+					setDismissed(false);
 				}
-			} catch {
-				/* transient — next tick retries */
 			}
-		};
-
-		const startPolling = () => {
-			// Guard: visibilitychange can fire while an interval is already running —
-			// never stack a second interval on top of the first.
-			if (intervalRef.current) return;
-			poll();
-			intervalRef.current = setInterval(poll, POLL_MS);
-		};
-		const stopPolling = () => {
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current);
-				intervalRef.current = undefined;
-			}
-		};
-		// Perf: don't poll while the tab is hidden — browser timers are throttled anyway
-		const onVisibilityChange = () => {
-			if (document.visibilityState === 'hidden') stopPolling();
-			else startPolling();
-		};
-
-		startPolling();
-		document.addEventListener('visibilitychange', onVisibilityChange);
-		return () => {
-			stopPolling();
-			document.removeEventListener('visibilitychange', onVisibilityChange);
-		};
-	}, []);
+		} catch {
+			/* transient — next tick retries */
+		}
+	}, POLL_MS);
 
 	if (!rejected || dismissed) return null;
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { Plan } from '@/lib/plan-types';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,19 +15,6 @@ import { csrfFetch } from '@/lib/csrf-client';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
-
-type Plan = {
-	id: number;
-	name: string;
-	nameAr: string;
-	price: number;
-	periodDays: number;
-	features: string[];
-	maxMenus: number;
-	maxItems: number;
-	maxOrders: number;
-	sortOrder: number;
-};
 
 const PLAN_GRADIENTS: Record<string, string> = {
 	Free: 'from-muted-foreground/60 to-muted-foreground/80',
@@ -358,8 +346,8 @@ export function SubscribeForm({
 
 									{/* Description */}
 									<div>
-										<Label>الوصف</Label>
-										<Input
+										<Label htmlFor={"`w-w-desc`"}>الوصف</Label>
+										<Input id={"`w-w-desc`"} 
 											value={restaurant.description}
 											onChange={(e) => updateRestaurant(index, { description: e.target.value })}
 											placeholder="وصف المطعم (اختياري)"
@@ -370,8 +358,8 @@ export function SubscribeForm({
 									{/* Phone + WhatsApp */}
 									<div className="grid grid-cols-2 gap-3">
 										<div>
-											<Label>رقم الهاتف</Label>
-											<Input
+											<Label htmlFor={"`w-w-phone`"}>رقم الهاتف</Label>
+											<Input id={"`w-w-phone`"} 
 												value={restaurant.phone}
 												onChange={(e) => updateRestaurant(index, { phone: e.target.value })}
 												placeholder="رقم الهاتف (مثال: 0912345678)"
@@ -380,8 +368,8 @@ export function SubscribeForm({
 											/>
 										</div>
 										<div>
-											<Label>رقم واتساب</Label>
-											<Input
+											<Label htmlFor="sub-wa-wa">رقم واتساب</Label>
+											<Input id="sub-wa-wa" 
 												value={restaurant.whatsapp}
 												onChange={(e) => updateRestaurant(index, { whatsapp: e.target.value })}
 												placeholder="رقم الواتساب (مثال: 0912345678)"

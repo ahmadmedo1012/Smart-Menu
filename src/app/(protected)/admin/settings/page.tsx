@@ -340,11 +340,11 @@ export default function AdminSettingsPage() {
 
                 <div className="grid grid-cols-2 gap-3 pb-4 border-b border-border/20">
                   <div>
-                    <Label>اسم المستخدم</Label>
+                    <span className="text-sm font-medium leading-none block">اسم المستخدم</span>
                     <p className="text-sm text-muted-foreground mt-1">{profile.username}</p>
                   </div>
                   <div>
-                    <Label>الصلاحية</Label>
+                    <span className="text-sm font-medium leading-none block">الصلاحية</span>
                     <p className="text-sm text-muted-foreground mt-1">{ROLE_LABELS[profile.role] || profile.role}</p>
                   </div>
                 </div>

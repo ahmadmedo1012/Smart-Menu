@@ -1,23 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import type { Plan } from '@/lib/plan-types';
 import {CreditCard} from 'lucide-react';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import { PaymentDialog } from '@/components/shared/PaymentDialog';
 import { toArabicNumber } from '@/lib/format';
-
-type Plan = {
-	id: number;
-	name: string;
-	nameAr: string;
-	price: number;
-	periodDays: number;
-	features: string[];
-	maxMenus: number;
-	maxItems: number;
-	maxOrders: number;
-	sortOrder: number;
-};
 
 export function UpgradePlanSummary({
 	currentPlan,

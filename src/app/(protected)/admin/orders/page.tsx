@@ -60,6 +60,11 @@ export default function AdminOrdersPage() {
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const dataRef = useRef("")
+  // round86-C2: the 5s poll used to call fetchOrders(1) — which REPLACED the
+  // list, erasing "عرض المزيد" (page 2+) results within 5 seconds. The poll is
+  // now an ID probe that refreshes all loaded pages when page 1 actually changed.
+  const ordersRef = useRef<Order[]>([])
+  const pageRef = useRef(1)
   const router = useRouter()
 
   const fetchOrders = useCallback(async (pageNum = 1, append = false) => {
@@ -85,19 +90,40 @@ export default function AdminOrdersPage() {
   }, [filter, dateFrom, dateTo])
 
   useEffect(() => { setPage(1); fetchOrders(1) }, [fetchOrders])
+  useEffect(() => { ordersRef.current = orders }, [orders])
+  useEffect(() => { pageRef.current = page }, [page])
 
-  // Auto-poll every 5s (paused while tab is hidden)
+  // Auto-poll every 5s (paused while tab is hidden) — ID probe, not a blind
+  // page-1 refetch: only refreshes (all loaded pages) when page 1 changed
   useEffect(() => {
-    let t: ReturnType<typeof setInterval>
+    let t: ReturnType<typeof setInterval> | undefined
+    const probe = async () => {
+      try {
+        const params = new URLSearchParams()
+        if (filter) params.set("status", filter)
+        if (dateFrom) params.set("dateFrom", dateFrom)
+        if (dateTo) params.set("dateTo", dateTo)
+        params.set("page", "1")
+        params.set("pageSize", "50")
+        const res = await fetch(`/api/orders?${params.toString()}`)
+        if (!res.ok) return
+        const data = await res.json()
+        const fresh: Order[] = Array.isArray(data.data) ? data.data : []
+        const currentFirstIds = JSON.stringify(ordersRef.current.slice(0, 50).map(o => o.id))
+        const freshIds = JSON.stringify(fresh.map(o => o.id))
+        if (ordersRef.current.length > 0 && currentFirstIds !== freshIds) {
+          for (let p = 1; p <= pageRef.current; p++) await fetchOrders(p, p > 1)
+        }
+      } catch { /* transient — next tick retries */ }
+    }
     const start = () => {
       // Guard: visibilitychange can fire while an interval is already running —
       // never stack a second interval on top of the first.
       if (t) return
-      t = setInterval(() => fetchOrders(1), 5000)
+      t = setInterval(probe, 5000)
     }
     const stop = () => {
-      clearInterval(t)
-      t = undefined as unknown as ReturnType<typeof setInterval>
+      if (t) { clearInterval(t); t = undefined }
     }
     start()
     const onVis = () => {
@@ -109,7 +135,7 @@ export default function AdminOrdersPage() {
       stop()
       document.removeEventListener("visibilitychange", onVis)
     }
-  }, [fetchOrders])
+  }, [fetchOrders, filter, dateFrom, dateTo])
 
   const updateStatus = async (id: number, status: string) => {
     try {

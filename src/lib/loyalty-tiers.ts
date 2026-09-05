@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 /** Shared loyalty tier threshold logic */
 
 const TIER_THRESHOLDS: Record<string, { min: number; next: string | null }> = {
@@ -19,4 +20,14 @@ export function getNextTierInfo(currentTier: string) {
   if (!info || !info.next) return { nextTier: null as string | null, pointsToNext: 0 };
   const nextMin = TIER_THRESHOLDS[info.next].min;
   return { nextTier: info.next, pointsToNext: nextMin };
+}
+
+/**
+ * round86-C7: single referral-code generator. Two divergent copies existed
+ * (orders/[id]: randomBytes(4) → 8 chars; loyalty: randomBytes(8) → 16 chars)
+ * — same name, different entropy. The 8-byte spelling is canonical (matches
+ * REFERRAL_CODE_RE's 6..16 window).
+ */
+export function generateReferralCode(): string {
+	return randomBytes(8).toString('hex').toUpperCase();
 }

@@ -15,7 +15,7 @@ import { MotionChevronDown } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import { BackButton } from '@/components/shared/BackButton';
-import { csrfFetch } from '@/lib/csrf-client';
+import { csrfJson } from '@/lib/csrf-client';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatPrice } from '@/lib/format';
@@ -194,13 +194,13 @@ export default function OwnerMenuPage() {
 				restaurantId,
 			};
 			if (catEditing)
-				await csrfFetch(`/api/categories/${catEditing.id}`, {
+				await csrfJson(`/api/categories/${catEditing.id}`, {
 					method: 'PUT',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(body),
 				});
 			else
-				await csrfFetch('/api/categories', {
+				await csrfJson('/api/categories', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(body),
@@ -217,7 +217,7 @@ export default function OwnerMenuPage() {
 	const delTarget = async () => {
 		if (!deleteTarget) return;
 		try {
-			await csrfFetch(
+			await csrfJson(
 				`/api/${deleteTarget.type === 'category' ? 'categories' : 'items'}/${deleteTarget.id}`,
 				{ method: 'DELETE' }
 			);
@@ -236,7 +236,7 @@ export default function OwnerMenuPage() {
 		const ns = item.status === 'available' ? 'unavailable' : 'available';
 		setPendingToggleId(item.id);
 		try {
-			await csrfFetch(`/api/items/${item.id}`, {
+			await csrfJson(`/api/items/${item.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ status: ns }),

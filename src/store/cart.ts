@@ -53,7 +53,6 @@ interface CartStore {
 	removeItem: (id: string) => void;
 	undoRemove: () => void;
 	lastRemoved: CartItem | null;
-	pendingMismatch: { incoming: { id: number; name: string }; current: { id: number; name: string; itemCount: number } } | null;
 	updateQuantity: (id: string, qty: number) => void;
 	updateNotes: (id: string, notes: string) => void;
 	setCustomerName: (n: string) => void;
@@ -77,7 +76,7 @@ export const useCart = create<CartStore>()(
 		(set, get) => ({
 			items: [],
 			lastRemoved: null,
-			pendingMismatch: null,
+		
 			customerName: '',
 			customerPhone: '',
 			notes: '',
@@ -160,7 +159,6 @@ export const useCart = create<CartStore>()(
 			setOrderNotes: (n) => set({ notes: n }),
 			setPickupType: (t) => set({ pickupType: t }),
 			setRestaurantId: (id) => set({ restaurantId: id }),
-			setPendingMismatch: (m: CartStore['pendingMismatch']) => set({ pendingMismatch: m }),
 
 			clearCart: () =>
 				set({
@@ -183,7 +181,6 @@ export const useCart = create<CartStore>()(
 			partialize: (state) => ({
 				items: state.items,
 				lastRemoved: state.lastRemoved,
-				pendingMismatch: state.pendingMismatch,
 				customerName: state.customerName,
 				customerPhone: state.customerPhone,
 				notes: state.notes,

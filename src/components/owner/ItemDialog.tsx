@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useId } from 'react';
 import {
         DIETARY_OPTIONS,
         ALLERGEN_OPTIONS,
@@ -77,6 +77,8 @@ export function ItemDialog({
         categoryId: number;
         onSaved: () => void;
 }) {
+        // round86-C9: label-control associations (axe: label-without-control)
+        const fId = useId();
         const [form, setForm] = useState(initForm(0));
         const [saving, setSaving] = useState(false);
         const [uploading, setUploading] = useState(false);
@@ -198,8 +200,10 @@ export function ItemDialog({
                                 <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                                         <div className="grid grid-cols-2 gap-3">
                                                 <div>
-                                                        <Label>الاسم</Label>
-                                                        <Input
+                                                        <Label htmlFor={`${fId}-name`}>الاسم</Label>
+                                                        
+									<Input
+									id={`${fId}-name`}
                                                                 value={form.name}
                                                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                                                                 placeholder="كابتشينو"
@@ -207,8 +211,10 @@ export function ItemDialog({
                                                         />
                                                 </div>
                                                 <div>
-                                                        <Label>الاسم بالإنجليزية</Label>
-                                                        <Input
+                                                        <Label htmlFor={`${fId}-name-ar`}>الاسم بالإنجليزية</Label>
+                                                        
+									<Input
+									id={`${fId}-name-ar`}
                                                                 value={form.nameAr}
                                                                 onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
                                                                 placeholder="Cappuccino"
@@ -219,8 +225,10 @@ export function ItemDialog({
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                                 <div>
-                                                        <Label>الوصف</Label>
-                                                        <Textarea
+                                                        <Label htmlFor={`${fId}-desc`}>الوصف</Label>
+                                                        
+									<Textarea
+									id={`${fId}-desc`}
                                                                 value={form.description}
                                                                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                                                                 className="mt-1.5 rounded-md"
@@ -228,8 +236,10 @@ export function ItemDialog({
                                                         />
                                                 </div>
                                                 <div>
-                                                        <Label>الوصف بالإنجليزية</Label>
-                                                        <Textarea
+                                                        <Label htmlFor={`${fId}-desc-ar`}>الوصف بالإنجليزية</Label>
+                                                        
+									<Textarea
+									id={`${fId}-desc-ar`}
                                                                 value={form.descriptionAr}
                                                                 onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })}
                                                                 className="mt-1.5 rounded-md text-start"
@@ -240,8 +250,10 @@ export function ItemDialog({
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                                 <div>
-                                                        <Label>السعر (د.ل)</Label>
-                                                        <Input
+                                                        <Label htmlFor={`${fId}-price`}>السعر (د.ل)</Label>
+                                                        
+									<Input
+									id={`${fId}-price`}
                                                                 type="number"
                                                                 value={form.price || ''}
                                                                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
@@ -251,8 +263,10 @@ export function ItemDialog({
                                                         />
                                                 </div>
                                                 <div>
-                                                        <Label>سعر الخصم</Label>
-                                                        <Input
+                                                        <Label htmlFor={`${fId}-disc-price`}>سعر الخصم</Label>
+                                                        
+									<Input
+									id={`${fId}-disc-price`}
                                                                 type="number"
                                                                 value={form.discountedPrice}
                                                                 onChange={(e) => setForm({ ...form, discountedPrice: e.target.value })}
@@ -264,9 +278,11 @@ export function ItemDialog({
                                                 </div>
                                         </div>
                                         <div>
-                                                <Label>الصورة</Label>
+                                                <Label htmlFor={`${fId}-image`}>الصورة</Label>
                                                 <div className="flex gap-2 mt-1.5">
-                                                        <Input
+                                                        
+									<Input
+									id={`${fId}-image`}
                                                                 value={form.image}
                                                                 onChange={(e) => setForm({ ...form, image: e.target.value })}
                                                                 className="h-11 rounded-md text-start flex-1"
@@ -322,7 +338,7 @@ export function ItemDialog({
                                                 )}
                                         </div>
                                         <div>
-                                                <Label>الحالة</Label>
+                                                <span id={"`${fId}-status`"} className="text-sm font-medium leading-none block">الحالة</span>
                                                 <div className="flex gap-2 mt-1.5">
                                                         {['available', 'unavailable'].map((s) => (
                                                                 <button
@@ -367,8 +383,10 @@ export function ItemDialog({
                                                         <div className="mt-3 space-y-3">
                                                                 <div className="grid grid-cols-2 gap-3">
                                                                         <div>
-                                                                                <Label>ترتيب الظهور</Label>
-                                                                                <Input
+                                                                                <Label htmlFor={`${fId}-rank`}>ترتيب الظهور</Label>
+                                                                                
+									<Input
+									id={`${fId}-rank`}
                                                                                         type="number"
                                                                                         min="1"
                                                                                         max="5"
@@ -384,7 +402,7 @@ export function ItemDialog({
                                                                                 toggles), this is a free-text ADD list — different pattern,
                                                                                 so it is implemented inline here. */}
                                                                         <div className="col-span-2">
-                                                                                <Label>شارات العرض (حتى ٣)</Label>
+                                                                                <span id={"`${fId}-showcase-tags`"} className="text-sm font-medium leading-none block">شارات العرض (حتى ٣)</span>
                                                                                 <div className="flex gap-2 mt-1.5">
                                                                                         <Input
                                                                                                 value={badgeDraft}
@@ -439,7 +457,7 @@ export function ItemDialog({
 
                                         {/* Dietary tags */}
                                         <div>
-                                                <Label>شارات الطعام</Label>
+                                                <span id={"`${fId}-dietary`"} className="text-sm font-medium leading-none block">شارات الطعام</span>
                                                 <div className="flex flex-wrap gap-1.5 mt-1.5">
                                                         {DIETARY_OPTIONS.map((t) => {
                                                                 const active = form.dietaryTags?.includes(t);
@@ -471,7 +489,7 @@ export function ItemDialog({
 
                                         {/* Allergens */}
                                         <div>
-                                                <Label>مسببات الحساسية</Label>
+                                                <span id={"`${fId}-allergens`"} className="text-sm font-medium leading-none block">مسببات الحساسية</span>
                                                 <div className="flex flex-wrap gap-1.5 mt-1.5">
                                                         {ALLERGEN_OPTIONS.map((t) => {
                                                                 const active = form.allergens?.includes(t);

@@ -144,8 +144,8 @@ export default function AdminQRPage() {
 					{/* Restaurant selector */}
 					<div className="p-5 space-y-4">
 						<div>
-							<Label>اختر المطعم</Label>
-							<div className="flex gap-2 mt-1.5">
+							<span id="qr-rest-label" className="text-sm font-medium leading-none block">اختر المطعم</span>
+							<div role="group" aria-labelledby="qr-rest-label" className="flex gap-2 mt-1.5">
 								{restaurants.map((r) => (
 									<button
 										key={r.id}

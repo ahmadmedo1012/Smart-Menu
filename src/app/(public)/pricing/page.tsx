@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { PricingClient } from '@/components/pricing/PricingClient';
-import type { Plan } from '@/components/pricing/PricingClient';
+import type { Plan } from '@/lib/plan-types';
 
 // round86-B5: pricing was a full client page with a post-hydrate /api/plans
 // fetch — plan cards were empty until the client fetch resolved and invisible

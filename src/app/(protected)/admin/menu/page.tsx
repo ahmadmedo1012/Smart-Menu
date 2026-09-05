@@ -1,7 +1,8 @@
 "use client"
 
-import { csrfFetch } from "@/lib/csrf-client";
+import { csrfJson } from "@/lib/csrf-client";
 import { useEffect, useState, useCallback, useRef } from "react"
+import { usePollWhenVisible } from "@/hooks/usePollWhenVisible"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
@@ -67,29 +68,8 @@ export default function AdminMenuPage() {
 
   // Auto-poll every 12s (paused while tab is hidden) — /api/items?pageSize=100
   // is a heavy query; 5s was over-polling for a menu-management screen.
-  useEffect(() => {
-    let t: ReturnType<typeof setInterval>
-    const start = () => {
-      // Guard: visibilitychange can fire while an interval is already running —
-      // never stack a second interval on top of the first.
-      if (t) return
-      t = setInterval(fetchData, 12_000)
-    }
-    const stop = () => {
-      clearInterval(t)
-      t = undefined as unknown as ReturnType<typeof setInterval>
-    }
-    start()
-    const onVis = () => {
-      if (document.visibilityState === "visible") start()
-      else stop()
-    }
-    document.addEventListener("visibilitychange", onVis)
-    return () => {
-      stop()
-      document.removeEventListener("visibilitychange", onVis)
-    }
-  }, [fetchData])
+  // round86-C3: shared visibility-aware poll loop (was a copy-pasted skeleton)
+  usePollWhenVisible(fetchData, 12_000, [fetchData])
 
   // Filter
   const filteredItems = items.filter(item => {
@@ -120,7 +100,7 @@ export default function AdminMenuPage() {
   const toggleStatus = async (item: Item) => {
     const ns = item.status === "available" ? "unavailable" : "available"
     try {
-      await csrfFetch(`/api/items/${item.id}`, {
+      await csrfJson(`/api/items/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: ns }),
@@ -133,7 +113,7 @@ export default function AdminMenuPage() {
   const deleteItem = async () => {
     if (!deleteTarget || deleteTarget.type !== "item") return
     try {
-      await csrfFetch(`/api/items/${deleteTarget.id}`, { method: "DELETE" })
+      await csrfJson(`/api/items/${deleteTarget.id}`, { method: "DELETE" })
       premiumToast("success", "تم حذف الصنف")
       setDeleteTarget(null)
       fetchData()

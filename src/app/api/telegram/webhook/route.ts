@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac } from 'crypto';
+import { timingSafeEqualStrings } from '@/lib/secure-compare';
 import { prisma } from '@/lib/db';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { error as logError, warn as logWarn, info as logInfo } from '@/lib/logger';
@@ -12,12 +13,7 @@ import { editMessageReplyMarkup, editMessageText, answerCallbackQuery } from '@/
 // Constant-time string comparison — length mismatch short-circuits (never
 // leaks the expected length through timing) without throwing like
 // timingSafeEqual would on unequal buffer sizes.
-function timingSafeEqualStrings(a: string, b: string): boolean {
-        const bufA = Buffer.from(a);
-        const bufB = Buffer.from(b);
-        if (bufA.length !== bufB.length) return false;
-        return timingSafeEqual(bufA, bufB);
-}
+
 
 // Telegram can deliver bursts (callback storms); 120/min with a 30s window
 // tolerates the security test's 20-request burst while still capping abuse.

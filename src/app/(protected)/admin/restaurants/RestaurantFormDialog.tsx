@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { PlanSummary as Plan } from '@/lib/plan-types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -14,13 +15,6 @@ import {
 } from '@/components/ui/select';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-
-interface Plan {
-	id: number;
-	name: string;
-	nameAr: string;
-	price: number;
-}
 
 interface Restaurant {
 	id: number;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { usePollWhenVisible } from '@/hooks/usePollWhenVisible';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -108,30 +109,15 @@ export default function AdminDashboard() {
 	}, [load]);
 
 	// Poll every 30s (paused while tab is hidden)
-	useEffect(() => {
-		if (error) return;
-		let t: ReturnType<typeof setInterval>;
-		const start = () => {
-			// Guard: visibilitychange can fire while an interval is already running —
-			// never stack a second interval on top of the first.
-			if (t) return;
-			t = setInterval(load, 30000);
-		};
-		const stop = () => {
-			clearInterval(t);
-			t = undefined as unknown as ReturnType<typeof setInterval>;
-		};
-		start();
-		const onVis = () => {
-			if (document.visibilityState === 'visible') start();
-			else stop();
-		};
-		document.addEventListener('visibilitychange', onVis);
-		return () => {
-			stop();
-			document.removeEventListener('visibilitychange', onVis);
-		};
-	}, [load, error]);
+	// round86-C3: shared visibility-aware poll loop (was a copy-pasted skeleton)
+	usePollWhenVisible(
+		() => {
+			if (error) return;
+			void load();
+		},
+		30000,
+		[load, error]
+	);
 
 	// ---------- Loading skeleton ----------
 	if (loading) {

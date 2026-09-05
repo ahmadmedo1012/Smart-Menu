@@ -4,6 +4,7 @@
 // renders this with initialPlans baked in by ISR)
 
 import { useEffect, useState, useCallback } from 'react';
+import type { Plan } from '@/lib/plan-types';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
@@ -17,19 +18,6 @@ import { Footer } from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { fetchJson } from '@/lib/fetch-json';
-
-export type Plan = {
-	id: number;
-	name: string;
-	nameAr: string;
-	price: number;
-	periodDays: number;
-	features: string[];
-	maxMenus: number;
-	maxItems: number;
-	maxOrders: number;
-	sortOrder: number;
-};
 
 // Map by plan name (not index) — Enterprise previously fell past the 4-item
 // arrays → blank white icon box on the 5th card.

@@ -1,7 +1,7 @@
 'use client';
 import { getErrorMessage } from '@/lib/get-error-message';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback , useId } from 'react';
 import { useRouter } from 'next/navigation';
 import {Store, Loader2} from 'lucide-react';
 import AnimatedStar from '@/components/ui/star-icon';
@@ -30,6 +30,8 @@ type RestaurantInfo = {
 
 export default function OwnerRestaurantsPage() {
 	const router = useRouter();
+	// round86-C9: label-control associations
+	const lId = useId();
 	const [restaurants, setRestaurants] = useState<RestaurantInfo[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [showAdd, setShowAdd] = useState(false);
@@ -149,8 +151,8 @@ export default function OwnerRestaurantsPage() {
 					<h2 className="font-bold">منيو جديد</h2>
 					<div className="grid sm:grid-cols-2 gap-4">
 						<div>
-							<Label>اسم المطعم *</Label>
-							<Input
+							<Label htmlFor={`${lId}-name`}>اسم المطعم *</Label>
+							<Input id={`${lId}-name`} 
 								value={newMenu.name}
 								onChange={(e) => setNewMenu({ ...newMenu, name: e.target.value })}
 								placeholder="مثال: مطعم الجبل"
@@ -158,12 +160,12 @@ export default function OwnerRestaurantsPage() {
 							/>
 						</div>
 						<div>
-							<Label>الرابط المختصر *</Label>
+							<Label htmlFor={`${lId}-slug`}>الرابط المختصر *</Label>
 							<div className="flex items-center mt-1.5">
 								<span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
 									/menu/
 								</span>
-								<Input
+								<Input id={`${lId}-slug`} 
 									value={newMenu.slug}
 									onChange={(e) =>
 										setNewMenu({
@@ -179,8 +181,8 @@ export default function OwnerRestaurantsPage() {
 						</div>
 					</div>
 					<div>
-						<Label>الوصف</Label>
-						<Input
+						<Label htmlFor={`${lId}-desc`}>الوصف</Label>
+						<Input id={`${lId}-desc`} 
 							value={newMenu.description}
 							onChange={(e) => setNewMenu({ ...newMenu, description: e.target.value })}
 							placeholder="وصف المطعم (اختياري)"

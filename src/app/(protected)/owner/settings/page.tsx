@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import type { Plan } from '@/lib/plan-types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,16 +22,6 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { compressImage } from '@/lib/image-compress';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
-
-interface Plan {
-	id: number;
-	name: string;
-	nameAr: string;
-	price: number;
-	maxItems: number;
-	maxOrders: number;
-	features: string[];
-}
 
 interface RestaurantData {
 	id: number;

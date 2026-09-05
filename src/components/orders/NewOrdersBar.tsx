@@ -1,3 +1,4 @@
+import { playBeep } from '@/lib/chime';
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -42,7 +43,9 @@ export function NewOrdersBar({
 		}
 		if (hasPlayedSound.current) return;
 		hasPlayedSound.current = true;
-		playOrderAlert();
+		// round86-C3: shared chime (was a local copy)
+		playBeep(880, 0.18);
+		setTimeout(() => playBeep(1175, 0.22), 190);
 	}, [newCount]);
 
 	const handleAcceptAll = useCallback(async () => {
@@ -108,26 +111,3 @@ export function NewOrdersBar({
 	);
 }
 
-function playOrderAlert() {
-	try {
-		const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-		const osc = ctx.createOscillator();
-		const gain = ctx.createGain();
-		osc.connect(gain);
-		gain.connect(ctx.destination);
-
-		osc.type = 'sine';
-		osc.frequency.setValueAtTime(880, ctx.currentTime);
-		osc.frequency.setValueAtTime(1108, ctx.currentTime + 0.12);
-		osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.24);
-
-		gain.gain.setValueAtTime(0, ctx.currentTime);
-		gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.04);
-		gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
-
-		osc.start(ctx.currentTime);
-		osc.stop(ctx.currentTime + 0.7);
-	} catch {
-		/* Audio unavailable — silent degradation */
-	}
-}

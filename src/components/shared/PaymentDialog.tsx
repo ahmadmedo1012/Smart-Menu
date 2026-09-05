@@ -13,6 +13,13 @@ import { motion } from 'motion/react';
 import {Smartphone, Landmark, CheckCircle2, XCircle, Loader2} from 'lucide-react';
 import AnimatedUpload from '@/components/ui/upload-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
+import {
+	WALLET_CAP_LYD,
+	MADAR_PHONE_FALLBACK,
+	LIBYANA_PHONE_FALLBACK,
+	libyanaUssdCode,
+	madarUssdCode,
+} from '@/lib/payment-constants';
 import { useConfig } from '@/hooks/useConfig';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { compressImage } from '@/lib/image-compress';
@@ -44,8 +51,8 @@ export function PaymentDialog({
 	upgradeRestaurantId,
 }: PaymentDialogProps) {
 	const [provider, setProvider] = useState<Provider>('libyana');
-	// Mobile wallets (libyana/madar) cap at 99 LYD — plans above that require bank transfer
-	const requiresBank = Number(price) > 99;
+	// Mobile wallets (libyana/madar) cap at WALLET_CAP_LYD — plans above that require bank transfer
+	const requiresBank = Number(price) > WALLET_CAP_LYD;
 	// Auto-switch to bank when the plan exceeds the wallet cap
 	useEffect(() => {
 		if (requiresBank && (provider === 'libyana' || provider === 'madar')) {
@@ -53,8 +60,8 @@ export function PaymentDialog({
 		}
 	}, [requiresBank, provider]);
 	const { config } = useConfig();
-	const MADAR_PHONE = (config?.balance_transfer_phone_1 as string) || '0910089975';
-	const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || '0942119637';
+	const MADAR_PHONE = (config?.balance_transfer_phone_1 as string) || MADAR_PHONE_FALLBACK;
+	const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || LIBYANA_PHONE_FALLBACK;
 
 	const [phone, setPhone] = useState('');
 	// round79 Stage C: axe caught the bank form fields having unassociated
@@ -86,8 +93,8 @@ export function PaymentDialog({
 
 	const quickTransferCode =
 		provider === 'libyana'
-			? `*122*218${LIBYANA_PHONE.slice(1)}*${price * 1000}*1#`
-			: `*140*4*1*${price}*${MADAR_PHONE}#`;
+			? libyanaUssdCode(LIBYANA_PHONE, Number(price))
+			: madarUssdCode(MADAR_PHONE, Number(price));
 
 	const encodedUSSD = quickTransferCode.replace(/#/g, '%23');
 
@@ -190,9 +197,15 @@ export function PaymentDialog({
 			let pollFailures = 0;
 			const warnedRef = { current: false };
 			const startStatusPoll = () => {
+				let inFlight = false; // round86-C8: never overlap slow responses
 				pollRef.current = setInterval(async () => {
+					if (inFlight) return;
+					inFlight = true;
 					try {
 						const res = await fetch(`/api/subscriptions/status?id=${paymentId}`);
+						// round86-C8: a non-2xx (e.g. session-expired 401) previously
+						// parsed as JSON with no data and polled forever, silently
+						if (!res.ok) throw new Error(`HTTP ${res.status}`);
 						const json = await res.json();
 						pollFailures = 0;
 						if (json.data?.status === 'verified') {
@@ -214,6 +227,8 @@ export function PaymentDialog({
 							warnedRef.current = true;
 							premiumToast('error', 'تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
 						}
+					} finally {
+						inFlight = false;
 					}
 				}, 5000);
 			};
@@ -285,8 +300,8 @@ export function PaymentDialog({
 						<>
 							{/* Payment method tabs */}
 							<div>
-								<Label>طريقة الدفع</Label>
-								<div className="grid grid-cols-3 gap-2 mt-1.5">
+								<span id="payment-method-label" className="text-sm font-medium leading-none block">طريقة الدفع</span>
+								<div role="group" aria-labelledby="payment-method-label" className="grid grid-cols-3 gap-2 mt-1.5">
 									{[
 										{ id: 'libyana' as Provider, label: 'ليبيانا', icon: Smartphone, disabled: requiresBank },
 										{ id: 'madar' as Provider, label: 'مدار', icon: Smartphone, disabled: requiresBank },
@@ -375,8 +390,9 @@ export function PaymentDialog({
 
 									{/* User phone */}
 									<div>
-										<Label>رقم هاتفك</Label>
+										<Label htmlFor="payment-phone">رقم هاتفك</Label>
 										<Input
+											id="payment-phone"
 											value={phone}
 											onChange={(e) => setPhone(e.target.value)}
 											placeholder="09XXXXXXXXX"
@@ -467,7 +483,7 @@ export function PaymentDialog({
 
 									{/* Receipt upload — optional */}
 									<div>
-										<Label>صورة التحويل (اختياري)</Label>
+										<span className="text-sm font-medium leading-none block">صورة التحويل (اختياري)</span>
 										<div className="flex items-center gap-2 mt-1.5">
 											<label
 												className="h-11 px-4 rounded-xl border border-border/30 flex items-center justify-center gap-2 hover:bg-accent cursor-pointer text-sm text-muted-foreground"

@@ -1,17 +1,12 @@
 import { NextRequest } from 'next/server';
-import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, notFound, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
-import { computeTier } from '@/lib/loyalty-tiers';
+import { computeTier, generateReferralCode } from '@/lib/loyalty-tiers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 
 const orderDetailDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
-
-function generateReferralCode(): string {
-        return randomBytes(4).toString('hex').toUpperCase();
-}
 
 const updateSchema = z.object({
         customerName: z.string().max(50).optional(),
