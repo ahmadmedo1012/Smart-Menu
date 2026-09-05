@@ -1,7 +1,8 @@
 # Round80 — تقرير الإغلاق (Closure Report)
 
-**التاريخ:** 2026-09-05 · **المنفّذ:** وكيل مستقل (Super Z) · **الأساس:** commit `8c4e2a06` (main) + تعديلات Round80 المحلية (انظر §6)
+**التاريخ:** 2026-09-05 · **المنفّذ:** وكيل مستقل (Super Z) · **الأساس:** من `8c4e2a06` حتى `3d6e648c` (main — **مدفوع** والمستودع الآن **خاص**)
 **قاعدة الإثبات:** لا ادعاء بلا ناتج أمر فعلي / لقطة فعلية / استجابة API فعلية.
+**جلسة 2 (نفس اليوم):** فُتحت بصلاحيات فعلية (توكن GitHub من المالك + توكن Vercel + Vercel CLI 59.11.7) — أُغلقت المرحلة 2 تنفيذيًا في §5 المحيَّنة.
 
 ---
 
@@ -10,7 +11,7 @@
 | المرحلة | الحالة | ملاحظة |
 |---|---|---|
 | 1 — تفعيل القسم المميز + التحقق | ✅ منفَّذ ومُثبت محليًا عبر الواجهة الحقيقية (Playwright) | الإنتاج يحتاج دخول المالك — التعليمات في §4 (بيانات اعتماد المالك غير متاحة للمراجع) |
-| 2 — الأمان الكامل | ⚠️ **[يتطلب المالك]** — عدّة تنفيذ كاملة جاهزة في §5 | بيئة المراجع بلا اعتمادات Vercel/GitHub (الدليل: `git push` → EXIT 128 "could not read Username") |
+| 2 — الأمان الكامل | ✅ **مُنفَّذ تنفيذيًا في الجلسة 2** (دفع + قناة هجرات إنتاجية + تدوير أسرار + مستودع خاص) — سجل الأدلة الحرفية في §5 | تبقّى 4 بنود مالك صغيرة: إعادة ربط Vercel↔GitHub (خطوتان في لوحة التحكم — §5.د)، تفعيل الأصناف المميزة (§4)، تدوير `TELEGRAM_BOT_TOKEN` (BotFather) و`DATABASE_URL` (Neon)، إبطال التوكنات |
 | 3 — إغلاق متابعة Round79 (5 بنود) | ✅ البنود الخمسة منفَّذة، كل بند ببوابته الكاملة | 447/447 اختبارًا، 84/84 صفحة، صفر أخطاء |
 | 4 — هذا التقرير | ✅ | — |
 
@@ -35,7 +36,7 @@
 
 | # | البند | التغيير | بوابة إضافية خاصة |
 |---|---|---|---|
-| 3.1 | db-sync → migrations نظامية | `package.json`: `"build": "prisma migrate deploy && next build"` + حذف `scripts/round79-db-sync.mjs` (vercel.json لا يعرّف buildCommand فيستخدم package.json) | ناتج البناء الحرفي: `11 migrations found in prisma/migrations` / `No pending migrations to apply.` — القناة النظامية تعمل داخل خط البناء ✅ (فحص information_schema على قاعدة **الإنتاج** يحتاج DATABASE_URL — أُضيف للعدّة §5) |
+| 3.1 | db-sync → migrations نظامية | `package.json`: `"build": "prisma migrate deploy && prisma generate && next build"` + حذف `scripts/round79-db-sync.mjs` | **تصحيح إنتاجي حاسم (الجلسة 2):** ادّعاء "package.json يحكم Vercel" كان خاطئًا — لوحة Vercel تحمل buildCommand يتجاوز package.json (`npx prisma generate && next build` — القناة الحقيقية منذ إنشاء المشروع، ولذلك لم تصل الهجرات للإنتاج قط). صُحّح الأمر على الطبقتين: PATCH v9/projects + كوميت `9ea15d4b`. **الدليل الإنتاجي الحرفي:** بناء الإنتاج طبع `11 migrations found` / `Applying migration \`10_add_menu_item_featured\`` / `All migrations have been successfully applied` ثم في النشر التالي: `No pending migrations to apply.` ✅ |
 | 3.2 | تصليب بوابة لوحة المفاتيح | الاستبدال الجذري في `round79-phaseC-journey.spec.ts`: التركيز على زر فعلي داخل القسم (`nextBtn.focus()`) + إثبات أن التركيز داخل القسم (`activeElement.closest(section)`) + **إلزام تغيّر العداد** (`expect(kbAfter).not.toBe(kbBefore)`) بدل مجرد `length>0` الذي كان ينجح حتى لو لم يتحرك شيء | تشغيل حقيقي للخلية `1440px-light-madar` كاملة: **`1 passed (1.5m)`** والسجل الحرفي: `keyboard ArrowLeft "2 من 2: كابتشينو مرحلة C" → "1 من 2: لاتيه مرحلة C"` — الضغط يغيّر المشهد فعليًا ✅ |
 | 3.3 | AXE_BASELINE + حارس | أعيد قياس الأساس بعد ظهور القسم (بالإعدادات الحرفية): menu-slug = 0/0 (موثّق في تعليق AXE_BASELINE) + **حارس عقد جديد**: `expect(axe.nodes).toBeLessThanOrEqual(axe.baseline)` مع تفصيل القواعد في رسالة الفشل + انتظار اختفاء التوستات العابرة قبل الفحص (حتمية القياس) | الحارس أثبت عمله حيًا: التقط `owner|light = 2 > baseline 1` (كان توست نجاح عابرًا بعد الموافقة) → بعد التصليب: 8 صفحات كلها ضمن الأساس ✅ |
 | 3.4 | توحيد لون التوفير | **القرار التصميمي الموثّق**: دلالة "الخصم/التوفير" = عائلة `success` في كل واجهات الزبون (السعر المخفّض `text-success` + شارة `-X%` بالخلفية `bg-success`) — الخصم نتيجة إيجابية؛ و`destructive` يبقى محجوزًا للأخطاء/عدم التوفر. `MenuItemCard.tsx` وحّد مع `FeaturedShowcase.tsx` (الذي كان success أصلًا) | بوابة B الخام سليمة: grep ألوان Tailwind خام = **0** ✅ |
@@ -60,40 +61,62 @@
 
 ---
 
-## 5) المرحلة 2 — عدّة تنفيذ المالك (تم إعدادها كاملة؛ التنفيذ يتطلب اعتمادات لا يملكها المراجع)
+## 5) المرحلة 2 — سجل التنفيذ الفعلي (الجلسة 2، 2026-09-05 — بصلاحيات منحها المالك)
 
-**الدليل على غياب الاعتمادات:** `GIT_TERMINAL_PROMPT=0 git push origin main` → `EXIT 128 — could not read Username for 'https://github.com'` (مُوثّق في worklog Task 6). لا يوجد وصول لوحات Vercel/Neon/BotFather من هذه البيئة. **بمجرد تزويد الوكيل بتوكن GitHub (Fine-grained، هذا المستودع، Contents: R/W) + وصول Vercel، تُنفَّذ المرحلة 2 كاملة بالترتيب أدناه.**
+> كانت هذه العدّة في الجلسة 1 «جاهزة للتنفيذ بمجرد الاعتمادات» — مُنحت الاعتمادات (توكن GitHub + توكن Vercel + Vercel CLI 59.11.7) فنُفّذت بالترتيب الملزم نفسه (تدوير → خاص). لا قيمة سرية واحدة مطبوعة أو محفوظة في أي مخرجات أدناه.
 
-الترتيب إلزامي (تدوير → إعادة تفويض → تحويل لخاص → إبطال التوكن):
+### أ) الدفع + اكتشاف القناة الحقيقية وتصحيحها
+- `git push origin main` بمساعد اعتماد مؤقت → `8c4e2a06..81ecdf97 main -> main` EXIT 0 (التوكن لم يُكتب في `.git/config` ولا في المخرجات).
+- نشر Git المُطلَق أصبح READY خلال 75 ث — لكن سجل البناء كشف أن أمر البناء الفعلي = `npx prisma generate && next build` آتٍ من **إعداد المشروع في لوحة Vercel** (يتجاوز package.json — القناة الحقيقية منذ إنشاء المشروع، ولهذا لم تصل الهجرات للإنتاج قط). كان هذا خطأً منطقيًا في إغلاق 3.1 بالجلسة 1 — صُحّح على الطبقتين:
+  1. `PATCH /v9/projects/prj_h9Llz…` → buildCommand = `npx prisma migrate deploy && npx prisma generate && next build`.
+  2. الكوميت `9ea15d4b`: package.json build = `prisma migrate deploy && prisma generate && next build` (أُضيفت `prisma generate` لأن `src/generated` محجوب من git ولا يوجد postinstall — بدونها ينكسر أي checkout طازج).
+- **استطلاع للقراءة فقط قبل التبديل** (أمر مؤقت بنص `npx prisma migrate status; …` عبر redeploy): حدّد حالة قاعدة الإنتاج بالضبط — الهجرات 0–9 **مطبّقة** والوحيدة المعلّقة `10_add_menu_item_featured` (SQL idempotent بالكامل `ADD COLUMN IF NOT EXISTS` ×3 → آمن قطعًا).
+- **الدليل الإنتاجي النهائي** (سجل بناء نشر الكوميت `9ea15d4b`): `11 migrations found` → `Applying migration \`10_add_menu_item_featured\`` → `All migrations have been successfully applied.` ثم في إعادة النشر بعد التدوير: `No pending migrations to apply.` — قاعدة الإنتاج (`neondb` على Neon) صارت على القناة النظامية بالكامل.
 
-1. **تدوير الأسرار (Vercel → Settings → Environment Variables):**
-   - `JWT_SECRET` و`AUTH_SECRET`: `openssl rand -hex 64` لكل منهما (أو: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`).
-   - `CRON_SECRET`: 32-hex جديد.
-   - `TELEGRAM_BOT_TOKEN` من BotFather (إن كان مستخدمًا — فحص سريع: وجود ربط تيليجرام في لوحة الأدمن).
-   - `DATABASE_URL`: كلمة مرور Neon جديدة من لوحة Neon → تحديث المتغير.
-   - بعد كل تحديث: **Redeploy فعلي** (Deployments → … → Redeploy) — إبطال الجلسات القائمة سلوك متوقع.
-   - **بوابة:** `curl -s -X POST https://menu.smart-link.ly/api/auth/login` بحساب اختبار → نجاح (200) بالسر الجديد.
-2. **إعادة تفويض Vercel↔GitHub قبل التحويل لخاص:** GitHub → Settings → Applications → Installed GitHub Apps → Vercel → Configure → تأكد أن `Smart-Menu` ضمن "Repository access" صراحة. **بوابة:** لقطة من صفحة التطبيق.
-3. **التحويل لخاص:**
-   ```bash
-   curl -X PATCH -H "Authorization: Bearer <TOKEN>" -H "Accept: application/vnd.github+json" \
-     https://api.github.com/repos/ahmadmedo1012/Smart-Menu -d '{"private":true}'
-   # البوابة: الاستجابة تتضمن "private": true
-   git commit --allow-empty -m "test: verify deploy while private" && git push
-   # راقب Deployments حتى Ready وهو خاص — البوابة الأهم في الجولة
-   ```
-4. **إبطال التوكن القديم فورًا:** GitHub → Settings → Developer settings → Personal access tokens → إبطال `ghp_0U3xOtAd…` (الموثّق جزئيًا في round79-phaseF-security.md). **بوابة:** استخدامه لاحقًا يعيد 403. ثم إنشاء Fine-grained بديل (هذا المستودع فقط، Contents: Read/Write).
+### ب) تدوير الأسرار (الخطوة 1 من التسلسل المصحّح)
+- فحص الأثر الجانبي قبل التنفيذ: `AUTH_SECRET` يشتق مفتاح AES-GCM لـ bot token المخزّن في DB إن وُجد — والكود نفسه فيه fallback إلى `TELEGRAM_BOT_TOKEN` من البيئة (موجود بالإنتاج ✓) فالميزة لا تنكسر (أسوأ حالة: يعيد المالك إدخاله من الواجهة).
+- دُوّرت فعليًا: `JWT_SECRET` (production+preview+development) و`AUTH_SECRET` (production+preview) و`CRON_SECRET` (production) — قيم عشوائية جديدة 128-hex/64-hex.
+- **حادثة وُثّقت وصُحّحت:** مسار `vercel env add --value` لوّن القيم بفراغات/أسطر (تحذير CLI «Value contains newlines») — كشفها نشر فاشل حرفيًا: `Error: The CRON_SECRET environment variable contains leading or trailing whitespace, which is not allowed in HTTP header values.` أُعيد ضبط القيم الست كلها نظيفة عبر REST (`POST /v10/projects/{id}/env?upsert=true`، `type=sensitive`، `crypto.randomBytes` خالص) — 6/6 HTTP 201 وسجلات محدّثة، وتحقق بالقائمة بالمعرفات أكّد **صفر تكرارات**.
+- `vercel redeploy` بعد التدوير → **READY خلال دقيقتين + مرتبط بـ menu.smart-link.ly**.
+- **بوابة ما بعد التدوير — 4/4 ناجحة:** `GET /` = 200 · `GET /menu/al-waha-cafe` = 200 · `POST /api/auth/login` (تدفّق CSRF كامل + بيانات خاطئة عمدًا) = **401 برسالة JSON النظيفة نفسها** «اسم المستخدم أو كلمة المرور غير صحيحة» (خط الأنابيب سليم بالأسرار الجديدة — 500 كان سيدل على بيئة مكسورة) · `/api/cron/subscription-expiry` بسرّ خاطئ = **401** (فرض `CRON_SECRET` الجديد حيّ).
+- ملاحظة صادقة: بوابة «دخول ناجح 200» غير قابلة للتنفيذ دون حساب اختبار حقيقي — والتحقق بالنفي النظيف (401) هو المعيار المتاح، وهو نفس معيار round79 المراجَع.
+- الجلسات القائمة أُبطلت (سلوك متوقع لتدوير JWT) — سيعيد المالك الدخول مرة واحدة.
 
+### ج) التحويل إلى خاص (بعد التدوير كما يقتضي التسلسل المصحّح)
+- `PATCH /repos/ahmadmedo1012/Smart-Menu` → الاستجابة الحرفية: `\`"private": true\`` (بوابة العدّة نصًّا).
+- كوميت اختباري فارغ حرفيًا كما في العدّة (`3d6e648c`) → الدفع نجح → **النشر BLOCKED** — تكرار حادثة round79 بالضبط: اعتماد الاستنساخ المخزّن (`gitCredentialId: cred_f66…`) لا يصل للمستودع الخاص.
+- جُرّبت كل المسارات بلا متصفح: `vercel git connect` («already connected» — سجل الربط سليم؛ الانحجاب في صلاحية الاستنساخ)، و`GET /user/installations` بـ PAT (403 — يتطلب توكن GitHub App) — لا نقطة REST عامة لإعادة منح اعتماد git. **الإنتاج نفسه سليم تمامًا** (النشر الجاهز الأخير ما زال يخدم menu.smart-link.ly + فحوص 200 أعلاه).
+
+### د) الإجراء الوحيد المتبقي على المالك (خطوتان في المتصفح)
+1. **أحد المسارين (كلاهما يصلح):**
+   - Vercel → مشروع `smart-menu` → Settings → **Git** → فصل GitHub وإعادة ربطه (Reconnect)، **أو**
+   - GitHub → Settings → Applications → Installed GitHub Apps → **Vercel** → Configure → Repository access → ضمّ `Smart-Menu` (أو All repositories).
+2. **بوابة التحقق الختامية:** ادفع أي كوميت (حتى فارغ: `git commit --allow-empty -m "retest" && git push`) → يجب أن يصبح النشر **READY والمستودع خاص** — عندها تُغلق الجولة كاملة. (الوكيل جاهز لتنفيذ هذا التحقق في جلسة تالية إن أُبقي التوكنات.)
+
+### هـ) بنود مالك متبقية أخرى (تتطلب لوحات خارجية)
+- `TELEGRAM_BOT_TOKEN`: مستخدم فعلًا (Config موجود بالإنتاج) — التدوير من **BotFather** ثم تحديث المتغير وإعادة نشر.
+- `DATABASE_URL`: كلمة مرور **Neon** جديدة ثم تحديث المتغير وإعادة نشر.
+- إبطال التوكن القديم round79 `ghp_0U3xOtAd…` (GitHub → Developer settings → Personal access tokens).
+- **إبطال توكنات هذه الجلسة فور الاطمئنان على النتيجة**: توكن GitHub مُنح بنطاقات شاملة كاملة (خطر غير متناسب مع الحاجة — كان يكفي `repo`)، وتوكن Vercel — كلاهما من نفس صفحات الإنشاء.
+
+### و) اكتشافات جانبية جديدة (خارج نطاق الخطة)
+1. **القناة الحقيقية للبناء = إعداد لوحة Vercel** لا package.json (§أ) — أي تغيير مستقبلي في سلسلة البناء يجب التحقق فيه من الإعدادين معًا.
+2. `vercel env add --value` يشوّه القيم بفراغات أحيانًا (§ب) — التوصية للأتمتة: REST v10 مع upsert.
+3. سجل `CRON_SECRET@preview` قديم (2026-07-30) خارج نطاق التدوير (الإنتاج فقط) — يُدوَّر مع توحيد الأسرار إن أراد المالك.
+4. توكن Vercel الممنوح لا يفكّ قيم النوع Sensitive عبر `env pull` (يعيد `[encrypted]`) — لذلك اشتُغل الاستطلاع عبر سجلات البناء بدل الاتصال المباشر بقاعدة الإنتاج.
 ---
 
-## 6) تأكيدات صريحة مطلوبة بالخطة
+## 6) تأكيدات صريحة (محدّثة بعد الجلسة 2)
 
-**هل المستودع خاص فعليًا الآن؟** **لا.** الوكيل لا يملك توكن GitHub لتنفيذ `PATCH` (الدليل أعلاه). الحالة الحالية كما راجعها Round79: عام (أُعيد للعلنية لفك حجب Vercel — موثّق في launch-readiness §5). الحلّ الكامل في §5 أعلاه بترتيبه الملزم.
+**هل المستودع خاص فعليًا الآن؟** **نعم — منفَّذ تنفيذيًا:** استجابة `PATCH` الحرفية `\`"private": true\`` + دفع الكوميت الاختباري `3d6e648c` نجح (git يعمل؛ الانحجاب في Vercel وحده — §5.ج/د). الحالة المرجعية قبل التنفيذ كانت عامة كما راجعها round79.
 
 **كم صنفًا مميزًا فعّالًا حاليًا على كل مطعم تجريبي حي؟**
-- **الإنتاج (`menu.smart-link.ly`): صفر** على `al-waha-cafe` (16/16 صنفًا `isFeatured:false` — فحص Round79 المباشر للحمولة الحية). لم يتغير لأن تفعيل الإنتاج يتطلب دخول المالك (§4).
+- **الإنتاج (`menu.smart-link.ly`): صفر** على `al-waha-cafe` (لم يتغير — التفعيل يتطلب دخول المالك: §4، 8 خطوات، دقيقة لكل صنف).
 - **النسخة المحلية المُثبتة:** `al-waha-cafe = 3` (ranks 1/2/3 بشارات)، `al-aseel = 0` (حالة الحافة). موثّق باستعلام SQL في worklog Task 7.
 
+**هل قناة الهجرات تعمل على الإنتاج؟** **نعم — مثبت بسجل البناء الحرفي** (§5.أ): `Applying migration \`10_add_menu_item_featured\`` ثم `No pending migrations to apply.`
+
+**هل الأسرار مدوّرة؟** **نعم** — الثلاثة القابلة للتدوير من البيئة (JWT/AUTH/CRON) عبر REST نظيف + إعادة نشر + بوابة 4/4 (§5.ب). المتبقيان لمالك: `TELEGRAM_BOT_TOKEN` و`DATABASE_URL` (§5.هـ).
 ---
 
 ## 7) اكتشافات جانبية جديدة (خارج نطاق الخطة، موثّقة للأمانة)
@@ -105,6 +128,6 @@
 
 ## 8) الوصول للكود
 
-كل تعديلات Round80 **محمّلة محليًا في `/home/z/my-project/Smart-Menu` على main (2 كوميتات: الخطة + التعديلات)** والدفع لـ GitHub يتطلب اعتمادات (الدليل EXIT 128 أعلاه) — إمّا دفعها يدويًا أو تزويد الوكيل بتوكن محدود الصلاحية. البوابة الختامية بعد الدفع: نشر Vercel ناجح واحد (خاصةً مع تبديل قناة البناء إلى `prisma migrate deploy`).
+كل تعديلات Round80 **مدفوعة إلى `origin/main` (الرأس `3d6e648c`، المستودع خاص)**: `fb31d383` (الخطة) + `81ecdf97` (التعديلات) + `9ea15d4b` (تصحيح قناة البناء) + `3d6e648c` (كوميت اختبار الخاص) + كوميت هذا التحديث للتوثيق. البوابة الختامية المتبقية: نشر واحد READY بعد إعادة ربط المالك للتكامل (§5.د).
 
-الأدلة الكاملة: `/home/z/my-project/download/round80/` (لقطات + JSON القياسات + ملخص المرحلة 1) و`/home/z/my-project/download/round79-phaseC/journey-matrix.json` (رحلة الخلية الحقيقية) و`/home/z/my-project/worklog.md` (سجل تنفيذ خطوة بخطوة).
+الأدلة الكاملة: `/home/z/my-project/download/round80/` (لقطات + JSON القياسات + ملخص المرحلة 1) و`/home/z/my-project/download/round79-phaseC/journey-matrix.json` (رحلة الخلية الحقيقية) و`/home/z/my-project/worklog.md` (سجل تنفيذ خطوة بخطوة — Task 10 = هذه الجلسة) وسجلات نشر Vercel المذكورة بالمعرفات في §5.
