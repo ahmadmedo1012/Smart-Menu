@@ -7,32 +7,33 @@ describe("hash.ts", () => {
     expect(typeof hashPassword("correct-horse-battery-staple")).toBe("string");
   });
 
-  it("hashPassword format salt:hash", async () => {
+  it("hashPassword format iterations:salt:hash (v2, round85-A3)", async () => {
     const { hashPassword } = await import("../../src/lib/hash");
     expect(hashPassword("correct-horse-battery-staple")).toContain(":");
+    expect(hashPassword("correct-horse-battery-staple").split(":")).toHaveLength(3);
   });
 
   it("salt = 64 hex chars (32 bytes)", async () => {
     const { hashPassword } = await import("../../src/lib/hash");
-    const [salt] = hashPassword("correct-horse-battery-staple").split(":");
+    const [, salt] = hashPassword("correct-horse-battery-staple").split(":");
     expect(salt).toHaveLength(64);
   });
 
   it("hash = 128 hex chars (64 bytes)", async () => {
     const { hashPassword } = await import("../../src/lib/hash");
-    const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
+    const [, , hash] = hashPassword("correct-horse-battery-staple").split(":");
     expect(hash).toHaveLength(128);
   });
 
   it("salt hex only", async () => {
     const { hashPassword } = await import("../../src/lib/hash");
-    const [salt] = hashPassword("correct-horse-battery-staple").split(":");
+    const [, salt] = hashPassword("correct-horse-battery-staple").split(":");
     expect(salt).toMatch(/^[0-9a-f]+$/);
   });
 
   it("hash hex only", async () => {
     const { hashPassword } = await import("../../src/lib/hash");
-    const [, hash] = hashPassword("correct-horse-battery-staple").split(":");
+    const [, , hash] = hashPassword("correct-horse-battery-staple").split(":");
     expect(hash).toMatch(/^[0-9a-f]+$/);
   });
 
@@ -81,7 +82,7 @@ describe("hash.ts", () => {
     const { hashPassword } = await import("../../src/lib/hash");
     const h1 = hashPassword("correct-horse-battery-staple");
     const h2 = hashPassword("correct-horse-battery-staple");
-    expect(h1.split(":")[0]).not.toBe(h2.split(":")[0]);
+    expect(h1.split(":")[1]).not.toBe(h2.split(":")[1]);
   });
 });
 

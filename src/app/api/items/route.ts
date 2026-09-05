@@ -47,6 +47,14 @@ export async function GET(request: NextRequest) {
 
                 const where: Record<string, unknown> = {};
                 const auth = await requireAuth();
+                // round85-A1: the free USER role has no ownership path for menu reads —
+                // treat it exactly like an anonymous caller (available items only),
+                // otherwise it could enumerate hidden/draft items of ANY restaurant.
+                // Staff (super_admin/admin/sub_admin) keep full read access.
+                const isStaff =
+                        auth.authorized &&
+                        (auth.role === 'super_admin' || auth.role === 'admin' || auth.role === 'sub_admin');
+                const canSeeAll = isStaff || (auth.authorized && auth.role === 'owner');
                 if (restaurantId) {
                         // Owners can only read their own restaurant's items — multi-menu aware
                         if (auth.authorized && auth.role === 'owner' && auth.restaurantId !== restaurantId) {
@@ -55,24 +63,19 @@ export async function GET(request: NextRequest) {
                                 });
                                 if (!link) return error('غير مصرح', 403);
                         }
-                        // Unauthenticated: only available items
-                        if (!auth.authorized) {
-                                where.category = { is: { restaurantId } };
-                                where.status = 'available';
-                        } else {
-                                where.category = { is: { restaurantId } };
-                        }
+                        // Non-staff (anonymous or USER): only available items
+                        where.category = { is: { restaurantId } };
+                        if (!canSeeAll) where.status = 'available';
                 } else if (categoryId) {
-                        if (!auth.authorized) {
-                                where.categoryId = categoryId;
-                                where.status = 'available';
-                        } else {
-                                where.categoryId = categoryId;
-                        }
+                        where.categoryId = categoryId;
+                        if (!canSeeAll) where.status = 'available';
                 } else {
-                        if (!auth.authorized) return error('معرف التصنيف أو المطعم مطلوب', 400);
+                        return error('معرف التصنيف أو المطعم مطلوب', 400);
                 }
-                if (status) where.status = status;
+                // round85-A1: status filter override is staff/owner-only (a USER or
+                // anonymous caller must not flip ?status=hidden to bypass the
+                // available-only filter above)
+                if (status && canSeeAll) where.status = status;
 
                 const [data, total] = await Promise.all([
                         prisma.menuItem.findMany({

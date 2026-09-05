@@ -12,6 +12,8 @@ const referralSchema = z.object({
 });
 
 const referralDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
+// round85-A2: same limiter budget for the public GET (code → restaurant lookup)
+const referralGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,6 +75,11 @@ export async function GET(request: NextRequest) {
 
     if (!code) return error("code query parameter is required");
 
+    // round85-A2: rate limit the public code lookup
+    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const rl = await referralGetLimiter.check(`referral-get:${ip}`);
+    if (!rl.success) return error("طلبات كثيرة — حاول لاحقاً", 429);
+
     const card = await prisma.loyaltyCard.findUnique({
       where: { referralCode: code },
       include: {
@@ -95,7 +102,9 @@ export async function GET(request: NextRequest) {
 
     return success({
       referralCode: code,
-      referrerName: card.customerName,
+      // round85-A2: no referrerName — the unauthenticated response must not
+      // disclose the card holder's stored customer name (verified: no UI
+      // consumer reads this field; the referral landing works without it).
       restaurant: card.restaurant,
     });
   } catch (e) {
