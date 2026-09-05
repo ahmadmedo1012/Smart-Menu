@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && prisma generate && next build",
+    "build": "node scripts/db-unstick.mjs && prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "clean": "rm -rf .next",
     "lint": "eslint src/ tests/",
