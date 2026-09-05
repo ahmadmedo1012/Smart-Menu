@@ -51,6 +51,7 @@ interface Item {
 	isFeatured?: boolean;
 	featuredRank?: number | null;
 	showcaseTag?: string | null;
+	showcaseTags?: string[] | null;
 }
 
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {

@@ -162,6 +162,10 @@ model MenuItem {
   isFeatured      Boolean      @default(false)
   featuredRank    Int?
   showcaseTag     String?      @db.VarChar(40)
+  // Round83 §2.3 — up to 3 showcase badges. Legacy single showcaseTag is
+  // KEPT for one round (dual-write: the API mirrors tags[0] into it); drop
+  // it in a later round after every consumer reads the array.
+  showcaseTags    String[]    @default([])
   modifierGroups  ModifierGroup[]
   category        MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   orderItems      OrderItem[]
