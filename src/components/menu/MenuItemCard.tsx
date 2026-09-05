@@ -227,7 +227,7 @@ const MenuItemCard = memo(function MenuItemCard({
 
 				{/* Description */}
 				{displayDesc ? (
-					<p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed">
+					<p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
 						{displayDesc}
 					</p>
 				) : null}
@@ -264,7 +264,13 @@ const MenuItemCard = memo(function MenuItemCard({
 							'text-xl font-bold transition-colors duration-300 tabular-nums',
 							hasDiscount
 								? 'text-success'
-								: 'text-primary group-hover:text-[var(--c-ember)]'
+								// a11y(round84): --primary (#c53c00) is
+								// tuned for white-text-on-orange BUTTONS
+								// (4.5:1) — as TEXT on dark cards it is
+								// 3.89:1. ember (light ~6.5:1) /
+								// saffron (dark ~9.8:1) keep the brand
+								// hue at AA in both themes.
+								: 'text-ember dark:text-saffron group-hover:text-primary dark:group-hover:text-saffron'
 						)}
 					>
 						{toArabicNumber(currentPrice.toFixed(1))}

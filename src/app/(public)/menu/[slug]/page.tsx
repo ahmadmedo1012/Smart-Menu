@@ -249,7 +249,11 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
         );
 
         return (
-                <main className="relative min-h-dvh overflow-x-clip">
+                // a11y(round84): the (public) layout already provides the single
+                // <main id="main-content"> landmark — a second <main> here triggered
+                // landmark-no-duplicate-main / landmark-main-is-top-level /
+                // landmark-unique on every menu page. Visual div keeps min-h-dvh.
+                <div className="relative min-h-dvh overflow-x-clip">
                         <ReferralHandler />
                         <div className="fixed inset-0 -z-10 bg-[var(--menu-glow)] pointer-events-none" />
 
@@ -267,6 +271,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 serializedItems={serializedItems}
                                 hasContact={hasContact}
                         />
-                </main>
+                </div>
         );
 }

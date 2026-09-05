@@ -620,7 +620,7 @@ function OrderCard({
 			<div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-border/20">
 				<time
 					dateTime={createdIso}
-					className="text-xs text-muted-foreground/70 tabular-nums"
+					className="text-xs text-muted-foreground tabular-nums"
 				>
 					{formatRelativeTimeAr(order.createdAt)}
 				</time>

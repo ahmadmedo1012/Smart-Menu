@@ -127,14 +127,19 @@ export default async function RootLayout({
 							} as React.CSSProperties
 						}
 					/>
-					<ScrollToTop />
 					<ServiceWorkerInit />
 					<InstallPrompt />
 					<CartHydrator />
 					<MotionProvider>
-						<main id="main-content">{children}</main>
+						{/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
+						 * must live INSIDE a landmark (axe region rule). position:fixed is
+						 * unaffected by DOM order — MotionProvider applies no transform. */}
+						<main id="main-content">
+							<ScrollToTop />
+							{children}
+							<FloatingWhatsApp />
+						</main>
 					</MotionProvider>
-					<FloatingWhatsApp />
 					<Toaster
 						position="top-center"
 						richColors

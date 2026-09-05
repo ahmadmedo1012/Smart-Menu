@@ -544,7 +544,7 @@ export default function CartPage() {
 								onChange={(e) => setCustomerPhone(e.target.value)}
 								className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 text-left"
 							/>
-							<p className="text-[11px] text-muted-foreground/70 mt-1">
+							<p className="text-[11px] text-muted-foreground mt-1">
 								ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب
 							</p>
 						</div>
@@ -685,7 +685,7 @@ export default function CartPage() {
 												× {toArabicNumber(item.quantity)}
 											</span>
 											{item.notes && (
-												<p className="text-xs text-muted-foreground/70 mt-0.5 flex items-center gap-1">
+												<p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
 													<svg
 														className="size-3 shrink-0"
 														viewBox="0 0 24 24"

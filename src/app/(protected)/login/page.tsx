@@ -266,7 +266,7 @@ function LoginForm() {
 							<button
 								type="button"
 								onClick={() => setShowForgot(true)}
-								className="font-arabic text-xs text-muted-foreground/70 underline-offset-4 hover:text-orange hover:underline transition-colors"
+								className="font-arabic text-xs text-muted-foreground underline-offset-4 hover:text-orange hover:underline transition-colors"
 							>
 								نسيت كلمة المرور؟
 							</button>

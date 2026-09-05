@@ -246,7 +246,7 @@ export default function PricingPage() {
 							aria-pressed={!yearly}
 							className={cn(
 								'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
-								yearly ? 'text-muted-foreground' : 'bg-orange-muted text-orange'
+								yearly ? 'text-muted-foreground' : 'bg-orange-muted text-ember dark:text-saffron'
 							)}
 						>
 							شهري
@@ -260,10 +260,10 @@ export default function PricingPage() {
 							aria-pressed={yearly}
 							className={cn(
 								'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
-								yearly ? 'bg-orange-muted text-orange' : 'text-muted-foreground'
+								yearly ? 'bg-orange-muted text-ember dark:text-saffron' : 'text-muted-foreground'
 							)}
 						>
-							سنوي ·<span className="ms-1 text-xs text-orange font-bold">وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
+							سنوي ·<span className="ms-1 text-xs text-ember dark:text-saffron font-bold">وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
 							{yearly && (
 								<span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />
 							)}

@@ -51,7 +51,10 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
                     </span>
                   </div>
                   <div className="text-xs sm:text-sm font-medium text-muted-foreground/95">{item.label}</div>
-                  <div className="mt-3 text-xs text-muted-foreground/75">{item.sub}</div>
+                  {/* a11y(round84): /75 alpha dropped contrast below 4.5:1 on the
+                  section wash bg — full muted-foreground keeps the hierarchy
+                  (smaller size + muted hue) while passing AA. */}
+              <div className="mt-3 text-xs text-muted-foreground">{item.sub}</div>
                 </div>
               </motion.div>
             ))}

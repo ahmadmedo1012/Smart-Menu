@@ -189,7 +189,10 @@
         --secondary: oklch(0.14 0.008 60);
         --secondary-foreground: oklch(0.72 0.01 70);
         --muted: oklch(0.14 0.008 60);
-        --muted-foreground: oklch(0.52 0.015 70);
+        /* a11y(round84): 0.52 measured 3.7:1 on dark cards (axe serious — every
+         * muted description/footer/meta text failed AA). 0.62 measures 5.54:1 —
+         * comfortably AA with the same warm-gray character. */
+        --muted-foreground: oklch(0.62 0.015 70);
         --accent: oklch(0.55 0.19 45 / 0.15);
         --accent-foreground: oklch(0.55 0.19 45);
         --destructive: oklch(0.6 0.22 25);

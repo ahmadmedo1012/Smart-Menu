@@ -125,7 +125,10 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 							<span className="h-3 w-24 rounded bg-orange/20 animate-pulse" />
 						</motion.div>
 					) : showTrustBadge ? (
-						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/25 bg-orange/8 px-3.5 py-1.5 text-[11px] font-medium text-orange mt-6 shadow-sm">
+						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/25 bg-orange/8 px-3.5 py-1.5 text-[11px] font-medium text-ember dark:text-saffron mt-6 shadow-sm">
+							{/* a11y(round84): text-orange measured 4.47:1 on the cream hero bg (axe serious
+							 * violation — 0.03 short of AA). ember = oklch(0.44 0.17 52) ≈ 7:1 light,
+							 * saffron ≈ 8:1 on dark. Same brand hue family, world-class contrast. */}
 							<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
 							أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
 						</motion.div>
@@ -177,7 +180,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 										<span className="size-1.5 rounded-full bg-whatsapp" />
 										<span className="text-[10px] font-bold text-foreground">بيتزا مارغريتا ×2</span>
 									</div>
-									<span dir="ltr" className="text-[10px] font-bold text-orange">32.00 د.ل</span>
+									<span dir="ltr" className="text-[10px] font-bold text-ember dark:text-saffron">32.00 د.ل</span>
 								</div>
 							</div>
 						</div>
