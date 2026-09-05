@@ -33,7 +33,14 @@ export default defineConfig({
     },
     {
       name: "api",
-      testMatch: ["tests/e2e/api-smoke.test.ts", "tests/e2e/api-sweep.test.ts", "tests/e2e/full-sweep.test.ts"],
+      testMatch: [
+        "tests/e2e/api-smoke.test.ts",
+        "tests/e2e/api-sweep.test.ts",
+        "tests/e2e/full-sweep.test.ts",
+        // round85-D1: referral coverage was orphaned (matched NO project —
+        // 12 tests never executed anywhere)
+        "tests/e2e/referral-claim.spec.ts",
+      ],
     },
     {
       name: "ui",

@@ -1,6 +1,6 @@
 # Smart Menu — Project Reference
 
-> آخر تحديث: 28 يوليو 2026 | Stack: Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · shadcn/ui base-nova · Prisma 7.8 + PostgreSQL/Neon · JWT httpOnly cookies · Framer Motion · Zustand · Sonner · Vercel Fluid Compute
+> آخر تحديث: 6 سبتمبر 2026 (جولة 85) | Stack: Next.js 16.2 (App Router) · React 19.2 · Tailwind CSS 4 · shadcn/ui base-nova · Prisma 7.8 + PostgreSQL/Neon (opaque DB sessions — لا JWT) · motion (framer) · Zustand · Sonner · Vercel Fluid Compute
 
 ---
 
@@ -59,22 +59,23 @@ When working on ANY component or page, apply professional, world-class design st
 ## Quick Start
 
 ```bash
-npm install
+pnpm install                 # المشروع pnpm فقط (pnpm-lock.yaml)
 npx prisma generate
-npx prisma db push
-npx prisma db seed
-npm run dev
+npx prisma migrate deploy    # نفس قناة الإنتاج — لا تستخدم db push
+node scripts/ci-seed.mjs     # admin + باقات (idempotent)
+node scripts/round83-seed.mjs # (اختياري محليًا) مطعم al-waha-cafe + 9 أصناف + featured
+pnpm dev
 # → http://localhost:3000
 ```
 
-### Seed Accounts
+### Seed Accounts (ci-seed)
 
-| User | Password | Role | Restaurant |
-|------|----------|------|------------|
-| `admin` | `admin123` | super_admin | — |
-| `waha` | `waha123` | owner | al-waha-cafe |
-| `aseel` | `aseel123` | owner | aseel-restaurant |
-| `roma` | `roma123` | owner | roma-pizza |
+| User | Password | Role |
+|------|----------|-----|
+| `admin` | `admin123456` | admin |
+
+> round83-seed يضيف (محليًا فقط): `waha_owner` / `waha123456` (owner, al-waha-cafe).
+> لا يوجد `prisma db seed` في prisma.config.ts — الأمر غير موجود ولا يعمل.
 
 ---
 
@@ -87,13 +88,13 @@ Multi-tenant restaurant SaaS. QR-scannable digital menus, WhatsApp ordering, mod
 | المجال | المسار | الوصف |
 |--------|--------|-------|
 | **Public Menu** | `/menu/[slug]` | منيو رقمي مع تصنيفات، فرز، بحث، طلب عبر واتساب مع modifiers |
-| **Owner Dashboard** | `/owner` | صفحة رئيسية بـ KPIs متحركة، تحليلات متقدمة (إيرادات 7 أيام، أعلى الأصناف، توزيع ساعي)، إدارة الطلبات مع SSE، QR، برنامج الولاء، التقارير والمراجعات |
+| **Owner Dashboard** | `/owner` | صفحة رئيسية بـ KPIs متحركة، تحليلات متقدمة (إيرادات 7 أيام، أعلى الأصناف، توزيع ساعي)، إدارة الطلبات (تنبيه polling كل 5 ثوان على endpoint العدد)، QR، برنامج الولاء، التقارير والمراجعات |
 | **Admin Panel** | `/admin` | إدارة متعددة للمطاعم، المستخدمين، الباقات، الاشتراكات، أحداث النظام لحظياً، تيليغرام، صلاحيات الأدمن، سجل التدقيق |
 | **Cart** | `/cart` | سلة تسوق (Zustand + persistence)، اختيار نوع الطلب (داخلي/توصيل/استلام)، إرسال عبر واتساب |
-| **Subscriptions** | `/subscribe` | باقات متدرجة (Free/Basic/Premium/Pro/Enterprise)، تحقق مسبق من username + slug، مدفوعات عبر Telegram inline keyboards، SSE实时 |
+| **Subscriptions** | `/subscribe` | باقات متدرجة (Free/Basic/Premium/Pro/Enterprise)، تحقق مسبق من username + slug، مدفوعات عبر Telegram inline keyboards |
 | **Telegram Bot** | — | موافقات الدفع (أعتمد/ارفض)، رسائل جماعية، تشخيص |
 | **Loyalty & Referrals** | `/owner/loyalty` | مستويات (برونز/فضي/ذهبي/بلاتيني)، بطاقة ولاء برصيد النقاط، كود إحالة مع خصم/مكافأة |
-| **Real-time (SSE)** | `/api/*/events/stream` | 30s heartbeat streams للطلبات، المدفوعات، أحداث الأدمن. ReadableStream (multi-instance) |
+| **Real-time (polling)** | notifier hooks | polling مع visibilitychange pause (round84: SSE أُزيل — Vercel يقتل الـ streams عند 300 ثانية). OrderNotifier 5s → `/api/orders/count` (round85)، الأحداث 15s |
 
 ---
 
@@ -139,7 +140,7 @@ src/
 │   ├── layout.tsx          ← Root layout: Cairo font, ThemeProvider, Toaster, Motion, GridPattern
 │   ├── page.tsx            ← Landing page → HomePage component
 │   ├── globals.css         ← ~560 سطر: tokens, utilities, keyframes, glass, animations
-│   ├── middleware.ts       ← Auth gate + CSP nonce + security headers
+│   ├── proxy.ts            ← Next16 middleware: cookie gate + CSP nonce + security headers + CSRF origin (round85: matcher يستثني الأصول الثابتة)
 │   ├── instrumentation.ts
 │   │
 │   ├── (public pages)
@@ -152,7 +153,7 @@ src/
 │   │   ├── cart/           ← سلة التسوق (نوع الطلب، بيانات العميل، إرسال واتساب)
 │   │   └── order-confirmed/ ← تأكيد الطلب مع تفاصيل
 │   │
-│   ├── owner/              ← لوحة المالك (11 صفحة)
+│   ├── owner/              ← لوحة المالك (10 صفحات)
 │   │   ├── page.tsx        ← Dashboard: KPI grid متحرك، Orders list، Analytics tab متقدم
 │   │   ├── OwnerCharts.tsx ← رسم بياني للإيرادات 7 أيام، أعلى الأصناف، توزيع ساعي
 │   │   ├── OwnerKpiGrid.tsx ← 4 بطاقات KPIs مع عداد متحرك
@@ -164,7 +165,7 @@ src/
 │   │   ├── reviews/        ← إدارة التقييمات
 │   │   └── settings/       ← إعدادات المطعم
 │   │
-│   ├── admin/              ← لوحة الأدمن (12 صفحة)
+│   ├── admin/              ← لوحة الأدمن (13 صفحة)
 │   │   ├── page.tsx        ← إحصائيات شاملة (161 مطعم، 320 مستخدم)
 │   │   ├── restaurants/    ← إدارة المطاعم مع نموذج إضافة
 │   │   ├── users/          ← إدارة المستخدمين
@@ -176,7 +177,7 @@ src/
 │   │   ├── audit-logs/     ← سجل التدقيق
 │   │   └── settings/       ← الإعدادات العامة
 │   │
-│   └── api/                ← 60 API route (RESTful)
+│   └── api/                ← 65 API route (RESTful) — حراسة check-api-auth.mjs تفحص تفويض كل مسار
 │       ├── auth/           ← login, logout, me, register
 │       ├── restaurants/    ← CRUD مطاعم
 │       ├── categories/     ← CRUD تصنيفات
@@ -186,7 +187,7 @@ src/
 │       ├── loyalty/        ← ولاء + إحالة + إحصائيات
 │       ├── admin/          ← أدمن (stats, system-events, Telegram, config)
 │       ├── owner/          ← مالك (reviews, stats)
-│       ├── user/           ← المستخدم + أحداث SSE
+│       ├── user/           ← المستخدم + أحداث (polling)
 │       └── whatsapp/       ← رابط واتساب المباشر
 │
 ├── components/
@@ -195,12 +196,12 @@ src/
 │   ├── menu/               ← MenuPageClient, MenuItemCard, OrderDialog, CartSlideOver, CategoryTabs...
 │   ├── owner/              ← ItemDialog, PlanUsageBadge
 │   ├── admin/              ← KpiCard, ConfigEditor, AdminEventNotifier
-│   ├── shared/             ← 16 مكون: ErrorBoundary, AreaChart, HorizontalBar, PaymentDialog...
-│   ├── layout/             ← Header, Footer, AdminSidebar, OrderNotifier (SSE)، ThemeToggle
+│   ├── shared/             ← 28 مكون: DefaultError/DefaultLoading (34+32 error/loading مدمجة — round85), AreaChart, PaymentDialog, KpiCard...
+│   ├── layout/             ← Header, Footer, AdminSidebar, OrderNotifier (polling)، ThemeToggle
 │   ├── loyalty/            ← LoyaltyWidget, LoyaltySettings, ReferralCard, ShareAfterOrder
 │   └── ui/                 ← shadcn/ui base-nova: button, card, dialog, sheet, select, table...
 │
-├── lib/                    ← 25 ملف مكتبة
+├── lib/                    ← ~43 ملف مكتبة (round85: +menu-cache، +secure-compare، +get-error-message، +dietary)
 │   ├── auth.ts             ← requireAuth, requireAdmin, requirePermission
 │   ├── session.ts          ← التحقق من الجلسة
 │   ├── db.ts               ← Prisma client + Decimal toNumber + withRetry (SQLSTATE codes)
@@ -230,9 +231,9 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 18 ملف اختبار (298 case)
-    ├── unit/               ← auth, core, csrf, lib, rate-limit, regression
-    ├── e2e/                ← api-smoke, auth-fix, ui-sweep
+└── tests/                  ← 27 unit (520 case) + 28 e2e/security files
+    ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
+    ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security
 ```
 
@@ -241,10 +242,13 @@ src/
 ## Auth & Role System
 
 ### المصادقة
-- **Primary**: `Session` model + `smart-menu-session` httpOnly cookie (24h, SameSite=Lax, Secure)
-- **Middleware**: يحمي `/owner/*` و `/admin/*` — غير المدفوع → `/subscribe`
-- **CSRF**: `x-csrf-token` header + SameSite=Lax
-- **CSP**: per-request nonce للـ scripts عبر middleware (`middleware.ts`)
+- **Primary**: `Session` model + `smart-menu-session` httpOnly cookie (24h sliding، SameSite=Lax, Secure). Token عشوائي SHA-256 hashed at rest — **لا JWT إطلاقًا**
+- **كلمات المرور**: PBKDF2-SHA512 **600k تكرار** (round85-A3، كان 100k) + إعادة تهجئة شفافة عند الدخول للهاشات القديمة
+- **requireAuth**: استعلام واحد (session + user join — round85-B6) + تجديد جلسة عند نصف العمر فقط
+- **proxy.ts**: يحمي `/owner/*` و `/admin/*` (cookie presence — الفحص الفعلي داخل كل route)
+- **CSRF**: double-submit `x-csrf-token` header + origin allowlist
+- **CSP**: per-request nonce للـ scripts عبر `proxy.ts` (Next 16 middleware)
+- **Rate limits**: DB-backed fail-closed (رحلة واحدة لكل فحص — round85-B5) على login/register/orders/loyalty/referrals/cron
 
 ### الأدوار
 | Role | الوصول |
@@ -269,7 +273,7 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 - **OwnerKpiGrid**: 4 بطاقات KPI مع عداد متحرك (إجمالي الطلبات، طلبات اليوم، الإيرادات، أصناف)
 - **OwnerCharts (AnalyticsTab)**: رسم بياني للإيرادات 7 أيام (AreaChart)، طلبات 7 أيام، أعلى الأصناف مبيعاً (HorizontalBar مع نسبة النمو)، توزيع الطلبات حسب الساعة
 - **OwnerOrdersList**: ملخص الطلبات حسب الحالة، أشهر الأصناف، آخر 5 طلبات، روابط سريعة
-- **OrderNotifier (SSE)**: إشعارات لحظية للطلبات الجديدة
+- **OrderNotifier**: تنبيه الطلبات الجديدة (polling 5s على /api/orders/count — استعلام COUNT واحد)
 - **AdminEventNotifier**: أحداث النظام لحظياً للأدمن
 
 ### Menu System
@@ -305,10 +309,10 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 - Manifest كامل (standalone, RTL, icons 192/512)
 - صفحة offline مع إعادة محاولة وروابط
 
-### Real-time (SSE)
-- `ReadableStream` لكل اتصال (يعمل مع multi-instance)
-- 30s heartbeat
-- مسارات: `/api/orders/stream`، `/api/user/events/stream`، `/api/admin/events/stream`
+### Real-time (polling — round84)
+- SSE أُزيل بالكامل (Vercel يقطع الـ streams عند 300 ثانية — قرار موثق ponytail)
+- OrderNotifier: 5s (count endpoint خفيف round85-B3) · UserBannerNotifier + AdminEventNotifier: 15s
+- كلها توقف عند إخفاء التبويب (visibilitychange) — لا تسريبات مؤقتات
 
 ---
 
@@ -328,10 +332,10 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | المكتبة | الاستخدام |
 |---------|-----------|
 | `next@16.2.12` | الإطار الرئيسي (App Router) |
-| `react@19.2.8` | واجهة المستخدم |
-| `@prisma/client@7.9` | ORM مع PostgreSQL |
+| `react@19.2.4` | واجهة المستخدم |
+| `prisma@7.8` | ORM مع PostgreSQL (pg adapter + pool tuned) |
 | `zustand` | إدارة حالة السلة مع persist |
-| `framer-motion` | حركات CSS (enter/exit، scroll) |
+| `motion@12` | حركات CSS (enter/exit، scroll) |
 | `sonner` | إشعارات toast |
 | `next-themes` | الوضع المظلم/الفاتح |
 | `lucide-react` | الأيقونات |
@@ -339,28 +343,29 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `sharp@0.35.3` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (298 حالة)
+## Tests (520 unit + 181 e2e في CI)
 
 ```
-✓ unit/auth.test.ts        — تسجيل الدخول، session، roles
-✓ unit/core.test.ts        — المنطق الأساسي
-✓ unit/csrf.test.ts        — حماية CSRF
-✓ unit/lib.test.ts         — المكتبات
-✓ unit/rate-limit.test.ts  — تحديد السرعة
-✓ unit/regression*.ts      — اختبارات الانحدار
-✓ e2e/*.spec.ts            — اختبارات المتصفح
-✓ security/*.test.ts       — الأمان
+✓ unit/ (27 ملف، 520 حالة)  — auth, core, csrf, rate-limit, loyalty-subscription,
+                              receipt-whatsapp-format (round85 الجديدة), regression...
+✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
+✓ qa-teams (production)    — 19 spec تعمل ضد الإنتاج (continue-on-error)
+✓ coverage gate            — ratchet calibrated (round85-D3): 22/19/29/23
 ```
 
 ## Environment Variables
 
 | المتغير | مطلوب؟ | الوصف |
 |---------|--------|-------|
-| `DATABASE_URL` | ✅ مطلوب | اتصال PostgreSQL |
+| `DATABASE_URL` | ✅ مطلوب | اتصال PostgreSQL (Neon pooler) |
+| `AUTH_SECRET` | ✅ مطلوب | سر HKDF (جلسات/تشفير تيليغرام) |
+| `JWT_SECRET` | ✅ (اسم تاريخي — لا JWT مستخدم) | master secret احتياطي |
 | `NEXT_PUBLIC_DOMAIN` | ✅ مطلوب | نطاق الموقع |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | ✅ مطلوب | رقم واتساب الافتراضي |
-| `TELEGRAM_BOT_TOKEN` | للتيليغرام | توكن بوت التيليغرام (مشفر) |
-| `SKIP_ENV_CHECK` | اختياري | `true` لتجاوز فحص البيئة في التطوير المحلي |
+| `TELEGRAM_BOT_TOKEN/CHAT_ID/ADMIN_IDS/WEBHOOK_SECRET` | للتيليغرام | البوت (المخزن AES-GCM في DB) |
+| `CRON_SECRET` | ✅ cron | Bearer للـ /api/cron/* (timing-safe round85) |
+| `BLOB_READ_WRITE_TOKEN` | ✅ upload | Vercel Blob (أُضيف للـ .env.example — round85-A6) |
+| `RATE_LIMIT_RELAX` | dev فقط | 1 = حدود مرخية للاختبارات المحلية |
 
 ## Coding Standards
 

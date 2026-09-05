@@ -8,11 +8,10 @@
     "start": "next start",
     "clean": "rm -rf .next",
     "lint": "eslint src/ tests/",
-    "lint:fix": "eslint --fix src/",
+    "lint:fix": "eslint src/ tests/ --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:legacy": "vitest run tests/unit --reporter=dot",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "npx playwright test tests/e2e tests/security --project=security --project=api --project=ui --project=auth-verify",
     "webhook:register": "node scripts/register-webhook.mjs",
@@ -79,5 +78,8 @@
     "url": "https://github.com/ahmadmedo1012/Smart-Menu/issues"
   },
   "homepage": "https://github.com/ahmadmedo1012/Smart-Menu#readme",
-  "packageManager": "pnpm@11.9.0"
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24.0.0"
+  }
 }

@@ -52,8 +52,8 @@
 |---|---|---|
 | TypeScript (tsc --noEmit) | صفر أخطاء | ✅ |
 | ESLint | صفر تحذيرات | ✅ |
-| Vitest | **447 اختبارًا** في 25 ملفًا | ✅ |
-| Playwright E2E + أمن | 30 ملف سيناريو (رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع) | ✅ |
+| Vitest | **520 اختبارًا** في 27 ملفًا (جولة 85: +73 اختبار منطق حرج) | ✅ |
+| Playwright E2E + أمن | 29 ملف سيناريو (رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
 | axe-core WCAG 2.x | أساس صفري على صفحات المنيو | ✅ |
 | سلسلة الهجرات | **قابلة لإعادة التشغيل من الصفر + مطابقة schema.prisma حرفيًا** (فرق فارغ) | ✅ |
 
@@ -86,7 +86,7 @@ pnpm dev                    # → http://localhost:3000
 
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
-- **Database**: PostgreSQL + Prisma 7 (13 هجرة، قابلة لإعادة التشغيل)
+- **Database**: PostgreSQL + Prisma 7 (14 هجرة، قابلة لإعادة التشغيل)
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon
@@ -97,16 +97,16 @@ pnpm dev                    # → http://localhost:3000
 src/
 ├── app/
 │   ├── (public)/    # المنيو، الأسعار، الهبوط، الاشتراك
-│   ├── (protected)/ # owner (9 صفحات) + admin (11 صفحة)
-│   ├── api/         # 64 مسار API
+│   ├── (protected)/ # owner (10 صفحات) + admin (13 صفحة)
+│   ├── api/         # 65 مسار API (حراسة تفويض check-api-auth)
 │   └── demo/        # جولة تجريبية
-├── components/      # 137 ملفًا (menu/ui/layout/landing)
+├── components/      # 130 ملفًا (menu/ui/layout/landing)
 ├── lib/             # الأمن، الجلسات، CS­RF، Rate-limit، Zod
 ├── proxy.ts         # CSP/CSRF/جلسات على الحافة
 └── store/           # Zustand
-prisma/              # المخطط + 13 هجرة (parity مضمون)
-tests/               # 25 ملف unit + 30 ملف E2E/أمن
-docs/                # تقارير الجولات + التوثيق الهندسي
+prisma/              # المخطط + 14 هجرة (parity مضمون)
+tests/               # 27 ملف unit (520) + 29 ملف E2E/أمن
+docs/                # تقارير الجولات + التوثيق الهندسي (فهرس README.md — جولة 85)
 ```
 
 ---

@@ -64,7 +64,24 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
+      # round85-D5: seed a REAL restaurant (al-waha-cafe + 9 items + featured
+      # showcase) so localhost e2e menu/cart journeys run against data instead
+      # of every /menu/<slug> check passing via the 404 branch.
+      # Note: this seed writes a LEGACY-format password hash on purpose —
+      # login then exercises the round85-A3 legacy-verify + rehash-on-login path.
+      - run: node scripts/round83-seed.mjs
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
       - run: npm run lint
+
+      # round85-D2: typecheck was never in CI (tsconfig excludes tests/e2e,
+      # scripts — those are checked by their own runners)
+      - run: npm run typecheck
+
+      # round85-A7: every API route must be session-gated, secret-gated, or a
+      # documented public endpoint — catches "forgot requireAuth" regressions
+      - run: node scripts/check-api-auth.mjs
 
       # Build-time env validation (src/lib/env.ts) throws in production mode —
       # supply CI-safe values so page-data collection can import API routes.
@@ -119,6 +136,17 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
+
+      # round85-D2: keep the HTML report + traces when e2e fails (was lost)
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       # Live-production QA regression (qa-teams project) — runs the deep suites
       # against https://menu.smart-link.ly on every push to main. Catches
