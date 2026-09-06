@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError, paginated, parsePagination } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
+import { orderItemCountByOrder } from '@/lib/list-counts';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
@@ -79,27 +80,39 @@ export async function GET(request: NextRequest) {
                         where.createdAt = createdAt;
                 }
 
-                const [data, total] = await Promise.all([
+                const [rows, total] = await Promise.all([
                         // round86-B9: slim projection for LIST views — the full items
                         // include (+item per row) was shipped on every 5-15s poll while
                         // the cards only render an items count. Detail views keep the
                         // rich shape via /api/orders/[id].
+                        // round88-A2: _count left the findMany — Prisma compiled it
+                        // into a full-table LEFT JOIN aggregate over OrderItem
+                        // (30.2ms / 621 buffers per poll page on the round88 perf
+                        // DB, growing with platform-wide data). It is now one grouped
+                        // index-only COUNT over the fetched page ids (0.01ms) — see
+                        // src/lib/list-counts.ts.
                         prisma.order.findMany({
                                 where,
                                 orderBy: { createdAt: 'desc' },
                                 select: {
                                         id: true, orderNo: true, customerName: true, customerPhone: true,
-                                        status: true, subtotal: true, discount: true, total: true,
-                                        notes: true, pickupType: true, whatsappSent: true,
+                                        status: true, total: true,
+                                        pickupType: true,
+                                        // round88-A2 slim: notes/subtotal/discount/whatsappSent left the
+                                        // LIST — zero consumers in either card list (owner/admin orders
+                                        // pages, their 15s probes, CSV export, e2e security suites);
+                                        // detail views get them from /api/orders/[id] (unchanged).
+                                        // updatedAt stays: the round87-B1 probe signatures hash it.
                                         createdAt: true, updatedAt: true,
                                         restaurant: { select: { id: true, name: true, slug: true } },
-                                        _count: { select: { items: true } },
                                 },
                                 skip: (page - 1) * pageSize,
                                 take: pageSize,
                         }),
                         prisma.order.count({ where }),
                 ]);
+                const itemCounts = await orderItemCountByOrder(rows.map((r) => r.id));
+                const data = rows.map((r) => ({ ...r, _count: { items: itemCounts.get(r.id) ?? 0 } }));
 
                 return paginated(data, total, page, pageSize);
         } catch (e) {

@@ -87,11 +87,13 @@ export function ReceiptUpload({
 			</div>
 			{receiptImageUrl && (
 				<div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30">
+					{/* round88-A2: box is size-20 (80px) */}
 					<OptimizedImage
 						src={receiptImageUrl}
 						alt="صورة التحويل"
 						className="size-full"
 						skeleton={false}
+						sizes="80px"
 					/>
 				</div>
 			)}

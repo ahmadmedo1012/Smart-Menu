@@ -15,10 +15,12 @@ import { NextRequest } from 'next/server';
 
 const mockOrderFindMany = vi.hoisted(() => vi.fn());
 const mockOrderCount = vi.hoisted(() => vi.fn());
+const mockOrderItemGroupBy = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         order: { findMany: mockOrderFindMany, count: mockOrderCount },
+        orderItem: { groupBy: mockOrderItemGroupBy },
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
 }));
 
@@ -64,6 +66,8 @@ beforeEach(() => {
         mockUserRestaurantFindUnique.mockResolvedValue(null);
         mockOrderFindMany.mockResolvedValue([{ id: 1, orderNo: 'ORD-1', total: 50, status: 'new' }]);
         mockOrderCount.mockResolvedValue(7);
+        // round88-A2: the route now counts per-page items via one grouped query
+        mockOrderItemGroupBy.mockResolvedValue([{ orderId: 1, _count: { _all: 2 } }]);
 });
 
 // ── GET /api/orders — authorization matrix ──────────────────────────────
@@ -189,13 +193,23 @@ describe('GET /api/orders — filters, pagination, projection', () => {
                 expect(json.meta).toEqual({ total: 7, page: 3, pageSize: 10, totalPages: 1 });
         });
 
-        it('round86-B9 slim LIST projection: _count items only, NO items include (poll payload hygiene)', async () => {
-                await callList();
+        it('round86-B9 slim LIST projection: NO items include, per-page grouped items count (round88-A2)', async () => {
+                const res = await callList();
 
-                const select = mockOrderFindMany.mock.calls[0][0].select;
-                expect(select.items).toBeUndefined();
-                expect(select._count).toEqual({ select: { items: true } });
-                expect(select.restaurant).toEqual({ select: { id: true, name: true, slug: true } });
+                const findArg = mockOrderFindMany.mock.calls[0][0];
+                expect(findArg.select.items).toBeUndefined();
+                // round88-A2: _count left the findMany (Prisma compiled it into a
+                // full-table LEFT JOIN aggregate — see src/lib/list-counts.ts) and is
+                // now a grouped COUNT over just the fetched page ids
+                expect(findArg.select._count).toBeUndefined();
+                expect(findArg.select.restaurant).toEqual({ select: { id: true, name: true, slug: true } });
+                expect(mockOrderItemGroupBy).toHaveBeenCalledWith({
+                        by: ['orderId'],
+                        _count: { _all: true },
+                        where: { orderId: { in: [1] } },
+                });
+                const json = await res.json();
+                expect(json.data[0]._count).toEqual({ items: 2 });
         });
 
         it('count query reuses the SAME where clause as the list query (consistent totals)', async () => {

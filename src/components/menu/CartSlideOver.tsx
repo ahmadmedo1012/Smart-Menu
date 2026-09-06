@@ -112,12 +112,14 @@ export function CartSlideOver() {
 							)}
 						>
 							{item.image && (
+								/* round88-A2: box is size-14 (56px) */
 								<OptimizedImage
 									src={item.image}
 									alt={item.name}
 									aspectRatio="square"
 									className="size-14 shrink-0 rounded-md"
 									skeleton={false}
+									sizes="56px"
 								/>
 							)}
 							<div className="flex-1 min-w-0">

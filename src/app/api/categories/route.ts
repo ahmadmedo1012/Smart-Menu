@@ -5,6 +5,7 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, error, handleError, paginated, parsePagination } from '@/lib/api-helpers';
 import { revalidateMenu } from '@/lib/menu-cache';
+import { itemCountByCategory } from '@/lib/list-counts';
 
 const createSchema = z.object({
         name: z.string().min(1).max(100),
@@ -41,16 +42,22 @@ export async function GET(request: NextRequest) {
 
                 const { page, pageSize } = parsePagination(url);
                 const where = { restaurantId };
-                const [data, total] = await Promise.all([
+                const [rows, total] = await Promise.all([
+                        // round88-A2: _count left the findMany (Prisma compiled it into
+                        // a full-table LEFT JOIN aggregate over MenuItem — 1.2ms / 12
+                        // buffers per page on the round88 perf DB, growing with
+                        // platform-wide items). Now one grouped index-only COUNT over
+                        // the fetched page ids (0.01ms) — see src/lib/list-counts.ts.
                         prisma.menuCategory.findMany({
                                 where,
                                 orderBy: { sortOrder: 'asc' },
-                                include: { _count: { select: { items: true } } },
                                 skip: (page - 1) * pageSize,
                                 take: pageSize,
                         }),
                         prisma.menuCategory.count({ where }),
                 ]);
+                const itemCounts = await itemCountByCategory(rows.map((r) => r.id));
+                const data = rows.map((r) => ({ ...r, _count: { items: itemCounts.get(r.id) ?? 0 } }));
                 return paginated(data, total, page, pageSize);
         } catch (e) {
                 return handleError(e);

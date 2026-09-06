@@ -281,7 +281,8 @@ export default function AdminSettingsPage() {
               </div>
               {form.logo && (
                 <div className="size-20 rounded-xl overflow-hidden border">
-                  <OptimizedImage src={form.logo} alt="شعار المطعم" className="size-full" />
+                  {/* round88-A2: box is size-20 (80px) */}
+                  <OptimizedImage src={form.logo} alt="شعار المطعم" className="size-full" sizes="80px" />
                 </div>
               )}
               <div className="flex justify-end pt-2">

@@ -83,7 +83,10 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 					)}
 				>
 					{logo ? (
-						<OptimizedImage src={logo} alt="" className="size-full" aspectRatio="square" skeleton={false} />
+						/* round88-A2 sizes: box is size-8 (32px) — the old generic
+						   100vw/50vw/33vw fetched a viewport-sized srcset for a 32px
+						   thumbnail (ssr:false, post-hydration). */
+						<OptimizedImage src={logo} alt="" className="size-full" aspectRatio="square" skeleton={false} sizes="32px" />
 					) : (
 						<svg
 							className="size-4 text-white"

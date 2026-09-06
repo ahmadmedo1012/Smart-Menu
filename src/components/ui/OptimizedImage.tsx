@@ -20,6 +20,17 @@ type OptimizedImageProps = {
   skeleton?: boolean;
   fallback?: ReactNode;
   onError?: () => void;
+  /**
+   * round88-A2: per-usage image sizes. `fill` images without a correct
+   * `sizes` make the browser pick a srcset candidate from the VIEWPORT
+   * (100vw-ish) instead of the real display box — multi-KB overfetch for
+   * small fixed boxes (32/48/56/80px logos/previews) and undersized
+   * (blurry) fetches for boxes larger than the claimed vw share. Each
+   * call site now passes the box width derived from its own layout
+   * (grids: container max-w-4xl/896px, cols, gaps). Default keeps the old
+   * generic value for any call site without an explicit override.
+   */
+  sizes?: string;
 };
 
 const aspectMap: Record<AspectRatio, string> = {
@@ -39,6 +50,7 @@ const OptimizedImage = memo(function OptimizedImage({
   skeleton = true,
   fallback,
   onError,
+  sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
 }: OptimizedImageProps) {
   const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
 
@@ -78,7 +90,7 @@ const OptimizedImage = memo(function OptimizedImage({
             status === "loaded" ? "opacity-100" : "opacity-0",
             imageClassName,
           )}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes={sizes}
           loading={priority ? undefined : "lazy"}
           priority={priority}
           fetchPriority={fetchPriority}

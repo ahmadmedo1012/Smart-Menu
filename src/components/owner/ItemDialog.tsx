@@ -333,7 +333,8 @@ export function ItemDialog({
                                                 </div>
                                                 {form.image && (
                                                         <div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30">
-                                                                <OptimizedImage src={form.image} alt="" className="size-full" skeleton={false} />
+                                                                {/* round88-A2: box is size-20 (80px) */}
+                                                                <OptimizedImage src={form.image} alt="" className="size-full" skeleton={false} sizes="80px" />
                                                         </div>
                                                 )}
                                         </div>

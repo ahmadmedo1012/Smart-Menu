@@ -93,11 +93,13 @@ export default async function RootLayout({
 				 * fallback instantly and swaps once the woff2 arrives. Preloading moves the
 				 * font fetch ahead of the CSS discovery, cutting the ~700ms block. */}
 				<link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossOrigin="anonymous" />
-				{/* ponytail: Cairo is the only active font family (round84). The @font-face
-				 * rules in fonts.css load lazily via unicode-range — no preloads needed for
-				 * the fallback families (Noto Naskh / Noto Sans / Readex Pro), which are
-				 * unused in the UI. Preloading them wasted ~277KB on mobile. */}
-				{/* Cairo handles via next/font/google — no render-blocking external CSS */}
+				{/* round88-A2 (fonts audit): Readex Pro IS active — globals.css resolves
+				 * --font-heading to "Readex Pro" first in LIGHT theme and every h1-h5 uses
+				 * it (the old comment here claimed it was unused; that predates the
+				 * heading-face switch the PUBLIC layout already documents). Matching the
+				 * public layout's preload removes the heading swap-flash on protected
+				 * pages too. Noto Naskh/Noto Sans stay lazy via unicode-range. */}
+				<link rel="preload" as="font" type="font/woff2" href="/fonts/readex-pro.woff2" crossOrigin="anonymous" />
 			</head>
 			<body className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased">
 				<a

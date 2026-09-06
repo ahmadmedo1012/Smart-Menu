@@ -152,6 +152,11 @@ export function OrderDialog({
 						className="size-full"
 						aspectRatio="video"
 						skeleton
+						/* round88-A2: dialog is sm:max-w-md (448px); header image fills it.
+						   Old generic sizes fetched 50vw/33vw — undersized on mobile
+						   (dialog is ~full-width) and over on desktop. Lazy is correct
+						   here (opens on interaction, never LCP). */
+						sizes="(max-width: 640px) 100vw, 448px"
 					/>
 					<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 					<button
@@ -191,12 +196,14 @@ export function OrderDialog({
 					<div className="glass-card rounded-xl p-3 flex items-center gap-3">
 						<div className="size-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shrink-0 shadow-md">
 							{restaurantLogo ? (
+								/* round88-A2: box is size-12 (48px) */
 								<OptimizedImage
 									src={restaurantLogo}
 									alt=""
 									className="size-full"
 									aspectRatio="square"
 									skeleton={false}
+									sizes="48px"
 								/>
 							) : (
 								<Store className="size-6 text-white" />

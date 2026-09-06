@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
+import { revalidatePath } from 'next/cache';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 // round86-A3: deleteBlob below is scoped to the deleted restaurant's tenant
 
@@ -227,10 +228,24 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                 });
                 const restRow = await prisma.restaurant.findUnique({
                         where: { id: rId },
-                        select: { logo: true, gallery: true },
+                        select: { logo: true, gallery: true, slug: true },
                 });
 
                 await prisma.restaurant.delete({ where: { id: rId } });
+
+                // round88-A2 cache-gap fix: PUT purged the ISR menu page but DELETE
+                // didn't — a deleted restaurant's cached /menu/<slug> kept serving
+                // (with live blob images now deleted) for up to 60s. The slug is
+                // captured BEFORE the delete because revalidateMenu resolves it
+                // from the row (gone post-delete); revalidatePath is fire-and-forget
+                // and safe to call after the row is gone.
+                if (restRow?.slug) {
+                        try {
+                                revalidatePath(`/menu/${restRow.slug}`);
+                        } catch {
+                                /* best-effort: 60s TTL bounds staleness on failure */
+                        }
+                }
 
                 // Delete images from blob only after DB delete succeeds
                 // round86-A3: scoped to this restaurant's tenant

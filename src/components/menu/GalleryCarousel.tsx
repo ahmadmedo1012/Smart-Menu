@@ -147,6 +147,10 @@ export function GalleryCarousel({
 									className="size-full"
 									skeleton={false}
 									priority={i === 0}
+									/* round88-A2: strip fills the max-w-4xl (896px) hero container
+									   minus its px-4 gutter — 21/9 aspect. Old generic sizes
+									   underfetched 640-1024 (50vw vs ~100vw box) → blur. */
+									sizes="(max-width: 928px) calc(100vw - 32px), 896px"
 								/>
 							)}
 							<div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />

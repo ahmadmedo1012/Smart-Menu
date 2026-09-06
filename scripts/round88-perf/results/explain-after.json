@@ -1,0 +1,318 @@
+[
+  {
+    "name": "orders-list",
+    "ms": 0.134,
+    "statements": 4,
+    "scans": [
+      "IdxScan(Order_restaurantId_createdAt_idx)",
+      "IdxOnly(Order_restaurantId_status_idx)",
+      "SeqScan(Restaurant)",
+      "IdxOnly(OrderItem_orderId_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 30
+  },
+  {
+    "name": "orders-list-count",
+    "ms": 0.039,
+    "statements": 1,
+    "scans": [
+      "IdxOnly(Order_restaurantId_status_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 3
+  },
+  {
+    "name": "orders-probe-count",
+    "ms": 0.013,
+    "statements": 1,
+    "scans": [
+      "IdxOnly(Order_restaurantId_status_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 3
+  },
+  {
+    "name": "orders-list-status-date",
+    "ms": 0.018,
+    "statements": 1,
+    "scans": [
+      "IdxScan(Order_restaurantId_status_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 19
+  },
+  {
+    "name": "stats-total-orders",
+    "ms": 0.04,
+    "statements": 1,
+    "scans": [
+      "IdxOnly(Order_restaurantId_status_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 3
+  },
+  {
+    "name": "stats-today-orders",
+    "ms": 0.01,
+    "statements": 1,
+    "scans": [
+      "IdxOnly(Order_restaurantId_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 3
+  },
+  {
+    "name": "stats-total-items",
+    "ms": 0.041,
+    "statements": 1,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxOnly(MenuItem_categoryId_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 16
+  },
+  {
+    "name": "stats-popular-90d",
+    "ms": 0.438,
+    "statements": 1,
+    "scans": [
+      "IdxScan(Order_restaurantId_createdAt_idx)",
+      "IdxScan(OrderItem_orderId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 725
+  },
+  {
+    "name": "stats-recent-orders",
+    "ms": 0.035,
+    "statements": 3,
+    "scans": [
+      "IdxScan(Order_restaurantId_createdAt_idx)",
+      "IdxScan(OrderItem_orderId_idx)",
+      "IdxScan(MenuItem_pkey)"
+    ],
+    "sorts": 0,
+    "buffers": 19
+  },
+  {
+    "name": "stats-status-counts",
+    "ms": 0.05,
+    "statements": 1,
+    "scans": [
+      "IdxOnly(Order_restaurantId_status_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 3
+  },
+  {
+    "name": "stats-today-revenue",
+    "ms": 0.013,
+    "statements": 1,
+    "scans": [
+      "IdxScan(Order_restaurantId_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 5
+  },
+  {
+    "name": "menu-items-all",
+    "ms": 0.085,
+    "statements": 1,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxScan(MenuItem_categoryId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 27
+  },
+  {
+    "name": "menu-popular-7d",
+    "ms": 0.098,
+    "statements": 1,
+    "scans": [
+      "IdxScan(Order_restaurantId_createdAt_idx)",
+      "IdxScan(OrderItem_orderId_idx)"
+    ],
+    "sorts": 2,
+    "buffers": 99
+  },
+  {
+    "name": "menu-categories",
+    "ms": 0.01,
+    "statements": 1,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 3
+  },
+  {
+    "name": "menu-restaurant-by-slug",
+    "ms": 0.027,
+    "statements": 1,
+    "scans": [
+      "SeqScan(Restaurant)"
+    ],
+    "sorts": 0,
+    "buffers": 4
+  },
+  {
+    "name": "user-events",
+    "ms": 0.07,
+    "statements": 1,
+    "scans": [
+      "Bitmap(SystemEvent_userId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 42
+  },
+  {
+    "name": "user-events-poll",
+    "ms": 0.044,
+    "statements": 1,
+    "scans": [
+      "Bitmap(SystemEvent_userId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 21
+  },
+  {
+    "name": "reviews-owner-list",
+    "ms": 0.29000000000000004,
+    "statements": 2,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxScan(MenuItem_categoryId_idx)",
+      "IdxScan(Review_menuItemId_idx)",
+      "IdxScan(MenuItem_pkey)"
+    ],
+    "sorts": 1,
+    "buffers": 315
+  },
+  {
+    "name": "reviews-owner-count",
+    "ms": 0.142,
+    "statements": 1,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxScan(MenuItem_categoryId_idx)",
+      "IdxOnly(Review_menuItemId_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 148
+  },
+  {
+    "name": "reviews-owner-avg",
+    "ms": 0.224,
+    "statements": 1,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxScan(MenuItem_categoryId_idx)",
+      "IdxScan(Review_menuItemId_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 311
+  },
+  {
+    "name": "reviews-owner-dist",
+    "ms": 0.222,
+    "statements": 1,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxScan(MenuItem_categoryId_idx)",
+      "IdxScan(Review_menuItemId_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 311
+  },
+  {
+    "name": "loyalty-recent-tx",
+    "ms": 0.013,
+    "statements": 1,
+    "scans": [
+      "IdxScan(RewardTransaction_restaurantId_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 11
+  },
+  {
+    "name": "loyalty-recent-refs",
+    "ms": 0.014,
+    "statements": 1,
+    "scans": [
+      "IdxScan(Referral_restaurantId_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 7
+  },
+  {
+    "name": "admin-subs-pending",
+    "ms": 0.031,
+    "statements": 2,
+    "scans": [
+      "IdxScan(SubscriptionPayment_status_createdAt_idx)",
+      "IdxScan(User_pkey)"
+    ],
+    "sorts": 0,
+    "buffers": 15
+  },
+  {
+    "name": "items-by-category",
+    "ms": 0.029,
+    "statements": 2,
+    "scans": [
+      "IdxScan(MenuItem_categoryId_idx)",
+      "IdxScan(MenuCategory_pkey)"
+    ],
+    "sorts": 1,
+    "buffers": 7
+  },
+  {
+    "name": "admin-system-events-list",
+    "ms": 0.019,
+    "statements": 1,
+    "scans": [
+      "IdxScan(SystemEvent_createdAt_idx)"
+    ],
+    "sorts": 0,
+    "buffers": 10
+  },
+  {
+    "name": "admin-stats-group-orders",
+    "ms": 10.252,
+    "statements": 1,
+    "scans": [
+      "SeqScan(Order)"
+    ],
+    "sorts": 1,
+    "buffers": 619
+  },
+  {
+    "name": "categories-list-owner",
+    "ms": 0.035,
+    "statements": 3,
+    "scans": [
+      "IdxScan(MenuCategory_restaurantId_idx)",
+      "IdxOnly(MenuCategory_restaurantId_idx)",
+      "IdxOnly(MenuItem_categoryId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 9
+  },
+  {
+    "name": "restaurants-list-admin",
+    "ms": 0.909,
+    "statements": 5,
+    "scans": [
+      "SeqScan(Restaurant)",
+      "SeqScan(Restaurant)",
+      "SeqScan(SubscriptionPlan)",
+      "IdxOnly(Order_restaurantId_status_idx)",
+      "IdxOnly(MenuCategory_restaurantId_idx)"
+    ],
+    "sorts": 1,
+    "buffers": 20
+  }
+]

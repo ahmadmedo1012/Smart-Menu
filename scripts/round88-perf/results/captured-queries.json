@@ -1,0 +1,633 @@
+[
+  {
+    "name": "orders-list",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Order\".\"id\", \"public\".\"Order\".\"orderNo\", \"public\".\"Order\".\"customerName\", \"public\".\"Order\".\"customerPhone\", \"public\".\"Order\".\"status\"::text, \"public\".\"Order\".\"subtotal\", \"public\".\"Order\".\"discount\", \"public\".\"Order\".\"total\", \"public\".\"Order\".\"notes\", \"public\".\"Order\".\"pickupType\"::text, \"public\".\"Order\".\"whatsappSent\", \"public\".\"Order\".\"createdAt\", \"public\".\"Order\".\"updatedAt\", \"public\".\"Order\".\"restaurantId\" FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" = $1 ORDER BY \"public\".\"Order\".\"createdAt\" DESC LIMIT $2 OFFSET $3",
+        "params": [
+          100,
+          "20",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Order\".\"id\" FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" = $1 OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"Restaurant\".\"id\", \"public\".\"Restaurant\".\"name\", \"public\".\"Restaurant\".\"slug\" FROM \"public\".\"Restaurant\" WHERE \"public\".\"Restaurant\".\"id\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) OFFSET $21",
+        "params": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\", \"public\".\"OrderItem\".\"orderId\" FROM \"public\".\"OrderItem\" WHERE \"public\".\"OrderItem\".\"orderId\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) GROUP BY \"public\".\"OrderItem\".\"orderId\" OFFSET $21",
+        "params": [
+          24983,
+          24772,
+          24905,
+          24877,
+          24969,
+          24828,
+          24801,
+          24976,
+          24838,
+          24825,
+          24892,
+          24900,
+          24964,
+          24979,
+          24923,
+          24787,
+          24887,
+          24875,
+          24856,
+          24973,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "orders-list-count",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Order\".\"id\" FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" = $1 OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "orders-probe-count",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Order\".\"id\" FROM \"public\".\"Order\" WHERE (\"public\".\"Order\".\"restaurantId\" = $1 AND \"public\".\"Order\".\"status\" = CAST($2::text AS \"public\".\"OrderStatus\")) OFFSET $3) AS \"sub\"",
+        "params": [
+          100,
+          "new",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "orders-list-status-date",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Order\".\"id\", \"public\".\"Order\".\"orderNo\", \"public\".\"Order\".\"createdAt\" FROM \"public\".\"Order\" WHERE (\"public\".\"Order\".\"restaurantId\" = $1 AND \"public\".\"Order\".\"status\" = CAST($2::text AS \"public\".\"OrderStatus\") AND \"public\".\"Order\".\"createdAt\" >= $3 AND \"public\".\"Order\".\"createdAt\" <= $4) ORDER BY \"public\".\"Order\".\"createdAt\" DESC LIMIT $5 OFFSET $6",
+        "params": [
+          100,
+          "completed",
+          "2026-08-07 04:31:34.158",
+          "2026-09-06 04:31:34.158",
+          "20",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-total-orders",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Order\".\"id\" FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" = $1 OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-today-orders",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Order\".\"id\" FROM \"public\".\"Order\" WHERE (\"public\".\"Order\".\"restaurantId\" = $1 AND \"public\".\"Order\".\"createdAt\" >= $2) OFFSET $3) AS \"sub\"",
+        "params": [
+          100,
+          "2026-09-06 00:00:00",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-total-items",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"MenuItem\".\"id\" FROM \"public\".\"MenuItem\" LEFT JOIN \"public\".\"MenuCategory\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"MenuItem\".\"categoryId\") WHERE (\"j0\".\"restaurantId\" = $1 AND (\"j0\".\"id\" IS NOT NULL)) OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-popular-90d",
+    "statements": [
+      {
+        "sql": "SELECT SUM(\"public\".\"OrderItem\".\"quantity\") AS \"_sum$quantity\", \"public\".\"OrderItem\".\"itemId\" FROM \"public\".\"OrderItem\" LEFT JOIN \"public\".\"Order\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"OrderItem\".\"orderId\") WHERE (\"j0\".\"restaurantId\" = $1 AND \"j0\".\"createdAt\" >= $2 AND (\"j0\".\"id\" IS NOT NULL)) GROUP BY \"public\".\"OrderItem\".\"itemId\" ORDER BY SUM(\"public\".\"OrderItem\".\"quantity\") DESC LIMIT $3 OFFSET $4",
+        "params": [
+          100,
+          "2026-06-08 04:31:33.958",
+          "10",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-recent-orders",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Order\".\"id\", \"public\".\"Order\".\"orderNo\", \"public\".\"Order\".\"customerName\", \"public\".\"Order\".\"customerPhone\", \"public\".\"Order\".\"notes\", \"public\".\"Order\".\"subtotal\", \"public\".\"Order\".\"discount\", \"public\".\"Order\".\"total\", \"public\".\"Order\".\"whatsappSent\", \"public\".\"Order\".\"restaurantId\", \"public\".\"Order\".\"createdAt\", \"public\".\"Order\".\"updatedAt\", \"public\".\"Order\".\"pickupType\"::text, \"public\".\"Order\".\"status\"::text FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" = $1 ORDER BY \"public\".\"Order\".\"createdAt\" DESC LIMIT $2 OFFSET $3",
+        "params": [
+          100,
+          "5",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"OrderItem\".\"id\", \"public\".\"OrderItem\".\"quantity\", \"public\".\"OrderItem\".\"notes\", \"public\".\"OrderItem\".\"price\", \"public\".\"OrderItem\".\"modifiersJson\", \"public\".\"OrderItem\".\"orderId\", \"public\".\"OrderItem\".\"itemId\" FROM \"public\".\"OrderItem\" WHERE \"public\".\"OrderItem\".\"orderId\" IN ($1,$2,$3,$4,$5) OFFSET $6",
+        "params": [
+          24983,
+          24772,
+          24905,
+          24877,
+          24969,
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"MenuItem\".\"id\", \"public\".\"MenuItem\".\"name\" FROM \"public\".\"MenuItem\" WHERE \"public\".\"MenuItem\".\"id\" IN ($1,$2,$3,$4,$5,$6,$7) OFFSET $8",
+        "params": [
+          5979,
+          5966,
+          5979,
+          5947,
+          5945,
+          5976,
+          5945,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-status-counts",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\", \"public\".\"Order\".\"status\"::text FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" = $1 GROUP BY \"public\".\"Order\".\"status\" OFFSET $2",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stats-today-revenue",
+    "statements": [
+      {
+        "sql": "SELECT SUM(\"total\") AS \"_sum$total\" FROM (SELECT \"public\".\"Order\".\"total\" FROM \"public\".\"Order\" WHERE (\"public\".\"Order\".\"restaurantId\" = $1 AND \"public\".\"Order\".\"createdAt\" >= $2) OFFSET $3) AS \"sub\"",
+        "params": [
+          100,
+          "2026-09-06 00:00:00",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "menu-items-all",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"MenuItem\".\"id\", \"public\".\"MenuItem\".\"name\", \"public\".\"MenuItem\".\"nameAr\", \"public\".\"MenuItem\".\"description\", \"public\".\"MenuItem\".\"descriptionAr\", \"public\".\"MenuItem\".\"price\", \"public\".\"MenuItem\".\"discountedPrice\", \"public\".\"MenuItem\".\"image\", \"public\".\"MenuItem\".\"sortOrder\", \"public\".\"MenuItem\".\"categoryId\", \"public\".\"MenuItem\".\"createdAt\", \"public\".\"MenuItem\".\"dietaryTags\", \"public\".\"MenuItem\".\"allergens\", \"public\".\"MenuItem\".\"avgRating\", \"public\".\"MenuItem\".\"ratingCount\" FROM \"public\".\"MenuItem\" LEFT JOIN \"public\".\"MenuCategory\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"MenuItem\".\"categoryId\") WHERE (\"public\".\"MenuItem\".\"status\" = CAST($1::text AS \"public\".\"ItemStatus\") AND (\"j0\".\"restaurantId\" = $2 AND (\"j0\".\"id\" IS NOT NULL))) ORDER BY \"public\".\"MenuItem\".\"sortOrder\" ASC OFFSET $3",
+        "params": [
+          "available",
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "menu-popular-7d",
+    "statements": [
+      {
+        "sql": "SELECT SUM(\"public\".\"OrderItem\".\"quantity\") AS \"_sum$quantity\", \"public\".\"OrderItem\".\"itemId\" FROM \"public\".\"OrderItem\" LEFT JOIN \"public\".\"Order\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"OrderItem\".\"orderId\") WHERE (\"j0\".\"restaurantId\" = $1 AND \"j0\".\"createdAt\" >= $2 AND \"j0\".\"status\" <> CAST($3::text AS \"public\".\"OrderStatus\") AND (\"j0\".\"id\" IS NOT NULL)) GROUP BY \"public\".\"OrderItem\".\"itemId\" ORDER BY SUM(\"public\".\"OrderItem\".\"quantity\") DESC LIMIT $4 OFFSET $5",
+        "params": [
+          100,
+          "2026-08-30 04:31:33.958",
+          "cancelled",
+          "10",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "menu-categories",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"MenuCategory\".\"id\", \"public\".\"MenuCategory\".\"name\", \"public\".\"MenuCategory\".\"nameAr\", \"public\".\"MenuCategory\".\"icon\", \"public\".\"MenuCategory\".\"sortOrder\", \"public\".\"MenuCategory\".\"isActive\", \"public\".\"MenuCategory\".\"restaurantId\", \"public\".\"MenuCategory\".\"createdAt\", \"public\".\"MenuCategory\".\"updatedAt\" FROM \"public\".\"MenuCategory\" WHERE (\"public\".\"MenuCategory\".\"isActive\" = $1 AND \"public\".\"MenuCategory\".\"restaurantId\" = $2) ORDER BY \"public\".\"MenuCategory\".\"sortOrder\" ASC OFFSET $3",
+        "params": [
+          true,
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "menu-restaurant-by-slug",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Restaurant\".\"id\", \"public\".\"Restaurant\".\"name\", \"public\".\"Restaurant\".\"slug\", \"public\".\"Restaurant\".\"whatsapp\" FROM \"public\".\"Restaurant\" WHERE (\"public\".\"Restaurant\".\"slug\" = $1 AND \"public\".\"Restaurant\".\"isActive\" = $2) LIMIT $3 OFFSET $4",
+        "params": [
+          "r0100",
+          true,
+          "1",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "user-events",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"SystemEvent\".\"id\", \"public\".\"SystemEvent\".\"eventType\", \"public\".\"SystemEvent\".\"title\", \"public\".\"SystemEvent\".\"message\", \"public\".\"SystemEvent\".\"severity\"::text, \"public\".\"SystemEvent\".\"metadata\", \"public\".\"SystemEvent\".\"read\", \"public\".\"SystemEvent\".\"createdAt\" FROM \"public\".\"SystemEvent\" WHERE (\"public\".\"SystemEvent\".\"id\" > $1 AND (\"public\".\"SystemEvent\".\"metadata\"#>ARRAY[$2]::text[])::jsonb::jsonb = $3) ORDER BY \"public\".\"SystemEvent\".\"id\" ASC LIMIT $4 OFFSET $5",
+        "params": [
+          0,
+          "userId",
+          "200",
+          "50",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "user-events-poll",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"SystemEvent\".\"id\", \"public\".\"SystemEvent\".\"eventType\", \"public\".\"SystemEvent\".\"title\", \"public\".\"SystemEvent\".\"message\", \"public\".\"SystemEvent\".\"severity\"::text, \"public\".\"SystemEvent\".\"metadata\", \"public\".\"SystemEvent\".\"read\", \"public\".\"SystemEvent\".\"createdAt\" FROM \"public\".\"SystemEvent\" WHERE (\"public\".\"SystemEvent\".\"id\" > $1 AND (\"public\".\"SystemEvent\".\"metadata\"#>ARRAY[$2]::text[])::jsonb::jsonb = $3) ORDER BY \"public\".\"SystemEvent\".\"id\" ASC LIMIT $4 OFFSET $5",
+        "params": [
+          30000,
+          "userId",
+          "200",
+          "50",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reviews-owner-list",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Review\".\"id\", \"public\".\"Review\".\"rating\", \"public\".\"Review\".\"comment\", \"public\".\"Review\".\"customerName\", \"public\".\"Review\".\"customerPhone\", \"public\".\"Review\".\"menuItemId\", \"public\".\"Review\".\"createdAt\" FROM \"public\".\"Review\" LEFT JOIN \"public\".\"MenuItem\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"Review\".\"menuItemId\") LEFT JOIN \"public\".\"MenuCategory\" AS \"j1\" ON (\"j1\".\"id\") = (\"j0\".\"categoryId\") WHERE (\"j1\".\"restaurantId\" = $1 AND (\"j1\".\"id\" IS NOT NULL) AND (\"j0\".\"id\" IS NOT NULL)) ORDER BY \"public\".\"Review\".\"createdAt\" DESC LIMIT $2 OFFSET $3",
+        "params": [
+          100,
+          "20",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"MenuItem\".\"id\", \"public\".\"MenuItem\".\"name\", \"public\".\"MenuItem\".\"nameAr\" FROM \"public\".\"MenuItem\" WHERE \"public\".\"MenuItem\".\"id\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) OFFSET $21",
+        "params": [
+          5963,
+          5947,
+          5951,
+          5946,
+          5981,
+          5969,
+          5989,
+          5986,
+          5955,
+          5974,
+          5948,
+          6000,
+          5979,
+          5947,
+          5951,
+          5968,
+          5996,
+          5956,
+          5965,
+          5947,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reviews-owner-count",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Review\".\"id\" FROM \"public\".\"Review\" LEFT JOIN \"public\".\"MenuItem\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"Review\".\"menuItemId\") LEFT JOIN \"public\".\"MenuCategory\" AS \"j1\" ON (\"j1\".\"id\") = (\"j0\".\"categoryId\") WHERE (\"j1\".\"restaurantId\" = $1 AND (\"j1\".\"id\" IS NOT NULL) AND (\"j0\".\"id\" IS NOT NULL)) OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reviews-owner-avg",
+    "statements": [
+      {
+        "sql": "SELECT AVG(\"rating\") AS \"_avg$rating\" FROM (SELECT \"public\".\"Review\".\"rating\" FROM \"public\".\"Review\" LEFT JOIN \"public\".\"MenuItem\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"Review\".\"menuItemId\") LEFT JOIN \"public\".\"MenuCategory\" AS \"j1\" ON (\"j1\".\"id\") = (\"j0\".\"categoryId\") WHERE (\"j1\".\"restaurantId\" = $1 AND (\"j1\".\"id\" IS NOT NULL) AND (\"j0\".\"id\" IS NOT NULL)) OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reviews-owner-dist",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\", \"public\".\"Review\".\"rating\" FROM \"public\".\"Review\" LEFT JOIN \"public\".\"MenuItem\" AS \"j0\" ON (\"j0\".\"id\") = (\"public\".\"Review\".\"menuItemId\") LEFT JOIN \"public\".\"MenuCategory\" AS \"j1\" ON (\"j1\".\"id\") = (\"j0\".\"categoryId\") WHERE (\"j1\".\"restaurantId\" = $1 AND (\"j1\".\"id\" IS NOT NULL) AND (\"j0\".\"id\" IS NOT NULL)) GROUP BY \"public\".\"Review\".\"rating\" OFFSET $2",
+        "params": [
+          100,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "loyalty-recent-tx",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"RewardTransaction\".\"id\", \"public\".\"RewardTransaction\".\"type\"::text, \"public\".\"RewardTransaction\".\"points\", \"public\".\"RewardTransaction\".\"description\", \"public\".\"RewardTransaction\".\"createdAt\" FROM \"public\".\"RewardTransaction\" WHERE \"public\".\"RewardTransaction\".\"restaurantId\" = $1 ORDER BY \"public\".\"RewardTransaction\".\"createdAt\" DESC LIMIT $2 OFFSET $3",
+        "params": [
+          100,
+          "10",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "loyalty-recent-refs",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Referral\".\"id\", \"public\".\"Referral\".\"referralCode\", \"public\".\"Referral\".\"status\"::text, \"public\".\"Referral\".\"createdAt\", \"public\".\"Referral\".\"referredPhone\" FROM \"public\".\"Referral\" WHERE \"public\".\"Referral\".\"restaurantId\" = $1 ORDER BY \"public\".\"Referral\".\"createdAt\" DESC LIMIT $2 OFFSET $3",
+        "params": [
+          100,
+          "10",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "admin-subs-pending",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"SubscriptionPayment\".\"id\", \"public\".\"SubscriptionPayment\".\"userId\", \"public\".\"SubscriptionPayment\".\"phone\", \"public\".\"SubscriptionPayment\".\"amount\", \"public\".\"SubscriptionPayment\".\"provider\", \"public\".\"SubscriptionPayment\".\"planId\", \"public\".\"SubscriptionPayment\".\"planName\", \"public\".\"SubscriptionPayment\".\"status\"::text, \"public\".\"SubscriptionPayment\".\"metadata\", \"public\".\"SubscriptionPayment\".\"createdAt\" FROM \"public\".\"SubscriptionPayment\" WHERE \"public\".\"SubscriptionPayment\".\"status\" = CAST($1::text AS \"public\".\"PaymentStatus\") ORDER BY \"public\".\"SubscriptionPayment\".\"createdAt\" DESC LIMIT $2 OFFSET $3",
+        "params": [
+          "pending",
+          "20",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"User\".\"id\", \"public\".\"User\".\"username\", \"public\".\"User\".\"name\" FROM \"public\".\"User\" WHERE \"public\".\"User\".\"id\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) OFFSET $21",
+        "params": [
+          233,
+          215,
+          247,
+          225,
+          199,
+          163,
+          252,
+          188,
+          187,
+          242,
+          249,
+          197,
+          221,
+          224,
+          169,
+          179,
+          182,
+          207,
+          185,
+          248,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "items-by-category",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"MenuItem\".\"id\", \"public\".\"MenuItem\".\"name\", \"public\".\"MenuItem\".\"nameAr\", \"public\".\"MenuItem\".\"description\", \"public\".\"MenuItem\".\"descriptionAr\", \"public\".\"MenuItem\".\"price\", \"public\".\"MenuItem\".\"discountedPrice\", \"public\".\"MenuItem\".\"image\", \"public\".\"MenuItem\".\"sortOrder\", \"public\".\"MenuItem\".\"categoryId\", \"public\".\"MenuItem\".\"createdAt\", \"public\".\"MenuItem\".\"updatedAt\", \"public\".\"MenuItem\".\"status\"::text, \"public\".\"MenuItem\".\"avgRating\", \"public\".\"MenuItem\".\"ratingCount\", \"public\".\"MenuItem\".\"dietaryTags\", \"public\".\"MenuItem\".\"allergens\", \"public\".\"MenuItem\".\"isFeatured\", \"public\".\"MenuItem\".\"featuredRank\", \"public\".\"MenuItem\".\"showcaseTag\", \"public\".\"MenuItem\".\"showcaseTags\" FROM \"public\".\"MenuItem\" WHERE \"public\".\"MenuItem\".\"categoryId\" = $1 ORDER BY \"public\".\"MenuItem\".\"sortOrder\" ASC LIMIT $2 OFFSET $3",
+        "params": [
+          595,
+          "20",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"MenuCategory\".\"id\", \"public\".\"MenuCategory\".\"name\", \"public\".\"MenuCategory\".\"nameAr\" FROM \"public\".\"MenuCategory\" WHERE \"public\".\"MenuCategory\".\"id\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) OFFSET $11",
+        "params": [
+          595,
+          595,
+          595,
+          595,
+          595,
+          595,
+          595,
+          595,
+          595,
+          595,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "admin-system-events-list",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"SystemEvent\".\"id\", \"public\".\"SystemEvent\".\"eventType\", \"public\".\"SystemEvent\".\"title\", \"public\".\"SystemEvent\".\"message\", \"public\".\"SystemEvent\".\"severity\"::text, \"public\".\"SystemEvent\".\"metadata\", \"public\".\"SystemEvent\".\"read\", \"public\".\"SystemEvent\".\"createdAt\" FROM \"public\".\"SystemEvent\" WHERE 1=1 ORDER BY \"public\".\"SystemEvent\".\"createdAt\" DESC LIMIT $1 OFFSET $2",
+        "params": [
+          "20",
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "admin-stats-group-orders",
+    "statements": [
+      {
+        "sql": "SELECT COUNT(\"public\".\"Order\".\"id\") AS \"_count$id\", \"public\".\"Order\".\"restaurantId\" FROM \"public\".\"Order\" WHERE 1=1 GROUP BY \"public\".\"Order\".\"restaurantId\" ORDER BY COUNT(\"public\".\"Order\".\"id\") DESC OFFSET $1",
+        "params": [
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "categories-list-owner",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"MenuCategory\".\"id\", \"public\".\"MenuCategory\".\"name\", \"public\".\"MenuCategory\".\"nameAr\", \"public\".\"MenuCategory\".\"icon\", \"public\".\"MenuCategory\".\"sortOrder\", \"public\".\"MenuCategory\".\"isActive\", \"public\".\"MenuCategory\".\"restaurantId\", \"public\".\"MenuCategory\".\"createdAt\", \"public\".\"MenuCategory\".\"updatedAt\" FROM \"public\".\"MenuCategory\" WHERE \"public\".\"MenuCategory\".\"restaurantId\" = $1 ORDER BY \"public\".\"MenuCategory\".\"sortOrder\" ASC LIMIT $2 OFFSET $3",
+        "params": [
+          100,
+          "20",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"MenuCategory\".\"id\" FROM \"public\".\"MenuCategory\" WHERE \"public\".\"MenuCategory\".\"restaurantId\" = $1 OFFSET $2) AS \"sub\"",
+        "params": [
+          100,
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\", \"public\".\"MenuItem\".\"categoryId\" FROM \"public\".\"MenuItem\" WHERE \"public\".\"MenuItem\".\"categoryId\" IN ($1,$2,$3,$4,$5,$6) GROUP BY \"public\".\"MenuItem\".\"categoryId\" OFFSET $7",
+        "params": [
+          591,
+          592,
+          593,
+          594,
+          595,
+          596,
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "restaurants-list-admin",
+    "statements": [
+      {
+        "sql": "SELECT \"public\".\"Restaurant\".\"id\", \"public\".\"Restaurant\".\"name\", \"public\".\"Restaurant\".\"slug\", \"public\".\"Restaurant\".\"description\", \"public\".\"Restaurant\".\"logo\", \"public\".\"Restaurant\".\"phone\", \"public\".\"Restaurant\".\"whatsapp\", \"public\".\"Restaurant\".\"email\", \"public\".\"Restaurant\".\"address\", \"public\".\"Restaurant\".\"workingHours\", \"public\".\"Restaurant\".\"themeColor\", \"public\".\"Restaurant\".\"currency\", \"public\".\"Restaurant\".\"isActive\", \"public\".\"Restaurant\".\"city\", \"public\".\"Restaurant\".\"showOnLanding\", \"public\".\"Restaurant\".\"featuredRank\", \"public\".\"Restaurant\".\"planId\", \"public\".\"Restaurant\".\"planStart\", \"public\".\"Restaurant\".\"planEnd\", \"public\".\"Restaurant\".\"createdAt\", \"public\".\"Restaurant\".\"updatedAt\", \"public\".\"Restaurant\".\"gallery\", \"public\".\"Restaurant\".\"maxItems\", \"public\".\"Restaurant\".\"maxOrders\", \"public\".\"Restaurant\".\"pickupTypes\" FROM \"public\".\"Restaurant\" WHERE 1=1 ORDER BY \"public\".\"Restaurant\".\"createdAt\" DESC LIMIT $1 OFFSET $2",
+        "params": [
+          "20",
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Restaurant\".\"id\" FROM \"public\".\"Restaurant\" WHERE 1=1 OFFSET $1) AS \"sub\"",
+        "params": [
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT \"public\".\"SubscriptionPlan\".\"id\", \"public\".\"SubscriptionPlan\".\"name\", \"public\".\"SubscriptionPlan\".\"nameAr\", \"public\".\"SubscriptionPlan\".\"price\" FROM \"public\".\"SubscriptionPlan\" WHERE \"public\".\"SubscriptionPlan\".\"id\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) OFFSET $21",
+        "params": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\", \"public\".\"Order\".\"restaurantId\" FROM \"public\".\"Order\" WHERE \"public\".\"Order\".\"restaurantId\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) GROUP BY \"public\".\"Order\".\"restaurantId\" OFFSET $21",
+        "params": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          "0"
+        ]
+      },
+      {
+        "sql": "SELECT COUNT(*) AS \"_count$_all\", \"public\".\"MenuCategory\".\"restaurantId\" FROM \"public\".\"MenuCategory\" WHERE \"public\".\"MenuCategory\".\"restaurantId\" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20) GROUP BY \"public\".\"MenuCategory\".\"restaurantId\" OFFSET $21",
+        "params": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          "0"
+        ]
+      }
+    ]
+  }
+]

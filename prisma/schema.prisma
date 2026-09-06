@@ -357,6 +357,9 @@ model Referral {
   @@index([referrerId, status])
   @@index([restaurantId])
   @@index([referralCode, restaurantId])
+  // round88-A2: loyalty/stats recentReferrals — WHERE restaurantId
+  // ORDER BY createdAt DESC LIMIT 10 (0.07ms → 0.01ms on the round88 perf DB)
+  @@index([restaurantId, createdAt])
   // round87-D10: map to the index name migration 14 actually created
   // ("Referral_code_name_key" — carried the old code/name column
   // convention). Without the map, `prisma migrate diff` flags drift:
@@ -382,6 +385,10 @@ model RewardTransaction {
   @@index([cardId])
   @@index([restaurantId])
   @@index([cardId, createdAt])
+  // round88-A2: loyalty/stats recentTransactions — WHERE restaurantId
+  // ORDER BY createdAt DESC LIMIT 10 (measured 0.18ms sort-all → 0.01ms ordered
+  // index scan on the round88 perf DB)
+  @@index([restaurantId, createdAt])
 }
 
 model AuditLog {
@@ -438,6 +445,9 @@ model SubscriptionPayment {
   @@index([createdAt])
   @@index([userId])
   @@index([userId, status])
+  // round88-A2: admin/subscriptions pending list — WHERE status ORDER BY
+  // createdAt DESC LIMIT 20 (0.08ms sort → 0.03ms ordered index scan)
+  @@index([status, createdAt])
 }
 
 model SystemConfig {
@@ -489,6 +499,17 @@ model SystemEvent {
   @@index([eventType])
   @@index([createdAt])
   @@index([read])
+  // round88-A2: SystemEvent_userId_idx — HAND-WRITTEN EXPRESSION INDEX, NOT
+  // EXPRESSIBLE in the Prisma datamodel (it indexes
+  //   (("metadata"#>ARRAY['userId']::text[]), "id")
+  // ). It serves the /api/user/events 15s poll (metadata.userId path filter +
+  // ORDER BY id ASC LIMIT 50): measured 14.09ms/1128 buffers → 0.09ms/42
+  // buffers on the round88 perf DB. It lives ONLY in migration SQL
+  // (20250906…add_round88_indexes). `prisma migrate diff --to-schema` provably
+  // ignores non-datamodel indexes (verified: exit 0 with the index present),
+  // so the CI parity gate stays green — but do NOT drop that migration line.
+  // Insert overhead measured: +34.5µs/row (469.3ms vs 365.9ms per 3000
+  // single-row inserts) — negligible vs the 156x read win on a 15s poll.
 }
 
 enum SubscriptionStatus {

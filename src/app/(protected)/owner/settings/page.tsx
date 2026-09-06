@@ -251,7 +251,8 @@ export default function OwnerSettingsPage() {
 					<div className="size-24 rounded-md overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
 						{logo ? (
 							<>
-								<OptimizedImage src={logo} alt="الشعار" className="size-full" priority={false} />
+								{/* round88-A2: box is size-24 (96px) */}
+								<OptimizedImage src={logo} alt="الشعار" className="size-full" priority={false} sizes="96px" />
 								{/* a11y: visible by default (touch screens have no hover); hover-hidden
 									only from sm up, and always revealed on focus */}
 								<button
@@ -342,7 +343,9 @@ export default function OwnerSettingsPage() {
 								key={url}
 								className="group relative aspect-square rounded-xl overflow-hidden bg-muted/20 border border-border/20"
 							>
-								<OptimizedImage src={url} alt={`صورة ${i + 1}`} className="size-full" />
+								{/* round88-A2: aspect-square tiles in a 2/3/4-col grid inside the
+								   max-w-2xl (672px) settings container → ~160px at md+ */}
+								<OptimizedImage src={url} alt={`صورة ${i + 1}`} className="size-full" sizes="(max-width: 640px) calc(50vw - 24px), (max-width: 768px) calc(33vw - 8px), 160px" />
 								{/* a11y: overlay controls visible on touch / focus, hover-hidden only sm+ */}
 								<div className="absolute inset-0 bg-black/30 flex items-center justify-center gap-2 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
 									<button

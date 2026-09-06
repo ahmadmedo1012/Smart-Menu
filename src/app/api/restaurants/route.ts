@@ -7,6 +7,7 @@ import { notifyEvent } from '@/lib/telegram';
 import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { usernameOptional, passwordOptional } from '@/lib/validation';
+import { orderCountByRestaurant, categoryCountByRestaurant } from '@/lib/list-counts';
 
 const registrationLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -84,12 +85,18 @@ export async function GET(request: NextRequest) {
                         where.planId = Number(planFilter);
                 }
 
-                const [data, total] = await Promise.all([
+                const [rows, total] = await Promise.all([
+                        // round88-A2: _count left the findMany (Prisma compiled it into
+                        // TWO full-table LEFT JOIN aggregates — over Order and
+                        // MenuCategory — 6.8ms / 55 buffers per 10-row admin page on
+                        // the round88 perf DB, growing with platform-wide data). Now
+                        // two grouped index-only COUNTs over the fetched page ids
+                        // (0.08ms) — see src/lib/list-counts.ts. Response shape
+                        // unchanged (restaurants + total; _count per row).
                         prisma.restaurant.findMany({
                                 where,
                                 orderBy: { createdAt: 'desc' },
                                 include: {
-                                        _count: { select: { orders: true, categories: true } },
                                         plan: { select: { id: true, name: true, nameAr: true, price: true } },
                                 },
                                 skip: (page - 1) * pageSize,
@@ -97,6 +104,15 @@ export async function GET(request: NextRequest) {
                         }),
                         prisma.restaurant.count({ where }),
                 ]);
+                const ids = rows.map((r) => r.id);
+                const [orderCounts, catCounts] = await Promise.all([
+                        orderCountByRestaurant(ids),
+                        categoryCountByRestaurant(ids),
+                ]);
+                const data = rows.map((r) => ({
+                        ...r,
+                        _count: { orders: orderCounts.get(r.id) ?? 0, categories: catCounts.get(r.id) ?? 0 },
+                }));
                 return success({ restaurants: data, total });
         } catch (e) {
                 return handleError(e);

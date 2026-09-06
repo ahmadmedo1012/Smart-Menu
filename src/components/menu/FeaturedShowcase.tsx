@@ -235,6 +235,15 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                                 alt={displayName}
                                                                                 aspectRatio="square"
                                                                                 className="relative rounded-3xl border border-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] shadow-2xl"
+                                                                                /* round88-A2: scene breaks out of the px-4 gutter inside the
+                                                                                   max-w-4xl (896px) menu container; the image overlay is 75% of
+                                                                                   it below md / 55% from md (never hits its 540px cap: 55% of
+                                                                                   896 = 493). The old generic sizes (100vw/50vw/33vw) both
+                                                                                   overfetched below 640 and underfetched (blur) the 640-1024
+                                                                                   bands. First slide is the LCP candidate on featured menus
+                                                                                   → eager + high priority (was lazy). */
+                                                                                sizes="(max-width: 768px) calc(75vw - 24px), min(55vw, 493px)"
+                                                                                priority={index === 0}
                                                                         />
                                                                 ) : (
                                                                         <div className="relative flex aspect-square items-center justify-center rounded-3xl border border-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] bg-[color-mix(in_oklab,var(--scene-wash)_60%,var(--scene-accent)_40%)] text-6xl font-black text-[var(--scene-accent)] md:text-7xl">

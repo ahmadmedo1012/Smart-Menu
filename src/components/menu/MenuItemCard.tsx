@@ -80,6 +80,16 @@ const MenuItemCard = memo(function MenuItemCard({
 
 	const isFeatured = variant === 'featured';
 
+	/* round88-A2: the grid lives in the max-w-4xl (896px) menu container:
+	 * 1 col below sm / 2 cols 640-1024 / 3 cols ≥1024, and the featured
+	 * variant spans md:col-span-2 (full row 768-1024, 2 of 3 cols ≥1024).
+	 * Card ≈ (container − gaps)/cols → 288px at ≥1024, 576px featured.
+	 * The old generic 100vw/50vw/33vw overfetched ~2× on wide screens and
+	 * underfetched (blur) every featured card. Eager rows (LCP) above. */
+	const imageSizes = isFeatured
+		? '(max-width: 640px) calc(100vw - 32px), (max-width: 768px) calc(50vw - 24px), (max-width: 1024px) calc(100vw - 32px), 576px'
+		: '(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(50vw - 24px), 288px';
+
 	return (
 		<m.div
 			initial={{ opacity: 0, y: 24 }}
@@ -111,6 +121,7 @@ const MenuItemCard = memo(function MenuItemCard({
 							alt={displayName}
 							aspectRatio="square"
 							priority={eager}
+							sizes={imageSizes}
 							skeleton
 							fallback={<span className="text-2xl text-orange/40"><UtensilsCrossed className="size-6 text-orange/40" /></span>}
 							onError={() => setImageError(true)}

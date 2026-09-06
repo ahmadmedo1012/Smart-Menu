@@ -72,7 +72,10 @@ export function MenuHero({
                             />
                             {/* Glass orb container */}
                             <div className="relative size-28 md:size-32 rounded-2xl overflow-hidden shadow-2xl shadow-orange/20 ring-2 ring-orange/15 dark:ring-orange/15 backdrop-blur-sm bg-white/5 dark:bg-white/[0.04] gpu-layer">
-                                {/* LCP: hero logo is above the fold → eager fetch with high priority */}
+                                {/* LCP: hero logo is above the fold → eager fetch with high priority.
+                                    round88-A2 sizes: box is size-28 (112px) / md:size-32 (128px) — the
+                                    old generic 100vw/50vw/33vw made the browser fetch a viewport-sized
+                                    srcset (up to ~7× the box) for the LCP image. */}
                                 <OptimizedImage
                                     src={restaurant.logo}
                                     alt={restaurant.name}
@@ -82,6 +85,7 @@ export function MenuHero({
                                     skeleton
                                     priority
                                     fetchPriority="high"
+                                    sizes="(max-width: 768px) 112px, 128px"
                                 />
                             </div>
                         </div>
