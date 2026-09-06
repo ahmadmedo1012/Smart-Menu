@@ -23,3 +23,12 @@ overrides:
   deepmerge-ts: ^8.0.1
   valibot: ^1.4.2
   sharp: 0.35.3
+  # round88-B8: patch-level fixes for the 5 high advisories in the eslint
+  # dev chain (dev-tooling only, zero production-runtime exposure; semver-
+  # compatible — same major):
+  #   brace-expansion <1.1.18 DoS (GHSA-4g29-xg2q-p4r6 + 14257 bypass)
+  #   brace-expansion >=4 <5.0.9 same class via typescript-estree/minimatch 10
+  #   js-yaml <4.3.1 quadratic !!omap CPU (GHSA-5p4m-2wfm-xmqj)
+  'brace-expansion@<1.1.18': ^1.1.18
+  'brace-expansion@>=4.0.0 <5.0.9': ^5.0.9
+  'js-yaml@>=4.0.0 <4.3.1': ^4.3.1

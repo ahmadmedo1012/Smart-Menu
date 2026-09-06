@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import { success, error as apiError, handleError, paginated, parsePagination } from '@/lib/api-helpers';
+import { success, error as apiError, handleError, paginated, parsePagination, isValidOrderStatusFilter } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { orderItemCountByOrder } from '@/lib/list-counts';
@@ -65,6 +65,11 @@ export async function GET(request: NextRequest) {
 
                 const { page, pageSize } = parsePagination(url);
                 const status = searchParams.get('status') || undefined;
+                // round88-B4: reject non-enum status filters with 400, not a
+                // downstream Prisma validation 500.
+                if (status !== undefined && !isValidOrderStatusFilter(status)) {
+                        return apiError('حالة غير صحيحة', 400);
+                }
 
                 const where: Record<string, unknown> = {};
                 if (restaurantId) where.restaurantId = restaurantId;

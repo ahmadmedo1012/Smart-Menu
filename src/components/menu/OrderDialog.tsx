@@ -10,7 +10,7 @@ import AnimatedX from '@/components/ui/x-icon';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import type { MenuItemProp } from './MenuItemCard';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice, toArabicNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useCart } from '@/store/cart';
@@ -251,7 +251,7 @@ export function OrderDialog({
 							<span className="text-xs text-muted-foreground">السعر</span>
 							<div className="flex items-baseline gap-1.5 mt-0.5">
 								<span className="font-bold text-xl text-primary tabular-nums">
-									{toArabicNumber(currentPrice.toFixed(1))}
+									{formatPrice(currentPrice, { decimals: 1, suffix: '' })}
 								</span>
 								<span className="text-xs text-muted-foreground">د.ل</span>
 							</div>
@@ -367,7 +367,7 @@ export function OrderDialog({
 						<div className="flex items-center justify-between border-t border-dashed border-glass-border pt-3">
 							<span className="font-bold text-sm">المجموع</span>
 							<span className="font-bold text-2xl text-primary tabular-nums">
-								{toArabicNumber(totalPrice.toFixed(1))}{' '}
+								{formatPrice(totalPrice, { decimals: 1, suffix: '' })}{' '}
 								<span className="text-sm font-normal text-muted-foreground">د.ل</span>
 							</span>
 						</div>

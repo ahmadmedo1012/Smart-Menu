@@ -18,6 +18,12 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const { searchParams } = url;
     const status = searchParams.get("status") || "pending";
+    // round88-B4: the status filter feeds a string-literal union — anything
+    // outside it used to surface as a caught Prisma validation error. Reject
+    // it explicitly with the same 400 semantics.
+    if (status !== "all" && !["pending", "verified", "cancelled"].includes(status)) {
+      return error("حالة غير صحيحة", 400);
+    }
     const { page, pageSize } = parsePagination(url);
 
     const where = status !== "all" ? { status: status as "pending" | "verified" | "cancelled" } : {};

@@ -16,7 +16,7 @@ import AnimatedTrash from '@/components/ui/trash-icon';
 import { MotionPlus, MotionMinus } from '@/components/ui/motion-icons';
 import { useCart } from '@/store/cart';
 import { useRef } from 'react';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice, toArabicNumber } from '@/lib/format';
 import { buildReceiptMessage } from '@/lib/receipt';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -456,7 +456,7 @@ export default function CartPage() {
                                                                         <div>
                                                                                 <h3 className="font-semibold truncate">{item.name}</h3>
                                                                                 <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
-                                                                                        {toArabicNumber(item.price.toFixed(1))} د.ل / للواحد
+                                                                                        {formatPrice(item.price, { decimals: 1 })} / للواحد
                                                                                 </p>
                                                                         </div>
                                                                 </div>
@@ -577,7 +577,7 @@ export default function CartPage() {
                                                                         </span>
                                                                 </span>
                                                                 <span className="font-medium tabular-nums shrink-0">
-                                                                        {toArabicNumber((item.price * item.quantity).toFixed(1))} د.ل
+                                                                        {formatPrice(item.price * item.quantity, { decimals: 1 })}
                                                                 </span>
                                                         </div>
                                                 ))}
@@ -712,7 +712,7 @@ export default function CartPage() {
                                                                                         )}
                                                                                 </div>
                                                                                 <span className="tabular-nums shrink-0 font-medium">
-                                                                                        {toArabicNumber((item.price * item.quantity).toFixed(1))} د.ل
+                                                                                        {formatPrice(item.price * item.quantity, { decimals: 1 })}
                                                                                 </span>
                                                                         </div>
                                                                 ))}
@@ -721,7 +721,7 @@ export default function CartPage() {
                                                         <div className="flex justify-between font-bold text-lg">
                                                                 <span>الإجمالي</span>
                                                                 <span className="tabular-nums text-primary">
-                                                                        {toArabicNumber(cartSubtotal.toFixed(1))} د.ل
+                                                                        {formatPrice(cartSubtotal, { decimals: 1 })}
                                                                 </span>
                                                         </div>
                                                         {notes && (

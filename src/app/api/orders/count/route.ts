@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
-import { success, error as apiError, handleError } from '@/lib/api-helpers';
+import { success, error as apiError, handleError, isValidOrderStatusFilter } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 
 /**
@@ -38,6 +38,11 @@ export async function GET(request: NextRequest) {
                 }
 
                 const status = searchParams.get('status') || 'new';
+                // round88-B4: same enum whitelist as GET /api/orders — a garbage
+                // status must 400 here too, not surface as Prisma noise.
+                if (!isValidOrderStatusFilter(status)) {
+                        return apiError('حالة غير صحيحة', 400);
+                }
                 const where: Record<string, unknown> = { status };
                 if (restaurantId) where.restaurantId = restaurantId;
 

@@ -5,7 +5,7 @@ import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 import { itemsPhrase, type ComparisonPlan } from '@/components/subscribe/plan-comparison';
 
@@ -93,7 +93,7 @@ export function PlanSelector({
 							<h3 className="font-bold text-lg mb-1">{plan.nameAr}</h3>
 							<div className="flex items-baseline gap-1 mb-3">
 								<span className="text-2xl font-bold tabular-nums">
-									{Number(plan.price) === 0 ? 'مجاني' : toArabicNumber(plan.price)}
+									{Number(plan.price) === 0 ? 'مجاني' : formatPrice(plan.price, { suffix: '' })}
 								</span>
 								{Number(plan.price) > 0 && (
 									<span className="text-xs text-muted-foreground">د.ل/شهر</span>

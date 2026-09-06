@@ -26,8 +26,18 @@ export async function GET(request: NextRequest) {
 		const { searchParams } = url;
 		const { page, pageSize } = parsePagination(url, { pageSize: 20 });
 		const action = searchParams.get('action');
+		// round88-B4: both filters feed enum/int columns — garbage values used
+		// to surface as caught Prisma validation noise (action) or be silently
+		// dropped (actorId's NaN is falsy). Reject explicitly.
+		if (action !== null && !['login', 'create', 'update', 'delete', 'export', 'other'].includes(action)) {
+			return error('قيمة فلتر الحدث غير صالحة', 400);
+		}
+		const actorIdRaw = searchParams.get('actorId');
+		const actorId = actorIdRaw ? Number(actorIdRaw) : undefined;
+		if (actorId !== undefined && (!Number.isInteger(actorId) || actorId <= 0)) {
+			return error('معرف الفاعل غير صالح', 400);
+		}
 		const targetType = searchParams.get('targetType');
-		const actorId = searchParams.get('actorId') ? Number(searchParams.get('actorId')) : undefined;
 		const search = searchParams.get('search');
 
 		const where: Prisma.AuditLogWhereInput = {};

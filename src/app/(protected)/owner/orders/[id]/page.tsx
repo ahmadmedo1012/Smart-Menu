@@ -13,7 +13,7 @@ import { MotionCheck } from '@/components/ui/motion-icons';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
-import { toArabicNumber, formatDate } from '@/lib/format';
+import { formatPrice, toArabicNumber, formatDate } from '@/lib/format';
 import {
         useOrderDetail,
         updateOrderStatus,
@@ -275,13 +275,13 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">المجموع الفرعي</span>
-							<span className="tabular-nums">{toArabicNumber(order.subtotal.toFixed(1))} د.ل</span>
+							<span className="tabular-nums">{formatPrice(order.subtotal, { decimals: 1 })}</span>
 						</div>
 						<hr className="border-border/30" />
 						<div className="flex justify-between font-bold text-lg">
 							<span>الإجمالي</span>
 							<span className="tabular-nums text-primary">
-								{toArabicNumber(order.total.toFixed(1))} د.ل
+								{formatPrice(order.total, { decimals: 1 })}
 							</span>
 						</div>
 					</div>
@@ -313,7 +313,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 								<span className="font-medium">{oi.item.nameAr || oi.item.name}</span>
 							</div>
 							<span className="font-semibold tabular-nums">
-								{toArabicNumber((oi.price * oi.quantity).toFixed(1))} د.ل
+								{formatPrice(oi.price * oi.quantity, { decimals: 1 })}
 							</span>
 						</div>
 					))}

@@ -4,7 +4,7 @@ import { memo } from "react"
 import Link from "next/link"
 import { ClipboardList, ShoppingCart } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from "@/lib/format"
+import { formatPrice, toArabicNumber } from "@/lib/format"
 import { getArabicPlural } from "@/lib/arabic-plural"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -46,7 +46,7 @@ const OrderRow = memo(function OrderRow({ order }: { order: StatsData["recentOrd
         </div>
       </div>
       <div className="flex items-center gap-2.5">
-        <span className="text-sm font-semibold tabular-nums">{toArabicNumber(order.total.toFixed(1))} د.ل</span>
+        <span className="text-sm font-semibold tabular-nums">{formatPrice(order.total, { decimals: 1 })}</span>
         <span className={cn("text-[11px] font-medium px-2 py-0.5 rounded-full", config.bg, config.color)}>
           {config.label}
         </span>

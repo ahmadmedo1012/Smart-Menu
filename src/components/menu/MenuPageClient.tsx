@@ -3,9 +3,11 @@
 import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
+import { SearchX, UtensilsCrossed } from 'lucide-react';
 import { m } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
+import { EmptyState } from '@/components/ui/empty-state';
 import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
 import { MenuToolbar } from './MenuToolbar';
@@ -223,8 +225,14 @@ function MenuPageClientInner({
                         />
 
                         {hasActiveFilter && (
-                                <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in">
-                                        <AnimatedSparkles className="size-3.5 text-primary" />
+                                <div
+                                        className="flex items-center gap-2 mb-4 text-sm text-muted-foreground animate-fade-in"
+                                        /* round88-E1: announce result-count changes politely — a screen
+                                           reader user typing in the combobox hears how many items matched
+                                           without hunting for the visually-rendered counter. */
+                                        aria-live="polite"
+                                >
+                                        <AnimatedSparkles className="size-3.5 text-primary" aria-hidden="true" />
                                         <span>
                                                 {filteredItems.length === 0
                                                         ? 'لا توجد نتائج'
@@ -287,27 +295,28 @@ function MenuPageClientInner({
 
                         {/* Normal grid */}
                         {normalItems.length === 0 ? (
-                                <div className="glass-card text-center py-16 sm:py-20 rounded-sm">
-                                        <div className="empty-state-icon">
-                                                <AnimatedSparkles className="size-8 text-muted-foreground/30" />
-                                        </div>
-                                        <p className="text-muted-foreground text-base sm:text-lg font-medium mb-1">
-                                                {search ? 'لا توجد أصناف تطابق بحثك' : 'لا توجد أصناف في هذه الفئة'}
-                                        </p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground/60">
-                                                {search ? 'جرب كلمات بحث أخرى' : 'اختر فئة أخرى'}
-                                        </p>
-                                        {hasActiveFilter && (
-                                                <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                                updateURL({ q: '', cat: null });
-                                                        }}
-                                                        className="mt-4 text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-[filter,background-color]"
-                                                >
-                                                        عرض الكل
-                                                </button>
-                                        )}
+                                /* round88-E3: unified EmptyState (icon + friendly copy + action)
+                                   replaces the hand-rolled glass-card variant — same texts, same
+                                   reset CTA, one shared visual language across all surfaces. */
+                                <div className="glass-card rounded-sm">
+                                        <EmptyState
+                                                icon={search ? SearchX : UtensilsCrossed}
+                                                title={search ? 'لا توجد أصناف تطابق بحثك' : 'لا توجد أصناف في هذه الفئة'}
+                                                description={search ? 'جرب كلمات بحث أخرى' : 'اختر فئة أخرى'}
+                                                action={
+                                                        hasActiveFilter ? (
+                                                                <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                                updateURL({ q: '', cat: null });
+                                                                        }}
+                                                                        className="text-sm px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                >
+                                                                        عرض الكل
+                                                                </button>
+                                                        ) : undefined
+                                                }
+                                        />
                                 </div>
                         ) : (
                                 <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">

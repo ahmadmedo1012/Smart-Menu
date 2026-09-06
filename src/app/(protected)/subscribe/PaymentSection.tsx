@@ -5,7 +5,7 @@ import type { Plan } from '@/lib/plan-types';
 import {CreditCard} from 'lucide-react';
 import { MotionCheck } from '@/components/ui/motion-icons';
 import { PaymentDialog } from '@/components/shared/PaymentDialog';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice } from '@/lib/format';
 
 export function UpgradePlanSummary({
 	currentPlan,
@@ -23,7 +23,7 @@ export function UpgradePlanSummary({
 					<div>
 						<p className="font-bold text-lg">{currentPlan.nameAr}</p>
 						<p className="text-sm text-muted-foreground tabular-nums">
-							{toArabicNumber(currentPlan.price)} د.ل/شهر
+							{formatPrice(currentPlan.price, { suffix: ' د.ل/شهر' })}
 						</p>
 					</div>
 					<Button variant="ghost" size="sm" onClick={onBack}>
@@ -44,7 +44,7 @@ export function UpgradePlanSummary({
 			</p>
 			<Button className="w-full h-14 text-base font-semibold rounded-sm" size="lg" onClick={onPay}>
 				<CreditCard className="size-5 ms-2" />
-				<span className="tabular-nums">ادفع الآن ({toArabicNumber(currentPlan.price)} د.ل)</span>
+				<span className="tabular-nums">ادفع الآن ({formatPrice(currentPlan.price)})</span>
 			</Button>
 		</div>
 	);

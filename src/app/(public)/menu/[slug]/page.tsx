@@ -31,6 +31,13 @@ export async function generateMetadata({
         const restaurant = await getRestaurantBySlug(slug);
         if (!restaurant) notFound();
         const ogImage = restaurant.logo || '/og-default.png';
+        // round88-E9: describe the card for screen readers / previews that
+        // render alt text — the logo is a square avatar, the fallback is the
+        // branded 1200×630 card. (Dynamic per-restaurant card rendering was
+        // evaluated and deferred — see the 88-E worklog entry.)
+        const ogAlt = restaurant.logo
+                ? `شعار ${restaurant.name}`
+                : `بطاقة معاينة لقائمة ${restaurant.name} — الربط الذكي`;
         return {
                 title: restaurant.name,
                 description: restaurant.description || `اطلع على قائمة ${restaurant.name} واطلب عبر واتساب`,
@@ -43,6 +50,7 @@ export async function generateMetadata({
                         images: [
                                 {
                                         url: ogImage,
+                                        alt: ogAlt,
                                         ...(restaurant.logo ? { width: 512, height: 512 } : { width: 1200, height: 630 }),
                                 },
                         ],

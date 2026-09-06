@@ -4,6 +4,7 @@ import { FileQuestion, Store, Star, LayoutDashboard, MessageCircle, UtensilsCros
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { LazyMotionProvider } from "@/components/motion/LazyMotionProvider"
+import { MotionConfig } from "motion/react"
 
 export const metadata: Metadata = {
   title: "404 - الصفحة غير موجودة",
@@ -34,9 +35,16 @@ export default function NotFound() {
         {/* round88-A1: the root 404 boundary renders outside both route-group
             root layouts, so it gets no MotionProvider — mount the shared
             LazyMotionProvider here so ThemeToggle's m.* components keep
-            animating exactly as before the LazyMotion migration. */}
+            animating exactly as before the LazyMotion migration.
+            round88-E8: plus MotionConfig reducedMotion="user" — the ONE gap the
+            reduced-motion audit found: without it, ThemeToggle's whileHover/
+            whileTap scale+rotate transforms on this page ignored the user's
+            prefers-reduced-motion (the root layouts carry this config everywhere
+            else). useAnimate-based icons already read the hook themselves. */}
         <LazyMotionProvider>
-          <ThemeToggle />
+          <MotionConfig reducedMotion="user">
+            <ThemeToggle />
+          </MotionConfig>
         </LazyMotionProvider>
       </header>
 

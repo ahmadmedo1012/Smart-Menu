@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice, toArabicNumber } from '@/lib/format';
 import { Sparkles, Star, Crown, Building2, Store, Loader2, type LucideIcon } from 'lucide-react';
 import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import { premiumToast } from '@/lib/premium-toast';
@@ -229,7 +229,7 @@ export function SubscribeForm({
 						<div>
 							<p className="font-bold tabular-nums">{currentPlan.nameAr}</p>
 							<p className="text-xs text-muted-foreground">
-								{Number(currentPlan.price) === 0 ? 'مجاني' : toArabicNumber(currentPlan.price) + ' د.ل/شهر'}
+								{Number(currentPlan.price) === 0 ? 'مجاني' : formatPrice(currentPlan.price, { suffix: ' د.ل/شهر' })}
 								{' • '}
 								{currentPlan.maxItems === 9999
 									? 'أصناف غير محدودة'
@@ -505,7 +505,7 @@ export function SubscribeForm({
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">السعر</span>
 										<span className="font-medium tabular-nums">
-											{Number(currentPlan.price) === 0 ? 'مجاني' : `${toArabicNumber(currentPlan.price)} د.ل/شهر`}
+											{Number(currentPlan.price) === 0 ? 'مجاني' : formatPrice(currentPlan.price, { suffix: ' د.ل/شهر' })}
 										</span>
 									</div>
 									<div className="flex justify-between">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { error as logError } from "@/lib/logger";
+import { OrderStatus } from "@/generated/prisma/enums";
 
 export function success<T>(data: T, status = 200) {
   return NextResponse.json({ success: true, data }, { status });
@@ -66,6 +67,33 @@ export function parsePagination(
     Math.max(1, Number(url.searchParams.get("pageSize")) || pageSizeDefault),
   );
   return { page, pageSize };
+}
+
+/**
+ * round88-B4: parse an id-style search param. Returns undefined when the
+ * param is absent; returns NaN when present but not a positive integer —
+ * callers turn that into a 400. Previously a non-numeric value was silently
+ * swallowed by the falsy-NaN `if (param)` guards (filter ignored, or
+ * planFilter's NaN serializing as null), and enum-ish strings only failed
+ * later as caught Prisma validation noise. Same semantics as
+ * parsePagination's coercion-to-default, but for ids that MUST be valid.
+ */
+export function parseIdSearchParam(url: URL, key: string): number | undefined {
+  const raw = url.searchParams.get(key);
+  if (raw === null || raw === "") return undefined;
+  const n = Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : Number.NaN;
+}
+
+const ORDER_STATUS_VALUES = new Set<string>(Object.values(OrderStatus));
+
+/**
+ * round88-B4: enum-backed whitelist for the ?status= order filter. Feeding an
+ * arbitrary string into the enum column surfaced as a caught Prisma
+ * validation error; this keeps rejection explicit and query-free.
+ */
+export function isValidOrderStatusFilter(status: string): boolean {
+  return ORDER_STATUS_VALUES.has(status);
 }
 
 export function handleError(e: unknown) {

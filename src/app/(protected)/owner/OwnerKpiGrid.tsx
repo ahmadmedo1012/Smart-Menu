@@ -1,7 +1,7 @@
 "use client"
 
 import { ShoppingCart, TrendingUp, Clock, ClipboardList, AlertCircle } from "lucide-react"
-import { toArabicNumber } from "@/lib/format"
+import { formatPrice, toArabicNumber } from "@/lib/format"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Button } from "@/components/ui/button"
@@ -72,7 +72,7 @@ export function OwnerKpiGrid({ stats, isLoading = false, error = null, onRetry }
       <KpiCard index={0} label="إجمالي الطلبات" value={stats?.totalOrders ?? 0} icon={ShoppingCart} subtitle="كل الوقت"
         iconColor="text-orange" iconBg="bg-orange/10" href="/owner/orders" animated />
       <KpiCard index={1} label="طلبات اليوم" value={stats?.todayOrders ?? 0} icon={TrendingUp}
-        subtitle={stats?.todayRevenue ? `${toArabicNumber(stats.todayRevenue.toFixed(1))} د.ل` : undefined}
+        subtitle={stats?.todayRevenue ? `${formatPrice(stats.todayRevenue, { decimals: 1 })}` : undefined}
         iconColor="text-success" iconBg="bg-success/10" href="/owner/orders" animated />
       <KpiCard index={2} label="قيد الانتظار" value={pendingOrders} icon={Clock}
         subtitle={stats ? `${toArabicNumber(stats.statusBreakdown["new"] ?? 0)} جديد • ${toArabicNumber(stats.statusBreakdown["preparing"] ?? 0)} تحضير` : ""}

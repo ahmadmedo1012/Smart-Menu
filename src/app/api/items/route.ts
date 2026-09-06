@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
-import { success, handleError, error, paginated, parsePagination } from '@/lib/api-helpers';
+import { success, handleError, error, paginated, parsePagination, parseIdSearchParam } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { mediaUrlError } from '@/lib/blob';
@@ -38,12 +38,17 @@ export async function GET(request: NextRequest) {
                 const url = new URL(request.url);
                 const { searchParams } = url;
                 const { page, pageSize } = parsePagination(url);
-                const categoryId = searchParams.get('categoryId')
-                        ? Number(searchParams.get('categoryId'))
-                        : undefined;
-                const restaurantId = searchParams.get('restaurantId')
-                        ? Number(searchParams.get('restaurantId'))
-                        : undefined;
+                // round88-B4: explicit NaN guard — a non-numeric id used to fall
+                // through the falsy-NaN `if (param)` checks and land in the
+                // "معرف التصنيف أو المطعم مطلوب" 400 only by accident.
+                const categoryId = parseIdSearchParam(url, 'categoryId');
+                if (categoryId !== undefined && Number.isNaN(categoryId)) {
+                        return error('معرف التصنيف غير صالح', 400);
+                }
+                const restaurantId = parseIdSearchParam(url, 'restaurantId');
+                if (restaurantId !== undefined && Number.isNaN(restaurantId)) {
+                        return error('معرف المطعم غير صالح', 400);
+                }
                 const status = searchParams.get('status') || undefined;
 
                 const where: Record<string, unknown> = {};

@@ -43,7 +43,7 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 import { MotionSearch } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice, normalizeArabic } from '@/lib/format';
 
 interface MenuToolbarProps {
         search: string;
@@ -96,14 +96,19 @@ export function MenuToolbar({
                 setInputValue(search);
         }, [search]);
 
-        /* ── Deferred suggestions (low-priority, interruptible) ── */
+        /* ── Deferred suggestions (low-priority, interruptible) ──
+           round88-E1: normalizeArabic (tashkeel/tatweel strip + alef folding +
+           ta-marbuta/alef-maqsura folding + latin lowercase) — same matcher as the
+           main grid filter in MenuPageClient. The old plain toLowerCase() made the
+           dropdown disagree with the grid: typing "كراتيه" matched the grid but not
+           the suggestions when the item was stored as "كراتة". */
         const deferredSearch = useDeferredValue(search);
         const suggestions = useMemo(() => {
-                const q = deferredSearch.trim().toLowerCase();
-                if (!q || q.length < 1) return [];
+                const q = normalizeArabic(deferredSearch.trim());
+                if (!q) return [];
                 return items
                         .filter(
-                                (i) => (i.nameAr || i.name).toLowerCase().includes(q) || i.name.toLowerCase().includes(q)
+                                (i) => normalizeArabic(i.nameAr || i.name).includes(q) || normalizeArabic(i.name).includes(q)
                         )
                         .slice(0, 5);
                 // ponytail: flat search across all items, no category filter on suggestions
@@ -258,7 +263,7 @@ export function MenuToolbar({
                                                                         )}
                                                                         <span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
                                                                         <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
-                                                                                {toArabicNumber(s.price.toFixed(1))} د.ل
+                                                                                {formatPrice(s.price, { decimals: 1 })}
                                                                         </span>
                                                                 </button>
                                                         </li>

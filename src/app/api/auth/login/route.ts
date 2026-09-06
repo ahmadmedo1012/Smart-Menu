@@ -64,6 +64,23 @@ export async function POST(request: Request) {
                         // account (unauthenticated DoS).
                         const { success: acctAllowed } = await accountLimiter.check(`acct:${ip}:${username}`);
                         if (!acctAllowed) {
+                                // round88-B7: audit the lockout ITSELF (not each 401 — the feed
+                                // must stay signal): a warning SystemEvent the moment the
+                                // account limiter trips. Fire-and-forget with a synchronous
+                                // guard — logging must never break the 429 path.
+                                try {
+                                        await prisma.systemEvent.create({
+                                                data: {
+                                                        eventType: 'auth.lockout',
+                                                        title: 'قفل حساب مؤقت',
+                                                        message: `قُفل حساب «${username}» مؤقتاً بعد 20 محاولة فاشلة خلال 15 دقيقة`,
+                                                        severity: 'warning',
+                                                        metadata: { username, ip, limiter: 'acct:ip:username' },
+                                                },
+                                        });
+                                } catch {
+                                        /* best-effort audit — never block the 429 */
+                                }
                                 return error('تم قفل الحساب مؤقتاً لكثرة المحاولات الفاشلة. حاول لاحقاً.', 429);
                         }
                         return error('اسم المستخدم أو كلمة المرور غير صحيحة', 401);

@@ -82,7 +82,13 @@ export async function GET(request: NextRequest) {
                 if (planFilter === 'free') {
                         where.planId = null;
                 } else if (planFilter && planFilter !== 'all') {
-                        where.planId = Number(planFilter);
+                        // round88-B4: NaN used to serialize as null inside the where
+                        // clause, silently aliasing garbage to the 'free' filter.
+                        const planIdNum = Number(planFilter);
+                        if (!Number.isInteger(planIdNum) || planIdNum <= 0) {
+                                return error('فلتر الخطة غير صالح', 400);
+                        }
+                        where.planId = planIdNum;
                 }
 
                 const [rows, total] = await Promise.all([

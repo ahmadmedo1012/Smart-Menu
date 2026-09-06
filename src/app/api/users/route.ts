@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
-import { success, error as apiError, handleError, parsePagination } from "@/lib/api-helpers";
+import { success, error as apiError, handleError, parsePagination, parseIdSearchParam } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,9 +9,12 @@ export async function GET(request: NextRequest) {
     if (!auth.authorized || !["super_admin", "sub_admin", "admin"].includes(auth.role ?? "")) return apiError("غير مصرح", 401);
     const url = new URL(request.url);
     const { searchParams } = url;
-    const restaurantId = searchParams.get("restaurantId")
-      ? Number(searchParams.get("restaurantId"))
-      : undefined;
+    const restaurantId = parseIdSearchParam(url, "restaurantId");
+    // round88-B4: a non-numeric restaurantId used to be silently dropped (NaN
+    // is falsy) — the list then ignored the filter. Reject it explicitly.
+    if (restaurantId !== undefined && Number.isNaN(restaurantId)) {
+      return apiError("معرف المطعم غير صالح", 400);
+    }
     const { page, pageSize } = parsePagination(url);
     const search = searchParams.get("search")?.trim();
     const roleFilter = searchParams.get("role");

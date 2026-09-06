@@ -2,14 +2,14 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { m } from "motion/react";
-import {} from 'lucide-react';
 import AnimatedStar from '@/components/ui/star-icon';
-import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
+import { MessageCircle } from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils";
 import { toArabicNumber, formatDateShort } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useRouter } from "next/navigation";
 import { useActiveRestaurant } from "@/components/owner/useActiveRestaurant";
@@ -162,11 +162,17 @@ export default function OwnerReviewsPage() {
           </button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16">
-          <AnimatedMessageCircle className="size-10 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-base font-medium text-muted-foreground">لا توجد تقييمات</p>
-          <p className="text-sm text-muted-foreground/60 mt-1">عندما يقوم العملاء بتقييم الأصناف ستظهر هنا</p>
-        </div>
+        /* round88-E3: unified EmptyState — same copy as before, shared visual
+           language with the rest of the app (task-named surface: تقييمات). */
+        <EmptyState
+          icon={MessageCircle}
+          title="لا توجد تقييمات"
+          description={
+            filterStar
+              ? "لا توجد تقييمات بهذا عدد النجوم — جرّب تصفية أخرى"
+              : "عندما يقوم العملاء بتقييم الأصناف ستظهر هنا"
+          }
+        />
       ) : (
         <div className="space-y-3">
           {filtered.map((review, i) => (
