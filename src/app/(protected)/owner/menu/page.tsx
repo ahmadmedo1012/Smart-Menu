@@ -557,7 +557,7 @@ export default function OwnerMenuPage() {
                                                         <input
                                                                 value={catForm.nameAr}
                                                                 onChange={(e) => setCatForm({ ...catForm, nameAr: e.target.value })}
-                                                                placeholder="Hot Drinks"
+                                                                placeholder="اختياري — بالإنجليزية"
                                                                 className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 text-start"
                                                                 dir="ltr"
                                                         />

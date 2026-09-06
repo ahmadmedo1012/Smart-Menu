@@ -1,6 +1,8 @@
 // ponytail: Origin + double-submit CSRF protection.
 // Edge middleware validates Origin for mutating methods.
 // Route handlers can additionally verify x-csrf-token for elevated operations.
+import { timingSafeEqualStrings } from '@/lib/secure-compare';
+
 export const CSRF_COOKIE = 'csrf-token';
 export const CSRF_HEADER = 'x-csrf-token';
 export const CSRF_EXEMPT = new Set([
@@ -84,7 +86,16 @@ export function assertSameOrigin(request: Request): void {
 		.find((c) => c.startsWith(`${CSRF_COOKIE}=`))
 		?.slice(CSRF_COOKIE.length + 1);
 	const headerToken = request.headers.get(CSRF_HEADER);
-	if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+	// round89-B5 (dx-4 #8): constant-time comparison — a plain !== on the
+	// double-submit token leaks prefix/length through response timing. Same
+	// helper the webhook secret and cron bearer already use (round86-C7).
+	// Proxy in Next 16 runs on the Node.js runtime, so the node:crypto-backed
+	// helper is import-safe here too.
+	if (
+		!cookieToken ||
+		!headerToken ||
+		!timingSafeEqualStrings(cookieToken, headerToken)
+	) {
 		throw new Error('CSRF check failed: token mismatch');
 	}
 }

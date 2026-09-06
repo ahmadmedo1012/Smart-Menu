@@ -15,7 +15,7 @@ const loyaltyGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 const PHONE_RE = /^\+?[0-9]{7,15}$/;
 
 const createSchema = z.object({
-        customerPhone: z.string().regex(PHONE_RE, 'Invalid phone number'),
+        customerPhone: z.string().regex(PHONE_RE, 'رقم هاتف غير صالح'),
         // round87-A4: bound public free-text (values render in the owner's
         // loyalty dashboard — unbounded strings were a client-side DoS vector)
         customerName: z.string().max(50).optional(),
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
                 const cookieStore = await cookies();
                 const cookieId = cookieStore.get('smart-menu-restaurant')?.value;
                 const restaurantId = body.restaurantId ?? (cookieId ? Number(cookieId) : null);
-                if (!restaurantId) return error('معرف المطعم مطلوب. Restaurant ID is required.', 400);
+                if (!restaurantId) return error('معرف المطعم مطلوب', 400);
 
                 // Rate limit per IP + restaurant (restaurantId in key) so one
                 // restaurant's traffic can't starve others behind the same IP (kiosk/NAT)
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
                         request.headers.get('x-real-ip') ??
                         'unknown';
                 const rateCheck = await loyaltyDbLimiter.check(`${ip}:${restaurantId}`);
-                if (!rateCheck.success) return error('Too many requests', 429);
+                if (!rateCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 // Verify restaurant exists
                 const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
                         while (await prisma.loyaltyCard.findUnique({ where: { referralCode } })) {
                                 referralCode = generateReferralCode();
                                 attempts++;
-                                if (attempts > 10) return error('Failed to generate unique referral code', 500);
+                                if (attempts > 10) return error('تعذر توليد كود إحالة فريد', 500);
                         }
 
                         card = await prisma.loyaltyCard.create({
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
                         Number(searchParams.get('restaurantId')) ||
                         Number(cookieStore2.get('smart-menu-restaurant')?.value);
                 if (!restaurantId) return error('معرف المطعم مطلوب', 400);
-                if (!phone || !PHONE_RE.test(phone)) return error('Invalid phone number', 400);
+                if (!phone || !PHONE_RE.test(phone)) return error('رقم هاتف غير صالح', 400);
 
                 // round85-A2: rate limit the phone lookup (per IP+restaurant)
                 const getIp =
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
                         request.headers.get('x-real-ip') ??
                         'unknown';
                 const getRateCheck = await loyaltyGetLimiter.check(`${getIp}:${restaurantId}`);
-                if (!getRateCheck.success) return error('Too many requests', 429);
+                if (!getRateCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 const card = await prisma.loyaltyCard.findUnique({
                         where: {
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
                         },
                 });
 
-                if (!card) return error('Loyalty card not found', 404);
+                if (!card) return error('بطاقة الولاء غير موجودة', 404);
 
                 const { nextTier, pointsToNext } = getNextTierInfo(card.tier);
 

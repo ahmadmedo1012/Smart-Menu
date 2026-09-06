@@ -213,6 +213,26 @@ describe('B4 — GET /api/restaurants?planFilter=', () => {
                 expect(res.status).toBe(200);
                 expect(mockRestaurantFindMany.mock.calls[0][0].where.planId).toBe(3);
         });
+
+        // round89-E3 (dx-1 ب-5 verification): requirePermission answers 401 for a
+        // guest and 403 for an authenticated caller without the permission — the
+        // route's `auth.status ?? 403` fallback is dead code, and the pass-through
+        // is locked here so the 401/403 semantics can never silently flip.
+        it('unauthenticated (guest session) → 401 before any query', async () => {
+                setSession(null);
+                const { GET } = await import('@/app/api/restaurants/route');
+                const res = await GET(new NextRequest('http://localhost/api/restaurants'));
+                expect(res.status).toBe(401);
+                expect(mockRestaurantFindMany).not.toHaveBeenCalled();
+        });
+
+        it('authenticated OWNER without VIEW_ANALYTICS → 403 before any query', async () => {
+                setSession(persona({ id: 10, role: 'owner', restaurantId: 1 }));
+                const { GET } = await import('@/app/api/restaurants/route');
+                const res = await GET(new NextRequest('http://localhost/api/restaurants'));
+                expect(res.status).toBe(403);
+                expect(mockRestaurantFindMany).not.toHaveBeenCalled();
+        });
 });
 
 // ── admin/subscriptions — status whitelist ──────────────────────────────

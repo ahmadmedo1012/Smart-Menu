@@ -14,12 +14,8 @@ import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
-
-interface Restaurant {
-	id: number;
-	name: string;
-	slug: string;
-}
+// round89-E5: shared row type (was a local id/name/slug-only copy)
+import type { Restaurant } from '@/lib/restaurant-types';
 
 const QR_SIZES = [
 	{ value: 200, label: 'صغير' },

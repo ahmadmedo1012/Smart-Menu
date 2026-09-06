@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { success, handleError, error } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
+import { createDbRateLimiter } from '@/lib/rate-limit';
 import {
 	parseAnalyticsRange,
 	rangeBounds,
@@ -13,10 +14,21 @@ import {
 } from '@/lib/chart-stats';
 import { resolveRestaurantScope, popularItemsQuery, hydratePopularItems } from '@/lib/stats-queries';
 
+// round89-B4 (dx-4 #7): light per-user cap — this route runs ~14 aggregate/raw
+// queries per call, so an unbounded authenticated poller hits the DB hard.
+// 120/min/user; keyed on userId (session-gated), same pattern as stats route.
+const statsAdvancedLimiter = createDbRateLimiter({ windowMs: 60_000, max: 120 });
+
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireAuth();
 		if (!auth.authorized) return error('غير مصرح', 401);
+
+		// round89-B4: per-user limiter AFTER the auth gate (401s stay free).
+		const { success: allowed } = await statsAdvancedLimiter.check(
+				`stats-advanced:${auth.userId}`
+		);
+		if (!allowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
 		const { searchParams } = new URL(request.url);
 		const range = parseAnalyticsRange(searchParams.get('range'));

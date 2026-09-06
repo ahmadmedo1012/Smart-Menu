@@ -5,6 +5,13 @@ import { error as logError } from '@/lib/logger';
 
 const SESSION_COOKIE = 'smart-menu-session';
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+// round89-B3 (dx-4 #3): absolute lifetime cap. The pure sliding window had no
+// end date — continuous activity kept renewing a session forever, so a stolen
+// cookie stayed valid as long as the thief kept using it. A token is now
+// hard-rejected 7 days after createdAt even when the sliding expiry was just
+// renewed. The renewal path below also clamps to the same deadline so the DB
+// row never claims validity past the cap.
+const SESSION_ABSOLUTE_CAP_MS = 7 * 24 * 60 * 60 * 1000; // 7d
 const MAX_SESSIONS_PER_USER = 5;
 
 // ponytail: sliding window — validateSession() extends active sessions automatically
@@ -131,6 +138,16 @@ export async function validateSession(): Promise<{
                         }
                         return { valid: false, userId: null };
                 }
+                // round89-B3: absolute cap — reject (and clean up) any token whose
+                // age from createdAt reached 7d, regardless of how recently the
+                // sliding window renewed it.
+                const sessionAgeMs = Date.now() - session.createdAt.getTime();
+                if (sessionAgeMs >= SESSION_ABSOLUTE_CAP_MS) {
+                        await prisma.session
+                                .delete({ where: { id: session.id } })
+                                .catch((e) => logError('session.absolute-cap deletion', { error: String(e) }));
+                        return { valid: false, userId: null };
+                }
                 // Sliding window: extend session TTL on every valid check — DB-side ONLY.
                 // Do NOT re-send Set-Cookie here: an in-flight response arriving after
                 // logout would resurrect the just-cleared cookie (observed in e2e as a
@@ -144,7 +161,13 @@ export async function validateSession(): Promise<{
                 // Semantics stay sliding: any activity within 12h keeps the session alive.
                 const remaining = session.expiresAt.getTime() - Date.now();
                 if (remaining < SESSION_TTL_MS / 2) {
-                        const newExpiry = new Date(Date.now() + SESSION_TTL_MS);
+                        // round89-B3: the renewal slides at most up to createdAt+7d —
+                        // validateSession's absolute-cap check above stays the
+                        // authoritative gate either way.
+                        const absoluteDeadline = session.createdAt.getTime() + SESSION_ABSOLUTE_CAP_MS;
+                        const newExpiry = new Date(
+                                Math.min(Date.now() + SESSION_TTL_MS, absoluteDeadline)
+                        );
                         await prisma.session
                                 .update({
                                         where: { id: session.id },

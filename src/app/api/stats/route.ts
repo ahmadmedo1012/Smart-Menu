@@ -2,12 +2,25 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { success, handleError, error } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
+import { createDbRateLimiter } from '@/lib/rate-limit';
 import { resolveRestaurantScope, popularItemsQuery, hydratePopularItems, revenueAggregate } from '@/lib/stats-queries';
+
+// round89-B4 (dx-4 #7): light per-user cap for the dashboard stats read —
+// the aggregated Promise.all wave is the heaviest authenticated query in the
+// app. 120/min/user leaves big headroom over the natural 12-15s poll cadence
+// while a single user can no longer request it unbounded. Keyed on userId.
+const statsLimiter = createDbRateLimiter({ windowMs: 60_000, max: 120 });
 
 export async function GET(request: NextRequest) {
 	try {
 		const auth = await requireAuth();
 		if (!auth.authorized) return error('غير مصرح', 401);
+
+		// round89-B4: per-user limiter AFTER the auth gate (401s stay free).
+		const { success: allowed } = await statsLimiter.check(
+				`stats:${auth.userId}`
+		);
+		if (!allowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
 		const scope = await resolveRestaurantScope(auth, new URL(request.url).searchParams);
 		if (!scope.ok) return scope.response;

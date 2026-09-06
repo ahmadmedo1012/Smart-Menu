@@ -62,6 +62,12 @@ const nextConfig: NextConfig = {
                                         { key: 'X-DNS-Prefetch-Control', value: 'on' },
                                         { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
                                         { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+                                        // round89-B2 (dx-4 #5): COOP/CORP here (not only in proxy.ts) so
+                                        // static assets — which the fixed B-1 matcher now skips entirely —
+                                        // still carry the pair. Values identical to proxy.ts: pages/API get
+                                        // them from either layer (same value, no conflict), assets only here.
+                                        { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+                                        { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
                                         // CSP via proxy.ts for nonce support — this header is overridden by middleware
                                         // on Vercel, middleware CSP takes precedence for dynamic routes
                                 ],

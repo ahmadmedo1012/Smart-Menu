@@ -62,7 +62,7 @@ export function AreaChart({
 				className="w-full h-full"
 				preserveAspectRatio="xMidYMid meet"
 				role="img"
-				aria-label="Area chart"
+				aria-label="مخطط مساحي"
 			>
 				<defs>
 					<linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">

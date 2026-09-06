@@ -24,17 +24,8 @@ import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./Restaura
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
-
-interface Restaurant {
-  id: number; name: string; slug: string; description: string;
-  phone: string; whatsapp: string; email: string; address: string;
-  workingHours: string; planId: number | null;
-  plan: Plan | null;
-  city: string; showOnLanding: boolean;
-  // round85-C8: dialog reads these (featuredRank drives the landing order input)
-  featuredRank?: number | null;
-  _count: { orders: number; categories: number };
-}
+// round89-E5: shared row type (was a local copy — the 6th duplicate)
+import type { Restaurant } from '@/lib/restaurant-types';
 
 export default function AdminRestaurantsPage() {
   const access = useAccessGate(allowRolesOrPermission(['super_admin', 'admin'], 'MANAGE_RESTAURANTS'));

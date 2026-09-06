@@ -70,12 +70,20 @@ export function proxy(request: NextRequest) {
         resp.headers.set('X-Content-Type-Options', 'nosniff');
         resp.headers.set('X-Frame-Options', 'DENY');
         resp.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        // round89-B2 (dx-4 #5): COOP — isolates the document's window/opener from
+        // cross-origin windows (blocks some XS-Leak / tab-nabbing vectors).
+        // CORP — marks every response same-origin-only for cross-origin no-cors
+        // embeds. next.config.ts headers() applies the same pair to static
+        // assets (which no longer pass through this proxy — see B-1 matcher),
+        // so every response is covered exactly once.
+        resp.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+        resp.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
 
         // CSP with per-request nonce (pages only; API gets strict CSP)
         if (isApiRoute) {
                 resp.headers.set(
                         'Content-Security-Policy',
-                        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:"
+                        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:; frame-ancestors 'none'"
                 );
         } else if (isCacheablePage) {
                 // Public static pages (/, /menu/*, /pricing, /landing): FIXED CSP with
@@ -101,6 +109,7 @@ export function proxy(request: NextRequest) {
                         "form-action 'self'",
                         "worker-src 'self' blob:",
                         "manifest-src 'self' blob:",
+                        "frame-ancestors 'none'",
                         ...(isSecure ? ["upgrade-insecure-requests"] : []),
                 ].join('; ');
                 resp.headers.set('Content-Security-Policy', csp);
@@ -140,6 +149,7 @@ export function proxy(request: NextRequest) {
                         "form-action 'self'",
                         "worker-src 'self' blob:",
                         "manifest-src 'self' blob:",
+                        "frame-ancestors 'none'",
                         ...(isSecure ? ["upgrade-insecure-requests"] : []),
                 ].join('; ');
                 resp.headers.set('Content-Security-Policy', csp);
@@ -186,9 +196,22 @@ export function proxy(request: NextRequest) {
 
 export const config = {
         matcher: [
-                // round85-B11: also exclude fonts/video/lottie/svg/ico/sw/offline — the
-                // edge check has nothing to do for static binary assets, and every
-                // skipped invocation is latency + compute saved on hot QR traffic.
-                '/((?!_next/static|_next/image|favicon\\.png|sitemap\\.xml|robots\\.txt|manifest\\.json|sw\\.js|offline\\.html|\\.png|\\.jpg|\\.jpeg|\\.webp|\\.avif|\\.svg|\\.ico|\\.woff2?|\\.ttf|\\.otf|\\.mp4|\\.webm|\\.lottie).*)',
+                // round89-B1 (dx-4 #4 — confirmed live defect): the old extension
+                // entries (\.png, \.woff2? …) never excluded anything. The negative
+                // lookahead is evaluated right after the leading '/', so `\.png`
+                // only matched a path that STARTS with ".png" — /fonts/*.woff2,
+                // /video/*.mp4 and /icon-192.png all still ran the proxy (live
+                // evidence: set-cookie csrf + CSP nonce on font/video responses,
+                // which also defeats the round85-B11 immutable-asset goal).
+                // Official Next.js 16 form (node_modules/next/dist/docs/…/proxy.md
+                // → Matcher): each extension is written `.*\.ext$` so it anchors
+                // at the END of the path. The literal names (manifest.json, sw.js,
+                // offline.html, robots.txt, sitemap.xml, favicon.png) keep working
+                // exactly as before — verified against the REAL build-time compiler
+                // (next/dist/build/analysis/get-page-static-info.js getMiddlewareMatchers):
+                // static assets → skip, pages/API/transport (.rsc) → proxy runs.
+                // .css/.txt/.xml/.json cover the remaining public files
+                // (/fonts/fonts.css) — no app route ends in any of these.
+                '/((?!_next/static|_next/image|favicon\\.png|sitemap\\.xml|robots\\.txt|manifest\\.json|sw\\.js|offline\\.html|.*\\.(?:png|jpe?g|webp|avif|svg|ico|woff2?|ttf|otf|mp4|webm|lottie|css|txt|xml|json)$).*)',
         ],
 };

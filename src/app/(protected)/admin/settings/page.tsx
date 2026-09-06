@@ -21,12 +21,8 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
-
-interface Restaurant {
-  id: number; name: string; slug: string; description: string
-  phone: string; whatsapp: string; email: string; address: string
-  workingHours: string; logo: string; planId: number | null
-}
+// round89-E5: shared row type (was a local copy)
+import type { Restaurant } from '@/lib/restaurant-types';
 
 interface AdminProfile {
   name: string
@@ -100,9 +96,9 @@ export default function AdminSettingsPage() {
     if (selected) {
       setForm({
         name: selected.name, description: selected.description,
-        phone: selected.phone, whatsapp: selected.whatsapp,
-        email: selected.email, address: selected.address,
-        workingHours: selected.workingHours, logo: selected.logo,
+        phone: selected.phone ?? "", whatsapp: selected.whatsapp ?? "",
+        email: selected.email ?? "", address: selected.address ?? "",
+        workingHours: selected.workingHours ?? "", logo: selected.logo,
       })
     }
   }, [selected])

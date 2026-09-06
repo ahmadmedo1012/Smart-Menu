@@ -74,7 +74,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         try {
                 const { id } = await params;
                 const rId = Number(id);
-                if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
+                if (Number.isNaN(rId)) return apiError('معرف غير صالح', 400);
                 const auth = await requireAuth();
                 // round87-A5: sub_admin needs VIEW_ANALYTICS for the full-detail branch —
                 // a zero-permission sub_admin used to read any restaurant's complete row
@@ -109,7 +109,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                                         isActive: true,
                                 },
                         });
-                        if (!pub) return apiError('Restaurant not found', 404);
+                        if (!pub) return apiError('المطعم غير موجود', 404);
                         return success(pub);
                 }
                 const data = await prisma.restaurant.findUnique({
@@ -132,7 +132,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                                 },
                         },
                 });
-                if (!data) return apiError('Restaurant not found', 404);
+                if (!data) return apiError('المطعم غير موجود', 404);
                 return success(data);
         } catch (e) {
                 return handleError(e);
@@ -146,7 +146,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
                 const { id } = await params;
                 const rId = Number(id);
-                if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
+                if (Number.isNaN(rId)) return apiError('معرف غير صالح', 400);
 
                 const body = await request.json();
 
@@ -220,7 +220,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                 if (!auth.authorized) return apiError(auth.error, auth.status);
                 const { id } = await params;
                 const rId = Number(id);
-                if (Number.isNaN(rId)) return apiError('Invalid ID', 400);
+                if (Number.isNaN(rId)) return apiError('معرف غير صالح', 400);
                 // Collect image URLs before deletion (blob URLs needed after DB delete)
                 const items = await prisma.menuItem.findMany({
                         where: { category: { is: { restaurantId: rId } } },

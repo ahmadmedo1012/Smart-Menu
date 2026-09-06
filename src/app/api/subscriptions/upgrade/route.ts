@@ -58,7 +58,13 @@ export async function POST(request: NextRequest) {
 		// Bank transfers bypass the mobile-wallet 99 LYD cap
 		const isBank = provider === 'bank';
 		if (!isBank && Number(amount) > 99) {
-			return error('المبلغ لا يطابق سعر الباقة', 400);
+			// round89-E8: same failure class as subscriptions POST — the exact
+			// cap message replaces the misleading «المبلغ لا يطابق سعر الباقة»
+			// (w1-d1 discovery 2).
+			return error(
+				'المبالغ فوق 99 د.ل تتطلب تحويل بنكي — اختر طريقة الدفع "تحويل بنكي"',
+				400
+			);
 		}
 
 		// Validate plan exists and is active
@@ -111,9 +117,13 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Check no pending upgrade for this restaurant
+		// (round89-E8: scoped to the REQUESTING user — an abandoned pending
+		// request from any other user used to block the whole restaurant's
+		// upgrades; w1-d1 discovery 4)
 		const pending = await prisma.subscriptionPayment.findFirst({
 			where: {
 				status: 'pending',
+				userId: auth.userId,
 				metadata: { path: ['upgradeRestaurantId'], equals: upgradeRestaurantId },
 			},
 		});

@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
                 const { id } = await params;
                 const oid = Number(id);
-                if (Number.isNaN(oid)) return apiError('Invalid ID', 400);
+                if (Number.isNaN(oid)) return apiError('معرف غير صالح', 400);
                 const data = await prisma.order.findUnique({
                         where: { id: oid },
                         include: {
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
                 const { id } = await params;
                 const oid = Number(id);
-                if (Number.isNaN(oid)) return apiError('Invalid ID', 400);
+                if (Number.isNaN(oid)) return apiError('معرف غير صالح', 400);
 
                 const body = updateSchema.parse(await request.json());
 

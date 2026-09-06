@@ -19,7 +19,7 @@ export async function PATCH(
     if (!auth.authorized) return error(auth.error, auth.status);
     const { id } = await params;
     const tid = Number(id);
-    if (Number.isNaN(tid)) return error('Invalid ID', 400);
+    if (Number.isNaN(tid)) return error('معرف غير صالح', 400);
     const body = updateSchema.parse(await request.json());
     const target = await prisma.telegramBroadcastTarget.update({
       where: { id: tid },
@@ -40,7 +40,7 @@ export async function DELETE(
     if (!auth.authorized) return error(auth.error, auth.status);
     const { id } = await params;
     const tid = Number(id);
-    if (Number.isNaN(tid)) return error('Invalid ID', 400);
+    if (Number.isNaN(tid)) return error('معرف غير صالح', 400);
     await prisma.telegramBroadcastTarget.delete({
       where: { id: tid },
     });

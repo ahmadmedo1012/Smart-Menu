@@ -15,27 +15,9 @@ import {
 } from '@/components/ui/select';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
-
-interface Restaurant {
-	id: number;
-	name: string;
-	slug: string;
-	description: string;
-	phone: string;
-	whatsapp: string;
-	email: string;
-	address: string;
-	workingHours: string;
-	planId: number | null;
-	plan: Plan | null;
-	// round85-C8: these fields ARE returned by /api/restaurants — the interface
-	// just didn't list them (hence the three `as any` casts). Optional because
-	// some callers' list types omit them (null-safe reads below).
-	city?: string | null;
-	showOnLanding?: boolean | null;
-	featuredRank?: number | null;
-	_count: { orders: number; categories: number };
-}
+// round89-E5: shared row type (was a local copy; plan/city/showOnLanding/
+// featuredRank are optional there — reads below stay null-safe)
+import type { Restaurant } from '@/lib/restaurant-types';
 
 interface FormState {
 	name: string;
@@ -89,8 +71,8 @@ export function RestaurantFormDialog({
 				name: editing.name,
 				slug: editing.slug,
 				description: editing.description,
-				phone: editing.phone,
-				whatsapp: editing.whatsapp,
+				phone: editing.phone ?? '',
+				whatsapp: editing.whatsapp ?? '',
 				email: editing.email || '',
 				address: editing.address || '',
 				workingHours: editing.workingHours || '',

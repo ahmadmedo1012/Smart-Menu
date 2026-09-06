@@ -24,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 const { id } = await params;
                 const itemId = Number(id);
                 if (Number.isNaN(itemId)) {
-                        return NextResponse.json({ success: false, error: 'Invalid ID' }, { status: 400 });
+                        return NextResponse.json({ success: false, error: 'معرف غير صالح' }, { status: 400 });
                 }
 
                 const url = new URL(req.url);
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 const { id } = await params;
                 const itemId = Number(id);
                 if (Number.isNaN(itemId)) {
-                        return error('Invalid ID', 400);
+                        return error('معرف غير صالح', 400);
                 }
 
                 const body = await req.json();

@@ -225,7 +225,7 @@ export function ItemDialog({
                                                                         id={`${fId}-name-ar`}
                                                                 value={form.nameAr}
                                                                 onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
-                                                                placeholder="Cappuccino"
+                                                                placeholder="اختياري — بالإنجليزية"
                                                                 className="h-11 rounded-md mt-1.5 text-start"
                                                                 dir="ltr"
                                                         />

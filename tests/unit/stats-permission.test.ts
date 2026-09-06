@@ -27,6 +27,15 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+// round89-B4: /api/stats and /api/stats/advanced gained per-user rate
+// limiters — mock the factory (default allow) so these tests keep asserting
+// the RBAC/tenant logic (limiter behavior: polling-rate-limits.test.ts).
+vi.mock('@/lib/rate-limit', () => ({
+	createDbRateLimiter: () => ({
+		check: vi.fn(async () => ({ success: true, remaining: 119, reset: 0 })),
+		destroy: () => {},
+	}),
+}));
 
 // requireAuth resolves per-test via a mutable holder
 const authHolder = vi.hoisted(() => ({

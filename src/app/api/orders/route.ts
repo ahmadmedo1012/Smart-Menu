@@ -6,6 +6,7 @@ import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { orderItemCountByOrder } from '@/lib/list-counts';
 import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
+import { PlanLimitError } from '@/lib/plan-limit-error';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
@@ -231,7 +232,11 @@ export async function POST(request: NextRequest) {
                 const data = await prisma.$transaction(async (tx) => {
                         const orderCount = await tx.order.count({ where: { restaurantId: body.restaurantId } });
                         if (orderCount >= restaurant.maxOrders) {
-                                throw new OrderLimitError('تم الوصول للحد الأقصى للطلبات في خطتك');
+                                // round89-E1: unified plan-cap error (was local OrderLimitError).
+                                // planName stays null here — the restaurant row (already fetched
+                                // for maxOrders) carries planId only, and an extra plan lookup
+                                // on the money path isn't worth the display name.
+                                throw new PlanLimitError({ kind: 'orders', limit: restaurant.maxOrders });
                         }
                         // Discount guard (round-77): no server-verified coupon/referral
                         // system exists in the order flow — a client-sent discount is
@@ -281,14 +286,7 @@ export async function POST(request: NextRequest) {
 
                 return success(data, 201);
         } catch (e) {
-                if (e instanceof OrderLimitError) return apiError(e.message, 403);
+                if (e instanceof PlanLimitError) return apiError(e.message, 403);
                 return handleError(e);
-        }
-}
-
-class OrderLimitError extends Error {
-        constructor(message: string) {
-                super(message);
-                this.name = 'OrderLimitError';
         }
 }

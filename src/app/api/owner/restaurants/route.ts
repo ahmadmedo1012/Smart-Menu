@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
 import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
+import { PlanLimitError } from '@/lib/plan-limit-error';
 import { z } from 'zod';
 
 const createSchema = z.object({
@@ -67,9 +68,10 @@ export async function POST(request: NextRequest) {
                 const body = createSchema.parse(await request.json());
 
                 // Check plan maxMenus limit
+                // (round89-E1: plan nameAr joins the same include the cap needs)
                 const user = await prisma.user.findUnique({
                         where: { id: auth.userId },
-                        include: { plan: { select: { maxMenus: true } } },
+                        include: { plan: { select: { maxMenus: true, nameAr: true } } },
                 });
                 if (!user) return error('المستخدم غير موجود', 404);
 
@@ -85,7 +87,12 @@ export async function POST(request: NextRequest) {
                         // the tx, same pattern as the order/items limit checks (round-76/86).
                         const existingCount = await tx.userRestaurant.count({ where: { userId: auth.userId! } });
                         if (existingCount >= maxMenus) {
-                                throw new MenuLimitError(`لقد وصلت للحد الأقصى للمنيوهات (${maxMenus}). قم بترقية خطتك لإضافة المزيد.`);
+                                // round89-E1: unified plan-cap error (was local MenuLimitError)
+                                throw new PlanLimitError({
+                                        kind: 'menus',
+                                        limit: maxMenus,
+                                        planName: user.plan?.nameAr ?? null,
+                                });
                         }
                         const restaurant = await tx.restaurant.create({
                                 data: {
@@ -115,15 +122,7 @@ export async function POST(request: NextRequest) {
 
                 return success(result, 201);
         } catch (e) {
-                if (e instanceof MenuLimitError) return error(e.message, 403);
+                if (e instanceof PlanLimitError) return error(e.message, 403);
                 return handleError(e);
-        }
-}
-
-// round87-A3: module-level (block-scoped class wasn't visible to the catch)
-class MenuLimitError extends Error {
-        constructor(message: string) {
-                super(message);
-                this.name = 'MenuLimitError';
         }
 }

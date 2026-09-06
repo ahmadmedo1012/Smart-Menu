@@ -12,7 +12,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         try {
                 const { id } = await params;
                 const itemId = Number(id);
-                if (Number.isNaN(itemId)) return error('Invalid ID', 400);
+                if (Number.isNaN(itemId)) return error('معرف غير صالح', 400);
 
                 const item = await prisma.menuItem.findUnique({
                         where: { id: itemId },
@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 if (!auth.authorized) return error('غير مصرح', 401);
                 const { id } = await params;
                 const itemId = Number(id);
-                if (Number.isNaN(itemId)) return error('Invalid ID', 400);
+                if (Number.isNaN(itemId)) return error('معرف غير صالح', 400);
 
                 const body = updateSchema.parse(await request.json());
 
@@ -205,7 +205,7 @@ export async function DELETE(
                 if (!auth.authorized) return error('غير مصرح', 401);
                 const { id } = await params;
                 const delId = Number(id);
-                if (Number.isNaN(delId)) return error('Invalid ID', 400);
+                if (Number.isNaN(delId)) return error('معرف غير صالح', 400);
                 const existing = await prisma.menuItem.findUnique({
                         where: { id: delId },
                         include: { category: { select: { restaurantId: true } } },

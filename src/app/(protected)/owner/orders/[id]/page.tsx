@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
+import { getErrorMessage } from '@/lib/get-error-message';
 import {AlertCircle, Phone, User, FileText} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
@@ -39,8 +40,9 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 			const updated = await updateOrderStatus(id, status);
 			setOrder(updated);
 			premiumToast('success', `تم تغيير الحالة إلى ${STATUS_CONFIG[status]?.label}`);
-		} catch {
-			premiumToast('error', 'فشل تحديث الحالة');
+		} catch (e) {
+			// round89-E6: csrfJson throws the server's Arabic message — surface it
+			premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة'));
 		} finally {
 			setUpdating(false);
 		}

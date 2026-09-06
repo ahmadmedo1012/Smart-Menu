@@ -6,6 +6,7 @@ import { success, handleError, error, paginated, parsePagination, parseIdSearchP
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { mediaUrlError } from '@/lib/blob';
+import { PlanLimitError } from '@/lib/plan-limit-error';
 import { ItemStatus } from '@/generated/prisma/enums';
 
 const createSchema = z.object({
@@ -15,7 +16,10 @@ const createSchema = z.object({
         descriptionAr: z.string().max(1000).optional(),
         price: z.number().min(0, 'السعر يجب أن يكون 0 أو أكثر'),
         discountedPrice: z.number().min(0).nullable().optional(),
-        image: z.string().max(7000000).optional(),
+        // round89-E4: image-compress (1200px / JPEG q0.7) lands at ~60-150KB
+        // ≈ 80-200k base64 chars — 200k covers every honest payload while
+        // killing the old 7M-char inflation (dx-2 #9, research from w1-a).
+        image: z.string().max(200_000, 'الصورة كبيرة جداً — الحد الأقصى حوالي 150 كيلوبايت بعد الضغط').optional(),
         status: z.string().optional(),
         sortOrder: z.number().int().optional(),
         categoryId: z.number().int().positive(),
@@ -108,13 +112,6 @@ export async function GET(request: NextRequest) {
         }
 }
 
-class ItemLimitError extends Error {
-        constructor(message: string) {
-                super(message);
-                this.name = 'ItemLimitError';
-        }
-}
-
 export async function POST(request: NextRequest) {
         try {
                 const auth = await requireAuth();
@@ -128,9 +125,14 @@ export async function POST(request: NextRequest) {
                         : [];
 
                 // Check plan limits: get category -> restaurant -> plan
+                // (round89-E1: plan name joins the same single query the cap needs)
                 const category = await prisma.menuCategory.findUnique({
                         where: { id: body.categoryId },
-                        select: { restaurant: { select: { id: true, name: true, maxItems: true } } },
+                        select: {
+                                restaurant: {
+                                        select: { id: true, name: true, maxItems: true, plan: { select: { nameAr: true } } },
+                                },
+                        },
                 });
                 if (!category) return error('التصنيف غير موجود', 404);
 
@@ -166,9 +168,12 @@ export async function POST(request: NextRequest) {
                         });
                         const maxItems = category.restaurant.maxItems;
                         if (existingCount >= maxItems) {
-                                throw new ItemLimitError(
-                                        `لقد وصلت إلى الحد الأقصى للأصناف (${maxItems}). قم بترقية خطتك لإضافة المزيد.`
-                                );
+                                // round89-E1: unified plan-cap error (was local ItemLimitError)
+                                throw new PlanLimitError({
+                                        kind: 'items',
+                                        limit: maxItems,
+                                        planName: category.restaurant.plan?.nameAr ?? null,
+                                });
                         }
                         return tx.menuItem.create({
                                 data: {
@@ -206,7 +211,7 @@ export async function POST(request: NextRequest) {
                 revalidateMenu(category.restaurant.id).catch(() => {});
                 return success(data, 201);
         } catch (e) {
-                if (e instanceof ItemLimitError) return error(e.message, 403);
+                if (e instanceof PlanLimitError) return error(e.message, 403);
                 return handleError(e);
         }
 }

@@ -6,7 +6,11 @@ import { success, error as apiError, handleError, parsePagination, parseIdSearch
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized || !["super_admin", "sub_admin", "admin"].includes(auth.role ?? "")) return apiError("غير مصرح", 401);
+    // round89-E3: unauthenticated → 401 (the platform-wide rule); an
+    // AUTHENTICATED caller who is simply not staff → 403 (dx-1 ب-5 — this
+    // used to answer 401 for both, hiding "logged in but forbidden").
+    if (!auth.authorized) return apiError("غير مصرح", 401);
+    if (!["super_admin", "sub_admin", "admin"].includes(auth.role)) return apiError("غير مصرح", 403);
     const url = new URL(request.url);
     const { searchParams } = url;
     const restaurantId = parseIdSearchParam(url, "restaurantId");

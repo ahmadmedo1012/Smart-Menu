@@ -20,6 +20,15 @@ vi.mock('@/lib/db', () => ({
         prisma: { systemEvent: { findMany: mockSystemEventFindMany } },
         dbHealth: mockDbHealth,
 }));
+// round89-B4: /api/user/events gained a per-user rate limiter — mock the
+// factory (default allow) so these tests keep asserting the events query
+// behavior, not the limiter (covered in polling-rate-limits.test.ts).
+vi.mock('@/lib/rate-limit', () => ({
+        createDbRateLimiter: () => ({
+                check: vi.fn(async () => ({ success: true, remaining: 119, reset: 0 })),
+                destroy: () => {},
+        }),
+}));
 
 const authHolder = vi.hoisted(() => ({
         value: {

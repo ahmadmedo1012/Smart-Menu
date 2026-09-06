@@ -27,7 +27,7 @@ export function ReferralQR({ url }: { url: string }) {
 			{/* ponytail: raw <img> — data: URL from qrcode.toDataURL(). next/image doesn't support data: URLs. */}
 			<img
 				src={qrDataUrl}
-				alt="Referral QR"
+				alt="رمز QR للإحالة"
 				className="rounded-xl border border-white/20"
 				width={180}
 				height={180}

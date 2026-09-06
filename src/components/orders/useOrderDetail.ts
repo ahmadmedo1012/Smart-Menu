@@ -11,7 +11,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Clock, ChefHat, PackageCheck, CheckCircle, XCircle, type LucideIcon } from 'lucide-react';
-import { csrfFetch } from '@/lib/csrf-client';
+import { csrfJson } from '@/lib/csrf-client';
 import { buildOrderShareText } from '@/lib/receipt';
 
 export interface OrderDetailData {
@@ -111,14 +111,16 @@ export async function updateOrderStatus(
         id: string,
         status: string
 ): Promise<OrderDetailData> {
-        const res = await csrfFetch(`/api/orders/${id}`, {
+        // round89-E6: csrfJson replaces the manual ok-check — a rejected PUT now
+        // throws the server's Arabic envelope message (e.g. 429 «محاولات كثيرة
+        // جداً. حاول لاحقاً.») instead of a raw `HTTP <status>`, matching the
+        // other 7 csrfJson call sites (dx-1 ب-5 pattern #5).
+        const body = await csrfJson<{ data?: OrderDetailData }>(`/api/orders/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status }),
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const d = await res.json();
-        return (d.data ?? d) as OrderDetailData;
+        return body.data ?? (body as unknown as OrderDetailData);
 }
 
 /**

@@ -301,7 +301,11 @@ describe('POST /api/orders — plan order limit (round-76, inside the tx)', () =
 
                 expect(res.status).toBe(403);
                 const json = await res.json();
-                expect(json.error).toBe('تم الوصول للحد الأقصى للطلبات في خطتك');
+                // round89-E1: unified PlanLimitError message (was the local
+                // OrderLimitError copy «تم الوصول للحد الأقصى للطلبات في خطتك»)
+                expect(json.error).toBe(
+                        'لقد وصلت للحد الأقصى للطلبات (500) في خطتك. قم بترقية خطتك لإضافة المزيد.'
+                );
                 // the count check ran INSIDE the transaction with the create
                 expect(mockTransaction).toHaveBeenCalledTimes(1);
                 expect(txMock.order.create).not.toHaveBeenCalled();

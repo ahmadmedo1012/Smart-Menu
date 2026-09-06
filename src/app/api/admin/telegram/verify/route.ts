@@ -58,6 +58,23 @@ export async function POST(request: NextRequest) {
       return error("انتهت صلاحية الرمز", 400);
     }
 
+    // round89-B6 (dx-4 #9): anti-replay — same spend-mark as the webhook link
+    // flow (api/telegram/webhook/route.ts): the 5-min link token is now
+    // single-use. Atomic create-or-die on the rateLimitEntry unique key
+    // rejects the second presentation of the same token, and the SAME
+    // `link-token:` key namespace as the webhook means a token spent through
+    // either path is dead for the other. The exp timestamp doubles as the
+    // entry TTL (the limiter's 120s sweep reaps it).
+    const tokenHash = createHmac("sha256", hmacKey).update(token).digest("hex");
+    try {
+      await prisma.rateLimitEntry.create({
+        data: { key: `link-token:${tokenHash}`, windowEnd: new Date(data.exp * 1000) },
+      });
+    } catch {
+      // Unique constraint = token already spent (concurrent or earlier use)
+      return error("الرمز مستخدم مسبقاً", 400);
+    }
+
     await prisma.user.update({
       where: { id: data.userId },
       data: {

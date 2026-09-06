@@ -299,7 +299,11 @@ describe('POST /api/subscriptions/upgrade — guards', () => {
 
                 expect(res.status).toBe(400);
                 const json = await res.json();
-                expect(json.error).toBe('المبلغ لا يطابق سعر الباقة');
+                // round89-E8: unified with subscriptions POST — the exact cap message
+                // (was the misleading «المبلغ لا يطابق سعر الباقة», w1-d1 discovery 2)
+                expect(json.error).toBe(
+                        'المبالغ فوق 99 د.ل تتطلب تحويل بنكي — اختر طريقة الدفع "تحويل بنكي"'
+                );
                 // the cap check precedes every DB call
                 expect(mockPlanFindUnique).not.toHaveBeenCalled();
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
@@ -409,14 +413,33 @@ describe('POST /api/subscriptions/upgrade — pending guards', () => {
                 expect(res.status).toBe(400);
                 const json = await res.json();
                 expect(json.error).toBe('لديك طلب ترقية معلق بالفعل لهذا المطعم');
-                // the probe filters on the metadata.upgradeRestaurantId JSON path
+                // round89-E8: the probe is scoped to the REQUESTING user — filters
+                // metadata.upgradeRestaurantId AND userId (was restaurant-only,
+                // letting any user's abandoned request block the whole restaurant)
                 expect(mockPaymentFindFirst).toHaveBeenCalledWith({
                         where: {
                                 status: 'pending',
+                                userId: 7,
                                 metadata: { path: ['upgradeRestaurantId'], equals: 9 },
                         },
                 });
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
+        });
+
+        it('round89-E8: pending upgrade from ANOTHER user for the same restaurant no longer blocks', async () => {
+                // a pending row exists for restaurant 9 — but it belongs to user 99;
+                // the user-scoped probe (userId 7) must NOT see it
+                mockPaymentFindFirst.mockImplementation(
+                        async (args: { where: Record<string, unknown> }) =>
+                                args.where.metadata && args.where.userId === 99
+                                        ? { id: 401, status: 'pending' }
+                                        : null
+                );
+
+                const res = await callPost(upgradeBody());
+
+                expect(res.status).toBe(201);
+                expect(mockPaymentCreate).toHaveBeenCalledTimes(1);
         });
 
         it('pending payment for the USER → 400', async () => {

@@ -20,7 +20,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 		const { id } = await params;
 		const userId = parseInt(id);
-		if (isNaN(userId)) return error('Invalid ID', 400);
+		if (isNaN(userId)) return error('معرف غير صالح', 400);
 
 		const body = updateSchema.parse(await request.json());
 
@@ -56,7 +56,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
 
 		const { id } = await params;
 		const userId = parseInt(id);
-		if (isNaN(userId)) return error('Invalid ID', 400);
+		if (isNaN(userId)) return error('معرف غير صالح', 400);
 
 		const target = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
 		if (!target) return error('المستخدم غير موجود', 404);
@@ -85,7 +85,7 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
 
 		const { id } = await params;
 		const userId = parseInt(id);
-		if (isNaN(userId)) return error('Invalid ID', 400);
+		if (isNaN(userId)) return error('معرف غير صالح', 400);
 
 		const { count } = await prisma.session.deleteMany({ where: { userId } });
 

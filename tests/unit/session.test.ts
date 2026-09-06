@@ -146,9 +146,12 @@ describe('validateSession', () => {
 
 	it('valid session returns the joined user (single query)', async () => {
 		cookieStore.set(SESSION_COOKIE, { value: 'tok', opts: {} });
+		// round89-B3: createdAt added to session mocks — validateSession now
+		// enforces the 7-day absolute cap and reads session.createdAt.
 		db.session.findUnique.mockResolvedValue({
 			id: 50,
 			userId: 9,
+			createdAt: new Date(Date.now() - 3600 * 1000),
 			expiresAt: new Date(Date.now() + 20 * 3600 * 1000), // 20h left — above half-TTL
 			user: { id: 9, role: 'owner', restaurantId: 3, subscriptionStatus: 'ACTIVE', permissions: [] },
 		});
@@ -165,6 +168,7 @@ describe('validateSession', () => {
 		db.session.findUnique.mockResolvedValue({
 			id: 51,
 			userId: 9,
+			createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000),
 			expiresAt: new Date(Date.now() - 1000),
 			user: null,
 		});
@@ -178,6 +182,7 @@ describe('validateSession', () => {
 		db.session.findUnique.mockResolvedValue({
 			id: 52,
 			userId: 9,
+			createdAt: new Date(Date.now() - 2 * 24 * 3600 * 1000), // day 2 — inside the 7d cap
 			expiresAt: new Date(Date.now() + 5 * 3600 * 1000), // 5h — under the 12h threshold
 			user: { id: 9, role: 'admin', restaurantId: null, subscriptionStatus: 'ACTIVE', permissions: [] },
 		});

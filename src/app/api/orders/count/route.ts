@@ -2,6 +2,12 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError, isValidOrderStatusFilter } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
+import { createDbRateLimiter } from '@/lib/rate-limit';
+
+// round89-B4 (dx-4 #7): light per-user cap for the 5s notifier poll —
+// 120/min/user (natural cadence ≈ 12/min). Same createDbRateLimiter pattern
+// as the auth/loyalty limiters, keyed on the session userId.
+const ordersCountLimiter = createDbRateLimiter({ windowMs: 60_000, max: 120 });
 
 /**
  * round85-B3 — lightweight order COUNT endpoint.
@@ -16,6 +22,12 @@ export async function GET(request: NextRequest) {
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
+
+                // round89-B4: per-user limiter AFTER the auth gate (401s stay free).
+                const { success: allowed } = await ordersCountLimiter.check(
+                        `orders-count:${auth.userId}`
+                );
+                if (!allowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 const { searchParams } = new URL(request.url);
                 let restaurantId = Number(searchParams.get('restaurantId')) || undefined;

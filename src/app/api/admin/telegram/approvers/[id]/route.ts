@@ -10,7 +10,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 
     const { id } = await params;
     const approverId = parseInt(id);
-    if (isNaN(approverId)) return error("Invalid ID", 400);
+    if (isNaN(approverId)) return error("معرف غير صالح", 400);
 
     await prisma.telegramApprover.delete({ where: { id: approverId } });
 

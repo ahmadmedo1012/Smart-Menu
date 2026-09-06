@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
+import { getErrorMessage } from '@/lib/get-error-message';
 import {AlertCircle, Phone, User, FileText, Store} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
@@ -41,8 +42,9 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
 			const updated = await updateOrderStatus(id, status);
 			setOrder(updated);
 			premiumToast('success', 'تم تغيير الحالة', STATUS_CONFIG[status]?.label);
-		} catch {
-			premiumToast('error', 'فشل تحديث الحالة');
+		} catch (e) {
+			// round89-E6: csrfJson throws the server's Arabic message — surface it
+			premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة'));
 		} finally {
 			setUpdating(false);
 		}

@@ -22,7 +22,7 @@ export async function PATCH(
     if (!auth.authorized) return apiError(auth.error, auth.status);
     const { id } = await params;
     const uid = Number(id);
-    if (Number.isNaN(uid)) return apiError("Invalid ID", 400);
+    if (Number.isNaN(uid)) return apiError("معرف غير صالح", 400);
     const body = await request.json();
     const parsed = updateUserSchema.safeParse(body);
     if (!parsed.success) return apiError("بيانات غير صالحة", 400);
@@ -114,7 +114,7 @@ export async function DELETE(
     if (auth.role !== "super_admin") return apiError("غير مصرح — فقط المدير العام يمكنه حذف المستخدمين", 403);
     const { id } = await params;
     const uid = Number(id);
-    if (Number.isNaN(uid)) return apiError("Invalid ID", 400);
+    if (Number.isNaN(uid)) return apiError("معرف غير صالح", 400);
 
     const target = await prisma.user.findUnique({
       where: { id: uid },

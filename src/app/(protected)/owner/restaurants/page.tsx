@@ -17,16 +17,12 @@ import { premiumToast } from '@/lib/premium-toast';
 import { toArabicNumber } from '@/lib/format';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { ACTIVE_RESTAURANT_KEY } from '@/components/owner/RestaurantSwitcher';
+// round89-E5: shared row type (was a local RestaurantInfo copy — the sixth
+// duplicate). /api/owner/restaurants rows carry id/name/slug/description/
+// logo/_count + isPrimary; the old local createdAt field was never read.
+import type { Restaurant } from '@/lib/restaurant-types';
 
-type RestaurantInfo = {
-	id: number;
-	name: string;
-	slug: string;
-	description: string;
-	isPrimary: boolean;
-	createdAt: string;
-	_count?: { categories: number; orders: number };
-};
+type RestaurantInfo = Restaurant;
 
 export default function OwnerRestaurantsPage() {
 	const router = useRouter();

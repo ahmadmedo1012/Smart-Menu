@@ -294,11 +294,13 @@ describe('RBAC matrix — PUT /api/categories/[id]', () => {
 // ── GET /api/users — user list (matrix §5) ──────────────────────────────
 
 describe('RBAC matrix — GET /api/users', () => {
+        // round89-E3: an AUTHENTICATED non-staff caller is now 403 (was 401 —
+        // dx-1 ب-5); guest stays 401. Rows updated with the route change.
         it.each([
                 ['guest', null, 401],
-                ['USER', USER_PLAIN, 401],
-                ['owner', OWNER_A, 401],
-        ] as const)('%s → 401, user rows never read', async (_label, user, expected) => {
+                ['USER', USER_PLAIN, 403],
+                ['owner', OWNER_A, 403],
+        ] as const)('%s → 401/403 by auth state, user rows never read', async (_label, user, expected) => {
                 setSession(user);
                 const res = await getUsers();
                 expect(res.status).toBe(expected);

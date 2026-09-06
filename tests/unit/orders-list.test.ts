@@ -25,7 +25,8 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
-// the orders route module creates a limiter at import time (POST path)
+// the orders route module creates a limiter at import time (POST path);
+// round89-B4: the orders/count GET poll probe now has one too (default allow)
 vi.mock('@/lib/rate-limit', () => ({
         createDbRateLimiter: () => ({
                 check: vi.fn(async () => ({ success: true, remaining: 29, reset: 0 })),
