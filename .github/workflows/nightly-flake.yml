@@ -1,0 +1,237 @@
+name: Nightly Flake Detection
+
+# round90-F2 — nightly flake detector, methodology from
+# docs/round90/diagnosis/investigation.md item 4 (and health-devex
+# recommendation 6):
+#   * Regular CI runs Playwright with retries=2 (playwright.config.ts), which
+#     MASKS nondeterministic tests — a case that passes on the 2nd/3rd attempt
+#     is green in CI and invisible. This workflow re-runs the security + api
+#     suites TWICE back-to-back with PW_RETRIES=0, so any test that needs a
+#     retry to pass is exposed as a real failure.
+#   * investigation.md reproduced the dominant "fake flake" locally: the DB
+#     rate limiter (src/lib/rate-limit.ts) keeps wall-aligned windows in the
+#     RateLimitEntry table, so repeat runs within the same minute share
+#     buckets (register 5/min/IP vs 2 fresh users per security run → 429 on
+#     run 3). Between the two iterations this workflow therefore WIPES
+#     RateLimitEntry — isolating genuine nondeterminism from that known
+#     accumulation.
+#   * The RATE_LIMIT_RELAX=1 fallback was deliberately NOT used: it is
+#     force-disabled under NODE_ENV=production (rate-limit.ts:29-33 — the
+#     standalone server always runs production mode) and it would mask the
+#     limiter's real behavior anyway. The wipe is possible in CI because —
+#     exactly like ci.yml — the e2e suites run against a localhost standalone
+#     server backed by a disposable Postgres SERVICE CONTAINER we own (not a
+#     remote/Vercel environment), so the table is directly reachable.
+on:
+  schedule:
+    - cron: '30 2 * * *' # 02:30 UTC — quiet hours, no CI pushes expected
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-flake
+  # never cancel an in-flight nightly: its two-iteration comparison IS the
+  # data; a superseding dispatch queues instead of destroying a half-run
+  cancel-in-progress: false
+
+# round86-D6: least-privilege token permissions (same as ci.yml)
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24.x"
+
+jobs:
+  flake-detection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    # Same service container as ci.yml's lint-build-test job: the suites run
+    # against localhost, backed by this disposable per-run Postgres.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: smart-menu-test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      # round90-F2: every action is SHA-pinned (supply-chain hardening, CSO
+      # audit F3) — full rationale + upgrade recipe in ci.yml.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      # THIRD-PARTY action (annotated tag v4.4.0 → peeled commit).
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      # Same fail-fast gate as ci.yml — the nightly never runs on a tree the
+      # secrets scanner rejects.
+      - name: Secrets scan
+        run: node scripts/check-secrets.mjs
+
+      - run: pnpm install --frozen-lockfile
+
+      # prisma.config.ts resolves DATABASE_URL at load time (same dummy-URL
+      # note as ci.yml — `generate` never touches the DB).
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
+      # Same channel as production/ci.yml for schema setup.
+      - run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
+      # IDENTICAL seed set as ci.yml's e2e leg (ci-seed admin + plans,
+      # round83 al-waha-cafe/waha_owner, qa-seed IDOR fixtures). Deliberate:
+      # the nightly baseline must match the push-CI baseline exactly, so any
+      # difference across the two iterations below is a real flake — never a
+      # missing fixture.
+      - run: node scripts/ci-seed.mjs
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+      - run: node scripts/round83-seed.mjs
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+      - run: node scripts/qa-seed.mjs
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
+      - run: npm run build
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
+
+      # Standalone server (output: standalone) — `next start` warns and can
+      # misbehave with it (same note as ci.yml). Build-time env does NOT
+      # carry into this NEW process.
+      - name: Start server for E2E
+        run: |
+          node .next/standalone/server.js &
+          pnpm exec wait-on http://localhost:3000 --timeout 60000
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
+          TELEGRAM_BOT_TOKEN: "test"
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      # ── The two flake-hunting iterations ─────────────────────────────────
+      # PW_RETRIES=0 (config support added round90-F2) disables the retry
+      # masking; CI=true still forces the serialized workers=1 golden budget.
+      # NOTE: NO continue-on-error on either iteration — a failing iteration
+      # turns the job red immediately (visible failure), exactly as the
+      # round-90 task requires. The verdict step below runs `if: always()`
+      # and only NAMES the outcome; it can never mask one.
+      - name: Flake iteration 1 of 2 (security + api, PW_RETRIES=0)
+        id: iter1
+        run: npx playwright test --project=security --project=api
+        env:
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          PW_RETRIES: "0"
+
+      # Rate-limit bucket wipe between the iterations (investigation.md item
+      # 4, fix #2): the DB limiter's windows are wall-aligned, so two
+      # back-to-back runs share buckets (register 5/min/IP). Deleting the
+      # rows resets every counter; without this, iteration 2 would 429-skip
+      # register-dependent cases for accumulation reasons that are NOT the
+      # flake signal this workflow hunts. Same node+pg one-liner pattern as
+      # ci.yml's migration-parity step (pg is a pinned dependency).
+      - name: Wipe rate-limit buckets (between iterations)
+        run: |
+          node -e "const {Client}=require('pg');(async()=>{const c=new Client({connectionString:process.env.DATABASE_URL});await c.connect();const r=await c.query('DELETE FROM \"RateLimitEntry\"');await c.end();console.log('RateLimitEntry rows wiped:',r.rowCount);})().catch((e)=>{console.error(e);process.exit(1)})"
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+
+      - name: Flake iteration 2 of 2 (security + api, PW_RETRIES=0)
+        id: iter2
+        run: npx playwright test --project=security --project=api
+        env:
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          PW_RETRIES: "0"
+
+      # Single step that NAMES the result. Outcome matrix:
+      #   success + success            → STABLE
+      #   success + failure            → FLAKY-DETECTED (pass→fail = real flake)
+      #   failure  (2nd skipped)       → FAILURE — job is already red; a green
+      #                                  re-run later means it was a flake
+      # This step exits 0 — the job's red/green is decided by the iteration
+      # steps themselves (no continue-on-error anywhere above).
+      - name: Verdict (flaky-detected vs stable)
+        if: always()
+        run: |
+          R1="${{ steps.iter1.outcome }}"
+          R2="${{ steps.iter2.outcome }}"
+          echo "iteration 1 outcome: $R1"
+          echo "iteration 2 outcome: $R2"
+          if [ "$R1" = "success" ] && [ "$R2" = "success" ]; then
+            VERDICT="STABLE"
+            DETAIL="Both iterations green with retries disabled — no flake signal tonight."
+            echo "::notice::Nightly flake verdict: STABLE (2/2 iterations green, PW_RETRIES=0)"
+          elif [ "$R1" = "success" ] && [ "$R2" = "failure" ]; then
+            VERDICT="FLAKY-DETECTED"
+            DETAIL="Iteration 1 passed, iteration 2 failed — same commit, same seeds, rate-limit buckets wiped in between. That asymmetry is a real flake (retry-masked in regular CI)."
+            echo "::warning::Nightly flake verdict: FLAKY-DETECTED (pass then fail, PW_RETRIES=0)"
+          elif [ "$R1" = "failure" ]; then
+            VERDICT="FAILURE (iteration 1)"
+            DETAIL="Iteration 1 failed and the job is already red. Re-run via workflow_dispatch: a green re-run means it was a flake; two red re-runs means a deterministic break."
+            echo "::warning::Nightly flake verdict: FAILURE in iteration 1 (job red — re-run to classify flaky vs deterministic)"
+          else
+            VERDICT="INCONCLUSIVE ($R1 / $R2)"
+            DETAIL="Unexpected outcome combination — inspect the job log."
+            echo "::warning::Nightly flake verdict: $VERDICT"
+          fi
+          {
+            echo "## Nightly flake detection — verdict: $VERDICT"
+            echo ""
+            echo "| Iteration | Suite | Retries | Outcome |"
+            echo "| --- | --- | --- | --- |"
+            echo "| 1 | security + api | 0 | $R1 |"
+            echo "| 2 | security + api (buckets wiped) | 0 | $R2 |"
+            echo ""
+            echo "$DETAIL"
+            echo ""
+            echo "Method: docs/round90/diagnosis/investigation.md item 4 — two back-to-back runs with retries disabled; \`RateLimitEntry\` wiped between them to separate real flakiness from rate-limit accumulation."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Report + traces for both iterations. 14d retention (longer than ci.yml's
+      # 7d): nightly results get compared across nights.
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nightly-flake-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

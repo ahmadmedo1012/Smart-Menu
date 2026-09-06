@@ -1,0 +1,22 @@
+# round90-F2 (CSO audit F5, MEDIUM): CODEOWNERS — before this file existed,
+# ANY collaborator with branch access could modify CI/CD workflows, CI-run
+# scripts, and the DB schema with no mandatory review from the repo owner.
+# Pair with branch protection on main ("Require review from Code Owners") to
+# make these rules enforceable.
+
+# Default: the repository owner reviews every path in the repo — nothing is
+# exempt, so no file can change without an owner review.
+* @ahmadmedo1012
+
+# Explicit protection for the highest-blast-radius paths (documented in
+# docs/round90/diagnosis/cso-audit.md, Findings F3/F5):
+#
+#   .github/workflows/ — CI/CD pipelines: can alter every gate, exfiltrate
+#                        secrets available to the runner, and shape deploys.
+#   scripts/           — executes inside CI (check-secrets, seeds, auth gate)
+#                        and in local dev/ops runbooks.
+#   prisma/            — schema + migrations: owns the production database
+#                        shape (a bad migration is the hardest to roll back).
+/.github/workflows/ @ahmadmedo1012
+/scripts/ @ahmadmedo1012
+/prisma/ @ahmadmedo1012

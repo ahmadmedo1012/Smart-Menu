@@ -4,7 +4,16 @@ export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // round90-F2: PW_RETRIES makes the retry budget controllable from the
+  // outside — the nightly flake-detection workflow runs with PW_RETRIES=0 so
+  // tests that only pass on retry surface as real failures (regular CI's
+  // retries=2 masks them). Unset → the previous behavior is preserved exactly.
+  retries:
+    process.env.PW_RETRIES !== undefined
+      ? Number(process.env.PW_RETRIES)
+      : process.env.CI
+        ? 2
+        : 0,
   workers: process.env.CI ? 1 : 2,
   // HTML report lives OUTSIDE the tests output dir: Playwright refuses to run
   // when the reporter output folder is nested inside outputDir (test-results/),

@@ -38,14 +38,26 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v4
+      # round90-F2 (CSO audit F3, HIGH): every `uses:` is pinned to the full
+      # 40-char commit SHA of the newest release of the major it was already
+      # on — a mutable tag (@v4) can be re-pointed by a compromised account and
+      # would silently change CI behavior; a commit SHA cannot. The trailing
+      # comment keeps the release readable. To upgrade, resolve the new tag's
+      # commit with:
+      #   git ls-remote https://github.com/<owner>/<repo> "refs/tags/vX.Y.Z^{}"
+      # (^{} peels annotated tags down to the commit; the actions/* v4 tags are
+      # lightweight so the ref IS the commit — object types were verified via
+      # the GitHub API git/ref endpoint this round).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # Project uses pnpm (pnpm-lock.yaml is the only lockfile — no
       # package-lock.json), so CI must install and cache through pnpm too.
       # npm ci fails hard with "Dependencies lock file is not found".
-      - uses: pnpm/action-setup@v4
+      # round90-F2: THIRD-PARTY action — highest supply-chain priority (audit
+      # F3). v4.4.0 is an annotated tag; pinned to its peeled commit.
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -64,7 +76,7 @@ jobs:
       # round86-D6: cache the chromium browser between runs (install step
       # below becomes a no-op hit)
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -167,7 +179,7 @@ jobs:
       # like the other reports.
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage-report
           path: coverage/
@@ -239,7 +251,7 @@ jobs:
       # round85-D2: keep the HTML report + traces when e2e fails (was lost)
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playwright-report
           path: |
@@ -255,9 +267,9 @@ jobs:
     timeout-minutes: 25
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -267,7 +279,7 @@ jobs:
       # scheme as that job, so both jobs share one cache entry and the install
       # step below becomes a no-op hit.
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -286,7 +298,7 @@ jobs:
         continue-on-error: true # never block deploys on flaky rate-limits
       - name: Upload production QA report
         if: always() && steps.prodqa.outcome != 'skipped'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: prod-qa-report
           path: |

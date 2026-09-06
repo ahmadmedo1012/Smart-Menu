@@ -59,6 +59,13 @@ const FILE_ALLOWLIST = [
     reason: 'CI Postgres service-container credentials (test:test@localhost:5432) — disposable per-run container, not a secret',
   },
   {
+    // round90-F2: new nightly workflow mirrors ci.yml's service-container
+    // pattern (same disposable test:test@localhost credentials).
+    file: '.github/workflows/nightly-flake.yml',
+    id: 'pg',
+    reason: 'CI Postgres service-container credentials (test:test@localhost:5432) — disposable per-run container, not a secret (same pattern as ci.yml)',
+  },
+  {
     file: 'README.md',
     id: 'pg',
     reason: 'documented local-dev example URL (user:pass@localhost)',
@@ -77,6 +84,45 @@ const FILE_ALLOWLIST = [
     file: 'tests/README.md',
     id: 'pg',
     reason: 'documented local-dev test commands (postgres:postgres@localhost:5434 embedded PG)',
+  },
+  // ── round90-F2 additions (CSO audit Finding 2: gate was red on HEAD) ────
+  // Two task-mandated entries + the round-90 diagnosis docs that quote the
+  // same standard local embedded-postgres URL. All reviewed, all dev-only.
+  {
+    // SECURITY-POSITIVE fixture: this string is a deliberately fake URL that a
+    // mocked Prisma error embeds — the test asserts the raw error (and thus
+    // any connection string inside it) NEVER reaches the API client.
+    file: 'tests/unit/demo-seed-envelope.test.ts',
+    id: 'pg',
+    reason: 'fake test fixture (user:secret@host/db) — positive security test asserting raw Prisma errors never reach the client',
+  },
+  {
+    file: 'SMART-MENU-ROUND89-PLAN.md',
+    id: 'pg',
+    reason: 'round-89 plan documents the local embedded-postgres URL (postgres:postgres@127.0.0.1:5434) — dev-only',
+  },
+  {
+    file: 'docs/round90-plan.md',
+    id: 'pg',
+    reason: 'round-90 plan documents the local embedded-postgres URL (postgres:postgres@127.0.0.1:5434) — dev-only',
+  },
+  {
+    // The audit report itself quotes the local dev URL, [REDACTED] evidence
+    // strings from git-history forensics, and the demo-seed fixture it
+    // reports on — all masked/fake, none a live credential.
+    file: 'docs/round90/diagnosis/cso-audit.md',
+    id: 'pg',
+    reason: 'security-audit report quoting the local dev URL + [REDACTED]/fake evidence strings it documents — no real credential',
+  },
+  {
+    file: 'docs/round90/diagnosis/review-backend.md',
+    id: 'pg',
+    reason: 'backend review documents the local embedded-postgres dev URL (postgres:postgres@127.0.0.1:5434) — dev-only',
+  },
+  {
+    file: 'docs/round90/diagnosis/review-quality.md',
+    id: 'pg',
+    reason: 'quality review documents the local embedded-postgres dev URL (postgres:postgres@127.0.0.1:5434) — dev-only',
   },
 ];
 
