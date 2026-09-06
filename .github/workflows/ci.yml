@@ -191,7 +191,7 @@ jobs:
       - run: npm run build
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
-          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
@@ -212,7 +212,7 @@ jobs:
           pnpm exec wait-on http://localhost:3000 --timeout 60000
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
-          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           AUTH_SECRET: test-auth-secret-for-ci-min-32-chars
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
@@ -228,7 +228,7 @@ jobs:
         env:
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
-          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
 
       # round86-D2: the deep journeys (payments/owner-CRUD/IDOR/personas) were
@@ -244,7 +244,7 @@ jobs:
         env:
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
-          JWT_SECRET: test-secret-for-ci-min-32-chars-long
+          JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           RATE_LIMIT_RELAX: "1"
 
