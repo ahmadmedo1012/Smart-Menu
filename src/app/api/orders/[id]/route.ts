@@ -41,7 +41,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                                 const link = await prisma.userRestaurant.findUnique({
                                         where: { userId_restaurantId: { userId: auth.userId!, restaurantId: data.restaurantId } },
                                 });
-                                if (!link) return apiError('غير مصرح', 401);
+                                if (!link) return apiError('غير مصرح', 403);
                         }
                 } else if (auth.role === 'super_admin') {
                         // full access

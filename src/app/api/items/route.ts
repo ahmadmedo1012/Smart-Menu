@@ -9,6 +9,12 @@ import { mediaUrlError } from '@/lib/blob';
 import { PlanLimitError } from '@/lib/plan-limit-error';
 import { ItemStatus } from '@/generated/prisma/enums';
 
+/* round90-F3 — enum-backed status whitelist (same derivation pattern as the
+ * admin invite route: Object.values(Permission)). A free z.string() let any
+ * invalid value fall through to Prisma validation noise → generic 400 via
+ * handleError instead of a clean 422 validationError envelope. */
+const itemStatusValues = Object.values(ItemStatus) as [string, ...string[]];
+
 /* w3-f1 (F1-3) — shared modifier-group write schema (create + update).
  * Caps mirror the payload-hygiene rule (A-2): bounded arrays, bounded strings,
  * bounded counts. `id` is accepted-but-ignored (replace strategy — see PUT) so
@@ -70,7 +76,8 @@ const createSchema = z.object({
         // ≈ 80-200k base64 chars — 200k covers every honest payload while
         // killing the old 7M-char inflation (dx-2 #9, research from w1-a).
         image: z.string().max(200_000, 'الصورة كبيرة جداً — الحد الأقصى حوالي 150 كيلوبايت بعد الضغط').optional(),
-        status: z.string().optional(),
+        // round90-F3: status is enum-backed (see itemStatusValues above).
+        status: z.enum(itemStatusValues, { message: 'حالة الصنف غير صالحة' }).optional(),
         sortOrder: z.number().int().optional(),
         categoryId: z.number().int().positive(),
         dietaryTags: z.array(z.string()).optional().default([]),
@@ -224,8 +231,16 @@ export async function POST(request: NextRequest) {
                 }
 
                 // Count + create in one transaction (round-77: TOCTOU — concurrent
-                // POSTs both passed the outside count, exceeding maxItems)
+                // POSTs both passed the outside count, exceeding maxItems).
+                // round90-F3: count-then-create inside READ COMMITTED still does
+                // NOT serialize — two concurrent POSTs at maxItems-1 both count
+                // the same snapshot and both create. A row lock on the SAME
+                // Restaurant row that owns maxItems serializes every item create
+                // for that restaurant: the loser re-counts AFTER the winner commits
+                // (READ COMMITTED re-evaluates per statement) and correctly hits
+                // the cap. Same pattern the diagnosis prescribed for orders T1.
                 const data = await prisma.$transaction(async (tx) => {
+                        await tx.$queryRaw`SELECT id FROM "Restaurant" WHERE id = ${category.restaurant.id} FOR UPDATE`;
                         const existingCount = await tx.menuItem.count({
                                 where: { category: { is: { restaurantId: category.restaurant.id } } },
                         });

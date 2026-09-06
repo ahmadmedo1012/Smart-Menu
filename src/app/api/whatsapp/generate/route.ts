@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
         const link = await prisma.userRestaurant.findUnique({
           where: { userId_restaurantId: { userId: auth.userId!, restaurantId: order.restaurantId } },
         });
-        if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 401 });
+        // round90-F3: authenticated-but-unauthorized is 403, matching PUT in
+        // orders/[id] and the round89-E3 401/403 split (was 401).
+        if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 403 });
       }
     } else if (auth.role === "super_admin") {
       // round86-A11: super_admin passes (the role ladder previously omitted it —

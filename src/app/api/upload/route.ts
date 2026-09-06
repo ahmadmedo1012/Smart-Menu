@@ -40,7 +40,10 @@ export async function POST(request: NextRequest) {
                 const hex = buffer.subarray(0, 12).toString("hex");
                 const isJpeg = hex.startsWith("ffd8ff");
                 const isPng = hex.startsWith("89504e47");
-                const isWebp = hex.startsWith("52494646") && hex.slice(8, 16) === "57454250";
+                // round90-F5: كان الفحص يقرأ hex.slice(8,16) = بايتات 4..7 (حقل حجم RIFF)
+                // بدل العلامة «WEBP» في بايتات 8..11 — كل ملف webp حقيقي كان يُرفض 400
+                // بينما ملف ترويسته يتهجّى «WEBP» موضع الحجم يُقبل. الصحيح: slice(16,24).
+                const isWebp = hex.startsWith("52494646") && hex.slice(16, 24) === "57454250";
                 const isAvif = hex.startsWith("0000001c6674797061766966") || (hex.startsWith("00000020") && hex.includes("6674797061766966"));
                 if (!isJpeg && !isPng && !isWebp && !isAvif) return error("محتويات الملف لا تطابق صيغة صورة صالحة", 400);
 

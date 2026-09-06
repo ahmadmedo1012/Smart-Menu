@@ -8,6 +8,12 @@ import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 
+/* round90-F3 — enum-backed status whitelist (mirrors items/route.ts: a free
+ * z.string() degraded invalid values into Prisma noise → 400 instead of the
+ * clean 422 validationError envelope). Derived from the Prisma enum so the
+ * whitelist can never drift from the schema. */
+const itemStatusValues = Object.values(ItemStatus) as [string, ...string[]];
+
 /* w3-f1 (F1-3) — same write schema as items/route.ts (shared shape, duplicated
  * locally to keep the [id] route self-contained like every other schema here).
  * `id` fields are accepted-but-ignored: the PUT applies a full REPLACE
@@ -111,8 +117,13 @@ const updateSchema = z.object({
         descriptionAr: z.string().max(1000).nullable().optional(),
         price: z.number().positive().optional(),
         discountedPrice: z.number().positive().nullable().optional(),
-        image: z.string().max(7000000).optional(),
-        status: z.string().optional(),
+        // round90-F3: image cap unified with POST (items/route.ts:72) — the old
+        // 7,000,000 ceiling re-opened dx-2 #9 on the MOST-used edit path (ItemDialog
+        // sends PUT): ~5MB base64 per item landed in MenuItem.image, which is part
+        // of the public menu select (menu/[slug]/page.tsx) — the hottest payload.
+        image: z.string().max(200_000, 'الصورة كبيرة جداً — الحد الأقصى حوالي 150 كيلوبايت بعد الضغط').optional(),
+        // round90-F3: enum-backed status (see itemStatusValues above).
+        status: z.enum(itemStatusValues, { message: 'حالة الصنف غير صالحة' }).optional(),
         sortOrder: z.number().int().optional(),
         categoryId: z.number().int().positive().optional(),
         // No .default([]) — omitted fields must not overwrite stored values.
