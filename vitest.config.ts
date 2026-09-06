@@ -17,12 +17,17 @@ export default defineConfig({
       // 33.1 stmts / 31.0 branch / 38.07 funcs / 34.33 lines. Thresholds
       // raised with a ~5-point SAFETY margin (waves A2/C add code before the
       // round closes — the ratchet must stay green through them).
+      // round89-D2 (ratchet raise, raise-only rule): re-measured after waves
+      // 1-3 (money-path, security, modifiers + this wave's 61 tests on the
+      // 0% admin routes & lib files): 61.62 stmts / 56.5 branch / 62.28 funcs
+      // / 63.53 lines. Raised from 28/25/33/29 to actual-minus-~2-point
+      // safety margin (rounds G/H still add code before the round closes).
       // Raise these numbers as coverage grows — never lower them.
       thresholds: {
-        statements: 28,
-        branches: 25,
-        functions: 33,
-        lines: 29,
+        statements: 59,
+        branches: 54,
+        functions: 60,
+        lines: 61,
       },
     },
   },

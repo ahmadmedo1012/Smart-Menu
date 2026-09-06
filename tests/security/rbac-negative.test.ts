@@ -132,7 +132,9 @@ test.describe('RBAC negative — USER role', () => {
       ['/api/settings', 403],
       ['/api/admin/system-events', 403],
       ['/api/admin/stats', 403],
-      ['/api/users', 401],
+      // round89-E3: an AUTHENTICATED non-admin now gets 403 (was 401 — the
+      // 401/403 split: unauthenticated 401, authenticated-but-denied 403).
+      ['/api/users', 403],
       ['/api/admin/audit-logs', 401],
     ];
     for (const [path, expected] of reads) {
@@ -198,7 +200,9 @@ test.describe('RBAC negative — owner (waha_owner, restaurant 1)', () => {
 
     // Owner must not reach staff surfaces.
     const adminSurfaces: Array<[string, number]> = [
-      ['/api/users', 401],
+      // round89-E3: owner is authenticated → 403 on GET /api/users (was 401;
+      // the split matches users/route.ts: 401 only for no session).
+      ['/api/users', 403],
       ['/api/restaurants', 403],
       ['/api/admin/stats', 403],
     ];

@@ -1,6 +1,6 @@
 # دليل تشغيل الاختبارات — Smart Menu
 
-> آخر تحديث: الجولة 88 (الوكيل D) · 36 ملف وحدة (667 اختباراً) · 34 ملف e2e + 1 security
+> آخر تحديث: الجولة 89 (الوكيل D2 — w4-d2) · 61 ملف وحدة (1082 اختباراً) · 34 ملف e2e + 1 security
 > البوابة الدائمة: `tsc` = 0 · `eslint` = 0 · `vitest` أخضر بالكامل — لا يُحذف اختبار قائم أبداً.
 
 ---
@@ -18,7 +18,7 @@ DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vites
 DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vitest run --coverage
 ```
 
-- **العتبات الحالية** (vitest.config.ts): statements 22 · branches 19 · functions 29 · lines 23 — محسوبة بهامش أمان تحت القياس الفعلي؛ ارفعها كلما نمت التغطية.
+- **العتبات الحالية** (vitest.config.ts، الجولة 89-D2): statements 59 · branches 54 · functions 60 · lines 61 — القياس الفعلي 61.62/56.5/62.28/63.53 بعد موجات 1-3 (+61 اختبار مسارات أدمن ومكتبات) ناقص هامش أمان ~2 نقطة؛ تُرفع فقط ولا تُخفض أبداً.
 - **الموقع**: `tests/unit/*.test.ts` فقط (انظر `include` في vitest.config.ts).
 - **النمط المعتمد**: عزل كامل عبر `vi.mock('@/lib/db')` + `vi.hoisted` — لا اتصال DB حقيقي (الاستثناء الوحيد: `db-withretry.test.ts` يستورد `@/lib/db` الحقيقي لأن إنشاء العميل/المجمع lazy ولا يفتح اتصالاً إلا عند استعلام فعلي).
 - **ممنوع**: اختبارات شكلية (tautology) — كل اختبار يجب أن ينكسر فعلاً لو انكسر السلوك (درس persona-6 الموثق).
@@ -80,7 +80,9 @@ npx playwright show-report
 2. حرس `.env` المتتبع → `pnpm audit --prod` → `prisma generate` → **بوابة توازن الهجرات** (migrate diff ضد الـschema).
 3. `migrate deploy` + البذور الثلاث (ci/round83/qa) → `lint` → `typecheck` → `check-api-auth` → **`test:coverage` بعتبات ratchet**.
 4. `build` (standalone) → إقلاع الخادم على :3000 → **e2e المشاريع الأساسية** (`npm run test:e2e`) → **الرحلات العميقة** (`--project=qa-teams --project=round79-c --workers=2` — يشمل team8/9/10 تلقائياً) → رفع تقرير Playwright عند الفشل.
-- وظيفة `prod-qa` منفصلة (main فقط): فريق 1/2/5/6 ضد الإنتاج `https://menu.smart-link.ly` بـ`continue-on-error` (لا تعطل النشر) + تقريرها الخاص.
+- وظيفة `prod-qa` منفصلة (main فقط): فريق 1/2/5/6/**9** ضد الإنتاج `https://menu.smart-link.ly` بـ`continue-on-error` (لا تعطل النشر) + تقريرها الخاص — team9 أُضيفت بالجولة 89-D2 (ميزانيات IS_REMOTE جاهزة: توسيع ميزانية /api/stats للشبكة البعيدة، ودخول بمالك qa-seed الموجود بالإنتاج).
+- **استثناء workers=2 الموثق** (الجولة 89-D2): خطوة «الرحلات العميقة» في CI تعمل بـ`--workers=2` خلافاً للقاعدة الذهبية — آمن فقط لأن تلك الخطوة تضبط `RATE_LIMIT_RELAX=1` وكل فريق يدخل باسم مستخدم خاص به (الميزانية per ip:username)؛ القاعدة الذهبية تستهدف ميزانية الدخول التسلسلية لا صحة التنفيذ.
+- **أثر التغطية** يُرفع كـartifact (lcov+html، retention 7 أيام) من كل تشغيل CI (الجولة 89-D2).
 - ملاحظة: `retries: 2` في CI فقط (موثقة في playwright.config.ts لتقلبات حدود المعدل على مشغّلات GitHub) — **ليست retries مخفية داخل الاختبارات**؛ محلياً retries=0.
 
 ## 4) القيود المعروفة
@@ -88,7 +90,8 @@ npx playwright show-report
 - **`SKIP_ENV_CHECK`**: محلي/CI فقط — تخطّي تحقق متغيرات البيئة عند الإقلاع. لا يُضبط في الإنتاج أبداً (انظر `.env.example`).
 - **قيد الدخول 5/دقيقة**: سبب التسلسل الإلزامي أعلاه. مساعد `login()` في qa-helpers يعيد المحاولة عبر نافذة الحد — إعادة المحاولة دلالية وليست تخفيف فشل.
 - **طعنة #418 المعروفة**: صفحة الطباعة `/menu/[slug]/print` تسبب خطأ هيدريشن موثق (nested html/body) — round87-journeys تسمح بهذا الخطأ تحديداً وحده (راجع رأس الملف). أي خطأ صفحة آخر يفشل الاختبار.
-- **team8/9/10 localhost فقط**: تكتب بيانات (تبديل featured، حدثا SystemEvent) — لا تُشغّل ضد الإنتاج (prod-qa لا تشملها أصلاً).
+- **team8/10 localhost فقط**: تكتب بيانات (تبديل featured، حدثا SystemEvent) — لا تُشغّل ضد الإنتاج. **team9 صارت ضمن prod-qa** (الجولة 89-D2) لأنها قياسات قراءة فقط بميزانيات IS_REMOTE — الوحيدة من فرق 88 التي تعمل ضد الإنتاج.
+- **`auth-fix-verification.spec.ts` لم يعد يفرض baseURL داخل الملف** (الجولة 89-D2): كان يعلّب المشروع على localhost ويعطّل BASE_URL للإنتاج — الكونفق (مشروع auth-verify) هو من يقرر الآن، وروابط الطلبات داخل الملف تشتق من `process.env.BASE_URL` نفسه.
 - **التغطية تُقاس على `src/lib` + `src/app/api` فقط** (انظر `coverage.include`) — ملفات مكونات الواجهة خارجها عمداً.
 - **ترتيب vitest**: لا اعتماد ترتيب داخل ملفات الوحدة (لا حالة مشتركة على مستوى الوحدة النمطية) — يمكن تشغيل أي ملف منفرداً.
 

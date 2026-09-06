@@ -161,6 +161,18 @@ jobs:
           TELEGRAM_BOT_TOKEN: "test"
           TELEGRAM_CHAT_ID: "0"
 
+      # round89-D2: coverage report (lcov.info + html/) as an artifact — was
+      # computed in every run but never uploaded, so a red ratchet or a
+      # coverage drop could only be read from the raw log. Short retention (7d)
+      # like the other reports.
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
       # Build-time env validation (src/lib/env.ts) throws in production mode —
       # supply CI-safe values so page-data collection can import API routes.
       # These are placeholders only; the E2E server step sets its own.
@@ -211,6 +223,10 @@ jobs:
       # LOCAL-ONLY before — CI never executed ~63 cases, including the
       # team4 payments flow and the round80/86 security suites. Runs against
       # the same CI server (seeds already loaded), so it is a BLOCKING gate.
+      # workers=2 (vs the golden workers=1): safe ONLY in this step because
+      # RATE_LIMIT_RELAX=1 widens the login/limiter budgets below it and each
+      # team persona logs in under its own username (bucket is ip:username) —
+      # the golden rule targets the serialized team budget, not correctness.
       - name: E2E deep journeys (qa-teams + security suites, localhost)
         run: npx playwright test --project=qa-teams --project=round79-c --workers=2
         env:
@@ -259,9 +275,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - name: Production QA regression (team1/2/5/6)
+      # round89-D2: team9-perf-smoke added — its budgets are production-ready
+      # (IS_REMOTE widens the /api/stats budget for the TLS+edge+Neon leg, and
+      # it logs in as the qa-seed owner that exists on production too).
+      - name: Production QA regression (team1/2/5/6/9)
         id: prodqa
-        run: npx playwright test tests/e2e/team1-auth.spec.ts tests/e2e/team2-customer.spec.ts tests/e2e/team5-admin.spec.ts tests/e2e/team6-a11y.spec.ts --project=qa-teams --workers=1
+        run: npx playwright test tests/e2e/team1-auth.spec.ts tests/e2e/team2-customer.spec.ts tests/e2e/team5-admin.spec.ts tests/e2e/team6-a11y.spec.ts tests/e2e/team9-perf-smoke.spec.ts --project=qa-teams --workers=1
         env:
           BASE_URL: https://menu.smart-link.ly
         continue-on-error: true # never block deploys on flaky rate-limits

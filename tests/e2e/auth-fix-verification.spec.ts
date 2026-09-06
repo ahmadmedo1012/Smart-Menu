@@ -1,8 +1,13 @@
 import { test, expect } from "@playwright/test";
 
-test.use({ baseURL: "http://localhost:3000" });
-
-const BASE = "http://localhost:3000";
+// round89-D2 (dx-5 #7): the file-level `test.use({ baseURL:
+// "http://localhost:3000" })` override is REMOVED — it silently beat the
+// auth-verify project's env-aware baseURL (round87-D8) and pinned every run
+// to localhost, so BASE_URL=https://menu.smart-link.ly production runs hit a
+// dead local origin. The config now decides (playwright.config.ts auth-verify:
+// process.env.BASE_URL ?? localhost). Absolute request URLs below derive from
+// the same env so page navigation and API probes agree on one origin.
+const BASE = process.env.BASE_URL || "http://localhost:3000";
 
 const uid = (label = "user") => `${label}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
