@@ -13,6 +13,12 @@ minimumReleaseAgeExclude:
 
 overrides:
   zod: 4.3.6
+  # round90-F6: carve-out scoped to knip ONLY — knip@5 (pinned devDep, v6
+  # crashes on this env's oxc-parser) builds its CLI schema with the zod v3
+  # function API (z.function().args) which zod 4 removed, so the global
+  # zod->4.3.6 override above breaks the locally-installed knip. This gives
+  # knip's own subtree the zod v3 it declares. Everything else keeps 4.3.6.
+  'knip>zod': ^3.25.76
   postcss: 8.5.26
   nanoid: ^3.3.18
   hono: ^4.13.3

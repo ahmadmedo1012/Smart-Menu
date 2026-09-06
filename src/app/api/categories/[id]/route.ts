@@ -24,10 +24,10 @@ export async function PUT(
 
     const { id } = await params;
     const catId = Number(id);
-    if (Number.isNaN(catId)) return error("Invalid ID", 400);
+    if (Number.isNaN(catId)) return error("معرّف غير صالح", 400); // round90-F6
     const body = updateSchema.parse(await request.json());
     const existing = await prisma.menuCategory.findUnique({ where: { id: catId } });
-    if (!existing) return notFound("Category");
+    if (!existing) return notFound("القسم"); // round90-F6: كان "Category" — كلمة إنجليزية تصل للعميل
 
     // Owners can only update categories of restaurants they manage — multi-menu
     // aware via UserRestaurant links (same check as settings/route.ts & items)
@@ -70,9 +70,9 @@ export async function DELETE(
 
     const { id } = await params;
     const catId = Number(id);
-    if (Number.isNaN(catId)) return error("Invalid ID", 400);
+    if (Number.isNaN(catId)) return error("معرّف غير صالح", 400); // round90-F6
     const existing = await prisma.menuCategory.findUnique({ where: { id: catId } });
-    if (!existing) return notFound("Category");
+    if (!existing) return notFound("القسم"); // round90-F6: كان "Category" — كلمة إنجليزية تصل للعميل
 
     // Owners can only delete categories of restaurants they manage — multi-menu
     // aware via UserRestaurant links (same check as settings/route.ts & items)

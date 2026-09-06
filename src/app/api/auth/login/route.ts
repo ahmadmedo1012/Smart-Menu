@@ -15,6 +15,19 @@ const loginSchema = z.object({
 });
 
 const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
+// round90-F6: dummy hash for timing equalization — a missing user used to
+// return before verifyHash (~0ms) while an existing user pays the full
+// pbkdf2 cost (~290ms at 600k iterations), making username enumeration
+// trivial by response latency alone. Computed ONCE at module load with the
+// CURRENT parameters so the burned cost matches a v2 stored hash; the
+// result is discarded and the SAME 401 body is returned either way.
+// Known limitation (accepted, documented): legacy 100k-iteration hashes
+// verify ~6× faster than this dummy — the login-time transparent rehash
+// (round85-A3) migrates those away, so the skew shrinks over time.
+// The account limiter is intentionally NOT called on the missing-user path:
+// it costs one indexed DB write (~ms) vs the 290ms KDF — below noise — and
+// calling it would mint `auth.lockout` audit events for ghost usernames.
+const DUMMY_HASH = hashPassword('round90-f6-timing-equalizer');
 // Account-level limiter — protects against distributed brute force across IPs.
 // exemptFromRelax keeps its real budget under dev RATE_LIMIT_RELAX so the e2e
 // lockout test's 21-failed-logins → 429 assertion stays valid locally.
@@ -52,6 +65,10 @@ export async function POST(request: Request) {
                 });
 
                 if (!user) {
+                        // round90-F6: burn the same KDF cost as an existing user so
+                        // the missing-user path is latency-indistinguishable, then
+                        // return the identical 401 (no content oracle either).
+                        void verifyHash(password, DUMMY_HASH);
                         return error('اسم المستخدم أو كلمة المرور غير صحيحة', 401);
                 }
 

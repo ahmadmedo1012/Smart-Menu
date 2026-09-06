@@ -14,7 +14,7 @@ function getRoleLabel(role: string): string {
 export async function GET() {
   try {
     const auth = await requireAuth();
-    if (!auth.authorized) return error("Not authenticated", 401);
+    if (!auth.authorized) return error("غير مصرح", 401); // round90-F6
 
     return success({
       authenticated: true,

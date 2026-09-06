@@ -257,11 +257,14 @@ export async function POST(request: NextRequest) {
                 logAudit({ action: 'create', targetType: 'restaurant', targetId: result.id, actorId }).catch(
                         () => {}
                 );
+                // round90-المنسق (اكتشاف F5b-B): notifyEvent وعد معلق بلا معالجة —
+                // أي فشل DB فيها كان يترك رفضًا غير معالج بعد إرسال الاستجابة.
+                // صار best-effort مثل logAudit المجاور.
                 notifyEvent(
                         'restaurant_created',
                         { name: result.name, slug: result.slug, plan: result.planId ? 'paid' : 'free' },
                         { adminOnly: true }
-                );
+                ).catch(() => {});
 
                 return success(result, 201);
         } catch (e) {

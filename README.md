@@ -52,8 +52,8 @@
 |---|---|---|
 | TypeScript (tsc --noEmit) | صفر أخطاء | ✅ |
 | ESLint | صفر تحذيرات | ✅ |
-| Vitest | **692 اختبارًا** في 38 ملفًا (جولات 85-88: +245 اختبار منطق حرج، منها مسار المال D1/D2 والإحالات 88-C) | ✅ |
-| Playwright E2E + أمن | 29 ملف سيناريو (رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
+| Vitest | **1219 اختبارًا** في 78 ملفًا (جولات 85-90: +527 اختبار منذ الجولة 85 — مسار المال D1/D2، الإحالات، صلاحيات RBAC، مسارات TOCTOU الذرية) | ✅ |
+| Playwright E2E + أمن | 35 ملف سيناريو (رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
 | axe-core WCAG 2.x | أساس صفري على صفحات المنيو | ✅ |
 | سلسلة الهجرات | **قابلة لإعادة التشغيل من الصفر + مطابقة schema.prisma حرفيًا** (فرق فارغ) | ✅ |
 
@@ -66,14 +66,49 @@ CI (GitHub Actions): نفس قناة الإنتاج — `prisma migrate deploy` 
 ```bash
 # المتطلبات: Node 24+ و pnpm 11+ وقاعدة PostgreSQL محلية
 pnpm install
-export DATABASE_URL="postgresql://user:pass@localhost:5432/smartmenu"
+cp .env.example .env        # ثم عدّل القيم — انظر «متغيرات البيئة» أدناه
 
-npx prisma migrate deploy   # نفس قناة الإنتاج بالضبط
-node scripts/ci-seed.mjs    # مدير اختباري + الخطط (بلا حلقة مصادقة)
+pnpm db:migrate             # prisma migrate deploy — نفس قناة الإنتاج بالضبط
+pnpm db:seed                # مدير اختباري + الخطط (بلا حلقة مصادقة)
 pnpm dev                    # → http://localhost:3000
 ```
 
-متغيرات البيئة الأساسية: `DATABASE_URL`, `JWT_SECRET`, `AUTH_SECRET`, `NEXT_PUBLIC_DOMAIN`, `NEXT_PUBLIC_WHATSAPP_NUMBER` — انظر `PROJECT.md` للمرجع الكامل.
+> ⚠️ لا تستعمل `export DATABASE_URL=...` في الشل: متغير الشل **يغلب** قيمة `.env`
+> (Next.js وPrisma لا يستبدلان متغيرًا موجودًا مسبقًا في البيئة) — ورابط غريب من
+> مشروع آخر (مثل SQLite بصيغة `file:`) يُمسَك الآن عند الإقلاع بحارس المخطط
+> في `src/lib/env.ts` برسالة عربية توضح السبب والحل (`unset DATABASE_URL`).
+
+### 🔐 متغيرات البيئة
+
+انسخ `.env.example` إلى `.env` وعدّل القيم — القيود أدناه مطبّقة عند الإقلاع عبر `src/lib/env.ts` (فشل مبكر برسالة عربية):
+
+| المتغير | القيد / الافتراضي |
+|---|---|
+| `DATABASE_URL` | إلزامي · يجب أن يبدأ بـ `postgresql://` أو `postgres://` (رابط SQLite/ملف يُرفض مبكرًا) |
+| `JWT_SECRET` | إلزامي · 64 حرفًا على الأقل |
+| `AUTH_SECRET` | إلزامي · 32 حرفًا على الأقل |
+| `NEXT_PUBLIC_DOMAIN` | إلزامي · رابط صالح (مثل `https://example.com`) |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | إلزامي · رقم واتساب استقبال الطلبات |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | اختياري · افتراضي فارغ |
+| `DATABASE_SCHEMA` | اختياري · افتراضي `public` |
+| `SKIP_ENV_CHECK` | تخطي فحص الإقلاع — للتشغيل المحلي/CI فقط، لا يُضبط في الإنتاج |
+| `RATE_LIMIT_RELAX` | يرخّي حدود المعدل للتشغيل المحلي المكثّف — لا يُضبط في الإنتاج |
+
+المتغيرات الثانوية (`ADMIN_PASSWORD` · `SEED_ADMIN_*` · `ALLOW_SEED` · `WEBHOOK_URL` · `SHADOW_DATABASE_URL` · `DATABASE_POOL_MAX` · `TELEGRAM_GROUP_IDS` · `BLOB_READ_WRITE_TOKEN` · `CRON_SECRET`) موثقة معلّقة داخل `.env.example` نفسه — والمرجع الكامل في `PROJECT.md`.
+
+### 🧪 تشغيل E2E (Playwright)
+
+```bash
+pnpm test                    # unit (Vitest) — لا يحتاج خادمًا
+pnpm test:e2e                # مشاريع security + api + ui + auth-verify
+npx playwright test --project=qa-teams      # رحلات الفرق (team1-11)
+```
+
+- **`BASE_URL`**: افتراضي `http://localhost:3000` — للتشغيل ضد الإنتاج:
+  `BASE_URL=https://menu.smart-link.ly npx playwright test ...`
+- يتطلب خادمًا يعمل (`pnpm dev`) + بذر اختباري (`pnpm db:seed` — حساب `admin`)
+- للمحلي المكثّف: `RATE_LIMIT_RELAX=1` لعملية الخادم نفسها (انظر `tests/README.md`)
+- بقية المشاريع في `playwright.config.ts`: `qa-cross-browser` (firefox/webkit) · `round79-c`
 
 ### بيانات الدخول بعد البذر الاختباري
 | المستخدم | كلمة المرور | الدور |
@@ -86,7 +121,7 @@ pnpm dev                    # → http://localhost:3000
 
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
-- **Database**: PostgreSQL + Prisma 7 (16 هجرة، قابلة لإعادة التشغيل)
+- **Database**: PostgreSQL + Prisma 7 (20 هجرة، قابلة لإعادة التشغيل)
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon
@@ -100,12 +135,12 @@ src/
 │   ├── (protected)/ # owner (10 صفحات) + admin (13 صفحة)
 │   ├── api/         # 65 مسار API (حراسة تفويض check-api-auth)
 │   └── demo/        # جولة تجريبية
-├── components/      # 130 ملفًا (menu/ui/layout/landing)
+├── components/      # 137 ملفًا (menu/ui/layout/landing)
 ├── lib/             # الأمن، الجلسات، CS­RF، Rate-limit، Zod
 ├── proxy.ts         # CSP/CSRF/جلسات على الحافة
 └── store/           # Zustand
-prisma/              # المخطط + 18 هجرة (parity مضمون)
-tests/               # 38 ملف unit (692) + 34 ملف E2E/أمن (فرق team1-10)
+prisma/              # المخطط + 20 هجرة (parity مضمون)
+tests/               # 78 ملف unit (1219 اختبارًا) + 35 ملف E2E/أمن (فرق team1-11)
 docs/                # تقارير الجولات + التوثيق الهندسي (فهرس README.md — جولة 85)
 ```
 

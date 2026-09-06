@@ -6,6 +6,11 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   globalIgnores([
+    // round90-F6: coverage/ is vitest --coverage generated output (html/lcov)
+    // — `eslint .` used to sweep it and emit unused eslint-disable warnings
+    // (health-devex recommendation #4); the `lint` script (src/ tests/) never
+    // did. .next/** was already here — kept.
+    "coverage/**",
     ".next/**",
     "out/**",
     "build/**",
