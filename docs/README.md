@@ -1,4 +1,4 @@
-# Smart-Menu — Documentation Index (round87)
+# Smart-Menu — Documentation Index (round88)
 
 > **73 ملف** من تقارير الجولات 2→85. هذا الفهرس هو نقطة الدخول: ابدأ من
 > "المرجعية" ثم "الجولات الحديثة" — كل ما قبل الجولة 75 أرشيف تاريخي
@@ -55,3 +55,4 @@
 - [round86-closure-report.md](round86-closure-report.md) — 115 live production checks closure (round86)
 - [ops-runbook.md](ops-runbook.md) — production ops runbook (PITR/rollback/incident, round86)
 - [round87-closure-report.md](round87-closure-report.md) — internal-integrity round closure (round87: 10 security + 10 perf + 10 quality + 10 tests/infra)
+- [round88-closure-report.md](round88-closure-report.md) — deep-round closure (round88: LazyMotion + indexes + list-counts + showcaseTag drop + isFeatured restore-semantics + referral conversion + UX) — [pending closure]

@@ -33,8 +33,8 @@ describe('rankFeatured — zero featured (section hidden)', () => {
     ];
     expect(rankFeatured(items)).toEqual([]);
   });
-  it('isFeatured:false with rank/tag set still excluded (flag is the selector)', () => {
-    const items = [item({ id: 1, isFeatured: false, featuredRank: 1, showcaseTag: 'x' })];
+  it('isFeatured:false with rank/tags set still excluded (flag is the selector)', () => {
+    const items = [item({ id: 1, isFeatured: false, featuredRank: 1, showcaseTags: ['x'] })];
     expect(rankFeatured(items)).toEqual([]);
   });
 });

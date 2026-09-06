@@ -109,8 +109,12 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 // DB that hasn't received the new columns yet (P2022/42703 → []).
                 // Round83 §2.3: primary query reads showcaseTags (TEXT[]); if the
                 // array column is missing (pre-round83 DB), the fallback re-queries
-                // legacy columns only — the section renders with the single legacy
-                // badge instead of disappearing (zero-downtime migration window).
+                // the round79 base columns only (isFeatured/featuredRank) — the
+                // section renders without badges instead of disappearing
+                // (zero-downtime migration window).
+                // round88-C: the legacy single showcaseTag column is DROPPED
+                // (migration 20260906055500) — neither SELECT may reference it;
+                // the fallback now reads the migration-10 base columns only.
                 // round86-B2: scope via the category join — MenuItem has NO
                 // restaurantId column in schema.prisma (the old predicate errored
                 // "column does not exist" on every schema-faithful DB, silently
@@ -121,11 +125,10 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                         id: number;
                                         isFeatured: boolean;
                                         featuredRank: number | null;
-                                        showcaseTag: string | null;
                                         showcaseTags: string[] | null;
                                 }>
                         >`
-                                SELECT "id", "isFeatured", "featuredRank", "showcaseTag", "showcaseTags"
+                                SELECT "id", "isFeatured", "featuredRank", "showcaseTags"
                                 FROM "MenuItem"
                                 WHERE "isFeatured" = true
                                   AND "categoryId" IN (
@@ -139,10 +142,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                                         id: number;
                                                         isFeatured: boolean;
                                                         featuredRank: number | null;
-                                                        showcaseTag: string | null;
                                                 }>
                                         >`
-                                                SELECT "id", "isFeatured", "featuredRank", "showcaseTag"
+                                                SELECT "id", "isFeatured", "featuredRank"
                                                 FROM "MenuItem"
                                                 WHERE "isFeatured" = true
                                                   AND "categoryId" IN (
@@ -162,7 +164,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                                                 id: number;
                                                                 isFeatured: boolean;
                                                                 featuredRank: number | null;
-                                                                showcaseTag: string | null;
                                                                 showcaseTags: string[] | null;
                                                         }>
                                         )
@@ -178,9 +179,8 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 {
                                         isFeatured: f.isFeatured,
                                         featuredRank: f.featuredRank,
-                                        showcaseTag: f.showcaseTag,
-                                        // round83: tags array (null on pre-round83 fallback →
-                                        // FeaturedShowcase falls back to the legacy single tag)
+                                        // round83: tags array (null on the pre-round83 fallback →
+                                        // FeaturedShowcase renders the scene without badges)
                                         showcaseTags: f.showcaseTags ?? null,
                                 },
                         ])
@@ -212,7 +212,6 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         isNew: !popularIds.has(rest.id) && createdAt.getTime() > SEVEN_DAYS_AGO.getTime(),
                         isFeatured: featuredMap.get(rest.id)?.isFeatured ?? false,
                         featuredRank: featuredMap.get(rest.id)?.featuredRank ?? null,
-                        showcaseTag: featuredMap.get(rest.id)?.showcaseTag ?? null,
                         showcaseTags: featuredMap.get(rest.id)?.showcaseTags ?? null,
                 })
         );

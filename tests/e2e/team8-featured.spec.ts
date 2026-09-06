@@ -15,7 +15,11 @@
  * fixtures): requires the round83 seed (waha_owner / al-waha-cafe).
  * Run: npx playwright test tests/e2e/team8-featured.spec.ts --project=qa-teams
  *
- * PENDING WAVE-C: يُفعَّل مع تفعيل isFeatured في محرر الجولة 88 — إن فشل الحالي فهو الواقع المتوقع حتى الموجة C.
+ * round88-C3: ACTIVATED (was PENDING WAVE-C). The isFeatured editor chain
+ * was verified complete this wave (editor switch → PUT persists → public
+ * showcase) — this team is the permanent regression guard for the feature
+ * (and now also guards the round88-C showcaseTag drop: badges render from
+ * the showcaseTags array only).
  */
 import { test, expect, type Page, type Locator } from "@playwright/test";
 import { login as qaLogin, loginBudget } from "./qa-helpers";
@@ -65,13 +69,36 @@ async function gotoEditorRow(page: Page, item: string): Promise<Locator> {
   return row;
 }
 
-/** Read the dialog's featured switch state (base-ui switch: aria-checked / data-checked). */
+/**
+ * Read the dialog's featured switch state.
+ *
+ * round88-C3 discovery (the spec was never run before — PENDING WAVE-C):
+ * base-ui moves #item-featured-switch onto the visually-hidden NATIVE
+ * checkbox input it renders for label association; the visible Root keeps
+ * aria-checked/data-checked but NOT the id. Reading aria-checked on the id
+ * element therefore always returns false. The hidden input's `.checked`
+ * property is the reliable state mirror.
+ */
 async function switchChecked(sw: Locator): Promise<boolean> {
-  return sw.evaluate((el) => {
-    const a = el.getAttribute("aria-checked");
-    if (a !== null) return a === "true";
-    return el.hasAttribute("data-checked");
-  });
+  return sw.evaluate((el) => (el as HTMLInputElement).checked);
+}
+
+/**
+ * Toggle the featured switch to the wanted state.
+ *
+ * The hidden input is clip-path'd to nothing and pointer-intercepted by the
+ * dialog overlay (direct clicks hang — verified live), but its associated
+ * LABEL (for="item-featured-switch") forwards clicks natively — that is the
+ * accessible, deterministic toggle path. State flip is awaited before return.
+ */
+async function toggleFeatured(page: Page, want: boolean): Promise<void> {
+  const dialog = page.getByRole("dialog");
+  const sw = dialog.locator("#item-featured-switch");
+  if ((await switchChecked(sw)) === want) return;
+  await dialog.getByText("عرض في قسم الأصناف المميزة").click();
+  await expect
+    .poll(() => switchChecked(sw), { timeout: 5000 })
+    .toBe(want);
 }
 
 /** Open the edit dialog for an item and return its featured switch. */
@@ -90,8 +117,8 @@ async function openEditor(page: Page, item: string): Promise<{ dialog: Locator; 
 /** Flip the switch to the wanted state and save (waits on the success toast). */
 async function setFeatured(page: Page, item: string, want: boolean): Promise<void> {
   const { dialog, sw } = await openEditor(page, item);
-  const isOn = await switchChecked(sw);
-  if (isOn !== want) await sw.click();
+  expect(await switchChecked(sw)).toBeDefined();
+  await toggleFeatured(page, want);
   await dialog.getByRole("button", { name: "تحديث" }).click();
   await expect(page.getByText("تم تحديث الصنف")).toBeVisible({ timeout: 20_000 });
   await expect(dialog).not.toBeVisible({ timeout: 10_000 });
@@ -166,14 +193,23 @@ test.describe("team8: isFeatured editor toggle → public showcase badge", () =>
   );
 
   test(
-    "editor switch mirrors the STORED flag (unfeatured item reads back off)",
+    "editor switch mirrors the STORED flag (featured item reads back on, unfeatured off)",
     async ({ page }) => {
       test.setTimeout(180_000);
       await ownerLogin(page);
 
+      // Caramel Latte IS seeded featured — the switch must read back TRUE
+      // (the .checked mirror — see switchChecked).
+      {
+        const { sw } = await openEditor(page, ITEM);
+        expect(await switchChecked(sw)).toBe(true);
+      }
+
       // Moroccan Tea is seeded NOT featured — the switch must read back off.
-      const { sw } = await openEditor(page, "Moroccan Tea");
-      expect(await switchChecked(sw)).toBe(false);
+      {
+        const { sw } = await openEditor(page, "Moroccan Tea");
+        expect(await switchChecked(sw)).toBe(false);
+      }
     }
   );
 });

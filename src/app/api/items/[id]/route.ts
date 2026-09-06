@@ -72,8 +72,8 @@ const updateSchema = z.object({
         // as the tag arrays above). The updateData loop below carries them as-is.
         isFeatured: z.boolean().optional(),
         featuredRank: z.number().int().min(1, 'الترتيب يجب أن يكون 1 على الأقل').max(5, 'الترتيب يجب ألا يتجاوز 5').nullable().optional(),
-        showcaseTag: z.string().max(40, 'الشارة يجب ألا تتجاوز 40 حرفًا').nullable().optional(),
         // Round83 §2.3 — up to 3 showcase badges; omitted → untouched.
+        // round88-C: legacy single showcaseTag dropped (migration 20260906055500).
         showcaseTags: z.array(z.string().max(40, 'كل شارة يجب ألا تتجاوز 40 حرفًا')).max(3, 'الحد الأقصى 3 شارات').optional(),
 }).superRefine((v, ctx) => {
         if (v.discountedPrice != null && v.price != null && v.discountedPrice > v.price) {
@@ -120,30 +120,27 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 }
                 if (updateData.status !== undefined) updateData.status = updateData.status as ItemStatus;
 
-                // Round83 §2.3 — dual-write + normalization. Whichever badge
-                // field(s) the client sent, the stored pair stays consistent:
-                //   * tags array sent → array wins; legacy mirrors tags[0];
-                //   * only legacy tag sent → it seeds/upserts the array;
-                //   * isFeatured turned off → both cleared.
-                // Omitted entirely → both untouched (partial-update rule above).
-                if (updateData.showcaseTags !== undefined || updateData.showcaseTag !== undefined || updateData.isFeatured !== undefined) {
+                // Round83 §2.3 — normalization.
+                //   * tags array SENT → array wins (trimmed, deduped, max 3);
+                //     tags sent while un-featured → cleared (explicit intent).
+                //   * round88-C fix (surfaced by team8): a BARE isFeatured toggle
+                //     (no tags in the payload) must NOT destroy the stored badges —
+                //     an OFF→ON cycle used to wipe them permanently. Tags (and
+                //     featuredRank, which the dialog now also leaves un-sent on
+                //     un-feature) stay stored inert while un-featured — the public
+                //     showcase filters by isFeatured first — so re-featuring
+                //     restores the scene exactly (rank, badges, order).
+                //   * omitted entirely → untouched (partial-update rule above).
+                // round88-C: no more legacy mirror — the array is the only storage.
+                if (updateData.showcaseTags !== undefined) {
                         const featured = updateData.isFeatured !== undefined ? (updateData.isFeatured as boolean) : existing.isFeatured;
                         if (!featured) {
-                                updateData.showcaseTag = null;
                                 updateData.showcaseTags = [];
                         } else {
-                                const sentTags = (updateData.showcaseTags as string[] | undefined)
-                                        ?.map((t) => t.trim())
+                                const sentTags = (updateData.showcaseTags as string[])
+                                        .map((t) => t.trim())
                                         .filter(Boolean);
-                                const sentLegacy = typeof updateData.showcaseTag === 'string' ? (updateData.showcaseTag as string).trim() : null;
-                                const tags = sentTags !== undefined
-                                        ? (sentTags.length > 0 ? sentTags : sentLegacy ? [sentLegacy] : [])
-                                        : sentLegacy
-                                                ? [...new Set([sentLegacy, ...(existing.showcaseTags ?? [])])]
-                                                : [...new Set([...(existing.showcaseTags ?? []), existing.showcaseTag ?? null].filter((t): t is string => !!t))];
-                                const normalized = [...new Set(tags)].slice(0, 3);
-                                updateData.showcaseTags = normalized;
-                                updateData.showcaseTag = normalized[0] ?? null;
+                                updateData.showcaseTags = [...new Set(sentTags)].slice(0, 3);
                         }
                 }
 

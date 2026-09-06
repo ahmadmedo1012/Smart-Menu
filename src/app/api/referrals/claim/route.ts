@@ -1,9 +1,9 @@
 import { NextRequest } from 'next/server';
-import { createHash } from 'crypto';
 import { error as logError } from '@/lib/logger';
 import { prisma } from '@/lib/db';
 import { success, error as apiError } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
+import { referralSessionKey } from '@/lib/referral-conversion';
 
 const REFERRAL_CODE_RE = /^[A-Z0-9]{6,16}$/;
 
@@ -13,8 +13,10 @@ const claimDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
 /**
  * POST /api/referrals/claim — register a referral click/order intent.
  * Creates a pending Referral keyed by an anonymous session fingerprint so
- * repeat visits don't duplicate rows. (No conversion path exists — the
- * pending→converted reward payout is a deferred owner decision.)
+ * repeat visits don't duplicate rows. (round88-C4: the conversion path now
+ * EXISTS — the customer's phone is attached at order creation and the
+ * referral converts + rewards the referrer at order completion; see
+ * src/lib/referral-conversion.ts.)
  */
 export async function POST(request: NextRequest) {
         try {
@@ -42,9 +44,9 @@ export async function POST(request: NextRequest) {
                 // Anonymous session fingerprint — hashed so the raw IP is never
                 // persisted/displayed (round-77: IP is PII, spoofable header).
                 // Take ONLY the first x-forwarded-for value; the rest of the chain is
-                // attacker-controlled.
-                const fp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-                const key = `ref-${sha256(fp)}-${code}`;
+                // attacker-controlled. Same derivation as the order-create attach
+                // (referral-conversion.ts) — the two MUST stay identical.
+                const key = referralSessionKey(request, code);
                 const existing = await prisma.referral.findFirst({
                         where: { referralCode: code, referredName: key },
                 });
@@ -73,8 +75,4 @@ export async function POST(request: NextRequest) {
                 logError('referral claim error', { error: String(e) });
                 return apiError('فشل تسجيل الإحالة', 500);
         }
-}
-
-function sha256(s: string): string {
-        return createHash("sha256").update(s).digest("hex").slice(0, 16);
 }

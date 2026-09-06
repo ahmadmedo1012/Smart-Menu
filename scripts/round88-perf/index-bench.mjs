@@ -233,13 +233,14 @@ async function seed() {
         money(10 + rnd() * 40), rnd() < 0.2 ? money(8 + rnd() * 20) : null, '', k, cat,
         new Date(NOW - (150 - (k / ITEMS_PER_REST) * 150) * DAY).toISOString(), new Date().toISOString(),
         rnd() < 0.85 ? 'available' : 'unavailable', null, 0, [], [],
-        featured, featured ? k : null, null, [],
+        featured, featured ? k : null, [],
       ]);
     }
   }
+  // round88-C: showcaseTag column dropped — items seed the array only.
   await insertBatched(
     'MenuItem',
-    ['id', 'name', 'nameAr', 'description', 'descriptionAr', 'price', 'discountedPrice', 'image', 'sortOrder', 'categoryId', 'createdAt', 'updatedAt', 'status', 'avgRating', 'ratingCount', 'dietaryTags', 'allergens', 'isFeatured', 'featuredRank', 'showcaseTag', 'showcaseTags'],
+    ['id', 'name', 'nameAr', 'description', 'descriptionAr', 'price', 'discountedPrice', 'image', 'sortOrder', 'categoryId', 'createdAt', 'updatedAt', 'status', 'avgRating', 'ratingCount', 'dietaryTags', 'allergens', 'isFeatured', 'featuredRank', 'showcaseTags'],
     items
   );
 

@@ -20,7 +20,8 @@
  *   The giant ghost name uses the item token at opacity-30 light /
  *   dark:opacity-[0.40] (raised from the old /10 dark:/15 fixed orange).
  * - §2.3 Multiple badges: up to 3 tags from MenuItem.showcaseTags (round83
- *   migration; falls back to the legacy single showcaseTag), absolutely
+ *   migration; round88-C dropped the legacy single showcaseTag column — the
+ *   array is the only badge storage), absolutely
  *   positioned around the image with % coordinates (responsive, no px).
  * - §2.4 Preserved on purpose: abstract Sparkles floaters (never fake
  *   ingredient photos), NO CTA buttons (ordering stays in the grid below),
@@ -50,8 +51,7 @@ export type FeaturedItem = {
         sortOrder: number;
         isFeatured?: boolean;
         featuredRank?: number | null;
-        showcaseTag?: string | null;
-        /** Round83 §2.3 — up to 3 showcase badges (falls back to showcaseTag). */
+        /** Round83 §2.3 — up to 3 showcase badges. */
         showcaseTags?: string[] | null;
 };
 
@@ -82,15 +82,10 @@ function accentIndex(item: FeaturedItem, position: number): number {
         return ((effectiveRank - 1) % 5) + 1;
 }
 
-/** §2.3 — badge list: array first, legacy single tag as fallback, max 3. */
+/** §2.3 — badge list: the tags array, trimmed + deduped, max 3. */
 function badgeTags(item: FeaturedItem): string[] {
         const fromArray = (item.showcaseTags ?? []).map((t) => t.trim()).filter(Boolean);
-        const source = fromArray.length > 0
-                ? fromArray
-                : item.showcaseTag?.trim()
-                        ? [item.showcaseTag.trim()]
-                        : [];
-        return [...new Set(source)].slice(0, MAX_BADGES);
+        return [...new Set(fromArray)].slice(0, MAX_BADGES);
 }
 
 export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) {

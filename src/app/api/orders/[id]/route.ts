@@ -5,6 +5,7 @@ import { success, error as apiError, notFound, handleError } from '@/lib/api-hel
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { computeTier, generateReferralCode } from '@/lib/loyalty-tiers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
+import { convertReferralForCompletedOrder } from '@/lib/referral-conversion';
 
 const orderDetailDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
@@ -111,6 +112,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 //   3) transaction: status flip is itself conditional on the original status
                 //      via updateMany — a concurrent cancel/readjust wins for its request, we
                 //      win for ours, and the row state moves atomically.
+                // round87-D10 note (kept): the accrual gate needs pts>0 AND a phone —
+                // orders below 10 pts or anonymous orders fall through to the plain
+                // update below (both still reach the round88-C4 referral conversion
+                // hook, which only needs the phone).
                 if (body.status === 'completed' && existing.status !== 'completed') {
                         const ptsEarned = Math.floor(Number(existing.total) / 10);
                         if (ptsEarned > 0 && existing.customerPhone) {
@@ -210,6 +215,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                         }
                                         return { updated: effective, accrued: true };
                                 });
+                                // round88-C4 — referral conversion AFTER the money-path tx
+                                // commits (separate tx, best-effort by contract: a referral
+                                // hiccup must never fail the completed order; conversion only
+                                // when the row is genuinely completed and has a phone)
+                                if (result.updated?.status === 'completed' && result.updated?.customerPhone) {
+                                        await convertReferralForCompletedOrder(result.updated);
+                                }
                                 return success(result.updated);
                         }
                 }
@@ -222,6 +234,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                                 restaurant: { select: { id: true, name: true, slug: true } },
                         },
                 });
+
+                // round88-C4 — plain-update completion path (pts=0 or loyalty-less):
+                // the order still completed with real money → still convert referrals
+                if (
+                        body.status === 'completed' &&
+                        existing.status !== 'completed' &&
+                        data?.status === 'completed' &&
+                        data?.customerPhone
+                ) {
+                        await convertReferralForCompletedOrder(data);
+                }
 
                 return success(data);
         } catch (e) {

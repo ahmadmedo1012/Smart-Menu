@@ -24,9 +24,8 @@ const createSchema = z.object({
         // Stage H (round79) — cinematic featured-showcase fields.
         isFeatured: z.boolean().optional().default(false),
         featuredRank: z.number().int().min(1, 'الترتيب يجب أن يكون 1 على الأقل').max(5, 'الترتيب يجب ألا يتجاوز 5').nullable().optional(),
-        showcaseTag: z.string().max(40, 'الشارة يجب ألا تتجاوز 40 حرفًا').nullable().optional(),
-        // Round83 §2.3 — up to 3 showcase badges (array). Legacy showcaseTag is
-        // kept as the mirror of tags[0] for one round (backward compat).
+        // Round83 §2.3 — up to 3 showcase badges (array). Round88-C: the legacy
+        // single showcaseTag mirror is dropped — the array is the only storage.
         showcaseTags: z.array(z.string().max(40, 'كل شارة يجب ألا تتجاوز 40 حرفًا')).max(3, 'الحد الأقصى 3 شارات').optional(),
 }).superRefine((v, ctx) => {
         if (v.discountedPrice != null && v.discountedPrice > v.price) {
@@ -118,11 +117,9 @@ export async function POST(request: NextRequest) {
 
                 const body = createSchema.parse(await request.json());
 
-                // Round83 §2.3 — normalize the badge list (trim + dedupe); when
-                // only the legacy single tag arrives, it seeds the array so both
-                // storage paths stay consistent.
+                // Round83 §2.3 — normalize the badge list (trim + dedupe).
                 const showcaseTags = body.isFeatured
-                        ? [...new Set([...(body.showcaseTags ?? []), body.showcaseTag ?? null].filter((t): t is string => !!t?.trim()).map((t) => t.trim()))].slice(0, 3)
+                        ? [...new Set([...(body.showcaseTags ?? [])].filter((t): t is string => !!t?.trim()).map((t) => t.trim()))].slice(0, 3)
                         : [];
 
                 // Check plan limits: get category -> restaurant -> plan
@@ -184,9 +181,8 @@ export async function POST(request: NextRequest) {
                                         allergens: body.allergens ?? [],
                                         isFeatured: body.isFeatured ?? false,
                                         featuredRank: body.isFeatured ? (body.featuredRank ?? null) : null,
-                                        // Dual-write (round83, one round): legacy single tag mirrors
-                                        // tags[0]; the array is the source of truth.
-                                        showcaseTag: showcaseTags[0] ?? null,
+                                        // round88-C: single-column mirror dropped — the
+                                        // array is the source of truth (and only storage).
                                         showcaseTags,
                                 },
                                 include: {

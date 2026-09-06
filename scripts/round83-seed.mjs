@@ -6,8 +6,9 @@
  *   - exit gate #2: two items with visibly different scene colors
  *   - exit gate #3: 2-3 badges per item around the image
  * Idempotent: refreshes values, never duplicates.
- * Also writes BOTH badge columns when the round83 array column exists
- * (showcaseTag legacy + showcaseTags array) to prove backward compat.
+ * round88-C: the legacy single showcaseTag column is DROPPED — this seed
+ * writes the showcaseTags array only (the sole badge storage since
+ * migration 20260906055500).
  */
 import { randomBytes, pbkdf2Sync } from 'node:crypto';
 import pg from 'pg';
@@ -51,7 +52,7 @@ const ITEMS = [
   [2, 'Butter Croissant', 'كرواسون بالزبدة', 'Flaky French croissant', 'كرواسون فرنسي مقرمش', 7, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80', 3],
 ];
 
-// Featured showcase: rank 1-5, badge list (2-3 each) — old + new column.
+// Featured showcase: rank 1-5, badge list (2-3 each) — showcaseTags array.
 const FEATURED = [
   { name: 'Caramel Latte', rank: 1, tags: ['مميز البيت', 'مصنوع يدويًا'] },
   { name: 'Waha Burger', rank: 2, tags: ['الأكثر طلبًا', 'بروتين مضاعف', 'صوص سري'] },
@@ -136,35 +137,23 @@ async function main() {
   console.log(`items: ${Object.keys(itemIds).length}`);
 
   // 6) Reset ALL featured flags first (so removed ones don't linger)
-  await client.query(`UPDATE "MenuItem" SET "isFeatured" = false, "featuredRank" = NULL, "showcaseTag" = NULL
+  await client.query(`UPDATE "MenuItem" SET "isFeatured" = false, "featuredRank" = NULL
     WHERE "categoryId" IN (SELECT id FROM "MenuCategory" WHERE "restaurantId" = $1)`, [rest.id]);
 
-  // 7) Apply featured config — old column (legacy first tag) + new array column if present
-  const hasArray = (await client.query(`
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'MenuItem' AND column_name = 'showcaseTags'
-  `)).rows.length > 0;
+  // 7) Apply featured config — showcaseTags array (sole storage, round88-C)
   for (const f of FEATURED) {
     const id = itemIds[f.name];
     if (!id) throw new Error(`featured item not found: ${f.name}`);
-    if (hasArray) {
-      await client.query(
-        `UPDATE "MenuItem" SET "isFeatured" = true, "featuredRank" = $1, "showcaseTag" = $2, "showcaseTags" = $3 WHERE id = $4`,
-        [f.rank, f.tags[0], f.tags, id]
-      );
-    } else {
-      await client.query(
-        `UPDATE "MenuItem" SET "isFeatured" = true, "featuredRank" = $1, "showcaseTag" = $2 WHERE id = $3`,
-        [f.rank, f.tags[0], id]
-      );
-    }
+    await client.query(
+      `UPDATE "MenuItem" SET "isFeatured" = true, "featuredRank" = $1, "showcaseTags" = $2 WHERE id = $3`,
+      [f.rank, f.tags, id]
+    );
   }
-  console.log(`featured applied (array column: ${hasArray ? 'YES — tags written to both' : 'no — legacy column only'})`);
+  console.log('featured applied (showcaseTags array written)');
 
   // Proof
   const proof = await client.query(`
-    SELECT "featuredRank", name, "nameAr", "isFeatured", "showcaseTag"
-    ${hasArray ? ', "showcaseTags"' : ''}
+    SELECT "featuredRank", name, "nameAr", "isFeatured", "showcaseTags"
     FROM "MenuItem" WHERE "isFeatured" = true ORDER BY "featuredRank"`);
   console.log('--- DB proof (featured) ---');
   for (const r of proof.rows) console.log(' ', JSON.stringify(r));

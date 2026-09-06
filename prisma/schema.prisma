@@ -160,13 +160,13 @@ model MenuItem {
   // Round79 Stage H — cinematic featured-item showcase:
   // isFeatured selects the item for the FeaturedShowcase section at the top of
   // /menu/[slug]; featuredRank orders it (1 = first, null = unranked, falls back
-  // to sortOrder); showcaseTag is a short Arabic badge (e.g. "مقرمش").
+  // to sortOrder); showcaseTags are up to 3 short Arabic badges (e.g. "مقرمش").
+  // Round88-C: the legacy single showcaseTag column (round79 dual-write mirror)
+  // is DROPPED — migration 18 (drop_showcase_tag); showcaseTags is the only
+  // badge storage since.
   isFeatured      Boolean      @default(false)
   featuredRank    Int?
-  showcaseTag     String?      @db.VarChar(40)
-  // Round83 §2.3 — up to 3 showcase badges. Legacy single showcaseTag is
-  // KEPT for one round (dual-write: the API mirrors tags[0] into it); drop
-  // it in a later round after every consumer reads the array.
+  // Round83 §2.3 — up to 3 showcase badges (source of truth).
   showcaseTags    String[]    @default([])
   modifierGroups  ModifierGroup[]
   category        MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)

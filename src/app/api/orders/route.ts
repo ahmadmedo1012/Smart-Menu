@@ -5,6 +5,7 @@ import { success, error as apiError, handleError, paginated, parsePagination } f
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { orderItemCountByOrder } from '@/lib/list-counts';
+import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
@@ -28,6 +29,13 @@ const createSchema = z.object({
         total: z.number().positive(),
         restaurantId: z.number().int().positive(),
         items: z.array(orderItemSchema).min(1),
+        // round88-C4 — referral link (NO money effect here): the code stored by
+        // ReferralHandler (?ref=CODE → localStorage). Validated against the same
+        // format the claim route enforces; used ONLY to attach the customer's
+        // phone to their anonymous pending claim referral. The round-77 guard
+        // (client discounts forced to 0) is untouched — rewards are granted
+        // server-side at order completion (see referral-conversion.ts).
+        referralCode: z.string().regex(REFERRAL_CODE_RE).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -250,6 +258,19 @@ export async function POST(request: NextRequest) {
                                 },
                         });
                 });
+
+                // round88-C4 — link the customer's phone to their anonymous claim
+                // referral (best-effort, never blocks/fails the created order; no
+                // money effect — conversion happens at completion)
+                if (body.referralCode && body.customerPhone) {
+                        await attachReferralPhoneToOrder({
+                                request,
+                                referralCode: body.referralCode,
+                                restaurantId: body.restaurantId,
+                                customerPhone: body.customerPhone,
+                        });
+                }
+
                 return success(data, 201);
         } catch (e) {
                 if (e instanceof OrderLimitError) return apiError(e.message, 403);

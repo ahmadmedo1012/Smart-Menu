@@ -1,0 +1,17 @@
+-- Round88-C — drop the legacy single showcaseTag column (round79 Stage H).
+--
+-- History: round83 §2.3 added showcaseTags TEXT[] and kept the single
+-- VARCHAR(40) column alive via a one-round dual-write (API mirrored
+-- tags[0] into it) so pre-round83 consumers kept working. Round87 closed
+-- with "drop showcaseTag" as a documented deferral; round88-C executes it.
+--
+-- Data safety (verified locally before applying): every non-null
+-- showcaseTag value is already mirrored inside showcaseTags (0 orphans —
+-- migration 12 backfilled, the round83/88-C API dual-write kept it in
+-- sync since). Dropping the column loses no badge data.
+--
+-- Consumers updated in the same wave: schema.prisma, the public menu raw
+-- SELECT (primary + fallback), items POST/PUT (no more mirror write),
+-- ItemDialog, seeds, perf bench, tests. `showcaseTags` (TEXT[]) is the
+-- only badge storage now.
+ALTER TABLE "MenuItem" DROP COLUMN "showcaseTag";

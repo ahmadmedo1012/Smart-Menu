@@ -37,7 +37,7 @@ interface Item {
         allergens?: string[];
         isFeatured?: boolean;
         featuredRank?: number | null;
-        showcaseTag?: string | null;
+        // round88-C: legacy single showcaseTag dropped — array only.
         showcaseTags?: string[] | null;
 }
 
@@ -57,7 +57,6 @@ const initForm = (catId: number) => ({
         allergens: [] as string[],
         isFeatured: false,
         featuredRank: '',
-        showcaseTag: '',
         showcaseTags: [] as string[],
 });
 
@@ -115,7 +114,6 @@ export function ItemDialog({
                                                         allergens: editing.allergens ?? [],
                                                         isFeatured: editing.isFeatured ?? false,
                                                         featuredRank: editing.featuredRank != null ? String(editing.featuredRank) : '',
-                                                        showcaseTag: editing.showcaseTag ?? '',
                                                         showcaseTags: editing.showcaseTags ?? [],
                                                 }
                                         : initForm(categoryId)
@@ -155,10 +153,20 @@ export function ItemDialog({
                                 dietaryTags: form.dietaryTags,
                                 allergens: form.allergens,
                                 isFeatured: form.isFeatured,
-                                featuredRank: form.isFeatured && form.featuredRank ? Number(form.featuredRank) : null,
-                                // Round83 §2.3 — send the array; the API mirrors tags[0]
-                                // into legacy showcaseTag (dual-write, one round).
-                                showcaseTags: form.isFeatured ? form.showcaseTags : [],
+                                // round88-C fix (surfaced by team8): an OFF→ON cycle used to
+                                // PERMANENTLY destroy the owner's rank/badges (the old payload
+                                // sent rank:null + tags:[] on every un-feature). Now an
+                                // un-featured save leaves both fields UNSENT (undefined) —
+                                // the server's partial-update rule preserves them inert
+                                // (display filters by isFeatured first), so re-featuring
+                                // restores the scene exactly as it was. An explicit rank
+                                // (or tag edits) while featured is still sent and wins.
+                                featuredRank: form.isFeatured
+                                        ? (form.featuredRank ? Number(form.featuredRank) : null)
+                                        : undefined,
+                                // round88-C: the array is the only badge storage (legacy
+                                // single-tag mirror column dropped this round).
+                                showcaseTags: form.isFeatured ? form.showcaseTags : undefined,
                                 modifierGroups: undefined,
                         };
                         const res = editing
@@ -202,8 +210,8 @@ export function ItemDialog({
                                                 <div>
                                                         <Label htmlFor={`${fId}-name`}>الاسم</Label>
                                                         
-									<Input
-									id={`${fId}-name`}
+                                                                        <Input
+                                                                        id={`${fId}-name`}
                                                                 value={form.name}
                                                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                                                                 placeholder="كابتشينو"
@@ -213,8 +221,8 @@ export function ItemDialog({
                                                 <div>
                                                         <Label htmlFor={`${fId}-name-ar`}>الاسم بالإنجليزية</Label>
                                                         
-									<Input
-									id={`${fId}-name-ar`}
+                                                                        <Input
+                                                                        id={`${fId}-name-ar`}
                                                                 value={form.nameAr}
                                                                 onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
                                                                 placeholder="Cappuccino"
@@ -227,8 +235,8 @@ export function ItemDialog({
                                                 <div>
                                                         <Label htmlFor={`${fId}-desc`}>الوصف</Label>
                                                         
-									<Textarea
-									id={`${fId}-desc`}
+                                                                        <Textarea
+                                                                        id={`${fId}-desc`}
                                                                 value={form.description}
                                                                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                                                                 className="mt-1.5 rounded-md"
@@ -238,8 +246,8 @@ export function ItemDialog({
                                                 <div>
                                                         <Label htmlFor={`${fId}-desc-ar`}>الوصف بالإنجليزية</Label>
                                                         
-									<Textarea
-									id={`${fId}-desc-ar`}
+                                                                        <Textarea
+                                                                        id={`${fId}-desc-ar`}
                                                                 value={form.descriptionAr}
                                                                 onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })}
                                                                 className="mt-1.5 rounded-md text-start"
@@ -252,8 +260,8 @@ export function ItemDialog({
                                                 <div>
                                                         <Label htmlFor={`${fId}-price`}>السعر (د.ل)</Label>
                                                         
-									<Input
-									id={`${fId}-price`}
+                                                                        <Input
+                                                                        id={`${fId}-price`}
                                                                 type="number"
                                                                 value={form.price || ''}
                                                                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
@@ -265,8 +273,8 @@ export function ItemDialog({
                                                 <div>
                                                         <Label htmlFor={`${fId}-disc-price`}>سعر الخصم</Label>
                                                         
-									<Input
-									id={`${fId}-disc-price`}
+                                                                        <Input
+                                                                        id={`${fId}-disc-price`}
                                                                 type="number"
                                                                 value={form.discountedPrice}
                                                                 onChange={(e) => setForm({ ...form, discountedPrice: e.target.value })}
@@ -281,8 +289,8 @@ export function ItemDialog({
                                                 <Label htmlFor={`${fId}-image`}>الصورة</Label>
                                                 <div className="flex gap-2 mt-1.5">
                                                         
-									<Input
-									id={`${fId}-image`}
+                                                                        <Input
+                                                                        id={`${fId}-image`}
                                                                 value={form.image}
                                                                 onChange={(e) => setForm({ ...form, image: e.target.value })}
                                                                 className="h-11 rounded-md text-start flex-1"
@@ -386,8 +394,8 @@ export function ItemDialog({
                                                                         <div>
                                                                                 <Label htmlFor={`${fId}-rank`}>ترتيب الظهور</Label>
                                                                                 
-									<Input
-									id={`${fId}-rank`}
+                                                                        <Input
+                                                                        id={`${fId}-rank`}
                                                                                         type="number"
                                                                                         min="1"
                                                                                         max="5"

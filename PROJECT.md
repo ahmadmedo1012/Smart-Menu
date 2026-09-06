@@ -1,6 +1,6 @@
 # Smart Menu — Project Reference
 
-> آخر تحديث: 6 سبتمبر 2026 (جولة 85) | Stack: Next.js 16.2 (App Router) · React 19.2 · Tailwind CSS 4 · shadcn/ui base-nova · Prisma 7.8 + PostgreSQL/Neon (opaque DB sessions — لا JWT) · motion (framer) · Zustand · Sonner · Vercel Fluid Compute
+> آخر تحديث: 6 سبتمبر 2026 (جولة 88 — موجة 3)
 
 ---
 
@@ -233,7 +233,7 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 32 unit (595 case) + 30 e2e/security files
+└── tests/                  ← 38 unit (692 case) + 34 e2e/security files (team1-10)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
     ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security

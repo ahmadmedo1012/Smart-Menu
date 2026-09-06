@@ -61,7 +61,8 @@ type SerializedItem = {
     isNew: boolean;
     isFeatured: boolean;
     featuredRank: number | null;
-    showcaseTag: string | null;
+    // round88-C: legacy single showcaseTag dropped — the array is the only
+    // badge storage (migration 20260906055500).
     showcaseTags: string[] | null;
     createdAt: string;
 };
