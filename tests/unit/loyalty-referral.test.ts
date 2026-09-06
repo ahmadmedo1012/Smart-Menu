@@ -38,10 +38,18 @@ const mockCardFindUnique = vi.hoisted(() => vi.fn());
 const mockReferralCount = vi.hoisted(() => vi.fn());
 const mockReferralCreate = vi.hoisted(() => vi.fn());
 const mockRateCheck = vi.hoisted(() => vi.fn());
+const mockQueryRaw = vi.hoisted(() => vi.fn());
+const mockTransaction = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         loyaltyCard: { findUnique: mockCardFindUnique },
         referral: { count: mockReferralCount, create: mockReferralCreate },
+        // round90-F1 (T3): the claim cap check + create now run inside ONE
+        // $transaction with a FOR UPDATE lock on the referrer card row. The tx
+        // mock hands the SAME spies to the transaction client so every existing
+        // assertion on referral.count / referral.create keeps passing.
+        $queryRaw: mockQueryRaw,
+        $transaction: mockTransaction,
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
@@ -103,6 +111,13 @@ beforeEach(() => {
                 referrerId: 11,
                 status: 'pending',
         });
+        mockTransaction.mockImplementation(
+                async (fn: (tx: unknown) => Promise<unknown>) =>
+                        fn({
+                                $queryRaw: mockQueryRaw,
+                                referral: { count: mockReferralCount, create: mockReferralCreate },
+                        })
+        );
 });
 
 // ── POST — the claim money path ─────────────────────────────────────────
@@ -149,7 +164,7 @@ describe('POST /api/loyalty/referral — claim creation', () => {
 
                 expect(res.status).toBe(404);
                 const json = await res.json();
-                expect(json.error).toBe('Invalid referral code');
+                expect(json.error).toBe('كود إحالة غير صالح');
                 expect(mockReferralCreate).not.toHaveBeenCalled();
         });
 
@@ -277,7 +292,7 @@ describe('GET /api/loyalty/referral — public code lookup (PII guard)', () => {
 
                 expect(res.status).toBe(404);
                 const json = await res.json();
-                expect(json.error).toBe('Referral code not found');
+                expect(json.error).toBe('كود الإحالة غير موجود');
         });
 
         it('missing code param → 400 before the limiter', async () => {
@@ -285,7 +300,7 @@ describe('GET /api/loyalty/referral — public code lookup (PII guard)', () => {
 
                 expect(res.status).toBe(400);
                 const json = await res.json();
-                expect(json.error).toBe('code query parameter is required');
+                expect(json.error).toBe('معامل الاستعلام code مطلوب');
                 expect(mockRateCheck).not.toHaveBeenCalled();
         });
 

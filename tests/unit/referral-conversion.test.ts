@@ -35,6 +35,9 @@ const txMock = vi.hoisted(() => ({
         rewardTransaction: { create: vi.fn() },
         systemEvent: { create: vi.fn().mockResolvedValue({}) },
         order: { count: vi.fn(), create: vi.fn() },
+        // round90-F1 (T3): the conversion tx locks the referrer's card row
+        // FOR UPDATE before the code-cap count — mock just needs to resolve.
+        $queryRaw: vi.fn(),
 }));
 
 const mockPrisma = vi.hoisted(() => ({
@@ -399,7 +402,7 @@ describe('POST /api/orders — referralCode field wiring', () => {
                 mockPrisma.menuItem.findMany.mockResolvedValue([{ id: 1, price: 10, discountedPrice: null }]);
                 mockPrisma.modifierOption.findMany.mockResolvedValue([]);
                 mockPrisma.order.findUnique.mockResolvedValue(null);
-                mockPrisma.restaurant.findUnique.mockResolvedValue({ id: 5, name: 'waha', slug: 'waha', maxOrders: 500 });
+                mockPrisma.restaurant.findUnique.mockResolvedValue({ id: 5, name: 'waha', slug: 'waha', maxOrders: 500, isActive: true });
                 txMock.order.count.mockResolvedValue(10);
                 txMock.order.create.mockImplementation(async (args: { data: Record<string, unknown> }) => ({
                         id: 900,

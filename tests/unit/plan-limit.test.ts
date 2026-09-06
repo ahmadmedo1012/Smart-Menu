@@ -38,6 +38,13 @@ const txMock = vi.hoisted(() => ({
         userRestaurant: { count: mockUserRestaurantCount, create: vi.fn() },
         restaurant: { create: mockRestaurantCreate },
         menuCategory: { createMany: vi.fn() },
+        // round90-F3: POST /api/items now takes a FOR UPDATE row lock on the
+        // restaurant row inside the tx (maxItems serialization) — permissive
+        // stub so this file's cap assertions keep exercising the same logic.
+        $queryRaw: vi.fn().mockResolvedValue([]),
+        // round90-F1: POST /api/owner/restaurants reads the free-plan caps
+        // (maxItems/maxOrders) from subscriptionPlan.findFirst inside the tx.
+        subscriptionPlan: { findFirst: vi.fn() },
 }));
 
 const prismaMock = vi.hoisted(() => ({
@@ -85,6 +92,8 @@ beforeEach(() => {
         mockRestaurantCreate.mockResolvedValue({ id: 55, name: 'مطعم جديد', slug: 'new-menu' });
         txMock.userRestaurant.create.mockResolvedValue({});
         txMock.menuCategory.createMany.mockResolvedValue({ count: 4 });
+        // round90-F1: no free-plan row by default → the hard fallback caps 10/100
+        txMock.subscriptionPlan.findFirst.mockResolvedValue(null);
 });
 
 // ── The class itself ────────────────────────────────────────────────────

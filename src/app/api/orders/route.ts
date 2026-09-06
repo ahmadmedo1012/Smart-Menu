@@ -138,6 +138,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+        // round90-F1: مرئي للـcatch — مشتق داخل المحاولة قبل أي كتابة؛ التقاط
+        // P2002 على orderNo يحتاجه لإرجاع تأكيد الخمول المتعاقد.
+        let derivedOrderNo: string | undefined;
         try {
                 // Rate limit order creation (public endpoint)
                 const ip =
@@ -212,6 +215,7 @@ export async function POST(request: NextRequest) {
                 const orderNo = body.idempotencyKey
                         ? `ORD-${body.idempotencyKey.toUpperCase().slice(0, 40)}`
                         : `ORD-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+                derivedOrderNo = orderNo;
 
                 // Idempotency — duplicate orderNo returns minimal confirmation only
                 // (round-77: returned the FULL stored row incl. customer PII, letting
@@ -230,10 +234,23 @@ export async function POST(request: NextRequest) {
                 if (!restaurant) {
                         return apiError('المطعم غير موجود', 404);
                 }
+                // round90-F1 (S-5): المطعم الموقوف (isActive:false) كان يستمر في
+                // استقبال طلبات مباشرة تُحسب على السقف والإحصاء — فحص الحياة صريح
+                // برسالة عربية واضحة (409) قبل أي كتابة.
+                if (!restaurant.isActive) {
+                        return apiError('المطعم غير متاح حالياً', 409);
+                }
 
                 // Check plan order limit — inside the tx with the create (round-76: TOCTOU
                 // race — concurrent POSTs both passed the old outside count check)
                 const data = await prisma.$transaction(async (tx) => {
+                        // round90-F1 (R-1/T1): العدّ داخل المعاملة يضيّق نافذة السباق فقط
+                        // بمعزل READ COMMITTED الافتراضي (لا phantom protection) —
+                        // 10 طلبات متزامنة عند maxOrders-1 تعدّ كلها نفس اللقطة فتنشئ
+                        // كلها. قفل صف المطعم FOR UPDATE يُسلسل إنشاء الطلبات لكل
+                        // مطعم على نفس الصف الذي يُقرأ منه maxOrders أصلًا: الخاسر
+                        // المتزامن ينتظر commit الفائز ثم يعيد العدّ فيرى الرقم الحقيقي.
+                        await tx.$queryRaw`SELECT id FROM "Restaurant" WHERE id = ${body.restaurantId} FOR UPDATE`;
                         const orderCount = await tx.order.count({ where: { restaurantId: body.restaurantId } });
                         if (orderCount >= restaurant.maxOrders) {
                                 // round89-E1: unified plan-cap error (was local OrderLimitError).
@@ -291,6 +308,27 @@ export async function POST(request: NextRequest) {
                 return success(data, 201);
         } catch (e) {
                 if (e instanceof PlanLimitError) return apiError(e.message, 403);
+                // round90-F1 (idempotency-race): إرسالان متزامنان بنفس idempotencyKey —
+                // الفحص الأولي (findUnique) يجتازه كلاهما قبل أي كتابة، فيوجّه القيد
+                // الفريد الخاسر إلى handleError العام: 409 «هذا الاسم موجود مسبقاً»
+                // (رسالة اسم لطلب!). العقد الحقيقي للمسار (:225): تأكيد خامل 200
+                // {orderNo, already:true} — نلتقط P2002 على orderNo تحديدًا ونعيده.
+                if (derivedOrderNo !== undefined && isUniqueOrderNoViolation(e)) {
+                        return success({ orderNo: derivedOrderNo, already: true }, 200);
+                }
                 return handleError(e);
         }
+}
+
+/**
+ * round90-F1: P2002 على orderNo تحديدًا — لا أي قيد فريد آخر (لا يوجد غيره على
+ * Order.create). meta.target قد يكون الحقول ['orderNo'] أو اسم القيد
+ * 'Order_orderNo_key' — كلاهما يحمل الاسم؛ نص الرسالة شبكة أمان ثالثة.
+ */
+function isUniqueOrderNoViolation(e: unknown): boolean {
+        const err = e as { code?: string; message?: string; meta?: { target?: unknown } };
+        if (err?.code !== 'P2002') return false;
+        const target = err.meta?.target;
+        const targetStr = Array.isArray(target) ? target.join(',') : String(target ?? '');
+        return targetStr.includes('orderNo') || (err.message ?? '').includes('orderNo');
 }

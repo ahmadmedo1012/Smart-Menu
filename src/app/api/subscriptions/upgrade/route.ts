@@ -135,24 +135,37 @@ export async function POST(request: NextRequest) {
                 });
                 if (userPending) return error('لديك طلب دفع معلق بالفعل', 400);
 
-                const payment = await prisma.subscriptionPayment.create({
-                        data: {
-                                userId: auth.userId,
-                                phone: phone ? String(phone) : '',
-                                amount: plan.price,
-                                provider: provider as 'libyana' | 'madar' | 'bank',
-                                planId,
-                                planName: plan.nameAr ?? '',
-                                status: 'pending',
-                                metadata: {
-                                        upgradeRestaurantId,
-                                        currentPlanId: restaurant.planId,
-                                        ...(isBank
-                                                ? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
-                                                : {}),
+                let payment;
+                try {
+                        payment = await prisma.subscriptionPayment.create({
+                                data: {
+                                        userId: auth.userId,
+                                        phone: phone ? String(phone) : '',
+                                        amount: plan.price,
+                                        provider: provider as 'libyana' | 'madar' | 'bank',
+                                        planId,
+                                        planName: plan.nameAr ?? '',
+                                        status: 'pending',
+                                        metadata: {
+                                                upgradeRestaurantId,
+                                                currentPlanId: restaurant.planId,
+                                                ...(isBank
+                                                        ? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
+                                                        : {}),
+                                        },
                                 },
-                        },
-                });
+                        });
+                } catch (e) {
+                        // round90-F1 (T2 — أخطر بند مالي): نفس سباق دفعة معلقة واحدة —
+                        // الفحصان الأوليان (400) findFirst-then-create لا يقاومان التزامن؛
+                        // الفهرس الفريد الجزئي SubscriptionPayment_pending_user_unique
+                        // (هجرة add_round90_pending_payment_unique) يحسم عند الإنشاء:
+                        // الخاسر المتزامن يستلم P2002 → 409 بدل ترقية تُدفع مرتين.
+                        if ((e as { code?: string })?.code === 'P2002') {
+                                return error('لديك طلب دفع معلق بالفعل', 409);
+                        }
+                        throw e;
+                }
 
                 // Send interactive keyboard to admins
                 try {

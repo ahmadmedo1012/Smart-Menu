@@ -22,6 +22,21 @@ export async function POST(request: NextRequest) {
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     const { hashPassword } = await import("@/lib/hash");
     const body = schema.parse(await request.json());
+
+    // round90-F1 (S-2 — privilege escalation): حارس الهدف — sub_admin يحمل
+    // MANAGE_USERS كان يعيد كلمة مرور super_admin ويسحب جلساته = استيلاء كامل.
+    // نفس نص حراسة admins/[id]:29 («لا يمكن تعديل مدير عام»)؛ التحديث نفسه
+    // يظل متاحًا لsuper_admin (سند الاختبار المفروض) ولإعادة تعيين بقية
+    // المستخدمين لمن يحمل MANAGE_USERS (وظيفة الدعم الأصلية للمسار).
+    const target = await prisma.user.findUnique({
+      where: { id: body.userId },
+      select: { role: true },
+    });
+    if (!target) return error("المستخدم غير موجود", 404);
+    if (target.role === "super_admin" && auth.role !== "super_admin") {
+      return error("لا يمكن تعديل مدير عام", 403);
+    }
+
     await prisma.user.update({
       where: { id: body.userId },
       data: { password: hashPassword(body.newPassword) },

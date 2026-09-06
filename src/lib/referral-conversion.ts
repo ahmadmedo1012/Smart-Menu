@@ -133,6 +133,13 @@ export async function convertReferralForCompletedOrder(order: OrderLike): Promis
                         }
 
                         // usage cap per code (same limit enforced at creation)
+                        // round90-F1 (R-1/T3): سقف الكود ذري — العدّ ثم القلب تحت
+                        // READ COMMITTED قابل للتجاوز بتزامن: تحويلان لصفين مختلفين
+                        // لنفس الكود عند convertedCount=9 يعدّان كلاهما 9 → 11 تحويلًا.
+                        // قفل صف بطاقة المُحيل FOR UPDATE (الكود ↔ البطاقة 1:1 عبر
+                        // referralCode @unique) يُسلسل كل تحويلات الكود: الخاسر
+                        // المتزامن ينتظر commit الفائز ثم يعيد العدّ فيرى 10 → code-cap.
+                        await tx.$queryRaw`SELECT id FROM "LoyaltyCard" WHERE id = ${referral.referrerId} FOR UPDATE`;
                         const convertedCount = await tx.referral.count({
                                 where: { referralCode: referral.referralCode, status: 'converted' },
                         });

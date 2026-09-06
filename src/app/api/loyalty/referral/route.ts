@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       where: { referralCode },
     });
 
-    if (!referrerCard) return error("Invalid referral code", 404);
+    if (!referrerCard) return error("كود إحالة غير صالح", 404);
 
     // Self-referral guard (round-77): reject redeeming your own code via
     // your own phone — normalized digits compare
@@ -45,26 +45,37 @@ export async function POST(request: NextRequest) {
     }
 
     // Enforce referral usage limit (max 10 converted referrals per code)
-    const convertedCount = await prisma.referral.count({
-      where: { referralCode, status: "converted" },
-    });
+    // round90-F1 (R-1/T3): سقف الاستخدامات ذري — العدّ ثم الإنشاء كان قابلًا
+    // للتجاوز بتزامن (كلا الطلبين يرى convertedCount=9). الحساب يُدار الحقيقة
+    // عند التحويل (referral-conversion.ts يقفل صف البطاقة FOR UPDATE قبل عدّه)
+    // — هنا نُسلسل الفحص الاستشاري نفسه بقفل الصف نفسه داخل معاملة واحدة
+    // مع الإنشاء، فيرى كل طلب ما commitه سابقه.
     const MAX_REFERRAL_USES = 10;
-    if (convertedCount >= MAX_REFERRAL_USES) {
+    const outcome = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM "LoyaltyCard" WHERE id = ${referrerCard.id} FOR UPDATE`;
+      const convertedCount = await tx.referral.count({
+        where: { referralCode, status: "converted" },
+      });
+      if (convertedCount >= MAX_REFERRAL_USES) {
+        return { capped: true as const };
+      }
+      const referral = await tx.referral.create({
+        data: {
+          referralCode,
+          referrerId: referrerCard.id,
+          referredPhone: referredPhone ?? "",
+          referredName: referredName ?? "",
+          status: "pending" as const,
+          restaurantId: referrerCard.restaurantId,
+        },
+      });
+      return { capped: false as const, referral };
+    });
+    if (outcome.capped) {
       return error("لقد وصل كود الإحالة إلى الحد الأقصى من الاستخدامات", 400);
     }
 
-    const referral = await prisma.referral.create({
-      data: {
-        referralCode,
-        referrerId: referrerCard.id,
-        referredPhone: referredPhone ?? "",
-        referredName: referredName ?? "",
-        status: "pending" as const,
-        restaurantId: referrerCard.restaurantId,
-      },
-    });
-
-    return success(referral, 201);
+    return success(outcome.referral, 201);
   } catch (e) {
     return handleError(e);
   }
@@ -75,7 +86,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
 
-    if (!code) return error("code query parameter is required");
+    if (!code) return error("معامل الاستعلام code مطلوب");
 
     // round85-A2: rate limit the public code lookup
     const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -100,7 +111,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    if (!card) return error("Referral code not found", 404);
+    if (!card) return error("كود الإحالة غير موجود", 404);
 
     return success({
       referralCode: code,

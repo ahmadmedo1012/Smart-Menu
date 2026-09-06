@@ -91,25 +91,39 @@ export async function POST(request: NextRequest) {
                         return error('المبلغ لا يطابق سعر الباقة', 400);
                 }
 
-                const payment = await prisma.subscriptionPayment.create({
-                        data: {
-                                userId: auth.userId,
-                                phone: phone ? String(phone) : '',
-                                amount: plan.price,
-                                provider: provider as 'libyana' | 'madar' | 'bank',
-                                planId,
-                                planName: plan?.nameAr ?? '',
-                                status: 'pending',
-                                metadata: {
-                                        tempUsername,
-                                        tempRestaurants: tempRestaurants ?? [],
-                                        ...(isBank
-                                                ? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
-                                                : {}),
-                                        telegramMessages: [],
+                let payment;
+                try {
+                        payment = await prisma.subscriptionPayment.create({
+                                data: {
+                                        userId: auth.userId,
+                                        phone: phone ? String(phone) : '',
+                                        amount: plan.price,
+                                        provider: provider as 'libyana' | 'madar' | 'bank',
+                                        planId,
+                                        planName: plan?.nameAr ?? '',
+                                        status: 'pending',
+                                        metadata: {
+                                                tempUsername,
+                                                tempRestaurants: tempRestaurants ?? [],
+                                                ...(isBank
+                                                        ? { senderAccountName, senderAccountNumber, receiptImageUrl: receiptImageUrl ?? null }
+                                                        : {}),
+                                                telegramMessages: [],
+                                        },
                                 },
-                        },
-                });
+                        });
+                } catch (e) {
+                        // round90-F1 (T2 — أخطر بند مالي): الفحص الأولي أعلاه (findFirst
+                        // pending → 400) لا يقاوم التزامن — طلبان متزامنان يجتازانه قبل
+                        // أي كتابة → دفعتان pending → المستخدم قد يدفع مرتين. الفهرس
+                        // الفريد الجزئي SubscriptionPayment_pending_user_unique (هجرة
+                        // add_round90_pending_payment_unique) يجعل قاعدة البيانات نفسها
+                        // الحكم: الخاسر المتزامن يستلم P2002 → 409 بدل صف ثانٍ.
+                        if ((e as { code?: string })?.code === 'P2002') {
+                                return error('لديك طلب دفع معلق بالفعل', 409);
+                        }
+                        throw e;
+                }
 
                 // Send interactive keyboard to admins (same as existing pattern)
                 try {

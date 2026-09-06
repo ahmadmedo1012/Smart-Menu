@@ -23,6 +23,9 @@ const mockRateCheck = vi.hoisted(() => vi.fn());
 
 const txMock = vi.hoisted(() => ({
         order: { count: vi.fn(), create: vi.fn() },
+        // round90-F1 (T1): the route locks the restaurant row FOR UPDATE inside
+        // the tx before the cap count — the mock just needs to resolve.
+        $queryRaw: vi.fn(),
 }));
 
 const mockPrisma = vi.hoisted(() => ({
@@ -44,7 +47,7 @@ vi.mock('@/lib/auth', () => ({
 
 // ── Fixtures ────────────────────────────────────────────────────────────
 
-const RESTAURANT = { id: 5, name: 'al-waha-cafe', slug: 'al-waha', maxOrders: 500 };
+const RESTAURANT = { id: 5, name: 'al-waha-cafe', slug: 'al-waha', maxOrders: 500, isActive: true };
 
 function makePostRequest(body: unknown, headers: Record<string, string> = {}): NextRequest {
         return new NextRequest('http://localhost/api/orders', {
