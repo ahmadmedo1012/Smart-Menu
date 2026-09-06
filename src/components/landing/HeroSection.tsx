@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { MessageCircle, TrendingUp } from "lucide-react"
 import { MotionArrowRight } from '@/components/ui/motion-icons';
-import { motion, useReducedMotion } from "motion/react"
+import { m, useReducedMotion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { ContainerScroll } from "@/components/ui/container-scroll-animation"
 import { QrCornerMark } from "@/components/ui/QrCornerMark"
@@ -80,20 +80,20 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 			<ContainerScroll
 				className="bg-background"
 				titleComponent={
-				<motion.div
+				<m.div
 					initial={reduceMotion ? false : "hidden"}
 					animate="show"
 					variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
 				>
 					{/* Eyebrow — Naskh editorial voice, above the fold */}
-					<motion.div
+					<m.div
 						initial={reduceMotion ? false : { opacity: 0, y: -8 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.1, ...springDefault }}
 					>
 					<Eyebrow className="mb-5">منيو رقمي، طلب مباشر على واتساب</Eyebrow>
-					</motion.div>
-					<motion.h1
+					</m.div>
+					<m.h1
 						variants={heroItem}
 						custom={0}
 						className="font-display text-[2.1rem] sm:text-5xl md:text-6xl font-semibold leading-[1.25] text-balance max-w-3xl mx-auto"
@@ -102,11 +102,11 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 						<span className="block">
 							<span className="text-gradient-orange">الطلبات تصل</span> على واتساب
 						</span>
-					</motion.h1>
-					<motion.p variants={heroItem} custom={1} className="text-sm sm:text-base text-foreground/65 max-w-2xl mx-auto leading-[1.75] mb-8">
+					</m.h1>
+					<m.p variants={heroItem} custom={1} className="text-sm sm:text-base text-foreground/65 max-w-2xl mx-auto leading-[1.75] mb-8">
 						أنشئ منيو واضحاً، استقبل الطلبات على واتساب، وتابع أداء مطعمك من لوحة واحدة.
-					</motion.p>
-					<motion.div variants={heroItem} custom={2} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
+					</m.p>
+					<m.div variants={heroItem} custom={2} className="flex gap-3 sm:gap-4 justify-center flex-wrap">
 						<Link href="/subscribe">
 							<Button variant="flame" size="lg" className="text-sm sm:text-base">
 								ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
@@ -117,23 +117,23 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 								تسجيل الدخول
 							</Button>
 						</Link>
-					</motion.div>
+					</m.div>
 					{/* Trust badge — shows real count, loading skeleton, or hidden when unavailable */}
 					{isLoading ? (
-						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 mt-6">
+						<m.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/20 bg-orange/5 px-3 py-1 mt-6">
 							<span className="size-1.5 rounded-full bg-orange/40 animate-pulse" />
 							<span className="h-3 w-24 rounded bg-orange/20 animate-pulse" />
-						</motion.div>
+						</m.div>
 					) : showTrustBadge ? (
-						<motion.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/25 bg-orange/8 px-3.5 py-1.5 text-[11px] font-medium text-ember dark:text-saffron mt-6 shadow-sm">
+						<m.div variants={heroItem} custom={3} className="inline-flex items-center gap-1.5 rounded-full border border-orange/25 bg-orange/8 px-3.5 py-1.5 text-[11px] font-medium text-ember dark:text-saffron mt-6 shadow-sm">
 							{/* a11y(round84): text-orange measured 4.47:1 on the cream hero bg (axe serious
 							 * violation — 0.03 short of AA). ember = oklch(0.44 0.17 52) ≈ 7:1 light,
 							 * saffron ≈ 8:1 on dark. Same brand hue family, world-class contrast. */}
 							<span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
 							أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
-						</motion.div>
+						</m.div>
 					) : null}
-				</motion.div>
+				</m.div>
 				}
 			>
 				<div className="relative flex justify-center sm:px-4 md:px-0">
@@ -157,7 +157,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 						/>
 					</ScrollParallax>
 					{/* Order ticket — the WhatsApp handoff, itemized like a real till receipt */}
-					<motion.div
+					<m.div
 						initial={{ opacity: 0, y: 14, scale: 0.95 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						transition={{ delay: 0.55, ...springDefault }}
@@ -184,9 +184,9 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 								</div>
 							</div>
 						</div>
-					</motion.div>
+					</m.div>
 					{/* Monthly growth — retail numerals, LTR */}
-					<motion.div
+					<m.div
 						initial={{ opacity: 0, y: 14, scale: 0.95 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						transition={{ delay: 0.75, ...springDefault }}
@@ -203,7 +203,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
 								</div>
 							</div>
 						</div>
-					</motion.div>
+					</m.div>
 				</div>
 			</ContainerScroll>
 		</>

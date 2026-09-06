@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const ExternalLinkIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -59,7 +59,7 @@ const ExternalLinkIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -77,21 +77,21 @@ const ExternalLinkIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
 
         {/* Box/window */}
-        <motion.path
+        <m.path
           d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"
           className="external-box"
           style={{ transformOrigin: "50% 50%" }}
         />
 
         {/* Arrow pointing out */}
-        <motion.g
+        <m.g
           className="external-arrow"
           style={{ transformOrigin: "50% 50%" }}
         >
           <path d="M11 13l9 -9" />
           <path d="M15 4h5v5" />
-        </motion.g>
-      </motion.svg>
+        </m.g>
+      </m.svg>
     );
   },
 );

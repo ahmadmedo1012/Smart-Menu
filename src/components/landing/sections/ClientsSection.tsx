@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { motion, AnimatePresence } from "motion/react"
+import { m, AnimatePresence } from "motion/react"
 import {Quote} from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import AnimatedStar from '@/components/ui/star-icon';
@@ -49,7 +49,7 @@ function PartnerMarquee() {
 /* ── Testimonial card ── */
 function TestimonialCard({ t }: { t: typeof TESTIMONIALS[number] }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
@@ -77,7 +77,7 @@ function TestimonialCard({ t }: { t: typeof TESTIMONIALS[number] }) {
           <p className="text-[0.75rem] text-muted-foreground/60 mt-0.5">{t.designation}</p>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -129,7 +129,7 @@ export function ClientsSection() {
 
       {/* Testimonial panel */}
       <ScrollReveal y={16} delay={100}>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
@@ -170,12 +170,12 @@ export function ClientsSection() {
               </div>
             )}
           </div>
-        </motion.div>
+        </m.div>
       </ScrollReveal>
 
       {/* Trust badge — social proof */}
       <ScrollReveal y={10} delay={200}>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -188,7 +188,7 @@ export function ClientsSection() {
               {label}
             </span>
           ))}
-        </motion.div>
+        </m.div>
       </ScrollReveal>
     </SectionContainer>
   )

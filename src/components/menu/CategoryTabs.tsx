@@ -1,6 +1,7 @@
 "use client"
 
-import { motion, LayoutGroup } from "motion/react"
+import { m, LayoutGroup } from "motion/react"
+import { LayoutMotion } from "@/components/motion/LazyMotionProvider"
 import { useRef, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
@@ -171,11 +172,13 @@ function TabButton({
       )}
     >
       {isActive && (
-        <motion.div
-          layoutId="active-tab"
-          className="absolute inset-0 rounded-full bg-orange"
-          transition={{ type: "spring", stiffness: 400, damping: 28 }}
-        />
+        <LayoutMotion>
+          <m.div
+            layoutId="active-tab"
+            className="absolute inset-0 rounded-full bg-orange"
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
+          />
+        </LayoutMotion>
       )}
       <span className="relative z-10 flex items-center gap-1.5 sm:gap-2">
         {icon && <TabIcon icon={icon} />}

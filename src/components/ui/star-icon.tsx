@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const StarIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -42,7 +42,7 @@ const StarIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -58,19 +58,19 @@ const StarIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         className={`cursor-pointer ${className}`}
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <motion.path
+        <m.path
           className="star-fill"
           d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"
           fill={color}
           opacity={0}
           style={{ transformOrigin: "center" }}
         />
-        <motion.path
+        <m.path
           className="star-outline"
           d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"
           style={{ transformOrigin: "center" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

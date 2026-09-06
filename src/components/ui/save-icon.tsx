@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const SaveIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -37,7 +37,7 @@ const SaveIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -58,12 +58,12 @@ const SaveIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           className="save-shutter"
           d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"
         />
-        <motion.path
+        <m.path
           className="save-label"
           d="M7 3v4a1 1 0 0 0 1 1h7"
           style={{ transformOrigin: "center" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

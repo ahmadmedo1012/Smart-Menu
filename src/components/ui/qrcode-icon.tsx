@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -60,7 +60,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         x="0px"
@@ -73,7 +73,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         onHoverStart={start}
         onHoverEnd={stop}
       >
-        <motion.rect
+        <m.rect
           className="qr-scan"
           x="2"
           y="0"
@@ -84,7 +84,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ filter: "drop-shadow(0 0 4px currentColor)" }}
         />
 
-        <motion.rect
+        <m.rect
           className="corner-rect"
           x="3"
           y="3"
@@ -96,7 +96,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           initial={{ pathLength: 1 }}
         />
 
-        <motion.rect
+        <m.rect
           className="corner-rect"
           x="3"
           y="20"
@@ -108,7 +108,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           initial={{ pathLength: 1 }}
         />
 
-        <motion.rect
+        <m.rect
           className="corner-rect"
           x="20"
           y="3"
@@ -120,7 +120,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           initial={{ pathLength: 1 }}
         />
 
-        <motion.rect
+        <m.rect
           className="inner-element"
           x="27"
           y="20"
@@ -132,7 +132,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.rect
+        <m.rect
           className="inner-element"
           x="16"
           y="27"
@@ -144,7 +144,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.path
+        <m.path
           className="inner-element"
           d="M3 16H7"
           stroke={color}
@@ -154,7 +154,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.path
+        <m.path
           className="inner-element"
           d="M13 16H18M22 16V23H29M22 16H26M22 16H18M18 16V20H16"
           stroke={color}
@@ -164,7 +164,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.path
+        <m.path
           className="inner-element"
           d="M16 7V10"
           stroke={color}
@@ -174,7 +174,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.path
+        <m.path
           className="inner-element"
           d="M16 25V29H23V27"
           stroke={color}
@@ -184,7 +184,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.path
+        <m.path
           className="inner-element"
           d="M29.01 29H29"
           stroke={color}
@@ -194,7 +194,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "center" }}
         />
 
-        <motion.rect
+        <m.rect
           className="center-dot"
           x="24"
           y="7"
@@ -206,7 +206,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "24.5px 7.5px" }}
         />
 
-        <motion.rect
+        <m.rect
           className="center-dot"
           x="7"
           y="7"
@@ -218,7 +218,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           style={{ transformOrigin: "7.5px 7.5px" }}
         />
 
-        <motion.rect
+        <m.rect
           className="center-dot"
           x="7"
           y="24"
@@ -229,7 +229,7 @@ const QrcodeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           fill="none"
           style={{ transformOrigin: "7.5px 24.5px" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

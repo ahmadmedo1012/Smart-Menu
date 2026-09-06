@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
@@ -256,14 +256,14 @@ function MenuPageClientInner({
                                                 <span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
                                         </div>
-                                        <motion.div
+                                        <m.div
                                                 variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
                                                 initial="hidden"
                                                 animate="visible"
                                                 className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                                         >
                                                 {popularItems.slice(0, 6).map((item, index) => (
-                                                        <motion.div
+                                                        <m.div
                                                                 key={item.id}
                                                                 variants={fadeUp}
                                                                 transition={{ delay: (index % 6) * 0.06 }}
@@ -279,9 +279,9 @@ function MenuPageClientInner({
                                                                         /* LCP: first 4 popular items above the fold → eager + fetchPriority=high */
                                                                         eager={index < 4}
                                                                 />
-                                                        </motion.div>
+                                                        </m.div>
                                                 ))}
-                                        </motion.div>
+                                        </m.div>
                                 </section>
                         )}
 

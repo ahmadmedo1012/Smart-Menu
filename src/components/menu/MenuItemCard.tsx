@@ -2,7 +2,7 @@
 
 import { useState, memo } from 'react';
 import { DIETARY_ICONS, DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed } from 'lucide-react';
@@ -81,7 +81,7 @@ const MenuItemCard = memo(function MenuItemCard({
 	const isFeatured = variant === 'featured';
 
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, y: 24 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true, margin: '-60px' }}
@@ -128,7 +128,7 @@ const MenuItemCard = memo(function MenuItemCard({
 				{/* Badges — top-start with glass backdrop */}
 				<div className="absolute top-3 start-3 flex flex-col gap-1.5 z-10">
 					{item.isPopular && (
-						<motion.span
+						<m.span
 							initial={{ scale: 0, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							transition={CARD_SPRING}
@@ -136,10 +136,10 @@ const MenuItemCard = memo(function MenuItemCard({
 						>
 							<AnimatedStar className="size-2.5 fill-current" />
 							الأكثر طلباً
-						</motion.span>
+						</m.span>
 					)}
 					{item.isNew && !item.isPopular && (
-						<motion.span
+						<m.span
 							initial={{ scale: 0, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							transition={{ ...CARD_SPRING, delay: 0.1 }}
@@ -147,7 +147,7 @@ const MenuItemCard = memo(function MenuItemCard({
 						>
 							<Sparkles className="size-2.5 fill-current" />
 						جديد
-					</motion.span>
+					</m.span>
 					)}
 				</div>
 
@@ -267,7 +267,7 @@ const MenuItemCard = memo(function MenuItemCard({
 					<div className="flex-1">
 					<AnimatePresence mode="wait">
 						{cartQty === 0 ? (
-							<motion.button
+							<m.button
 								key="cta"
 								initial={{ opacity: 0, scale: 0.9 }}
 								animate={{ opacity: 1, scale: 1 }}
@@ -282,9 +282,9 @@ const MenuItemCard = memo(function MenuItemCard({
 							>
 								<MotionPlus className="size-4" />
 								أضف
-							</motion.button>
+							</m.button>
 						) : (
-							<motion.div
+							<m.div
 								key="counter"
 								initial={{ opacity: 0, scale: 0.9 }}
 								animate={{ opacity: 1, scale: 1 }}
@@ -315,13 +315,13 @@ const MenuItemCard = memo(function MenuItemCard({
 								>
 									<MotionPlus className="size-4" />
 								</button>
-							</motion.div>
+							</m.div>
 						)}
 					</AnimatePresence>
 				</div>
 			</div>
 		</div>
-	</motion.div>
+	</m.div>
 	);
 });
 

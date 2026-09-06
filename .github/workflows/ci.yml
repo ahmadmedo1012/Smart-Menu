@@ -50,6 +50,17 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
+      # round88-D6: secret-leak scanner (scripts/check-secrets.mjs) —
+      # zero-dependency (node builtins + git), scans every tracked file for
+      # GitHub/Vercel/OpenAI tokens and credentialed DB URLs. Placed BEFORE
+      # install/build (fail-fast: a leaked token fails the run in seconds,
+      # before minutes of dependencies/build); like the .env guard below it
+      # is security-relevant and costs ~1s. Exit 1 on any real leak —
+      # deliberate dev-only placeholders live in the script's reviewed
+      # FILE_ALLOWLIST / inline `allow-secret-check` markers.
+      - name: Secrets scan
+        run: node scripts/check-secrets.mjs
+
       # round86-D6: cache the chromium browser between runs (install step
       # below becomes a no-op hit)
       - name: Cache Playwright browsers

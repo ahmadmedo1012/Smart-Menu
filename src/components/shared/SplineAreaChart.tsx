@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { catmullRomPath, closeAreaPath, linearScale, tickIndices } from '@/lib/chart-geometry';
@@ -158,14 +158,14 @@ export function SplineAreaChart({
 
 				{plotted.map((s) => (
 					<g key={s.id}>
-						<motion.path
+						<m.path
 							d={s.area}
 							fill={`url(#${s.gradientId})`}
 							initial={{ opacity: reduceMotion ? 1 : 0 }}
 							animate={{ opacity: 1 }}
 							transition={{ duration: reduceMotion ? 0 : 0.6 }}
 						/>
-						<motion.path
+						<m.path
 							d={s.line}
 							fill="none"
 							stroke={s.color}

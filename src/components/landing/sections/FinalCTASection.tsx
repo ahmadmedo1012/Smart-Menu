@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { Button } from "@/components/ui/button"
 import { springDefault, springSnappy } from "@/lib/motion"
@@ -47,14 +47,14 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
         </ScrollReveal>
 
         <ScrollReveal y={20} delay={150}>
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ ...springSnappy, delay: 0.4 }}
             className="flex gap-4 justify-center flex-wrap"
           >
-            <motion.div
+            <m.div
               animate={{ scale: [1, 1.04, 1] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               className="relative"
@@ -62,17 +62,17 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
               <Link href="/subscribe">
                 <Button variant="flame" size="lg">ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" /></Button>
               </Link>
-            </motion.div>
+            </m.div>
             <Link href="/pricing">
               <Button variant="outline" size="lg">
                 عرض الخطط
               </Button>
             </Link>
-          </motion.div>
+          </m.div>
         </ScrollReveal>
 
         <ScrollReveal y={10} delay={250}>
-          <motion.p
+          <m.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -80,7 +80,7 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
             className="text-xs text-muted-foreground/60 mt-6"
           >
             مجاناً بدون بطاقة ائتمان · إلغاء في أي وقت · دعم فني متكامل
-          </motion.p>
+          </m.p>
         </ScrollReveal>
       </div>
     </SectionContainer>

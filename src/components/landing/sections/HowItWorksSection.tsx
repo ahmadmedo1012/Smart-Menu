@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { STEPS } from "@/components/landing/landing-data"
 import { springGentle, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
@@ -18,7 +18,7 @@ export function HowItWorksSection() {
       <div className="grid md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {STEPS.map((step, i) => (
           <ScrollReveal key={step.title} y={24} delay={i * 80}>
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -41,7 +41,7 @@ export function HowItWorksSection() {
                 {i < STEPS.length - 1 && (
                   <div className="hidden md:block absolute top-1/2 left-[calc(50%+2.5rem)] rtl:left-auto rtl:right-[calc(50%+2.5rem)] w-[calc(100%-5rem)] h-[2px]">
                     <div className="absolute inset-0 bg-gradient-to-r from-orange/40 to-transparent" />
-                    <motion.div
+                    <m.div
                       initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true }}
@@ -53,7 +53,7 @@ export function HowItWorksSection() {
               </div>
 
               {/* Diamond divider */}
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, rotate: 45 }}
                 whileInView={{ opacity: 1, rotate: 45 }}
                 viewport={{ once: true }}
@@ -63,7 +63,7 @@ export function HowItWorksSection() {
 
               <h3 className="text-lg font-medium mb-1.5 group-hover:text-orange transition-colors duration-300">{step.title}</h3>
               <p className="text-sm text-muted-foreground/95 leading-relaxed max-w-[30ch]">{step.desc}</p>
-            </motion.div>
+            </m.div>
           </ScrollReveal>
         ))}
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import {} from 'lucide-react';
 import AnimatedStar from '@/components/ui/star-icon';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -170,7 +170,7 @@ export default function OwnerReviewsPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map((review, i) => (
-            <motion.div
+            <m.div
               key={review.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -200,7 +200,7 @@ export default function OwnerReviewsPage() {
                   {formatDateShort(new Date(review.createdAt))}
                 </span>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       )}

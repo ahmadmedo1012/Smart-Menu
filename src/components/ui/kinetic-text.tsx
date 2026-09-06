@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect, type ReactNode, type CSSProperties } from "react"
-import { motion, useReducedMotion, type Transition } from "motion/react"
+import { m, useReducedMotion, type Transition } from "motion/react"
 
 type KineticMode = "lines" | "words" | "chars"
 
@@ -119,7 +119,7 @@ export function KineticText({
 						marginBottom: mode === "lines" ? "-0.14em" : undefined,
 					}}
 				>
-					<motion.span
+					<m.span
 						className="inline-block"
 						initial={{
 							opacity: prefersReducedMotion ? 1 : 0,
@@ -133,7 +133,7 @@ export function KineticText({
 						}}
 					>
 						{text}
-					</motion.span>
+					</m.span>
 				</span>
 			))}
 		</div>

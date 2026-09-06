@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import AnimatedStar from '@/components/ui/star-icon';
@@ -49,7 +49,7 @@ function OrbitalThumb({
 	const ry = Math.sin(((angle - ringAngle) * Math.PI) / 180) * radius;
 
 	return (
-		<motion.button
+		<m.button
 			onClick={onSelect}
 			className={cn(
 				'absolute left-1/2 top-1/2',
@@ -70,7 +70,7 @@ function OrbitalThumb({
 					<AvatarInitials name={t.name} size="sm" />
 				</div>
 			</div>
-		</motion.button>
+		</m.button>
 	);
 }
 
@@ -190,7 +190,7 @@ export function CircularTestimonials({
 					{/* ── Active content ── */}
 					<div className="px-6 sm:px-8 pb-2 min-h-[140px]">
 						<AnimatePresence mode="wait">
-							<motion.div
+							<m.div
 								key={active}
 								initial={{ opacity: 0, y: 12 }}
 								animate={{ opacity: 1, y: 0 }}
@@ -221,7 +221,7 @@ export function CircularTestimonials({
 										</p>
 									</div>
 								</div>
-							</motion.div>
+							</m.div>
 						</AnimatePresence>
 					</div>
 

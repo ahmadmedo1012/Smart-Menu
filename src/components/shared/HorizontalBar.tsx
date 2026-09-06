@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { cn } from "@/lib/utils"
 
 interface BarItem {
@@ -50,7 +50,7 @@ export function HorizontalBar({
                 </span>
               </div>
               <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
-                <motion.div
+                <m.div
                   className="h-full rounded-full"
                   /* ponytail: CSS var not usable in JS `background` style prop in framer-motion. Inline oklch matches DESIGN.md gold accent. */
                   style={{ background: item.color || "oklch(0.72 0.14 75)" }}

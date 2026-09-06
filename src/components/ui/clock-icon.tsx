@@ -2,7 +2,7 @@
 import { forwardRef, useImperativeHandle } from "react";
 
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const ClockIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -53,7 +53,7 @@ const ClockIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     };
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -68,13 +68,13 @@ const ClockIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         onHoverStart={handleHoverStart}
         onHoverEnd={handleHoverEnd}
       >
-        <motion.path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <motion.path
+        <m.path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <m.path
           d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"
           className="clock-body"
         />
-        <motion.path d="M12 7v5l3 3" className="clock-hands" />
-      </motion.svg>
+        <m.path d="M12 7v5l3 3" className="clock-hands" />
+      </m.svg>
     );
   },
 );

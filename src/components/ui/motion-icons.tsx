@@ -2,7 +2,7 @@
 'use client';
 
 import { Plus, Check, Minus, Search, Phone, MapPin, Store, Crown, Award, Gift, Medal, Settings, TrendingUp, Activity, BarChart3, ArrowLeft, ArrowRight, Smartphone, Menu as MenuIcon, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Building2, Landmark, CreditCard, LogIn, Lightbulb, Stethoscope } from 'lucide-react';
-import { motion, useAnimate } from 'motion/react';
+import { m, useAnimate } from 'motion/react';
 import { forwardRef, useImperativeHandle, type SVGProps } from 'react';
 
 /**
@@ -32,7 +32,7 @@ function makeMotionIcon(Icon: typeof Plus, label: string) {
 			};
 
 			return (
-				<motion.svg
+				<m.svg
 					ref={scope}
 					className={className}
 					width={width ?? '100%'}
@@ -48,7 +48,7 @@ function makeMotionIcon(Icon: typeof Plus, label: string) {
 					onHoverEnd={stop}
 				>
 					<Icon {...(rest as object)} className="w-full h-full" />
-				</motion.svg>
+				</m.svg>
 			);
 		}
 	);

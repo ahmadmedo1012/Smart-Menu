@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const CurrencyDollarIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -61,7 +61,7 @@ const CurrencyDollarIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     };
 
     return (
-      <motion.div
+      <m.div
         ref={scope}
         onHoverStart={handleHoverStart}
         onHoverEnd={handleHoverEnd}
@@ -79,23 +79,23 @@ const CurrencyDollarIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           strokeLinejoin="round"
         >
           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <motion.g
+          <m.g
             className="usd-symbol"
             style={{ transformOrigin: "50% 50%" }}
           >
-            <motion.path
+            <m.path
               className="usd-main"
               d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2"
               pathLength={1}
             />
-            <motion.path
+            <m.path
               className="usd-line"
               d="M12 3v3m0 12v3"
               pathLength={1}
             />
-          </motion.g>
+          </m.g>
         </svg>
-      </motion.div>
+      </m.div>
     );
   },
 );

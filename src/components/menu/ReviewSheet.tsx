@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import {} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import AnimatedSend from '@/components/ui/send-icon';
@@ -155,7 +155,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 			{open && (
 				<>
 					{/* Backdrop */}
-					<motion.div
+					<m.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
@@ -164,7 +164,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 					/>
 
 					{/* Sheet */}
-					<motion.div
+					<m.div
 						ref={sheetRef}
 						initial={{ y: '100%' }}
 						animate={{ y: 0 }}
@@ -228,7 +228,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 							{/* Star picker */}
 							<div className="flex gap-1">
 								{[1, 2, 3, 4, 5].map((s) => (
-									<motion.button
+									<m.button
 										key={s}
 										whileTap={{ scale: 1.3 }}
 										animate={formRating >= s ? starAnimate : {}}
@@ -246,7 +246,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 										)}
 									>
 										<AnimatedStar className={cn('size-6', s <= formRating && 'fill-saffron')} />
-									</motion.button>
+									</m.button>
 								))}
 							</div>
 							{/* Comment */}
@@ -327,7 +327,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 								</div>
 							) : (
 								reviews.map((review, i) => (
-									<motion.div
+									<m.div
 										key={review.id}
 										initial={{ opacity: 0, y: 12 }}
 										animate={{ opacity: 1, y: 0 }}
@@ -356,11 +356,11 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
 										{review.comment && (
 											<p className="text-sm text-foreground/80 leading-relaxed">{review.comment}</p>
 										)}
-									</motion.div>
+									</m.div>
 								))
 							)}
 						</div>
-					</motion.div>
+					</m.div>
 				</>
 			)}
 		</AnimatePresence>

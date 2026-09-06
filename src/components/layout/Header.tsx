@@ -4,7 +4,8 @@ import { useRef, useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "motion/react"
+import { m, AnimatePresence } from "motion/react"
+import { LayoutMotion } from "@/components/motion/LazyMotionProvider"
 import { cn } from "@/lib/utils"
 import AnimatedX from "@/components/ui/x-icon";
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
@@ -101,7 +102,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
     <AnimatePresence>
       {open && (
         <>
-          <motion.div
+          <m.div
             key="overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -110,7 +111,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
             className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
             onClick={onClose}
           />
-          <motion.div
+          <m.div
             key="menu"
             ref={panelRef}
             id="mobile-menu"
@@ -132,7 +133,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
               {landingLinks.map((link, i) => {
                 const isActive = link.href === "/login" ? pathname === "/login" : pathname.startsWith(link.href)
                 return (
-                  <motion.div
+                  <m.div
                     key={link.href}
                     custom={i}
                     variants={mobileLinkVariants}
@@ -146,11 +147,11 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
                     >
                       {link.label}
                     </Link>
-                  </motion.div>
+                  </m.div>
                 )
               })}
             </nav>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>
@@ -221,15 +222,17 @@ export function Header({ className }: HeaderProps) {
                     >
                       {link.label}
                       {linkActive && (
-                        <motion.div
-                          layoutId="tubelight"
-                          className="absolute inset-0 -z-10 rounded-full bg-orange shadow-lg"
-                          style={{
-                            boxShadow: "0 0 18px 3px color-mix(in oklab, var(--orange) 35%, transparent), 0 0 6px color-mix(in oklab, var(--orange) 15%, transparent)",
-                            willChange: "transform, opacity",
-                          }}
-                          transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                        />
+                        <LayoutMotion>
+                          <m.div
+                            layoutId="tubelight"
+                            className="absolute inset-0 -z-10 rounded-full bg-orange shadow-lg"
+                            style={{
+                              boxShadow: "0 0 18px 3px color-mix(in oklab, var(--orange) 35%, transparent), 0 0 6px color-mix(in oklab, var(--orange) 15%, transparent)",
+                              willChange: "transform, opacity",
+                            }}
+                            transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                          />
+                        </LayoutMotion>
                       )}
                     </Link>
                   </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { cn } from "@/lib/utils"
 
 interface MiniSparklineProps {
@@ -46,7 +46,7 @@ export function MiniSparkline({
         </linearGradient>
       </defs>
       {/* Area */}
-      <motion.path
+      <m.path
         d={`${path} L ${points[points.length - 1].x} ${padding + chartH} L ${points[0].x} ${padding + chartH} Z`}
         fill={`url(#spark-${width}-${isUp ? "up" : "dn"})`}
         initial={{ opacity: 0 }}
@@ -54,7 +54,7 @@ export function MiniSparkline({
         transition={{ duration: 0.5 }}
       />
       {/* Line */}
-      <motion.path
+      <m.path
         d={path}
         fill="none"
         stroke={trendColor}

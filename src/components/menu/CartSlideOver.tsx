@@ -8,7 +8,7 @@ import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import AnimatedCart from '@/components/ui/shopping-cart-icon';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { toArabicNumber } from '@/lib/format';
 import { buttonVariants } from '@/components/ui/button';
@@ -41,7 +41,7 @@ export function CartSlideOver() {
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
 			{/* Floating trigger — glass orb */}
-			<motion.div
+			<m.div
 				initial={{ y: 50, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -75,7 +75,7 @@ export function CartSlideOver() {
 						</span>
 					</div>
 				</button>
-			</motion.div>
+			</m.div>
 
 			<SheetContent
 				side="right"

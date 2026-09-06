@@ -1,28 +1,28 @@
 "use client"
 
 import { useRef, type ReactNode, type CSSProperties, useState, useEffect } from "react"
-import { motion, useReducedMotion } from "motion/react"
+import { m, useReducedMotion } from "motion/react"
 
 interface ScrollRevealProps {
-	children: ReactNode
-	className?: string
-	/** Stagger delay between children (ms) */
-	delay?: number
-	/** Animation duration */
-	duration?: number
-	/** Distance to translate from */
-	y?: number
-	/** Distance to translate from (x axis) */
-	x?: number
-	/** Threshold for intersection observer */
-	threshold?: number
-	/** Root margin for intersection observer */
-	rootMargin?: string
-	/** Fire only once on entry */
-	once?: boolean
-	/** Custom as element */
-	as?: "div" | "section" | "article" | "span" | "ul" | "li"
-	style?: CSSProperties
+        children: ReactNode
+        className?: string
+        /** Stagger delay between children (ms) */
+        delay?: number
+        /** Animation duration */
+        duration?: number
+        /** Distance to translate from */
+        y?: number
+        /** Distance to translate from (x axis) */
+        x?: number
+        /** Threshold for intersection observer */
+        threshold?: number
+        /** Root margin for intersection observer */
+        rootMargin?: string
+        /** Fire only once on entry */
+        once?: boolean
+        /** Custom as element */
+        as?: "div" | "section" | "article" | "span" | "ul" | "li"
+        style?: CSSProperties
 }
 
 /**
@@ -40,85 +40,85 @@ interface ScrollRevealProps {
  * ```
  */
 export function ScrollReveal({
-	children,
-	className,
-	delay = 0,
-	duration = 0.6,
-	y = 20,
-	x = 0,
-	threshold = 0.15,
-	rootMargin = "-10% 0px -10% 0px",
-	once = true,
-	as = "div",
-	style,
+        children,
+        className,
+        delay = 0,
+        duration = 0.6,
+        y = 20,
+        x = 0,
+        threshold = 0.15,
+        rootMargin = "-10% 0px -10% 0px",
+        once = true,
+        as = "div",
+        style,
 }: ScrollRevealProps) {
-	const ref = useRef<HTMLElement | null>(null)
-	const [isInView, setIsInView] = useState(false)
-	const prefersReducedMotion = useReducedMotion()
+        const ref = useRef<HTMLElement | null>(null)
+        const [isInView, setIsInView] = useState(false)
+        const prefersReducedMotion = useReducedMotion()
 
-	useEffect(() => {
-		const element = ref.current
-		if (!element) return
+        useEffect(() => {
+                const element = ref.current
+                if (!element) return
 
-		// Skip observer for reduced motion
-		if (prefersReducedMotion) {
-			setIsInView(true)
-			return
-		}
+                // Skip observer for reduced motion
+                if (prefersReducedMotion) {
+                        setIsInView(true)
+                        return
+                }
 
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsInView(true)
-					if (once) {
-						observer.disconnect()
-					}
-				} else if (!once) {
-					setIsInView(false)
-				}
-			},
-			{ threshold, rootMargin }
-		)
+                const observer = new IntersectionObserver(
+                        ([entry]) => {
+                                if (entry.isIntersecting) {
+                                        setIsInView(true)
+                                        if (once) {
+                                                observer.disconnect()
+                                        }
+                                } else if (!once) {
+                                        setIsInView(false)
+                                }
+                        },
+                        { threshold, rootMargin }
+                )
 
-		observer.observe(element)
-		return () => observer.disconnect()
-	}, [threshold, rootMargin, once, prefersReducedMotion])
+                observer.observe(element)
+                return () => observer.disconnect()
+        }, [threshold, rootMargin, once, prefersReducedMotion])
 
-	// round87-C9: dynamic tag — every motion DOM component shares the same prop
-	// shape; narrow the union to the div flavor instead of `any` (the ref is
-	// bridged to the HTMLElement ref below via a callback)
-	const Component = motion[as] as typeof motion.div
+        // round87-C9: dynamic tag — every motion DOM component shares the same prop
+        // shape; narrow the union to the div flavor instead of `any` (the ref is
+        // bridged to the HTMLElement ref below via a callback)
+        const Component = m[as] as typeof m.div
 
-	return (
-		<Component
-			ref={(node) => { ref.current = node }}
-			className={className}
-			style={style}
-			initial={{ opacity: 0, y, x }}
-			animate={isInView ? { opacity: 1, y: 0, x: 0 } : undefined}
-			transition={{
-				duration: prefersReducedMotion ? 0.2 : duration,
-				delay: prefersReducedMotion ? 0 : delay / 1000,
-				ease: [0.23, 1, 0.32, 1],
-			}}
-		>
-			{children}
-		</Component>
-	)
+        return (
+                <Component
+                        ref={(node) => { ref.current = node }}
+                        className={className}
+                        style={style}
+                        initial={{ opacity: 0, y, x }}
+                        animate={isInView ? { opacity: 1, y: 0, x: 0 } : undefined}
+                        transition={{
+                                duration: prefersReducedMotion ? 0.2 : duration,
+                                delay: prefersReducedMotion ? 0 : delay / 1000,
+                                ease: [0.23, 1, 0.32, 1],
+                        }}
+                >
+                        {children}
+                </Component>
+        )
 }
 
 interface StaggeredRevealProps {
-	children: ReactNode[]
-	className?: string
-	/** Time between each child reveal (ms) */
-	stagger?: number
-	/** Initial Y offset */
-	y?: number
-	/** Animation duration per child */
-	duration?: number
-	/** Root margin */
-	rootMargin?: string
-	style?: CSSProperties
+        children: ReactNode[]
+        className?: string
+        /** Time between each child reveal (ms) */
+        stagger?: number
+        /** Initial Y offset */
+        y?: number
+        /** Animation duration per child */
+        duration?: number
+        /** Root margin */
+        rootMargin?: string
+        style?: CSSProperties
 }
 
 /**
@@ -135,57 +135,57 @@ interface StaggeredRevealProps {
  * ```
  */
 export function StaggeredReveal({
-	children,
-	className,
-	stagger = 60,
-	y = 20,
-	duration = 0.55,
-	rootMargin = "-8% 0px",
-	style,
+        children,
+        className,
+        stagger = 60,
+        y = 20,
+        duration = 0.55,
+        rootMargin = "-8% 0px",
+        style,
 }: StaggeredRevealProps) {
-	const ref = useRef<HTMLDivElement | null>(null)
-	const [isInView, setIsInView] = useState(false)
-	const prefersReducedMotion = useReducedMotion()
+        const ref = useRef<HTMLDivElement | null>(null)
+        const [isInView, setIsInView] = useState(false)
+        const prefersReducedMotion = useReducedMotion()
 
-	useEffect(() => {
-		const element = ref.current
-		if (!element) return
+        useEffect(() => {
+                const element = ref.current
+                if (!element) return
 
-		if (prefersReducedMotion) {
-			setIsInView(true)
-			return
-		}
+                if (prefersReducedMotion) {
+                        setIsInView(true)
+                        return
+                }
 
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsInView(true)
-					observer.disconnect()
-				}
-			},
-			{ threshold: 0.05, rootMargin }
-		)
+                const observer = new IntersectionObserver(
+                        ([entry]) => {
+                                if (entry.isIntersecting) {
+                                        setIsInView(true)
+                                        observer.disconnect()
+                                }
+                        },
+                        { threshold: 0.05, rootMargin }
+                )
 
-		observer.observe(element)
-		return () => observer.disconnect()
-	}, [rootMargin, prefersReducedMotion])
+                observer.observe(element)
+                return () => observer.disconnect()
+        }, [rootMargin, prefersReducedMotion])
 
-	return (
-		<div ref={ref} className={className} style={style}>
-			{children.map((child, i) => (
-				<motion.div
-					key={i}
-					initial={{ opacity: 0, y: prefersReducedMotion ? 0 : y }}
-					animate={isInView ? { opacity: 1, y: 0 } : undefined}
-					transition={{
-						duration: prefersReducedMotion ? 0.2 : duration,
-						delay: prefersReducedMotion ? 0 : (i * stagger) / 1000,
-						ease: [0.23, 1, 0.32, 1],
-					}}
-				>
-					{child}
-				</motion.div>
-			))}
-		</div>
-	)
+        return (
+                <div ref={ref} className={className} style={style}>
+                        {children.map((child, i) => (
+                                <m.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : y }}
+                                        animate={isInView ? { opacity: 1, y: 0 } : undefined}
+                                        transition={{
+                                                duration: prefersReducedMotion ? 0.2 : duration,
+                                                delay: prefersReducedMotion ? 0 : (i * stagger) / 1000,
+                                                ease: [0.23, 1, 0.32, 1],
+                                        }}
+                                >
+                                        {child}
+                                </m.div>
+                        ))}
+                </div>
+        )
 }

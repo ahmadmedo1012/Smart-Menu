@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence } from 'motion/react';
+import { useScroll, useTransform, useMotionValueEvent, m, AnimatePresence } from 'motion/react';
 import { MotionMenu } from '@/components/ui/motion-icons';
 import { cn } from '@/lib/utils';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -138,7 +138,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 			{/* Mobile drawer */}
 			<AnimatePresence>
 				{mobileOpen && (
-					<motion.div
+					<m.div
 						ref={drawerRef}
 						id="mobile-global-drawer"
 						role="dialog"
@@ -159,12 +159,12 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
 								{l.label}
 							</Link>
 						))}
-					</motion.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 
 			{/* Scroll progress bar — RTL-aware origin-right */}
-			<motion.div
+			<m.div
 				className="fixed inset-x-0 top-14 z-30 h-[2px] origin-right rtl:origin-left bg-gradient-to-r from-orange/60 to-orange"
 				style={{ scaleX: progress }}
 				aria-hidden

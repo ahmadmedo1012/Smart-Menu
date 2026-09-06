@@ -5,7 +5,7 @@ import { usePollWhenVisible } from '@/hooks/usePollWhenVisible';
 import {AlertTriangle} from 'lucide-react';
 import AnimatedX from '@/components/ui/x-icon';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 
 interface RejectionEvent {
 	id: number;
@@ -47,7 +47,7 @@ export function UserBannerNotifier() {
 		<div className="w-full">
 			<AnimatePresence>
 				{!dismissed && (
-					<motion.div
+					<m.div
 						initial={{ opacity: 0, y: -20 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -20 }}
@@ -82,7 +82,7 @@ export function UserBannerNotifier() {
 								<AnimatedX className="size-3.5 text-muted-foreground" />
 							</button>
 						</div>
-					</motion.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 		</div>

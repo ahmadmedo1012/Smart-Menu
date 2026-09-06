@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const RefreshIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -40,7 +40,7 @@ const RefreshIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     };
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={handleHoverStart}
         onHoverEnd={handleHoverEnd}
@@ -59,7 +59,7 @@ const RefreshIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
         <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

@@ -12,15 +12,17 @@ export default defineConfig({
       exclude: ["node_modules", ".next", "src/generated/**"],
       // round85-D3: ratchet calibration. The old 50/50/40/50 thresholds were
       // aspirational and RED for a long time (nothing ran them) — dead weight.
-      // Measured after round85's +73 tests: 23.02 stmts / 19.92 branch /
-      // 29.85 funcs / 24.05 lines. Thresholds sit 1 point under measurement:
-      // green today, and every new test file nudges the ceiling upward.
+      // round88-D2: re-measured after the 4 new money-path/polling files
+      // (+72 tests: orders create/list+count, user-events+health, withRetry):
+      // 33.1 stmts / 31.0 branch / 38.07 funcs / 34.33 lines. Thresholds
+      // raised with a ~5-point SAFETY margin (waves A2/C add code before the
+      // round closes — the ratchet must stay green through them).
       // Raise these numbers as coverage grows — never lower them.
       thresholds: {
-        statements: 22,
-        branches: 19,
-        functions: 29,
-        lines: 23,
+        statements: 28,
+        branches: 25,
+        functions: 33,
+        lines: 29,
       },
     },
   },

@@ -31,7 +31,7 @@
  */
 
 import { useState, useCallback, useMemo, type CSSProperties, type KeyboardEvent } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import { MotionChevronLeft, MotionChevronRight } from '@/components/ui/motion-icons';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -191,25 +191,25 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
 
                                 {/* Generic decorative floaters (round79 option أ — sparkles,
                                                 never fake ingredients) — tinted with the scene accent. */}
-                                <motion.div
+                                <m.div
                                         aria-hidden="true"
                                         className="absolute top-6 end-[12%] text-[var(--scene-accent)]/40 pointer-events-none"
                                         animate={reduceMotion ? undefined : { y: [0, -8, 0] }}
                                         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                                 >
                                         <SparklesIcon className="size-6" />
-                                </motion.div>
-                                <motion.div
+                                </m.div>
+                                <m.div
                                         aria-hidden="true"
                                         className="absolute bottom-24 start-[8%] text-[var(--scene-accent)]/30 pointer-events-none"
                                         animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
                                         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
                                 >
                                         <SparklesIcon className="size-4" />
-                                </motion.div>
+                                </m.div>
 
                                 <AnimatePresence mode="wait" initial={false}>
-                                        <motion.div
+                                        <m.div
                                                 key={current.id}
                                                 initial={{ opacity: 0, x: enterX }}
                                                 animate={{ opacity: 1, x: 0 }}
@@ -246,7 +246,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                         positions around the image (responsive: tighter on
                                                                         mobile so nothing clips outside the scene). */}
                                                                 {badges.map((tag, i) => (
-                                                                        <motion.span
+                                                                        <m.span
                                                                                 key={tag}
                                                                                 initial={false}
                                                                                 animate={reduceMotion ? undefined : { y: [0, i % 2 === 0 ? -6 : 5, 0] }}
@@ -261,7 +261,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                         >
                                                                                 <SparklesIcon className="size-3" aria-hidden="true" />
                                                                                 {tag}
-                                                                        </motion.span>
+                                                                        </m.span>
                                                                 ))}
                                                         </div>
                                                 </div>
@@ -292,7 +292,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                 )}
                                                         </div>
                                                 </div>
-                                        </motion.div>
+                                        </m.div>
                                 </AnimatePresence>
 
                                 {total > 1 && (

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import { Phone, Store } from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
@@ -102,7 +102,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 				{/* ── Slide ── */}
 				<div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-white/10 bg-card shadow-[0_8px_40px_-16px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_40px_-16px_rgba(0,0,0,0.5)]">
 					<AnimatePresence custom={dir} mode="popLayout">
-						<motion.div
+						<m.div
 							key={r.id}
 							custom={dir}
 							variants={{
@@ -143,7 +143,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 									{/* Top */}
 									<div className="flex items-start justify-between">
 										<div className="flex items-center gap-3.5">
-											<motion.div
+											<m.div
 												initial={{ scale: 0.8, opacity: 0 }}
 												animate={{ scale: 1, opacity: 1 }}
 												transition={{ delay: 0.1, duration: 0.3 }}
@@ -162,18 +162,18 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 														{r.name.charAt(0)}
 													</span>
 												)}
-											</motion.div>
+											</m.div>
 											<div className="space-y-0.5">
-												<motion.h3
+												<m.h3
 													initial={{ y: 12, opacity: 0 }}
 													animate={{ y: 0, opacity: 1 }}
 													transition={{ delay: 0.12, duration: 0.3 }}
 													className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg"
 												>
 													{r.name}
-												</motion.h3>
+												</m.h3>
 												{r.city && (
-													<motion.span
+													<m.span
 														initial={{ y: 8, opacity: 0 }}
 														animate={{ y: 0, opacity: 1 }}
 														transition={{ delay: 0.15, duration: 0.3 }}
@@ -181,12 +181,12 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 													>
 														<AnimatedMapPin className="size-3.5" />
 														{r.city}
-													</motion.span>
+													</m.span>
 												)}
 											</div>
 										</div>
 										{r.orderCount > 0 && (
-											<motion.div
+											<m.div
 												initial={{ scale: 0 }}
 												animate={{ scale: 1 }}
 												transition={{ delay: 0.2, duration: 0.3 }}
@@ -194,23 +194,23 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 											>
 												<AnimatedStar className="size-3.5 text-saffron" />
 												{r.orderCount}
-											</motion.div>
+											</m.div>
 										)}
 									</div>
 
 									{/* Bottom */}
 									<div className="space-y-3.5 max-w-xl">
 										{r.description && (
-											<motion.p
+											<m.p
 												initial={{ y: 12, opacity: 0 }}
 												animate={{ y: 0, opacity: 1 }}
 												transition={{ delay: 0.15, duration: 0.3 }}
 												className="text-sm sm:text-base text-white/80 leading-relaxed line-clamp-2"
 											>
 												{r.description}
-											</motion.p>
+											</m.p>
 										)}
-										<motion.div
+										<m.div
 											initial={{ y: 10, opacity: 0 }}
 											animate={{ y: 0, opacity: 1 }}
 											transition={{ delay: 0.18, duration: 0.3 }}
@@ -231,11 +231,11 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 												nudge coherent in both directions (translate-x is physical in TW4) */}
 												<MotionArrowRight className="size-4 transition-transform duration-200 group-hover/link:translate-x-1 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
 											</span>
-										</motion.div>
+										</m.div>
 									</div>
 								</div>
 							</Link>
-						</motion.div>
+						</m.div>
 					</AnimatePresence>
 
 					{/* ── Arrows ── */}
@@ -263,7 +263,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
 					{/* ── Progress bar ── */}
 					{n > 1 && (
 						<div className="absolute bottom-0 inset-x-0 z-20 h-1 bg-white/10">
-							<motion.div
+							<m.div
 								key={slide}
 								className="h-full bg-orange"
 								initial={{ scaleX: 0, transformOrigin: 'right' }}

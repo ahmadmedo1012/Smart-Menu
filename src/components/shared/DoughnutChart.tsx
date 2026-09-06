@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { donutSlicePath, SERIES_PALETTE } from '@/lib/chart-geometry';
@@ -85,7 +85,7 @@ export function DoughnutChart({
 							s.end
 						);
 						return (
-							<motion.path
+							<m.path
 								key={s.key}
 								d={path}
 								fill={s.color}

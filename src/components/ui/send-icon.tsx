@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const SendIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -46,7 +46,7 @@ const SendIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -62,12 +62,12 @@ const SendIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         className={`cursor-pointer ${className}`}
         style={{ overflow: "visible" }}
       >
-        <motion.g className="send-icon" style={{ transformOrigin: "center" }}>
+        <m.g className="send-icon" style={{ transformOrigin: "center" }}>
           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
           <path d="M10 14l11 -11" />
           <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
-        </motion.g>
-      </motion.svg>
+        </m.g>
+      </m.svg>
     );
   },
 );

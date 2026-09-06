@@ -1,13 +1,13 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { VideoWrapper } from "@/components/ui/VideoWrapper"
 
 const BG = "var(--c-device-void)"
 
 export function PhoneVideo() {
   return (
-    <motion.div
+    <m.div
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 80, damping: 15 }}
@@ -20,6 +20,6 @@ export function PhoneVideo() {
         className="size-full"
         posterClassName="object-cover"
       />
-    </motion.div>
+    </m.div>
   )
 }

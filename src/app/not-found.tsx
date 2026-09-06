@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { FileQuestion, Store, Star, LayoutDashboard, MessageCircle, UtensilsCrossed } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
+import { LazyMotionProvider } from "@/components/motion/LazyMotionProvider"
 
 export const metadata: Metadata = {
   title: "404 - الصفحة غير موجودة",
@@ -30,7 +31,13 @@ export default function NotFound() {
           </span>
           <span className="font-bold text-lg text-foreground">سمارت مينيو</span>
         </Link>
-        <ThemeToggle />
+        {/* round88-A1: the root 404 boundary renders outside both route-group
+            root layouts, so it gets no MotionProvider — mount the shared
+            LazyMotionProvider here so ThemeToggle's m.* components keep
+            animating exactly as before the LazyMotion migration. */}
+        <LazyMotionProvider>
+          <ThemeToggle />
+        </LazyMotionProvider>
       </header>
 
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-orange/5" />

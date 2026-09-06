@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const LogoutIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -47,7 +47,7 @@ const LogoutIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.div
+      <m.div
         ref={scope}
         className={`inline-flex cursor-pointer ${className}`}
         onHoverStart={start}
@@ -64,17 +64,17 @@ const LogoutIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <motion.path
+          <m.path
             className="logout-door"
             style={{ transformOrigin: "50% 50%" }}
             d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"
           />
 
-          <motion.path className="logout-arrow" d="M9 12h12" />
+          <m.path className="logout-arrow" d="M9 12h12" />
 
-          <motion.path className="logout-arrow-bottom" d="M18 15l3 -3l-3 -3" />
+          <m.path className="logout-arrow-bottom" d="M18 15l3 -3l-3 -3" />
         </svg>
-      </motion.div>
+      </m.div>
     );
   },
 );

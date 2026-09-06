@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { cn } from "@/lib/utils";
 import { springGentle, springSnappy } from "@/lib/motion";
 import { Eyebrow } from "./Eyebrow";
@@ -28,7 +28,7 @@ const fadeUpSnappy = {
 export function SectionHeader({ eyebrow, title, subtitle, className, icon, align = "center" }: SectionHeaderProps) {
   const centered = align === "center";
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-40px" }}
@@ -42,14 +42,14 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
       )}
     >
       {eyebrow && (
-        <motion.div variants={fadeUpSnappy}>
+        <m.div variants={fadeUpSnappy}>
           <Eyebrow className={centered ? "justify-center" : "justify-start"}>
             {icon}{icon && " "}{eyebrow}
           </Eyebrow>
-        </motion.div>
+        </m.div>
       )}
       {title && (
-        <motion.h2
+        <m.h2
           variants={fadeUpSpring}
           className={cn(
             "text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.25] tracking-tight text-balance",
@@ -57,10 +57,10 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
           )}
         >
           {title}
-        </motion.h2>
+        </m.h2>
       )}
       {subtitle && (
-        <motion.p
+        <m.p
           variants={fadeUpSnappy}
           className={cn(
             "text-base text-muted-foreground/90 mt-4 max-w-[48ch] leading-relaxed",
@@ -68,8 +68,8 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
           )}
         >
           {subtitle}
-        </motion.p>
+        </m.p>
       )}
-    </motion.div>
+    </m.div>
   );
 }

@@ -16,7 +16,7 @@
 
 import { memo, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { MiniSparkline } from '@/components/shared/MiniSparkline';
@@ -146,7 +146,7 @@ export const KpiCard = memo(function KpiCard({
 		 div with an unannounced onClick. */
 	if (href) {
 		return (
-			<motion.div
+			<m.div
 				initial={reduceMotion ? false : { opacity: 0, y: 12 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={entranceTransition}
@@ -163,12 +163,12 @@ export const KpiCard = memo(function KpiCard({
 					<span className="sr-only">{label}</span>
 				</Link>
 				<div className="p-5">{body}</div>
-			</motion.div>
+			</m.div>
 		);
 	}
 
 	return (
-		<motion.div
+		<m.div
 			initial={reduceMotion ? false : { opacity: 0, y: 12 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={entranceTransition}
@@ -177,6 +177,6 @@ export const KpiCard = memo(function KpiCard({
 			)}
 		>
 			{body}
-		</motion.div>
+		</m.div>
 	);
 });

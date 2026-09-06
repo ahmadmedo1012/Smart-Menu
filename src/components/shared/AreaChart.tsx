@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 interface DataPoint {
@@ -90,7 +90,7 @@ export function AreaChart({
 					})}
 
 				{/* Area fill */}
-				<motion.path
+				<m.path
 					d={areaPath}
 					fill={`url(#${gradientId})`}
 					initial={{ opacity: 0 }}
@@ -99,7 +99,7 @@ export function AreaChart({
 				/>
 
 				{/* Line — thin 2px */}
-				<motion.path
+				<m.path
 					d={linePath}
 					fill="none"
 					stroke={color}
@@ -128,7 +128,7 @@ export function AreaChart({
 							onMouseLeave={() => setTooltip(null)}
 						/>
 						{/* Dot */}
-						<motion.circle
+						<m.circle
 							cx={p.x}
 							cy={p.y}
 							r={3}

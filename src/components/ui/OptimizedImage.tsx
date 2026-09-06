@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, memo, type ReactNode } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { UtensilsCrossed } from "lucide-react";
@@ -53,7 +53,7 @@ const OptimizedImage = memo(function OptimizedImage({
       {/* Shimmer skeleton */}
       <AnimatePresence>
         {skeleton && status === "loading" && (
-          <motion.div
+          <m.div
             key="shimmer"
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}

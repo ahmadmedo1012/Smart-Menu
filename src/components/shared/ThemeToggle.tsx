@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence, useReducedMotion } from "motion/react"
+import { m, AnimatePresence, useReducedMotion } from "motion/react"
 import { cn } from "@/lib/utils"
 
 const springIcon = { type: "spring" as const, stiffness: 300, damping: 22, mass: 0.8 }
@@ -23,7 +23,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   }
 
   return (
-    <motion.button
+    <m.button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "الوضع النهاري" : "الوضع الليلي"}
       className={cn(
@@ -43,7 +43,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       <div className="relative size-4">
         <AnimatePresence mode="wait" initial={false}>
           {isDark ? (
-            <motion.svg
+            <m.svg
               key="moon"
               viewBox="0 0 24 24"
               className="absolute inset-0 size-4 text-foreground"
@@ -60,9 +60,9 @@ export function ThemeToggle({ className }: { className?: string }) {
               <path
                 d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
               />
-            </motion.svg>
+            </m.svg>
           ) : (
-            <motion.svg
+            <m.svg
               key="sun"
               viewBox="0 0 24 24"
               className="absolute inset-0 size-4 text-foreground"
@@ -80,10 +80,10 @@ export function ThemeToggle({ className }: { className?: string }) {
               <path
                 d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
               />
-            </motion.svg>
+            </m.svg>
           )}
         </AnimatePresence>
       </div>
-    </motion.button>
+    </m.button>
   )
 }

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
+import { m, AnimatePresence, LayoutGroup } from 'motion/react';
+import { LayoutMotion } from '@/components/motion/LazyMotionProvider';
 import { cn } from '@/lib/utils';
 import {LayoutDashboard, Store, Users, UtensilsCrossed, ScrollText, Settings, Activity, DollarSign, ClipboardList, Gift, Package} from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
@@ -254,7 +255,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 			{/* ── Overlay + Panel ── */}
 			<AnimatePresence>
 				{open && (
-					<motion.div
+					<m.div
 						className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -271,7 +272,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 						/>
 
 						{/* Panel — origin-top-right for RTL */}
-						<motion.div
+						<m.div
 							initial={{ opacity: 0, scale: 0.96, y: -20 }}
 							animate={{ opacity: 1, scale: 1, y: 0 }}
 							exit={{ opacity: 0, scale: 0.96, y: -20 }}
@@ -336,11 +337,13 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 												>
 													{/* layoutId highlight background — fluid bounding box */}
 													{isSelected && (
-														<motion.span
-															layoutId="search-highlight"
-															className="absolute inset-0 rounded-lg bg-gradient-to-l from-orange/15 to-transparent dark:from-orange/15"
-															transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-														/>
+														<LayoutMotion>
+															<m.span
+																layoutId="search-highlight"
+																className="absolute inset-0 rounded-lg bg-gradient-to-l from-orange/15 to-transparent dark:from-orange/15"
+																transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+															/>
+														</LayoutMotion>
 													)}
 
 													{/* Icon */}
@@ -368,8 +371,8 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 									</LayoutGroup>
 								)}
 							</div>
-						</motion.div>
-					</motion.div>
+						</m.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 		</>

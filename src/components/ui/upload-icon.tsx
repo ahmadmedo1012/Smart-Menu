@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback, useRef } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const UploadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -57,7 +57,7 @@ const UploadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -77,11 +77,11 @@ const UploadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 
         {/* Arrow (Main & Only) */}
-        <motion.g className="arrow-group">
+        <m.g className="arrow-group">
           <path d="M12 3v12" />
           <path d="m17 8-5-5-5 5" />
-        </motion.g>
-      </motion.svg>
+        </m.g>
+      </m.svg>
     );
   },
 );

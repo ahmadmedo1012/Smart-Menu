@@ -2,7 +2,7 @@
 
 import { useRef } from "react"
 import Image from "next/image"
-import { motion, useScroll, useTransform } from "motion/react"
+import { m, useScroll, useTransform } from "motion/react"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
@@ -32,7 +32,7 @@ export function ShowcaseSection() {
 				<ClipPathReveal direction="up" duration={800}>
 					<div className="relative bg-foreground/[0.035] dark:bg-white/[0.045] p-1.5 sm:p-2 rounded-2xl ring-1 ring-foreground/10 dark:ring-white/10">
 						<div className="relative overflow-hidden rounded-[calc(1rem-0.375rem)] sm:rounded-[calc(1rem-0.5rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
-							<motion.div style={{ scale: imageScale, y: imageY }}>
+							<m.div style={{ scale: imageScale, y: imageY }}>
 								<Image
 									src="/main21.webp"
 									alt="معاينة المنيو الرقمي الذكي من الربط الذكي"
@@ -41,7 +41,7 @@ export function ShowcaseSection() {
 									className="w-full h-[360px] sm:h-[460px] md:h-[560px] object-cover"
 									priority
 								/>
-							</motion.div>
+							</m.div>
 
 							<div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-background/25" />
 						</div>

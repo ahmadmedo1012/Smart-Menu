@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect, type ReactNode, type CSSProperties } from "react"
-import { motion, useReducedMotion } from "motion/react"
+import { m, useReducedMotion } from "motion/react"
 
 type RevealDirection = "up" | "down" | "left" | "right" | "iris"
 
@@ -105,7 +105,7 @@ export function ClipPathReveal({
 	}
 
 	return (
-		<motion.div
+		<m.div
 			ref={ref}
 			className={className}
 			style={style}
@@ -117,7 +117,7 @@ export function ClipPathReveal({
 			}}
 		>
 			{children}
-		</motion.div>
+		</m.div>
 	)
 }
 

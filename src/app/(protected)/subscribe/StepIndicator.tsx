@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { MotionCheck } from '@/components/ui/motion-icons';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 
 export type WizardStep = 'plan' | 'menu' | 'account' | 'review';
 
@@ -51,7 +51,7 @@ export function StepIndicator({
 							aria-current={isActive ? 'step' : undefined}
 							aria-disabled={!clickable || undefined}
 						>
-							<motion.div
+							<m.div
 								initial={false}
 								whileTap={clickable && !reduceMotion ? { scale: 0.94 } : undefined}
 								className={cn(
@@ -68,7 +68,7 @@ export function StepIndicator({
 								) : (
 									toArabicNumber(i + 1)
 								)}
-							</motion.div>
+							</m.div>
 							<span
 								className={cn(
 									'text-[11px] sm:text-xs font-medium transition-colors hidden sm:block',

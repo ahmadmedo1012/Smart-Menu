@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback, useRef } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const DownloadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -68,7 +68,7 @@ const DownloadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -85,26 +85,26 @@ const DownloadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         style={{ overflow: "visible" }}
       >
         {/* Tray */}
-        <motion.path
+        <m.path
           className="tray"
           d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
           style={{ transformOrigin: "center bottom" }}
         />
 
         {/* Arrow Stem */}
-        <motion.path
+        <m.path
           className="arrow-stem"
           d="M12 15V3"
           style={{ transformOrigin: "center" }}
         />
 
         {/* Arrow Head */}
-        <motion.path
+        <m.path
           className="arrow-head"
           d="m7 10 5 5 5-5"
           style={{ transformOrigin: "center" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

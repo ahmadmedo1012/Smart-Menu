@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const SparklesIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -61,7 +61,7 @@ const SparklesIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -78,26 +78,26 @@ const SparklesIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         style={{ overflow: "visible" }}
       >
         {/* bottom sparkle */}
-        <motion.path
+        <m.path
           className="sparkle-bottom"
           d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z"
           style={{ transformOrigin: "18px 18px" }}
         />
 
         {/* top sparkle */}
-        <motion.path
+        <m.path
           className="sparkle-top"
           d="M16 6a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z"
           style={{ transformOrigin: "18px 6px" }}
         />
 
         {/* main sparkle */}
-        <motion.path
+        <m.path
           className="sparkle-main"
           d="M9 18a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z"
           style={{ transformOrigin: "9px 12px" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

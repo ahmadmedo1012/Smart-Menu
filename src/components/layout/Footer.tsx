@@ -1,7 +1,7 @@
 "use client";
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 
@@ -24,7 +24,7 @@ const QUICK_LINKS = [
 export function Footer({ className }: FooterProps) {
 	const reduceMotion = useReducedMotion();
 	return (
-		<motion.footer
+		<m.footer
 			initial={reduceMotion ? false : { opacity: 0, y: 20 }}
 			whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true, margin: "-40px" }}
@@ -118,6 +118,6 @@ export function Footer({ className }: FooterProps) {
 					</div>
 				</div>
 			</div>
-		</motion.footer>
+		</m.footer>
 	);
 }

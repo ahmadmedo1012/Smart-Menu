@@ -13,7 +13,7 @@ import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfFetch } from '@/lib/csrf-client';
 import { MotionArrowLeft, MotionArrowRight } from '@/components/ui/motion-icons';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { WizardStep } from './StepIndicator';
 
 const PLAN_GRADIENTS: Record<string, string> = {
@@ -244,7 +244,7 @@ export function SubscribeForm({
 			</div>
 
 			<AnimatePresence mode="wait">
-				<motion.div
+				<m.div
 					key={step}
 					initial={reduceMotion ? false : { opacity: 0, x: 24 }}
 					animate={{ opacity: 1, x: 0 }}
@@ -530,7 +530,7 @@ export function SubscribeForm({
 							</div>
 						</div>
 					)}
-				</motion.div>
+				</m.div>
 			</AnimatePresence>
 
 			{/* ── Navigation buttons ── */}

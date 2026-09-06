@@ -26,7 +26,9 @@ test.describe("responsive: no horizontal overflow at 3 viewports", () => {
 test("rtl: every page has dir=rtl + lang=ar", async ({ page }) => {
   for (const p of PAGES) {
     await page.goto(p, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1200);
+    // round88-D8: was a fixed 1200ms sleep per page — dir/lang are SSR'd on
+    // <html> by the root layout, so they exist the moment domcontentloaded
+    // fires; the sleep was pure waste (~7s across the page list).
     const dir = await page.evaluate(() => document.documentElement.dir);
     const lang = await page.evaluate(() => document.documentElement.lang);
     expect(dir, `${p} dir`).toBe("rtl");
@@ -97,7 +99,10 @@ test("a11y: buttons have text or aria-label on menu page", async ({ page }) => {
 
 test("keyboard: tab through login form reaches submit", async ({ page }) => {
   await page.goto("/login", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
+  // round88-D8: was a fixed 1500ms sleep — replaced with an auto-retrying
+  // condition wait on the form's hydration marker: the tab sequence only
+  // makes sense once the form is actually interactive.
+  await expect(page.getByPlaceholder("اسم المستخدم")).toBeVisible({ timeout: 10_000 });
   // Press Tab several times — should focus inputs and eventually the submit button
   let focused = "";
   for (let i = 0; i < 6; i++) {

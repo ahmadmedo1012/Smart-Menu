@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { tickIndices } from '@/lib/chart-geometry';
@@ -145,7 +145,7 @@ export function ColumnChart({
 								const x = gx + si * barW + si * 2;
 								const y = padding.top + chartH - h;
 								return (
-									<motion.rect
+									<m.rect
 										key={s.id}
 										x={x}
 										width={barW}

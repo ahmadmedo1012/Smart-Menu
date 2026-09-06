@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion } from "motion/react"
+import { m } from "motion/react"
+import { LayoutMotion } from "@/components/motion/LazyMotionProvider"
 import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 
@@ -33,11 +34,13 @@ export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProp
       )}
     >
       {isActive && (
-        <motion.span
-          layoutId="activeNavIndicator"
-          className="absolute end-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-orange"
-          transition={{ type: "spring", stiffness: 400, damping: 28 }}
-        />
+        <LayoutMotion>
+          <m.span
+            layoutId="activeNavIndicator"
+            className="absolute end-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-orange"
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
+          />
+        </LayoutMotion>
       )}
       {isActive && <span className="sr-only">(الصفحة الحالية)</span>}
       <Icon

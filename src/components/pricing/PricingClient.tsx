@@ -6,7 +6,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Plan } from '@/lib/plan-types';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
 import {Star, Crown, Building2, Sparkles, ChevronDown, type LucideIcon} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
@@ -74,7 +74,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 	const isFree = plan.price === 0;
 
 	return (
-		<motion.div
+		<m.div
 			initial={reduceMotion ? false : { opacity: 0, y: 24 }}
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true, margin: "-40px" }}
@@ -181,7 +181,7 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 					</Button>
 				</Link>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 }
 

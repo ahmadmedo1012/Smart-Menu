@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { csrfFetch } from '@/lib/csrf-client';
 import { premiumToast } from '@/lib/premium-toast';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import {Smartphone, Landmark, CheckCircle2, XCircle} from 'lucide-react';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import {
@@ -451,7 +451,7 @@ export function PaymentDialog({
 
                                         {step === 'approved' && (
                                                 <div className="flex flex-col items-center py-8 space-y-6">
-                                                        <motion.div
+                                                        <m.div
                                                                 initial={{ scale: 0 }}
                                                                 animate={{ scale: 1 }}
                                                                 className="relative size-20"
@@ -463,25 +463,25 @@ export function PaymentDialog({
                                                                 <div className="relative size-full rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center shadow-lg shadow-success/30">
                                                                         <CheckCircle2 className="size-10 text-success-foreground" />
                                                                 </div>
-                                                        </motion.div>
+                                                        </m.div>
                                                         <div className="text-center space-y-2">
-                                                                <motion.p
+                                                                <m.p
                                                                         initial={{ opacity: 0, y: 10 }}
                                                                         animate={{ opacity: 1, y: 0 }}
                                                                         className="text-lg font-bold text-success"
                                                                 >
                                                                         تم الموافقة على الاشتراك
-                                                                </motion.p>
-                                                                <motion.p
+                                                                </m.p>
+                                                                <m.p
                                                                         initial={{ opacity: 0, y: 10 }}
                                                                         animate={{ opacity: 1, y: 0 }}
                                                                         transition={{ delay: 0.15 }}
                                                                         className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed"
                                                                 >
                                                                         {resolutionMsg}
-                                                                </motion.p>
+                                                                </m.p>
                                                         </div>
-                                                        <motion.div
+                                                        <m.div
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 transition={{ delay: 0.3 }}
@@ -495,13 +495,13 @@ export function PaymentDialog({
                                                                 >
                                                                         الانتقال إلى لوحة التحكم
                                                                 </Button>
-                                                        </motion.div>
+                                                        </m.div>
                                                 </div>
                                         )}
 
                                         {step === 'rejected' && (
                                                 <div className="flex flex-col items-center py-8 space-y-6">
-                                                        <motion.div
+                                                        <m.div
                                                                 initial={{ scale: 0 }}
                                                                 animate={{ scale: 1 }}
                                                                 className="relative size-20"
@@ -513,25 +513,25 @@ export function PaymentDialog({
                                                                 <div className="relative size-full rounded-full bg-gradient-to-br from-destructive to-destructive/80 flex items-center justify-center shadow-lg shadow-destructive/30">
                                                                         <XCircle className="size-10 text-destructive-foreground" />
                                                                 </div>
-                                                        </motion.div>
+                                                        </m.div>
                                                         <div className="text-center space-y-2">
-                                                                <motion.p
+                                                                <m.p
                                                                         initial={{ opacity: 0, y: 10 }}
                                                                         animate={{ opacity: 1, y: 0 }}
                                                                         className="text-lg font-bold text-destructive"
                                                                 >
                                                                         تم رفض طلب الاشتراك
-                                                                </motion.p>
-                                                                <motion.p
+                                                                </m.p>
+                                                                <m.p
                                                                         initial={{ opacity: 0, y: 10 }}
                                                                         animate={{ opacity: 1, y: 0 }}
                                                                         transition={{ delay: 0.15 }}
                                                                         className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed"
                                                                 >
                                                                         {resolutionMsg}
-                                                                </motion.p>
+                                                                </m.p>
                                                         </div>
-                                                        <motion.div
+                                                        <m.div
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 transition={{ delay: 0.3 }}
@@ -561,7 +561,7 @@ export function PaymentDialog({
                                                                 >
                                                                         إعادة المحاولة
                                                                 </Button>
-                                                        </motion.div>
+                                                        </m.div>
                                                 </div>
                                         )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, memo } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -88,7 +88,7 @@ const VideoWrapper = memo(function VideoWrapper({
       ) : null}
 
       {shouldLoad && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
@@ -104,7 +104,7 @@ const VideoWrapper = memo(function VideoWrapper({
             autoPlay
             className="size-full object-cover"
           />
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

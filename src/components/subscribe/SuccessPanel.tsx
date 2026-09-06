@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { MessageCircle } from 'lucide-react';
 
 /**
@@ -24,7 +24,7 @@ export function SuccessPanel({
 	return (
 		<div className="animate-fade-in max-w-lg mx-auto text-center py-10">
 			{/* Animated checkmark — stroke draw ≤600ms, static under reduced motion */}
-			<motion.div
+			<m.div
 				initial={reduceMotion ? false : { scale: 0.8 }}
 				animate={{ scale: 1 }}
 				transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 20 }}
@@ -42,14 +42,14 @@ export function SuccessPanel({
 					strokeLinejoin="round"
 					aria-hidden="true"
 				>
-					<motion.path
+					<m.path
 						d="M14 27 L23 36 L38 18"
 						initial={{ pathLength: 0 }}
 						animate={{ pathLength: 1 }}
 						transition={drawTransition}
 					/>
 				</svg>
-			</motion.div>
+			</m.div>
 
 			<h2 className="text-2xl font-bold mb-3">تم إرسال طلب اشتراكك في خطة {planNameAr}</h2>
 

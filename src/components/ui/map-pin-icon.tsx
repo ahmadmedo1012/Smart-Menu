@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback, useRef } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const MapPinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -37,7 +37,7 @@ const MapPinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         onHoverStart={start}
         onHoverEnd={stop}
@@ -57,8 +57,8 @@ const MapPinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
 
         {/* Inner Dot - The Beacon */}
-        <motion.circle className="pin-dot" cx="12" cy="10" r="3" />
-      </motion.svg>
+        <m.circle className="pin-dot" cx="12" cy="10" r="3" />
+      </m.svg>
     );
   },
 );

@@ -1,7 +1,7 @@
 "use client";
 import { forwardRef, useImperativeHandle, useCallback } from "react";
 import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
-import { motion, useAnimate } from "motion/react";
+import { m, useAnimate } from "motion/react";
 
 const XIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
@@ -69,7 +69,7 @@ const XIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
     }));
 
     return (
-      <motion.svg
+      <m.svg
         ref={scope}
         xmlns="http://www.w3.org/2000/svg"
         width={size}
@@ -87,19 +87,19 @@ const XIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
 
         {/* First line (top-left to bottom-right) */}
-        <motion.path
+        <m.path
           d="M18 6l-12 12"
           className="x-line-1"
           style={{ transformOrigin: "50% 50%" }}
         />
 
         {/* Second line (bottom-left to top-right) */}
-        <motion.path
+        <m.path
           d="M6 6l12 12"
           className="x-line-2"
           style={{ transformOrigin: "50% 50%" }}
         />
-      </motion.svg>
+      </m.svg>
     );
   },
 );

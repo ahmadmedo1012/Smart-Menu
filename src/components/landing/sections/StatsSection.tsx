@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { springSnappy } from "@/lib/motion";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -37,7 +37,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
         <div className="mx-auto max-w-3xl rounded-2xl border border-border/50 bg-card/80 p-6 shadow-md backdrop-blur-md sm:p-8">
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:gap-6">
             {items.map((item, i) => (
-              <motion.div
+              <m.div
                 key={item.label}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +56,7 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
                   (smaller size + muted hue) while passing AA. */}
               <div className="mt-3 text-xs text-muted-foreground">{item.sub}</div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
           <div className="mx-auto mt-6 h-px w-16 bg-orange/60" />

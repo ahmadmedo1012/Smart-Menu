@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect, useMemo, type ReactNode } from "react"
-import { useScroll, useTransform, motion, type MotionValue } from "motion/react"
+import { useScroll, useTransform, m, type MotionValue } from "motion/react"
 import { cn } from "@/lib/utils"
 
 /* ── ContainerScroll ───────────────────────────────────────────
@@ -91,12 +91,12 @@ function Header({
 }) {
   if (!children) return null
   return (
-    <motion.div
+    <m.div
       style={{ translateY }}
       className="text-center mb-6 md:mb-12 px-2"
     >
       {children}
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -114,7 +114,7 @@ function Card({
   children: ReactNode
 }) {
   return (
-    <motion.div
+    <m.div
       // ponytail: MotionValue pass-through — motion's style prop accepts
       // MotionValues directly (round87-C9: dropped the `as unknown as
       // CSSProperties` bridge that hid this from the compiler)
@@ -133,6 +133,6 @@ function Card({
         }}
       />
       {children}
-    </motion.div>
+    </m.div>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { MotionChevronDown } from "@/components/ui/motion-icons"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
@@ -22,7 +22,7 @@ export function FaqSection() {
       </ScrollReveal>
 
       <ScrollReveal y={16} delay={80}>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -47,7 +47,7 @@ export function FaqSection() {
               </div>
             </details>
           ))}
-        </motion.div>
+        </m.div>
       </ScrollReveal>
     </SectionContainer>
   )

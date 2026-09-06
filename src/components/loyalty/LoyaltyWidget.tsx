@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { toArabicNumber } from '@/lib/format';
 import { Phone, Award, Star, Sparkles, Medal, Gift, Stamp } from 'lucide-react';
 import { csrfFetch } from '@/lib/csrf-client';
@@ -224,7 +224,7 @@ export function LoyaltyWidget({
 										{Array.from({ length: STAMP_GOAL }, (_, i) => {
 											const isFilled = i < stamps;
 											return (
-												<motion.div
+												<m.div
 													key={i}
 													initial={shouldReduceMotion ? false : { scale: 0, rotate: -90 }}
 													animate={{ scale: 1, rotate: 0 }}
@@ -246,7 +246,7 @@ export function LoyaltyWidget({
 													)}
 												>
 													{isFilled ? <Stamp className="size-4" /> : toArabicNumber(i + 1)}
-												</motion.div>
+												</m.div>
 											);
 										})}
 									</div>
@@ -277,7 +277,7 @@ export function LoyaltyWidget({
 											</span>
 										</div>
 										<div className="h-2.5 rounded-full bg-muted/50 overflow-hidden">
-											<motion.div
+											<m.div
 												initial={shouldReduceMotion ? false : { width: 0 }}
 												animate={{ width: `${pct}%` }}
 												transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, ease: 'easeOut' }}
