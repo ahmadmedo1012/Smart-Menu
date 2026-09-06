@@ -24,6 +24,26 @@ describe("arabicNumberState classification", () => {
     }
   });
 
+  // round90-F4: the classifier delegates to Intl.PluralRules('ar') — these
+  // pins document the CLDR boundaries the native rules bring (added; the
+  // expectations above are untouched and still green).
+  it("pins the CLDR boundaries the native classifier brings (round90-F4)", () => {
+    const cases: Array<[number, string]> = [
+      [99, "many"], // 11..99 compound numbers → singular accusative
+      [100, "many"], // CLDR 'other' → mapped to many (singular form)
+      [101, "many"], // 101 % 100 = 1 → 'other' → many
+      [103, "few"], // 103 % 100 = 3 → few → plural ("103 أصناف") — CLDR-correct,
+      // tighter than the old flat 11+ → many rule
+      [111, "many"], // 111 % 100 = 11 → many
+      [200, "many"], // 'other' → many
+      [1003, "few"], // 1003 % 100 = 3 → few
+      [1_000_000, "many"], // 'other' → many
+    ];
+    for (const [n, expected] of cases) {
+      expect(arabicNumberState(n)).toBe(expected);
+    }
+  });
+
   it("rejects negative and non-integer counts", () => {
     expect(() => arabicNumberState(-1)).toThrow(RangeError);
     expect(() => arabicNumberState(1.5)).toThrow(RangeError);

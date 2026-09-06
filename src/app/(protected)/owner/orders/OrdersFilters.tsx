@@ -23,6 +23,66 @@ interface OrdersFiltersProps {
         tabs: FilterTab[];
 }
 
+/**
+ * round90-F4 (L1 — QA live 13-owner-orders): native date inputs render their
+ * value AND placeholder per the BROWSER's locale — on an en-US machine the
+ * Arabic UI showed English "mm/dd/yyyy" fields (uncontrollable from HTML).
+ * The control is kept (picker + yyyy-mm-dd value + onChange untouched), its
+ * locale-rendered text is hidden, and an Arabic overlay (Intl.DateTimeFormat
+ * 'ar', Western digits — the same toArabicNumber convention the rest of the
+ * interface uses) is the visible value. Screen readers read the real input
+ * value; the overlay is aria-hidden and pointer-events-none so clicks pass
+ * through to the input.
+ */
+const arabicDateFmt = new Intl.DateTimeFormat('ar', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        numberingSystem: 'latn',
+});
+
+function DateFilterField({
+        id,
+        label,
+        value,
+        onChange,
+}: {
+        id: string;
+        label: string;
+        value: string;
+        onChange: (v: string) => void;
+}) {
+        let display = '';
+        if (value) {
+                // value is the spec yyyy-mm-dd string — parse at local noon so
+                // timezone edges can't shift the displayed day.
+                const d = new Date(`${value}T12:00:00`);
+                display = Number.isNaN(d.getTime()) ? '' : arabicDateFmt.format(d);
+        }
+        return (
+                <div className="relative shrink-0" dir="rtl">
+                        <input
+                                id={id}
+                                type="date"
+                                value={value}
+                                onChange={(e) => onChange(e.target.value)}
+                                className="h-11 w-44 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange text-transparent"
+                                title={display || label}
+                                aria-label={label}
+                        />
+                        <span
+                                aria-hidden="true"
+                                className={cn(
+                                        'pointer-events-none absolute inset-y-0 start-3 flex items-center text-sm whitespace-nowrap',
+                                        display ? '' : 'text-muted-foreground/70'
+                                )}
+                        >
+                                {display || label}
+                        </span>
+                </div>
+        );
+}
+
 /** Search + date range + status chips — verbatim extraction from the owner
  * orders page (round89-G2). The date handlers run the same state-write +
  * refetch sequence the old inline arrows did. */
@@ -47,27 +107,17 @@ export function OrdersFilters({
                                 onChange={onSearchChange}
                                 placeholder="ابحث برقم الطلب أو اسم العميل..."
                         />
-                        <input
-                                type="date"
+                        <DateFilterField
+                                id="orders-date-from"
+                                label="من تاريخ"
                                 value={dateFrom}
-                                onChange={(e) => {
-                                        const v = e.target.value;
-                                        onDateFromChange(v);
-                                }}
-                                className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
-                                title="من تاريخ"
-                                aria-label="من تاريخ"
+                                onChange={onDateFromChange}
                         />
-                        <input
-                                type="date"
+                        <DateFilterField
+                                id="orders-date-to"
+                                label="إلى تاريخ"
                                 value={dateTo}
-                                onChange={(e) => {
-                                        const v = e.target.value;
-                                        onDateToChange(v);
-                                }}
-                                className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
-                                title="إلى تاريخ"
-                                aria-label="إلى تاريخ"
+                                onChange={onDateToChange}
                         />
                         {(dateFrom || dateTo) && (
                                 <button

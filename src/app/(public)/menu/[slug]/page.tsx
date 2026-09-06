@@ -68,6 +68,43 @@ export async function generateMetadata({
         };
 }
 
+// round90-F4 (advisory S2, gstack simplification): the triple fallback
+// chain (showcaseTags → round79 base columns → []) guarded a migration
+// window that has closed — migration 18 DROPPED the legacy single showcaseTag
+// column and migration 19 is applied in production (131 live checks in
+// r89-closure; the local DB is at 19/19), so a missing-column P2022 is no
+// longer reachable. ONE query now, still failure-TOLERANT: a transient DB
+// error degrades the showcase away (.catch → []) instead of breaking the
+// menu page. r86-B2 scoping stays (category join — MenuItem has NO
+// restaurantId column in schema.prisma).
+async function fetchShowcaseFlags(restaurantId: number) {
+        return prisma
+                .$queryRaw<
+                        Array<{
+                                id: number;
+                                isFeatured: boolean;
+                                featuredRank: number | null;
+                                showcaseTags: string[] | null;
+                        }>
+                >`
+                        SELECT "id", "isFeatured", "featuredRank", "showcaseTags"
+                        FROM "MenuItem"
+                        WHERE "isFeatured" = true
+                          AND "categoryId" IN (
+                                SELECT "id" FROM "MenuCategory" WHERE "restaurantId" = ${restaurantId}
+                          )
+                `
+                .catch(
+                        () =>
+                                [] as Array<{
+                                        id: number;
+                                        isFeatured: boolean;
+                                        featuredRank: number | null;
+                                        showcaseTags: string[] | null;
+                                }>
+                );
+}
+
 export default async function PublicMenuPage({ params }: { params: Promise<{ slug: string }> }) {
         const { slug } = await params;
         const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
@@ -131,74 +168,17 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         take: 10,
                 }),
                 // Stage H: featured flags via guarded raw SQL — returns empty on a
-                // DB that hasn't received the new columns yet (P2022/42703 → []).
-                // Round83 §2.3: primary query reads showcaseTags (TEXT[]); if the
-                // array column is missing (pre-round83 DB), the fallback re-queries
-                // the round79 base columns only (isFeatured/featuredRank) — the
-                // section renders without badges instead of disappearing
-                // (zero-downtime migration window).
-                // round88-C: the legacy single showcaseTag column is DROPPED
-                // (migration 20260906055500) — neither SELECT may reference it;
-                // the fallback now reads the migration-10 base columns only.
-                // round86-B2: scope via the category join — MenuItem has NO
-                // restaurantId column in schema.prisma (the old predicate errored
-                // "column does not exist" on every schema-faithful DB, silently
-                // killing the showcase via .catch([])); mirrors round83-seed.mjs.
-                prisma
-                        .$queryRaw<
-                                Array<{
-                                        id: number;
-                                        isFeatured: boolean;
-                                        featuredRank: number | null;
-                                        showcaseTags: string[] | null;
-                                }>
-                        >`
-                                SELECT "id", "isFeatured", "featuredRank", "showcaseTags"
-                                FROM "MenuItem"
-                                WHERE "isFeatured" = true
-                                  AND "categoryId" IN (
-                                        SELECT "id" FROM "MenuCategory" WHERE "restaurantId" = ${restaurant.id}
-                                  )
-                        `
-                        .catch(async () =>
-                                prisma
-                                        .$queryRaw<
-                                                Array<{
-                                                        id: number;
-                                                        isFeatured: boolean;
-                                                        featuredRank: number | null;
-                                                }>
-                                        >`
-                                                SELECT "id", "isFeatured", "featuredRank"
-                                                FROM "MenuItem"
-                                                WHERE "isFeatured" = true
-                                                  AND "categoryId" IN (
-                                                        SELECT "id" FROM "MenuCategory" WHERE "restaurantId" = ${restaurant.id}
-                                                  )
-                                        `
-                                        .then(
-                                                (rows) =>
-                                                        rows.map((r) => ({
-                                                                ...r,
-                                                                showcaseTags: null as string[] | null,
-                                                        }))
-                                        )
-                                        .catch(
-                                                () =>
-                                                        [] as Array<{
-                                                                id: number;
-                                                                isFeatured: boolean;
-                                                                featuredRank: number | null;
-                                                                showcaseTags: string[] | null;
-                                                        }>
-                                        )
-                        ),
+                // transient DB error (see fetchShowcaseFlags above).
+                fetchShowcaseFlags(restaurant.id),
         ]);
 
         const popularIds = new Set(popularData.map((o) => o.itemId));
+        // round90-F4 (performance P4): O(1) membership — the filter used
+        // items.some() per featured row (O(F×I) on the hottest public page).
+        const itemIds = new Set(items.map((i) => i.id));
         const featuredMap = new Map(
                 featuredData
-                        .filter((f) => items.some((i) => i.id === f.id))
+                        .filter((f) => itemIds.has(f.id))
                         .map((f) => [
                                 f.id,
                                 {
@@ -261,6 +241,17 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 })
         );
 
+        // round90-F4 (performance P4): group items by categoryId ONCE — the
+        // JSON-LD builder used categories.map(c => items.filter(...)) which is
+        // O(C×I) on the hottest public page. Insertion order preserves the
+        // sortOrder-asc ordering within each category (same as the old filter).
+        const itemsByCategory = new Map<number, typeof items>();
+        for (const i of items) {
+                const bucket = itemsByCategory.get(i.categoryId);
+                if (bucket) bucket.push(i);
+                else itemsByCategory.set(i.categoryId, [i]);
+        }
+
         const jsonLd = {
                 '@context': 'https://schema.org',
                 '@type': 'Restaurant',
@@ -275,18 +266,16 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         hasMenuSection: categories.map((c) => ({
                                 '@type': 'MenuSection',
                                 name: c.name,
-                                hasMenuItem: items
-                                        .filter((i) => i.categoryId === c.id)
-                                        .map((i) => ({
-                                                '@type': 'MenuItem',
-                                                name: i.name,
-                                                description: i.description,
-                                                offers: {
-                                                        '@type': 'Offer',
-                                                        price: Number(i.price),
-                                                        priceCurrency: 'LYD',
-                                                },
-                                        })),
+                                hasMenuItem: (itemsByCategory.get(c.id) ?? []).map((i) => ({
+                                        '@type': 'MenuItem',
+                                        name: i.name,
+                                        description: i.description,
+                                        offers: {
+                                                '@type': 'Offer',
+                                                price: Number(i.price),
+                                                priceCurrency: 'LYD',
+                                        },
+                                })),
                         })),
                 },
         };

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
+import { getErrorMessage } from '@/lib/get-error-message';
+import { orderSubmitErrorMessage } from './submit-error';
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
@@ -188,12 +190,25 @@ export default function CartPage() {
                         if (!res.ok) {
                                 // Non-2xx must abort the flow — previously the order was silently
                                 // dropped while the customer believed it was placed (verified live).
-                                throw new Error(`HTTP ${res.status}`);
+                                // round90-F4 (M1): read the server's error envelope (the csrfJson
+                                // pattern) and map the status to honest customer copy — the old
+                                // generic «أعد المحاولة» toast misled plan-cap (403) and
+                                // rate-limit (429) customers, where retrying can never succeed.
+                                let serverError: unknown;
+                                try {
+                                        const body = (await res.json()) as { error?: unknown };
+                                        serverError = body?.error;
+                                } catch {
+                                        /* non-JSON body (e.g. proxy 403) — status mapping still applies */
+                                }
+                                throw new Error(orderSubmitErrorMessage(res.status, serverError));
                         }
                         const json = await res.json();
                         orderNo = json.data?.orderNo ?? '';
-                } catch {
-                        premiumToast('error', 'فشل تقديم الطلب. يرجى المحاولة مرة أخرى');
+                } catch (e) {
+                        // round90-F4 (M1): the thrown Error already carries the mapped
+                        // server message; network failures fall back to the general copy.
+                        premiumToast('error', getErrorMessage(e, 'فشل تقديم الطلب. يرجى المحاولة مرة أخرى'));
                         setIsSubmitting(false);
                         submittingRef.current = false;
                         return;

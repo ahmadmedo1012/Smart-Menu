@@ -2,7 +2,7 @@
 
 import AnimatedClock from "@/components/ui/clock-icon"
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatDate } from '@/lib/format';
 
 interface Transaction {
   id: number; type: string; points: number; description: string; createdAt: string
@@ -30,8 +30,13 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
               <div className={cn("size-2 rounded-full shrink-0", isEarn ? "bg-success" : "bg-destructive")} />
               <div>
                 <p className="text-sm font-medium">{tx.description || (isEarn ? "نقاط مكتسبة" : "نقاط مستردة")}</p>
+                {/* round90-F4 (L1): toLocaleDateString("ar-LY") rendered ICU-dependent
+                    (often Arabic-Indic ٠١٢) digits — inconsistent with the Western-digit
+                    convention every other surface uses (toArabicNumber). The canonical
+                    formatDate (round87-C8) is deterministic: Western digits + Arabic
+                    month names. */}
                 <p className="text-xs text-muted-foreground">
-                  {new Date(tx.createdAt).toLocaleDateString("ar-LY", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  {formatDate(new Date(tx.createdAt))}
                 </p>
               </div>
             </div>

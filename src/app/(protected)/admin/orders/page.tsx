@@ -89,6 +89,52 @@ export default function AdminOrdersPage() {
   useEffect(() => { ordersRef.current = orders }, [orders])
   useEffect(() => { pageRef.current = page }, [page])
 
+  // round90-F4 (performance P1): refresh ALL loaded pages in ONE parallel
+  // batch (was a sequential `for p… await fetchOrders(p, true)` loop — N
+  // serial round-trips on every changed-probe tick). Pages are fetched with
+  // Promise.all, merged in page order (deduped by id against page-boundary
+  // drift), and written to state ONCE. A failed batch keeps the current
+  // list (the probe already advanced, matching the old semantics) and
+  // surfaces one error toast.
+  const refetchLoadedPages = useCallback(async () => {
+    const totalPages = pageRef.current
+    if (totalPages < 1) return
+    const buildParams = (pageNum: number) => {
+      const params = new URLSearchParams()
+      if (filter) params.set("status", filter)
+      if (dateFrom) params.set("dateFrom", dateFrom)
+      if (dateTo) params.set("dateTo", dateTo)
+      params.set("page", String(pageNum))
+      params.set("pageSize", "50")
+      return `/api/orders?${params.toString()}`
+    }
+    try {
+      const results = await Promise.all(
+        Array.from({ length: totalPages }, (_, i) => i + 1).map(async (p) => {
+          const res = await fetch(buildParams(p))
+          if (!res.ok) throw new Error(`Failed to fetch orders (page ${p})`)
+          return (await res.json()) as { data?: unknown; meta?: { total?: number }; total?: number }
+        }),
+      )
+      const seen = new Set<number>()
+      const merged: Order[] = []
+      for (const page of results) {
+        const rows: Order[] = Array.isArray(page.data) ? page.data : []
+        for (const o of rows) {
+          if (!seen.has(o.id)) { seen.add(o.id); merged.push(o) }
+        }
+      }
+      dataRef.current = JSON.stringify(merged.map(o => o.id + o.status))
+      setOrders(merged)
+      // round87-B1: meta.total (flat data.total fallback) — same read fetchOrders uses
+      setTotalCount(results[0]?.meta?.total ?? results[0]?.total ?? merged.length)
+    } catch {
+      // one toast per failed batch (the old serial loop toasted per page);
+      // the list stays as-is — the next structural change re-triggers this.
+      premiumToast("error", "فشل تحميل الطلبات")
+    }
+  }, [filter, dateFrom, dateTo])
+
   // round87-B1: probe-then-refetch (the old "ID probe" still downloaded the full
   // 50-row page every 5s ≈ 20KB/tick while the steady-state diff is "nothing
   // changed"). The probe fetches ONE row and compares (total, top id, top
@@ -115,9 +161,10 @@ export default function AdminOrdersPage() {
       }
       if (sig === probeRef.current) return
       probeRef.current = sig
-      for (let p = 1; p <= pageRef.current; p++) await fetchOrders(p, p > 1)
+      // round90-F4: parallel refresh of every loaded page (see refetchLoadedPages)
+      await refetchLoadedPages()
     } catch { /* transient — next tick retries */ }
-  }, 5_000, [fetchOrders, filter, dateFrom, dateTo])
+  }, 5_000, [refetchLoadedPages, filter, dateFrom, dateTo])
 
   const updateStatus = async (id: number, status: string) => {
     const prev = orders.find(o => o.id === id)?.status

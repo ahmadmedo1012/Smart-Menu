@@ -201,7 +201,11 @@ export async function PUT(request: NextRequest) {
                         // were in the old gallery but are gone from the new one
                         if ('gallery' in updateData && Array.isArray(updateData.gallery)) {
                                 const removed = oldGallery.filter((g) => !(updateData.gallery as string[]).includes(g));
-                                for (const url of removed) await deleteBlob(url, { restaurantId });
+                                // round90-F4 (performance P3): deleteBlob never throws
+                                // (blob.ts swallows errors internally), so the serial await
+                                // loop had no correctness benefit — fire all removals at
+                                // once and await the settled batch.
+                                await Promise.allSettled(removed.map((url) => deleteBlob(url, { restaurantId })));
                         }
                         // round85-B9: settings feed the public menu (name/slug/logo/gallery/
                         // theme...) — purge so changes are live instantly

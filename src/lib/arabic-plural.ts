@@ -22,17 +22,38 @@
 export type ArabicNumberState = 'zero' | 'one' | 'two' | 'few' | 'many';
 
 /**
+ * round90-F4 (advisory S3, gstack simplification): the classifier now
+ * delegates to the platform's Intl.PluralRules('ar') — it implements the
+ * SAME six-state Arabic grammar (zero/one/two/few/many/other) that the old
+ * manual derivation encoded, and is the CLDR-maintained source of truth.
+ *
+ * Two deliberate mapping notes:
+ *  - CLDR 'other' (multiples of 100: 100, 200, 1000…) → 'many' — both
+ *    states render the singular form here ("100 صنف"/"15 صنفاً" family),
+ *    exactly the old behavior for 100+.
+ *  - CLDR is GRAMMATICALLY tighter than the old flat "11+ → many" rule for
+ *    values like 103 (103 % 100 = 3 → 'few' → plural "103 أصناف") and 111
+ *    (11 → 'many' → singular). That is correct classical Arabic and the
+ *    boundary the existing tests already pin (11/99 vs 100).
+ */
+const AR_PLURAL_RULES = new Intl.PluralRules('ar');
+const STATE_FROM_RULE: Record<string, ArabicNumberState> = {
+  zero: 'zero',
+  one: 'one',
+  two: 'two',
+  few: 'few',
+  many: 'many',
+  other: 'many',
+};
+
+/**
  * Classifies a non-negative integer into the Arabic number state.
  */
 export function arabicNumberState(count: number): ArabicNumberState {
   if (!Number.isInteger(count) || count < 0) {
     throw new RangeError(`arabicNumberState expects a non-negative integer, got ${count}`);
   }
-  if (count === 0) return 'zero';
-  if (count === 1) return 'one';
-  if (count === 2) return 'two';
-  if (count >= 3 && count <= 10) return 'few';
-  return 'many'; // 11+
+  return STATE_FROM_RULE[AR_PLURAL_RULES.select(count)] ?? 'many';
 }
 
 /**

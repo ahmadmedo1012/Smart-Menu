@@ -11,6 +11,13 @@ const loyaltyDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 // limiter it is a free enumeration oracle (200 vs 404 reveals which phones
 // have loyalty cards, tier, points, referral code).
 const loyaltyGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
+// round90-F4 (red-team r90-D2 — key dilution): the per-(ip,restaurant) keys
+// let a caller ROTATE restaurantId (a request-controlled value) to multiply
+// their quota — every id gets its own 20/min bucket. One shared per-IP total
+// cap, independent of restaurantId, closes the rotation for BOTH methods;
+// honest multi-restaurant traffic (a handful of ids behind one NAT/kiosk IP)
+// stays far below it.
+const loyaltyIpLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
 const PHONE_RE = /^\+?[0-9]{7,15}$/;
 
@@ -41,6 +48,10 @@ export async function POST(request: NextRequest) {
                         'unknown';
                 const rateCheck = await loyaltyDbLimiter.check(`${ip}:${restaurantId}`);
                 if (!rateCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
+                // round90-F4: restaurant-independent IP total — rotating restaurantId
+                // must not mint fresh 20/min buckets (see loyaltyIpLimiter above).
+                const ipCheck = await loyaltyIpLimiter.check(`loyalty-ip:${ip}`);
+                if (!ipCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 // Verify restaurant exists
                 const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
@@ -106,6 +117,9 @@ export async function GET(request: NextRequest) {
                         'unknown';
                 const getRateCheck = await loyaltyGetLimiter.check(`${getIp}:${restaurantId}`);
                 if (!getRateCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
+                // round90-F4: same per-IP total cap on the phone-lookup oracle
+                const getIpCheck = await loyaltyIpLimiter.check(`loyalty-ip:${getIp}`);
+                if (!getIpCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 const card = await prisma.loyaltyCard.findUnique({
                         where: {

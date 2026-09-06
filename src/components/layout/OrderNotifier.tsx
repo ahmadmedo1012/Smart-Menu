@@ -18,7 +18,9 @@ function showOrderToast(newOrders: number) {
                                 <p className="text-xs text-muted-foreground">لديك {newOrders} طلب جديد</p>
                         </div>
                 </div>,
-                { duration: 5000, position: 'top-center' }
+                // round90-F4 (M3): explicit closeButton — the transient toast could
+                // sit over page content with only the 5s auto-dismiss as an exit.
+                { duration: 5000, position: 'top-center', closeButton: true }
         );
 }
 
