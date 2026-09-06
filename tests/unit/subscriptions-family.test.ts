@@ -428,12 +428,12 @@ describe('GET /api/subscriptions/status — tenant-scoped polling', () => {
                 expect(mockPaymentFindFirst).not.toHaveBeenCalled();
         });
 
-        it('missing id → 400 id is required', async () => {
+        it('missing id → 400 معرّف الدفع مطلوب', async () => {
                 const res = await callStatusGet('');
 
                 expect(res.status).toBe(400);
                 const json = await res.json();
-                expect(json.error).toBe('id is required');
+                expect(json.error).toBe('معرّف الدفع مطلوب');
         });
 
         it('non-integer / non-positive id → 400', async () => {
@@ -458,13 +458,13 @@ describe('GET /api/subscriptions/status — tenant-scoped polling', () => {
                 });
         });
 
-        it('payment of ANOTHER user (or unknown) → 404 not found', async () => {
+        it('payment of ANOTHER user (or unknown) → 404 طلب الدفع غير موجود', async () => {
                 mockPaymentFindFirst.mockResolvedValue(null);
 
                 const res = await callStatusGet('?id=501');
 
                 expect(res.status).toBe(404);
                 const json = await res.json();
-                expect(json.error).toBe('not found');
+                expect(json.error).toBe('طلب الدفع غير موجود');
         });
 });

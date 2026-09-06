@@ -109,8 +109,16 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       await expect(card).toBeVisible({ timeout: 20_000 });
       await expect(card.getByText("خيارات متاحة")).toBeVisible();
 
-      await card.getByRole("button", { name: `خيارات ${ITEM_AR}` }).click();
+      // round90 (منسق الجولة — إصلاح تذبذب اكتشفه e2e المحلي): سباق الترطيب —
+      // بطاقة SSR تظهر قبل أن يربط React المعالجات، فالنقر على «خيارات» قبل
+      // اكتمال الترطيب عملية صامتة بلا أثر (dialog لا يفتح أبدًا — برهان
+      // g90-debug4: pointerdown+click يصلان للزر لكن لا معالج). إعادة المحاولة
+      // بنمط deterministic بدل مهلة صمّاء (نفس توصية D4 بند 4 لليلة).
       const sheet = page.getByRole("dialog");
+      for (let attempt = 0; attempt < 3 && (await sheet.count()) === 0; attempt++) {
+        await card.getByRole("button", { name: `خيارات ${ITEM_AR}` }).click();
+        if (attempt < 2) await page.waitForTimeout(1200);
+      }
       await expect(sheet).toBeVisible({ timeout: 15_000 });
 
       // the group renders with its hint + counter; nothing selected yet
