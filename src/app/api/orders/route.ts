@@ -28,7 +28,10 @@ const createSchema = z.object({
         discount: z.number().min(0).optional(),
         total: z.number().positive(),
         restaurantId: z.number().int().positive(),
-        items: z.array(orderItemSchema).min(1),
+        // round89-A2: payload cap (dx-2 #9) — an unbounded items array fed
+        // giant IN lists + createMany batches into the money path; 50 covers
+        // any real cart (largest plan carts observed are single digits).
+        items: z.array(orderItemSchema).min(1).max(50, 'الحد الأقصى 50 صنفاً في الطلب'),
         // round88-C4 — referral link (NO money effect here): the code stored by
         // ReferralHandler (?ref=CODE → localStorage). Validated against the same
         // format the claim route enforces; used ONLY to attach the customer's

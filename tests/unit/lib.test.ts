@@ -2,6 +2,7 @@
  * Unit tests for src/lib/* modules.
  */
 import { describe, it, expect, afterEach } from 'vitest';
+import type { ZodError } from 'zod';
 import { cn } from '@/lib/utils';
 import {
 	success,
@@ -171,12 +172,14 @@ describe('api-helpers', () => {
 	});
 
 	it('validationError() returns 422', async () => {
+		// round89-A6: explicit ZodError cast instead of `as any` — same
+		// duck-typed shape, but the no-explicit-any guard stays quiet
 		const zodErr = {
 			issues: [
 				{ path: ['email'], message: 'Invalid email' },
 				{ path: ['name'], message: 'Required' },
 			],
-		} as any;
+		} as unknown as ZodError;
 		const res = validationError(zodErr);
 		expect(res.status).toBe(422);
 		const body = await res.json();
@@ -257,8 +260,9 @@ describe('env', () => {
 
 	it('parses DATABASE_URL and JWT_SECRET', () => {
 		process.env.DATABASE_URL = 'postgres://localhost:5432/testdb';
-		process.env.JWT_SECRET = 'abcdefghijklmnop';
-		process.env.AUTH_SECRET = 'my-auth-secret';
+		// round89-A5: env floors raised — JWT_SECRET min(64), AUTH_SECRET min(32)
+		process.env.JWT_SECRET = 'a'.repeat(64);
+		process.env.AUTH_SECRET = 's'.repeat(32);
 		delete (process.env as Record<string, string | undefined>).NEXT_PUBLIC_DOMAIN;
 		delete (process.env as Record<string, string | undefined>).NEXT_PUBLIC_WHATSAPP_NUMBER;
 		delete (process.env as Record<string, string | undefined>).TELEGRAM_BOT_TOKEN;
@@ -267,8 +271,8 @@ describe('env', () => {
 
 		const env = validateEnv();
 		expect(env.DATABASE_URL).toBe('postgres://localhost:5432/testdb');
-		expect(env.JWT_SECRET).toBe('abcdefghijklmnop');
-		expect(env.AUTH_SECRET).toBe('my-auth-secret');
+		expect(env.JWT_SECRET).toBe('a'.repeat(64));
+		expect(env.AUTH_SECRET).toBe('s'.repeat(32));
 		// NEXT_PUBLIC_DOMAIN and NEXT_PUBLIC_WHATSAPP_NUMBER are required
 		// in production; in dev/test they remain undefined when not set
 		expect(env.NEXT_PUBLIC_DOMAIN).toBeUndefined();
@@ -276,5 +280,28 @@ describe('env', () => {
 		expect(env.TELEGRAM_BOT_TOKEN).toBe('');
 		expect(env.TELEGRAM_CHAT_ID).toBe('');
 		expect(env.DATABASE_SCHEMA).toBe('public');
+	});
+
+	// round89-A5: secret floor guards — a weak master secret must fail
+	// validation loudly instead of reaching the HKDF derivations (keys.ts)
+	it('rejects a JWT_SECRET shorter than 64 chars', () => {
+		process.env.DATABASE_URL = 'postgres://localhost:5432/testdb';
+		process.env.JWT_SECRET = 'short-jwt-secret-16chars';
+		process.env.AUTH_SECRET = 's'.repeat(32);
+		delete (process.env as Record<string, string | undefined>).NEXT_PUBLIC_DOMAIN;
+		delete (process.env as Record<string, string | undefined>).NEXT_PUBLIC_WHATSAPP_NUMBER;
+
+		// dev path: partial() re-parse throws on the present-but-invalid value
+		expect(() => validateEnv()).toThrow();
+	});
+
+	it('rejects an AUTH_SECRET shorter than 32 chars', () => {
+		process.env.DATABASE_URL = 'postgres://localhost:5432/testdb';
+		process.env.JWT_SECRET = 'a'.repeat(64);
+		process.env.AUTH_SECRET = 'tiny-auth-secret';
+		delete (process.env as Record<string, string | undefined>).NEXT_PUBLIC_DOMAIN;
+		delete (process.env as Record<string, string | undefined>).NEXT_PUBLIC_WHATSAPP_NUMBER;
+
+		expect(() => validateEnv()).toThrow();
 	});
 });

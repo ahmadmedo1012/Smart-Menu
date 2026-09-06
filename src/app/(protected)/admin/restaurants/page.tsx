@@ -70,7 +70,7 @@ export default function AdminRestaurantsPage() {
       setRestaurants(restJson.data?.restaurants ?? restJson.data ?? []);
       setTotal(restJson.data?.total ?? restJson.meta?.total ?? 0);
       setPlans(plansJson.data ?? []);
-    } catch (e: any) { setError(e.message || "فشل تحميل البيانات") }
+    } catch (e) { setError(getErrorMessage(e, "فشل تحميل البيانات")) }
     finally { setLoading(false) }
   }, [page, search, planFilter]);
 

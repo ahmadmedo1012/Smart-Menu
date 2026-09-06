@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { error, handleError } from '@/lib/api-helpers';
+import { error, notFound, handleError } from '@/lib/api-helpers';
 // ponytail: demo-only route — changes to POST to avoid HTTP semantics violation
 
 const FIX_IMAGES: Record<string, string> = {
@@ -40,7 +40,9 @@ export async function POST() {
 	try {
 		// Demo-only route — hard-blocked in production (mirrors /api/demo behavior)
 		if (process.env.NODE_ENV === 'production') {
-			return NextResponse.json({ error: 'Not found' }, { status: 404 });
+			// round89-A3: standard envelope ({success:false,error}) — the old
+			// raw {error:'Not found'} shape had no success key
+			return error('غير موجود', 404);
 		}
 
 		// Auth inside try/catch — a failed session lookup must return a clean
@@ -53,8 +55,10 @@ export async function POST() {
 		let skipped = 0;
 
 		const demoRestaurant = await prisma.restaurant.findUnique({ where: { slug: 'al-waha-cafe' } });
+		// round89-A3: failure must be {success:false,error} with a real 4xx —
+		// the old shape returned HTTP 200 with a `message` key (dx-1 ب-1)
 		if (!demoRestaurant) {
-			return NextResponse.json({ success: false, message: 'Demo restaurant not found' });
+			return notFound('المطعم التجريبي');
 		}
 
 		const items = await prisma.menuItem.findMany({

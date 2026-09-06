@@ -352,6 +352,13 @@ model Referral {
   referrer          LoyaltyCard    @relation(fields: [referrerId], references: [id], onDelete: Cascade)
   restaurant        Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
+  // round89-A1: conversion-per-order gate — the idempotency check
+  // `findFirst({ where: { orderId, status: 'converted' } })`
+  // (referral-conversion.ts:124) runs after EVERY completed order; without
+  // this index the plan waded through all 'converted' rows (6666 rows /
+  // 77 buffers on the 20k-row round89 perf seed) to reject a double grant.
+  @@index([orderId])
+
   @@index([referralCode])
   @@index([referrerId])
   @@index([referrerId, status])
@@ -385,6 +392,12 @@ model RewardTransaction {
   @@index([cardId])
   @@index([restaurantId])
   @@index([cardId, createdAt])
+  // round89-A1: earn-per-order gate — the double-grant check
+  // `findFirst({ where: { orderId, type: 'earn' } })`
+  // (orders/[id]/route.ts:123) runs inside the completion tx of EVERY
+  // order; without this index it was a Seq Scan over the whole table
+  // (cost 961.00 / 487 buffers on the 20k-row round89 perf seed).
+  @@index([orderId])
   // round88-A2: loyalty/stats recentTransactions — WHERE restaurantId
   // ORDER BY createdAt DESC LIMIT 10 (measured 0.18ms sort-all → 0.01ms ordered
   // index scan on the round88 perf DB)

@@ -263,6 +263,36 @@ describe('POST /api/orders — idempotency (round-77)', () => {
         });
 });
 
+describe('POST /api/orders — items payload cap (round89-A2)', () => {
+        it('51 items → 422 with the Arabic cap message, zero DB work', async () => {
+                const res = await callPost({
+                        ...tamperedBody,
+                        items: Array.from({ length: 51 }, () => ({ itemId: 1, quantity: 1, price: 10 })),
+                });
+
+                expect(res.status).toBe(422);
+                const json = await res.json();
+                expect(json.success).toBe(false);
+                expect(json.error).toBe('الحد الأقصى 50 صنفاً في الطلب');
+                // rejected at the schema gate — no menu lookup, no transaction
+                expect(mockMenuItemFindMany).not.toHaveBeenCalled();
+                expect(mockTransaction).not.toHaveBeenCalled();
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
+
+        it('exactly 50 items stays accepted (boundary)', async () => {
+                const res = await callPost({
+                        ...tamperedBody,
+                        items: Array.from({ length: 50 }, () => ({ itemId: 1, quantity: 1, price: 10 })),
+                });
+
+                expect(res.status).toBe(201);
+                expect(txMock.order.create).toHaveBeenCalledTimes(1);
+                const createArg = txMock.order.create.mock.calls[0][0];
+                expect(createArg.data.items.create).toHaveLength(50);
+        });
+});
+
 describe('POST /api/orders — plan order limit (round-76, inside the tx)', () => {
         it('order count at maxOrders → 403 with the plan message, create skipped', async () => {
                 txMock.order.count.mockResolvedValue(500); // === maxOrders

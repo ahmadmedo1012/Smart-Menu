@@ -1,7 +1,8 @@
 import { hashPassword } from "@/lib/hash";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import { error as apiError } from "@/lib/api-helpers";
+import { success, error as apiError } from "@/lib/api-helpers";
+import { error as logError } from "@/lib/logger";
 
 const DEFAULT_PLANS = [
   { name: "Free", nameAr: "مجاني", price: 0, periodDays: 30, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 1, features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"] },
@@ -11,7 +12,8 @@ const DEFAULT_PLANS = [
 export async function POST() {
   try {
     if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "true") {
-      return Response.json({ message: "Not available in production" }, { status: 404 });
+      // round89-A4: standard {success:false,error} envelope (was a bare {message})
+      return apiError("غير متاح في الإنتاج", 404);
     }
     const auth = await requireAdmin();
     if (!auth.authorized) return apiError("غير مصرح", 401);
@@ -32,8 +34,13 @@ export async function POST() {
       await prisma.user.create({ data: { username: "admin", password: hashPassword(process.env.ADMIN_PASSWORD ?? (() => { throw new Error("ADMIN_PASSWORD env var is required"); })()), name: "مدير النظام", role: "admin" } });
     }
 
-    return Response.json({ message: "تم تحديث الخطط بنجاح — خططتان (مجاني + مدفوعة)" });
+    // round89-A4: {success:true,data} envelope (was a bare {message})
+    return success("تم تحديث الخطط بنجاح — خططتان (مجاني + مدفوعة)");
   } catch (e: unknown) {
-    return apiError(e instanceof Error ? e.message : "Seed failed", 500);
+    // round89-A4: the raw error (e.g. Prisma internals) stays server-side only —
+    // the old apiError(e.message, 500) leaked it to the client (dx-4 #5)
+    const raw = e instanceof Error ? e.message : String(e);
+    logError("seed", { error: raw });
+    return apiError("تعذر تنفيذ البذور — حدث خطأ داخلي", 500);
   }
 }

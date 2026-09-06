@@ -23,7 +23,9 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-      "@typescript-eslint/no-explicit-any": "off",
+      // round89-A6: debt paid down (dx-1: 2 real `any` left) — flipped from
+      // "off" to "warn" as a regression guard; the goal is zero again
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-expressions": "off",
       "@next/next/no-img-element": "off",
       "jsx-a11y/alt-text": "off",

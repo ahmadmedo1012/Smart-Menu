@@ -3,14 +3,18 @@ import { z } from 'zod';
 
 const envSchema = z.object({
 	DATABASE_URL: z.string().min(1, 'DATABASE_URL مطلوب — يجب تعيين رابط قاعدة البيانات'),
-	JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters'),
+	// round89-A5 (dx-4 #6): weak floors let a short master secret reach
+	// production derivations (HMAC/AES-GCM keys in keys.ts derive from
+	// these). 64/32 chars ≈ 256/128+ bits of entropy headroom for a
+	// random string. Local .env values verified to pass.
+	JWT_SECRET: z.string().min(64, 'JWT_SECRET يجب أن يكون 64 حرفاً على الأقل'),
 	NEXT_PUBLIC_DOMAIN: z.url('NEXT_PUBLIC_DOMAIN مطلوب — رابط الموقع (مثال: https://example.com)'),
 	NEXT_PUBLIC_WHATSAPP_NUMBER: z
 		.string()
 		.min(1, 'NEXT_PUBLIC_WHATSAPP_NUMBER مطلوب — رقم واتساب المطعم الذي يستقبل الطلبات'),
 	TELEGRAM_BOT_TOKEN: z.string().optional().default(''),
 	TELEGRAM_CHAT_ID: z.string().optional().default(''),
-	AUTH_SECRET: z.string().min(1, 'AUTH_SECRET is required'),
+	AUTH_SECRET: z.string().min(32, 'AUTH_SECRET يجب أن يكون 32 حرفاً على الأقل'),
 	DATABASE_SCHEMA: z.string().optional().default('public'),
 	SKIP_ENV_CHECK: z
 		.string()
