@@ -5,7 +5,7 @@
  * Run: npx playwright test tests/e2e/team4-payments.spec.ts --project=qa-teams
  */
 import { test, expect, type Page } from "@playwright/test";
-import { fillSubscribeForm, choosePlanByPrice } from "./qa-helpers";
+import { fillSubscribeForm, choosePlanByPrice, advanceStep } from "./qa-helpers";
 
 const ts = Date.now().toString().slice(-8);
 const PASSWORD = "TestPass123!";
@@ -20,11 +20,25 @@ async function submitAndWaitDialog(page: Page): Promise<boolean> {
     const btn = page.locator('button:has-text("إنشاء الحساب والبدء")');
     if (await btn.count()) {
       await btn.first().click();
-      await page.waitForTimeout(6000);
+      // round87-D7: fixed 6000ms sleep → race the two real outcomes: the
+      // payment dialog mounts OR the already-created path lands on /owner.
+      const outcome = await Promise.race([
+        page
+          .locator('[role="dialog"]')
+          .first()
+          .waitFor({ state: "visible", timeout: 20000 })
+          .then(() => "dlg" as const)
+          .catch(() => null as const),
+        page
+          .waitForURL(/\/owner/, { timeout: 20000 })
+          .then(() => "owner" as const)
+          .catch(() => null as const),
+      ]);
+      if (outcome) return true;
     }
-    const dlg = page.locator('[role="dialog"]');
-    if (await dlg.count()) return true;
     if (page.url().includes("/owner")) return true; // already created
+    // Kept deliberately (round87-D7): rides out the 5/min register
+    // rate-limit window — a semantic backoff, not a flake sleep.
     await page.waitForTimeout(20000); // rate-limit window
   }
   return false;
@@ -40,6 +54,15 @@ async function trySubmitPayment(page: Page): Promise<boolean> {
   return false;
 }
 
+/** Wait for the register outcome: payment dialog OR /owner redirect.
+ *  round87-D7 replaces the fixed 6000ms sleeps in the tests below. */
+async function waitForDialogOrOwner(page: Page): Promise<void> {
+  await Promise.race([
+    page.locator('[role="dialog"]').first().waitFor({ state: "visible", timeout: 20000 }).catch(() => {}),
+    page.waitForURL(/\/owner/, { timeout: 20000 }).catch(() => {}),
+  ]);
+}
+
 async function fillStandard(page: Page, name: string, slug: string, phone: string, user: string) {
   await fillSubscribeForm(page, {
     restaurantName: name, slug, phone, whatsapp: phone, username: user, password: PASSWORD,
@@ -48,13 +71,15 @@ async function fillStandard(page: Page, name: string, slug: string, phone: strin
 
 test("bank: amount above 99 accepted (no wallet cap)", async ({ page }) => {
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
   await choosePlanByPrice(page, "129");
   // Pro supports 3 menus — add a second to exercise multi-menu form
   const addBtn = page.locator('button:has-text("إضافة منيو")');
   if (await addBtn.count()) {
     await addBtn.first().click();
-    await page.waitForTimeout(1000);
+    // round87-D7: fixed 1000ms sleep → wait for the 2nd menu group's fields
+    await expect(
+      page.getByPlaceholder("اسم المطعم (مثال: مقهى الواحة)")
+    ).toHaveCount(2, { timeout: 10000 });
   }
   // Menu 1 fields (stable placeholders — first() because menu 2 duplicates them)
   await page.getByPlaceholder("اسم المطعم (مثال: مقهى الواحة)").first().fill("QA Bank A");
@@ -71,14 +96,18 @@ test("bank: amount above 99 accepted (no wallet cap)", async ({ page }) => {
     await phoneInputs.nth(1).fill("0910000012");
   }
   // menu step -> "التالي" -> account step
-  await page.locator('button:has-text("التالي")').first().click();
-  await page.waitForTimeout(1500);
-  await page.getByPlaceholder("اسم المستخدم (3 أحرف على الأقل)").fill(`qa_bank_${ts}`);
+  // round87-D7: fixed 1500ms/300ms/1500ms sleeps → step-marker waits via
+  // advanceStep (account placeholder, then the review-step heading; retries
+  // across the /validate rate-limit window — see qa-helpers).
+  const username = page.getByPlaceholder("اسم المستخدم (3 أحرف على الأقل)");
+  await advanceStep(page, username);
+  await username.fill(`qa_bank_${ts}`);
   await page.getByPlaceholder(/^كلمة المرور/).fill(PASSWORD);
-  await page.waitForTimeout(300);
   // account step -> "التالي" -> review step
-  await page.locator('button:has-text("التالي")').first().click();
-  await page.waitForTimeout(1500);
+  await advanceStep(
+    page,
+    page.getByRole("heading", { name: "راجع بياناتك ثم أكّد" })
+  );
   const dlgOk = await submitAndWaitDialog(page);
   expect(dlgOk).toBeTruthy();
 
@@ -100,15 +129,28 @@ test("bank: amount above 99 accepted (no wallet cap)", async ({ page }) => {
 
 test("bank: submit without sender name/account → validation error", async ({ page }) => {
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
   await choosePlanByPrice(page, "129");
   await fillStandard(page, "QA Bank C", `qa-bank-c-${ts}`, "0910000013", `qa_bank_c_${ts}`);
   await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(6000);
+  await waitForDialogOrOwner(page);
   const dlg = page.locator('[role="dialog"]');
   if (await dlg.count()) {
     trySubmitPayment(page);
-    await page.waitForTimeout(2500);
+    // round87-D7: fixed 2500ms sleep → poll for the inline validation
+    // message (soft — the original conditional assertion below still gates).
+    try {
+      await expect
+        .poll(
+          async () => {
+            const t = await page.locator("body").innerText();
+            return t.includes("مطلوب") || t.includes("يرجى");
+          },
+          { timeout: 10000 }
+        )
+        .toBe(true);
+    } catch {
+      /* fall through to the original conditional assertion */
+    }
     const body = await page.locator("body").innerText();
     const hasError = body.includes("مطلوب") || body.includes("يرجى") || (await dlg.count()) > 0;
     expect(hasError).toBeTruthy();
@@ -117,11 +159,10 @@ test("bank: submit without sender name/account → validation error", async ({ p
 
 test("wallet: libyana enabled for amounts ≤ 99 (basic plan 19)", async ({ page }) => {
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
   await choosePlanByPrice(page, "19");
   await fillStandard(page, "QA Wallet", `qa-wallet-${ts}`, "0910000014", `qa_wallet_${ts}`);
   await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(6000);
+  await waitForDialogOrOwner(page);
   const dlg = page.locator('[role="dialog"]');
   expect(await dlg.count()).toBeGreaterThan(0);
   const lib = dlg.locator('button:has-text("ليبيانا")');
@@ -134,10 +175,11 @@ test("wallet: libyana enabled for amounts ≤ 99 (basic plan 19)", async ({ page
 
 test("pricing: page shows all plans with menu counts", async ({ page }) => {
   await page.goto("/pricing", { waitUntil: "networkidle" });
-  await page.waitForTimeout(2000);
-  const body = await page.locator("body").innerText();
+  // round87-D7: fixed 2000ms sleep + one innerText snapshot → auto-retrying
+  // containText assertions.
+  const body = page.locator("body");
   for (const plan of ["مجاني", "أساسي", "بريميوم", "احترافي", "شركات"]) {
-    expect(body).toContain(plan);
+    await expect(body).toContainText(plan, { timeout: 10000 });
   }
 });
 
@@ -147,28 +189,27 @@ test("madar: full flow shows 'بانتظار موافقة الإدارة' withou
   // Madar applies to amounts ≤ 99; use Basic (19) so the wallet channel is enabled.
   test.setTimeout(90000);
   await page.goto("/subscribe", { waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForTimeout(2000);
   await choosePlanByPrice(page, "19");
   await fillStandard(page, "QA Madar", `qa-madar-${ts}`, "0910000015", `qa_madar_${ts}`);
   await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(6000);
+  await waitForDialogOrOwner(page);
 
   const dlg = page.locator('[role="dialog"]');
   expect(await dlg.count()).toBeGreaterThan(0);
   const madar = dlg.locator('button:has-text("مدار")');
   expect(await madar.count()).toBeGreaterThan(0);
   await madar.first().click();
-  await page.waitForTimeout(500);
 
   // Fill the wallet phone field (09XXXXXXXXX) — required to enable submit for madar
   const phoneField = dlg.getByPlaceholder("09XXXXXXXXX").first();
+  // round87-D7: fixed 500ms sleep → condition wait for the wallet form mount
+  await phoneField.waitFor({ state: "visible", timeout: 10000 }).catch(() => {});
   if (await phoneField.count()) await phoneField.fill("0910000015");
   // Fill any sender-name/account fields if present (bank mode)
   const senderName = dlg.getByPlaceholder(/الاسم كما يظهر/).first();
   const senderAcct = dlg.getByPlaceholder(/رقم الحساب/).first();
   if (await senderName.count()) await senderName.fill("أحمد اختبار");
   if (await senderAcct.count()) await senderAcct.fill("123456789");
-  await page.waitForTimeout(400);
 
   // Submit → should go straight to "بانتظار موافقة الإدارة", no countdown timer.
   // The POST can take 3-5s on a cold backend, so wait for the waiting-state
@@ -193,8 +234,9 @@ test("bank: zero amount rejected (validation)", async ({ page }) => {
   // Zero/negative/wrong-amount flows happen in the payment dialog against a
   // real plan price. Verify the server-side schema rejects a bad amount by
   // posting directly (no real payment).
+  // round87-D7: the csrf-token cookie is minted on the /login response
+  // itself, so the hydration sleep before reading it is gone.
   await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
   const token = await page.evaluate(() =>
     document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
   );
@@ -212,8 +254,9 @@ test("bank: zero amount rejected (validation)", async ({ page }) => {
 });
 
 test("bank: negative amount rejected", async ({ page }) => {
+  // round87-D7: the csrf-token cookie is minted on the /login response
+  // itself, so the hydration sleep before reading it is gone.
   await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
   const token = await page.evaluate(() =>
     document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
   );
@@ -229,8 +272,9 @@ test("bank: negative amount rejected", async ({ page }) => {
 });
 
 test("bank: non-numeric amount rejected", async ({ page }) => {
+  // round87-D7: the csrf-token cookie is minted on the /login response
+  // itself, so the hydration sleep before reading it is gone.
   await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
   const token = await page.evaluate(() =>
     document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
   );
@@ -246,8 +290,9 @@ test("bank: non-numeric amount rejected", async ({ page }) => {
 });
 
 test("bank: amount above plan cap handled / rejected gracefully", async ({ page }) => {
+  // round87-D7: the csrf-token cookie is minted on the /login response
+  // itself, so the hydration sleep before reading it is gone.
   await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
   const token = await page.evaluate(() =>
     document.cookie.split("; ").find((c) => c.startsWith("csrf-token="))?.split("=")[1] ?? ""
   );

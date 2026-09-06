@@ -8,5 +8,13 @@
       "path": "/api/cron/subscription-expiry",
       "schedule": "0 1 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/cleanup/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/cron/subscription-expiry/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }

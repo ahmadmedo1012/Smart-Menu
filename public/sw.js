@@ -1,6 +1,13 @@
-const CACHE_NAME = 'smart-menu-v5';
+const CACHE_NAME = 'smart-menu-v6';
 // REMINDER: bump CACHE_VERSION whenever this file changes
 const STATIC_ASSETS = ['/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+
+// round87-D10: dedicated cache for /_next/image responses, separate from
+// CACHE_NAME so bounded eviction below can never touch the precached static
+// assets or JSON entries. Capped: menus with hundreds of content-addressed
+// item images would otherwise grow CacheStorage without limit.
+const IMAGE_CACHE_NAME = 'smart-menu-v6-images';
+const IMAGE_CACHE_MAX = 60;
 
 // Public, read-only, session-free endpoints safe for stale-while-revalidate.
 // EVERYTHING else under /api/ is network-only (see fetch handler comment).
@@ -20,7 +27,7 @@ self.addEventListener('activate', (event) => {
 	event.waitUntil(
 		(async () => {
 			const keys = await caches.keys();
-			await Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)));
+			await Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== IMAGE_CACHE_NAME).map((k) => caches.delete(k)));
 			await self.clients.claim();
 		})()
 	);
@@ -45,9 +52,10 @@ self.addEventListener('fetch', (event) => {
 	// round86-B11: optimized images are content-addressed (?url=&w=&q=) — safe
 	// to cache-first so offline/weak-signal QR re-visits don't re-fetch item
 	// images (previously fell through to network-first because /_next/image
-	// URLs carry no file extension)
+	// URLs carry no file extension). round87-D10: now served from the bounded
+	// LRU image cache (IMAGE_CACHE_MAX entries, see imageCacheFirst below).
 	if (url.pathname.startsWith('/_next/image')) {
-		event.respondWith(cacheFirst(request));
+		event.respondWith(imageCacheFirst(request));
 		return;
 	}
 
@@ -115,6 +123,39 @@ async function cacheFirst(request) {
 		if (res.ok) {
 			const cache = await caches.open(CACHE_NAME);
 			cache.put(request, res.clone());
+		}
+		return res;
+	} catch {
+		return caches.match('/offline.html');
+	}
+}
+
+// round87-D10: bounded LRU variant of cacheFirst for /_next/image URLs.
+// Cache keys() yields requests in insertion order, so "oldest" = first key.
+// A hit refreshes recency (delete + re-put moves it to the tail); a new
+// entry evicts from the head first until the cache fits the cap.
+async function imageCacheFirst(request) {
+	const cache = await caches.open(IMAGE_CACHE_NAME);
+	const cached = await cache.match(request);
+	if (cached) {
+		// LRU touch: clone BEFORE returning (a consumed body can no longer be
+		// cloned). Background refresh — failure is harmless, worst case the
+		// entry keeps its old position and is evicted sooner.
+		const fresh = cached.clone();
+		cache.delete(request).then(() => cache.put(request, fresh)).catch(() => {});
+		return cached;
+	}
+	try {
+		const res = await fetch(request);
+		if (res.ok) {
+			// +1 accounts for the entry we are about to insert.
+			const keys = await cache.keys();
+			while (keys.length + 1 > IMAGE_CACHE_MAX) {
+				const oldest = keys.shift();
+				if (!oldest) break;
+				await cache.delete(oldest);
+			}
+			await cache.put(request, res.clone());
 		}
 		return res;
 	} catch {

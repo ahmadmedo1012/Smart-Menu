@@ -44,18 +44,33 @@ for (const vp of VIEWPORTS) {
 }
 
 test("browser: theme toggle persists across reload", async ({ page }) => {
+  // round87-D4 (socratic fix): the old version (a) skipped the toggle when
+  // count() === 0 and (b) asserted `className` matches /dark|light|theme/ —
+  // next-themes (attribute="class") always puts "dark" or "light" on <html>,
+  // so that assertion was a tautology: it passed even when nothing was
+  // toggled or persisted. Now: toggle is REQUIRED, the class must actually
+  // flip, and after reload it must equal the post-toggle value.
   await page.goto("/menu/al-waha-cafe-demo", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(2000);
   const toggle = page.locator('button[aria-label="الوضع النهاري"], button[aria-label="الوضع الليلي"]').first();
-  if (await toggle.count()) {
-    await toggle.click();
-    await page.waitForTimeout(800);
-  }
+  // ThemeToggle is a mounted-guard client component — wait for the button
+  // instead of a fixed 2000ms sleep.
+  await expect(toggle).toBeVisible({ timeout: 15000 });
+  const themeClass = () =>
+    page.evaluate(() => {
+      const c = document.documentElement.className;
+      if (c.includes("dark")) return "dark";
+      if (c.includes("light")) return "light";
+      return "";
+    });
+  const before = await themeClass();
+  await toggle.click();
+  // Class flips on click — poll instead of a fixed 800ms sleep.
+  await expect.poll(themeClass, { timeout: 5000 }).not.toBe(before);
+  const after = await themeClass();
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(2000);
-  const cls = await page.evaluate(() => document.documentElement.className);
-  console.log(`browser: theme class after reload: ${cls}`);
-  expect(cls).toMatch(/dark|light|theme/);
+  // Persisted: the class after reload equals the class set by the toggle
+  // (was: /dark|light|theme/ which matched unconditionally).
+  await expect.poll(themeClass, { timeout: 15000 }).toBe(after);
 });
 
 test("browser: RTL dir + lang=ar on all pages", async ({ page }) => {

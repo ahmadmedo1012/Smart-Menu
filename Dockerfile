@@ -1,5 +1,11 @@
-FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# round87-D6: was node:22 + corepack pnpm@latest — package.json engines
+# requires node >=24 (.nvmrc: 24) and an unpinned pnpm@latest resolves to
+# whatever npm serves at build time (outside any lockfile policy).
+# COREPACK_ENABLE_UNSAFE_VERSIONS lifts corepack's known-good-version gate so
+# the EXACT pinned pnpm (packageManager: pnpm@11.9.0) always resolves.
+FROM node:24-alpine AS base
+ENV COREPACK_ENABLE_UNSAFE_VERSIONS=1
+RUN corepack enable && corepack prepare pnpm@11.9.0 --activate
 
 # Install deps (using pnpm, matching project's actual package manager)
 FROM base AS deps
@@ -14,8 +20,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate && npm run build
 
-# Production runner
-FROM node:22-alpine AS runner
+# Production runner (round87-D6: node 24 here too — the standalone server must
+# run on the same major as the build)
+FROM node:24-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 app && adduser --system --uid 1001 app

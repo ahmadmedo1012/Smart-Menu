@@ -24,10 +24,6 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "webhook",
-      testMatch: "tests/security/webhook-security.test.ts",
-    },
-    {
       name: "security",
       testMatch: "tests/security/*.test.ts",
     },
@@ -51,6 +47,9 @@ export default defineConfig({
     {
       name: "qa-teams",
       testMatch: [
+        // round87-D4: zero-coverage journeys (review, gallery, wizard back,
+        // print, theme persistence) — browser journeys, so qa-teams.
+        "tests/e2e/round87-journeys.spec.ts",
         "tests/e2e/team1-auth.spec.ts",
         "tests/e2e/team2-customer.spec.ts",
         "tests/e2e/team3-owner.spec.ts",
@@ -91,7 +90,11 @@ export default defineConfig({
     {
       name: "auth-verify",
       testMatch: "tests/e2e/auth-fix-verification.spec.ts",
-      use: { baseURL: "http://localhost:3000" },
+      // round87-D8: was a hardcoded http://localhost:3000, which silently
+      // ignored BASE_URL and pinned the project to localhost — production
+      // runs (BASE_URL=https://menu.smart-link.ly) fell back to the default
+      // instead of the env like every other project.
+      use: { baseURL: process.env.BASE_URL ?? "http://localhost:3000" },
     },
     {
       // round79 Stage C — full customer journey matrix (serial, own project)

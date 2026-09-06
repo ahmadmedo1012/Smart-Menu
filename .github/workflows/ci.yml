@@ -82,6 +82,25 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
 
+      # round87-D10: migration parity gate — schema.prisma must match what the
+      # migrations directory actually produces. `prisma migrate diff` replays
+      # ALL migrations into a scratch shadow DB on the SAME postgres service
+      # and diffs the result against the datamodel; --exit-code makes any drift
+      # (hand-written migration SQL whose names/objects differ from the schema,
+      # or a schema edit shipped without a migration) fail CI with exit 2.
+      # Incantation documented in docs/ops-runbook.md §3. prisma.config.ts reads
+      # SHADOW_DATABASE_URL, and DATABASE_URL is required at config-load time.
+      - name: Migration parity gate (migrations ↔ schema.prisma)
+        run: |
+          node -e "const {Client}=require('pg');(async()=>{const c=new Client({connectionString:process.env.DATABASE_URL});await c.connect();await c.query('DROP DATABASE IF EXISTS \"smart-menu-shadow\"');await c.query('CREATE DATABASE \"smart-menu-shadow\"');await c.end();})().catch((e)=>{console.error(e);process.exit(1)})"
+          pnpm exec prisma migrate diff \
+            --from-migrations prisma/migrations \
+            --to-schema prisma/schema.prisma \
+            --exit-code
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
+          SHADOW_DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-shadow
+
       # Schema must exist before build: /menu/[slug] generateStaticParams reads
       # the DB at build time (TableDoesNotExist otherwise). Use the SAME channel
       # as production — `prisma migrate deploy` (package.json build runs it too):
@@ -148,10 +167,14 @@ jobs:
       # build-time env does NOT carry over, and src/lib/env.ts validates
       # NEXT_PUBLIC_WHATSAPP_NUMBER at RUNTIME too; without it every
       # env-validating route 500s (verified: CI run 498 webhook/login tests).
+      # round87-D3: wait-on was fetched from the npm registry at RUNTIME via
+      # unpinned `npx wait-on` (outside any lockfile/minimumReleaseAge policy);
+      # it is now an exact-pinned devDependency (9.1.0) and invoked through the
+      # local binary — no network fetch, no version drift.
       - name: Start server for E2E
         run: |
           node .next/standalone/server.js &
-          npx wait-on http://localhost:3000 --timeout 60000
+          pnpm exec wait-on http://localhost:3000 --timeout 60000
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-32-chars-long
@@ -211,6 +234,17 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+
+      # round87-D10: prod-qa re-downloaded the ~170MB chromium bundle on every
+      # main push (only the main job cached ~/.cache/ms-playwright). Same key
+      # scheme as that job, so both jobs share one cache entry and the install
+      # step below becomes a no-op hit.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium

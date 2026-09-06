@@ -357,7 +357,13 @@ model Referral {
   @@index([referrerId, status])
   @@index([restaurantId])
   @@index([referralCode, restaurantId])
-  @@unique([referralCode, referredName])
+  // round87-D10: map to the index name migration 14 actually created
+  // ("Referral_code_name_key" — carried the old code/name column
+  // convention). Without the map, `prisma migrate diff` flags drift:
+  // Prisma's default name for this composite unique would be
+  // Referral_referralCode_referredName_key, which no migration creates.
+  // Name-only difference — index names are never used in queries.
+  @@unique([referralCode, referredName], map: "Referral_code_name_key")
 }
 
 model RewardTransaction {

@@ -4,7 +4,7 @@
  * Run: npx playwright test tests/e2e/team1-auth.spec.ts --project=qa-teams
  */
 import { test, expect } from "@playwright/test";
-import { fillSubscribeForm, chooseFreePlan, login, loginBudget, csrfToken } from "./qa-helpers";
+import { fillSubscribeForm, chooseFreePlan, login, loginBudget, csrfToken, advanceStep } from "./qa-helpers";
 
 const TEST_USER = "testmulti1568";
 const TEST_PASS = "testpass123";
@@ -35,9 +35,14 @@ async function submitCreate(page: import("@playwright/test").Page): Promise<bool
     const btn = page.locator('button:has-text("إنشاء الحساب والبدء")');
     if (await btn.count()) {
       await btn.first().click();
-      await page.waitForTimeout(6000);
+      // round87-D7: fixed 6000ms sleep → condition wait on the real outcome —
+      // the authenticated redirect to /owner (the register POST itself decides
+      // how long this takes).
+      await page.waitForURL(/\/owner/, { timeout: 20000 }).catch(() => {});
     }
     if (page.url().includes("/owner")) return true;
+    // Kept deliberately (round87-D7): rides out the 5/min register
+    // rate-limit window — a semantic backoff, not a flake sleep.
     await page.waitForTimeout(20000);
   }
   return page.url().includes("/owner");
@@ -46,7 +51,6 @@ async function submitCreate(page: import("@playwright/test").Page): Promise<bool
 test("register: valid free plan creates account", async ({ page }) => {
   test.setTimeout(90000);
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
   await chooseFreePlan(page);
   await fillSubscribeForm(page, {
     restaurantName: "QA-TEST-DO-NOT-USE-1",
@@ -64,15 +68,17 @@ test("register: valid free plan creates account", async ({ page }) => {
 test("register: duplicate slug rejected", async ({ page }) => {
   test.setTimeout(90000);
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
   await chooseFreePlan(page);
   // Fill ONLY the menu step with a duplicate slug, then try to advance.
   await page.getByPlaceholder("اسم المطعم (مثال: مقهى الواحة)").fill("QA Dup");
   await page.getByPlaceholder("الرابط المختصر (مثال: al-waha-cafe)").fill("al-waha-cafe"); // existing slug
   await page.getByPlaceholder("رقم الهاتف (مثال: 0912345678)").fill("0910000002");
   await page.getByPlaceholder("رقم الواتساب (مثال: 0912345678)").fill("0910000002");
-  await page.locator('button:has-text("التالي")').first().click();
-  await page.waitForTimeout(4000);
+  // round87-D7: fixed 4000ms sleep → condition wait for the pre-flight
+  // duplicate-slug rejection (field-level error + toast both say محجوز).
+  // advanceStep retries across the /validate rate-limit window (10/min per IP
+  // — real on the NODE_ENV=production standalone server).
+  await advanceStep(page, page.getByText(/محجوز/).first());
   // Pre-flight duplicate check must block advancing to the account step.
   expect(page.url()).not.toContain("/owner");
   const body = await page.locator("body").innerText();
@@ -81,8 +87,9 @@ test("register: duplicate slug rejected", async ({ page }) => {
 });
 
 test("login: wrong password error does not reveal user existence", async ({ page }) => {
+  // round87-D7: the csrf-token cookie is minted by the proxy on the /login
+  // response itself, so no hydration wait is needed before reading it.
   await page.goto("/login", { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
   const token = await csrfToken(page);
   const res1 = await page.evaluate(async ({ uname, token }) => {
     const r = await fetch("/api/auth/login", {
@@ -128,7 +135,8 @@ test("login: account lockout after 20 failed attempts, then success works", asyn
       headers: { ...headers, "X-Forwarded-For": "10.9.9.1" },
     });
     statuses.push(r.status());
-    // Space attempts out to avoid upsert races on the (key, windowEnd) row
+    // Space attempts out to avoid upsert races on the (key, windowEnd) row.
+    // Kept deliberately (round87-D7): semantic pacing between requests.
     await page.waitForTimeout(500);
   }
   expect(statuses.slice(18)).toContain(429);
@@ -149,8 +157,9 @@ test("protected: all admin+owner pages redirect to login when unauthenticated", 
   ];
   for (const p of protectedPaths) {
     await page.goto(p, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(800);
-    expect(page.url()).toContain("/login");
+    // round87-D7: fixed 800ms sleep → auto-retrying URL assertion (the proxy
+    // redirects server-side, so this resolves immediately on a healthy gate).
+    await expect(page).toHaveURL(/login/, { timeout: 10000 });
   }
 });
 
