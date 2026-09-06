@@ -12,7 +12,17 @@ export async function mintCsrfPair(request: APIRequestContext): Promise<{ token:
   const res = await request.get('/api/health');
   const setCookie = res.headers()['set-cookie'] ?? '';
   const m = setCookie.match(/csrf-token=([^;]+)/);
-  const token = m?.[1] ?? '';
+  let token = m?.[1] ?? '';
+  if (!token) {
+    // round88 closure fix (surfaced by team10 sinceId): the proxy only
+    // (re)issues the csrf-token cookie when the request carries none — a
+    // mid-test gate response (e.g. an unauthenticated 401 from a gated API)
+    // already planted one in the jar, so /api/health's set-cookie comes back
+    // EMPTY and minting returned '' → login POST without a token → 403.
+    // Fall back to the LIVE cookie in the request context's jar.
+    const state = await request.storageState();
+    token = state.cookies.find((c) => c.name === 'csrf-token')?.value ?? '';
+  }
   return { token, cookie: token ? `csrf-token=${token}` : '' };
 }
 

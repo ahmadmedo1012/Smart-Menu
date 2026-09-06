@@ -90,12 +90,27 @@ async function getEventsSince(
   const res = await request.get(`${BASE}/api/admin/system-events?sinceId=${sinceId}`, {
     headers: { Cookie: `smart-menu-session=${session}` },
   });
-  const body = (await res.json().catch(() => ({}))) as {
+  // round88 closure fix: the sinceId branch returns success({ data, sinceId })
+  // — the standard envelope wraps it as body.data = { data: rows, sinceId }.
+  // (Without sinceId the route returns the paginated shape body.data.data.)
+  // Unify BOTH here so callers always see body.data = rows + body.sinceId.
+  const raw = (await res.json().catch(() => ({}))) as {
     success?: boolean;
     sinceId?: number;
-    data?: { id: number }[];
+    data?: { id: number }[] | { data?: { id: number }[]; sinceId?: number };
   };
-  return { status: res.status(), body };
+  const nested = raw.data as { data?: { id: number }[]; sinceId?: number } | undefined;
+  const rows = Array.isArray(raw.data)
+    ? (raw.data as { id: number }[])
+    : (nested?.data ?? []);
+  return {
+    status: res.status(),
+    body: {
+      success: raw.success,
+      sinceId: raw.sinceId ?? nested?.sinceId,
+      data: rows,
+    },
+  };
 }
 
 test.describe("team10: regression guard — rounds 79-87 crown jewels", () => {
@@ -112,10 +127,13 @@ test.describe("team10: regression guard — rounds 79-87 crown jewels", () => {
     expect(html).toContain("سمارت مينيو");
 
     // Negative: the full landing Header must NOT ship in the 404 document —
-    // its nav landmarks (aria-label="قائمة التصفح" / "الرئيسية") and the
-    // heavy hero decorations only exist in the landing Header/Hero chunks.
+    // its nav landmarks and the heavy hero decorations only exist in the
+    // landing Header/Hero chunks. NOTE (round88 closure fix): the slim 404's
+    // OWN brand Link legitimately carries aria-label="الرئيسية" (not-found.tsx
+    // brand link) — the landing-Header-unique marker is the NAV element with
+    // that label, so assert on '<nav aria-label="الرئيسية"' instead.
     expect(html).not.toContain('قائمة التصفح');
-    expect(html).not.toContain('aria-label="الرئيسية"');
+    expect(html).not.toContain('<nav aria-label="الرئيسية"');
     expect(html).not.toContain("HeroDecor");
     expect(html).not.toContain("hero-lottie");
   });

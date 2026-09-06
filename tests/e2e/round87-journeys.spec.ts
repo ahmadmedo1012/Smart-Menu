@@ -48,8 +48,20 @@ test.describe("journey: full review (تقييم كامل)", () => {
     const itemName = pillLabel.replace("تقييم ", "").trim();
     const reviewPill = page.getByRole("button", { name: pillLabel });
 
+    // round88 closure fix (hydration race): the SSR'd review pill is visible
+    // before React attaches its click handler — on a fast standalone server
+    // the pre-hydration window is wide enough to silently swallow the click
+    // (reproduced 4/4: click lands, no dialog, no JS error). Wait for the
+    // network to settle (hydration chunks fetched), then click; if the sheet
+    // still hasn't mounted (animation/dynamic import lag), re-click ONCE —
+    // the pill is idempotent (opens the sheet, no side effect).
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
     await reviewPill.click();
     const sheet = page.getByRole("dialog", { name: itemName });
+    if (!(await sheet.isVisible().catch(() => false))) {
+      await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
+      await reviewPill.click();
+    }
     // ReviewSheet is a dynamic import + spring animation — wait for the sheet.
     await expect(sheet).toBeVisible({ timeout: 15_000 });
     // The sheet's GET mints the csrf-token cookie (menu pages are cacheable
@@ -72,7 +84,12 @@ test.describe("journey: full review (تقييم كامل)", () => {
     // Persisted: full reload → reopen the sheet → the review is still there.
     await page.reload({ waitUntil: "domcontentloaded", timeout: 40_000 });
     await expect(reviewPill).toBeVisible({ timeout: 20_000 });
+    // Same hydration race as above — wait for network settle before clicking.
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
     await reviewPill.click();
+    if (!(await sheet.isVisible().catch(() => false))) {
+      await reviewPill.click();
+    }
     await expect(sheet).toBeVisible({ timeout: 15_000 });
     await expect(sheet.getByText(comment)).toBeVisible({ timeout: 20_000 });
   });
