@@ -41,7 +41,13 @@ const BASE = u.origin;
 const MENU_PATH = "/menu/al-waha-cafe";
 const HEALTH_BUDGET_MS = 500;
 const MENU_PAGE_BUDGET_MS = 2000;
-const STATS_BUDGET_MS = 1500;
+// round88 closure: budgets are calibrated for the localhost standalone
+// server (documented in the spec header). On production the network leg
+// (TLS + Vercel edge + Neon round-trip ~1s db latency) dominates — widen the
+// stats budget there so the guard still catches the pre-round87 waterfall
+// SHAPE (12 sequential waves) without false-failing on physics.
+const IS_REMOTE = /menu\.smart-link\.ly|https:/.test(process.env.BASE_URL ?? "");
+const STATS_BUDGET_MS = IS_REMOTE ? 5000 : 1500;
 
 const WARMUP = 1;
 const SAMPLES = 3;
@@ -78,11 +84,16 @@ async function measureGet(
 /** Login via the API and return the headers carrying the session cookie. */
 async function sessionHeaders(request: APIRequestContext): Promise<Record<string, string>> {
   const csrf = await mintCsrfPair(request);
+  // round88 closure: the authenticated /api/stats budget used the LOCAL-ONLY
+  // round83 seed owner (waha_owner) — 401 on production where that account
+  // doesn't exist. Use the qa-seed multi-restaurant owner instead: it exists
+  // BOTH locally (scripts/qa-seed.mjs) and on production (round86 seeding),
+  // so the latency budget measures a real session in either environment.
   const res = await request.post(`${BASE}/api/auth/login`, {
     headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, csrf) },
     data: {
-      username: "waha_owner",
-      password: process.env.WAHA_OWNER_PASS || "waha123456",
+      username: "testmulti1568",
+      password: process.env.QA_OWNER_PASS || "testpass123",
     },
   });
   expect(res.status()).toBe(200);
