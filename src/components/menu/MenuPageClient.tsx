@@ -174,12 +174,22 @@ function MenuPageClientInner({
                 [items, activeCategory, search]
         );
 
+        // round89-coordinator (hidden-item bug): the carousel renders ONLY when
+        // there are ≥2 popular items, and shows at most 6. The grid must exclude
+        // exactly what the carousel ACTUALLY renders — not "all popular" —
+        // otherwise a lone popular item (carousel suppressed) or the 7th+ popular
+        // item (carousel sliced at 6) vanished from the page entirely.
+        const popularVisible = useMemo(
+                () => (popularItems.length >= 2 ? popularItems.slice(0, 6) : []),
+                [popularItems]
+        );
+
         const normalItems = useMemo(
                 () =>
-                        popularItems.length > 0
-                                ? filteredItems.filter((i) => !popularItems.includes(i))
+                        popularVisible.length > 0
+                                ? filteredItems.filter((i) => !popularVisible.includes(i))
                                 : filteredItems,
-                [filteredItems, popularItems]
+                [filteredItems, popularVisible]
         );
 
         const itemCounts = useMemo(() => {
@@ -270,7 +280,7 @@ function MenuPageClientInner({
                                                 animate="visible"
                                                 className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                                         >
-                                                {popularItems.slice(0, 6).map((item, index) => (
+                                                {popularVisible.map((item, index) => (
                                                         <m.div
                                                                 key={item.id}
                                                                 variants={fadeUp}
@@ -334,7 +344,7 @@ function MenuPageClientInner({
                                                                 onReview={handleReview}
                                                                 cartQty={getCartQty(item.id)}
                                                                 /* LCP: no popular section → first 4 normal items are above the fold */
-                                                                eager={popularItems.length === 0 && index < 4}
+                                                                eager={popularVisible.length === 0 && index < 4}
                                                         />
                                                 </div>
                                         ))}

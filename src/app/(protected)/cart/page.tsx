@@ -3,38 +3,27 @@
 import { useState, useEffect } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
 import { normalizeWaNumber } from "@/lib/whatsapp";
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
-import {Loader2} from 'lucide-react';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';
-import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
-import { MotionCheck } from '@/components/ui/motion-icons';
-import AnimatedCart from '@/components/ui/shopping-cart-icon';
-import AnimatedTrash from '@/components/ui/trash-icon';
-import { MotionPlus, MotionMinus } from '@/components/ui/motion-icons';
 import { useCart } from '@/store/cart';
 import { useRef } from 'react';
-import { formatPrice, toArabicNumber } from '@/lib/format';
 import { buildReceiptMessage } from '@/lib/receipt';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { Header } from '@/components/layout/Header';
-import {
-        Dialog,
-        DialogContent,
-        DialogHeader,
-        DialogTitle,
-        DialogDescription,
-} from '@/components/ui/dialog';
-import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
-
-const PICKUP_LABELS: Record<string, string> = {
-        inside: 'داخل المكان',
-        takeaway: 'سفري',
-        delivery: 'توصيل',
-};
+import { useCartTotals } from './use-cart-totals';
+import { CartLineItem } from './CartLineItem';
+import { ReviewDialog } from './ReviewDialog';
+import { PickupTypeSelector } from './PickupTypeSelector';
+import { CustomerInfoCard } from './CustomerInfoCard';
+import { CartSummaryCard } from './CartSummaryCard';
+import { CartEmptyState } from './CartEmptyState';
+import { CartConfirmedState } from './CartConfirmedState';
+import { OrderStepper } from './OrderStepper';
+import { CartUndoBanner } from './CartUndoBanner';
+import { LoyaltyCard } from './LoyaltyCard';
+import { CartPageHeader } from './CartPageHeader';
+import { DeliveryAddressField } from './DeliveryAddressField';
 
 const PICKUP_OPTIONS = [
         { value: 'inside', label: 'داخل المكان', icon: 'inside' },
@@ -140,7 +129,7 @@ export default function CartPage() {
                 return () => clearTimeout(id);
         }, []);
 
-        const cartSubtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
+        const { subtotal, total } = useCartTotals(items);
 
         const handleCheckout = async () => {
                 if (submittingRef.current) return; // double-click guard
@@ -190,8 +179,8 @@ export default function CartPage() {
                                                 .filter(Boolean)
                                                 .join('\n'),
                                         pickupType,
-                                        subtotal: cartSubtotal,
-                                        total: cartSubtotal,
+                                        subtotal,
+                                        total,
                                         restaurantId: restaurantId || undefined,
                                         referralCode,
                                 }),
@@ -222,7 +211,7 @@ export default function CartPage() {
                                 // (receipt format untouched — summary then free notes).
                                 notes: [i.modifiersSummary, i.notes || undefined].filter(Boolean).join('\n') || undefined,
                         })),
-                        totalPrice: cartSubtotal,
+                        totalPrice: subtotal,
                         notes:
                                 pickupType === 'delivery'
                                         ? `${notes || ''}\nالعنوان: ${deliveryAddress}`.trim()
@@ -249,41 +238,11 @@ export default function CartPage() {
                 return (
                         <>
                                 <Header />
-                                <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 px-4 text-center animate-fade-in">
-                                        <div className="size-16 rounded-[4px] bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
-                                                <AnimatedCart className="size-12 text-muted-foreground" />
-                                        </div>
-                                        <h1 className="text-2xl font-bold">السلة فارغة</h1>
-                                        <p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
-                                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
-                                                <Link href="/menu">
-                                                        <Button size="lg" className="px-8 gap-2">
-                                                                <MotionArrowLeft className="size-4" />
-                                                                العودة إلى القائمة
-                                                        </Button>
-                                                </Link>
-                                                {/* Secondary CTA — direct path back to browsing the menu */}
-                                                <Link href="/menu">
-                                                        <Button size="lg" variant="outline" className="px-8 gap-2">
-                                                                <AnimatedCart className="size-4" />
-                                                                تصفح المنيو
-                                                        </Button>
-                                                </Link>
-                                        </div>
-                                        {/* Back-to-menu shortcut for empty carts — honest label, correct
-                                    restaurant. Rendered only once we know the real slug. */}
-                                        {restaurantId && restaurantSlug ? (
-                                                <div className="mt-6 w-full max-w-md">
-                                                        <Link
-                                                                href={`/menu/${restaurantSlug}`}
-                                                                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-border/50 bg-card/70 px-4 py-2.5 text-sm font-arabic shadow-sm hover:border-orange/40 hover:bg-orange-muted/30 hover:shadow-md transition-[color,background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-                                                        >
-                                                                <MotionPlus className="size-3.5 text-orange" />
-                                                                متابعة التسوق من {restaurantName || 'قائمة المطعم'}
-                                                        </Link>
-                                                </div>
-                                        ) : null}
-                                </div>
+                                <CartEmptyState
+                                        restaurantId={restaurantId}
+                                        restaurantSlug={restaurantSlug}
+                                        restaurantName={restaurantName}
+                                />
                         </>
                 );
         }
@@ -292,16 +251,7 @@ export default function CartPage() {
                 return (
                         <>
                                 <Header />
-                                <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center animate-scale-in">
-                                        <div className="size-24 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-6 animate-scale-in">
-                                                <MotionCheck className="size-12 text-primary" />
-                                        </div>
-                                        <h2 className="text-2xl font-bold mb-2">تم تأكيد الطلب!</h2>
-                                        <p className="text-muted-foreground flex items-center gap-2">
-                                                جاري تحويلك إلى صفحة التأكيد...
-                                                <Loader2 className="size-4 animate-spin" />
-                                        </p>
-                                </div>
+                                <CartConfirmedState />
                         </>
                 );
         }
@@ -310,320 +260,57 @@ export default function CartPage() {
                 <>
                         <Header />
                         <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in pt-20 overflow-x-clip">
-                                {/* Header */}
-                                <div className="flex items-center gap-4 mb-8 animate-slide-down">
-                                        <Link
-                                                href="/menu"
-                                                className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-                                                aria-label="العودة إلى القائمة"
-                                        >
-                                                <MotionArrowLeft className="size-5" />
-                                        </Link>
-                                        <h1 className="text-2xl font-bold">سلة الطلب</h1>
-                                        <div className="relative">
-                                                <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border/30">
-                                                        {toArabicNumber(items.length)} {items.length === 1 ? 'صنف' : 'أصناف'}
-                                                </span>
-                                                <span className="absolute -top-1 -end-1 size-2 rounded-full bg-primary animate-breath" />
-                                        </div>
-                                </div>
+                                <CartPageHeader count={items.length} />
 
-                                {/* Stepper — order progress (Peak-End: reduces checkout anxiety) */}
-                                <div className="flex items-center gap-1.5 mb-6 animate-slide-up delay-75" aria-label="خطوات الطلب">
-                                        {[
-                                                { n: 1, label: 'الأصناف' },
-                                                { n: 2, label: 'التأكيد' },
-                                                { n: 3, label: 'واتساب' },
-                                        ].map((step, i) => (
-                                                <div key={step.n} className="flex items-center gap-1.5 flex-1">
-                                                        <div className={cn(
-                                                                'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold transition-[color,background-color,border-color] duration-300',
-                                                                i === 0
-                                                                        ? 'bg-orange/15 text-orange border border-orange/30'
-                                                                        : 'bg-muted/40 text-muted-foreground/60 border border-border/30'
-                                                        )}>
-                                                                <span className={cn(
-                                                                        'size-4 rounded-full flex items-center justify-center text-[9px]',
-                                                                        i === 0 ? 'bg-orange text-white' : 'bg-muted text-muted-foreground/60'
-                                                                )}>{toArabicNumber(step.n)}</span>
-                                                                {step.label}
-                                                        </div>
-                                                        {i < 2 && <div className="h-px flex-1 bg-border/40" />}
-                                                </div>
-                                        ))}
-                                </div>
+                                <OrderStepper />
 
-                                {/* Pickup type selector */}
-                                <LoadingAnnouncer
-                                        loading={isFetchingPickupTypes}
-                                        message="جاري تحميل خيارات الطلب..."
-                                        completedMessage="تم تحميل خيارات الطلب"
+                                <PickupTypeSelector
+                                        isFetching={isFetchingPickupTypes}
+                                        error={pickupTypesError}
+                                        onRetry={loadPickupTypes}
+                                        options={filteredPickupOptions}
+                                        value={pickupType}
+                                        onChange={setPickupType}
                                 />
-                                {pickupTypesError && (
-                                        <button
-                                                type="button"
-                                                onClick={loadPickupTypes}
-                                                className="mb-4 w-full rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
-                                        >
-                                                تعذر تحميل خيارات الطلب — انقر لإعادة المحاولة
-                                        </button>
-                                )}
-                                <div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up delay-100">
-                                        {filteredPickupOptions.map((opt) => (
-                                                <button
-                                                        key={opt.value}
-                                                        type="button"
-                                                        onClick={() => setPickupType(opt.value as typeof pickupType)}
-                                                        className={cn(
-                                                                'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-[transform,translate,scale,rotate,box-shadow,color,background-color,border-color] duration-300 border overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
-                                                                pickupType === opt.value
-                                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/20 scale-[1.02]'
-                                                                        : 'bg-card/50 border-border/30 hover:border-orange/20 hover:shadow-md'
-                                                        )}
-                                                >
-                                                        {opt.icon === 'inside' ? (
-                                                                <svg
-                                                                        className="size-5"
-                                                                        viewBox="0 0 24 24"
-                                                                        fill="none"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth="2"
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                >
-                                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                                                        <polyline points="9 22 9 12 15 12 15 22" />
-                                                                </svg>
-                                                        ) : opt.icon === 'takeaway' ? (
-                                                                <svg
-                                                                        className="size-5"
-                                                                        viewBox="0 0 24 24"
-                                                                        fill="none"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth="2"
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                >
-                                                                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                                                                        <line x1="3" y1="6" x2="21" y2="6" />
-                                                                        <path d="M16 10a4 4 0 0 1-8 0" />
-                                                                </svg>
-                                                        ) : (
-                                                                <svg
-                                                                        className="size-5"
-                                                                        viewBox="0 0 24 24"
-                                                                        fill="none"
-                                                                        stroke="currentColor"
-                                                                        strokeWidth="2"
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                >
-                                                                        <rect x="1" y="3" width="15" height="13" rx="2" />
-                                                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-                                                                        <circle cx="5.5" cy="18.5" r="2.5" />
-                                                                        <circle cx="18.5" cy="18.5" r="2.5" />
-                                                                </svg>
-                                                        )}
-                                                        <span>{opt.label}</span>
-                                                </button>
-                                        ))}
-                                </div>
 
-                                {/* Delivery address */}
                                 {pickupType === 'delivery' && (
-                                        <div className="mb-6 animate-slide-up delay-150">
-                                                <label className="text-sm font-medium mb-2 block">عنوان التوصيل</label>
-                                                <textarea
-                                                        placeholder="أدخل عنوان التوصيل بالتفصيل"
-                                                        value={deliveryAddress}
-                                                        onChange={(e) => setDeliveryAddress(e.target.value)}
-                                                        className="w-full rounded-lg border border-border/30 bg-card/50 p-3 text-sm outline-none focus-visible:border-orange resize-none"
-                                                        rows={2}
-                                                        maxLength={500}
-                                                />
-                                        </div>
+                                        <DeliveryAddressField value={deliveryAddress} onChange={setDeliveryAddress} />
                                 )}
 
                                 {/* Cart items */}
                                 <div className="space-y-4 mb-8">
                                         {items.map((item, idx) => (
-                                                <div
+                                                <CartLineItem
                                                         key={item.id}
-                                                        className={cn(
-                                                                'rounded-md bg-card/60 border border-border/30 p-4 transition-[opacity,transform,translate,scale,rotate,box-shadow,border-color] duration-500 hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5',
-                                                                animateItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                                                        )}
-                                                        style={{ transitionDelay: `${idx * 80}ms` }}
-                                                >
-                                                        <div className="flex items-center justify-between mb-3 gap-2">
-                                                                <div className="flex-1 min-w-0 flex items-center gap-3">
-                                                                        <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center shrink-0">
-                                                                                <span className="text-sm font-bold text-primary tabular-nums">
-                                                                                        {toArabicNumber(item.quantity)}
-                                                                                </span>
-                                                                        </div>
-                                                                        <div>
-                                                                                <h3 className="font-semibold truncate">{item.name}</h3>
-                                                                                {/* w3-f1: chosen modifier summary for this line */}
-                                                                                {item.modifiersSummary && (
-                                                                                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
-                                                                                                {item.modifiersSummary}
-                                                                                        </p>
-                                                                                )}
-                                                                                <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
-                                                                                        {formatPrice(item.price, { decimals: 1 })} / للواحد
-                                                                                </p>
-                                                                        </div>
-                                                                </div>
-                                                                <div className="flex items-center gap-1">
-                                                                        <button
-                                                                                type="button"
-                                                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-                                                                                aria-label="إنقاص الكمية"
-                                                                        >
-                                                                                <MotionMinus className="size-4" />
-                                                                        </button>
-                                                                        <span className="w-8 sm:w-10 text-center font-bold tabular-nums text-sm sm:text-lg">
-                                                                                {toArabicNumber(item.quantity)}
-                                                                        </span>
-                                                                        <button
-                                                                                type="button"
-                                                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-                                                                                aria-label="زيادة الكمية"
-                                                                        >
-                                                                                <MotionPlus className="size-4" />
-                                                                        </button>
-                                                                        <button
-                                                                                type="button"
-                                                                                onClick={() => removeItem(item.id)}
-                                                                                                                                                                        className="size-11 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,translate,scale,rotate,background-color] ms-1 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
-                                                                                                                                                                        aria-label="حذف الصنف"
-                                                                        >
-                                                                                <AnimatedTrash className="size-3" />
-                                                                        </button>
-                                                                </div>
-                                                        </div>
-                                                        <input
-                                                                                                                        type="text"
-                                                                                                                        placeholder="ملاحظات للصنف..."
-                                                                                                                        aria-label={`ملاحظات للصنف ${item.name}`}
-                                                                                                                        value={item.notes}
-                                                                                                                        onChange={(e) => updateNotes(item.id, e.target.value)}
-                                                                className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-                                                        />
-                                                </div>
+                                                        item={item}
+                                                        index={idx}
+                                                        animateItems={animateItems}
+                                                        onUpdateQuantity={updateQuantity}
+                                                        onRemove={removeItem}
+                                                        onUpdateNotes={updateNotes}
+                                                />
                                         ))}
                                 </div>
 
                                 {/* Undo banner — appears after removing an item (outside items.map so it
                                     stays visible once the item is gone) */}
                                 {lastRemoved && items.length >= 0 && (
-                                        <div className="flex items-center justify-between gap-3 rounded-md border border-orange/20 bg-orange-muted/40 px-3 py-2 text-xs animate-fade-in mb-4">
-                                                <span className="font-arabic text-muted-foreground">
-                                                        تم حذف: {lastRemoved.name}
-                                                </span>
-                                                <button
-                                                        type="button"
-                                                        onClick={() => undoRemove()}
-                                                        className="font-arabic font-bold text-orange hover:underline shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-                                                >
-                                                        تراجع
-                                                </button>
-                                        </div>
+                                        <CartUndoBanner item={lastRemoved} onUndo={undoRemove} />
                                 )}
 
                                 {/* Customer info */}
-                                <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
-                                        <h2 className="font-bold mb-3 flex items-center gap-2">
-                                                <AnimatedSparkles className="size-4 text-primary" />
-                                                ملاحظات الطلب
-                                        </h2>
-                                        <div className="grid grid-cols-1 gap-3">
-                                                <div>
-                                                        <label htmlFor="cart-notes" className="block text-xs text-muted-foreground mb-1.5">
-                                                                ملاحظات (اختياري)
-                                                        </label>
-                                                        <input
-                                                                id="cart-notes"
-                                                                type="text"
-                                                                dir="auto"
-                                                                placeholder="مثال: بدون بصل، الطلب مستعجل..."
-                                                                maxLength={120}
-                                                                value={notes}
-                                                                onChange={(e) => setOrderNotes(e.target.value)}
-                                                                className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
-                                                        />
-                                                </div>
-                                                <div>
-                                                        <label htmlFor="cart-phone" className="block text-xs text-muted-foreground mb-1.5">
-                                                                رقم الهاتف لكسب نقاط الولاء (اختياري)
-                                                        </label>
-                                                        <input
-                                                                id="cart-phone"
-                                                                type="tel"
-                                                                dir="ltr"
-                                                                placeholder="09XXXXXXXX"
-                                                                maxLength={15}
-                                                                value={customerPhone}
-                                                                onChange={(e) => setCustomerPhone(e.target.value)}
-                                                                className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 text-left"
-                                                        />
-                                                        <p className="text-[11px] text-muted-foreground mt-1">
-                                                                ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب
-                                                        </p>
-                                                </div>
-                                        </div>
-                                </div>
+                                <CustomerInfoCard
+                                        notes={notes}
+                                        phone={customerPhone}
+                                        onNotesChange={setOrderNotes}
+                                        onPhoneChange={setCustomerPhone}
+                                />
 
-                                <div className="rounded-md bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8 animate-slide-up delay-400">
-                                        <h3 className="text-sm font-bold mb-4 text-muted-foreground">ملخص الطلب</h3>
-                                        <div className="space-y-2 mb-4">
-                                                {items.map((item) => (
-                                                        <div
-                                                                key={item.id}
-                                                                className="flex justify-between text-sm group hover:bg-orange-muted/50 -mx-2 px-2 py-1 rounded-sm transition-colors"
-                                                        >
-                                                                <span className="text-muted-foreground truncate me-2">
-                                                                        {item.name}
-                                                                        <span className="text-muted-foreground/60 ms-1">
-                                                                                ×{toArabicNumber(item.quantity)}
-                                                                        </span>
-                                                                </span>
-                                                                <span className="font-medium tabular-nums shrink-0">
-                                                                        {formatPrice(item.price * item.quantity, { decimals: 1 })}
-                                                                </span>
-                                                        </div>
-                                                ))}
-                                        </div>
-                                        <div className="h-px bg-gradient-to-r from-transparent via-orange/30 to-transparent my-3" />
-                                        <div className="flex items-center justify-between">
-                                                <span className="text-muted-foreground">المجموع الإجمالي</span>
-                                                <div className="flex items-baseline gap-1">
-                                                        <span className="text-2xl font-bold text-primary tabular-nums">
-                                                                {toArabicNumber(cartSubtotal.toFixed(1))}
-                                                        </span>
-                                                        <span className="text-sm text-muted-foreground">د.ل</span>
-                                                </div>
-                                        </div>
-                                </div>
+                                <CartSummaryCard items={items} total={subtotal} />
 
                                 {/* Loyalty — earn points */}
                                 {restaurantId && (
-                                        <div className="rounded-lg bg-gradient-to-br from-orange-muted/50 to-orange-muted/20 dark:from-orange-muted/10 border border-orange/20 p-3.5 mt-4">
-                                                <div className="flex items-center gap-2.5">
-                                                        <div className="size-8 rounded-lg bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-sm shrink-0">
-                                                                <AnimatedSparkles className="size-4 text-white" />
-                                                        </div>
-                                                        <div className="min-w-0 flex-1">
-                                                                <p className="text-xs font-bold">اكسب نقاط ولاء مع هذا الطلب!</p>
-                                                                <p className="text-[11px] text-muted-foreground mt-0.5">
-                                                                        كل طلب يمنحك نقاطاً يمكن استبدالها بمكافآت
-                                                                </p>
-                                                        </div>
-                                                </div>
-                                        </div>
+                                        <LoyaltyCard />
                                 )}
 
                                 {waError && (
@@ -642,136 +329,16 @@ export default function CartPage() {
                                         مراجعة الطلب وإرساله
                                 </Button>
 
-                                <Dialog open={showPreview} onOpenChange={setShowPreview}>
-                                        <DialogContent className="rounded-md gap-0 p-0 overflow-hidden sm:max-w-md">
-                                                <div className="bg-gradient-to-r from-orange to-orange/80 p-5 text-white">
-                                                        <DialogHeader>
-                                                                <DialogTitle className="text-white text-xl">مراجعة الطلب</DialogTitle>
-                                                                <DialogDescription className="text-white/80">
-                                                                        تأكد من بيانات الطلب قبل الإرسال
-                                                                </DialogDescription>
-                                                        </DialogHeader>
-                                                </div>
-                                                <div className="p-5 space-y-4">
-                                                        <div className="flex items-center gap-2 text-sm">
-                                                                <span className="text-muted-foreground">نوع الطلب:</span>
-                                                                <span className="font-medium px-3 py-1 rounded-full bg-orange-muted text-orange/80 dark:text-orange">
-                                                                        {pickupType === 'inside' ? (
-                                                                                <svg
-                                                                                        className="size-4 inline"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        fill="none"
-                                                                                        stroke="currentColor"
-                                                                                        strokeWidth="2"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                >
-                                                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                                                                        <polyline points="9 22 9 12 15 12 15 22" />
-                                                                                </svg>
-                                                                        ) : pickupType === 'takeaway' ? (
-                                                                                <svg
-                                                                                        className="size-4 inline"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        fill="none"
-                                                                                        stroke="currentColor"
-                                                                                        strokeWidth="2"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                >
-                                                                                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                                                                                        <line x1="3" y1="6" x2="21" y2="6" />
-                                                                                        <path d="M16 10a4 4 0 0 1-8 0" />
-                                                                                </svg>
-                                                                        ) : (
-                                                                                <svg
-                                                                                        className="size-4 inline"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        fill="none"
-                                                                                        stroke="currentColor"
-                                                                                        strokeWidth="2"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                >
-                                                                                        <rect x="1" y="3" width="15" height="13" rx="2" />
-                                                                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-                                                                                        <circle cx="5.5" cy="18.5" r="2.5" />
-                                                                                        <circle cx="18.5" cy="18.5" r="2.5" />
-                                                                                </svg>
-                                                                        )}
-                                                                        {PICKUP_LABELS[pickupType]}
-                                                                </span>
-                                                        </div>
-                                                        <div className="divide-y divide-border/50">
-                                                                {items.map((item) => (
-                                                                        <div key={item.id} className="flex justify-between gap-2 py-2 text-sm">
-                                                                                <div className="flex-1 min-w-0">
-                                                                                        <span className="font-medium">{item.name}</span>
-                                                                                        <span className="text-muted-foreground ms-1">
-                                                                                                × {toArabicNumber(item.quantity)}
-                                                                                        </span>
-                                                                                        {/* w3-f1: chosen modifier summary in the review dialog too
-                                                                                            (the cart line already shows it — the pre-send
-                                                                                            review must match what will actually be sent) */}
-                                                                                        {item.modifiersSummary && (
-                                                                                                <p className="text-xs text-muted-foreground mt-0.5">
-                                                                                                        {item.modifiersSummary}
-                                                                                                </p>
-                                                                                        )}
-                                                                                        {item.notes && (
-                                                                                                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                                                                                                        <svg
-                                                                                                                className="size-3 shrink-0"
-                                                                                                                viewBox="0 0 24 24"
-                                                                                                                fill="none"
-                                                                                                                stroke="currentColor"
-                                                                                                                strokeWidth="2"
-                                                                                                        >
-                                                                                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                                                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                                                                        </svg>{' '}
-                                                                                                        {item.notes}
-                                                                                                </p>
-                                                                                        )}
-                                                                                </div>
-                                                                                <span className="tabular-nums shrink-0 font-medium">
-                                                                                        {formatPrice(item.price * item.quantity, { decimals: 1 })}
-                                                                                </span>
-                                                                        </div>
-                                                                ))}
-                                                        </div>
-                                                        <div className="h-px bg-gradient-to-r from-transparent via-orange/20 to-transparent" />
-                                                        <div className="flex justify-between font-bold text-lg">
-                                                                <span>الإجمالي</span>
-                                                                <span className="tabular-nums text-primary">
-                                                                        {formatPrice(cartSubtotal, { decimals: 1 })}
-                                                                </span>
-                                                        </div>
-                                                        {notes && (
-                                                                <div className="rounded-xl bg-muted/50 p-3 text-sm">
-                                                                        <span className="text-muted-foreground font-medium">ملاحظات: </span>
-                                                                        <span>{notes}</span>
-                                                                </div>
-                                                        )}
-                                                </div>
-                                                <div className="flex gap-2 p-5 pt-0">
-                                                        <Button variant="outline" className="flex-1" onClick={() => setShowPreview(false)}>
-                                                                تعديل
-                                                        </Button>
-                                                        <Button className="flex-1 gap-2" onClick={handleCheckout} disabled={isSubmitting}>
-                                                                {isSubmitting ? (
-                                                                        <>
-                                                                                <Loader2 className="size-4 animate-spin" /> جاري...
-                                                                        </>
-                                                                ) : (
-                                                                        <>
-                                                                                <AnimatedMessageCircle className="size-4" /> تأكيد وإرسال
-                                                                        </>
-                                                                )}
-                                                        </Button>
-                                                </div>
-                                        </DialogContent>
-                                </Dialog>
+                                <ReviewDialog
+                                        open={showPreview}
+                                        onOpenChange={setShowPreview}
+                                        items={items}
+                                        pickupType={pickupType}
+                                        notes={notes}
+                                        total={subtotal}
+                                        isSubmitting={isSubmitting}
+                                        onCheckout={handleCheckout}
+                                />
                         </div>
                 </>
         );

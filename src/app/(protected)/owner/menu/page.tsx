@@ -8,79 +8,19 @@ import {
         DialogTitle,
         DialogDescription,
 } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
 import { SearchInput } from '@/components/ui/search-input';
-import {Pencil, Package, GripVertical, AlertCircle, Coffee, Pizza, CupSoda, IceCream, Apple, Beef, Fish, UtensilsCrossed, Milk, type LucideIcon} from 'lucide-react';
-import { MotionChevronDown } from '@/components/ui/motion-icons';
+import { AlertCircle } from 'lucide-react';
 import { MotionPlus } from '@/components/ui/motion-icons';
-import AnimatedTrash from '@/components/ui/trash-icon';
 import { BackButton } from '@/components/shared/BackButton';
 import { csrfJson } from '@/lib/csrf-client';
-import { cn } from '@/lib/utils';
-import { toArabicNumber, formatPrice } from '@/lib/format';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
-import { ItemDialog, type ItemModifierGroup } from '@/components/owner/ItemDialog';
-import SparklesIcon from '@/components/ui/sparkles-icon';
+import { ItemDialog } from '@/components/owner/ItemDialog';
 import { premiumToast } from '@/lib/premium-toast';
-
-interface Category {
-        id: number;
-        name: string;
-        nameAr?: string;
-        icon: string;
-        sortOrder: number;
-        isActive: boolean;
-        items: Item[];
-        _count?: { items: number };
-}
-interface Item {
-        id: number;
-        name: string;
-        nameAr?: string;
-        description: string;
-        descriptionAr?: string;
-        price: number;
-        discountedPrice: number | null;
-        image: string;
-        status: string;
-        sortOrder: number;
-        categoryId: number;
-        isFeatured?: boolean;
-        featuredRank?: number | null;
-        // round88-C: legacy single showcaseTag dropped — array only.
-        showcaseTags?: string[] | null;
-        // w3-f1 (F1-3): groups ride the /api/items rows now — typed for the
-        // ItemDialog editing prop (GET includes them since w3-f1).
-        modifierGroups?: ItemModifierGroup[];
-}
-
-const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
-        Package,
-        Coffee,
-        Pizza,
-        CupSoda,
-        IceCream,
-        Apple,
-        Beef,
-        Fish,
-        Milk,
-        UtensilsCrossed,
-};
-
-const CATEGORY_ICONS = [
-        'Package',
-        'Coffee',
-        'Pizza',
-        'CupSoda',
-        'IceCream',
-        'Apple',
-        'Beef',
-        'UtensilsCrossed',
-        'Fish',
-        'Milk',
-];
+import { type Category, type Item, CATEGORY_ICONS } from './types';
+import { CategoriesList } from './CategoriesList';
+import { CategoryDialog } from './CategoryDialog';
 
 export default function OwnerMenuPage() {
         const [restaurantId, setRestaurantId] = useState(0);
@@ -238,6 +178,32 @@ export default function OwnerMenuPage() {
                 );
         });
 
+        // Extracted-section callbacks (round89-G3) — the same state writes the
+        // old inline arrows performed, in the same order.
+        const handleAddItem = (catId: number) => {
+                setItemCatId(catId);
+                setItemEditing(null);
+                setItemDialogOpen(true);
+        };
+        const handleEditCategory = (cat: Category) => {
+                setCatEditing(cat);
+                setCatForm({ name: cat.name, nameAr: cat.nameAr || '', icon: cat.icon });
+                setCatDialog(true);
+        };
+        const handleDeleteCategory = (cat: Category) =>
+                setDeleteTarget({ type: 'category', id: cat.id, name: cat.name });
+        const handleEditItem = (item: Item) => {
+                setItemEditing(item);
+                setItemDialogOpen(true);
+        };
+        const handleDeleteItem = (item: Item) =>
+                setDeleteTarget({ type: 'item', id: item.id, name: item.name });
+        const handleAddCategory = () => {
+                setCatEditing(null);
+                setCatForm({ name: '', nameAr: '', icon: 'Package' });
+                setCatDialog(true);
+        };
+
         if (loading)
                 return (
                         <div className="space-y-4 animate-fade-in">
@@ -292,315 +258,29 @@ export default function OwnerMenuPage() {
 
                         {restaurantId > 0 && <PlanUsageBadge key={usageKey} restaurantId={restaurantId} />}
 
-                        {filteredCategories.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-                                        <div className="size-20 rounded-md bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
-                                                <Package className="size-10 text-muted-foreground/50" />
-                                        </div>
-                                        <p className="text-lg font-medium">{searchTerm ? 'لا توجد نتائج' : 'لا توجد تصنيفات'}</p>
-                                        <p className="text-sm text-muted-foreground/60">
-                                                {searchTerm ? 'جرب كلمات بحث أخرى' : 'أضف تصنيفاً جديداً لبدء بناء المنيو'}
-                                        </p>
-                                        {!searchTerm && (
-                                                <Button
-                                                        variant="orange"
-                                                        onClick={() => {
-                                                                setCatEditing(null);
-                                                                setCatForm({ name: '', nameAr: '', icon: 'Package' });
-                                                                setCatDialog(true);
-                                                        }}
-                                                        className="gap-2"
-                                                >
-                                                        <MotionPlus className="size-4" /> إضافة تصنيف
-                                                </Button>
-                                        )}
-                                </div>
-                        ) : (
-                                <div className="space-y-3">
-                                        {filteredCategories.map((cat) => (
-                                                <div
-                                                        key={cat.id}
-                                                        className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
-                                                >
-                                                        <div
-                                                                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20"
-                                                                onClick={() => toggleCat(cat.id)}
-                                                        >
-                                                                <div className="flex items-center gap-3">
-                                                                        {cat.icon && cat.icon in CATEGORY_ICON_MAP ? (
-                                                                                (() => {
-                                                                                        const I = CATEGORY_ICON_MAP[cat.icon];
-                                                                                        return <I className="size-6 text-primary" />;
-                                                                                })()
-                                                                        ) : (
-                                                                                <span className="text-2xl">{cat.icon || '📦'}</span>
-                                                                        )}
-                                                                        <div>
-                                                                                <span className="font-bold">{cat.name}</span>
-                                                                                {cat.nameAr && (
-                                                                                        <span className="text-xs text-muted-foreground ms-2">{cat.nameAr}</span>
-                                                                                )}
-                                                                                <span className="text-xs text-muted-foreground ms-2 bg-muted/50 px-2 py-0.5 rounded-full">
-                                                                                        {toArabicNumber(cat._count?.items ?? cat.items?.length ?? 0)} صنف
-                                                                                </span>
-                                                                        </div>
-                                                                </div>
-                                                                <div className="flex items-center gap-1">
-                                                                        <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-10 w-10"
-                                                                                onClick={(e) => {
-                                                                                        e.stopPropagation();
-                                                                                        setItemCatId(cat.id);
-                                                                                        setItemEditing(null);
-                                                                                        setItemDialogOpen(true);
-                                                                                }}
-                                                                                title="إضافة صنف"
-                                                                                                                                                        aria-label="إضافة صنف"
-                                                                                                                                                >
-                                                                                                                                                        <MotionPlus className="size-4" />
-                                                                                                                                                        <span className="sr-only sm:not-sr-only sm:inline">إضافة صنف</span>
-                                                                                                                                                </Button>
-                                                                        <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-10 w-10"
-                                                                                onClick={(e) => {
-                                                                                        e.stopPropagation();
-                                                                                        setCatEditing(cat);
-                                                                                        setCatForm({ name: cat.name, nameAr: cat.nameAr || '', icon: cat.icon });
-                                                                                        setCatDialog(true);
-                                                                                }}
-                                                                                title="تعديل"
-                                                                                aria-label="تعديل"
-                                                                        >
-                                                                                <Pencil className="size-4" />
-                                                                        </Button>
-                                                                        <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-10 w-10 text-destructive"
-                                                                                onClick={(e) => {
-                                                                                        e.stopPropagation();
-                                                                                        setDeleteTarget({ type: 'category', id: cat.id, name: cat.name });
-                                                                                }}
-                                                                                title="حذف"
-                                                                                aria-label="حذف"
-                                                                        >
-                                                                                <AnimatedTrash className="size-4" />
-                                                                        </Button>
-                                                                        <MotionChevronDown
-                                                                                className={cn(
-                                                                                        'size-5 text-muted-foreground transition-transform duration-300 ms-1',
-                                                                                        expandedCat === cat.id && 'rotate-180'
-                                                                                )}
-                                                                        />
-                                                                </div>
-                                                        </div>
+                        <CategoriesList
+                                categories={filteredCategories}
+                                searchTerm={searchTerm}
+                                expandedCatId={expandedCat}
+                                pendingToggleId={pendingToggleId}
+                                onToggleCategory={toggleCat}
+                                onAddItem={handleAddItem}
+                                onEditCategory={handleEditCategory}
+                                onDeleteCategory={handleDeleteCategory}
+                                onToggleItemStatus={toggleStatus}
+                                onEditItem={handleEditItem}
+                                onDeleteItem={handleDeleteItem}
+                                onAddCategory={handleAddCategory}
+                        />
 
-                                                        {expandedCat === cat.id && (
-                                                                <div className="border-t border-border/20">
-                                                                        {cat.items?.length > 0 ? (
-                                                                                <div className="divide-y divide-border/10">
-                                                                                        {cat.items.map((item) => (
-                                                                                                <div
-                                                                                                        key={item.id}
-                                                                                                        className="flex items-center gap-3 px-5 py-3 hover:bg-muted/10 transition-colors group"
-                                                                                                >
-                                                                                                        <GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100" />
-                                                                                                        {item.image ? (
-                                                                        <img
-                                                                                                                        src={item.image}
-                                                                                                                        alt={item.name}
-                                                                                                                        loading="lazy"
-                                                                                                                        className="size-10 rounded-md object-cover shrink-0 border border-border/30"
-                                                                                                                />
-                                                                                                        ) : (
-                                                                                                                <div className="size-10 rounded-md bg-muted/30 flex items-center justify-center shrink-0">
-                                                                                                                        <Package className="size-4 text-muted-foreground/40" />
-                                                                                                                </div>
-                                                                                                        )}
-                                                                                                        <div className="flex-1 min-w-0">
-                                                                                                                <div className="flex items-center gap-2">
-                                                                                                                        <span
-                                                                                                                                className={cn(
-                                                                                                                                        'font-medium text-sm',
-                                                                                                                                        item.status !== 'available' &&
-                                                                                                                                                'text-muted-foreground/50 line-through'
-                                                                                                                                )}
-                                                                                                                        >
-                                                                                                                                {item.name}
-                                                                                                                        </span>
-                                                                                                                        {item.nameAr && (
-                                                                                                                                <span className="text-xs text-muted-foreground/60 hidden sm:inline">
-                                                                                                                                        {item.nameAr}
-                                                                                                                                </span>
-                                                                                                                        )}
-                                                                                                                        {item.isFeatured && (
-                                                                                                                                <span
-                                                                                                                                        title="مميز — يظهر في القسم السينمائي"
-                                                                                                                                        className="inline-flex items-center gap-0.5 text-[10px] font-bold text-ember dark:text-saffron bg-orange/10 border border-orange/25 rounded-full px-1.5 py-0.5"
-                                                                                                                                >
-                                                                                                                                        <SparklesIcon className="size-2.5" aria-hidden="true" />
-                                                                                                                                </span>
-                                                                                                                        )}
-                                                                                                                </div>
-                                                                                                                {item.description && (
-                                                                                                                        <p className="text-xs text-muted-foreground/50 truncate max-w-md">
-                                                                                                                                {item.description}
-                                                                                                                        </p>
-                                                                                                                )}
-                                                                                                        </div>
-                                                                                                        <div className="text-end shrink-0 tabular-nums whitespace-nowrap">
-                                                                                                                <span
-                                                                                                                        className={cn(
-                                                                                                                                'font-bold text-sm tabular-nums',
-                                                                                                                                item.discountedPrice && 'text-destructive'
-                                                                                                                        )}
-                                                                                                                >
-                                                                                                                        {formatPrice(item.discountedPrice ?? item.price, { decimals: 1, suffix: '' })}
-                                                                                                                </span>
-                                                                                                                <span className="text-xs text-muted-foreground ms-0.5">د.ل</span>
-                                                                                                                {item.discountedPrice && (
-                                                                                                                        <span className="text-xs text-muted-foreground/50 line-through block tabular-nums">
-                                                                                                                                {formatPrice(item.price, { decimals: 1, suffix: '' })}
-                                                                                                                        </span>
-                                                                                                                )}
-                                                                                                        </div>
-                                                                                                        <div className="flex items-center gap-2">
-                                                                                                                <Switch
-                                                                                                                        size="sm"
-                                                                                                                        checked={item.status === 'available'}
-                                                                                                                        disabled={pendingToggleId === item.id}
-                                                                                                                        onCheckedChange={() => toggleStatus(item)}
-                                                                                                        aria-label={`تغيير حالة توفر ${item.name}`}
-                                                                                                                />
-                                                                                                                <span
-                                                                                                                        className={cn(
-                                                                                                                                'text-xs w-14',
-                                                                                                                                item.status === 'available' ? 'text-success' : 'text-destructive'
-                                                                                                                        )}
-                                                                                                                >
-                                                                                                                        {item.status === 'available' ? 'متوفر' : 'غير متوفر'}
-                                                                                                                </span>
-                                                                                                        </div>
-                                                                                                        <div className="flex gap-0.5">
-                                                                                                                <Button
-                                                                                                                        variant="ghost"
-                                                                                                                        size="icon"
-                                                                                                                        className="h-10 w-10"
-                                                                                                                        onClick={() => {
-                                                                                                                                setItemEditing(item);
-                                                                                                                                setItemDialogOpen(true);
-                                                                                                                        }}
-                                                                                                                        title="تعديل"
-                                                                                                                >
-                                                                                                                        <Pencil className="size-3.5" />
-                                                                                                                </Button>
-                                                                                                                <Button
-                                                                                                                        variant="ghost"
-                                                                                                                        size="icon"
-                                                                                                                        className="h-10 w-10 text-destructive"
-                                                                                                                        onClick={() =>
-                                                                                                                                setDeleteTarget({ type: 'item', id: item.id, name: item.name })
-                                                                                                                        }
-                                                                                                                        title="حذف"
-                                                                                                                >
-                                                                                                                        <AnimatedTrash className="size-3.5" />
-                                                                                                                </Button>
-                                                                                                        </div>
-                                                                                                </div>
-                                                                                        ))}
-                                                                                </div>
-                                                                        ) : (
-                                                                                <div className="py-8 text-center">
-                                                                                        <p className="text-sm text-muted-foreground mb-3">
-                                                                                                لا توجد أصناف في هذا التصنيف
-                                                                                        </p>
-                                                                                        <Button
-                                                                                                variant="outline"
-                                                                                                size="sm"
-                                                                                                onClick={() => {
-                                                                                                        setItemCatId(cat.id);
-                                                                                                        setItemEditing(null);
-                                                                                                        setItemDialogOpen(true);
-                                                                                                }}
-                                                                                                className="gap-1 border-orange/30 text-orange hover:bg-orange-muted"
-                                                                                        >
-                                                                                                <MotionPlus className="size-3.5" /> إضافة صنف
-                                                                                        </Button>
-                                                                                </div>
-                                                                        )}
-                                                                </div>
-                                                        )}
-                                                </div>
-                                        ))}
-                                </div>
-                        )}
-
-                        {/* Category Dialog */}
-                        <Dialog open={catDialog} onOpenChange={setCatDialog}>
-                                <DialogContent className="rounded-md">
-                                        <DialogHeader>
-                                                <DialogTitle>{catEditing ? 'تعديل تصنيف' : 'إضافة تصنيف'}</DialogTitle>
-                                        </DialogHeader>
-                                        <div className="space-y-4">
-                                                <div>
-                                                        <label className="text-sm font-medium">الاسم</label>
-                                                        <input
-                                                                value={catForm.name}
-                                                                onChange={(e) => setCatForm({ ...catForm, name: e.target.value })}
-                                                                placeholder="مشروبات ساخنة"
-                                                                className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 focus-visible:border-orange"
-                                                        />
-                                                </div>
-                                                <div>
-                                                        <label className="text-sm font-medium">الاسم بالإنجليزية</label>
-                                                        <input
-                                                                value={catForm.nameAr}
-                                                                onChange={(e) => setCatForm({ ...catForm, nameAr: e.target.value })}
-                                                                placeholder="اختياري — بالإنجليزية"
-                                                                className="w-full h-11 rounded-[4px] border border-border/30 px-4 text-sm outline-none mt-1.5 text-start"
-                                                                dir="ltr"
-                                                        />
-                                                </div>
-                                                <div>
-                                                        <label className="text-sm font-medium">أيقونة</label>
-                                                        <div className="flex flex-wrap gap-2 mt-1.5">
-                                                                {CATEGORY_ICONS.map((iconName) => {
-                                                                        const IconComp =
-                                                                                iconName in CATEGORY_ICON_MAP ? CATEGORY_ICON_MAP[iconName] : null;
-                                                                        if (!IconComp) return null;
-                                                                        return (
-                                                                                <button
-                                                                                        key={iconName}
-                                                                                        type="button"
-                                                                                        onClick={() => setCatForm({ ...catForm, icon: iconName })}
-                                                                                        className={cn(
-                                                                                                'size-10 rounded-[4px] flex items-center justify-center border transition-[border-color,background-color,transform,translate,scale,rotate] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
-                                                                                                catForm.icon === iconName
-                                                                                                        ? 'border-orange bg-orange-muted dark:bg-orange-muted scale-110'
-                                                                                                        : 'border-border/30 hover:border-orange/30'
-                                                                                        )}
-                                                                                >
-                                                                                        <IconComp className="size-5" />
-                                                                                </button>
-                                                                        );
-                                                                })}
-                                                        </div>
-                                                </div>
-                                        </div>
-                                        <div className="flex justify-end gap-2 mt-2">
-                                                <Button variant="outline" onClick={() => setCatDialog(false)}>
-                                                        إلغاء
-                                                </Button>
-                                                <Button variant="orange" onClick={saveCat}>
-                                                        {catEditing ? 'تحديث' : 'إضافة'}
-                                                </Button>
-                                        </div>
-                                </DialogContent>
-                        </Dialog>
+                        <CategoryDialog
+                                open={catDialog}
+                                onOpenChange={setCatDialog}
+                                editing={Boolean(catEditing)}
+                                form={catForm}
+                                onFormChange={setCatForm}
+                                onSave={saveCat}
+                        />
 
                         {/* Item Dialog */}
                         <ItemDialog

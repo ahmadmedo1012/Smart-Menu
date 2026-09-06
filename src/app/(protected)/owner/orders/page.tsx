@@ -1,51 +1,25 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { usePollWhenVisible } from '@/hooks/usePollWhenVisible';
 import { BackButton } from '@/components/shared/BackButton';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { SearchInput } from '@/components/ui/search-input';
-import { EmptyState } from '@/components/ui/empty-state';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfJson } from '@/lib/csrf-client';
 import { getErrorMessage } from '@/lib/get-error-message';
-import {
-        ClipboardList,
-        SearchX,
-        Download,
-        Loader2,
-        AlertCircle,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Download, Loader2, AlertCircle } from 'lucide-react';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
-import {
-        getOrderStatusMeta,
-        getPickupTypeMeta,
-        formatRelativeTimeAr,
-} from '@/lib/order-status';
+import { getOrderStatusMeta, getPickupTypeMeta } from '@/lib/order-status';
 import { LivePollIndicator } from '@/components/orders/LivePollIndicator';
 import { OrderCardSkeleton } from '@/components/orders/OrderCardSkeleton';
 import { NewOrdersBar } from '@/components/orders/NewOrdersBar';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
-
-interface Order {
-        id: number;
-        orderNo: string;
-        customerName: string;
-        customerPhone?: string;
-        status: string;
-        total: number;
-        pickupType: string;
-        createdAt: string;
-        _count: { items: number };
-}
+import { OrdersTable, type Order } from './OrdersTable';
+import { OrdersFilters } from './OrdersFilters';
+import { useOrdersPolling } from './use-orders-polling';
 
 const PAGE_SIZE = 20;
-/** Honest cadence shown in the live indicator — keep both in sync. */
-const POLL_INTERVAL_MS = 15_000;
 
 /** Status chips shown as horizontally scrollable filters with counts. */
 const STATUS_FILTERS = [
@@ -77,8 +51,6 @@ export default function OwnerOrdersPage() {
         const [pendingStatus, setPendingStatus] = useState<Record<number, string>>({});
         const router = useRouter();
         const ordersRef = useRef<Order[]>([]);
-        // round87-B1: probe signature for the 15s poll
-        const probeRef = useRef<string | null>(null);
         // Multi-menu: active restaurant scopes all order queries
         const { activeId } = useActiveRestaurant();
 
@@ -140,10 +112,12 @@ export default function OwnerOrdersPage() {
 
         const loadMore = () => fetchOrders(filter, page + 1, true);
 
+        const { resetProbe } = useOrdersPolling({ filter, activeId, fetchOrders });
+
         useEffect(() => {
-                probeRef.current = null;
+                resetProbe();
                 fetchOrders(filter, 1, false);
-        }, [filter, fetchOrders]);
+        }, [filter, fetchOrders, resetProbe]);
 
         // Auto-refresh — client polling replaces SSE (Vercel kills streams at 300s).
         // Honest UX: the indicator reflects the real cadence and pauses when the tab
@@ -153,45 +127,6 @@ export default function OwnerOrdersPage() {
                 setIsLive(true);
                 return () => setIsLive(false);
         }, []);
-
-        usePollWhenVisible(
-                async () => {
-                        try {
-                                // round87-B1: probe-then-refetch — the old poll downloaded the
-                                // full first page (~8.2KB) every 15s while the steady-state diff
-                                // is "nothing changed". The probe fetches ONE row and compares
-                                // (total, top id, top updatedAt) ≈ 0.6KB — a ~92% cut.
-                                const params = new URLSearchParams();
-                                if (filter) params.set('status', filter);
-                                params.set('page', '1');
-                                params.set('pageSize', '1');
-                                if (activeId) params.set('restaurantId', String(activeId));
-                                const res = await fetch(`/api/orders?${params.toString()}`);
-                                if (res.status === 401) {
-                                        window.location.href = '/login';
-                                        return;
-                                }
-                                if (!res.ok) return;
-                                const json = await res.json();
-                                const top = Array.isArray(json.data) ? json.data[0] : undefined;
-                                const sig = `${json.meta?.total ?? json.total ?? '?'}:${top?.id ?? '-'}:${top?.updatedAt ?? '-'}`;
-                                if (probeRef.current === null) {
-                                        probeRef.current = sig; // baseline only — mount effect loads page 1
-                                        return;
-                                }
-                                if (sig === probeRef.current) return;
-                                probeRef.current = sig;
-                                fetchOrders(filter, 1, false);
-                                premiumToast('success', '📦 تحديث الطلبات', undefined, {
-                                        duration: 3000,
-                                });
-                        } catch {
-                                /* transient — next tick retries */
-                        }
-                },
-                POLL_INTERVAL_MS,
-                [filter, fetchOrders, activeId]
-        );
 
         const updateStatus = useCallback(async (orderId: number, newStatus: string) => {
                 const prevStatus = ordersRef.current.find((o) => o.id === orderId)?.status;
@@ -307,6 +242,28 @@ export default function OwnerOrdersPage() {
                 }
         };
 
+        // Extracted-section callbacks (round89-G2) — same state-write + refetch
+        // order the old inline arrows used.
+        const handleDateFromChange = (v: string) => {
+                setDateFrom(v);
+                fetchOrders(filter, 1, false, v, dateTo);
+        };
+        const handleDateToChange = (v: string) => {
+                setDateTo(v);
+                fetchOrders(filter, 1, false, dateFrom, v);
+        };
+        const clearDates = () => {
+                setDateFrom('');
+                setDateTo('');
+                fetchOrders(filter, 1, false, '', '');
+        };
+        const handleAdvance = (order: Order) => {
+                const meta = getOrderStatusMeta(order.status);
+                if (meta.next) updateStatus(order.id, meta.next);
+        };
+        const handleCancel = (order: Order) => updateStatus(order.id, 'cancelled');
+        const handleOpen = (order: Order) => router.push(`/owner/orders/${order.id}`);
+
         if (loading)
                 return (
                         <div className="space-y-4 animate-fade-in">
@@ -379,137 +336,31 @@ export default function OwnerOrdersPage() {
                                 </div>
                         </div>
 
-                        {/* Search + Date filter */}
-                        <div className="flex gap-2 items-start flex-wrap">
-                                <SearchInput
-                                        value={search}
-                                        onChange={setSearch}
-                                        placeholder="ابحث برقم الطلب أو اسم العميل..."
-                                />
-                                <input
-                                        type="date"
-                                        value={dateFrom}
-                                        onChange={(e) => {
-                                                const v = e.target.value;
-                                                setDateFrom(v);
-                                                fetchOrders(filter, 1, false, v, dateTo);
-                                        }}
-                                        className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
-                                        title="من تاريخ"
-                                        aria-label="من تاريخ"
-                                />
-                                <input
-                                        type="date"
-                                        value={dateTo}
-                                        onChange={(e) => {
-                                                const v = e.target.value;
-                                                setDateTo(v);
-                                                fetchOrders(filter, 1, false, dateFrom, v);
-                                        }}
-                                        className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
-                                        title="إلى تاريخ"
-                                        aria-label="إلى تاريخ"
-                                />
-                                {(dateFrom || dateTo) && (
-                                        <button
-                                                type="button"
-                                                onClick={() => {
-                                                        setDateFrom('');
-                                                        setDateTo('');
-                                                        fetchOrders(filter, 1, false, '', '');
-                                                }}
-                                                className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-                                        >
-                                                إلغاء
-                                        </button>
-                                )}
-                        </div>
+                        <OrdersFilters
+                                search={search}
+                                onSearchChange={setSearch}
+                                dateFrom={dateFrom}
+                                dateTo={dateTo}
+                                onDateFromChange={handleDateFromChange}
+                                onDateToChange={handleDateToChange}
+                                onClearDates={clearDates}
+                                filter={filter}
+                                onFilterChange={setFilter}
+                                tabs={filtersWithCounts}
+                        />
 
-                        {/* Status filter chips with counts */}
-                        <div
-                                className="flex gap-2 overflow-x-auto pb-2 scrollbar-none snap-x"
-                                role="group"
-                                aria-label="تصفية حسب الحالة"
-                        >
-                                {filtersWithCounts.map((tab) => (
-                                        <button
-                                                key={tab.value}
-                                                type="button"
-                                                onClick={() => setFilter(tab.value)}
-                                                aria-pressed={filter === tab.value}
-                                                className={cn(
-                                                        'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color] duration-300 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
-                                                        filter === tab.value
-                                                                ? 'bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25'
-                                                                : 'bg-card/50 border border-border/30 hover:border-orange/30'
-                                                )}
-                                        >
-                                                {tab.label}
-                                                <span
-                                                        className={cn(
-                                                                'inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold',
-                                                                filter === tab.value
-                                                                        ? 'bg-white/20 text-white'
-                                                                        : 'bg-muted text-muted-foreground'
-                                                        )}
-                                                >
-                                                        {toArabicNumber(tab.count)}
-                                                </span>
-                                        </button>
-                                ))}
-                        </div>
-
-                        {/* Orders */}
-                        {loadingMore && (
-                                <div className="flex items-center justify-center py-4">
-                                        <div className="size-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-                                </div>
-                        )}
-
-                        {filtered.length === 0 ? (
-                                hasActiveFilters ? (
-                                        <EmptyState
-                                                icon={SearchX}
-                                                title="لا طلبات مطابقة للفلتر"
-                                                description="جرب تعديل البحث أو مسح الفلاتر لعرض كل الطلبات."
-                                                action={
-                                                        <Button size="sm" onClick={clearAllFilters}>
-                                                                مسح الفلاتر
-                                                        </Button>
-                                                }
-                                        />
-                                ) : (
-                                        <EmptyState
-                                                icon={ClipboardList}
-                                                title="لا طلبات اليوم بعد"
-                                                description="عندما يطلب الزبائن عبر المنيو، ستظهر طلباتهم هنا فوراً."
-                                        />
-                                )
-                        ) : (
-                                <div className="space-y-3">
-                                        {filtered.map((order) => (
-                                                <OrderCard
-                                                        key={order.id}
-                                                        order={order}
-                                                        pendingStatus={pendingStatus[order.id]}
-                                                        onAdvance={() => {
-                                                                const meta = getOrderStatusMeta(order.status);
-                                                                if (meta.next) updateStatus(order.id, meta.next);
-                                                        }}
-                                                        onCancel={() => updateStatus(order.id, 'cancelled')}
-                                                        onOpen={() => router.push(`/owner/orders/${order.id}`)}
-                                                />
-                                        ))}
-                                </div>
-                        )}
-
-                        {hasMore && filtered.length > 0 && !loadingMore && (
-                                <div className="flex justify-center pt-2">
-                                        <Button variant="outline" onClick={loadMore}>
-                                                تحميل المزيد ↓
-                                        </Button>
-                                </div>
-                        )}
+                        <OrdersTable
+                                orders={filtered}
+                                pendingStatus={pendingStatus}
+                                loadingMore={loadingMore}
+                                hasMore={hasMore}
+                                hasActiveFilters={hasActiveFilters}
+                                onAdvance={handleAdvance}
+                                onCancel={handleCancel}
+                                onOpen={handleOpen}
+                                onLoadMore={loadMore}
+                                onClearFilters={clearAllFilters}
+                        />
 
                         <NewOrdersBar
                                 newOrderIds={newOrderIds}
@@ -517,143 +368,6 @@ export default function OwnerOrdersPage() {
                                 onOrdersRefresh={() => fetchOrders(filter, 1, false)}
                                 updateStatus={updateStatus}
                         />
-                </div>
-        );
-}
-
-interface OrderCardProps {
-        order: Order;
-        /** Target status while the transition PUT is in flight (optimistic). */
-        pendingStatus?: string;
-        onAdvance: () => void;
-        onCancel: () => void;
-        onOpen: () => void;
-}
-
-function OrderCard({
-        order,
-        pendingStatus,
-        onAdvance,
-        onCancel,
-        onOpen,
-}: OrderCardProps) {
-        const config = getOrderStatusMeta(order.status);
-        const StatusIcon = config.icon;
-        const isBusy = pendingStatus !== undefined;
-        // While the PUT is in flight show the TARGET status (what the user asked for).
-        const targetStatus = pendingStatus ?? config.next;
-        const targetMeta =
-                targetStatus !== null && targetStatus !== undefined
-                        ? getOrderStatusMeta(targetStatus)
-                        : null;
-        const PickupIcon = getPickupTypeMeta(order.pickupType).icon;
-        const createdIso = Number.isNaN(new Date(order.createdAt).getTime())
-                ? undefined
-                : new Date(order.createdAt).toISOString();
-
-        return (
-                <div
-                        role="link"
-                        tabIndex={0}
-                        className={cn(
-                                'rounded-2xl border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                                isBusy && 'opacity-80'
-                        )}
-                        onClick={onOpen}
-                        onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        onOpen();
-                                }
-                        }}
-                >
-                        <div className="flex items-start justify-between gap-4">
-                                <div className="flex items-center gap-3 min-w-0">
-                                        <div
-                                                className={cn(
-                                                        'size-11 rounded-xl flex items-center justify-center shrink-0',
-                                                        config.toneClassName
-                                                )}
-                                        >
-                                                <StatusIcon className="size-5" aria-hidden="true" />
-                                        </div>
-                                        <div className="min-w-0">
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                        <p className="font-bold">{order.orderNo}</p>
-                                                        <Badge className={cn('text-xs', config.badgeClassName)}>
-                                                                <StatusIcon className="size-3" aria-hidden="true" />
-                                                                {config.label}
-                                                        </Badge>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground truncate">
-                                                        {order.customerName}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground/60">
-                                                        <span className="flex items-center gap-1">
-                                                                <PickupIcon className="size-3.5" aria-hidden="true" />
-                                                                {getPickupTypeMeta(order.pickupType).label}
-                                                        </span>
-                                                        <span aria-hidden="true">•</span>
-                                                        <span>{toArabicNumber(order._count?.items ?? 0)} أصناف</span>
-                                                </div>
-                                        </div>
-                                </div>
-
-                                <div className="text-end shrink-0">
-                                        <p className="font-bold text-lg tabular-nums">
-                                                {toArabicNumber(order.total.toFixed(1))}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">د.ل</p>
-                                </div>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-border/20">
-                                <time
-                                        dateTime={createdIso}
-                                        className="text-xs text-muted-foreground tabular-nums"
-                                >
-                                        {formatRelativeTimeAr(order.createdAt)}
-                                </time>
-
-                                {targetMeta && (
-                                        <div className="flex gap-2">
-                                                {order.status === 'new' && (
-                                                        <button
-                                                                type="button"
-                                                                disabled={isBusy}
-                                                                onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟'))
-                                                                                onCancel();
-                                                                }}
-                                                                className="px-4 py-2 rounded-xl text-sm font-medium border border-destructive/30 text-destructive hover:bg-destructive/10 disabled:opacity-50 transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/60"
-                                                        >
-                                                                إلغاء
-                                                        </button>
-                                                )}
-                                                <button
-                                                        type="button"
-                                                        disabled={isBusy}
-                                                        aria-busy={isBusy}
-                                                        onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onAdvance();
-                                                        }}
-                                                        className={cn(
-                                                                'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-[background-color] border disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
-                                                                targetStatus === 'preparing'
-                                                                        ? 'border-info/30 text-info hover:bg-info/10'
-                                                                        : 'border-success/25 text-success hover:bg-success/10'
-                                                        )}
-                                                >
-                                                        {isBusy && (
-                                                                <Loader2 className="size-3.5 animate-spin motion-reduce:hidden" />
-                                                        )}
-                                                        ← {targetMeta.label}
-                                                </button>
-                                        </div>
-                                )}
-                        </div>
                 </div>
         );
 }
