@@ -2,6 +2,10 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+// w3-f1: the public menu payload now carries modifier groups (available options
+// only — filtered server-side in menu/[slug]/page.tsx). Shared type with the
+// pure selection logic so OrderDialog/MenuItemCard speak the same shape.
+import type { ModifierGroupProp } from './menu-types';
 
 /**
  * round86-B6: the hero markup moved to the server component MenuHero.tsx —
@@ -65,6 +69,8 @@ type SerializedItem = {
     // badge storage (migration 20260906055500).
     showcaseTags: string[] | null;
     createdAt: string;
+    // w3-f1: live modifier groups (empty array = no choices).
+    modifierGroups: ModifierGroupProp[];
 };
 
 export function MenuClientSection(props: {

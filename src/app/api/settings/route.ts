@@ -5,6 +5,7 @@ import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { revalidateMenu } from '@/lib/menu-cache';
+import { categoryCountByRestaurant, orderCountByRestaurant } from '@/lib/list-counts';
 
 const singleSchema = z.object({
         key: z.string().min(1).max(100),
@@ -67,13 +68,29 @@ export async function GET(request: NextRequest) {
                         return apiError('غير مصرح', 403);
                 }
 
-                const [settings, restaurant] = await Promise.all([
+                const [settings, restaurantRow, orderCounts, catCounts] = await Promise.all([
                         prisma.setting.findMany({ where: { restaurantId }, select: { key: true, value: true } }),
+                        // round89-C3 (dx-2 ب-2): `_count` on this findUnique compiled into
+                        // FULL-TABLE aggregate LEFT JOINs of Order + MenuCategory (round88-A2
+                        // finding — platform-wide cost on a tenant-scoped read). The counts
+                        // come from the list-counts helpers for just this row; the response
+                        // shape (`restaurant._count.orders/.categories`) is identical.
                         prisma.restaurant.findUnique({
                                 where: { id: restaurantId },
-                                include: { plan: true, _count: { select: { orders: true, categories: true } } },
+                                include: { plan: true },
                         }),
+                        orderCountByRestaurant([restaurantId]),
+                        categoryCountByRestaurant([restaurantId]),
                 ]);
+                const restaurant = restaurantRow
+                        ? {
+                                ...restaurantRow,
+                                _count: {
+                                        orders: orderCounts.get(restaurantId) ?? 0,
+                                        categories: catCounts.get(restaurantId) ?? 0,
+                                },
+                        }
+                        : null;
 
                 const map: Record<string, string> = {};
                 for (const s of settings) map[s.key] = s.value;

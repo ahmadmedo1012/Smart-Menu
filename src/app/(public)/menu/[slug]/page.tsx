@@ -97,6 +97,23 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                                 price: true, discountedPrice: true, image: true, sortOrder: true,
                                 categoryId: true, createdAt: true,
                                 dietaryTags: true, allergens: true, avgRating: true, ratingCount: true,
+                                // w3-f1 (F1-2): modifier groups — ONE hierarchical select, no
+                                // per-item round-trips (no N+1). Only AVAILABLE options cross
+                                // the wire; the serializer below drops groups left empty by
+                                // that filter, so a group whose options were all switched off
+                                // disappears from the customer menu entirely.
+                                modifierGroups: {
+                                        orderBy: { sortOrder: 'asc' },
+                                        select: {
+                                                id: true, nameAr: true, name: true,
+                                                minSelect: true, maxSelect: true, required: true,
+                                                options: {
+                                                        where: { isAvailable: true },
+                                                        orderBy: { sortOrder: 'asc' },
+                                                        select: { id: true, nameAr: true, name: true, priceDelta: true },
+                                                },
+                                        },
+                                },
                         },
                         orderBy: { sortOrder: 'asc' },
                 }),
@@ -221,6 +238,26 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                         isFeatured: featuredMap.get(rest.id)?.isFeatured ?? false,
                         featuredRank: featuredMap.get(rest.id)?.featuredRank ?? null,
                         showcaseTags: featuredMap.get(rest.id)?.showcaseTags ?? null,
+                        // w3-f1 (F1-2): groups that survived the available-options filter;
+                        // empty ones are dropped here (a group with zero bookable options
+                        // must not render — and must not block required-group validation).
+                        modifierGroups: rest.modifierGroups
+                                .map((g) => ({
+                                        id: g.id,
+                                        nameAr: g.nameAr,
+                                        name: g.name,
+                                        minSelect: g.minSelect,
+                                        maxSelect: g.maxSelect,
+                                        required: g.required,
+                                        options: g.options.map((o) => ({
+                                                id: o.id,
+                                                nameAr: o.nameAr,
+                                                name: o.name,
+                                                priceDelta: Number(o.priceDelta),
+                                                isAvailable: true,
+                                        })),
+                                }))
+                                .filter((g) => g.options.length > 0),
                 })
         );
 

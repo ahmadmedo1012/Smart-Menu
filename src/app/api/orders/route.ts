@@ -169,8 +169,12 @@ export async function POST(request: NextRequest) {
                 const allModIds = body.items.flatMap((i) => i.modifierOptionIds ?? []);
                 const modOptionMap = new Map<number, number>();
                 if (allModIds.length > 0) {
+                        // w3-f1 security note (coordinator fix): isAvailable:true —
+                        // the public menu never offers unavailable options, so an
+                        // unavailable id here means a hand-crafted payload trying
+                        // to price a hidden option. Reject at the source.
                         const modOptions = await prisma.modifierOption.findMany({
-                                where: { id: { in: allModIds } },
+                                where: { id: { in: allModIds }, isAvailable: true },
                                 select: { id: true, priceDelta: true, group: { select: { menuItemId: true } } },
                         });
                         // Build set of valid (itemId → optionId) pairs

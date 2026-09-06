@@ -13,10 +13,9 @@ export type FeaturedRestaurant = {
     orderCount: number;
 };
 
-export type PublicStats = {
-    totalRestaurants: number;
-    totalUsers: number;
-};
+// round89-C5 (dx-1 ج): the dead `fetchPublicStats` export + `PublicStats`
+// type were removed — zero importers (the LIVE client-fetch copy lives in
+// components/landing/landing-data.ts and is what the landing page uses).
 
 export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
     try {
@@ -63,17 +62,5 @@ export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
             .slice(0, 10);
     } catch {
         return [];
-    }
-}
-
-export async function fetchPublicStats(): Promise<PublicStats> {
-    try {
-        const [restaurants, users] = await Promise.all([
-            prisma.restaurant.count({ where: { isActive: true } }),
-            prisma.user.count(),
-        ]);
-        return { totalRestaurants: Math.max(restaurants, 500), totalUsers: users };
-    } catch {
-        return { totalRestaurants: 0, totalUsers: 0 };
     }
 }

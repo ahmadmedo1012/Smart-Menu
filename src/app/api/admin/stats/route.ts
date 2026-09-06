@@ -1,13 +1,25 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { popularItemsQuery, hydratePopularItems, revenueAggregate } from "@/lib/stats-queries";
 
-export async function GET() {
-  try {
-    const auth = await requirePermission("VIEW_ANALYTICS");
-    if (!auth.authorized) return error(auth.error, auth.status);
-
+// round89-C1 (dx-2 د): every query below is PLATFORM-WIDE (no session/
+// restaurant/tenant filter — verified query-by-query), so the payload is
+// byte-identical for every admin. The admin dashboard polls this route every
+// 30s per open tab (admin/page.tsx), which re-ran ~21 aggregate queries each
+// time (24 statements incl. auth). The whole data fetch is now wrapped in
+// unstable_cache (Next 16 Data Cache — see node_modules/next/dist/docs/01-app/
+// 02-guides/caching-without-cache-components.md) with a 60s ceiling + an
+// `admin-stats` tag for future invalidation. IMPORTANT: requirePermission
+// (session-derived) stays OUTSIDE the cache scope — an unauthorized caller
+// never populates or reads the shared cache, and the 401/403 responses are
+// never cached. Invalidation: producers (restaurant create/delete, payment
+// verify/cancel, user signup) live in files outside this agent's scope — the
+// 60s TTL bounds staleness; revalidateTag('admin-stats') is the hook for a
+// future round.
+const getAdminStatsData = unstable_cache(
+  async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -16,6 +28,12 @@ export async function GET() {
       totalRestaurants,
       totalOrders,
       plans,
+      // round89-C4 (dx-2 ب-3): the plans query used to embed a full restaurant
+      // row per plan (`restaurants: { select: { id: true } }`) only to count
+      // `p.restaurants.length` — loading every restaurant on the platform into
+      // memory per request. One grouped count per planId returns the same
+      // numbers with a handful of rows.
+      planRestaurantCounts,
       recentSignups,
       recentLogins,
       ordersToday,
@@ -26,7 +44,11 @@ export async function GET() {
       prisma.restaurant.count(),
       prisma.order.count(),
       prisma.subscriptionPlan.findMany({
-        select: { id: true, name: true, price: true, restaurants: { select: { id: true } } },
+        select: { id: true, price: true },
+      }),
+      prisma.restaurant.groupBy({
+        by: ['planId'],
+        _count: { _all: true },
       }),
       prisma.restaurant.findMany({
         take: 10,
@@ -60,11 +82,9 @@ export async function GET() {
       prisma.restaurant.count({ where: { planId: { not: null } } }),
     ]);
 
-    // round87-B3: the queries below were 12 sequential await waves on a route
-    // polled every 30s — every wave cost a full DB round trip. All of them are
-    // mutually independent, so they now run in ONE Promise.all alongside the
-    // counts above; only the two hydrations (top-restaurant details, top-item
-    // names) depend on wave-1 results and form wave 2.
+    // wave-2 hydrations (top-restaurant details, top-item names) and the
+    // computed fields below run inside the cached function so a cache hit
+    // skips them too.
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const thirtyDaysBefore = new Date();
@@ -162,17 +182,18 @@ export async function GET() {
       : 0;
 
     const noPlanCount = totalRestaurants - linkedRestaurants;
+    const countByPlanId = new Map<number, number>(
+      planRestaurantCounts.map((g): [number, number] => [g.planId ?? -1, g._count._all])
+    );
     const restaurantsOnFreePlans = plans
       .filter((p) => Number(p.price) === 0)
-      .reduce((sum, p) => sum + p.restaurants.length, 0);
+      .reduce((sum, p) => sum + (countByPlanId.get(p.id) ?? 0), 0);
     const freePlanCount = noPlanCount + restaurantsOnFreePlans;
-    const paidPlans = plans.filter((p) => Number(p.price) > 0);
-    const monthlyRevenue = paidPlans.reduce(
-      (sum, p) => sum + Number(p.price) * p.restaurants.length,
-      0
-    );
+    const monthlyRevenue = plans
+      .filter((p) => Number(p.price) > 0)
+      .reduce((sum, p) => sum + Number(p.price) * (countByPlanId.get(p.id) ?? 0), 0);
 
-    return success({
+    return {
       totalUsers,
       totalRestaurants,
       totalOrders,
@@ -204,7 +225,19 @@ export async function GET() {
       restaurantGrowthPct,
       avgOrderValue: Number(aovData._avg.total ?? 0),
       avgOrderValuePrev: Number(aovPrevData._avg.total ?? 0),
-    });
+    };
+  },
+  ['admin-stats'],
+  { revalidate: 60, tags: ['admin-stats'] }
+);
+
+export async function GET() {
+  try {
+    const auth = await requirePermission("VIEW_ANALYTICS");
+    if (!auth.authorized) return error(auth.error, auth.status);
+
+    const data = await getAdminStatsData();
+    return success(data);
   } catch (e) {
     return handleError(e);
   }

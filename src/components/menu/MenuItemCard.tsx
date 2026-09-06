@@ -5,6 +5,7 @@ import { DIETARY_ICONS, DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
 import { m, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { formatPrice, toArabicNumber } from '@/lib/format';
+import type { ModifierGroupProp } from './menu-types';
 import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import AnimatedStar from '@/components/ui/star-icon';
@@ -34,6 +35,9 @@ export type MenuItemProp = {
         ratingCount?: number;
         dietaryTags?: string[];
         allergens?: string[];
+        /* w3-f1: live modifier groups (server pre-filters to available options;
+         * undefined = plain item, no choices — zero rendering cost). */
+        modifierGroups?: ModifierGroupProp[];
 };
 
 const MenuItemCard = memo(function MenuItemCard({
@@ -63,6 +67,15 @@ const MenuItemCard = memo(function MenuItemCard({
         const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
         const hasRating = item.avgRating != null && item.ratingCount != null && item.ratingCount > 0;
         const [imageError, setImageError] = useState(false);
+        /* w3-f1: groups with at least one bookable option. A group whose options
+         * were all switched unavailable is treated as absent (belt-and-braces —
+         * the server serializer already drops those). */
+        const liveGroups = item.modifierGroups?.filter((g) => g.options.length > 0) ?? [];
+        const hasModifiers = liveGroups.length > 0;
+        /* Required choices must be made before the line is orderable — the
+         * quick-add path can't capture them, so it defers to the dialog
+         * (UpMenu behaviour: same tap, richer step). */
+        const needsConfig = hasModifiers && liveGroups.some((g) => g.minSelect > 0);
 
         /**
          * Card-level activation (Enter/Space) opens the order dialog — but only when
@@ -257,6 +270,13 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         {formatPrice(item.price, { decimals: 1 })}
                                                 </span>
                                         )}
+                                        {/* w3-f1: a light «خيارات متاحة» pill signals choices exist without
+                                         * loading the card — muted border, no icon, hidden when none. */}
+                                        {hasModifiers && (
+                                                <span className="inline-flex items-center rounded-full border border-orange/25 bg-orange/5 px-2 py-0.5 text-[10px] font-medium text-orange">
+                                                        خيارات متاحة
+                                                </span>
+                                        )}
                                 </div>
 
                                 {/* Options + Animated CTA / Quantity counter row */}
@@ -286,7 +306,9 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                 transition={CARD_SPRING}
                                                                 onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        onAddToCart(item);
+                                                                        // w3-f1: required choices need the dialog —
+                                                                        // a silent add would ship an unconfigured line.
+                                                                        needsConfig ? onOrder(item) : onAddToCart(item);
                                                                 }}
                                                                 aria-label={`إضافة ${displayName} إلى السلة`}
                                                 className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm shadow-orange/20 transition-[background-color,box-shadow] duration-200 hover:bg-orange/90 hover:shadow-md hover:shadow-orange/30 active:scale-[0.99]"
@@ -319,7 +341,9 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                 <button
                                                                         onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                onAddToCart(item);
+                                                                                // w3-f1: + on a needs-config item opens the
+                                                                                // dialog too (another configured line).
+                                                                                needsConfig ? onOrder(item) : onAddToCart(item);
                                                                         }}
                                                                         aria-label={`زيادة كمية ${displayName}`}
                                                                         className="flex items-center justify-center size-[48px] text-white hover:brightness-110 transition-colors active:brightness-90"

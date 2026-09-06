@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
 import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { PlanLimitError } from '@/lib/plan-limit-error';
+import { categoryCountByRestaurant, orderCountByRestaurant } from '@/lib/list-counts';
 import { z } from 'zod';
 
 const createSchema = z.object({
@@ -32,6 +33,12 @@ export async function GET(request: NextRequest) {
                         where: { userId },
                         include: {
                                 restaurant: {
+                                        // round89-C3 (dx-2 ب-2): `_count` in this list made Prisma
+                                        // LEFT-JOIN a FULL-TABLE aggregate of Order + MenuCategory on
+                                        // every call (platform-wide cost for an owner-scoped page —
+                                        // round88-A2 measured 6.8ms/55 buffers per page). Counts for
+                                        // just this owner's rows come from the list-counts helpers
+                                        // below; the response shape is identical.
                                         select: {
                                                 id: true,
                                                 name: true,
@@ -40,15 +47,23 @@ export async function GET(request: NextRequest) {
                                                 logo: true,
                                                 isActive: true,
                                                 createdAt: true,
-                                                _count: { select: { categories: true, orders: true } },
                                         },
                                 },
                         },
                         orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
                 });
+                const restIds = links.map((l) => l.restaurant.id);
+                const [catCounts, orderCounts] = await Promise.all([
+                        categoryCountByRestaurant(restIds),
+                        orderCountByRestaurant(restIds),
+                ]);
 
                 const data = links.map((l) => ({
                         ...l.restaurant,
+                        _count: {
+                                categories: catCounts.get(l.restaurant.id) ?? 0,
+                                orders: orderCounts.get(l.restaurant.id) ?? 0,
+                        },
                         isPrimary: l.isPrimary,
                 }));
                 return success(data);

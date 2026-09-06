@@ -124,6 +124,12 @@ export function CartSlideOver() {
                                                         )}
                                                         <div className="flex-1 min-w-0">
                                                                 <p className="text-sm font-medium truncate">{item.name}</p>
+                                                                {/* w3-f1: chosen modifier summary for this line */}
+                                                                {item.modifiersSummary && (
+                                                                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                                                                                {item.modifiersSummary}
+                                                                        </p>
+                                                                )}
                                                                 <p className="text-xs text-muted-foreground mt-0.5">
                                                                         {formatPrice(item.price, { decimals: 1 })}
                                                                 </p>

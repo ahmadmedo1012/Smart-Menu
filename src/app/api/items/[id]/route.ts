@@ -8,6 +8,58 @@ import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 
+/* w3-f1 (F1-3) — same write schema as items/route.ts (shared shape, duplicated
+ * locally to keep the [id] route self-contained like every other schema here).
+ * `id` fields are accepted-but-ignored: the PUT applies a full REPLACE
+ * (deleteMany + create) because the only writer (ItemDialog) always sends the
+ * complete current list. Historical orders keep option ids in modifiersJson
+ * which no surface renders (grep-verified) — replace is safe and idempotent. */
+const modifierOptionSchema = z.object({
+        id: z.number().int().positive().optional(),
+        nameAr: z.string().min(1, 'اسم الخيار مطلوب').max(60),
+        name: z.string().max(60).optional(),
+        priceDelta: z.number().optional(),
+        isAvailable: z.boolean().optional(),
+        sortOrder: z.number().int().optional(),
+});
+const modifierGroupSchema = z
+        .object({
+                id: z.number().int().positive().optional(),
+                nameAr: z.string().min(1, 'اسم المجموعة مطلوب').max(60),
+                name: z.string().max(60).optional(),
+                minSelect: z.number().int().min(0, 'الحد الأدنى لا يمكن أن يكون سالبًا').max(10).optional(),
+                maxSelect: z.number().int().min(1, 'الحد الأقصى يجب أن يكون 1 على الأقل').max(10).optional(),
+                required: z.boolean().optional(),
+                sortOrder: z.number().int().optional(),
+                options: z.array(modifierOptionSchema).max(20, 'الحد الأقصى 20 خيارًا لكل مجموعة'),
+        })
+        .refine((v) => (v.minSelect ?? 0) <= (v.maxSelect ?? 1), {
+                message: 'الحد الأدنى للاختيار لا يمكن أن يتجاوز الحد الأقصى',
+        });
+
+/** Maps a validated group to the Prisma nested-create input. */
+function modifierGroupCreateInput(
+        g: z.infer<typeof modifierGroupSchema>
+) {
+        return {
+                nameAr: g.nameAr,
+                name: g.name ?? '',
+                minSelect: g.minSelect ?? 0,
+                maxSelect: g.maxSelect ?? 1,
+                required: g.required ?? false,
+                sortOrder: g.sortOrder ?? 0,
+                options: {
+                        create: (g.options ?? []).map((o) => ({
+                                nameAr: o.nameAr,
+                                name: o.name ?? '',
+                                priceDelta: o.priceDelta ?? 0,
+                                isAvailable: o.isAvailable ?? true,
+                                sortOrder: o.sortOrder ?? 0,
+                        })),
+                },
+        };
+}
+
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
         try {
                 const { id } = await params;
@@ -75,6 +127,9 @@ const updateSchema = z.object({
         // Round83 §2.3 — up to 3 showcase badges; omitted → untouched.
         // round88-C: legacy single showcaseTag dropped (migration 20260906055500).
         showcaseTags: z.array(z.string().max(40, 'كل شارة يجب ألا تتجاوز 40 حرفًا')).max(3, 'الحد الأقصى 3 شارات').optional(),
+        // w3-f1 (F1-3): omitted → untouched (same partial-update rule as every
+        // other field); sent → full replace (deleteMany + create) below.
+        modifierGroups: z.array(modifierGroupSchema).max(6, 'الحد الأقصى 6 مجموعات خيارات لكل صنف').optional(),
 }).superRefine((v, ctx) => {
         if (v.discountedPrice != null && v.price != null && v.discountedPrice > v.price) {
                 ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
@@ -116,9 +171,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 // must not overwrite stored values (e.g. a status-only toggle).
                 const updateData: Record<string, unknown> = {};
                 for (const [k, v] of Object.entries(body)) {
+                        // w3-f1: the raw array is handled below as a nested write —
+                        // spreading it verbatim would hand Prisma an invalid value.
+                        if (k === 'modifierGroups') continue;
                         if (v !== undefined) updateData[k] = v;
                 }
                 if (updateData.status !== undefined) updateData.status = updateData.status as ItemStatus;
+
+                // w3-f1 (F1-3): full replace — the payload carries the complete list
+                // (the owner dialog is the only writer). Cascade deletes take care of
+                // the old options; ids echoed by the client are ignored.
+                if (body.modifierGroups !== undefined) {
+                        updateData.modifierGroups = {
+                                deleteMany: {},
+                                create: body.modifierGroups.map(modifierGroupCreateInput),
+                        };
+                }
 
                 // Round83 §2.3 — normalization.
                 //   * tags array SENT → array wins (trimmed, deduped, max 3);

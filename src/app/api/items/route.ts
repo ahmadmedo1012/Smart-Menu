@@ -9,6 +9,56 @@ import { mediaUrlError } from '@/lib/blob';
 import { PlanLimitError } from '@/lib/plan-limit-error';
 import { ItemStatus } from '@/generated/prisma/enums';
 
+/* w3-f1 (F1-3) — shared modifier-group write schema (create + update).
+ * Caps mirror the payload-hygiene rule (A-2): bounded arrays, bounded strings,
+ * bounded counts. `id` is accepted-but-ignored (replace strategy — see PUT) so
+ * the client can echo back what it loaded. */
+const modifierOptionSchema = z.object({
+        id: z.number().int().positive().optional(),
+        nameAr: z.string().min(1, 'اسم الخيار مطلوب').max(60),
+        name: z.string().max(60).optional(),
+        priceDelta: z.number().optional(),
+        isAvailable: z.boolean().optional(),
+        sortOrder: z.number().int().optional(),
+});
+const modifierGroupSchema = z
+        .object({
+                id: z.number().int().positive().optional(),
+                nameAr: z.string().min(1, 'اسم المجموعة مطلوب').max(60),
+                name: z.string().max(60).optional(),
+                minSelect: z.number().int().min(0, 'الحد الأدنى لا يمكن أن يكون سالبًا').max(10).optional(),
+                maxSelect: z.number().int().min(1, 'الحد الأقصى يجب أن يكون 1 على الأقل').max(10).optional(),
+                required: z.boolean().optional(),
+                sortOrder: z.number().int().optional(),
+                options: z.array(modifierOptionSchema).max(20, 'الحد الأقصى 20 خيارًا لكل مجموعة'),
+        })
+        .refine((v) => (v.minSelect ?? 0) <= (v.maxSelect ?? 1), {
+                message: 'الحد الأدنى للاختيار لا يمكن أن يتجاوز الحد الأقصى',
+        });
+
+/** Maps a validated group to the Prisma nested-create input. */
+function modifierGroupCreateInput(
+        g: z.infer<typeof modifierGroupSchema>
+) {
+        return {
+                nameAr: g.nameAr,
+                name: g.name ?? '',
+                minSelect: g.minSelect ?? 0,
+                maxSelect: g.maxSelect ?? 1,
+                required: g.required ?? false,
+                sortOrder: g.sortOrder ?? 0,
+                options: {
+                        create: (g.options ?? []).map((o) => ({
+                                nameAr: o.nameAr,
+                                name: o.name ?? '',
+                                priceDelta: o.priceDelta ?? 0,
+                                isAvailable: o.isAvailable ?? true,
+                                sortOrder: o.sortOrder ?? 0,
+                        })),
+                },
+        };
+}
+
 const createSchema = z.object({
         name: z.string().min(1, 'الاسم مطلوب').max(100),
         nameAr: z.string().nullable().optional(),
@@ -31,6 +81,11 @@ const createSchema = z.object({
         // Round83 §2.3 — up to 3 showcase badges (array). Round88-C: the legacy
         // single showcaseTag mirror is dropped — the array is the only storage.
         showcaseTags: z.array(z.string().max(40, 'كل شارة يجب ألا تتجاوز 40 حرفًا')).max(3, 'الحد الأقصى 3 شارات').optional(),
+        // w3-f1 (F1-3): modifier groups — full editor state from ItemDialog.
+        // Caps mirror the payload-hygiene rule (A-2): bounded arrays, bounded
+        // strings, bounded counts. `id` is accepted-but-ignored (replace strategy
+        // — see PUT) so the client can echo back what it loaded.
+        modifierGroups: z.array(modifierGroupSchema).max(6, 'الحد الأقصى 6 مجموعات خيارات لكل صنف').optional(),
 }).superRefine((v, ctx) => {
         if (v.discountedPrice != null && v.discountedPrice > v.price) {
                 ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountedPrice'], message: 'السعر المخفض لا يمكن أن يتجاوز السعر الأصلي' });
@@ -99,7 +154,15 @@ export async function GET(request: NextRequest) {
                         prisma.menuItem.findMany({
                                 where,
                                 orderBy: { sortOrder: 'asc' },
-                                include: categoryEmbed,
+                                include: {
+                                        ...categoryEmbed,
+                                        // w3-f1: groups + options feed the owner item editor
+                                        // (same order the dialog renders them in).
+                                        modifierGroups: {
+                                                orderBy: { sortOrder: 'asc' },
+                                                include: { options: { orderBy: { sortOrder: 'asc' } } },
+                                        },
+                                },
                                 skip: (page - 1) * pageSize,
                                 take: pageSize,
                         }),
@@ -194,6 +257,16 @@ export async function POST(request: NextRequest) {
                                         // round88-C: single-column mirror dropped — the
                                         // array is the source of truth (and only storage).
                                         showcaseTags,
+                                        // w3-f1 (F1-3): nested write — same Prisma relation
+                                        // pattern as the items write above; ids in the payload
+                                        // are ignored (fresh create).
+                                        ...(body.modifierGroups
+                                                ? {
+                                                          modifierGroups: {
+                                                                  create: body.modifierGroups.map(modifierGroupCreateInput),
+                                                          },
+                                                  }
+                                                : {}),
                                 },
                                 include: {
                                         category: { include: { restaurant: { select: { id: true, name: true, slug: true } } } },

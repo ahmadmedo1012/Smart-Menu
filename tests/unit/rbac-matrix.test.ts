@@ -22,6 +22,12 @@ const mockMenuItemFindUnique = vi.hoisted(() => vi.fn());
 const mockMenuItemUpdate = vi.hoisted(() => vi.fn());
 const mockMenuCategoryFindUnique = vi.hoisted(() => vi.fn());
 const mockMenuCategoryUpdate = vi.hoisted(() => vi.fn());
+// round89-C3: GET /api/settings now counts orders/categories via the
+// list-counts helpers (restaurant.groupBy → prisma.order.groupBy /
+// prisma.menuCategory.groupBy) instead of the `_count` include — the mock
+// prisma needs the two grouped-count calls (defaults: empty lists → 0).
+const mockOrderGroupBy = vi.hoisted(() => vi.fn());
+const mockMenuCategoryGroupBy = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockUserFindMany = vi.hoisted(() => vi.fn());
 const mockUserFindUnique = vi.hoisted(() => vi.fn());
@@ -38,7 +44,8 @@ const mockSessionDeleteMany = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         menuItem: { findUnique: mockMenuItemFindUnique, update: mockMenuItemUpdate },
-        menuCategory: { findUnique: mockMenuCategoryFindUnique, update: mockMenuCategoryUpdate },
+        menuCategory: { findUnique: mockMenuCategoryFindUnique, update: mockMenuCategoryUpdate, groupBy: mockMenuCategoryGroupBy },
+        order: { groupBy: mockOrderGroupBy },
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
         user: { findMany: mockUserFindMany, findUnique: mockUserFindUnique, count: mockUserCount, update: mockUserUpdate },
         auditLog: { findMany: mockAuditLogFindMany, count: mockAuditLogCount },
@@ -199,6 +206,8 @@ beforeEach(() => {
         mockSystemEventCount.mockResolvedValue(0);
         mockSettingFindMany.mockResolvedValue([{ key: 'theme', value: 'dark' }]);
         mockRestaurantFindUnique.mockResolvedValue({ id: 1, name: 'R', plan: null });
+        mockOrderGroupBy.mockResolvedValue([]);
+        mockMenuCategoryGroupBy.mockResolvedValue([]);
         mockRestaurantUpdate.mockResolvedValue({ id: 1, name: 'Updated' });
         mockSessionDeleteMany.mockResolvedValue({ count: 2 });
 });

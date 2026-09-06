@@ -135,26 +135,42 @@ export async function POST(request: NextRequest) {
                                 if (chatIds.size > 0) {
                                         const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
                                         const telegramMessages: { chatId: number; messageId: number }[] = [];
-                                        for (const chatId of chatIds) {
-                                                try {
-                                                        const sent = await sendMessageWithKeyboard(
-                                                                botToken,
-                                                                chatId,
-                                                                msg,
-                                                                [
-                                                                        [{ text: '🟢 موافقة على التفعيل', callbackData: `sub_app:${payment.id}` }],
-                                                                        [{ text: '🔴 رفض الطلب', callbackData: `sub_rej:${payment.id}` }],
-                                                                ],
-                                                                { parseMode: 'Markdown' }
-                                                        );
-                                                        if (sent)
-                                                                telegramMessages.push({ chatId: Number(chatId), messageId: sent.message_id });
-                                                } catch (singleErr) {
-                                                        logError('[subscriptions] send failed', {
-                                                                chatId,
-                                                                error: singleErr instanceof Error ? singleErr.message : String(singleErr),
-                                                        });
-                                                }
+                                        // round89-C2 (dx-2 ب-1): these sends used to be SEQUENTIAL
+                                        // inside the user's payment request (response time = N ×
+                                        // Telegram RTT). Now chunked allSettled — the same shape as
+                                        // telegram-broadcast.ts:10/60ms — 10 concurrent sends per
+                                        // batch, 60ms pause BETWEEN batches only (no trailing delay),
+                                        // per-chat failure tolerated and never fails the request
+                                        // (behavior locked by tests/unit/subscriptions-family).
+                                        const ids = Array.from(chatIds);
+                                        for (let i = 0; i < ids.length; i += 10) {
+                                                if (i > 0) await new Promise((r) => setTimeout(r, 60));
+                                                const settled = await Promise.allSettled(
+                                                        ids.slice(i, i + 10).map((chatId) =>
+                                                                sendMessageWithKeyboard(
+                                                                        botToken,
+                                                                        chatId,
+                                                                        msg,
+                                                                        [
+                                                                                [{ text: '🟢 موافقة على التفعيل', callbackData: `sub_app:${payment.id}` }],
+                                                                                [{ text: '🔴 رفض الطلب', callbackData: `sub_rej:${payment.id}` }],
+                                                                        ],
+                                                                        { parseMode: 'Markdown' }
+                                                                )
+                                                        )
+                                                );
+                                                settled.forEach((result, j) => {
+                                                        const chatId = ids[i + j];
+                                                        if (result.status === 'fulfilled') {
+                                                                if (result.value)
+                                                                        telegramMessages.push({ chatId: Number(chatId), messageId: result.value.message_id });
+                                                        } else {
+                                                                logError('[subscriptions] send failed', {
+                                                                        chatId,
+                                                                        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+                                                                });
+                                                        }
+                                                });
                                         }
                                         // Store message references so webhook cleanup can remove keyboards from all copies
                                         if (telegramMessages.length > 0) {

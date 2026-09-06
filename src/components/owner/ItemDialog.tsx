@@ -7,7 +7,7 @@ import {
         DIETARY_LABELS,
         ALLERGEN_LABELS,
 } from '@/lib/dietary';
-import {Loader2, AlertTriangle} from 'lucide-react';
+import {Loader2, AlertTriangle, Plus, Trash2} from 'lucide-react';
 import AnimatedUpload from '@/components/ui/upload-icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ import { Switch } from '@/components/ui/switch';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { csrfFetch } from '@/lib/csrf-client';
 import { compressImage } from '@/lib/image-compress';
+import { toArabicNumber } from '@/lib/format';
 
 interface Item {
         id: number;
@@ -39,6 +40,101 @@ interface Item {
         featuredRank?: number | null;
         // round88-C: legacy single showcaseTag dropped — array only.
         showcaseTags?: string[] | null;
+        // w3-f1 (F1-3): groups from GET /api/items (Decimal arrives as string
+        // over JSON; the draft mapper normalizes it to a string input value).
+        modifierGroups?: ItemModifierGroup[];
+}
+
+/* w3-f1 — serialized shapes returned by GET /api/items. */
+export type ItemModifierOption = {
+        id: number;
+        nameAr: string;
+        name: string;
+        priceDelta: string | number;
+        isAvailable: boolean;
+        sortOrder: number;
+};
+export type ItemModifierGroup = {
+        id: number;
+        nameAr: string;
+        name: string;
+        minSelect: number;
+        maxSelect: number;
+        required: boolean;
+        sortOrder: number;
+        options: ItemModifierOption[];
+};
+
+/* w3-f1 — editor drafts (numeric fields as strings for controlled inputs). */
+type OptionDraft = {
+        key: string;
+        id?: number;
+        nameAr: string;
+        name: string;
+        priceDelta: string;
+        isAvailable: boolean;
+        sortOrder: number;
+};
+type GroupDraft = {
+        key: string;
+        id?: number;
+        nameAr: string;
+        name: string;
+        minSelect: string;
+        maxSelect: string;
+        required: boolean;
+        sortOrder: string;
+        options: OptionDraft[];
+};
+
+const MAX_MODIFIER_GROUPS = 6;
+const MAX_OPTIONS_PER_GROUP = 20;
+
+/** w3-f1 — the exact JSON the items POST/PUT routes expect (zod-validated). */
+export type ModifierGroupPayload = {
+        id?: number;
+        nameAr: string;
+        name?: string;
+        minSelect: number;
+        maxSelect: number;
+        required: boolean;
+        sortOrder: number;
+        options: Array<{
+                id?: number;
+                nameAr: string;
+                name?: string;
+                priceDelta: number;
+                isAvailable: boolean;
+                sortOrder: number;
+        }>;
+};
+
+let draftSeq = 0;
+function nextDraftKey(prefix: string): string {
+        draftSeq += 1;
+        return `${prefix}-${Date.now().toString(36)}-${draftSeq}`;
+}
+
+function groupsFromItem(groups: ItemModifierGroup[] | undefined): GroupDraft[] {
+        return (groups ?? []).map((g) => ({
+                key: nextDraftKey('g'),
+                id: g.id,
+                nameAr: g.nameAr,
+                name: g.name,
+                minSelect: String(g.minSelect),
+                maxSelect: String(g.maxSelect),
+                required: g.required,
+                sortOrder: String(g.sortOrder),
+                options: (g.options ?? []).map((o) => ({
+                        key: nextDraftKey('o'),
+                        id: o.id,
+                        nameAr: o.nameAr,
+                        name: o.name,
+                        priceDelta: String(o.priceDelta ?? 0),
+                        isAvailable: o.isAvailable,
+                        sortOrder: o.sortOrder,
+                })),
+        }));
 }
 
 
@@ -82,6 +178,8 @@ export function ItemDialog({
         const [saving, setSaving] = useState(false);
         const [uploading, setUploading] = useState(false);
         const [badgeDraft, setBadgeDraft] = useState('');
+        // w3-f1 (F1-3): modifier-group editor state (draft list)
+        const [groups, setGroups] = useState<GroupDraft[]>([]);
 
         // Round83 §2.3 — add a badge chip (deduped, trimmed, max 3).
         const addBadge = () => {
@@ -94,10 +192,148 @@ export function ItemDialog({
                 setBadgeDraft('');
         };
 
+        /* ── w3-f1 (F1-3): modifier-group draft handlers ── */
+        const addGroup = () => {
+                if (groups.length >= MAX_MODIFIER_GROUPS) {
+                        premiumToast('error', `الحد الأقصى ${MAX_MODIFIER_GROUPS} مجموعات لكل صنف`);
+                        return;
+                }
+                setGroups([
+                        ...groups,
+                        {
+                                key: nextDraftKey('g'),
+                                nameAr: '',
+                                name: '',
+                                minSelect: '0',
+                                maxSelect: '1',
+                                required: false,
+                                sortOrder: String(groups.length),
+                                options: [],
+                        },
+                ]);
+        };
+
+        const updateGroup = (key: string, patch: Partial<GroupDraft>) => {
+                setGroups((prev) => prev.map((g) => (g.key === key ? { ...g, ...patch } : g)));
+        };
+
+        const removeGroup = (key: string) => {
+                setGroups((prev) => prev.filter((g) => g.key !== key));
+        };
+
+        const addOption = (groupKey: string) => {
+                setGroups((prev) =>
+                        prev.map((g) => {
+                                if (g.key !== groupKey) return g;
+                                if (g.options.length >= MAX_OPTIONS_PER_GROUP) {
+                                        premiumToast('error', `الحد الأقصى ${MAX_OPTIONS_PER_GROUP} خيارًا لكل مجموعة`);
+                                        return g;
+                                }
+                                return {
+                                        ...g,
+                                        options: [
+                                                ...g.options,
+                                                {
+                                                        key: nextDraftKey('o'),
+                                                        nameAr: '',
+                                                        name: '',
+                                                        priceDelta: '0',
+                                                        isAvailable: true,
+                                                        sortOrder: g.options.length,
+                                                },
+                                        ],
+                                };
+                        })
+                );
+        };
+
+        const updateOption = (groupKey: string, optionKey: string, patch: Partial<OptionDraft>) => {
+                setGroups((prev) =>
+                        prev.map((g) =>
+                                g.key !== groupKey
+                                        ? g
+                                        : {
+                                                  ...g,
+                                                  options: g.options.map((o) =>
+                                                          o.key === optionKey ? { ...o, ...patch } : o
+                                                  ),
+                                          }
+                        )
+                );
+        };
+
+        const removeOption = (groupKey: string, optionKey: string) => {
+                setGroups((prev) =>
+                        prev.map((g) =>
+                                g.key !== groupKey
+                                        ? g
+                                        : { ...g, options: g.options.filter((o) => o.key !== optionKey) }
+                        )
+                );
+        };
+
+        /** Validates drafts and maps them to the API payload (null + toast on any bad draft). */
+        const buildModifierGroupsPayload = (): ModifierGroupPayload[] | null => {
+                const out: ModifierGroupPayload[] = [];
+                for (const [gi, g] of groups.entries()) {
+                        const nameAr = g.nameAr.trim();
+                        if (!nameAr) {
+                                premiumToast('error', `اسم المجموعة رقم ${toArabicNumber(gi + 1)} مطلوب`);
+                                return null;
+                        }
+                        const minSelect = g.minSelect.trim() === '' ? 0 : Number(g.minSelect);
+                        const maxSelect = g.maxSelect.trim() === '' ? 1 : Number(g.maxSelect);
+                        if (
+                                !Number.isInteger(minSelect) || !Number.isInteger(maxSelect) ||
+                                minSelect < 0 || maxSelect < 1 || minSelect > 10 || maxSelect > 10
+                        ) {
+                                premiumToast('error', `حدود الاختيار في «${nameAr}» يجب أن تكون أرقامًا صحيحة (0–10)`);
+                                return null;
+                        }
+                        if (minSelect > maxSelect) {
+                                premiumToast('error', `الحد الأدنى في «${nameAr}» لا يمكن أن يتجاوز الحد الأقصى`);
+                                return null;
+                        }
+                        const options: ModifierGroupPayload['options'] = [];
+                        for (const [oi, o] of g.options.entries()) {
+                                const oName = o.nameAr.trim();
+                                if (!oName) {
+                                        premiumToast('error', `اسم الخيار رقم ${toArabicNumber(oi + 1)} في «${nameAr}» مطلوب`);
+                                        return null;
+                                }
+                                const delta = o.priceDelta.trim() === '' ? 0 : Number(o.priceDelta);
+                                if (!Number.isFinite(delta)) {
+                                        premiumToast('error', `سعر الخيار «${oName}» غير صالح`);
+                                        return null;
+                                }
+                                options.push({
+                                        id: o.id,
+                                        nameAr: oName,
+                                        name: o.name.trim() || undefined,
+                                        priceDelta: delta,
+                                        isAvailable: o.isAvailable,
+                                        sortOrder: Number.isFinite(Number(o.sortOrder)) ? o.sortOrder : oi,
+                                });
+                        }
+                        out.push({
+                                id: g.id,
+                                nameAr,
+                                name: g.name.trim() || undefined,
+                                minSelect,
+                                maxSelect,
+                                required: g.required,
+                                sortOrder: Number.isFinite(Number(g.sortOrder)) ? Number(g.sortOrder) : gi,
+                                options,
+                        });
+                }
+                return out;
+        };
+
         // Reset form when dialog opens
         useEffect(() => {
                 if (open) {
                         setBadgeDraft('');
+                        setGroups(groupsFromItem(editing?.modifierGroups));
                         setForm(
                                 editing
                                         ? {
@@ -138,6 +374,10 @@ export function ItemDialog({
                                 return;
                         }
                 }
+                // w3-f1 (F1-3): validate + map drafts BEFORE the request — a bad
+                // draft aborts the save with a specific Arabic reason (no partial write).
+                const modifierGroupsPayload = buildModifierGroupsPayload();
+                if (groups.length > 0 && !modifierGroupsPayload) return;
                 setSaving(true);
                 try {
                         const body = {
@@ -167,7 +407,11 @@ export function ItemDialog({
                                 // round88-C: the array is the only badge storage (legacy
                                 // single-tag mirror column dropped this round).
                                 showcaseTags: form.isFeatured ? form.showcaseTags : undefined,
-                                modifierGroups: undefined,
+                                // w3-f1 (F1-3): the complete group list — POST creates them
+                                // nested; PUT replaces (deleteMany + create). Sent ALWAYS when
+                                // the owner configured any (and as [] when they cleared all —
+                                // an explicit empty list must wipe the stored groups).
+                                modifierGroups: groups.length > 0 ? modifierGroupsPayload : [],
                         };
                         const res = editing
                                 ? await csrfFetch(`/api/items/${editing.id}`, {
@@ -365,6 +609,202 @@ export function ItemDialog({
                                                                 >
                                                                         {s === 'available' ? 'متوفر' : 'غير متوفر'}
                                                                 </button>
+                                                        ))}
+                                                </div>
+                                        </div>
+
+                                        {/* w3-f1 (F1-3) — modifier groups editor. Draft list is sent
+                                                wholesale on save: POST creates nested, PUT replaces. Fieldsets +
+                                                wired labels keep the axe label-control rule (round86-C9). */}
+                                        <div className="rounded-md border border-border/40 p-3 space-y-3">
+                                                <div className="flex items-center justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                                <span id={`${fId}-mods`} className="text-sm font-medium leading-none block">
+                                                                        مجموعات الخيارات (المعدِّلات)
+                                                                </span>
+                                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                                        اختيارات يحددها الزبون عند الطلب — مثل الحجم أو الإضافات، وكل خيار يضيف سعره لسعر الصنف
+                                                                </p>
+                                                        </div>
+                                                        <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                onClick={addGroup}
+                                                                className="h-10 shrink-0 gap-1 border-orange/30 text-orange hover:bg-orange-muted"
+                                                                aria-label="إضافة مجموعة خيارات"
+                                                        >
+                                                                <Plus className="size-3.5" aria-hidden="true" /> إضافة مجموعة
+                                                        </Button>
+                                                </div>
+                                                {groups.length === 0 && (
+                                                        <p className="text-xs text-muted-foreground/70">
+                                                                لا توجد مجموعات بعد — «إضافة مجموعة» تبدأ مجموعة مثل «الحجم» بخياراتها وأسعارها
+                                                        </p>
+                                                )}
+                                                <div className="space-y-3">
+                                                        {groups.map((g, gi) => (
+                                                                <fieldset
+                                                                        key={g.key}
+                                                                        className="rounded-md border border-border/40 bg-muted/20 p-3 space-y-2.5"
+                                                                        aria-label={`مجموعة الخيارات رقم ${toArabicNumber(gi + 1)}`}
+                                                                >
+                                                                        <div className="flex items-center justify-between gap-2">
+                                                                                <span className="text-xs font-bold text-muted-foreground">
+                                                                                        مجموعة {toArabicNumber(gi + 1)}
+                                                                                </span>
+                                                                                <button
+                                                                                        type="button"
+                                                                                        onClick={() => removeGroup(g.key)}
+                                                                                        className="inline-flex items-center gap-1 text-xs text-destructive hover:bg-destructive/10 rounded-md px-2 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                                                                                        aria-label={`حذف مجموعة ${g.nameAr || gi + 1}`}
+                                                                                >
+                                                                                        <Trash2 className="size-3" aria-hidden="true" /> حذف المجموعة
+                                                                                </button>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-2 gap-2.5">
+                                                                                <div>
+                                                                                        <Label htmlFor={`${fId}-gname-${g.key}`}>اسم المجموعة</Label>
+                                                                                        <Input
+                                                                                                id={`${fId}-gname-${g.key}`}
+                                                                                                value={g.nameAr}
+                                                                                                onChange={(e) => updateGroup(g.key, { nameAr: e.target.value })}
+                                                                                                placeholder="الحجم"
+                                                                                                maxLength={60}
+                                                                                                className="h-10 rounded-md mt-1.5"
+                                                                                        />
+                                                                                </div>
+                                                                                <div>
+                                                                                        <Label htmlFor={`${fId}-gnameen-${g.key}`}>الاسم بالإنجليزية</Label>
+                                                                                        <Input
+                                                                                                id={`${fId}-gnameen-${g.key}`}
+                                                                                                value={g.name}
+                                                                                                onChange={(e) => updateGroup(g.key, { name: e.target.value })}
+                                                                                                placeholder="اختياري — بالإنجليزية"
+                                                                                                maxLength={60}
+                                                                                                className="h-10 rounded-md mt-1.5 text-start"
+                                                                                                dir="ltr"
+                                                                                        />
+                                                                                </div>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 items-center">
+                                                                                <div>
+                                                                                        <Label htmlFor={`${fId}-gmin-${g.key}`}>الحد الأدنى</Label>
+                                                                                        <Input
+                                                                                                id={`${fId}-gmin-${g.key}`}
+                                                                                                type="number"
+                                                                                                min={0}
+                                                                                                max={10}
+                                                                                                value={g.minSelect}
+                                                                                                onChange={(e) => updateGroup(g.key, { minSelect: e.target.value })}
+                                                                                                className="h-10 rounded-md mt-1.5 tabular-nums"
+                                                                                        />
+                                                                                </div>
+                                                                                <div>
+                                                                                        <Label htmlFor={`${fId}-gmax-${g.key}`}>الحد الأقصى</Label>
+                                                                                        <Input
+                                                                                                id={`${fId}-gmax-${g.key}`}
+                                                                                                type="number"
+                                                                                                min={1}
+                                                                                                max={10}
+                                                                                                value={g.maxSelect}
+                                                                                                onChange={(e) => updateGroup(g.key, { maxSelect: e.target.value })}
+                                                                                                className="h-10 rounded-md mt-1.5 tabular-nums"
+                                                                                        />
+                                                                                </div>
+                                                                                <div>
+                                                                                        <Label htmlFor={`${fId}-gsort-${g.key}`}>الترتيب</Label>
+                                                                                        <Input
+                                                                                                id={`${fId}-gsort-${g.key}`}
+                                                                                                type="number"
+                                                                                                min={0}
+                                                                                                value={g.sortOrder}
+                                                                                                onChange={(e) => updateGroup(g.key, { sortOrder: e.target.value })}
+                                                                                                className="h-10 rounded-md mt-1.5 tabular-nums"
+                                                                                        />
+                                                                                </div>
+                                                                                <div className="flex items-center justify-between sm:justify-start sm:gap-2 pt-4">
+                                                                                        <Label htmlFor={`${fId}-greq-${g.key}`} className="mb-0">إلزامية</Label>
+                                                                                        <Switch
+                                                                                                id={`${fId}-greq-${g.key}`}
+                                                                                                checked={g.required}
+                                                                                                onCheckedChange={(v) => updateGroup(g.key, { required: v })}
+                                                                                                aria-label="المجموعة إلزامية"
+                                                                                        />
+                                                                                </div>
+                                                                        </div>
+                                                                        {/* Options list */}
+                                                                        <div className="space-y-2">
+                                                                                <span className="text-xs font-medium text-muted-foreground block">الخيارات</span>
+                                                                                {g.options.length === 0 && (
+                                                                                        <p className="text-[11px] text-muted-foreground/70">
+                                                                                                لا توجد خيارات — أضف خيارًا واحدًا على الأقل ليظهر للزبائن
+                                                                                        </p>
+                                                                                )}
+                                                                                {g.options.map((o, oi) => (
+                                                                                        <div
+                                                                                                key={o.key}
+                                                                                                className="flex flex-wrap items-end gap-2 rounded-md border border-border/30 bg-background/60 p-2"
+                                                                                        >
+                                                                                                <div className="flex-1 min-w-[140px]">
+                                                                                                        <Label htmlFor={`${fId}-oname-${o.key}`} className="text-[11px]">
+                                                                                                                الخيار {toArabicNumber(oi + 1)}
+                                                                                                        </Label>
+                                                                                                        <Input
+                                                                                                                id={`${fId}-oname-${o.key}`}
+                                                                                                                value={o.nameAr}
+                                                                                                                onChange={(e) => updateOption(g.key, o.key, { nameAr: e.target.value })}
+                                                                                                                placeholder="مثال: كبير"
+                                                                                                                maxLength={60}
+                                                                                                                className="h-10 rounded-md mt-1"
+                                                                                                        />
+                                                                                                </div>
+                                                                                                <div className="w-28">
+                                                                                                        <Label htmlFor={`${fId}-oprice-${o.key}`} className="text-[11px]">
+                                                                                                                السعر ± (د.ل)
+                                                                                                        </Label>
+                                                                                                        <Input
+                                                                                                                id={`${fId}-oprice-${o.key}`}
+                                                                                                                type="number"
+                                                                                                                step="0.5"
+                                                                                                                value={o.priceDelta}
+                                                                                                                onChange={(e) => updateOption(g.key, o.key, { priceDelta: e.target.value })}
+                                                                                                                placeholder="0"
+                                                                                                                className="h-10 rounded-md mt-1 tabular-nums"
+                                                                                                        />
+                                                                                                </div>
+                                                                                                <div className="flex items-center gap-1.5 pb-1.5">
+                                                                                                        <Switch
+                                                                                                                id={`${fId}-oavail-${o.key}`}
+                                                                                                                checked={o.isAvailable}
+                                                                                                                onCheckedChange={(v) => updateOption(g.key, o.key, { isAvailable: v })}
+                                                                                                                aria-label={`توفر الخيار رقم ${toArabicNumber(oi + 1)}`}
+                                                                                                        />
+                                                                                                        <Label htmlFor={`${fId}-oavail-${o.key}`} className="text-[11px] mb-0">
+                                                                                                                متاح
+                                                                                                        </Label>
+                                                                                                </div>
+                                                                                                <button
+                                                                                                        type="button"
+                                                                                                        onClick={() => removeOption(g.key, o.key)}
+                                                                                                        className="size-10 shrink-0 rounded-md border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors mb-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                                                                                                        aria-label={`حذف الخيار رقم ${toArabicNumber(oi + 1)}`}
+                                                                                                >
+                                                                                                        <Trash2 className="size-3.5" aria-hidden="true" />
+                                                                                                </button>
+                                                                                        </div>
+                                                                                ))}
+                                                                                <Button
+                                                                                        type="button"
+                                                                                        variant="outline"
+                                                                                        size="sm"
+                                                                                        onClick={() => addOption(g.key)}
+                                                                                        className="h-9 gap-1 text-xs"
+                                                                                        aria-label={`إضافة خيار إلى المجموعة رقم ${toArabicNumber(gi + 1)}`}
+                                                                                >
+                                                                                        <Plus className="size-3" aria-hidden="true" /> إضافة خيار
+                                                                                </Button>
+                                                                        </div>
+                                                                </fieldset>
                                                         ))}
                                                 </div>
                                         </div>

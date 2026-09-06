@@ -21,7 +21,7 @@ import { toArabicNumber, formatPrice } from '@/lib/format';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
-import { ItemDialog } from '@/components/owner/ItemDialog';
+import { ItemDialog, type ItemModifierGroup } from '@/components/owner/ItemDialog';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { premiumToast } from '@/lib/premium-toast';
 
@@ -51,6 +51,9 @@ interface Item {
         featuredRank?: number | null;
         // round88-C: legacy single showcaseTag dropped — array only.
         showcaseTags?: string[] | null;
+        // w3-f1 (F1-3): groups ride the /api/items rows now — typed for the
+        // ItemDialog editing prop (GET includes them since w3-f1).
+        modifierGroups?: ItemModifierGroup[];
 }
 
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {

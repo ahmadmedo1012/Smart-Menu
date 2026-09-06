@@ -176,6 +176,13 @@ export default function CartPage() {
                                                 quantity: i.quantity,
                                                 notes: i.notes,
                                                 price: i.price,
+                                                // w3-f1: configured modifier choices — the SERVER
+                                                // re-prices from DB rows (priceDelta + ownership +
+                                                // availability); the client's price field stays
+                                                // informational as before (round86-A4 invariant).
+                                                ...(i.modifierOptionIds?.length
+                                                        ? { modifierOptionIds: i.modifierOptionIds }
+                                                        : {}),
                                         })),
                                         customerName: customerName.trim(),
                                         customerPhone: customerPhone.trim(),
@@ -211,7 +218,9 @@ export default function CartPage() {
                                 name: i.name,
                                 qty: i.quantity,
                                 price: i.price,
-                                notes: i.notes || undefined,
+                                // w3-f1: modifier choices ride the existing notes line
+                                // (receipt format untouched — summary then free notes).
+                                notes: [i.modifiersSummary, i.notes || undefined].filter(Boolean).join('\n') || undefined,
                         })),
                         totalPrice: cartSubtotal,
                         notes:
@@ -455,6 +464,12 @@ export default function CartPage() {
                                                                         </div>
                                                                         <div>
                                                                                 <h3 className="font-semibold truncate">{item.name}</h3>
+                                                                                {/* w3-f1: chosen modifier summary for this line */}
+                                                                                {item.modifiersSummary && (
+                                                                                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+                                                                                                {item.modifiersSummary}
+                                                                                        </p>
+                                                                                )}
                                                                                 <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
                                                                                         {formatPrice(item.price, { decimals: 1 })} / للواحد
                                                                                 </p>
@@ -695,6 +710,14 @@ export default function CartPage() {
                                                                                         <span className="text-muted-foreground ms-1">
                                                                                                 × {toArabicNumber(item.quantity)}
                                                                                         </span>
+                                                                                        {/* w3-f1: chosen modifier summary in the review dialog too
+                                                                                            (the cart line already shows it — the pre-send
+                                                                                            review must match what will actually be sent) */}
+                                                                                        {item.modifiersSummary && (
+                                                                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                                                                        {item.modifiersSummary}
+                                                                                                </p>
+                                                                                        )}
                                                                                         {item.notes && (
                                                                                                 <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
                                                                                                         <svg

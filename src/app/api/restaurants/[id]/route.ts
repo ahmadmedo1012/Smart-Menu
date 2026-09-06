@@ -6,6 +6,7 @@ import { requireAuth, requirePermission } from '@/lib/auth';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { revalidatePath } from 'next/cache';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
+import { categoryCountByRestaurant, orderCountByRestaurant, itemCountByCategory } from '@/lib/list-counts';
 // round86-A3: deleteBlob below is scoped to the deleted restaurant's tenant
 
 // round87-A2: the PUT path previously had NO bounds at all (round86-A7 only
@@ -115,9 +116,16 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                 const data = await prisma.restaurant.findUnique({
                         where: { id: rId },
                         include: {
-                                _count: { select: { categories: true, orders: true } },
+                                // round89-C3 (dx-2 ب-2): the nested `_count` selects are gone —
+                                // Prisma compiled them into FULL-TABLE aggregate LEFT JOINs of
+                                // Order / MenuCategory / MenuItem (the round88-A2 finding: the
+                                // aggregates run over the whole child table regardless of the
+                                // parent WHERE). The row + per-category counts below use the
+                                // round88-A2 list-counts helpers instead (grouped index lookups
+                                // for just this row's ids) and rebuild the identical response
+                                // shape: ` _count: { categories, orders }` on the restaurant +
+                                // `_count: { items }` on every category.
                                 categories: {
-                                        include: { _count: { select: { items: true } } },
                                         orderBy: { sortOrder: 'asc' },
                                 },
                                 plan: {
@@ -133,7 +141,22 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                         },
                 });
                 if (!data) return apiError('المطعم غير موجود', 404);
-                return success(data);
+                const [restCatCounts, restOrderCounts, catItemCounts] = await Promise.all([
+                        categoryCountByRestaurant([rId]),
+                        orderCountByRestaurant([rId]),
+                        itemCountByCategory(data.categories.map((c) => c.id)),
+                ]);
+                return success({
+                        ...data,
+                        _count: {
+                                categories: restCatCounts.get(rId) ?? 0,
+                                orders: restOrderCounts.get(rId) ?? 0,
+                        },
+                        categories: data.categories.map((c) => ({
+                                ...c,
+                                _count: { items: catItemCounts.get(c.id) ?? 0 },
+                        })),
+                });
         } catch (e) {
                 return handleError(e);
         }

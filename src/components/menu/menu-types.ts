@@ -141,3 +141,78 @@ export function modifierGroupHint(g: ModifierGroupProp): string {
         if (parts.length === 0) parts.push("اختياري");
         return parts.join(" · ");
 }
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * w3-f1 additions — pure helpers for the customer UI (F1-4..F1-6). Same
+ * module rule: no React/DOM, fully unit-testable.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Groups that can actually be interacted with: at least one AVAILABLE option.
+ * The server serializer already filters unavailable options and drops empty
+ * groups — this is the client-side belt-and-braces (a stale/persisted cart
+ * item, or a future data source, still renders safely).
+ */
+export function visibleModifierGroups(groups: ModifierGroupProp[] | null | undefined): ModifierGroupProp[] {
+        return (groups ?? []).filter((g) => g.options.some((o) => o.isAvailable));
+}
+
+/**
+ * Gentle maxSelect enforcement for the RENDERED state: a multi-select group at
+ * capacity disables buttons for NOT-yet-selected options (the pure toggle
+ * above would reject them anyway — this just makes the affordance visible).
+ * Single-select groups never disable: tapping another option replaces (radio).
+ */
+export function isOptionDisabled(
+        g: ModifierGroupProp,
+        selection: ModifierSelection,
+        optionId: number
+): boolean {
+        if (g.maxSelect <= 1) return false;
+        const current = selection[g.id] ?? [];
+        if (current.length < g.maxSelect) return false;
+        return !current.includes(optionId);
+}
+
+/**
+ * Client-side unit-price ESTIMATE mirroring the server math exactly
+ * (orders/route.ts: eff = discountedPrice ?? price; + Σ priceDelta).
+ * ⚠ Display only — the server re-prices from its own DB rows on POST; this
+ * number is never trusted for validation or persistence (F1-5).
+ * Modifiers stack ON TOP of the discounted price (server behaviour, documented).
+ */
+export function unitPriceWithModifiers(
+        price: number,
+        discountedPrice: number | null | undefined,
+        delta: number
+): number {
+        const base = discountedPrice != null ? discountedPrice : price;
+        return base + delta;
+}
+
+/** Number of selected options in a group (drives the «المحدد 1/2» counter). */
+export function selectedCount(selection: ModifierSelection, groupId: number): number {
+        return selection[groupId]?.length ?? 0;
+}
+
+/**
+ * The cart/order payload fragment for one configured item line — EXACTLY the
+ * shape POST /api/orders reads (zod: number[] of positive ints) plus the
+ * human summary persisted with the cart line for display/receipt.
+ * Ids flatten in selection order (stable, human-predictable).
+ */
+export function buildModifierPayload(
+        groups: ModifierGroupProp[],
+        selection: ModifierSelection
+): { modifierOptionIds: number[]; modifiersSummary: string } {
+        const modifierOptionIds: number[] = [];
+        for (const g of groups) {
+                for (const optionId of selection[g.id] ?? []) {
+                        modifierOptionIds.push(optionId);
+                }
+        }
+        return {
+                modifierOptionIds,
+                modifiersSummary: buildModifierSummary(groups, selection),
+        };
+}

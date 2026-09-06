@@ -65,6 +65,10 @@ export default defineConfig({
         "tests/e2e/team8-featured.spec.ts",
         "tests/e2e/team9-perf-smoke.spec.ts",
         "tests/e2e/team10-regression-guard.spec.ts",
+        // w3-f1 (F1-8): modifiers journey — owner editor → public menu → priced order.
+        // Lives in tests/e2e/teams/ per the round-89 task spec; listed explicitly
+        // because testMatch enumerates files (no glob would pick the new folder).
+        "tests/e2e/teams/team11-modifiers.spec.ts",
         "tests/e2e/round80-security.spec.ts",
         "tests/e2e/round80-geometry.spec.ts",
         "tests/e2e/persona-1-customer.spec.ts",
