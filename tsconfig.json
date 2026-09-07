@@ -45,6 +45,7 @@
     "docs",
     "open-design",
     "scripts",
+    "skills",
     "tests/e2e"
   ]
 }

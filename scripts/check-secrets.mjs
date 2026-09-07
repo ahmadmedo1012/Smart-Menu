@@ -76,6 +76,21 @@ const FILE_ALLOWLIST = [
     reason: 'local embedded-postgres default (postgres:postgres@localhost:5434) — dev-only seed fallback',
   },
   {
+    // round92: image-health.mjs ships the identical dev-only fallback as
+    // round83-seed.mjs (read-only checker, R91 F-C). The pg pattern matches
+    // the literal fallback string — flagged on r91-closure push, CI red.
+    file: 'scripts/image-health.mjs',
+    id: 'pg',
+    reason: 'local embedded-postgres default (postgres:postgres@localhost:5434) — dev-only read-only checker fallback',
+  },
+  {
+    // round92: local-PG bootstrap helper (initdb + pg_ctl via embedded-postgres
+    // binaries) — echoes the same dev-only localhost URL as its final hint.
+    file: 'scripts/pg-local-start.sh',
+    id: 'pg',
+    reason: 'local embedded-postgres bootstrap helper (postgres:postgres@localhost:5434) — dev-only, prints the connection hint',
+  },
+  {
     file: 'SMART-MENU-ROUND88-PLAN.md',
     id: 'pg',
     reason: 'round-88 plan documents the local embedded-postgres URL (postgres:postgres@localhost:5434) — dev-only',
