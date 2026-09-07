@@ -15,8 +15,11 @@
  *   - 400 zod first-issue message (Arabic, verbatim from the schema)
  *   - non-JSON body → handleError JSON branch → 400
  *   - 409 username / email taken (username checked first)
- *   - XSS strip (<[^>]*> regex) applied to username+name AFTER zod,
- *     BEFORE the uniqueness lookup and the create
+ *   - round92-wave3-5: XSS strip (<[^>]*> regex) applied to username+name
+ *     BEFORE zod (body → strip → zod) — the length policy now judges the
+ *     SANITIZED value that will actually be stored (was: after zod, so a
+ *     tag-laden raw name passed the floor then shrank below it on disk)
+ *     — still before the uniqueness lookup and the create
  *   - 201 success: {success,data:{id,username,name,role,subscriptionStatus}}
  *     + createSession + logAudit(ip) + notifyEvent('user_registered')
  *   - create failures: local unique-constraint 409, else handleError
@@ -321,14 +324,30 @@ describe('POST /api/auth/register — HTML strip (stored-XSS defense)', () => {
                 expect(mockUserFindUnique).toHaveBeenCalledWith({ where: { username: 'newuser1' } });
         });
 
-        it('documented contract (suspected LOW bug, reported in worklog): strip runs AFTER zod, so «a<b>b</b>» (9 raw chars, passes min-3) is stored as the 2-char «ab»', async () => {
-                // The regex strip is applied post-validation — a payload of raw
-                // tags can shrink below the policy floor and still be written.
-                // This test pins the CURRENT behavior; fixing it (validate after
-                // strip, or re-validate) should flip this test deliberately.
-                await callRegister({ ...VALID, username: 'a<b>b</b>' });
+        it('round92-wave3-5: strip runs BEFORE zod — «a<b>b</b>» (9 raw chars) sanitizes to the 2-char «ab» which FAILS min-3 → 400, nothing written', async () => {
+                // The order is now body → strip → zod: the length policy judges the
+                // sanitized value that will actually be stored. Previously the strip
+                // ran after validation, so a tag-laden raw username passed the floor
+                // and the shrunken «ab» was persisted anyway (3-b finding #3). The
+                // old test pinned the buggy behavior — flipped deliberately.
+                const res = await callRegister({ ...VALID, username: 'a<b>b</b>' });
 
-                expect(mockUserCreate.mock.calls[0][0].data.username).toBe('ab');
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toBe('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
+                expect(mockUserCreate).not.toHaveBeenCalled();
+                expect(mockUserFindUnique).not.toHaveBeenCalled(); // rejected at the schema gate, before the lookup
+        });
+
+        it('round92-wave3-5: a name that sanitizes to EMPTY fails min-1 → 400 «الاسم مطلوب» (raw non-empty no longer suffices)', async () => {
+                // «<b></b>» is non-empty raw (would pass the old post-zod world) —
+                // after the strip it is «», and zod must reject it.
+                const res = await callRegister({ ...VALID, name: '<b></b>' });
+
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toBe('الاسم مطلوب');
+                expect(mockUserCreate).not.toHaveBeenCalled();
         });
 });
 

@@ -229,7 +229,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 // round85-B9: restaurant profile edits (name/slug/logo/theme) feed the
                 // public menu page — purge so changes are live instantly
                 if (data && typeof data === 'object' && 'id' in data) {
-                        revalidateMenu((data as { id: number }).id).catch(() => {});
+                        await revalidateMenu((data as { id: number }).id);
                 }
                 return success(data);
         } catch (e) {

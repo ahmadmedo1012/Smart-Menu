@@ -21,9 +21,12 @@
  *   - unsupported updates, non-JSON setWebhook probes and processing
  *     errors in the message path DO return 200 'OK' (Telegram must not
  *     retry those).
- *   - the callback_query path is dispatched with `return handleCallbackQuery()`
- *     (no await) — a rejection there escapes the route's catch-all 200 net
- *     (pinned below as a documented gap, reported in the worklog).
+ *   - round92-wave3-1: the callback_query path is dispatched with
+ *     `return await handleCallbackQuery()` INSIDE the try — a rejection
+ *     there is now caught by the same catch-all 200 net as the message
+ *     path (was a documented gap: bare `return` leaked the rejection).
+ *   - round92-wave3-6: the rejection decision text carries ❌ (not the
+ *     hardcoded ✅) — matches the ❌ toast.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
@@ -686,10 +689,11 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                 );
         });
 
-        it('sub_rej (reject) SUCCESS → the cancelled status line (documented cosmetic quirk: the «✅» prefix is hardcoded on the rejection text too)', async () => {
-                // read from the code: `✅ ${decision === 'verified' ? 'تم التفعيل' : 'تم الرفض'}`
-                // — a rejection gets the ✅ prefix; reported in the worklog as a
-                // cosmetic bug, pinned here as current behavior.
+        it('sub_rej (reject) SUCCESS → the cancelled status line with the ❌ prefix (round92-wave3-6: the emoji now matches the decision)', async () => {
+                // read from the code after the fix:
+                // `${decision === 'verified' ? '✅ تم التفعيل' : '❌ تم الرفض'}` — the
+                // rejection no longer carries the success ✅ (it used to, reported by
+                // 3-b and pinned then; the fix flipped this assertion deliberately).
                 mockResolveSubscriptionPayment.mockResolvedValue({ ok: true });
 
                 const res = await post(callbackUpdate({ data: 'sub_rej:55' }));
@@ -699,7 +703,7 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                         BOT_TOKEN,
                         100,
                         10,
-                        '✅ تم الرفض\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]',
+                        '❌ تم الرفض\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]',
                 );
                 expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '❌ تم رفض الطلب');
         });
@@ -753,17 +757,33 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                 expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة');
         });
 
-        it('message processing errors in the callback path escape the catch-all (documented gap: `return handleCallbackQuery()` is not awaited by the try)', async () => {
-                // The route's outer catch returns 200 'OK' for the message path, but
-                // handleCallbackQuery is dispatched via bare `return` — its rejection
-                // propagates to the caller instead of being swallowed. Pinned as the
-                // CURRENT contract; the fix (await inside the try) should flip this
-                // test deliberately. Reported in the worklog.
+        it('round92-wave3-1: handler failure in the callback path is caught by the try (await) → logged + 200 «OK», never a leaked rejection/500', async () => {
+                // The dispatch is `return await handleCallbackQuery()` inside the
+                // try — a mid-decision DB failure now lands in the route's catch-all
+                // (logError + 200 'OK' so Telegram does not retry forever). Was a
+                // documented gap (3-b): the bare `return` leaked the rejection and
+                // this test used to await a THROWN error.
                 mockResolveSubscriptionPayment.mockRejectedValue(new Error('db down mid-decision'));
 
-                await expect(post(callbackUpdate({ data: 'sub_app:55' }))).rejects.toThrow(
-                        'db down mid-decision',
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(await res.text()).toBe('OK');
+                expect(mockLogError).toHaveBeenCalledWith(
+                        'webhook error:',
+                        expect.objectContaining({ error: expect.stringContaining('db down mid-decision') }),
                 );
+        });
+
+        it('round92-wave3-1: the SUCCESS path passes through the await unchanged — the handler\'s own 200 «OK» is what Telegram sees', async () => {
+                // await does not alter the happy path: the handler's Response (200,
+                // 'OK' body) is returned as-is after the decision was applied.
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(await res.text()).toBe('OK');
+                expect(mockResolveSubscriptionPayment).toHaveBeenCalledWith(55, 'verified');
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة');
         });
 });
 

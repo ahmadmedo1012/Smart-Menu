@@ -161,6 +161,18 @@ jobs:
       # scripts — those are checked by their own runners)
       - run: npm run typecheck
 
+      # round92-D9: knip as an ADVISORY-ONLY step — documents dependency /
+      # dead-code drift in every CI run WITHOUT gating it. knip has known
+      # false positives on this repo (19 round-scripts are intentional
+      # audit-trail evidence, knip.config.ts documents the ignore policy) and
+      # real findings (dead exports, unlisted deps) are triaged manually in
+      # the round reviews instead of blocking merges. Output lands in the
+      # Actions log for review; continue-on-error keeps it non-blocking.
+      # Knip is an exact-pinned devDependency (5.46.4) — no version drift.
+      - name: Knip advisory (dead-code / dependency drift report)
+        run: npx knip
+        continue-on-error: true
+
       # round85-A7 (hardened round86-A12 to PER-HANDLER checks): every exported
       # HTTP handler must be session-gated, secret-gated, or a documented
       # public endpoint — catches "forgot requireAuth on one verb" regressions

@@ -29,14 +29,25 @@ export async function POST(request: Request) {
                 const body = await request.json().catch(() => {
                         throw new Error('JSON parse error');
                 });
-                const parsed = registerSchema.safeParse(body);
+                // round92-wave3-5: ننزع وسوم HTML قبل zod (الترتيب: body → strip → zod)
+                // — سياسة الطول تُفحص على القيمة المنقّاة التي ستُخزَّن فعلاً؛ سابقًا كان
+                // اسم خام محمّلًا بالوسوم يجتاز حد الطول ثم يُقصَّر بالتنقية فيُخزَّن
+                // مخالفًا للسياسة (اكتشاف 3-b رقم 3). الحقول غير النصية تمر كما هي.
+                const stripTags = (v: unknown): unknown =>
+                        (typeof v === 'string' ? v.replace(/<[^>]*>/g, '') : v);
+                const sanitizeInput = (raw: unknown): unknown =>
+                        raw && typeof raw === 'object' && !Array.isArray(raw)
+                                ? {
+                                        ...(raw as Record<string, unknown>),
+                                        username: stripTags((raw as Record<string, unknown>).username),
+                                        name: stripTags((raw as Record<string, unknown>).name),
+                                }
+                                : raw;
+                const parsed = registerSchema.safeParse(sanitizeInput(body));
                 if (!parsed.success) {
                         return error(parsed.error.issues[0].message, 400);
                 }
-                const { username: rawUsername, password, name: rawName, email } = parsed.data;
-                // Sanitize: strip HTML tags from user-submitted text fields to prevent stored XSS
-                const username = rawUsername.replace(/<[^>]*>/g, '');
-                const name = rawName.replace(/<[^>]*>/g, '');
+                const { username, password, name, email } = parsed.data;
 
                 // Check username uniqueness
                 const existing = await prisma.user.findUnique({ where: { username } });

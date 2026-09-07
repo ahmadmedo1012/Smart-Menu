@@ -28,11 +28,14 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
 		const restaurantId = Number(id);
 		if (!restaurantId) return error('معرف غير صالح', 400);
 
-		// Verify ownership (or admin with MANAGE_RESTAURANTS permission).
-		// sub_admin is NOT included: it has an explicit permission list and must
-		// not get free rein over any restaurant (privilege-escalation fix).
+		// Verify ownership (or staff with full trust).
+		// round92-wave3-2: توحيد البوابة مع نمط المنصة (requirePermission):
+		// admin/super_admin ثقة كاملة (أدمن legacy بعمود permissions فارغ —
+		// من هجرة قديمة — لم يعد محجوبًا من إدارة المطاعم)، sub_admin
+		// يتطلب MANAGE_RESTAURANTS، وغيرهم يسقط لفحص ملكية الرابط أدناه
+		// (إصلاح تصعيد r90 باقٍ لsub_admin).
 		const isAdmin = auth.role === 'super_admin' ||
-			(auth.role === 'admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) ||
+			auth.role === 'admin' ||
 			(auth.role === 'sub_admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS'));
 
 		const body: z.infer<typeof patchSchema> = (isAdmin ? adminPatchSchema : patchSchema).parse(await _request.json());
@@ -89,11 +92,12 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 		const restaurantId = Number(id);
 		if (!restaurantId) return error('معرف غير صالح', 400);
 
-		// Only super_admin, or admin/sub_admin with MANAGE_RESTAURANTS, may
-		// delete arbitrary restaurants. sub_admin without the permission must
-		// fall through to the ownership check below (privilege-escalation fix).
+		// Only super_admin/admin (full trust), or sub_admin with
+		// MANAGE_RESTAURANTS, may delete arbitrary restaurants.
+		// round92-wave3-2: أدمن legacy بpermissions فارغة يمر (نمط requirePermission
+		// الموحد) · sub_admin بدونه يسقط لفحص الرابط أدناه (إصلاح r90 باقٍ).
 		const isAdmin = auth.role === 'super_admin' ||
-			(auth.role === 'admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) ||
+			auth.role === 'admin' ||
 			(auth.role === 'sub_admin' && (auth.permissions ?? []).includes('MANAGE_RESTAURANTS'));
 		if (!isAdmin) {
 			const link = await prisma.userRestaurant.findUnique({

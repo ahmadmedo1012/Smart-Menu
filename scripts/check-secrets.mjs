@@ -91,6 +91,15 @@ const FILE_ALLOWLIST = [
     reason: 'local embedded-postgres bootstrap helper (postgres:postgres@localhost:5434) — dev-only, prints the connection hint',
   },
   {
+    // round92: one-session e2e sweep (server + playwright in a single bash
+    // invocation — the sandbox reaps the node server between commands).
+    // Exports the same CI-standalone env; the pg match is the dev-only
+    // localhost DATABASE_URL, identical to ci.yml's service container.
+    file: 'scripts/r92-e2e-local.sh',
+    id: 'pg',
+    reason: 'local e2e sweep env (postgres:postgres@localhost:5434) — dev-only localhost, same disposable pattern as CI service-container credentials',
+  },
+  {
     file: 'SMART-MENU-ROUND88-PLAN.md',
     id: 'pg',
     reason: 'round-88 plan documents the local embedded-postgres URL (postgres:postgres@localhost:5434) — dev-only',

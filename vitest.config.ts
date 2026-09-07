@@ -23,11 +23,17 @@ export default defineConfig({
       // / 63.53 lines. Raised from 28/25/33/29 to actual-minus-~2-point
       // safety margin (rounds G/H still add code before the round closes).
       // Raise these numbers as coverage grows — never lower them.
+      // round92-D-ratchet (coordinator, raise-only): the test army converted
+      // 102 mirror tests to real imports, added 98+94+9 tests over the
+      // previously-0% money/security/CRUD routes and deleted 8 JWT-mock +
+      // 14 duplicate-hash green-ink tests. Measured at closure: 82.22 stmts /
+      // 75.56 branch / 76.7 funcs / 84.66 lines. Raised with the ~2-point
+      // safety margin (59/54/60/61 → 80/74/75/83).
       thresholds: {
-        statements: 59,
-        branches: 54,
-        functions: 60,
-        lines: 61,
+        statements: 80,
+        branches: 74,
+        functions: 75,
+        lines: 83,
       },
     },
   },

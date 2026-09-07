@@ -526,7 +526,9 @@ model SystemEvent {
   // ). It serves the /api/user/events 15s poll (metadata.userId path filter +
   // ORDER BY id ASC LIMIT 50): measured 14.09ms/1128 buffers → 0.09ms/42
   // buffers on the round88 perf DB. It lives ONLY in migration SQL
-  // (20250906…add_round88_indexes). `prisma migrate diff --to-schema` provably
+  // (20260906…add_round88_indexes — r92-D13: year corrected from 20250906 to
+  // match the actual migration folder 20260906043248_add_round88_indexes).
+  // `prisma migrate diff --to-schema` provably
   // ignores non-datamodel indexes (verified: exit 0 with the index present),
   // so the CI parity gate stays green — but do NOT drop that migration line.
   // Insert overhead measured: +34.5µs/row (469.3ms vs 365.9ms per 3000

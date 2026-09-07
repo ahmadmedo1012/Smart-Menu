@@ -16,10 +16,10 @@
  *   - isPrimary is owner-only (admin schema strips it — would crash in tx)
  *   - primary-menu delete refused (400), subscription expiry (403),
  *     P2025-mapped 404, and the generic no-leak 500
- * Behavior pinned as-is (reported, not fixed): a legacy `admin` WITHOUT
- * MANAGE_RESTAURANTS in its permissions list is treated as non-staff here
- * and 403s via the link check (unlike categories POST where requirePermission
- * gives admin full trust) — inconsistency flagged in the 3-c report.
+ * round92-wave3-2: legacy `admin` (empty/absent permissions column, e.g. an
+ * old migration) now gets FULL trust here like the rest of the platform
+ * (requirePermission pattern) — was 403 via the link check, flipped
+ * deliberately. sub_admin still needs MANAGE_RESTAURANTS (r90 fix intact).
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
@@ -249,12 +249,14 @@ describe('round92-C7 — PATCH /api/owner/restaurants/[id]', () => {
                 expect(tx.restaurant.update).not.toHaveBeenCalled();
         });
 
-        it('legacy admin WITHOUT MANAGE_RESTAURANTS → 403 via the link check (pinned inconsistency — see file header)', async () => {
-                // يثبّت السلوك الفعلي (تقرير 3-c): الأدمن بلا الإذن يرفض هنا خلافًا لبوابات requirePermission
+        it('round92-wave3-2: legacy admin WITHOUT MANAGE_RESTAURANTS → 200 (full trust, unified with requirePermission) — no link lookup', async () => {
+                // كان الأدمن بpermissions فارغة يُرفض هنا خلافًا لبقية المنصة (تقرير 3-c
+                // رقم 2) — البوابة اتُّحدت: admin/super_admin ثقة كاملة.
                 authHolder.value = persona(ADMIN);
                 const res = await callPatch(2, { name: 'X' });
-                expect(res.status).toBe(403);
-                expect(tx.restaurant.update).not.toHaveBeenCalled();
+                expect(res.status).toBe(200);
+                expect(mockUserRestaurantFindUnique).not.toHaveBeenCalled();
+                expect(tx.restaurant.update).toHaveBeenCalledWith({ where: { id: 2 }, data: { name: 'X' } });
         });
 
         it('sub_admin WITH MANAGE_RESTAURANTS → 200 on any restaurant AND isPrimary is stripped (admin schema)', async () => {
@@ -367,6 +369,15 @@ describe('round92-C7 — DELETE /api/owner/restaurants/[id]', () => {
         it('super_admin deletes WITHOUT touching the owner link row (platform cleanup)', async () => {
                 // يحمي: حذف المنصة لا يعتمد على رابط مالك (وcascade يتكفل بالبقية)
                 authHolder.value = persona(SUPER_ADMIN);
+                const res = await callDelete(2);
+                expect(res.status).toBe(200);
+                expect(tx.restaurant.delete).toHaveBeenCalledWith({ where: { id: 2 } });
+                expect(tx.userRestaurant.delete).not.toHaveBeenCalled();
+        });
+
+        it('round92-wave3-2 (DELETE): legacy admin WITHOUT permissions → 200 full-trust delete (no link row touched)', async () => {
+                // نفس التوحيد على فعل الحذف — أدمن permissions فارغة يحذف كمدير منصة
+                authHolder.value = persona(ADMIN);
                 const res = await callDelete(2);
                 expect(res.status).toBe(200);
                 expect(tx.restaurant.delete).toHaveBeenCalledWith({ where: { id: 2 } });

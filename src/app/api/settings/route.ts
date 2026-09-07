@@ -209,7 +209,7 @@ export async function PUT(request: NextRequest) {
                         }
                         // round85-B9: settings feed the public menu (name/slug/logo/gallery/
                         // theme...) — purge so changes are live instantly
-                        revalidateMenu(restaurantId).catch(() => {});
+                        await revalidateMenu(restaurantId);
                         return success({ updated: items.length });
                 }
 
@@ -219,7 +219,7 @@ export async function PUT(request: NextRequest) {
                         create: { key: item.key, value: item.value, restaurantId },
                         update: { value: item.value },
                 });
-                revalidateMenu(restaurantId).catch(() => {});
+                await revalidateMenu(restaurantId);
                 return success(item);
         } catch (e) {
                 return handleError(e);

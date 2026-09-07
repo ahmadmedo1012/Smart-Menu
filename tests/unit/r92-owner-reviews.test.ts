@@ -18,9 +18,11 @@
  *   - minRating is validated (1-5) and silently ignored when garbage
  * Behavior pinned as-is (reported, not fixed): (1) there is NO moderation
  * (approve/reject) handler on this route at all — review states live in the
- * public reviews route; (2) the gate is restaurantId+subscription, NOT the
- * owner role — any session with a non-null restaurantId (e.g. a USER whose
- * role was changed without clearing the column) passes.
+ * public reviews route.
+ * round92-wave3-4: the gate now checks the ROLE too — owner (and the staff
+ * family bound to a restaurant, whose subscription bypass is codified in
+ * isOwnerSubscriptionActive) may read; a USER with a stale non-null
+ * restaurantId column is rejected 403 (was 200, flipped deliberately).
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
@@ -220,9 +222,20 @@ describe('round92-C7 — GET /api/owner/reviews tenant scoping', () => {
                 expect(mockReviewFindMany.mock.calls[0][0].orderBy).toEqual({ createdAt: 'desc' });
         });
 
-        it('pinned gate quirk: the check is restaurantId+subscription, NOT the owner role — a USER with restaurantId passes (reported)', async () => {
-                // يثبّت السلوك الفعلي (تقرير 3-c): لا فحص دور — الجلسة المرتبطة بمطعم كافية
+        it('round92-wave3-4: USER with a stale restaurantId column → 403 «غير مصرح», reviewer PII NEVER read (the role gate)', async () => {
+                // كان الربط القديم كافيًا لقراءة PII المراجعين (تقرير 3-c رقم 3) —
+                // الآن فحص الدور: USER يُرفض مهما حمل عمود restaurantId.
                 authHolder.value = persona(USER_BOUND);
+                const res = await callGet();
+                expect(res.status).toBe(403);
+                expect((await res.json()).error).toBe('غير مصرح');
+                expect(mockReviewFindMany).not.toHaveBeenCalled();
+        });
+
+        it('round92-wave3-4: staff bound to a restaurant still passes the role gate (subscription-bypass family) — sub_admin with restaurantId → 200', async () => {
+                // عائلة الموظفين المرتبطين بمطعم مشروعون (تجاوزهم في isOwnerSubscriptionActive
+                // موثّق في الكود) — توثيق مقصود لحدود الفحص الجديد.
+                authHolder.value = persona({ userId: 3, role: 'sub_admin', restaurantId: 5 });
                 const res = await callGet();
                 expect(res.status).toBe(200);
                 expect(mockReviewFindMany.mock.calls[0][0].where.menuItem.is.category.is.restaurantId).toBe(5);

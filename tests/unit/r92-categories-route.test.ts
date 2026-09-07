@@ -15,9 +15,10 @@
  *   - plan ceiling (1000 categories), 404 unknown restaurant, zod 422,
  *     bad-JSON 400, and fail-closed 500 with NO internals leaked
  * Behavior notes pinned as-is (reported, not fixed): GET is read-only and
- * lets sub_admin through with zero permissions (categories hold no PII —
- * mirrors the users-list decision), and the restaurantId param check runs
- * BEFORE auth (param-less request = 400 even for a guest).
+ * the restaurantId param check runs BEFORE auth (param-less request = 400
+ * even for a guest).
+ * round92-wave3-3: sub_admin READ now requires MANAGE_RESTAURANTS (B1-gate
+ * consistency — was zero-permission passthrough, flipped deliberately).
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
@@ -215,9 +216,19 @@ describe('round92-C7 — GET /api/categories', () => {
                 expect(mockMenuCategoryFindMany.mock.calls[0][0].where).toEqual({ restaurantId: 2 });
         });
 
-        it('sub_admin with zero permissions may READ (documented decision: read-only, no PII — same family as users list)', async () => {
-                // يثبّت السلوك الفعلي (تقرير 3-c): القراءة متاحة لsub_admin بلا إذن — بلا PII
+        it('round92-wave3-3: sub_admin with zero permissions → 403 «لا تملك الصلاحية» (read now requires MANAGE_RESTAURANTS — B1-gate consistency)', async () => {
+                // كان sub_admin يمر بلا أي إذن كالأدمن (تقرير 3-c رقم 1) — البوابة
+                // اتُّحدت مع مسار POST وبوابة B1 للطلبات: إذن صريح للقراءة.
                 authHolder.value = persona(SUB_ADMIN_ZERO);
+                const res = await callGet('?restaurantId=2');
+                expect(res.status).toBe(403);
+                expect((await res.json()).error).toBe('لا تملك الصلاحية');
+                expect(mockMenuCategoryFindMany).not.toHaveBeenCalled();
+        });
+
+        it('round92-wave3-3: sub_admin WITH MANAGE_RESTAURANTS → 200 (delegated staff read)', async () => {
+                // التفويض الصريح يفتح القراءة كما يفتح الكتابة
+                authHolder.value = persona({ userId: 4, role: 'sub_admin', restaurantId: null, permissions: ['MANAGE_RESTAURANTS'] });
                 const res = await callGet('?restaurantId=2');
                 expect(res.status).toBe(200);
                 expect(mockMenuCategoryFindMany).toHaveBeenCalled();

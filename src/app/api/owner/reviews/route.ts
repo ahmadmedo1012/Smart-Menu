@@ -11,6 +11,14 @@ export async function GET(req: NextRequest) {
 		if (!auth.authorized || !auth.restaurantId) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 		}
+		// round92-wave3-4: فحص الدور — هذا المسار يعرض PII المراجعين (أسماء
+		// وهواتف) فعائلة أدواره المشروعة: owner (المالك صاحب النطاق، وهو
+		// مستخدم الواجهة الوحيد) والموظفون المرتبطون بمطعم (تجاوزهم موثّق في
+		// isOwnerSubscriptionActive). جلسة USER بعمود restaurantId قديم غير مصفّر
+		// (بقايا ربط/تغيير دور) تُرفض 403 مهما حملت — لا يكفي الربط وحده.
+		if (auth.role !== 'owner' && !['super_admin', 'sub_admin', 'admin'].includes(auth.role)) {
+			return NextResponse.json({ success: false, error: 'غير مصرح' }, { status: 403 });
+		}
 		// Subscription guard: expired → 403
 		if (!(await isOwnerSubscriptionActive(auth))) {
 			return NextResponse.json({ success: false, error: 'اشتراكك منتهي. جدّد اشتراكك للمتابعة.' }, { status: 403 });

@@ -12,7 +12,18 @@ import { error as logError } from './logger';
  * edit is live the moment the dialog closes.
  *
  * Best-effort by design: a purge failure never blocks the mutation — the 60s
- * TTL still bounds staleness on failure.
+ * TTL still bounds staleness on failure. The helper never throws (fully
+ * wrapped below), so callers `await` it safely.
+ *
+ * round92-A2 companion fix — SYNCHRONOUS PUBLISH: call sites now `await`
+ * this helper instead of the old fire-and-forget `.catch(() => {})`. Under
+ * the pre-r92 accidentally-dynamic rendering the race was invisible (every
+ * read hit the DB); once ISR actually engages (round92 generateStaticParams
+ * restoration) a fire-and-forget purge lets the client's IMMEDIATE next
+ * request (e2e owner→customer round-trips: team8/team11/round79) beat the
+ * purge, serve the stale page, and re-cache it for ANOTHER 60s. Awaited, the
+ * mutation response returns only after the purge: the next read is fresh,
+ * deterministically. Cost: one indexed findUnique (~ms) per mutation.
  */
 export async function revalidateMenu(restaurantId: number | null | undefined) {
         try {

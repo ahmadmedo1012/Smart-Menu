@@ -114,7 +114,9 @@ async function handleCallbackQuery(
                         botToken,
                         cq.message.chat.id,
                         cq.message.message_id,
-                        `✅ ${decision === 'verified' ? 'تم التفعيل' : 'تم الرفض'}${statusLine}`
+                        // round92-wave3-6: الإيموجي يطابق الحالة — الرفض ب❌ (كان ✅ ثابتًا
+                        // على نص الرفض بينما التوست «❌ تم رفض الطلب» — تعارض مربك للمشرف)
+                        `${decision === 'verified' ? '✅ تم التفعيل' : '❌ تم الرفض'}${statusLine}`
                 );
         }
 
@@ -184,7 +186,11 @@ export async function POST(request: NextRequest) {
 
                 // Handle callback_query (interactive button tap)
                 if (update.callback_query) {
-                        return handleCallbackQuery(update.callback_query);
+                        // round92-wave3-1: await داخل try — أي استثناء من معالج الأزرار
+                        // يلتقطه catch العام أسفل الدالة (logError + 200 «OK») بدل أن
+                        // يتسرب كوعد مرفوض غير معالج فيصير 500 أمام تيليجرام (إعادة
+                        // محاولة بلا نهاية). نفس نمط حماية مسار الرسائل أعلاه.
+                        return await handleCallbackQuery(update.callback_query);
                 }
 
                 // Log all incoming messages for debugging

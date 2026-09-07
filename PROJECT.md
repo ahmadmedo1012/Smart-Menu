@@ -1,6 +1,6 @@
 # Smart Menu — Project Reference
 
-> آخر تحديث: 6 سبتمبر 2026 (جولة 88 — موجة 3)
+> آخر تحديث: 7 سبتمبر 2026 (جولة 92 — الوكيل 4-a: مزامنة أرقام مقيسة + تصحيح توثيق الخطوط)
 
 ---
 
@@ -50,7 +50,7 @@ When working on ANY component or page, apply professional, world-class design st
 - It is PROHIBITED to finish ANY UI task before running a self-review (UI/UX Review) covering: visual consistency, responsiveness across screen sizes, and RTL support without any distortion.
 - No UI task is complete until the UI/UX Review passes.
 
-**Arabic-first**: RTL بـ `<html dir="rtl" lang="ar">`، خطوط Cairo (next/font)، CSS logical properties (`ms-`/`me-`).
+**Arabic-first**: RTL بـ `<html dir="rtl" lang="ar">`، خطوط **self-hosted** تُخدم من `/fonts/fonts.css` (روابط stylesheet في الـlayout + preload لأوزان cairo-arabic.woff2 وreadex-pro.woff2 العربية، font-display: swap) — **ليست next/font** ولا خطوط Google الخارجية (قرار موثّق: صفر جولة شبكة حاجبة للعرض)، CSS logical properties (`ms-`/`me-`).
 
 **اللون البرتقالي**: `#f66d0f` (oklch(0.55 0.19 45)). الوضع المظلم افتراضي، `.light` override.
 
@@ -233,7 +233,7 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 38 unit (692 case) + 34 e2e/security files (team1-10)
+└── tests/                  ← 108 unit (1666 حالة — قياس r92) + 35 e2e/security (team1-11 · 435 فحصًا)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
     ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security
@@ -345,14 +345,15 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `sharp@0.35.3` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (534 unit + e2e متعددة المشاريع في CI)
+## Tests (1666 unit + e2e متعددة المشاريع في CI)
 
 ```
-✓ unit/ (28 ملف، 534 حالة)  — auth, core, csrf, rate-limit, loyalty-subscription,
-                              receipt-whatsapp-format (round85 الجديدة), regression...
+✓ unit/ (108 ملف، 1666 حالة — قياس r92) — auth, core, csrf, rate-limit, loyalty-subscription,
+                              receipt-whatsapp-format, regression (محوّلة لاستيراد الإنتاج الحقيقي r92),
+                              r92-* (register/claim/webhook/categories/owner/admins/reviews/cleanup)
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
-✓ qa-teams (production)    — 19 spec تعمل ضد الإنتاج (continue-on-error)
-✓ coverage gate            — ratchet calibrated (round85-D3): 22/19/29/23
+✓ qa-teams (production)    — prod-qa (team1/2/5/6/9) تعمل ضد الإنتاج (continue-on-error)
+✓ coverage gate            — ratchet (round89-D2): 59/54/60/61 — تُرفع فقط ولا تُخفض
 ```
 
 ## Environment Variables

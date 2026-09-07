@@ -53,7 +53,7 @@ export async function PUT(
       metadata: { restaurantId: existing.restaurantId, fields: Object.keys(body) },
     }).catch(() => {});
     // round85-B9: purge the ISR cache so the category edit is live instantly
-    revalidateMenu(existing.restaurantId).catch(() => {});
+    await revalidateMenu(existing.restaurantId);
     return success(data);
   } catch (e) {
     return handleError(e);
@@ -98,7 +98,7 @@ export async function DELETE(
       metadata: { restaurantId: existing.restaurantId, name: existing.name },
     }).catch(() => {});
     // round85-B9: purge the ISR cache so the deletion is live instantly
-    revalidateMenu(existing.restaurantId).catch(() => {});
+    await revalidateMenu(existing.restaurantId);
     return success({ id: catId });
   } catch (e) {
     return handleError(e);

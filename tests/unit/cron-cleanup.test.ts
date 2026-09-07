@@ -9,7 +9,9 @@
  *   - جلسات: expiresAt < now - 7 أيام
  *   - سجلات تدقيق: createdAt < now - 90 يومًا
  *   - أحداث النظام: createdAt < now - 180 يومًا (R91 F-C / D3)
- * (القيم المقروءة من الكود: route.ts:22 وroute.ts:33 وroute.ts:53.)
+ *   - حدود المعدل: windowEnd < now - ساعة (r92-D8 — عقد التنظيف الرابع موثق
+ *     في r92-cleanup-ratelimit.test.ts)
+ * (القيم المقروءة من الكود: route.ts:22 وroute.ts:33 وroute.ts:53 وroute.ts:80.)
  *
  * بلا شبكة وبلا قاعدة حقيقية — prisma.deleteMany مُنكَّر بالكامل.
  */
@@ -21,12 +23,14 @@ import { NextRequest } from 'next/server';
 const mockSessionDeleteMany = vi.hoisted(() => vi.fn());
 const mockAuditDeleteMany = vi.hoisted(() => vi.fn());
 const mockSystemEventDeleteMany = vi.hoisted(() => vi.fn());
+const mockRateLimitDeleteMany = vi.hoisted(() => vi.fn()); // r92-D8: التنظيف الرابع
 const mockLogError = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         session: { deleteMany: mockSessionDeleteMany },
         auditLog: { deleteMany: mockAuditDeleteMany },
         systemEvent: { deleteMany: mockSystemEventDeleteMany },
+        rateLimitEntry: { deleteMany: mockRateLimitDeleteMany }, // r92-D8: عقد المحددات في r92-cleanup-ratelimit.test.ts
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma, getUserById: vi.fn(), withRetry: vi.fn() }));
@@ -59,6 +63,7 @@ beforeEach(() => {
         mockSessionDeleteMany.mockResolvedValue({ count: 3 });
         mockAuditDeleteMany.mockResolvedValue({ count: 27 });
         mockSystemEventDeleteMany.mockResolvedValue({ count: 0 });
+        mockRateLimitDeleteMany.mockResolvedValue({ count: 0 }); // r92-D8
 });
 
 afterEach(() => {
@@ -78,6 +83,7 @@ describe('GET /api/cron/cleanup — بوابة CRON_SECRET (ثابتة-الوق�
                 expect(mockSessionDeleteMany).not.toHaveBeenCalled();
                 expect(mockAuditDeleteMany).not.toHaveBeenCalled();
                 expect(mockSystemEventDeleteMany).not.toHaveBeenCalled();
+                expect(mockRateLimitDeleteMany).not.toHaveBeenCalled();
         });
 
         it('bearer خاطئ → 401 (المقارنة timingSafeBearer — «Bearer secret» كاملة)', async () => {
@@ -100,6 +106,7 @@ describe('GET /api/cron/cleanup — بوابة CRON_SECRET (ثابتة-الوق�
                 expect(mockSessionDeleteMany).not.toHaveBeenCalled();
                 expect(mockAuditDeleteMany).not.toHaveBeenCalled();
                 expect(mockSystemEventDeleteMany).not.toHaveBeenCalled();
+                expect(mockRateLimitDeleteMany).not.toHaveBeenCalled();
         });
 });
 
@@ -124,11 +131,12 @@ describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنوافذ 
                 expect(systemEventArg.where.createdAt.lt.getTime()).toBe(T0 - 180 * DAY);
         });
 
-        it('الجسم يعيد العدّادات: sessionsDeleted وauditLogsDeleted وsystemEventsDeleted', async () => {
+        it('الجسم يعيد العدّادات الأربعة: sessionsDeleted وauditLogsDeleted وsystemEventsDeleted وrateLimitEntriesDeleted', async () => {
                 mockSystemEventDeleteMany.mockResolvedValue({ count: 412 });
+                mockRateLimitDeleteMany.mockResolvedValue({ count: 7 });
                 const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
                 const json = await res.json();
-                expect(json).toEqual({ sessionsDeleted: 3, auditLogsDeleted: 27, systemEventsDeleted: 412 });
+                expect(json).toEqual({ sessionsDeleted: 3, auditLogsDeleted: 27, systemEventsDeleted: 412, rateLimitEntriesDeleted: 7 });
         });
 
         it('فشل حذف الجلسات لا يوقف سجلات التدقيق → 200 مع sessionsError والتنظيف الثاني يعمل', async () => {

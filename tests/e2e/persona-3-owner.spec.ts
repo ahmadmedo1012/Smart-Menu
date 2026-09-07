@@ -15,7 +15,10 @@ test("P3: full owner build-out journey", async ({ page }) => {
   test.setTimeout(120000);
   // ── 1. Register as new owner (free plan) ──
   await page.goto("/subscribe", { waitUntil: "networkidle", timeout: 60000 });
-  await page.waitForTimeout(2000);
+  // round92-C6: settle → conditional wait — the wizard plan cards render with
+  // the page; chooseFreePlan's own clicks auto-wait, so a tolerant visibility
+  // wait replaces the blind nap.
+  await page.locator("button").filter({ hasText: "مجاني" }).first().waitFor({ state: "visible", timeout: 15000 }).catch(() => {});
   await chooseFreePlan(page);
   await fillSubscribeForm(page, {
     restaurantName: "P3 QA Cafe",
@@ -27,16 +30,21 @@ test("P3: full owner build-out journey", async ({ page }) => {
     password: "TestPass123!",
   });
   await page.locator('button:has-text("إنشاء الحساب والبدء")').first().click();
-  await page.waitForTimeout(8000);
+  // round92-C6: settle → conditional wait — the register POST decides the
+  // wait (authenticated redirect to /owner), like team1's submitCreate.
+  await page.waitForURL(/\/owner/, { timeout: 20000 }).catch(() => {});
   // Rate-limit (429) on registration in serial runs can bounce us to /login —
   // retry the create once after a wait.
   if (!page.url().includes("/owner")) {
     console.log("P3: registration bounced (rate-limit?) — retrying create");
+    // deliberate (round92-C6): register rate-limit window backoff (5/min) —
+    // semantic wait, not a flake sleep.
     await page.waitForTimeout(20000);
     const create2 = page.locator('button:has-text("إنشاء الحساب والبدء")');
     if (await create2.count()) {
       await create2.first().click();
-      await page.waitForTimeout(8000);
+      // round92-C6: settle → conditional wait — same outcome wait on the retry.
+      await page.waitForURL(/\/owner/, { timeout: 20000 }).catch(() => {});
     }
   }
   expect(page.url()).toContain("/owner");
@@ -44,13 +52,22 @@ test("P3: full owner build-out journey", async ({ page }) => {
 
   // ── 2. Menu editor loads ──
   await page.goto("/owner/menu", { waitUntil: "networkidle" });
-  await page.waitForTimeout(3000);
+  // round92-C6: settle → conditional wait — the editor h1 renders when the
+  // categories fetch settles (tolerant: the negative assertion below is the
+  // decider).
+  await page
+    .getByRole("heading", { name: "إدارة المنيو" })
+    .first()
+    .waitFor({ state: "visible", timeout: 20000 })
+    .catch(() => {});
   const editorBody = await page.locator("body").innerText();
   expect(editorBody).not.toContain("فشل");
 
   // ── 3. Public menu renders the new restaurant with auto-seeded content ──
   await page.goto(`/menu/${SLUG}`, { waitUntil: "networkidle" });
-  await page.waitForTimeout(3000);
+  // round92-C6: settle → conditional wait — the new restaurant's name renders
+  // with the (on-demand ISR) page; exactly what the first assertion reads.
+  await expect(page.locator("body")).toContainText("P3 QA Cafe", { timeout: 15000 });
   const pubBody = await page.locator("body").innerText();
   expect(pubBody).toContain("P3 QA Cafe");
   expect(pubBody).not.toContain("فشل");
@@ -62,10 +79,18 @@ test("P3: full owner build-out journey", async ({ page }) => {
   if (await addItemBtn.count()) {
     // navigate back to editor to add
     await page.goto("/owner/menu", { waitUntil: "networkidle" });
-    await page.waitForTimeout(2500);
+    // round92-C6: settle → conditional wait — same editor settle before the
+    // guarded add-item flow (tolerant).
+    await page
+      .getByRole("heading", { name: "إدارة المنيو" })
+      .first()
+      .waitFor({ state: "visible", timeout: 20000 })
+      .catch(() => {});
     const btn = page.locator('button:has-text("إضافة صنف")').first();
     await btn.click();
-    await page.waitForTimeout(1200);
+    // round92-C6: settle → conditional wait — the item dialog mounts
+    // client-side; the field count guards below are tolerant too.
+    await page.locator('[role="dialog"]').first().waitFor({ state: "visible", timeout: 10000 }).catch(() => {});
     const nameField = page.getByPlaceholder(/اسم الصنف|الاسم/).first();
     const priceField = page.getByPlaceholder(/السعر/).first();
     if (await nameField.count()) await nameField.fill("شوربة عدس");
@@ -73,13 +98,17 @@ test("P3: full owner build-out journey", async ({ page }) => {
     const saveBtn = page.locator('[role="dialog"] button:has-text("حفظ")').first();
     if (await saveBtn.count()) {
       await saveBtn.click();
-      await page.waitForTimeout(2500);
+      // round92-C6: settle → conditional wait — the save toast proves the PUT
+      // landed (guarded, unasserted step → tolerant).
+      await page.getByText("تمت إضافة الصنف").first().waitFor({ state: "visible", timeout: 10000 }).catch(() => {});
     }
   }
 
   // ── 5. (QR is covered in team3-owner; here we confirm owner still signed in) ──
   await page.goto("/owner", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(2000);
+  // round92-C6: settle → conditional wait — the sidebar's "لوحة التحكم" label
+  // is exactly the text the assertion reads (SSR'd with the layout).
+  await expect(page.locator("body")).toContainText("لوحة التحكم", { timeout: 15000 });
   const dashBody = await page.locator("body").innerText();
   expect(dashBody).toContain("لوحة التحكم");
 });

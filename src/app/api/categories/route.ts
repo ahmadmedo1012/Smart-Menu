@@ -36,7 +36,15 @@ export async function GET(request: NextRequest) {
                                 });
                                 if (!link) return error('غير مصرح', 403);
                         }
-                } else if (!['admin', 'super_admin', 'sub_admin'].includes(auth.role)) {
+                } else if (auth.role === 'sub_admin') {
+                        // round92-wave3-3: قراءة sub_admin تتطلب MANAGE_RESTAURANTS — اتساقًا
+                        // مع بوابة B1 للطلبات وPOST هذا المسار (كان يمر كالأدمن بلا أي إذن).
+                        // لا يوجد إذن قراءة قوائم في enum الصلاحيات، فاختير الأقرب دلاليًا
+                        // الموحد مع فحص الكتابة أدناه — الاتساق الحاسم على إذن مثالي.
+                        if (!(auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) {
+                                return error('لا تملك الصلاحية', 403);
+                        }
+                } else if (!['admin', 'super_admin'].includes(auth.role)) {
                         return error('غير مصرح', 403);
                 }
 
@@ -125,7 +133,7 @@ export async function POST(request: NextRequest) {
                         metadata: { restaurantId: rid, name: body.name },
                 }).catch(() => {});
                 // round85-B9: purge the ISR cache so the new category is live instantly
-                revalidateMenu(rid).catch(() => {});
+                await revalidateMenu(rid);
                 return success(data, 201);
         } catch (e) {
                 return handleError(e);

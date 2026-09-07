@@ -60,5 +60,32 @@ export async function GET(request: NextRequest) {
                 results.systemEventsError = String(e);
         }
 
+        // round92-D8 (1-d P2 finding): RateLimitEntry was the ONLY operational
+        // table outside this cron's coverage — it relied solely on the
+        // probabilistic sweep (r90-F4: ~1/32 per limiter check, 512-row batches,
+        // 60s retention) plus the 120s in-process interval. Both are best-effort
+        // and, crucially, request-driven: during LOW-traffic stretches (weekends,
+        // night) the sweep simply stops running, so expired single-use keys
+        // (acct:ip:username, claim:ip, link-token:…) accumulate unchecked.
+        // This weekly (Vercel cron "0 3 * * 0") block is the SAFETY NET —
+        // complementary, not redundant: the sweep bounds growth during busy
+        // periods, this bounds the worst case regardless of traffic. Retention
+        // of 1h is deliberately conservative: the longest limiter window in the
+        // app is 15min (account-lockout backstop, auth/login), so a row whose
+        // windowEnd closed over an hour ago can never affect an active limit
+        // decision — deleting it is always safe. windowEnd is indexed
+        // (RateLimitEntry_windowEnd_idx), and the block keeps the same
+        // error-swallowing style: a failure here never blocks the steps above.
+        try {
+                const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+                const { count } = await prisma.rateLimitEntry.deleteMany({
+                        where: { windowEnd: { lt: hourAgo } },
+                });
+                results.rateLimitEntriesDeleted = count;
+        } catch (e) {
+                logError('cron: rate limit entries cleanup', { error: String(e) });
+                results.rateLimitEntriesError = String(e);
+        }
+
         return NextResponse.json(results);
 }

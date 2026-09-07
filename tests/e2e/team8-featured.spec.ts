@@ -156,6 +156,15 @@ async function gotoMenuExpectScene(page: Page, nameAr: string): Promise<void> {
 }
 
 test.describe("team8: isFeatured editor toggle → public showcase badge", () => {
+  // round92: these two tests are ORDER-COUPLED — 159 mutates the latte's
+  // featured flag (off→on, restoring the seed at the end) while 195 asserts
+  // the SEEDED state. Under fullyParallel + workers=2 they ran concurrently:
+  // 195's single-shot switch read caught 159's mid-flight OFF phase (coin
+  // flip, historically masked by CI retries=2 — surfaced deterministically
+  // once the ISR fix shifted timings). Serial mode: 159 completes (ends
+  // restored ON) before 195 starts — same pattern round79 declared.
+  test.describe.configure({ mode: "serial" });
+
   test(
     "toggle OFF removes the scene from the public showcase; toggle ON restores it",
     async ({ page }) => {

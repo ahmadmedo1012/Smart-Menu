@@ -311,7 +311,7 @@ export async function POST(request: NextRequest) {
                         metadata: { restaurantId: category.restaurant.id, name: data.name },
                 }).catch(() => {});
                 // round85-B9: purge the ISR cache so the new item is live instantly
-                revalidateMenu(category.restaurant.id).catch(() => {});
+                await revalidateMenu(category.restaurant.id);
                 return success(data, 201);
         } catch (e) {
                 if (e instanceof PlanLimitError) return error(e.message, 403);

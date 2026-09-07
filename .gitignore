@@ -3,6 +3,13 @@
 .agents/
 test-screenshots/
 *.bak
+# round92-D5: bun.lock is a leftover bun lockfile (1575 lines) in a
+# pnpm-only repo — pnpm-lock.yaml is the single source of truth; a stray
+# `git add -A` would commit a second lockfile and confuse tooling/CI.
+bun.lock
+# round92-D5: db/ holds local embedded-postgres data dirs (custom.db etc.)
+# — never commit a local database into the repo.
+db/
 # ── Base ──────────────────────────────────
 /build
 .claude/

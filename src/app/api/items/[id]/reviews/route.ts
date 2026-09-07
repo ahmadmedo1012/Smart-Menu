@@ -5,6 +5,7 @@ import { error, handleError, success, validationError, parsePagination } from '@
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { getClientIp } from '@/lib/client-ip';
+import { revalidateMenu } from '@/lib/menu-cache';
 
 const reviewDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 // round87-A7: per-ITEM global ceiling — the per-IP limiter (5/min) is trivially
@@ -164,6 +165,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                                 WHERE id = ${itemId}`;
                         return created;
                 });
+
+                // round92-A2 companion: avgRating/ratingCount are SERVER-RENDERED on
+                // the ISR-cached /menu/[slug] page — without this purge a fresh
+                // review leaves the public rating badge stale for up to 60s.
+                // Awaited (synchronous publish contract — see menu-cache.ts).
+                const itemForReval = await prisma.menuItem.findUnique({
+                        where: { id: itemId },
+                        select: { category: { select: { restaurantId: true } } },
+                });
+                await revalidateMenu(itemForReval?.category.restaurantId);
 
                 return success(review, 201);
         } catch (e) {

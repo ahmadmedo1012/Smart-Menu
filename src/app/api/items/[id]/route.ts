@@ -281,7 +281,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         deleteBlob(existing.image, { restaurantId: existing.category.restaurantId });
                 }
                 // round85-B9: purge the ISR cache so the owner sees the edit instantly
-                revalidateMenu(existing.category.restaurantId).catch(() => {});
+                await revalidateMenu(existing.category.restaurantId);
                 return success(data);
         } catch (e) {
                 return handleError(e);
@@ -333,7 +333,7 @@ export async function DELETE(
                 // round86-A3: scoped to the item's tenant
                 if (existing.image) deleteBlob(existing.image, { restaurantId: existing.category.restaurantId });
                 // round85-B9: purge the ISR cache so the removal is live immediately
-                revalidateMenu(existing.category.restaurantId).catch(() => {});
+                await revalidateMenu(existing.category.restaurantId);
                 return success({ id: delId });
         } catch (e) {
                 return handleError(e);
