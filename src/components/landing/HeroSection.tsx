@@ -10,6 +10,7 @@ import { QrCornerMark } from "@/components/ui/QrCornerMark"
 import { Eyebrow } from "@/components/ui/Eyebrow"
 import { IPhoneMockup } from "@/components/ui/iphone-mockup"
 import { ScrollParallax } from "@/components/ui/scroll-parallax"
+import { toArabicNumber } from "@/lib/format"
 import { springDefault } from "@/lib/motion"
 
 // round92-A7 (live audit A7): the hero text stack entered via framer-motion
@@ -127,7 +128,12 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                          * violation — 0.03 short of AA). ember = oklch(0.44 0.17 52) ≈ 7:1 light,
                                                          * saffron ≈ 8:1 on dark. Same brand hue family, world-class contrast. */}
                                                         <span className="size-1.5 rounded-full bg-orange animate-pulse-dot" />
-                                                        أكثر من {trustCount.toLocaleString("ar")} مطعم يثقون فينا
+                                                        {/* r93-W2a (U3): toLocaleString("ar") كان يُخرج أرقامًا هندية (١٢٣)
+                                                         * وفاصل آلاف ICU قد يختلف بين Node/المتصفح عند ≥1000 (خطر mismatch
+                                                         * hydration لأن العبارة تُصيّر SSR ثم عميلًا). المنسّق القياسي
+                                                         * toArabicNumber: أرقام غربية بلا فاصل — متسق مع StatsSection
+                                                         * في نفس الصفحة وسياسة المنصة (format.ts). */}
+                                                        أكثر من {toArabicNumber(trustCount)} مطعم يثقون فينا
                                                 </div>
                                         ) : null}
                                 </div>

@@ -114,6 +114,15 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 					where: { userId_restaurantId: { userId: auth.userId!, restaurantId } },
 				});
 			}
+			// r93-N1 (F2/H-1): قيد Review_menuItemId_fkey=Restrict لا يُحذف
+			// التقييمات أي cascade — مطعم لديه تقييم واحد كان يفشل حذفه
+			// نهائيًا (P2003→400). التقييمات هنا PII مرتبطة بأصناف المطعم
+			// المحذوفة أصلًا (لا معنى لبقائها يتيمة أصلًا) فتُحذف صراحة
+			// داخل المعاملة نفسها قبل restaurant.delete — بنمط حذف
+			// المستخدم الذي يزيل PII المرتبطة قبل الحذف الجذري.
+			await tx.review.deleteMany({
+				where: { menuItem: { category: { restaurantId } } },
+			});
 			await tx.restaurant.delete({ where: { id: restaurantId } });
 		});
 

@@ -51,7 +51,18 @@ export default defineConfig({
     },
     {
       name: "ui",
-      testMatch: ["tests/e2e/ui-smoke.test.ts", "tests/e2e/ui-sweep.test.ts"],
+      testMatch: [
+        "tests/e2e/ui-smoke.test.ts",
+        "tests/e2e/ui-sweep.test.ts",
+        // r93-S1 (موجة 4 — محاكاة المستخدم): الرحلات السعيدة الثلاث
+        // (زبون/مالك/أدمن) عبر متصفح حقيقي — same-shape UI journeys فتعلّقت
+        // بمشروع ui بدل مشروع تاسع جديد. تتطلب البذرة:
+        //   node scripts/round83-seed.mjs && node scripts/r93-sim-seed.mjs
+        "tests/e2e/r93-sim-customer.spec.ts",
+        "tests/e2e/r93-sim-owner.spec.ts",
+        "tests/e2e/r93-sim-admin.spec.ts",
+        "tests/e2e/r93-sim-abuser.spec.ts",
+      ],
     },
     {
       name: "qa-teams",

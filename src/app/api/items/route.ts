@@ -4,6 +4,8 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, handleError, error, paginated, parsePagination, parseIdSearchParam } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { createDbRateLimiter } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/client-ip';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { mediaUrlError } from '@/lib/blob';
 import { PlanLimitError } from '@/lib/plan-limit-error';
@@ -14,6 +16,16 @@ import { ItemStatus } from '@/generated/prisma/enums';
  * invalid value fall through to Prisma validation noise → generic 400 via
  * handleError instead of a clean 422 validationError envelope. */
 const itemStatusValues = Object.values(ItemStatus) as [string, ...string[]];
+
+// r93-W1a (MED-3 — DoS مجهول): GET كان بلا حد معدل — زائر مجهول يستطيع
+// ضغط قاعدة البيانات بحلقة curl موزعة (findMany مع include
+// modifierGroups.options لكل صفحة + count لكل طلب) دون أن تُنشأ أي
+// RateLimitEntry تقيده. 60 طلبًا/دقيقة لكل IP (نفس أداة المسارات العامة
+// — loyalty-ip: 60/min): تصفح المنيو الشرعي يبقى بعيدًا عن السقف (صفحة
+// المالك تستدعي /api/items مرة لكل فئة + تحديثات المحرر، وأدمن القائمة
+// استدعاءين)، بينما تنقطع حلقات الضغط. القاعدة "مفتاح IP لا يحوي قيمة
+// يتحكم بها الطالب" (درس تخفيف المفاتيح r90-F4).
+const itemsGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
 /* w3-f1 (F1-3) — shared modifier-group write schema (create + update).
  * Caps mirror the payload-hygiene rule (A-2): bounded arrays, bounded strings,
@@ -122,6 +134,16 @@ export async function GET(request: NextRequest) {
                 // عائلة الطلبات (isValidOrderStatusFilter).
                 if (status !== undefined && !itemStatusValues.includes(status)) {
                         return error('حالة الصنف غير صالحة', 400);
+                }
+
+                // r93-W1a (MED-3): حد المعدل قبل أي عمل DB (requireAuth نفسه
+                // يستعلم الجلسة، وfindMany/count بعده) — وبعد فروع تحقق
+                // المعاملات أعلاه حتى لا تحرق الطلبات الفاسدة (400) الميزانية
+                // ولا تُنشأ صفوف RateLimitEntry لها.
+                const ip = getClientIp(request); // round91-D1: unified extraction
+                const limit = await itemsGetLimiter.check(`items-get:${ip}`);
+                if (!limit.success) {
+                        return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
                 }
 
                 const where: Record<string, unknown> = {};

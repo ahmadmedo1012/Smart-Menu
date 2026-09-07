@@ -19,10 +19,20 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_PLANS } from '../../scripts/ci-seed.mjs';
+import { DEFAULT_PLANS as SEED_PLANS_RAW } from '../../scripts/ci-seed.mjs';
+// r93-N2 (F3/H-2): تغطية نصف الحقيقة المفقود — نفس الثوابت التي يكتبها
+// مسار /api/seed (المصدر المشترك) حتى يصبح افتراقه عن ci-seed مستحيلًا.
+// scripts/ مستثنى من tsconfig ولا يستنتج TS نوع JSON.parse — نصرّح بالنوع المشترك.
+import { DEFAULT_PLANS as API_DEFAULT_PLANS, type DefaultPlan } from '@/lib/default-plans';
+const DEFAULT_PLANS: DefaultPlan[] = SEED_PLANS_RAW;
 
 const MIGRATION_SQL = readFileSync(
   fileURLToPath(new URL('../../prisma/migrations/20260907_round92_plan_texts/migration.sql', import.meta.url)),
+  'utf8'
+);
+
+const SEED_ROUTE_SRC = readFileSync(
+  fileURLToPath(new URL('../../src/app/api/seed/route.ts', import.meta.url)),
   'utf8'
 );
 
@@ -65,6 +75,33 @@ describe('round92-A3/A4 — ci-seed DEFAULT_PLANS carry the corrected texts', ()
     const free = DEFAULT_PLANS.find((p) => p.name === 'Free');
     expect(free?.maxItems).toBe(10);
     expect(free?.features).toContain('10 أصناف');
+  });
+});
+
+describe('r93-N2 — /api/seed يتغذى من المصدر المشترك نفسه (F3/H-2)', () => {
+  it('مسار البذرة يستورد DEFAULT_PLANS من @/lib/default-plans (لا نسخة محلية بعد الآن)', () => {
+    // قبل r93 كان للمسار ثابته المحلي حاملًا كذبة «أصناف غير محدودة»
+    expect(SEED_ROUTE_SRC).toMatch(/from ["']@\/lib\/default-plans["']/);
+    expect(SEED_ROUTE_SRC).not.toMatch(/const DEFAULT_PLANS\s*=\s*\[/);
+    // لا بيانات خطة حرفية داخل المسار — كل نصوص الميزات من المصدر الواحد
+    // (التعليقات التوثيقية قد تذكر الكذبة التاريخية نصًا، فالفحص على
+    // absence of features: arrays لا على العبارة نفسها)
+    expect(SEED_ROUTE_SRC).not.toMatch(/features\s*:/);
+  });
+
+  it('خطط مسار API مطابقة حرفيًا لخطط ci-seed (المصدر الواحد: src/lib/default-plans.json)', () => {
+    // لو عدّل أحدهما نسخته دون الأخرى انكسر هذا التطابق فورًا
+    expect(API_DEFAULT_PLANS).toEqual(DEFAULT_PLANS);
+  });
+
+  it('خطط مسار API لا تحمل وعد «غير محدودة» — النصف الذي كان مكشوفًا قبل r93', () => {
+    for (const p of API_DEFAULT_PLANS) {
+      for (const f of p.features) {
+        expect(`${p.name}: ${f}`).not.toContain('غير محدودة');
+      }
+    }
+    expect(API_DEFAULT_PLANS.find((p) => p.name === 'Premium')?.maxItems).toBe(9999);
+    expect(API_DEFAULT_PLANS.find((p) => p.name === 'Premium')?.features).toContain('أصناف حتى 9999');
   });
 });
 

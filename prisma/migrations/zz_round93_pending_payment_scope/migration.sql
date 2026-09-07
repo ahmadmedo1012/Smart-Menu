@@ -1,0 +1,43 @@
+-- r93-N6 (F10/M-3 من تقرير التفتيش 1-c): توسيع نطاق فهرس الدفعات المعلقة
+-- ليشمل المطعم — «فهرس الدفع المعلق المشترك».
+--
+-- الخلل: SubscriptionPayment_pending_user_unique (هجرة zz_round90) فريد على
+-- userId فقط ضمن status='pending' — مالكَان مشاركان في مطعم واحد (رابط
+-- UserRestaurant لكلٍّ منهما) يمكن أن يكون لكلٍّ منهما طلب ترقية معلق لنفس
+-- المطعم (فحص الترقية التطبيقي محصور بالمستخدم الطالب عمدًا — r89-E8)
+-- → موافقة الاثنين تحصّل رسوم الترقية مرتين وتبقى الخطة = آخر موافقة.
+--
+-- التعريف النهائي المختار (موثّق هنا وفي تعليق schema.prisma):
+-- فريد على (userId, upgradeRestaurantId) حيث pending — عبر التعبير
+-- COALESCE(metadata->>'upgradeRestaurantId', ''):
+--   1) نفس المستخدم + نفس المطعم → مرفوض (P2002 → 409 في المسارين) —
+--      يحصّن فحص subscriptions/upgrade:123-130 ضد التزامن (نمط r90 نفسه).
+--   2) نفس المستخدم + مطعم مختلف → مسموح — مالك متعدد المنيوهات يرقّي
+--      منيوهاته بالتوازي (الفهرس القديم كان يحجبه بقيد أوسع من اللازم).
+--   3) مستخدم مختلف + نفس المطعم → مسموح على مستوى القاعدة (semantics
+--      r89-E8 محفوظة: طلب معلق مهجور من مالك مشارك لا يحجب زميله) —
+--      منع «ترقية معلقة واحدة لكل مطعم عبر المستخدمين» مسؤولية طبقة
+--      الموافقة تحت قفل صف المطعم (M-3 — ملف subscription-decisions،
+--      وكيل W1-a — خارج نطاق هذه الهجرة).
+--   4) دفعات المستخدم الجديد (subscriptions POST — لا upgradeRestaurantId):
+--      COALESCE '' يحفظ ضمانة r90 حرفيًا: طلب معلق واحد لكل مستخدم حتى
+--      بلا مطعم — بدونه كانت قيم NULL ستمرّ كأزواج «مختلفة» (NULLs
+--      distinct في فهارس PG الفريدة) وينفتح ثقب الدفع المزدوج من جديد.
+--
+-- فحص ما قبل التطبيق (قاعدة الجولة localhost:5434، قراءة فقط):
+-- صفر دفعات pending أصلاً (لا مستخدم بأكثر من pending). حتى مع بيانات:
+-- كل ما يرضي الفهرس القديم (≤1 pending لكل مستخدم) يرضي الجديد (الأضعف
+-- نطاقًا) — CREATE UNIQUE INDEX آمن بلا خطوة تنظيف، وDROP+CREATE داخل
+-- معاملة الهجرة الواحدة (DDL في PG معاملاتي).
+--
+-- التسمية zz_ (حراسة M-3/L-6 نفسها التي اتبعتها zz_round90/91): يجب أن
+-- يُطبَّق بعد zz_round90 (الذي ينشئ الفهرس القديم الذي يُسقط هنا) — ترتيب
+-- ICU يضع zz_round90 < zz_round91 < zz_round93 فتبقى آخر السلسلة المسجلة.
+--
+-- الفهرس تعبيري+جزئي غير قابل للتعبير في Prisma datamodel (نمط
+-- SystemEvent_userid_idx التعبيري الموثّق في schema.prisma) — غائب عن
+-- migrate diff عمدًا؛ التعويض: تعليق مرجعي عند SubscriptionPayment.
+DROP INDEX IF EXISTS "SubscriptionPayment_pending_user_unique";
+CREATE UNIQUE INDEX "SubscriptionPayment_pending_user_restaurant_unique"
+  ON "SubscriptionPayment"("userId", COALESCE(metadata->>'upgradeRestaurantId', ''))
+  WHERE status = 'pending';

@@ -24,6 +24,7 @@
         --font-sans: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
         --font-mono: var(--font-cairo), "Cairo", "Courier New", monospace;
         --font-arabic: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+        /* r93-W2a (U1): المصدر الواحد للحقيقة لخط العناوين — Readex Pro أولًا؛ سطر :root أدناه مرآة له */
         --font-heading: "Readex Pro", var(--font-cairo, "Cairo"), "Noto Sans Arabic", system-ui, sans-serif;
 
         /* ── Theme colors ── */
@@ -153,7 +154,10 @@
         /* ── Fonts — resolved here so [dir=rtl] and body always find them ── */
         --font-arabic: var(--font-cairo, "Cairo"), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
         --font-sans: var(--font-arabic);
-        --font-heading: var(--font-cairo, "Cairo"), "Cairo", "Readex Pro", "Noto Sans Arabic", system-ui, sans-serif;
+        /* r93-W2a (U1): كانت هذه النسخة تقدّم Cairo فتنقلب على ‎@theme (غير الطبقية تغلب
+           @layer theme) فترسم h1-h5 بـ Cairo بينما أداة font-heading ترسم Readex Pro.
+           وحّدنا على Readex Pro أولًا (قرار r88-A2 + تعليق الجذر العام) — نفس قيمة ‎@theme حرفيًا. */
+        --font-heading: "Readex Pro", var(--font-cairo, "Cairo"), "Noto Sans Arabic", system-ui, sans-serif;
 
         /* ── Z-index scale ── */
         --z-dropdown: 10;
@@ -1004,10 +1008,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         50% { transform: translate(-12px, -6px) rotate(-1deg); }
         75% { transform: translate(22px, -12px) rotate(3deg); }
 }
-@keyframes marquee {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-}
 @keyframes ring-drain {
         from { stroke-dashoffset: 0; }
         to   { stroke-dashoffset: 251.327; }
@@ -1052,13 +1052,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
-
-.animate-marquee {
-        will-change: transform;
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
-        animation: marquee 30s linear infinite;
-}
 
 .animate-pulse-glow {
         animation: pulse-glow 2.5s ease-in-out infinite;
@@ -1171,7 +1164,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
                 transition-duration: 0.2s !important;
                 scroll-behavior: auto !important;
         }
-        .animate-marquee { animation: none; }
         .card-premium { transition: none !important; }
         .card-premium:hover { transform: none !important; }
         .hover-lift:hover { transform: none !important; }

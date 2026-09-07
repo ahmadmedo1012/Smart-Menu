@@ -104,8 +104,12 @@ const UPGRADE_BODY = {
 /** The race loser's error: the DB partial unique index rejects the insert. */
 function p2002() {
         return Object.assign(
-                new Error('Unique constraint failed on the constraint: `SubscriptionPayment_pending_user_unique`'),
-                { code: 'P2002', meta: { target: 'SubscriptionPayment_pending_user_unique' } }
+                // r93-N6: الفهرس الفريد الجزئي وسّع نطاقه ليصبح
+                // SubscriptionPayment_pending_user_restaurant_unique
+                // (userId + COALESCE(metadata->>'upgradeRestaurantId','')) — المسار
+                // يمسك P2002 بلا فحص اسم القيد، فمحاكاة الاسم الجديد أدق توثيقًا.
+                new Error('Unique constraint failed on the constraint: `SubscriptionPayment_pending_user_restaurant_unique`'),
+                { code: 'P2002', meta: { target: 'SubscriptionPayment_pending_user_restaurant_unique' } }
         );
 }
 

@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import {} from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';

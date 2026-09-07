@@ -15,58 +15,36 @@
 import { useEffect, useRef } from "react";
 
 interface LoadingAnnouncerProps {
-	/** Whether the loading state is active */
-	loading: boolean;
-	/** The message to announce when loading is active */
-	message: string;
-	/** Optional message to announce when loading completes */
-	completedMessage?: string;
+        /** Whether the loading state is active */
+        loading: boolean;
+        /** The message to announce when loading is active */
+        message: string;
+        /** Optional message to announce when loading completes */
+        completedMessage?: string;
 }
 
 export function LoadingAnnouncer({
-	loading,
-	message,
-	completedMessage = "تم التحميل",
+        loading,
+        message,
+        completedMessage = "تم التحميل",
 }: LoadingAnnouncerProps) {
-	const announcementRef = useRef<HTMLDivElement>(null);
+        const announcementRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		if (loading && announcementRef.current) {
-			announcementRef.current.textContent = message;
-		} else if (!loading && announcementRef.current && completedMessage) {
-			announcementRef.current.textContent = completedMessage;
-		}
-	}, [loading, message, completedMessage]);
+        useEffect(() => {
+                if (loading && announcementRef.current) {
+                        announcementRef.current.textContent = message;
+                } else if (!loading && announcementRef.current && completedMessage) {
+                        announcementRef.current.textContent = completedMessage;
+                }
+        }, [loading, message, completedMessage]);
 
-	return (
-		<div
-			ref={announcementRef}
-			role="status"
-			aria-live="polite"
-			aria-atomic="true"
-			className="sr-only"
-		/>
-	);
-}
-
-/**
- * Hook to manage loading announcements programmatically
- */
-export function useLoadingAnnouncement() {
-	const announce = (message: string) => {
-		const announcer = document.createElement("div");
-		announcer.setAttribute("role", "status");
-		announcer.setAttribute("aria-live", "polite");
-		announcer.setAttribute("aria-atomic", "true");
-		announcer.className = "sr-only";
-		announcer.textContent = message;
-		document.body.appendChild(announcer);
-
-		// Clean up after announcement
-		setTimeout(() => {
-			document.body.removeChild(announcer);
-		}, 1000);
-	};
-
-	return { announce };
+        return (
+                <div
+                        ref={announcementRef}
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                        className="sr-only"
+                />
+        );
 }

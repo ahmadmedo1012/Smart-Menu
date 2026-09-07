@@ -4,6 +4,10 @@ import { Footer } from "@/components/layout/Footer"
 
 export const metadata: Metadata = {
 	title: "سياسة الخصوصية",
+	// round93 (W2-b / تقرير 1-a §3): وصف مميز بدل وصف الهبوط الافتراضي + canonical
+	// بنفس نمط menu/[slug] (مسار نسبي يُحلّ ضد metadataBase المعرف في التخطيط الجذر).
+	description: "سياسة خصوصية منصة الربط الذكي | Smart Menu: البيانات التي نجمعها (الحساب والمطعم والطلبات)، وكيف نستخدمها ونحميها، ومتى تُشارك مع جهات خارجية، وكيفية التواصل معنا.",
+	alternates: { canonical: "/privacy" },
 }
 
 export default function PrivacyPage() {

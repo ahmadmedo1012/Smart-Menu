@@ -30,7 +30,10 @@ export default function NotFound() {
           <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors">
             <UtensilsCrossed className="size-5" aria-hidden="true" />
           </span>
-          <span className="font-bold text-lg text-foreground">سمارت مينيو</span>
+          {/* r93-W2a (U8): توحيد تسمية العلامة — «الربط الذكي» هي الصيغة الأكثر
+              استخدامًا في المشروع (21+ موضعًا) واللاتينية «Smart Menu» ثانوية؛
+              كانت هذه الصفحة وحدها تستخدم صيغة عربية ثالثة مختلفة. */}
+          <span className="font-bold text-lg text-foreground">الربط الذكي</span>
         </Link>
         {/* round88-A1: the root 404 boundary renders outside both route-group
             root layouts, so it gets no MotionProvider — mount the shared

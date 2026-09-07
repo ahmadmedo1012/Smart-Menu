@@ -233,7 +233,7 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 108 unit (1666 حالة — قياس r92) + 35 e2e/security (team1-11 · 435 فحصًا)
+└── tests/                  ← 124 unit (1830 حالة — قياس r93) + 35 e2e/security (team1-11 · 435 فحصًا)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
     ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security
@@ -345,10 +345,10 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `sharp@0.35.3` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (1666 unit + e2e متعددة المشاريع في CI)
+## Tests (1830 unit + e2e متعددة المشاريع في CI)
 
 ```
-✓ unit/ (108 ملف، 1666 حالة — قياس r92) — auth, core, csrf, rate-limit, loyalty-subscription,
+✓ unit/ (124 ملف، 1830 حالة — قياس r93) — auth, core, csrf, rate-limit, loyalty-subscription,
                               receipt-whatsapp-format, regression (محوّلة لاستيراد الإنتاج الحقيقي r92),
                               r92-* (register/claim/webhook/categories/owner/admins/reviews/cleanup)
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify

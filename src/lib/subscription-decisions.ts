@@ -4,6 +4,16 @@ import { error } from "@/lib/logger";
 import { logAudit } from "@/lib/audit";
 import { getDecryptedBotToken } from "@/lib/config";
 
+// r93-W1a (MED-2، صنف r86-A5): القيم التي يتحكم بها المستخدم (اسم المطعم
+// المؤقت من metadata الدفع، وusername) كانت تُركّب خامًا في رسائل
+// parse_mode=Markdown — اسم مثل «[رابط](https://evil.example)» يُصيَّر رابطًا
+// قابلًا للنقر في قناة موافقة الأدمن وفي بث المستخدمين المرتبطين.
+// نفس دالة esc() المطبقة في notifyEvent (telegram.ts:30) منذ r86-A5 —
+// منسوخة محليًا حتى لا تتقاطع ملكية الملفات بين وكلاء الموجة.
+// parse_mode نفسها لم تتغير (Markdown)؛ القيم المشروعة بلا محارف خاصة
+// تمر حرفيًا كما قبل، فلا تنكسر أي رسالة قائمة.
+const escMarkdown = (s: unknown) => String(s).replace(/([_*\[\]`\\()])/g, "\\$1");
+
 // round87-C4: the decision handlers below used to accept the raw (nullable)
 // findUnique result, forcing a non-null `!` on every `existing` field access.
 // The caller already null-checks before dispatching — model that invariant in
@@ -129,7 +139,8 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
 
       // Ponytail: Telegram notification fire-and-forget. At this point DB is
       // fully committed. If Telegram fails, the payment is still active.
-      const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${result.restaurant.name}\n• الخطة: ${result.plan?.nameAr ?? existing.planName}\n• المبلغ: ${existing.amount} د.ل`;
+      // r93-W1a (MED-2): اسم المطعم يضعه المالك — يُرمّز قبل التركيب.
+      const msg = `⬆️ *تم تأكيد الترقية*\n• المطعم: ${escMarkdown(result.restaurant.name)}\n• الخطة: ${escMarkdown(result.plan?.nameAr ?? existing.planName)}\n• المبلغ: ${existing.amount} د.ل`;
       sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] telegram notify failed:", { error: e }));
 
       return { ok: true, action: "verified", paymentId: existing.id };
@@ -281,9 +292,13 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
     }
 
     // Post-transaction Telegram notifications (fire-and-forget, best-effort)
-    const userPart = result.user ? `• المستخدم: ${result.user.username}\n` : "";
-    const menuList = menus.map((m) => `• ${m.name} → /menu/${m.slug}`).join("\n");
-    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المنيوهات:\n${menuList}\n• الخطة: ${existing.planName}`;
+    // r93-W1a (MED-2): username من التسجيل واسم/رابط المنيو المؤقت من
+    // metadata الدفع (يكتبهما زبون الدفع عبر payment-schema) — كلها تُرمّز
+    // قبل التركيب؛ قائمة المنيوهات المرمّزة نفسها تُعاد استخدامها في رسالة
+    // المستخدم المرتبط أدناه (notifyUserViaTelegram parse_mode=Markdown أيضًا).
+    const userPart = result.user ? `• المستخدم: ${escMarkdown(result.user.username)}\n` : "";
+    const menuList = menus.map((m) => `• ${escMarkdown(m.name)} → /menu/${escMarkdown(m.slug)}`).join("\n");
+    const msg = `✅ *تم تأكيد الدفع وترقية الحساب*\n${userPart}• المنيوهات:\n${menuList}\n• الخطة: ${escMarkdown(existing.planName)}`;
     sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] telegram failed:", { error: e }));
 
     const userChatId = existing.user?.telegramChatId;
@@ -352,7 +367,9 @@ async function handleCancelled(existing: ExistingPayment): Promise<ResolveResult
     });
 
     // Post-transaction notifications
-    const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${existing.phone}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${existing.planName}`;
+    // r93-W1a (MED-2): الهاتف والخطة يُرمّزان هنا أيضًا (اتساقًا مع بقية
+    // الرسائل — المبلغ رقم ولا يحمل محارف Markdown أصلًا).
+    const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${escMarkdown(existing.phone)}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${escMarkdown(existing.planName)}`;
     sendTelegramNotification(msg, { parseMode: "Markdown" }).catch((e) => error("[subscription] cancel telegram failed:", { error: e }));
 
     const userChatId = existing.user?.telegramChatId;

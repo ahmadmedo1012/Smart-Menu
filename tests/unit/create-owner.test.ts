@@ -19,9 +19,25 @@ import { NextRequest } from 'next/server';
 const mockUserFindUnique = vi.hoisted(() => vi.fn());
 const mockUserCreate = vi.hoisted(() => vi.fn());
 const mockHashPassword = vi.hoisted(() => vi.fn());
+// r93-N3: المسار صار ينشئ الحساب + رابط UserRestaurant + تنزيل السقوف داخل
+// $transaction واحدة — أضفنا مطعم الهدف وأدوات المعاملة للكيّ المزيّف.
+const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
+const mockTransaction = vi.hoisted(() => vi.fn());
+const mockUserRestaurantCreate = vi.hoisted(() => vi.fn());
+const mockTxPlanFindUnique = vi.hoisted(() => vi.fn());
+const mockTxRestaurantUpdate = vi.hoisted(() => vi.fn());
+
+const tx = vi.hoisted(() => ({
+        user: { create: mockUserCreate },
+        userRestaurant: { create: mockUserRestaurantCreate },
+        subscriptionPlan: { findUnique: mockTxPlanFindUnique },
+        restaurant: { update: mockTxRestaurantUpdate },
+}));
 
 const mockPrisma = vi.hoisted(() => ({
-        user: { findUnique: mockUserFindUnique, create: mockUserCreate },
+        user: { findUnique: mockUserFindUnique },
+        restaurant: { findUnique: mockRestaurantFindUnique },
+        $transaction: mockTransaction,
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma, getUserById: vi.fn(), withRetry: vi.fn() }));
@@ -101,6 +117,12 @@ beforeEach(() => {
         setSession(SUPER_ADMIN);
         mockUserFindUnique.mockResolvedValue(null);
         mockUserCreate.mockResolvedValue(CREATED);
+        // r93-N3: مطعم الهدف موجود (بلا خطة افتراضيًا) + المعاملة تُنفّذ الكاللback
+        mockRestaurantFindUnique.mockResolvedValue({ id: 7, planId: null });
+        mockTransaction.mockImplementation(async (fn: (t: typeof tx) => Promise<unknown>) => fn(tx));
+        mockUserRestaurantCreate.mockResolvedValue({});
+        mockTxPlanFindUnique.mockResolvedValue({ maxItems: 9999, maxOrders: 99999 });
+        mockTxRestaurantUpdate.mockResolvedValue({ id: 7 });
 });
 
 // ── البوابة ─────────────────────────────────────────────────────────────

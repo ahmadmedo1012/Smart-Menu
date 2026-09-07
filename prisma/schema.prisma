@@ -469,6 +469,16 @@ model SubscriptionPayment {
   // round88-A2: admin/subscriptions pending list — WHERE status ORDER BY
   // createdAt DESC LIMIT 20 (0.08ms sort → 0.03ms ordered index scan)
   @@index([status, createdAt])
+  // r93-N6 (zz_round93_pending_payment_scope): فهرس فريد جزئي+تعبيري —
+  // NOT expressible in the datamodel (نمط SystemEvent_userid_idx الموثّق)،
+  // يعيش في SQL الهجرة فقط ويُتجاهله migrate diff عمدًا:
+  //   SubscriptionPayment_pending_user_restaurant_unique ON
+  //   ("userId", COALESCE(metadata->>'upgradeRestaurantId', ''))
+  //   WHERE status = 'pending'
+  // يحلّ محل SubscriptionPayment_pending_user_unique (zz_round90 — نطاقه
+  // userId فقط): نفس المستخدم/نفس المطعم مرفوض (P2002)، نفس المستخدم/
+  // مطعم آخر مسموح، مستخدم آخر/نفس المطعم مسموح (r89-E8)، وCOALESCE('')
+  // يحفظ ضمانة «pending واحدة لكل مستخدم» لدفعات المستخدم الجديد.
 }
 
 model SystemConfig {

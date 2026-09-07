@@ -3,11 +3,11 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { success, error as apiError } from "@/lib/api-helpers";
 import { error as logError } from "@/lib/logger";
-
-const DEFAULT_PLANS = [
-  { name: "Free", nameAr: "مجاني", price: 0, periodDays: 30, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 1, features: ["منيو رقمي تفاعلي", "10 أصناف", "طلبات واتساب", "إحصائيات أساسية"] },
-  { name: "Premium", nameAr: "المدفوعة", price: 29, periodDays: 30, maxMenus: 9999, maxItems: 9999, maxOrders: 99999, sortOrder: 2, features: ["جميع ميزات المجانية", "أصناف غير محدودة", "برنامج ولاء متكامل", "QR كود مخصص", "إحصائيات متقدمة", "دعم فني فوري", "تخصيص كامل"] },
-];
+// r93-N2 (F3/H-2): المصدر الوحيد لخطط البذرة — كان لهذا المسار نسخته
+// المحلية من DEFAULT_PLANS تحمل كذبة «أصناف غير محدودة» (r92 صحّح ci-seed
+// فقط) فأعاد upsertه إدخال النص المتناقض مع السقف المُنفَّذ (9999).
+// الآن المسار وci-seed.mjs يقرآن من src/lib/default-plans.json معًا.
+import { DEFAULT_PLANS } from "@/lib/default-plans";
 
 export async function POST() {
   try {

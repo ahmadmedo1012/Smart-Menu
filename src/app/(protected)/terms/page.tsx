@@ -4,6 +4,10 @@ import { Footer } from "@/components/layout/Footer"
 
 export const metadata: Metadata = {
 	title: "شروط الاستخدام",
+	// round93 (W2-b / تقرير 1-a §3): وصف مميز بدل وصف الهبوط الافتراضي + canonical
+	// بنفس نمط menu/[slug] (مسار نسبي يُحلّ ضد metadataBase المعرف في التخطيط الجذر).
+	description: "شروط استخدام منصة الربط الذكي | Smart Menu: مسؤوليتك عن حسابك ومحتوى قائمتك، وطبيعة خدمة المنيو الرقمي والطلبات عبر واتساب، وأحكام الدفع والاسترداد وتعديل الشروط.",
+	alternates: { canonical: "/terms" },
 }
 
 export default function TermsPage() {

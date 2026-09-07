@@ -9,6 +9,7 @@
  * the API route). Test credentials only — never point this at production.
  */
 import { randomBytes, pbkdf2Sync } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import pg from 'pg';
 
@@ -41,15 +42,17 @@ function hashPassword(password) {
 const ADMIN_USER = process.env.SEED_ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.SEED_ADMIN_PASS || 'admin123456';
 
-// Same defaults as /api/seed route.
-// round92-A3/A4 (2-c): «أصناف غير محدودة» → «أصناف حتى 9999» — the feature
-// text now follows the enforced cap (maxItems=9999 sentinel), matching the
-// 20260907_round92_plan_texts data migration, so a seed upsert can no longer
-// re-introduce the unlimited-items promise that PlanLimitError contradicts.
-export const DEFAULT_PLANS = [
-  { name: 'Free', nameAr: 'مجاني', price: 0, periodDays: 30, maxMenus: 1, maxItems: 10, maxOrders: 100, sortOrder: 1, features: ['منيو رقمي تفاعلي', '10 أصناف', 'طلبات واتساب', 'إحصائيات أساسية'] },
-  { name: 'Premium', nameAr: 'المدفوعة', price: 29, periodDays: 30, maxMenus: 9999, maxItems: 9999, maxOrders: 99999, sortOrder: 2, features: ['جميع ميزات المجانية', 'أصناف حتى 9999', 'برنامج ولاء متكامل', 'QR كود مخصص', 'إحصائيات متقدمة', 'دعم فني فوري', 'تخصيص كامل'] },
-];
+// r93-N2 (F3/H-2 — المصدر الوحيد): خطط البذرة تُقرأ من
+// src/lib/default-plans.json — نفس الملف الذي يستورده مسار /api/seed عبر
+// @/lib/default-plans. سابقًا كان لكل منهما نسخته، فصحّح r92-A3/A4 نصوص
+// هذا السكربت فقط («أصناف غير محدودة» → «أصناف حتى 9999») وبقي مسار API
+// يعيد إدخال الكذبة فوق أي قاعدة بُذرت عبره — الآن افتراق النسختين يُكسر
+// اختبار r92-plan-texts (deep-equal بين المصدرين).
+// السكربت .mjs لا يستورد TS، لذا يُقرأ JSON مباشرة (سكربت node خالص،
+// بلا معالجة) — سلوك upsert نفسه كما كان.
+export const DEFAULT_PLANS = JSON.parse(
+  readFileSync(new URL('../src/lib/default-plans.json', import.meta.url), 'utf8')
+);
 
 // round92 (2-c): everything below runs ONLY when executed as a CLI script —
 // `import { DEFAULT_PLANS }` from unit tests (r92-plan-texts.test.ts) gets the

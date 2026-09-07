@@ -183,7 +183,14 @@ export default function OwnerLoyaltyPage() {
 	const [showSettings, setShowSettings] = useState(false);
 	const [copied, setCopied] = useState(false);
 
-	const origin = typeof window !== 'undefined' ? window.location.origin : '';
+	/* r93-W3 (بقية تقرير 1-d رقم 15): حارس hydration لمنشأ رابط الإحالة —
+	   نفس نمط mounted-guard المعتمد في المشروع (ThemeToggle + ReferralCard
+	   بعد r93-W2a): أول لقطة (ما يقارنه hydration) بلا window إطلاقًا
+	   (الرابط يُصيّر نسبيًا على الخادم والعميل معًا) ثم يمتلئ المنشأ بعد
+	   التركيب. النسخ/المشاركة/QR تفاعلات ما-بعد-التركيب فلا تتأثر الرحلة. */
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => setMounted(true), []);
+	const origin = mounted ? window.location.origin : '';
 	const ownerRefUrl = `${origin}/owner/loyalty?ref=share`;
 
 	const load = useCallback(async () => {

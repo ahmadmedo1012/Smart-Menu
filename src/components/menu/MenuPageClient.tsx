@@ -19,6 +19,7 @@ import dynamic from 'next/dynamic';
 const OrderDialog = dynamic(() => import('./OrderDialog').then((m) => ({ default: m.OrderDialog })), { ssr: false });
 const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default: m.ReviewSheet })), { ssr: false });
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
+import { getArabicPlural } from '@/lib/arabic-plural';
 import { fadeUp } from '@/lib/motion';
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string };
@@ -28,6 +29,20 @@ type SortValue = (typeof SORT_VALUES)[number];
 
 function isValidSort(v: string | null): v is SortValue {
         return v !== null && (SORT_VALUES as readonly string[]).includes(v);
+}
+
+// r93-W2a (U2): جمع عربي ديناميكي لعدد نتائج التصفية (نمط cartCountPhrase
+// من r92-A9) — «تم العثور على صنف واحد / صنفان / 5 أصناف / 12 صنفًا» بدل
+// «N صنف» الثابت الذي كان ينكسر عند 2-10. الصفر يُعالج خارج الدالة
+// («لا توجد نتائج») لذا لا يحتاج صيغة خاصة هنا. مُصدَّرة ليبثها الاختبار.
+export function foundItemsPhrase(count: number): string {
+        const noun = getArabicPlural(count, 'صنف', {
+                one: 'صنف واحد',
+                two: 'صنفان',
+                few: 'أصناف',
+                many: 'صنفًا',
+        });
+        return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
 }
 
 function MenuPageClientInner({
@@ -246,7 +261,7 @@ function MenuPageClientInner({
                                         <span>
                                                 {filteredItems.length === 0
                                                         ? 'لا توجد نتائج'
-                                                        : `تم العثور على ${toArabicNumber(filteredItems.length)} صنف`}
+                                                        : `تم العثور على ${foundItemsPhrase(filteredItems.length)}`}
                                         </span>
                                         {activeCategory !== null && (
                                                 <button

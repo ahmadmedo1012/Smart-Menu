@@ -6,8 +6,23 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckCheck, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toArabicNumber } from '@/lib/format';
+import { getArabicPlural } from '@/lib/arabic-plural';
 import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
+
+// r93-W2a (U2): جمع عربي ديناميكي لعدد الطلبات المقبولة (نمط cartCountPhrase
+// من r92-A9) — «تم قبول طلب واحد / طلبين / 5 طلبات / 12 طلبًا» بدل قالب
+// «N طلبات» الثابت الذي كان ينكسر عند 1 و11+. مُصدَّرة ليبثها الاختبار
+// (نفس سابقة cartCountPhrase في CartSlideOver).
+export function acceptedOrdersPhrase(count: number): string {
+        const noun = getArabicPlural(count, 'طلب', {
+                one: 'طلب واحد',
+                two: 'طلبين',
+                few: 'طلبات',
+                many: 'طلبًا',
+        });
+        return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
+}
 
 interface NewOrdersBarProps {
         /** Callback to refresh the full orders list after bulk advance. */
@@ -68,7 +83,7 @@ export function NewOrdersBar({
                 setAccepting(true);
                 try {
                         await Promise.all(newOrderIds.map((id) => updateStatus(id, 'preparing')));
-                        premiumToast('save', `تم قبول ${toArabicNumber(newOrderIds.length)} طلبات`);
+                        premiumToast('save', `تم قبول ${acceptedOrdersPhrase(newOrderIds.length)}`);
                         onOrdersRefresh();
                 } catch {
                         premiumToast('error', 'فشل قبول بعض الطلبات');

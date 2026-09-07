@@ -7,7 +7,17 @@ import { revalidateMenu } from '@/lib/menu-cache';
 import { revalidatePath } from 'next/cache';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { categoryCountByRestaurant, orderCountByRestaurant, itemCountByCategory } from '@/lib/list-counts';
+import { createDbRateLimiter } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/client-ip';
 // round86-A3: deleteBlob below is scoped to the deleted restaurant's tenant
+
+// r93-N7 (F6/MED-3 من تفتيش 1-b): GET عام غير مصادق (صفحات المنيو/السلة
+// تقرأه) وكان بلا حد معدل ولا كاش — استعلامات DB مجهولة غير محدودة
+// (متاحية/DoS). 60/دقيقة/IP هو نفس سقف عائلة GET العامة (نمط
+// loyaltyIpLimiter وordersListDbLimiter) — حركة الصفحة العامة الطبيعية
+// بعيدة عنه، والمفتاح على IP وحده (لا يتأثر بتدوير معرف المطعم — لا فتح
+// دلو جديد لكل id: مقاومة key-dilution الموثقة r90-F4).
+const restaurantGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
 // round87-A2: the PUT path previously had NO bounds at all (round86-A7 only
 // bounded POST) — no .max on any string, no slug format check, and logo/gallery
@@ -71,8 +81,14 @@ function restaurantMediaError(
         return null;
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
         try {
+                // r93-N7: الحد قبل أي عمل — حتى الـ401/404 الرخيصة تستهلك الميزانية
+                // (طلب غير مصادق يظل قادرًا على تجييش الاستعلامات).
+                const ip = getClientIp(request);
+                const { success: allowed } = await restaurantGetLimiter.check(`restaurant-get:${ip}`);
+                if (!allowed) return apiError('طلبات كثيرة جدًا، حاول بعد 60 ثانية', 429);
+
                 const { id } = await params;
                 const rId = Number(id);
                 if (Number.isNaN(rId)) return apiError('معرف غير صالح', 400);
@@ -254,7 +270,19 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                         select: { logo: true, gallery: true, slug: true },
                 });
 
-                await prisma.restaurant.delete({ where: { id: rId } });
+                // r93-N1 (F2/H-1): حذف التقييمات صراحة داخل معاملة قبل restaurant.delete
+                // — قيد Review_menuItemId_fkey=Restrict لا يُحذفها أي cascade، فالمطعم
+                // الذي لديه تقييم واحد (على أي صنف) كان يفشل حذفه نهائيًا بـP2003→400.
+                // التقييمات PII مرتبطة بأصناف هذا المطعم المحذوفة أصلًا، فتُحذف معه
+                // داخل نفس المعاملة (بنمط مسار المالك owner/restaurants/[id]).
+                // بقية السلاسل (تصنيفات/أصناف/طلبات/بنودها/بطاقات الولاء) تتكفل بها
+                // cascade الموجودة — مثبت بالقياس على قاعدة الجولة (لا يتيمة بعدها).
+                await prisma.$transaction(async (tx) => {
+                        await tx.review.deleteMany({
+                                where: { menuItem: { category: { restaurantId: rId } } },
+                        });
+                        await tx.restaurant.delete({ where: { id: rId } });
+                });
 
                 // round88-A2 cache-gap fix: PUT purged the ISR menu page but DELETE
                 // didn't — a deleted restaurant's cached /menu/<slug> kept serving

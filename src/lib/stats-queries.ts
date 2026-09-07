@@ -113,16 +113,18 @@ export function popularItemsQuery(opts: PopularItemsOptions = {}): PopularItemsA
                 _sum: { quantity: true },
                 orderBy: { _sum: { quantity: 'desc' } },
                 take: opts.take ?? 10,
-                ...(hasRestaurant || hasPeriod
-                        ? {
-                                        where: {
-                                                order: {
-                                                        ...(hasRestaurant ? { restaurantId: opts.restaurantId } : {}),
-                                                        ...(hasPeriod ? { createdAt: period } : {}),
-                                                },
-                                        },
-                                }
-                        : {}),
+                // r93-N5 (F9/M-4): تعريف موحّد — الأصناف الرائجة تستثني الطلبات
+                // الملغاة (كانت تجمع كل الحالات). الطلب الملغى ليس مبيعًا، وإدراجه
+                // في «الرائج» كان يرجّح أصنافًا أُلغيت طلباتها. الحالة تُفحص
+                // دائمًا (حتى بلا نطاق مطعم/فترة) والعدّادات المستقلة للملغاة
+                // (statusBreakdown في stats route) خارج هذا النطاق تمامًا.
+                where: {
+                        order: {
+                                status: { not: 'cancelled' },
+                                ...(hasRestaurant ? { restaurantId: opts.restaurantId } : {}),
+                                ...(hasPeriod ? { createdAt: period } : {}),
+                        },
+                },
         };
         return args;
 }
@@ -190,6 +192,15 @@ export function revenueAggregate(opts: {
         const args: Prisma.OrderAggregateArgs = {
                 where: {
                         ...(opts.restaurantId !== undefined ? { restaurantId: opts.restaurantId } : {}),
+                        // r93-N5 (F9/M-4): تعريف الإيراد الموحّد عبر المنصة — الطلبات
+                        // الملغاة لا تدخل الإيراد (ولا عدّ ordersToday المزدوج معه في
+                        // هذا التجميع). سابقًا كان SUM(total) يجمع الملغاة فتتعارض
+                        // لوحة المالك مع تعريف الولاء totalSpent (المكتملة فقط)
+                        // برقمين مختلفين لنفس اليوم. الخيار المدوّن: استثناء الملغاة
+                        // فقط — طلبات اليوم الجارية (new/preparing/ready) مالٌ في
+                        // طريقه فيُدرج، والإيراد "المؤكد" يبقى مسؤولية المكتملة.
+                        // عدّاد الملغاة المستقل (statusBreakdown) لا يُمسّ.
+                        status: { not: 'cancelled' },
                         createdAt: {
                                 gte: opts.since,
                                 ...(opts.before !== undefined ? { lt: opts.before } : {}),

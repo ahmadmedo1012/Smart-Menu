@@ -29,10 +29,13 @@ import { NextRequest } from 'next/server';
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 
+// r93-N1: مسار الحذف صار يمحو تقييمات المطعم داخل المعاملة قبل restaurant.delete
+// (قيد Restrict) — أضفنا review.deleteMany لِكيّ tx المزيّف.
 const tx = vi.hoisted(() => ({
         userRestaurant: { updateMany: vi.fn(), update: vi.fn(), delete: vi.fn() },
         user: { update: vi.fn() },
         restaurant: { update: vi.fn(), delete: vi.fn() },
+        review: { deleteMany: vi.fn() },
 }));
 
 const mockPrisma = vi.hoisted(() => ({
@@ -130,6 +133,7 @@ beforeEach(() => {
         tx.user.update.mockResolvedValue({ id: 10, restaurantId: 2 });
         tx.restaurant.update.mockResolvedValue({ ...RESTAURANT_2, name: 'Updated' });
         tx.restaurant.delete.mockResolvedValue({ ...RESTAURANT_2 });
+        tx.review.deleteMany.mockResolvedValue({ count: 0 });
 });
 
 // ── PATCH /api/owner/restaurants/[id] ───────────────────────────────────

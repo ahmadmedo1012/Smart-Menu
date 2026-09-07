@@ -160,6 +160,27 @@ export async function POST(request: NextRequest) {
                         return error('التسجيل الذاتي يسمح بمنيو واحد فقط — رقِّ خطتك لإضافة المزيد', 400);
                 }
 
+                // r93-N4 (F8/M-2): مسار الأدمن بخطة يزامن السقوف المنزّلة. سابقًا
+                // كان يكتب planId فقط بينما تبقى maxItems/maxOrders افتراضيات
+                // المخطط (50/500) — والإنفاذ الفعلي للأصناف/الطلبات يقرأ النسخة
+                // المنزّلة على صف المطعم (items:255-270 وorders:286-301) لا
+                // الخطة → مطعم على خطة Premium كان يُحاصَر فعليًا عند 50 صنفًا.
+                // النمط: نفس آلية تنزيل سقوف الخطة في ترقية الاشتراك
+                // (subscription-decisions: maxItems/maxOrders من صف الخطة).
+                // قرار موثّق: لا نكتب planStart/planEnd هنا (تبقى null = بلا
+                // انتهاء) — الإسناد الإداري بلا دفع ليس اشتراكًا مدفوعًا بمدة
+                // 30 يومًا، وفرض انتهاء تلقائي كان سيقفل المالك خارجًا بقرار
+                // لم يطلبه أحد؛ مدة الدفع تبقى مسؤولية مسار الموافقة وحده.
+                let planCaps: { maxItems: number; maxOrders: number } | null = null;
+                if (!isPublicRegistration && body.planId !== undefined) {
+                        const plan = await prisma.subscriptionPlan.findUnique({
+                                where: { id: body.planId },
+                                select: { maxItems: true, maxOrders: true },
+                        });
+                        if (!plan) return error('الباقة غير موجودة', 400);
+                        planCaps = { maxItems: plan.maxItems, maxOrders: plan.maxOrders };
+                }
+
                 const result = await prisma.$transaction(async (tx) => {
                         // round87-A6: public self-registration must run at the FREE plan's
                         // advertised caps (10 items / 100 orders). Previously the row kept
@@ -211,6 +232,9 @@ export async function POST(request: NextRequest) {
                                                 workingHours: body.workingHours ?? '',
                                                 planId: body.planId ?? null,
                                                 ...(isPublicRegistration ? freeCaps : {}),
+                                                // r93-N4: السقوف المنزّلة من الخطة (مسار الأدمن فقط —
+                                                // التسجيل الذاتي أعلاه يفرض سقوف الخطة المجانية)
+                                                ...(planCaps ?? {}),
                                         },
                                 });
                                 if (i === 0) primary = restaurant;

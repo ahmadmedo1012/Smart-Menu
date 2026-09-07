@@ -8,6 +8,7 @@ import { springDefault, springSnappy } from "@/lib/motion"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { ScrollReveal } from "@/components/ui/scroll-reveal"
+import { toArabicNumber } from "@/lib/format"
 
 export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: number }) {
   // Real count from fetchPublicStats — never fabricate marketing numbers
@@ -33,7 +34,10 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
                   <>
                     انطلق الآن. انضم إلى{" "}
                     <span className="font-bold text-foreground">
-                      أكثر من {trustCount.toLocaleString("ar")} مطعم ومقهى
+                      {/* r93-W2a (U3): toArabicNumber بدل toLocaleString("ar") — أرقام غربية
+                          (سياسة المنصة/StatsSection) وصياغة SSR-stable بلا اعتماد ICU
+                          قد يختلف بين الخادم والعميل عند ≥1000. */}
+                      أكثر من {toArabicNumber(trustCount)} مطعم ومقهى
                     </span>
                     .{" "}
                   </>

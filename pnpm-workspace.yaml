@@ -7,7 +7,13 @@ allowBuilds:
 
 # round86-D7: supply-chain protection — only install packages published at
 # least 24h ago (defends against freshly-published malicious versions).
-# The exclude list below predates this setting and is kept inert-but-harmless.
+# r93 (W2-b / تقرير 1-f §2): المفتاح فُقد أثناء تخريب جلسة r92 فانطفأ الدرع
+# (قُبلت تجريبيًا حزمة عمرها 75 دقيقة) — أُعيد بنفس قيمة r86/r90:
+# 1440 دقيقة = 24 ساعة. التقييم يشمل الإصدارات الجديدة فقط، فلا يمس القفل الحالي.
+minimumReleaseAge: 1440
+# Pre-dates the setting (r86 era): pinned-fresh hono at the time; now that the
+# age gate is restored this list is ACTIVE (not inert) — these are the only
+# versions exempt from the 24h gate.
 minimumReleaseAgeExclude:
   - hono@4.13.3
 

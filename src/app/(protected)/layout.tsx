@@ -95,12 +95,14 @@ export default async function RootLayout({
                                  * fallback instantly and swaps once the woff2 arrives. Preloading moves the
                                  * font fetch ahead of the CSS discovery, cutting the ~700ms block. */}
                                 <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossOrigin="anonymous" />
-                                {/* round88-A2 (fonts audit): Readex Pro IS active — globals.css resolves
-                                 * --font-heading to "Readex Pro" first in LIGHT theme and every h1-h5 uses
-                                 * it (the old comment here claimed it was unused; that predates the
-                                 * heading-face switch the PUBLIC layout already documents). Matching the
-                                 * public layout's preload removes the heading swap-flash on protected
-                                 * pages too. Noto Naskh/Noto Sans stay lazy via unicode-range. */}
+                                {/* r93-W2a (U1): خط العناوين — المصدر الواحد للحقيقة هو تعريف
+                                 * @theme inline في globals.css (Readex Pro أولًا) وسطر :root مرآة
+                                 * مطابقة له. تعليق r88-A2 السابق هنا ادّعى أن Readex Pro «فعّال
+                                 * في الوضع الفاتح» — لم يعد دقيقًا: نسخة :root كانت تقلب h1-h5
+                                 * إلى Cairo بصمت (غير الطبقية تغلب @layer theme) حتى وحّدناها
+                                 * هذا الجولة. هذا الـ preload يطابق الجذر العام ويمنع وميض تبديل
+                                 * خط العناوين في الصفحات المحمية. Noto Naskh/Noto Sans كسولتان عبر
+                                 * unicode-range. */}
                                 <link rel="preload" as="font" type="font/woff2" href="/fonts/readex-pro.woff2" crossOrigin="anonymous" />
                                 {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
                                         pattern — no first-paint flash). Protected pages run under the

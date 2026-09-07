@@ -53,8 +53,34 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                 // Previously only auth.restaurantId was compared, so the owner of a
                 // second (linked) menu lost his own branch's review PII.
                 let isOwner = false;
-                if (auth.authorized && ['super_admin', 'sub_admin', 'admin'].includes(auth.role ?? '')) {
+                // r93-W1a (MED-1 — بقية عائلة r92-B1): العضوية الدور وحدها كانت
+                // تمنح sub_admin (ولو بأذونات صفرية) فرع isOwner فيقرأ أسماء
+                // وأرقام هواتف مراجعات كل مطاعم المنصة عبر أرقام أصناف متتالية.
+                // الفلسفة الآن نفس r92-B1 (orders:87 وstats-queries:70):
+                //   - admin/super_admin: ثقة كاملة (نفس دلالة requirePermission).
+                //   - sub_admin: يرى PII فقط بإذن VIEW_ANALYTICS (نفس بوابة
+                //     restaurants/[id]:88-90) أو بربط ملكية فعلي UserRestaurant
+                //     لمطعم الصنف — «المالك المرتبط يرى مطعمه فقط».
+                //   - USER/مجهول: القراءة العامة بلا PII (دون تغيير — صفحة
+                //     المنيو العامة تستدعي هذا المسار).
+                if (auth.authorized && (auth.role === 'super_admin' || auth.role === 'admin')) {
                         isOwner = true;
+                } else if (auth.authorized && auth.role === 'sub_admin') {
+                        if ((auth.permissions ?? []).includes('VIEW_ANALYTICS')) {
+                                isOwner = true;
+                        } else {
+                                // لا إذن → ملكية فعلية عبر رابط UserRestaurant فقط
+                                const item = await prisma.menuItem.findUnique({
+                                        where: { id: itemId },
+                                        select: { category: { select: { restaurantId: true } } },
+                                });
+                                if (item) {
+                                        const link = await prisma.userRestaurant.findUnique({
+                                                where: { userId_restaurantId: { userId: auth.userId!, restaurantId: item.category.restaurantId } },
+                                        });
+                                        isOwner = !!link;
+                                }
+                        }
                 } else if (auth.authorized && auth.role === 'owner') {
                         const item = await prisma.menuItem.findUnique({
                                 where: { id: itemId },

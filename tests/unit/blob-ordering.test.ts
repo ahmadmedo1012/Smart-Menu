@@ -14,17 +14,25 @@ const mockUpdate = vi.hoisted(() => vi.fn());
 const mockDelete = vi.hoisted(() => vi.fn());
 const mockFindUnique = vi.hoisted(() => vi.fn());
 const mockFindMany = vi.hoisted(() => vi.fn());
+// r93-N1: مسار حذف المطعم صار يُنفّذ review.deleteMany + restaurant.delete داخل
+// $transaction واحدة (قيد Restrict على التقييمات) — أضفنا الاثنين للكيّ المزيّف.
+const mockReviewDeleteMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }));
 
-const mockPrisma = vi.hoisted(() => ({
-        menuItem: {
-                findUnique: mockFindUnique,
-                update: mockUpdate,
-                delete: mockDelete,
-                findMany: mockFindMany,
-        },
-        restaurant: { findUnique: mockFindUnique, delete: mockDelete },
-        category: { findUnique: mockFindUnique },
-}));
+const mockPrisma = vi.hoisted(() => {
+        const p = {
+                menuItem: {
+                        findUnique: mockFindUnique,
+                        update: mockUpdate,
+                        delete: mockDelete,
+                        findMany: mockFindMany,
+                },
+                restaurant: { findUnique: mockFindUnique, delete: mockDelete },
+                category: { findUnique: mockFindUnique },
+                review: { deleteMany: mockReviewDeleteMany },
+                $transaction: async (fn: (t: unknown) => Promise<unknown>) => fn(p),
+        };
+        return p;
+});
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
 // round91-F-B (F9): items/[id] PUT now carries a 20/min session-scoped
