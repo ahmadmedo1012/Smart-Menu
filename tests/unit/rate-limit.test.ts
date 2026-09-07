@@ -163,3 +163,78 @@ describe("createDbRateLimiter", () => {
     limiter.destroy();
   });
 });
+
+// ── round92: RATE_LIMIT_TEST_RELAX (CI standalone server runs NODE_ENV=production) ──
+// Root cause of CI run 34095732086 + nightly FLAKY verdict: server.js forces
+// NODE_ENV=production, so the old RATE_LIMIT_RELAX could never widen the
+// server-side buckets — every register e2e spec shared one 5/min/IP bucket.
+describe("createDbRateLimiter — RATE_LIMIT_TEST_RELAX (round92 flake fix)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.clearAllMocks();
+    mockDeleteMany.mockResolvedValue({ count: 0 });
+    mockCreate.mockResolvedValue({});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+  });
+
+  it("TEST_RELAX=1 under NODE_ENV=production widens the budget (CI e2e server regime)", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RATE_LIMIT_TEST_RELAX", "1");
+
+    const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
+    // 100 attempts in the bucket — way over the real max (5) but far under
+    // the widened budget (max*200 = 1000).
+    mockUpsert.mockResolvedValue({ count: 100 });
+    const result = await limiter.check("testrelax-key");
+    expect(result.success).toBe(true);
+    limiter.destroy();
+  });
+
+  it("production with NO relax vars keeps the real budget (Vercel regime — unchanged)", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RATE_LIMIT_RELAX", ""); // old var set-but-empty must NOT relax
+
+    const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
+    mockUpsert.mockResolvedValue({ count: 6 });
+    const result = await limiter.check("prod-key");
+    expect(result.success).toBe(false);
+    limiter.destroy();
+  });
+
+  it("the OLD var (RATE_LIMIT_RELAX=1) still does nothing under production NODE_ENV", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RATE_LIMIT_RELAX", "1");
+
+    const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
+    mockUpsert.mockResolvedValue({ count: 6 });
+    const result = await limiter.check("oldvar-key");
+    expect(result.success).toBe(false);
+    limiter.destroy();
+  });
+
+  it("exemptFromRelax lockouts keep the real budget even WITH TEST_RELAX", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RATE_LIMIT_TEST_RELAX", "1");
+
+    const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5, exemptFromRelax: true });
+    mockUpsert.mockResolvedValue({ count: 6 });
+    const result = await limiter.check("lockout-key");
+    expect(result.success).toBe(false);
+    limiter.destroy();
+  });
+
+  it("dev regime (NODE_ENV=development + RATE_LIMIT_RELAX=1) is unchanged (relaxed)", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("RATE_LIMIT_RELAX", "1");
+
+    const limiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
+    mockUpsert.mockResolvedValue({ count: 100 });
+    const result = await limiter.check("dev-key");
+    expect(result.success).toBe(true);
+    limiter.destroy();
+  });
+});

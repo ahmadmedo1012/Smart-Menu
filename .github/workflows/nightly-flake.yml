@@ -16,12 +16,17 @@ name: Nightly Flake Detection
 #     RateLimitEntry — isolating genuine nondeterminism from that known
 #     accumulation.
 #   * The RATE_LIMIT_RELAX=1 fallback was deliberately NOT used: it is
-#     force-disabled under NODE_ENV=production (rate-limit.ts:29-33 — the
+#     force-disabled under NODE_ENV=production (rate-limit.ts — the
 #     standalone server always runs production mode) and it would mask the
 #     limiter's real behavior anyway. The wipe is possible in CI because —
 #     exactly like ci.yml — the e2e suites run against a localhost standalone
 #     server backed by a disposable Postgres SERVICE CONTAINER we own (not a
 #     remote/Vercel environment), so the table is directly reachable.
+#     round92 note: ci.yml's e2e server now sets RATE_LIMIT_TEST_RELAX=1 (an
+#     explicit var that DOES work under production NODE_ENV) so regular CI is
+#     deterministically green; this nightly deliberately keeps the REAL budget
+#     (no TEST_RELAX) — it remains the flake hunter for the production-regime
+#     limiter behavior that CI no longer exercises.
 on:
   schedule:
     - cron: '30 2 * * *' # 02:30 UTC — quiet hours, no CI pushes expected

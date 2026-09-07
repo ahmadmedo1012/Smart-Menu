@@ -36,10 +36,18 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
   // Dev-only relief: local e2e suites share one origin (127.0.0.1) across
   // many projects and exhaust the per-IP bucket within a minute. Production
   // (Vercel sets NODE_ENV=production) keeps the real limits.
+  // round92 flake fix: the CI e2e server is the STANDALONE build — server.js
+  // hard-forces NODE_ENV=production, so RATE_LIMIT_RELAX could never widen
+  // anything there and every register/login e2e spec shared one 5/min IP
+  // bucket (→ 429 flakes: CI run 34095732086; nightly verdict
+  // FLAKY-DETECTED). RATE_LIMIT_TEST_RELAX is the explicit, unambiguous
+  // escape hatch that works under production NODE_ENV; it is set ONLY on
+  // the CI e2e server step (never on Vercel) and still honors
+  // exemptFromRelax (account lockouts keep the real budget everywhere).
   const isRelaxed =
-    process.env.NODE_ENV !== "production" &&
-    process.env.RATE_LIMIT_RELAX === "1" &&
-    !exemptFromRelax;
+    !exemptFromRelax &&
+    (process.env.RATE_LIMIT_TEST_RELAX === "1" ||
+      (process.env.NODE_ENV !== "production" && process.env.RATE_LIMIT_RELAX === "1"));
   const effectiveMax = isRelaxed ? Math.max(20, max * 200) : max;
   let destroyed = false;
 

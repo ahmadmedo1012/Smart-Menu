@@ -217,6 +217,13 @@ jobs:
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
           TELEGRAM_BOT_TOKEN: "test"
+          # round92 flake fix: the standalone server forces NODE_ENV=production,
+          # so RATE_LIMIT_RELAX=1 (test-process env below) could never widen the
+          # server-side buckets — all register/login e2e specs shared one
+          # 5/min/IP bucket → 429 flakes (run 34095732086, nightly FLAKY
+          # verdict). TEST_RELAX works under production NODE_ENV, is set ONLY
+          # here (never on Vercel), and still honors exemptFromRelax lockouts.
+          RATE_LIMIT_TEST_RELAX: "1"
 
       # E2E tests against localhost (not production).
       # DB-backed via the CI Postgres service at top of this job.
