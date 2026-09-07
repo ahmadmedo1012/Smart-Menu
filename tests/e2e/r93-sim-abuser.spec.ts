@@ -17,6 +17,10 @@ import { test, expect, type Page } from "@playwright/test";
 
 const SHOTS = "download/round93-simulations"; // نسبي — يعمل محليًا وعلى عدّاء CI (Playwright ينشئ المجلد)
 
+/* نفس عقد بيئة البذرة (ci-seed.mjs): CI يبذر admin/admin123456 افتراضيًا
+ * والمحلية (سكربتات المشغّل) تصدّر SEED_ADMIN_PASS=smart123 */
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASS || "admin123456";
+
 let restaurantId = 0;
 let itemId = 0;
 
@@ -144,7 +148,7 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
     // دخول الأدمن وعرض الطلبات — أي alert يعني تنفيذًا (فشل ذريع)
     await page.goto("/login", { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.getByPlaceholder("اسم المستخدم").fill("admin");
-    await page.getByPlaceholder("كلمة المرور").fill("smart123");
+    await page.getByPlaceholder("كلمة المرور").fill(ADMIN_PASSWORD);
     await page.locator('button[type="submit"], button:has-text("دخول")').first().click();
     await page.waitForURL(/\/admin/, { timeout: 20000 });
     await page.goto("/admin/orders", { waitUntil: "domcontentloaded", timeout: 45000 });

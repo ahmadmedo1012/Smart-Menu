@@ -14,6 +14,7 @@ export NEXT_PUBLIC_DOMAIN='http://localhost:3000'
 export NEXT_PUBLIC_WHATSAPP_NUMBER='218900000000'
 export TELEGRAM_BOT_TOKEN='test'
 export RATE_LIMIT_TEST_RELAX='1'
+export SEED_ADMIN_PASS='smart123' # عقد بذرة المحلية (ci-seed الافتراضي admin123456)
 export BASE_URL='http://localhost:3000'
 
 # fresh server each sweep (stale .next/standalone from a previous run is fine —

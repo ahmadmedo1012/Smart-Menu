@@ -8,6 +8,7 @@ set -uo pipefail
 cd /home/z/my-project
 
 export DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu'
+export SEED_ADMIN_PASS='smart123' # عقد بذرة المحلية (ci-seed الافتراضي admin123456)
 export JWT_SECRET='test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 export AUTH_SECRET='test-auth-secret-for-ci-min-32-chars'
 export NEXT_PUBLIC_DOMAIN='http://localhost:3000'
