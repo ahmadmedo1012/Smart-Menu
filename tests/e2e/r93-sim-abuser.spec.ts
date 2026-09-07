@@ -46,6 +46,13 @@ async function primeCsrf(page: Page): Promise<string> {
 test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميزانيات حقيقية", () => {
   /* ── 1. حد المعدل على items GET (دفاع r93-M3) ── */
   test("ضغط عالٍ على /api/items → 429 برسالة عربية", async ({ request }) => {
+    // تحت RATE_LIMIT_TEST_RELAX (بيئة CI) تتسع الميزانية ×200 فلا يُبلغ 429
+    // عمليًا — التغطية المنطقية هناك في وحدة r93-items-get-ratelimit؛ هذا
+    // الاختبار الضغطي الحي لبيئات بلا ترخيص (المشغّل العدائي المحلي).
+    test.skip(
+      !!process.env.RATE_LIMIT_TEST_RELAX,
+      "بيئة مرخّصة (CI) — الميزانيات الحقيقية تُختبر محليًا عبر r93-sim-hostile.sh",
+    );
     let saw429 = false;
     let lastBody = "";
     for (let i = 0; i < 65; i++) {
@@ -63,6 +70,10 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
 
   /* ── 2. حد المعدل على restaurants/[id] GET (دفاع r93-N7) ── */
   test("ضغط عالٍ على /api/restaurants/[id] → 429", async ({ request }) => {
+    test.skip(
+      !!process.env.RATE_LIMIT_TEST_RELAX,
+      "بيئة مرخّصة (CI) — الميزانيات الحقيقية تُختبر محليًا عبر r93-sim-hostile.sh",
+    );
     let saw429 = false;
     for (let i = 0; i < 65; i++) {
       const r = await request.get(`/api/restaurants/${restaurantId}`);

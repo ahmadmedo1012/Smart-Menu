@@ -100,6 +100,28 @@ const FILE_ALLOWLIST = [
     reason: 'local e2e sweep env (postgres:postgres@localhost:5434) — dev-only localhost, same disposable pattern as CI service-container credentials',
   },
   {
+    // round93-S2: hostile-simulation runner — a copy of r92-e2e-local.sh
+    // with RATE_LIMIT_TEST_RELAX stripped (real budgets for the abuser
+    // spec). Same env, same disposable localhost DATABASE_URL.
+    file: 'scripts/r93-sim-hostile.sh',
+    id: 'pg',
+    reason: 'local hostile-simulation sweep env (postgres:postgres@localhost:5434) — dev-only localhost, same disposable pattern as CI service-container credentials',
+  },
+  {
+    // round93-S1: simulation seed (modifier groups + sub_admin/super_admin
+    // fixtures) — same dev-only embedded-postgres default as round83-seed.
+    file: 'scripts/r93-sim-seed.mjs',
+    id: 'pg',
+    reason: 'local simulation-seed default (postgres:postgres@localhost:5434) — dev-only, same pattern as round83-seed.mjs',
+  },
+  {
+    // round93-1-e: test-suite inspection report quotes the local embedded
+    // postgres URL while solving the 1666/1642 env puzzle — documentation.
+    file: 'docs/round93-inspection-e.md',
+    id: 'pg',
+    reason: 'round-93 inspection report documents the local embedded-postgres URL (postgres:postgres@localhost:5434) — dev-only documentation',
+  },
+  {
     file: 'SMART-MENU-ROUND88-PLAN.md',
     id: 'pg',
     reason: 'round-88 plan documents the local embedded-postgres URL (postgres:postgres@localhost:5434) — dev-only',
