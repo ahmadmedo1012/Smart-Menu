@@ -124,7 +124,9 @@ test.describe("team10: regression guard — rounds 79-87 crown jewels", () => {
 
     // Positive: the minimal branded boundary
     expect(html).toContain("الصفحة غير موجودة");
-    expect(html).toContain("سمارت مينيو");
+    // r93-U8: توحيد تسمية العلامة الظاهرة — «الربط الذكي» هو المهيمن في
+    // المشروع (21+ موضعًا)؛ كانت هذه الصفحة الموضع الوحيد لـ«سمارت مينيو»
+    expect(html).toContain("الربط الذكي");
 
     // Negative: the full landing Header must NOT ship in the 404 document —
     // its nav landmarks and the heavy hero decorations only exist in the
