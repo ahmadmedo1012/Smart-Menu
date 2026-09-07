@@ -19,6 +19,12 @@ import { csrfFetch } from '@/lib/csrf-client';
 // featuredRank are optional there — reads below stay null-safe)
 import type { Restaurant } from '@/lib/restaurant-types';
 
+// round92-C1: testability export — سلوك لم يتغير (نفس التعبير الحرفي الذي كان
+// مضمنًا في save(): `${slug}-${crypto.randomUUID().slice(0, 8)}`)
+export function generateOwnerPassword(slug: string): string {
+	return `${slug}-${crypto.randomUUID().slice(0, 8)}`;
+}
+
 interface FormState {
 	name: string;
 	slug: string;
@@ -140,7 +146,7 @@ export function RestaurantFormDialog({
 					body: JSON.stringify({
 						...body,
 						username: form.slug,
-						password: `${form.slug}-${crypto.randomUUID().slice(0, 8)}`,
+						password: generateOwnerPassword(form.slug),
 					}),
 				});
 				const json = await res.json();

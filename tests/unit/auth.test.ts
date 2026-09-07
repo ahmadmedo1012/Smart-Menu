@@ -119,15 +119,17 @@ type UserRow = {
         id: number;
         role: Role;
         restaurantId: number | null;
-        subscriptionStatus: SubscriptionStatus | null;
+        subscriptionStatus: SubscriptionStatus;
         permissions: Permission[];
 };
 
-const userRow = (overrides: Partial<UserRow> = {}): any => ({
+// round92-C1: كان any (تحذير no-explicit-any الأخير في الملف) — النوع الفعلي
+// المطلوب من getUserById هو UserRow | null؛ mockResolvedValue يقبله.
+const userRow = (overrides: Partial<UserRow> = {}): UserRow => ({
         id: 1,
         role: 'admin' as Role,
         restaurantId: 5,
-        subscriptionStatus: 'active' as string,
+        subscriptionStatus: 'PAID' as SubscriptionStatus,
         permissions: [],
         ...overrides,
 });
@@ -169,7 +171,7 @@ describe('auth.ts', () => {
                                 expect(r.userId).toBe(1);
                                 expect(r.role).toBe('admin');
                                 expect(r.restaurantId).toBe(5);
-                                expect(r.subscriptionStatus).toBe('active');
+                                expect(r.subscriptionStatus).toBe('PAID');
                                 expect(r.permissions).toEqual([]);
                         }
                 });

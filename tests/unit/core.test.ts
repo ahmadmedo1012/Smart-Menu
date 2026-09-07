@@ -1,486 +1,517 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { createHmac, timingSafeEqual } from "node:crypto";
+// round92-C1: كان جزء منه مرآة — الآن يستورد الإنتاج الحقيقي.
+// التغييرات الموثّقة في هذه الجولة (الوكيل 3-a):
+//   1) قسم auth.ts: كان يحاكم mockRequireAuth/mockRequireAdmin/
+//      mockRequirePermission محلية — الآن يستورد requireAuth/requireAdmin/
+//      requirePermission الحقيقية من src/lib/auth.ts بـmock للجلسة
+//      (validateSession) وgetUserById (نفس نمط auth.test.ts الناضج).
+//   2) قسم telegram-admin: كان mockًا محليًا (تغطية src/lib/telegram-admin.ts
+//      كانت 0%) — الآن يستورد getAdminTelegramIds الحقيقية بـprisma مزيّف.
+//   3) قسم subscription-decisions: كان mockResolveSubscriptionPayment
+//      محليًا — الآن resolveSubscriptionPayment الحقيقية بنمط tx-mock.
+//   4) قسم csrf-client: كان فعليًا (استورداد حقيقية) — بقي، ونُظّفت تحذيرات
+//      no-explicit-any الـ12 عبر harness مطبوع للـfetch mock.
+//   5) حذف موثّق (الاستثناء الوحيد المصرّح به): قسم «Mock JWT» (8 اختبارات)
+//      — كان يختبر مكتبة JWT وهمية محلية والإنتاج لا يستخدم JWT أصلًا
+//      (جلسات DB عبر session.ts؛ لا وجود لـjsonwebtoken/jose في src —
+//      0 مراجع). اختبارات بلا مقابل إنتاج = حبر أخضر بلا معنى منقول.
+//   6) حذف موثّق: قسم «hash.ts» المكرر (14 اختبارًا بنفس أسماء اختبارات
+//      auth.test.ts) — توحيدًا للجهد: PBKDF2 600k كان يُدفع مرتين
+//      (13.6 ث من أصل 25.9 ث). قارنا القسمين assertion-by-assertion:
+//      كل توكيد موجود في auth.test.ts بمساوى أو أقوى (شكل v2 + ITERATIONS
+//      + salt/hash hex/length + round-trip + فشول النسخ الفاسدة + salt
+//      فريد) — لا توكيد فُقد؛ نسخة auth.test.ts هي المرجع الوحيد الآن.
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-describe("hash.ts", () => {
-  it("hashPassword returns string", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    expect(typeof hashPassword("correct-horse-battery-staple")).toBe("string");
-  });
+// ═════════════════════════════════════════════════════════════════
+// Hoisted mocks — نمط المشروع (auth.test.ts / subscription-decisions)
+// ═════════════════════════════════════════════════════════════════
 
-  it("hashPassword format iterations:salt:hash (v2, round85-A3)", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    expect(hashPassword("correct-horse-battery-staple")).toContain(":");
-    expect(hashPassword("correct-horse-battery-staple").split(":")).toHaveLength(3);
-  });
+vi.mock("@/lib/session", () => ({ validateSession: vi.fn() }));
 
-  it("salt = 64 hex chars (32 bytes)", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    const [, salt] = hashPassword("correct-horse-battery-staple").split(":");
-    expect(salt).toHaveLength(64);
-  });
+const mockGetUserById = vi.hoisted(() => vi.fn());
+const mockApproverFindMany = vi.hoisted(() => vi.fn());
+const mockPaymentFindUnique = vi.hoisted(() => vi.fn());
 
-  it("hash = 128 hex chars (64 bytes)", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    const [, , hash] = hashPassword("correct-horse-battery-staple").split(":");
-    expect(hash).toHaveLength(128);
-  });
+const txMock = vi.hoisted(() => ({
+        subscriptionPayment: { update: vi.fn(), updateMany: vi.fn() },
+        subscriptionPlan: { findUnique: vi.fn(), findFirst: vi.fn() },
+        restaurant: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
+        userRestaurant: { create: vi.fn(), count: vi.fn() },
+        menuCategory: { createMany: vi.fn() },
+        user: { update: vi.fn(), updateMany: vi.fn() },
+        systemEvent: { create: vi.fn() },
+        $queryRaw: vi.fn(),
+}));
 
-  it("salt hex only", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    const [, salt] = hashPassword("correct-horse-battery-staple").split(":");
-    expect(salt).toMatch(/^[0-9a-f]+$/);
-  });
+const mockPrisma = vi.hoisted(() => ({
+        telegramApprover: { findMany: mockApproverFindMany },
+        subscriptionPayment: { findUnique: mockPaymentFindUnique },
+        $transaction: vi.fn(),
+}));
 
-  it("hash hex only", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    const [, , hash] = hashPassword("correct-horse-battery-staple").split(":");
-    expect(hash).toMatch(/^[0-9a-f]+$/);
-  });
+vi.mock("@/lib/db", () => ({ prisma: mockPrisma, getUserById: mockGetUserById }));
+vi.mock("@/lib/telegram", () => ({
+        sendTelegramNotification: vi.fn(async () => ({ sent: 0, failed: [] })),
+        notifyEvent: vi.fn(async () => ({ sent: 0, failed: [] })),
+}));
+vi.mock("@/lib/audit", () => ({ logAudit: vi.fn(async () => {}) }));
+vi.mock("@/lib/config", () => ({ getDecryptedBotToken: vi.fn(async () => null) }));
+vi.mock("@/lib/logger", () => ({
+        error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn(),
+}));
 
-  it("verifyHash correct password -> true", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
-    const pwd = "correct-horse-battery-staple";
-    const hashed = hashPassword(pwd);
-    expect(verifyHash(pwd, hashed)).toBe(true);
-  });
+// ── استيراد الإنتاج الحقيقي (بعد vi.mock المرفوعة تلقائيًا) ───────────
+import { requireAuth, requireAdmin, requirePermission } from "@/lib/auth";
+import * as session from "@/lib/session";
+import { getUserById } from "@/lib/db";
+import type { Role, Permission, SubscriptionStatus } from "@/generated/prisma/enums";
+import { getAdminTelegramIds } from "@/lib/telegram-admin";
+import { resolveSubscriptionPayment } from "@/lib/subscription-decisions";
+import { csrfFetch } from "@/lib/csrf-client";
+import { CSRF_COOKIE, CSRF_HEADER } from "@/lib/csrf";
 
-  it("wrong password -> false", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
-    const hashed = hashPassword("correct-horse-battery-staple");
-    expect(verifyHash("wrong-password", hashed)).toBe(false);
-  });
+// ═════════════════════════════════════════════════════════════════
+// Fixtures
+// ═════════════════════════════════════════════════════════════════
 
-  it("empty password -> false", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
-    const hashed = hashPassword("correct-horse-battery-staple");
-    expect(verifyHash("", hashed)).toBe(false);
-  });
+// نفس شكل select getUserById الحقيقي (src/lib/db.ts) — أنواع prisma الحقيقية
+// (Role/Permission/SubscriptionStatus) لا string سائبة.
+type UserRow = {
+        id: number;
+        role: Role;
+        restaurantId: number | null;
+        subscriptionStatus: SubscriptionStatus;
+        permissions: Permission[];
+};
 
-  it("empty stored -> false", async () => {
-    const { verifyHash } = await import("../../src/lib/hash");
-    expect(verifyHash("anything", "")).toBe(false);
-  });
-
-  it("no-colon stored -> false", async () => {
-    const { verifyHash } = await import("../../src/lib/hash");
-    expect(verifyHash("anything", "no-colon")).toBe(false);
-  });
-
-  it("multi-colon stored -> false", async () => {
-    const { verifyHash } = await import("../../src/lib/hash");
-    expect(verifyHash("anything", "a:b:c")).toBe(false);
-  });
-
-  it("verifyHash idempotent for same password", async () => {
-    const { hashPassword, verifyHash } = await import("../../src/lib/hash");
-    const pwd = "correct-horse-battery-staple";
-    const hashed = hashPassword(pwd);
-    expect(verifyHash(pwd, hashed)).toBe(true);
-  });
-
-  it("unique salt per call", async () => {
-    const { hashPassword } = await import("../../src/lib/hash");
-    const h1 = hashPassword("correct-horse-battery-staple");
-    const h2 = hashPassword("correct-horse-battery-staple");
-    expect(h1.split(":")[1]).not.toBe(h2.split(":")[1]);
-  });
+const userRow = (overrides: Partial<UserRow> = {}): UserRow => ({
+        id: 1,
+        role: "admin",
+        restaurantId: 5,
+        subscriptionStatus: "PAID",
+        permissions: [],
+        ...overrides,
 });
 
-// ════════════════════════════════════════════════════════════════════
-// 2. Mock JWT — HMAC-SHA256 session token round-trip
-// ════════════════════════════════════════════════════════════════════
+const validSession = { valid: true as const, userId: 1 };
+const badSession = { valid: false as const, userId: null };
 
-describe("Mock JWT", () => {
-  const SECRET = "test-secret-key-12345";
+const admin: UserRow = userRow({ role: "admin" });
+const superAdmin: UserRow = userRow({ role: "super_admin", id: 2, restaurantId: null });
+const subYes: UserRow = userRow({ role: "sub_admin", id: 3, restaurantId: 10, permissions: ["APPROVE_ORDERS"] });
+const subNo: UserRow = userRow({ role: "sub_admin", id: 4, restaurantId: 10, permissions: [] });
+// «member» المرآة = دور غير إداري في الإنتاج → USER (دور الزبون)
+const member: UserRow = userRow({ role: "USER", id: 5, restaurantId: null });
 
-  function createSessionToken(payload: Record<string, unknown>, secret: string, expiresInSec = 86400): string {
-    const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
-    const now = Math.floor(Date.now() / 1000);
-    const body = Buffer.from(JSON.stringify({ ...payload, iat: now, exp: now + expiresInSec })).toString("base64url");
-    const sig = createHmac("sha256", secret).update(`${header}.${body}`).digest("base64url");
-    return `${header}.${body}.${sig}`;
-  }
+const PAYMENT = {
+        id: 50, userId: 42, phone: "0912345678", amount: 99, provider: "bank",
+        planId: 2, planName: "الخطة المدفوعة", status: "pending",
+        metadata: null as Record<string, unknown> | null,
+        user: { id: 42, telegramChatId: null as string | null },
+};
 
-  function verifySessionToken(token: string, secret: string): Record<string, unknown> | null {
-    try {
-      const parts = token.split(".");
-      if (parts.length !== 3) return null;
-      const [header, body, signature] = parts;
-      const expectedSig = createHmac("sha256", secret).update(`${header}.${body}`).digest("base64url");
-      const sigBuf = Buffer.from(signature, "base64url");
-      const expBuf = Buffer.from(expectedSig, "base64url");
-      if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) return null;
-      const payload = JSON.parse(Buffer.from(body, "base64url").toString());
-      if (payload.exp < Math.floor(Date.now() / 1000)) return null;
-      return payload;
-    } catch { return null; }
-  }
+const ORIGINAL_ADMIN_IDS = process.env.TELEGRAM_ADMIN_IDS;
 
-  const payload = { userId: 42, role: "owner" };
-  const token = createSessionToken(payload, SECRET);
+beforeEach(() => {
+        vi.clearAllMocks();
+        delete process.env.TELEGRAM_ADMIN_IDS;
 
-  it("createSessionToken returns string with 3 dot-separated parts", () => {
-    expect(typeof token).toBe("string");
-    expect(token.split(".")).toHaveLength(3);
-  });
+        // tx افتراضي ناجح لمسار resolveSubscriptionPayment
+        mockPrisma.$transaction.mockImplementation(
+                async (fn: (tx: typeof txMock) => Promise<unknown>) => fn(txMock),
+        );
+        txMock.subscriptionPayment.update.mockResolvedValue({ id: 50, status: "verified" });
+        txMock.subscriptionPayment.updateMany.mockResolvedValue({ count: 1 });
+        txMock.restaurant.findUnique.mockResolvedValue(null);
+        txMock.restaurant.create.mockResolvedValue({ id: 91, name: "مطعم", slug: "restaurant-50" });
+        txMock.subscriptionPlan.findUnique.mockResolvedValue({ maxMenus: 5, maxItems: 50, maxOrders: 500 });
+        txMock.userRestaurant.count.mockResolvedValue(0);
+        txMock.user.update.mockResolvedValue({ id: 42, username: "u", role: "owner", subscriptionStatus: "PAID", restaurantId: 91 });
+        txMock.user.updateMany.mockResolvedValue({ count: 1 });
+        txMock.systemEvent.create.mockResolvedValue({});
+        txMock.menuCategory.createMany.mockResolvedValue({ count: 4 });
+        txMock.userRestaurant.create.mockResolvedValue({});
+        txMock.$queryRaw.mockResolvedValue([]);
 
-  it("round-trips userId and role", () => {
-    const decoded = verifySessionToken(token, SECRET);
-    expect(decoded).not.toBeNull();
-    if (decoded) {
-      expect(decoded.userId).toBe(42);
-      expect(decoded.role).toBe("owner");
-      expect(typeof decoded.iat).toBe("number");
-      expect(typeof decoded.exp).toBe("number");
-    }
-  });
-
-  it("wrong secret -> null", () => {
-    expect(verifySessionToken(token, "wrong-secret")).toBeNull();
-  });
-
-  it("tampered payload -> null", () => {
-    const parts = token.split(".");
-    const tampered = Buffer.from(JSON.stringify({ userId: 999 })).toString("base64url");
-    const forged = `${parts[0]}.${tampered}.${parts[2]}`;
-    expect(verifySessionToken(forged, SECRET)).toBeNull();
-  });
-
-  it("malformed/empty token -> null", () => {
-    expect(verifySessionToken("not-a-jwt", SECRET)).toBeNull();
-    expect(verifySessionToken("a.b", SECRET)).toBeNull();
-    expect(verifySessionToken("", SECRET)).toBeNull();
-  });
-
-  it("expired token -> null", () => {
-    expect(verifySessionToken(createSessionToken(payload, SECRET, -1), SECRET)).toBeNull();
-  });
-
-  it("second token is valid", () => {
-    const t2 = createSessionToken(payload, SECRET);
-    expect(typeof t2).toBe("string");
-    expect(t2.split(".")).toHaveLength(3);
-    expect(verifySessionToken(t2, SECRET)).not.toBeNull();
-  });
-
-  it("custom extra fields survive round-trip", () => {
-    const custom = createSessionToken({ userId: 7, role: "admin", restaurantId: 3 }, SECRET);
-    const dec = verifySessionToken(custom, SECRET);
-    expect(dec).not.toBeNull();
-    if (dec) expect(dec.restaurantId).toBe(3);
-  });
+        mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT });
+        mockApproverFindMany.mockResolvedValue([]);
 });
 
-// ════════════════════════════════════════════════════════════════════
-// 3. csrf-client.ts — fetch wrapper adds CSRF header to mutations
-// ════════════════════════════════════════════════════════════════════
+afterEach(() => {
+        if (ORIGINAL_ADMIN_IDS === undefined) delete process.env.TELEGRAM_ADMIN_IDS;
+        else process.env.TELEGRAM_ADMIN_IDS = ORIGINAL_ADMIN_IDS;
+});
+
+// ═════════════════════════════════════════════════════════════════
+// 1. csrf-client.ts — fetch wrapper adds CSRF header to mutations
+//    (كان فعليًا؛ التنظيف: typed mock harness بلا any)
+// ═════════════════════════════════════════════════════════════════
 
 describe("csrf-client.ts", () => {
-  const CSRF_COOKIE = "csrf-token";
-  const CSRF_HEADER = "x-csrf-token";
-  let origFetch: typeof globalThis.fetch;
-  let origCookie: string | undefined;
-  const calls: any[] = [];
+        // round92-C1: shim مطبوع (بلا any) — globalThis.document في lib.dom
+        // هو Document؛ نستبدله مؤقتًا بكائن { cookie } كما يفعل csrf-client.
+        type DocumentShim = { cookie: string };
+        type GlobalsShim = { document?: DocumentShim; fetch: typeof globalThis.fetch };
+        type RecordedCall = { input: RequestInfo | URL; init?: RequestInit };
+        const calls: RecordedCall[] = [];
+        let origFetch: typeof globalThis.fetch;
+        let origDocument: DocumentShim | undefined;
 
-  beforeEach(() => {
-    origFetch = globalThis.fetch;
-    origCookie = (globalThis as any).document?.cookie;
-    calls.length = 0;
-  });
+        beforeEach(() => {
+                origFetch = globalThis.fetch;
+                const g = globalThis as unknown as GlobalsShim;
+                origDocument = g.document;
+                calls.length = 0;
+                g.document = { cookie: `${CSRF_COOKIE}=mock-token` };
+                globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+                        calls.push({ input, init });
+                        return Promise.resolve(new Response(null, { status: 200 }));
+                };
+        });
 
-  afterEach(() => {
-    globalThis.fetch = origFetch;
-    (globalThis as any).document = { cookie: origCookie ?? "" };
-  });
+        afterEach(() => {
+                globalThis.fetch = origFetch;
+                (globalThis as unknown as GlobalsShim).document = origDocument;
+        });
 
-  async function setupFetch(mockToken: string) {
-    (globalThis as any).document = { cookie: `${CSRF_COOKIE}=${mockToken}` };
-    globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
-      calls.push({ input, init });
-      return Promise.resolve(new Response(null, { status: 200 }));
-    };
-    return (await import("../../src/lib/csrf-client")).csrfFetch;
-  }
+        function lastHeaders(): Record<string, string> {
+                const headers = calls[0]?.init?.headers;
+                return (headers ?? {}) as Record<string, string>;
+        }
 
-  it("GET — no CSRF header added", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test");
-    expect(calls).toHaveLength(1);
-    expect(!calls[0].init || !(calls[0].init as any).headers).toBe(true);
-  });
+        it("GET — no CSRF header added", async () => {
+                await csrfFetch("/api/test");
+                expect(calls).toHaveLength(1);
+                expect(CSRF_HEADER in lastHeaders()).toBe(false);
+        });
 
-  it("POST adds CSRF header", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test", { method: "POST" });
-    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
-  });
+        it("POST adds CSRF header", async () => {
+                await csrfFetch("/api/test", { method: "POST" });
+                expect(lastHeaders()[CSRF_HEADER]).toBe("mock-token");
+        });
 
-  it("PUT adds CSRF header", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test", { method: "PUT" });
-    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
-  });
+        it("PUT adds CSRF header", async () => {
+                await csrfFetch("/api/test", { method: "PUT" });
+                expect(lastHeaders()[CSRF_HEADER]).toBe("mock-token");
+        });
 
-  it("DELETE adds CSRF header", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test", { method: "DELETE" });
-    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
-  });
+        it("DELETE adds CSRF header", async () => {
+                await csrfFetch("/api/test", { method: "DELETE" });
+                expect(lastHeaders()[CSRF_HEADER]).toBe("mock-token");
+        });
 
-  it("PATCH adds CSRF header", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test", { method: "PATCH" });
-    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
-  });
+        it("PATCH adds CSRF header", async () => {
+                await csrfFetch("/api/test", { method: "PATCH" });
+                expect(lastHeaders()[CSRF_HEADER]).toBe("mock-token");
+        });
 
-  it("preserves original headers while adding CSRF", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test", { method: "POST", headers: { "Content-Type": "application/json" } });
-    expect((calls[0].init as any).headers["Content-Type"]).toBe("application/json");
-    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
-  });
+        it("preserves original headers while adding CSRF", async () => {
+                await csrfFetch("/api/test", { method: "POST", headers: { "Content-Type": "application/json" } });
+                expect(lastHeaders()["Content-Type"]).toBe("application/json");
+                expect(lastHeaders()[CSRF_HEADER]).toBe("mock-token");
+        });
 
-  it("lowercase POST still adds header", async () => {
-    const csrfFetch = await setupFetch("mock-token");
-    await csrfFetch("/api/test", { method: "post" });
-    expect((calls[0].init as any).headers[CSRF_HEADER]).toBe("mock-token");
-  });
+        it("lowercase POST still adds header", async () => {
+                await csrfFetch("/api/test", { method: "post" });
+                expect(lastHeaders()[CSRF_HEADER]).toBe("mock-token");
+        });
 });
 
-// ════════════════════════════════════════════════════════════════════
-// 4. auth.ts — requireAuth / requireAdmin / requirePermission logic
-// ════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
+// 2. auth.ts — requireAuth / requireAdmin / requirePermission الحقيقية
+//    (src/lib/auth.ts) بـvalidateSession وgetUserById مزيّفين.
+// ═════════════════════════════════════════════════════════════════
 
-describe("auth.ts", () => {
-  type AuthResult = {
-    authorized: true; userId: number; role: string;
-    restaurantId: number | null; subscriptionStatus: string | null; permissions: string[];
-  };
-
-  async function mockRequireAuth(
-    session: { valid: boolean; userId: number | null },
-    user: AuthResult | null,
-    opts?: { requireRestaurant?: boolean },
-  ): Promise<AuthResult | { authorized: false }> {
-    if (session.valid && session.userId) {
-      if (user) {
-        if (opts?.requireRestaurant && !user.restaurantId) return { authorized: false as const };
-        return user;
-      }
-    }
-    return { authorized: false as const };
-  }
-
-  function mockRequireAdmin(auth: AuthResult | { authorized: false }): AuthResult | { authorized: false } {
-    if (!auth.authorized) return { authorized: false as const };
-    if (!["super_admin", "sub_admin", "admin"].includes(auth.role)) return { authorized: false as const };
-    return auth;
-  }
-
-  function mockRequirePermission(
-    auth: AuthResult | { authorized: false }, permission: string,
-  ): AuthResult | { authorized: false; error: string; status: number } {
-    if (!auth.authorized) return { authorized: false, error: "غير مصرح", status: 401 };
-    if (auth.role === "super_admin" || auth.role === "admin") return auth;
-    if (auth.role === "sub_admin" && auth.permissions?.includes(permission)) return auth;
-    return { authorized: false, error: "لا تملك الصلاحية", status: 403 };
-  }
-
-  const validSession = { valid: true as const, userId: 1 };
-  const badSession = { valid: false as const, userId: null };
-
-  const admin: AuthResult = {
-    authorized: true, userId: 1, role: "admin",
-    restaurantId: 5, subscriptionStatus: "active", permissions: [],
-  };
-  const superAdmin: AuthResult = {
-    authorized: true, userId: 2, role: "super_admin",
-    restaurantId: null, subscriptionStatus: "active", permissions: [],
-  };
-  const subYes: AuthResult = {
-    authorized: true, userId: 3, role: "sub_admin",
-    restaurantId: 10, subscriptionStatus: "active", permissions: ["manage_orders"],
-  };
-  const subNo: AuthResult = {
-    authorized: true, userId: 4, role: "sub_admin",
-    restaurantId: 10, subscriptionStatus: "active", permissions: [],
-  };
-  const member: AuthResult = {
-    authorized: true, userId: 5, role: "member",
-    restaurantId: null, subscriptionStatus: "active", permissions: [],
-  };
-
+describe("auth.ts (real requireAuth/requireAdmin/requirePermission)", () => {
   describe("requireAuth", () => {
     it("invalid session -> unauthorized", async () => {
-      expect((await mockRequireAuth(badSession, null)).authorized).toBe(false);
+      vi.mocked(session.validateSession).mockResolvedValue(badSession);
+      expect((await requireAuth()).authorized).toBe(false);
     });
     it("user null -> unauthorized", async () => {
-      expect((await mockRequireAuth(validSession, null)).authorized).toBe(false);
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue(null);
+      expect((await requireAuth()).authorized).toBe(false);
     });
     it("valid session + user -> authorized", async () => {
-      const r = await mockRequireAuth(validSession, admin);
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue(admin);
+      const r = await requireAuth();
       expect(r.authorized).toBe(true);
       if (r.authorized) {
         expect(r.userId).toBe(1);
         expect(r.role).toBe("admin");
         expect(r.restaurantId).toBe(5);
-        expect(r.subscriptionStatus).toBe("active");
+        expect(r.subscriptionStatus).toBe("PAID");
       }
     });
     it("requireRestaurant blocks null restaurantId", async () => {
-      expect((await mockRequireAuth(validSession, { ...member, restaurantId: null }, { requireRestaurant: true })).authorized).toBe(false);
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue({ ...member, restaurantId: null });
+      expect((await requireAuth({ requireRestaurant: true })).authorized).toBe(false);
     });
     it("requireRestaurant allows with restaurantId", async () => {
-      expect((await mockRequireAuth(validSession, { ...member, restaurantId: 7 }, { requireRestaurant: true })).authorized).toBe(true);
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue({ ...member, restaurantId: 7 });
+      expect((await requireAuth({ requireRestaurant: true })).authorized).toBe(true);
     });
     it("expired session -> unauthorized", async () => {
-      expect((await mockRequireAuth({ valid: false, userId: 1 }, admin)).authorized).toBe(false);
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: false, userId: 1 });
+      vi.mocked(getUserById).mockResolvedValue(admin);
+      expect((await requireAuth()).authorized).toBe(false);
     });
     it("valid but no userId -> unauthorized", async () => {
-      expect((await mockRequireAuth({ valid: true, userId: null }, admin)).authorized).toBe(false);
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: null });
+      vi.mocked(getUserById).mockResolvedValue(admin);
+      expect((await requireAuth()).authorized).toBe(false);
     });
   });
 
   describe("requireAdmin", () => {
-    it("admin role -> authorized", () => expect(mockRequireAdmin(admin).authorized).toBe(true));
-    it("super_admin role -> authorized", () => expect(mockRequireAdmin(superAdmin).authorized).toBe(true));
-    it("sub_admin role -> authorized", () => expect(mockRequireAdmin(subYes).authorized).toBe(true));
-    it("member role -> unauthorized", () => expect(mockRequireAdmin(member).authorized).toBe(false));
-    it("unauthenticated -> unauthorized", () => expect(mockRequireAdmin({ authorized: false }).authorized).toBe(false));
+    it("admin role -> authorized", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue(admin);
+      expect((await requireAdmin()).authorized).toBe(true);
+    });
+    it("super_admin role -> authorized", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 2 });
+      vi.mocked(getUserById).mockResolvedValue(superAdmin);
+      expect((await requireAdmin()).authorized).toBe(true);
+    });
+    it("sub_admin role -> authorized", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 3 });
+      vi.mocked(getUserById).mockResolvedValue(subYes);
+      expect((await requireAdmin()).authorized).toBe(true);
+    });
+    it("member role -> unauthorized (round91-F-B: 403 + Arabic error for wrong role)", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue(member);
+      const r = await requireAdmin();
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) {
+        expect(r.status).toBe(403);
+        expect(r.error).toBe("لا تملك الصلاحية");
+      }
+    });
+    it("unauthenticated -> unauthorized (401 + «غير مصرح»)", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(badSession);
+      const r = await requireAdmin();
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) {
+        expect(r.status).toBe(401);
+        expect(r.error).toBe("غير مصرح");
+      }
+    });
   });
 
   describe("requirePermission", () => {
-    it("unauthenticated -> 401", () => {
-      const r = mockRequirePermission({ authorized: false }, "manage_orders");
+    it("unauthenticated -> 401", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(badSession);
+      const r = await requirePermission("APPROVE_ORDERS");
       expect(r.authorized).toBe(false);
       if (!r.authorized) expect(r.status).toBe(401);
     });
-    it("super_admin bypasses permission", () => expect(mockRequirePermission(superAdmin, "anything").authorized).toBe(true));
-    it("admin bypasses permission", () => expect(mockRequirePermission(admin, "anything").authorized).toBe(true));
-    it("sub_admin matching permission -> allowed", () => expect(mockRequirePermission(subYes, "manage_orders").authorized).toBe(true));
-    it("sub_admin missing permission -> 403", () => {
-      const r = mockRequirePermission(subNo, "manage_orders");
+    it("super_admin bypasses permission", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 2 });
+      vi.mocked(getUserById).mockResolvedValue(superAdmin);
+      expect((await requirePermission("anything")).authorized).toBe(true);
+    });
+    it("admin bypasses permission", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue(admin);
+      expect((await requirePermission("anything")).authorized).toBe(true);
+    });
+    it("sub_admin matching permission -> allowed", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 3 });
+      vi.mocked(getUserById).mockResolvedValue(subYes);
+      expect((await requirePermission("APPROVE_ORDERS")).authorized).toBe(true);
+    });
+    it("sub_admin missing permission -> 403", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 4 });
+      vi.mocked(getUserById).mockResolvedValue(subNo);
+      const r = await requirePermission("APPROVE_ORDERS");
       expect(r.authorized).toBe(false);
       if (!r.authorized) expect(r.status).toBe(403);
     });
-    it("sub_admin wrong permission -> 403", () => {
-      const r = mockRequirePermission(subYes, "manage_users");
+    it("sub_admin wrong permission -> 403", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 3 });
+      vi.mocked(getUserById).mockResolvedValue(subYes);
+      const r = await requirePermission("MANAGE_USERS");
       expect(r.authorized).toBe(false);
       if (!r.authorized) expect(r.status).toBe(403);
     });
-    it("member -> 403", () => {
-      const r = mockRequirePermission(member, "anything");
+    it("member -> 403", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(validSession);
+      vi.mocked(getUserById).mockResolvedValue(member);
+      const r = await requirePermission("anything");
       expect(r.authorized).toBe(false);
       if (!r.authorized) expect(r.status).toBe(403);
     });
-    it("super_admin with no-restaurant check passes", () => {
-      expect(mockRequirePermission(superAdmin, "anything").authorized).toBe(true);
+    it("super_admin with no-restaurant check passes", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 2 });
+      vi.mocked(getUserById).mockResolvedValue(superAdmin);
+      expect((await requirePermission("anything")).authorized).toBe(true);
     });
-    it("403 error message is string and non-empty", () => {
-      const r = mockRequirePermission(subNo, "manage_orders") as { authorized: false; error: string; status: number };
-      expect(typeof r.error).toBe("string");
-      expect(r.error.length).toBeGreaterThan(0);
+    it("403 error message is string and non-empty", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue({ valid: true, userId: 4 });
+      vi.mocked(getUserById).mockResolvedValue(subNo);
+      const r = await requirePermission("APPROVE_ORDERS");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) {
+        expect(typeof r.error).toBe("string");
+        expect(r.error.length).toBeGreaterThan(0);
+      }
     });
-    it("401 error message is string and non-empty", () => {
-      const r = mockRequirePermission({ authorized: false }, "x") as { authorized: false; error: string; status: number };
-      expect(typeof r.error).toBe("string");
-      expect(r.error.length).toBeGreaterThan(0);
+    it("401 error message is string and non-empty", async () => {
+      vi.mocked(session.validateSession).mockResolvedValue(badSession);
+      const r = await requirePermission("x");
+      expect(r.authorized).toBe(false);
+      if (!r.authorized) {
+        expect(typeof r.error).toBe("string");
+        expect(r.error.length).toBeGreaterThan(0);
+      }
     });
   });
 });
 
-// ════════════════════════════════════════════════════════════════════
-// 5. subscription-decisions.ts — resolveSubscriptionPayment gates + decision map
-// ════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
+// 3. subscription-decisions.ts — resolveSubscriptionPayment الحقيقية
+//    (بوابات الدخول + خريطة القرار؛ tx-mock بلا DB حقيقي).
+// ═════════════════════════════════════════════════════════════════
 
-describe("subscription-decisions.ts", () => {
-  type MockPayment = { id: number; status: string; userId: number | null };
-
-  function mockResolveSubscriptionPayment(
-    payment: MockPayment | null,
-    decision: string,
-  ): { ok: boolean; action?: string; paymentId?: number; reason?: string } {
-    if (!payment) return { ok: false, reason: "الطلب غير موجود" };
-    if (payment.status !== "pending") return { ok: false, reason: "تمت معالجة هذا الطلب مسبقاً" };
-    if (decision === "verified") return { ok: true, action: "verified", paymentId: payment.id };
-    if (decision === "cancelled") return { ok: true, action: "cancelled", paymentId: payment.id };
-    return { ok: false, reason: "قرار غير معروف" };
-  }
-
-  it("null payment -> not-found reason", () => {
-    const r = mockResolveSubscriptionPayment(null, "verified");
+describe("subscription-decisions.ts (real resolveSubscriptionPayment)", () => {
+  it("null payment -> not-found reason", async () => {
+    mockPaymentFindUnique.mockResolvedValue(null);
+    const r = await resolveSubscriptionPayment(1, "verified");
     expect(r.ok).toBe(false);
-    expect(r.reason).toBe("الطلب غير موجود");
+    if (!r.ok) expect(r.reason).toBe("الطلب غير موجود");
   });
 
-  it("non-pending payment -> already-processed reason", () => {
-    const verified = mockResolveSubscriptionPayment({ id: 1, status: "verified", userId: 1 }, "verified");
+  it("non-pending payment -> already-processed reason", async () => {
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 1, status: "verified", userId: 1 });
+    const verified = await resolveSubscriptionPayment(1, "verified");
     expect(verified.ok).toBe(false);
-    expect(verified.reason).toBe("تمت معالجة هذا الطلب مسبقاً");
+    if (!verified.ok) expect(verified.reason).toBe("تمت معالجة هذا الطلب مسبقاً");
 
-    const cancelled = mockResolveSubscriptionPayment({ id: 2, status: "cancelled", userId: 1 }, "verified");
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 2, status: "cancelled", userId: 1 });
+    const cancelled = await resolveSubscriptionPayment(2, "verified");
     expect(cancelled.ok).toBe(false);
   });
 
-  it('decision "verified" -> action verified', () => {
-    const r = mockResolveSubscriptionPayment({ id: 10, status: "pending", userId: 5 }, "verified");
+  it('decision "verified" -> action verified', async () => {
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 10, userId: 5, status: "pending" });
+    const r = await resolveSubscriptionPayment(10, "verified");
     expect(r.ok).toBe(true);
-    expect(r.action).toBe("verified");
-    expect(r.paymentId).toBe(10);
+    if (r.ok) {
+      expect(r.action).toBe("verified");
+      expect(r.paymentId).toBe(10);
+    }
+    expect(txMock.subscriptionPayment.update).toHaveBeenCalledWith({
+      where: { id: 10, status: "pending" },
+      data: { status: "verified" },
+    });
   });
 
-  it('decision "cancelled" -> action cancelled', () => {
-    const r = mockResolveSubscriptionPayment({ id: 20, status: "pending", userId: 6 }, "cancelled");
+  it('decision "cancelled" -> action cancelled', async () => {
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 20, userId: 6, status: "pending" });
+    const r = await resolveSubscriptionPayment(20, "cancelled");
     expect(r.ok).toBe(true);
-    expect(r.action).toBe("cancelled");
-    expect(r.paymentId).toBe(20);
+    if (r.ok) {
+      expect(r.action).toBe("cancelled");
+      expect(r.paymentId).toBe(20);
+    }
+    expect(txMock.subscriptionPayment.updateMany).toHaveBeenCalledWith({
+      where: { id: 20, status: "pending" },
+      data: { status: "cancelled" },
+    });
   });
 
-  it("pending with null userId still resolves", () => {
-    const r = mockResolveSubscriptionPayment({ id: 30, status: "pending", userId: null }, "cancelled");
+  it("pending with null userId still resolves", async () => {
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 30, userId: null, status: "pending", user: null });
+    const r = await resolveSubscriptionPayment(30, "cancelled");
     expect(r.ok).toBe(true);
-    expect(r.action).toBe("cancelled");
+    if (r.ok) expect(r.action).toBe("cancelled");
+    expect(txMock.user.updateMany).not.toHaveBeenCalled();
   });
 
-  it("multiple payments get independent results", () => {
-    const a = mockResolveSubscriptionPayment({ id: 100, status: "pending", userId: 1 }, "verified");
-    const b = mockResolveSubscriptionPayment({ id: 200, status: "pending", userId: 2 }, "cancelled");
-    expect(a.action).toBe("verified");
-    expect(b.action).toBe("cancelled");
-    expect(a.paymentId).toBe(100);
-    expect(b.paymentId).toBe(200);
+  it("multiple payments get independent results", async () => {
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 100, userId: 1, status: "pending" });
+    const a = await resolveSubscriptionPayment(100, "verified");
+    mockPaymentFindUnique.mockResolvedValue({ ...PAYMENT, id: 200, userId: 2, status: "pending" });
+    const b = await resolveSubscriptionPayment(200, "cancelled");
+    if (a.ok && b.ok) {
+      expect(a.action).toBe("verified");
+      expect(b.action).toBe("cancelled");
+      expect(a.paymentId).toBe(100);
+      expect(b.paymentId).toBe(200);
+    } else {
+      expect.unreachable("both should resolve ok");
+    }
   });
 });
 
-// ════════════════════════════════════════════════════════════════════
-// 6. telegram-admin.ts — getAdminTelegramIds parses env, merges DB, deduplicates
-// ════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════
+// 4. telegram-admin.ts — getAdminTelegramIds الحقيقية
+//    (src/lib/telegram-admin.ts — كانت تغطيتها 0%): تحليل env + دمج DB
+//    + إزالة التكرار + تحويل BigInt.
+// ═════════════════════════════════════════════════════════════════
 
-describe("telegram-admin.ts — getAdminTelegramIds", () => {
-  function mockGetAdminTelegramIds(envVar: string, dbApprovers: Array<{ telegramId: bigint | number }>): number[] {
-    const envIds = (envVar ?? "")
-      .split(",")
-      .map((s) => Number(s.trim()))
-      .filter((n: number) => Number.isFinite(n) && n > 0);
-    const dbIds = dbApprovers
-      .map((a) => Number(a.telegramId))
-      .filter((n: number) => Number.isFinite(n) && n > 0);
-    return [...new Set([...envIds, ...dbIds])];
-  }
-
-  it("single env ID parsed", () => expect(mockGetAdminTelegramIds("123456", [])).toEqual([123456]));
-  it("multiple env IDs parsed", () => expect(mockGetAdminTelegramIds("111,222,333", [])).toEqual([111, 222, 333]));
-  it("DB BigInt ID included", () => expect(mockGetAdminTelegramIds("", [{ telegramId: BigInt(999) }])).toEqual([999]));
-  it("env + DB merged", () => expect(mockGetAdminTelegramIds("100", [{ telegramId: BigInt(200) }, { telegramId: BigInt(300) }])).toEqual([100, 200, 300]));
-  it("overlapping IDs deduplicated", () => {
-    const r = mockGetAdminTelegramIds("500,600", [{ telegramId: BigInt(600) }, { telegramId: BigInt(700) }]);
+describe("telegram-admin.ts — getAdminTelegramIds (real)", () => {
+  it("single env ID parsed", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "123456";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([123456]);
+  });
+  it("multiple env IDs parsed", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "111,222,333";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([111, 222, 333]);
+  });
+  it("DB BigInt ID included", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "";
+    mockApproverFindMany.mockResolvedValue([{ telegramId: 999n }]);
+    expect(await getAdminTelegramIds()).toEqual([999]);
+  });
+  it("env + DB merged", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "100";
+    mockApproverFindMany.mockResolvedValue([{ telegramId: 200n }, { telegramId: 300n }]);
+    expect(await getAdminTelegramIds()).toEqual([100, 200, 300]);
+  });
+  it("overlapping IDs deduplicated", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "500,600";
+    mockApproverFindMany.mockResolvedValue([{ telegramId: 600n }, { telegramId: 700n }]);
+    const r = await getAdminTelegramIds();
     expect(r).toEqual([500, 600, 700]);
     expect(r).toHaveLength(3);
   });
-  it("empty env + empty DB -> []", () => expect(mockGetAdminTelegramIds("", [])).toEqual([]));
-  it("invalid env IDs filtered out", () => expect(mockGetAdminTelegramIds("abc,0,-5,42,NaN", [])).toEqual([42]));
-  it("invalid DB IDs filtered out", () => expect(mockGetAdminTelegramIds("", [{ telegramId: BigInt(0) }, { telegramId: BigInt(-1) }, { telegramId: BigInt(77) }])).toEqual([77]));
-  it("whitespace in env var handled", () => expect(mockGetAdminTelegramIds(" 10 , 20 ,30", [])).toEqual([10, 20, 30]));
-  it("large safe integer passes", () => expect(mockGetAdminTelegramIds("9007199254740991", [])).toEqual([9007199254740991]));
-  it("duplicates within env var deduplicated", () => expect(mockGetAdminTelegramIds("1,2,2,3", [])).toEqual([1, 2, 3]));
+  it("empty env + empty DB -> []", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([]);
+  });
+  it("invalid env IDs filtered out", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "abc,0,-5,42,NaN";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([42]);
+  });
+  it("invalid DB IDs filtered out", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "";
+    mockApproverFindMany.mockResolvedValue([{ telegramId: 0n }, { telegramId: -1n }, { telegramId: 77n }]);
+    expect(await getAdminTelegramIds()).toEqual([77]);
+  });
+  it("whitespace in env var handled", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = " 10 , 20 ,30";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([10, 20, 30]);
+  });
+  it("large safe integer passes", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "9007199254740991";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([9007199254740991]);
+  });
+  it("duplicates within env var deduplicated", async () => {
+    process.env.TELEGRAM_ADMIN_IDS = "1,2,2,3";
+    mockApproverFindMany.mockResolvedValue([]);
+    expect(await getAdminTelegramIds()).toEqual([1, 2, 3]);
+  });
 });
