@@ -15,7 +15,15 @@ const loginSchema = z.object({
         password: passwordPresence,
 });
 
-const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
+// round92: exemptFromRelax — the e2e security suite (rbac-negative "11 failed
+// logins for one (ip, username) bucket → 429") asserts THIS limiter's real
+// budget; under RATE_LIMIT_TEST_RELAX/RELAX it widened (10→1000) and the 11th
+// attempt stopped being blocked (CI run on e0b0b1d0). Same documented
+// precedent as accountLimiter below. Cross-persona logins each mint their own
+// ip:username bucket, so the real budget stays generous for legitimate e2e
+// flows (proven: CI ran real-budget login since r86 — relax never worked
+// under the standalone server's forced NODE_ENV=production).
+const loginLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10, exemptFromRelax: true });
 // round90-F6: dummy hash for timing equalization — a missing user used to
 // return before verifyHash (~0ms) while an existing user pays the full
 // pbkdf2 cost (~290ms at 600k iterations), making username enumeration
