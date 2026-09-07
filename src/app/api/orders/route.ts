@@ -76,7 +76,16 @@ export async function GET(request: NextRequest) {
                                 restaurantId = auth.restaurantId ?? undefined;
                         }
                         if (!restaurantId) return apiError('لا يوجد مطعم مرتبط', 400);
-                } else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+                } else if (auth.role === 'admin' || auth.role === 'super_admin') {
+                        // full access (legacy admin trust — same as requirePermission semantics)
+                } else if (auth.role === 'sub_admin') {
+                        // round92-B1: sub_admin now needs APPROVE_ORDERS for the LIST too —
+                        // the same gate /api/orders/[id]:49-51 already applies to the single
+                        // order read (and whatsapp/generate). Role membership alone used to
+                        // expose platform-wide customer PII (customerName/customerPhone in
+                        // the select below) to zero-permission sub_admins.
+                        if (!(auth.permissions ?? []).includes('APPROVE_ORDERS')) return apiError('لا تملك الصلاحية', 403);
+                } else {
                         return apiError('غير مصرح', 403);
                 }
 

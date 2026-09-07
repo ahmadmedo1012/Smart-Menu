@@ -140,12 +140,21 @@ describe('GET /api/orders — authorization matrix', () => {
                 expect(where).not.toHaveProperty('restaurantId');
         });
 
-        it('sub_admin passes the role gate (sees all)', async () => {
-                authHolder.value = { authorized: true, role: 'sub_admin', restaurantId: null, userId: 3, permissions: [] };
+        it('sub_admin WITH APPROVE_ORDERS passes the role gate (sees all) — round92-B1: the LIST now demands the same permission as /api/orders/[id]', async () => {
+                authHolder.value = { authorized: true, role: 'sub_admin', restaurantId: null, userId: 3, permissions: ['APPROVE_ORDERS'] };
 
                 const res = await callList();
 
                 expect(res.status).toBe(200);
+        });
+
+        it('round92-B1: sub_admin WITHOUT APPROVE_ORDERS → 403, the platform-wide PII list never runs', async () => {
+                authHolder.value = { authorized: true, role: 'sub_admin', restaurantId: null, userId: 3, permissions: [] };
+
+                const res = await callList();
+
+                expect(res.status).toBe(403);
+                expect(mockOrderFindMany).not.toHaveBeenCalled();
         });
 });
 

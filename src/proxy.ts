@@ -95,6 +95,21 @@ export function proxy(request: NextRequest) {
                 // trust, which would block ALL scripts on nonce-less public pages
                 // (Suspense never resolves, page stuck on skeleton).
                 // No x-nonce request header is forwarded to the app.
+                //
+                // round92-A2/A8 (evaluated, decision: KEEP this branch for /menu/*):
+                // the 1-a audit's "paradox" — menu pages were 100% dynamically rendered
+                // yet got this static CSP — was a SYMPTOM of the dead ISR, not a CSP bug.
+                // A2 fixed the root cause (generateStaticParams → on-demand ISR 60s in
+                // menu/[slug]/page.tsx), so menu pages are now prerendered/ISR-cached
+                // and this nonce-less policy is architecturally correct again (r86
+                // trade-off: no per-request render context → no nonce to stamp).
+                // Enabling the nonce flow below for ISR pages would break them: the
+                // cached HTML is generated without a nonce and 'strict-dynamic' would
+                // block every script on it. The proxy CANNOT branch on the response's
+                // actual cache state (x-vercel-cache/x-nextjs-prerender are RESPONSE
+                // headers — middleware runs before the render exists), so the
+                // pathname-list branch stays the only implementable form; the A2 fix
+                // is what keeps the list aligned with reality.
                 const csp = [
                         "default-src 'self'",
                         "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
@@ -115,6 +130,13 @@ export function proxy(request: NextRequest) {
                 resp.headers.set('Content-Security-Policy', csp);
                 // Cacheable pages: no CSRF cookie is minted above (no set-cookie), so
                 // the response can be cached by CDN/ISR.
+                // round92-A2 (header precedence, live-verified): on Vercel this header
+                // does NOT control the final caching of a DYNAMICALLY rendered page —
+                // the platform answers with private,no-cache,no-store for those (1-a
+                // saw exactly that on /menu/* despite this rule). For prerendered/ISR
+                // pages it aligns with the route's own s-maxage=60. Self-hosted note:
+                // Next's sendRenderResult refuses to override an already-set
+                // Cache-Control (server/send-payload.js), so this value sticks there.
                 resp.headers.set(
                         'Cache-Control',
                         'public, max-age=60, s-maxage=60, stale-while-revalidate=86400'

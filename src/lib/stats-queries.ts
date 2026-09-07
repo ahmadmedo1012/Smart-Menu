@@ -22,6 +22,9 @@ export interface ScopeAuth {
         userId: number;
         role: string;
         restaurantId: number | null;
+        /** round92-B1: sub_admin permission list (requireAuth already carries it —
+         *  optional so legacy callers/tests that omit it stay type-compatible). */
+        permissions?: string[];
 }
 
 export type ScopeResult =
@@ -31,7 +34,10 @@ export type ScopeResult =
 /**
  * Resolve which restaurant's stats the caller may read:
  * - owner → own restaurant (or an explicitly linked one, verified via UserRestaurant)
- * - admin / super_admin / sub_admin → any restaurant (must be passed explicitly)
+ * - admin / super_admin → any restaurant (must be passed explicitly)
+ * - sub_admin → any restaurant, but only with the VIEW_ANALYTICS permission
+ *   (round92-B1 — same gate as admin/stats:236 and restaurants/[id]:88-90;
+ *   role membership alone no longer unlocks revenue + referrer PII)
  * - anything else → 403
  *
  * Identical logic + error messages previously duplicated in both
@@ -55,7 +61,16 @@ export async function resolveRestaurantScope(
                         restaurantId = auth.restaurantId ?? undefined;
                 }
                 if (!restaurantId) return { ok: false, response: error('لا يوجد مطعم مرتبط', 400) };
-        } else if (auth.role !== 'admin' && auth.role !== 'super_admin' && auth.role !== 'sub_admin') {
+        } else if (auth.role === 'admin' || auth.role === 'super_admin') {
+                // full access (legacy admin trust — same as requirePermission semantics)
+        } else if (auth.role === 'sub_admin') {
+                // round92-B1: revenue + referrer names/phones (loyalty/stats) are
+                // analytics-grade PII — a zero-permission sub_admin must not read
+                // them. Same permission + Arabic message as the governed routes.
+                if (!(auth.permissions ?? []).includes('VIEW_ANALYTICS')) {
+                        return { ok: false, response: error('لا تملك الصلاحية', 403) };
+                }
+        } else {
                 // Regular users must never read stats (revenue/orders) or customer PII of any restaurant
                 return { ok: false, response: error('غير مصرح', 403) };
         }

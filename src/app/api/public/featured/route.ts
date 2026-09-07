@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
+// round92-A1: the r91 local `TEST_FIXTURE_SLUGS` const moved to its single
+// source of truth in @/lib/landing (the RSC homepage path had NO exclusion —
+// prod visitors saw the fixtures there). Import-only change: the where
+// clause below is byte-identical to r91's.
+import { TEST_FIXTURE_SLUGS } from "@/lib/landing";
 
 // R91 F-C (D3 §4 prod data-quality finding): production /api/public/featured
 // was surfacing internal test fixtures — slugs `settings-test-ts` (مطعم
@@ -10,7 +15,6 @@ import { success, handleError } from "@/lib/api-helpers";
 // hide the intended public demo restaurants (al-waha-cafe, al-waha-cafe-demo,
 // al-waha-cafeewewe). Proper long-term fix is deactivating/un-featuring those
 // prod rows — then this list can be emptied.
-const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede"] as const;
 
 // Landing page hits this on every visit — static data (ranked restaurants),
 // safe to revalidate at most every 60s instead of a DB query per request.

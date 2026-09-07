@@ -1,6 +1,25 @@
 import { notFound } from 'next/navigation';
 export const revalidate = 60;
 export const dynamicParams = true;
+
+// round92-A2: ISR was silently dead in production. The App Router contract
+// (next 16 docs, generate-static-params.md): a dynamic segment WITHOUT a
+// generateStaticParams export is rendered dynamically on EVERY request —
+// `revalidate`/`dynamicParams` exports are ignored for it. Live proof
+// (r92 1-a audit): 9 requests on 3 menu slugs → x-vercel-cache: MISS ×9,
+// age:0, cache-control private,no-cache,no-store — while / and /pricing
+// (prerendered) answer in 0.09s vs the menu's 0.42s SSR + 5 Prisma queries
+// per QR scan. The historical comment below ("resolved on demand … the
+// 60-second revalidation still keeps subsequent requests warm") described
+// this exact intent but removing generateStaticParams entirely also removed
+// the ISR path. Returning [] is the documented "all paths at runtime" form:
+// ZERO DB queries at build (the original Neon-timeout concern stays solved
+// — an empty array reads nothing), every slug is generated on first visit
+// and cached with the 60s revalidation. dynamicParams=true (above) keeps
+// unknown slugs generatable on demand; notFound() keeps real 404s for bots.
+export async function generateStaticParams() {
+        return [];
+}
 import { prisma } from '@/lib/db';
 import type { Metadata } from 'next';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
@@ -17,9 +36,11 @@ function sevenDaysAgo() {
 }
 
 // Menu slugs are resolved on demand instead of all being prerendered during
-// every build. A growing restaurant list could otherwise open hundreds of DB
-// queries at once and make deployment depend on a transient Neon timeout.
-// The 60-second revalidation still keeps subsequent requests warm and fresh.
+// every build — generateStaticParams above returns [] (round92-A2), so a
+// growing restaurant list never opens hundreds of DB queries at build time
+// and deployment never depends on a transient Neon timeout. On-demand ISR
+// (round92-A2): the first visit per slug renders and caches the page, and
+// the 60-second revalidation keeps subsequent requests warm and fresh.
 
 export async function generateMetadata({
         params,

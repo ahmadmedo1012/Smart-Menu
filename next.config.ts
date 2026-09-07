@@ -104,6 +104,31 @@ const nextConfig: NextConfig = {
                                         { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
                                 ],
                         },
+                        // round92-D3 (plan D3, from 1-d P1 finding): the two heaviest public
+                        // images — main21.webp (122K, ShowcaseSection) and hero-phone.webp
+                        // (77K, HeroSection) — had NO rule and were re-downloaded on every
+                        // visit (~197K per new QR scan). Different lifetimes by naming
+                        // convention, verified via git history (each file touched exactly
+                        // once — but the conventions differ):
+                        //   - main21.webp carries its version IN the filename (main**21**) —
+                        //     a replacement ships as main22.webp, so the old immutable cache
+                        //     entry is never wrong → same policy as /fonts and /video.
+                        //   - hero-phone.webp is an unversioned brand asset (was replaced
+                        //     in-place once: png→webp round) — a future in-place swap under
+                        //     the same URL must reach visitors, so it gets the og-default
+                        //     rebrand policy (1 day + SWR a week) instead of immutable.
+                        {
+                                source: '/main21.webp',
+                                headers: [
+                                        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+                                ],
+                        },
+                        {
+                                source: '/hero-phone.webp',
+                                headers: [
+                                        { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+                                ],
+                        },
                 ];
         },
 };

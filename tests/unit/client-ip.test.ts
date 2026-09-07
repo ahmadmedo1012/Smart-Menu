@@ -94,3 +94,58 @@ describe('getClientIp — canonicalization (D1/F5: one client, one bucket)', () 
                 expect(__testables.canonicalizeIp('999.999.999.999')).toBe('unknown');
         });
 });
+
+// ── round92-B2 (agent 2-c): decision record — appended, existing cases above
+// are untouched. These pin the CURRENT contract (default depth=1 off-Vercel)
+// plus the operator opt-in semantics. The fail-closed DEFAULT flip was
+// evaluated and DEFERRED: 8 suites / 18 tests outside the agent boundary
+// (login-backstop rotation, limiter bucket keys in orders-create,
+// loyalty-ip-cap, loyalty-referral, loyalty-stats, subscriptions-family,
+// subscriptions-upgrade + the two default=1 cases above) depend on it.
+// When the default is deliberately flipped later, THIS block failing is the
+// designed tripwire — fix it in the same commit as the flip.
+describe('round92-B2 — trust decision record + TRUST_PROXY_DEPTH parsing', () => {
+        beforeEach(() => {
+                delete process.env.VERCEL;
+                delete process.env.TRUST_PROXY_DEPTH;
+        });
+        afterEach(() => {
+                delete process.env.TRUST_PROXY_DEPTH;
+                delete process.env.VERCEL;
+        });
+
+        it('current contract: unset TRUST_PROXY_DEPTH (non-Vercel) defaults to depth=1 — x-real-ip is honored', () => {
+                expect(__testables.trustDepth()).toBe(1);
+                expect(getClientIp(makeReq({ 'x-real-ip': '1.2.3.4' }))).toBe('1.2.3.4');
+        });
+
+        it('operator opt-in to fail-closed: TRUST_PROXY_DEPTH=0 → NO header trusted, everything collapses to unknown', () => {
+                process.env.TRUST_PROXY_DEPTH = '0';
+                expect(__testables.trustDepth()).toBe(0);
+                expect(getClientIp(makeReq({ 'x-real-ip': '5.6.7.8', 'x-forwarded-for': '1.1.1.1' }))).toBe('unknown');
+        });
+
+        it('garbage TRUST_PROXY_DEPTH values (non-integer/negative) fall back to the documented default 1', () => {
+                for (const garbage of ['abc', '-1', '1.5']) {
+                        process.env.TRUST_PROXY_DEPTH = garbage;
+                        expect(__testables.trustDepth(), `TRUST_PROXY_DEPTH=${JSON.stringify(garbage)}`).toBe(1);
+                }
+        });
+
+        it('an EMPTY TRUST_PROXY_DEPTH parses as 0 (Number("")===0) — the SAFE direction: fail-closed, not fail-open', () => {
+                process.env.TRUST_PROXY_DEPTH = '';
+                expect(__testables.trustDepth()).toBe(0);
+                expect(getClientIp(makeReq({ 'x-real-ip': '1.2.3.4' }))).toBe('unknown');
+        });
+
+        it('a valid explicit depth=2 survives parsing (chained trusted proxies)', () => {
+                process.env.TRUST_PROXY_DEPTH = '2';
+                expect(__testables.trustDepth()).toBe(2);
+        });
+
+        it('Vercel wins regardless of TRUST_PROXY_DEPTH: platform headers stay trusted even with depth=0', () => {
+                process.env.VERCEL = '1';
+                process.env.TRUST_PROXY_DEPTH = '0';
+                expect(getClientIp(makeReq({ 'x-real-ip': '5.6.7.8' }))).toBe('5.6.7.8');
+        });
+});

@@ -11,10 +11,29 @@ import AnimatedCart from '@/components/ui/shopping-cart-icon';
 import { m } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { formatPrice, toArabicNumber } from '@/lib/format';
+import { getArabicPlural } from '@/lib/arabic-plural';
 import { buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { cn } from '@/lib/utils';
+
+// round92-A9 (live audit A9): the cart trigger's aria-label read
+// «السلة - 1 أصناف» — a singular count followed by a plural noun: broken
+// Arabic for screen readers. Both the trigger aria-label and the sheet
+// header count now go through the project's arabic-plural rules
+// (0 فارغة / 1 صنف واحد / 2 صنفان / 3-10 «N أصناف» / 11+ «N صنفًا»).
+export function cartCountPhrase(count: number): string {
+        const noun = getArabicPlural(count, 'صنف', {
+                zero: 'فارغة',
+                one: 'صنف واحد',
+                two: 'صنفان',
+                few: 'أصناف',
+                many: 'صنفًا',
+        });
+        // 0/1/2 read naturally without a numeral («صنف واحد»/«صنفان» carry the
+        // count grammatically); 3+ pair the numeral with the counted noun.
+        return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
+}
 
 export function CartSlideOver() {
         const items = useCart((s) => s.items);
@@ -50,7 +69,7 @@ export function CartSlideOver() {
                                 <button
                                         type="button"
                                         onClick={() => setOpen(true)}
-                                        aria-label={`السلة - ${toArabicNumber(totalItems)} أصناف`}
+                                        aria-label={`السلة - ${cartCountPhrase(totalItems)}`}
                                         className={cn(
                                                 'flex items-center justify-center size-14 rounded-full',
                                                 'bg-orange/90 backdrop-blur-xl',
@@ -98,7 +117,7 @@ export function CartSlideOver() {
                                                 </button>
                                                 <SheetTitle className="text-base">سلة الطلبات</SheetTitle>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">{toArabicNumber(totalItems)} أصناف</span>
+                                        <span className="text-xs text-muted-foreground">{cartCountPhrase(totalItems)}</span>
                                 </SheetHeader>
 
                                 {/* Glass-card items */}

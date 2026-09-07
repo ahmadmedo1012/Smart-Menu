@@ -1,5 +1,17 @@
 import { prisma } from "@/lib/db";
 
+// round92-A1 (r91 F-C / D3 §4 + r92 live audit A1): production was surfacing
+// internal QA fixture restaurants — slugs `settings-test-ts` (مطعم المرسى)
+// and `ede` (برغر هاوس) — seeded rows that carry showOnLanding=true with NO
+// other marker in the data (Restaurant has no isTest field/flag — the slug
+// IS the marker). r91 patched the /api/public/featured path only; this RSC
+// path (which feeds the homepage carousel directly) had no exclusion, so
+// visitors saw the fixtures. Single source of truth, imported by the featured
+// route too — deliberately a NARROW list (not a /test|demo/ regex: that would
+// also hide the intended public demo slugs al-waha-cafe*). Long-term fix is
+// un-featuring those prod rows — then this list can be emptied.
+export const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede"] as const;
+
 export type FeaturedRestaurant = {
     id: number;
     name: string;
@@ -22,7 +34,9 @@ export async function getFeaturedRestaurants(): Promise<FeaturedRestaurant[]> {
         const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
         const restaurants = await prisma.restaurant.findMany({
-            where: { isActive: true, showOnLanding: true },
+            // round92-A1: same fixture exclusion as the featured API route —
+            // both public surfaces must filter from this one shared constant.
+            where: { isActive: true, showOnLanding: true, slug: { notIn: [...TEST_FIXTURE_SLUGS] } },
             select: {
                 id: true,
                 name: true,

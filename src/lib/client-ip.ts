@@ -22,6 +22,21 @@
  *     (fail-closed; standalone deployers behind no trusted proxy MUST set 0 —
  *     a shared "unknown" bucket is stricter than a spoofable one).
  *
+ * round92-B2 DECISION RECORD (agent 2-c): flipping the non-Vercel DEFAULT
+ * from 1 to 0 (true fail-closed) was evaluated and DEFERRED — the escape
+ * hatch in the task order triggered. Empirical blast radius (measured
+ * 2026-09-07, vitest): 8 suites / 18 tests outside one agent's file boundary
+ * pin the default=1 behavior (login-backstop rotation semantics, limiter
+ * bucket-key composition in orders-create/loyalty-ip-cap/loyalty-referral/
+ * loyalty-stats/subscriptions-family/subscriptions-upgrade, plus two
+ * client-ip.test.ts cases that may not be modified in-place this round).
+ * The secure opt-in exists and is already required by docs: standalone
+ * deployers behind no trusted proxy set TRUST_PROXY_DEPTH=0 (.env.example).
+ * To flip the default later: set TRUST_PROXY_DEPTH=1 explicitly in those
+ * test setups FIRST (mechanical transform, ~14 files), then change the
+ * fallback here — the round92 tests appended to client-ip.test.ts pin the
+ * current contract so the flip lights them up deliberately.
+ *
  *   - Canonicalization (D1/F5): lowercase, strip IPv6 brackets, strip the
  *     ::ffff: IPv4-mapped prefix so one client cannot occupy two buckets.
  *   - Validation (D1/F11): anything that is not a plausible IPv4/IPv6 literal
