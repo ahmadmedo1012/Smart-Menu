@@ -30,7 +30,6 @@ vi.mock('@/lib/auth', () => ({
         requireAuth: vi.fn(async () => ({ authorized: true, role: 'admin', userId: 1 })),
 }));
 vi.mock('@/lib/hash', () => ({ hashPassword: () => 'hashed' }));
-
 beforeEach(() => {
         vi.clearAllMocks();
         mockPlanFindFirst.mockResolvedValue({ id: 1, name: 'Free' }); // existing → update path
@@ -54,9 +53,13 @@ describe('POST /api/seed — envelope + no internal leak (round89-A4)', () => {
                 expect(mockUserFindUnique).toHaveBeenCalledWith({ where: { username: 'admin' } });
         });
 
-        it('unauthorized caller → 401 envelope, zero writes', async () => {
+        it('unauthenticated caller → 401 envelope, zero writes', async () => {
                 const { requireAdmin } = await import('@/lib/auth');
-                vi.mocked(requireAdmin).mockResolvedValueOnce({ authorized: false, status: 401 } as never);
+                vi.mocked(requireAdmin).mockResolvedValueOnce({
+                        authorized: false,
+                        status: 401,
+                        error: 'غير مصرح',
+                } as never);
 
                 const { POST } = await import('@/app/api/seed/route');
                 const res = await POST();
@@ -65,6 +68,24 @@ describe('POST /api/seed — envelope + no internal leak (round89-A4)', () => {
                 const json = await res.json();
                 expect(json.success).toBe(false);
                 expect(json.error).toBe('غير مصرح');
+                expect(mockPlanUpdate).not.toHaveBeenCalled();
+        });
+
+        it('round91-F-B (D2-#3): logged-in wrong-role caller → 403 (401 is no-session-only now)', async () => {
+                const { requireAdmin } = await import('@/lib/auth');
+                vi.mocked(requireAdmin).mockResolvedValueOnce({
+                        authorized: false,
+                        status: 403,
+                        error: 'لا تملك الصلاحية',
+                } as never);
+
+                const { POST } = await import('@/app/api/seed/route');
+                const res = await POST();
+
+                expect(res.status).toBe(403);
+                const json = await res.json();
+                expect(json.success).toBe(false);
+                expect(json.error).toBe('لا تملك الصلاحية');
                 expect(mockPlanUpdate).not.toHaveBeenCalled();
         });
 

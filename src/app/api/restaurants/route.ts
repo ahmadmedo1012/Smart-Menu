@@ -8,16 +8,15 @@ import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { usernameOptional, passwordOptional } from '@/lib/validation';
 import { orderCountByRestaurant, categoryCountByRestaurant } from '@/lib/list-counts';
+import { getClientIp } from '@/lib/client-ip';
 
 const registrationLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
-function getClientIp(request: NextRequest): string {
-        return (
-                request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                request.headers.get('x-real-ip') ||
-                '127.0.0.1'
-        );
-}
+// round91-D1: the local one-off getClientIp (Pattern B, '127.0.0.1' fallback)
+// was replaced by the shared helper — same name, single trust model, and the
+// no-header fallback is now 'unknown' like every other route (D1/F4: divergent
+// fallbacks were the drift class). Behavior for headerless local traffic:
+// register:unknown instead of register:127.0.0.1 (test expectation updated).
 
 const restaurantInputSchema = z.object({
         name: z.string().min(1).max(200),
@@ -127,7 +126,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
         try {
-                const ip = getClientIp(request);
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const { success: allowed } = await registrationLimiter.check(`register:${ip}`);
                 if (!allowed) return error('طلبات كثيرة جدًا، حاول بعد 60 ثانية', 429);
 

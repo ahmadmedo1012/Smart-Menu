@@ -40,5 +40,25 @@ export async function GET(request: NextRequest) {
                 results.auditLogsError = String(e);
         }
 
+        // R91 F-C (D3 growth table): SystemEvent was the one unbounded operational
+        // table — lockouts / subscription decisions / referral-conversion failures
+        // accumulate with no retention (only a manual admin single-row delete),
+        // unlike Session (7d) and AuditLog (90d) above. 180-day retention: events
+        // are operational signals, not the financial/audit trail (AuditLog keeps
+        // the compliance trail at 90d; SubscriptionPayment is retained forever as
+        // financial data). createdAt + the deleteMany filter are indexed
+        // (SystemEvent_createdAt_idx) — same best-effort, error-swallowing block
+        // style as the two steps above so one failing step never blocks the rest.
+        try {
+                const hundredEightyDays = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+                const { count } = await prisma.systemEvent.deleteMany({
+                        where: { createdAt: { lt: hundredEightyDays } },
+                });
+                results.systemEventsDeleted = count;
+        } catch (e) {
+                logError('cron: system events cleanup', { error: String(e) });
+                results.systemEventsError = String(e);
+        }
+
         return NextResponse.json(results);
 }

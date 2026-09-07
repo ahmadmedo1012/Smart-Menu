@@ -8,8 +8,11 @@ const mockCreateSession = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
 const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockNotifyEvent = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
-// Rate limiter state holders — accountLimiter counts FAILED attempts only
+// Rate limiter state holders — both lockout limiters count FAILED attempts only
 const accountState = vi.hoisted(() => ({ count: 0 }));
+// round91-D1/F2: username-only backstop limiter (max 20, NOT exemptFromRelax —
+// the ip-scoped accountLimiter above is distinguished by exemptFromRelax: true)
+const backstopState = vi.hoisted(() => ({ count: 0 }));
 const loginState = vi.hoisted(() => ({ count: 0 }));
 
 vi.mock('@/lib/db', () => ({
@@ -30,15 +33,28 @@ vi.mock('@/lib/telegram', () => ({ notifyEvent: mockNotifyEvent }));
 vi.mock('@/lib/logger', () => ({ error: vi.fn() }));
 
 // loginLimiter: always allows (10/min IP+username — out of scope for this test)
-// accountLimiter: 20/15min — fails from the 21st check onward
+// accountLimiter (ip-scoped, 20/15min, exemptFromRelax): fails from the 21st check onward
+// accountBackstopLimiter (username-only, 20/15min, round91-D1/F2): fails from the
+// 21st check onward — the route mocks below mirror the real distinction the
+// factory makes: max 20 + exemptFromRelax → ip-scoped; max 20 alone → backstop.
 vi.mock('@/lib/rate-limit', () => ({
-        createDbRateLimiter: vi.fn(({ max }: { max: number }) => {
-                if (max === 20) {
-                        // accountLimiter — counts FAILED attempts only (asserted in tests)
+        createDbRateLimiter: vi.fn(({ max, exemptFromRelax }: { max: number; exemptFromRelax?: boolean }) => {
+                if (max === 20 && exemptFromRelax) {
+                        // ip-scoped accountLimiter — counts FAILED attempts only (asserted in tests)
                         return {
                                 check: async () => {
                                         accountState.count += 1;
                                         return { success: accountState.count <= max };
+                                },
+                        };
+                }
+                if (max === 20) {
+                        // round91-D1/F2 username-only backstop — same failure-only semantics
+                        // (dedicated ip-rotation proof: tests/unit/login-backstop.test.ts)
+                        return {
+                                check: async () => {
+                                        backstopState.count += 1;
+                                        return { success: backstopState.count <= max };
                                 },
                         };
                 }
@@ -69,6 +85,7 @@ describe('login lockout — account limiter counts only FAILED attempts', () => 
         beforeEach(() => {
                 vi.clearAllMocks();
                 accountState.count = 0;
+                backstopState.count = 0;
                 loginState.count = 0;
                 mockFindUnique.mockResolvedValue({
                         id: 1,
@@ -89,8 +106,10 @@ describe('login lockout — account limiter counts only FAILED attempts', () => 
                         const res = await POST(makeRequest('admin', VALID_PASSWORD));
                         expect(res.status, `attempt ${i + 1} should succeed`).toBe(200);
                 }
-                // accountLimiter must never have been called on successful logins
+                // accountLimiter and the round91-D1/F2 backstop must never have been
+                // called on successful logins
                 expect(accountState.count).toBe(0);
+                expect(backstopState.count).toBe(0);
         });
 
         it('21 consecutive FAILED logins — 21st returns 429 lockout', async () => {
@@ -112,9 +131,11 @@ describe('login lockout — account limiter counts only FAILED attempts', () => 
                 for (let i = 0; i < 10; i++) {
                         await POST(makeRequest('admin', 'wrong-password'));
                 }
-                // successful login must not increment accountState
+                // successful login must not increment accountState (nor the
+                // round91-D1/F2 username-only backstop — both burn failures only)
                 const res = await POST(makeRequest('admin', VALID_PASSWORD));
                 expect(res.status).toBe(200);
                 expect(accountState.count).toBe(10);
+                expect(backstopState.count).toBe(10);
         });
 });

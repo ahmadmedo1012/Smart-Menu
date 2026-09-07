@@ -11,6 +11,7 @@ import { error as logError } from '@/lib/logger';
 // route-type generation; importing the route from tests pulled its whole dep
 // tree). Behavior identical — same object, same messages.
 import { createPaymentSchema } from '@/lib/payment-schema';
+import { getClientIp } from '@/lib/client-ip';
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -19,10 +20,7 @@ export async function POST(request: NextRequest) {
                 const auth = await requireAuth();
                 if (!auth.authorized) return error('غير مصرح', 401);
 
-                const ip =
-                        request.headers.get('x-real-ip') ||
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        'unknown';
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const { success: allowed } = await subscriptionLimiter.check(`sub:${ip}`);
                 if (!allowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
@@ -147,7 +145,11 @@ export async function POST(request: NextRequest) {
                                         for (const gid of groupIds) chatIds.add(gid);
                                 }
                                 if (chatIds.size > 0) {
-                                        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل`;
+                                        // round91-F-B (D2-#1): عدد المطاعم في رسالة الموافقة — كان
+                                        // الموافق يضغط «🟢» أعمى عن عدد المنيوهات التي ستُنشأ.
+                                        const restaurantsCount =
+                                                tempRestaurants && tempRestaurants.length > 0 ? tempRestaurants.length : 1;
+                                        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل\n• عدد المطاعم: ${restaurantsCount}`;
                                         const telegramMessages: { chatId: number; messageId: number }[] = [];
                                         // round89-C2 (dx-2 ب-1): these sends used to be SEQUENTIAL
                                         // inside the user's payment request (response time = N ×

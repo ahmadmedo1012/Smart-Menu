@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { referralSessionKey } from '@/lib/referral-conversion';
+import { getClientIp } from '@/lib/client-ip';
 
 const REFERRAL_CODE_RE = /^[A-Z0-9]{6,16}$/;
 
@@ -25,12 +26,10 @@ export async function POST(request: NextRequest) {
                         return apiError('كود إحالة غير صالح', 400);
                 }
 
-                // Per-IP rate limit — take ONLY the first x-forwarded-for value (rest
-                // are attacker-controlled hop chain)
-                const ip =
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-                        request.headers.get('x-real-ip') ??
-                        'unknown';
+                // Per-IP rate limit — round91-D1: unified extraction (trust model,
+                // canonicalization and validation live in the shared helper; the
+                // FIRST-xff comment below applies to the session fingerprint only)
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const rateCheck = await claimDbLimiter.check(`claim:${ip}`);
                 if (!rateCheck.success) return apiError('طلبات كثيرة جداً، حاول بعد قليل', 429);
 

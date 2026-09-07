@@ -36,7 +36,9 @@ const mockMediaUrlError = vi.hoisted(() => vi.fn(() => null));
 const txMock = vi.hoisted(() => ({
         menuItem: { count: mockMenuItemCount, create: mockMenuItemCreate },
         userRestaurant: { count: mockUserRestaurantCount, create: vi.fn() },
-        restaurant: { create: mockRestaurantCreate },
+        // round91-F-B (D2-#4): items POST re-reads maxItems under the FOR
+        // UPDATE lock — resolving nothing keeps the pre-tx values as fallback.
+        restaurant: { create: mockRestaurantCreate, findUnique: vi.fn() },
         menuCategory: { createMany: vi.fn() },
         // round90-F3: POST /api/items now takes a FOR UPDATE row lock on the
         // restaurant row inside the tx (maxItems serialization) — permissive

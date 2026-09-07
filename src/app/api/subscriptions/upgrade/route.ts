@@ -8,6 +8,7 @@ import { getDecryptedBotToken } from '@/lib/config';
 import { sendMessageWithKeyboard } from '@/lib/telegram-api';
 import { error as logError } from '@/lib/logger';
 import { z } from 'zod';
+import { getClientIp } from '@/lib/client-ip';
 
 const upgradeSchema = z
         .object({
@@ -21,7 +22,9 @@ const upgradeSchema = z
                 upgradeRestaurantId: z.number().int().positive(),
                 senderAccountName: z.string().min(1).max(100).optional(),
                 senderAccountNumber: z.string().min(1).max(50).optional(),
-                receiptImageUrl: z.string().url().refine((u) => u.startsWith('https://'), { message: 'رابط الإيصال يجب أن يكون https' }).optional(),
+                // round91-F-B (D2-#2): joins the R90 image-cap family — the local
+                // copy of this field was unbounded (row-bloat into payment metadata).
+                receiptImageUrl: z.string().url().max(2_000, 'رابط الإيصال طويل جداً — الحد الأقصى 2000 حرف').refine((u) => u.startsWith('https://'), { message: 'رابط الإيصال يجب أن يكون https' }).optional(),
         })
         .refine((d) => d.provider !== 'bank' || (d.senderAccountName && d.senderAccountNumber), {
                 message: 'اسم صاحب الحساب ورقم الحساب إجباريان للتحويل البنكي',
@@ -35,10 +38,7 @@ export async function POST(request: NextRequest) {
                 const auth = await requireAuth();
                 if (!auth.authorized) return error('غير مصرح', 401);
 
-                const ip =
-                        request.headers.get('x-real-ip') ||
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        'unknown';
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const { success: allowed } = await upgradeLimiter.check(`upgrade:${ip}`);
                 if (!allowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 

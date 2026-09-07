@@ -4,6 +4,7 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 import { usernameOptional } from "@/lib/validation";
+import { getClientIp } from "@/lib/client-ip";
 
 const validateSchema = z.object({
   username: usernameOptional,
@@ -15,7 +16,7 @@ const validateLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const ip = getClientIp(request); // round91-D1: unified extraction
     const { success: allowed } = await validateLimiter.check(`validate:${ip}`);
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
 

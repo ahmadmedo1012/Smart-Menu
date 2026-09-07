@@ -374,6 +374,14 @@ model Referral {
   // Referral_referralCode_referredName_key, which no migration creates.
   // Name-only difference — index names are never used in queries.
   @@unique([referralCode, referredName], map: "Referral_code_name_key")
+  // R91 F-C (D3 §5 gap 1): referral-conversion.ts findFirst
+  //   { where: { restaurantId, referredPhone, status: 'pending' } }
+  // runs inside the completion transaction of EVERY completed order
+  // (money path) — no existing index contained referredPhone. Created by
+  // migration zz_round91_referral_conversion_idx (plain CREATE INDEX:
+  // table is small today; the D3 CONCURRENTLY recipe triggers only at
+  // ≥100K rows / write-hot tables).
+  @@index([restaurantId, status, referredPhone])
 }
 
 model RewardTransaction {

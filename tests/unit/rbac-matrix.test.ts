@@ -366,8 +366,10 @@ describe('RBAC matrix — PATCH /api/users/[id] (role change)', () => {
 describe('RBAC matrix — GET /api/admin/audit-logs (super_admin-only by design)', () => {
         it.each([
                 ['guest', null, 401],
-                ['USER', USER_PLAIN, 401],
-                ['owner', OWNER_A, 401],
+                // round91-F-B (D2-#3): authenticated wrong-role now 403 (was 401 —
+                // requireAdmin conflated no-session and wrong-role)
+                ['USER', USER_PLAIN, 403],
+                ['owner', OWNER_A, 403],
                 ['sub_admin (zero perms)', SUB_ADMIN_ZERO, 403],
                 ['legacy admin', ADMIN, 403],
         ] as const)('%s → %s, audit rows never read', async (_label, user, expected) => {

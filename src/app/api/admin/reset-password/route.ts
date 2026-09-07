@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { createDbRateLimiter } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
 
 const resetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await requirePermission("MANAGE_USERS");
     if (!auth.authorized) return error(auth.error, auth.status);
-    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const ip = getClientIp(request); // round91-D1: unified extraction
     const { success: allowed } = await resetLimiter.check(`reset:${ip}`);
     if (!allowed) return error("محاولات كثيرة جداً. حاول لاحقاً.", 429);
     const { hashPassword } = await import("@/lib/hash");

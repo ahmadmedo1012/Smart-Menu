@@ -172,6 +172,26 @@ describe('B4 — GET /api/items id params (explicit NaN guard)', () => {
         });
 });
 
+// ── items — status filter whitelist (round91-F-B / D2-#5) ────────────────
+
+describe('round91-F-B — GET /api/items?status= (ItemStatus whitelist)', () => {
+        it('invalid status → 400 Arabic before any query', async () => {
+                const { GET } = await import('@/app/api/items/route');
+                const res = await GET(new NextRequest('http://localhost/api/items?restaurantId=1&status=garbage'));
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toBe('حالة الصنف غير صالحة');
+                expect(mockMenuItemFindMany).not.toHaveBeenCalled();
+        });
+
+        it('valid status (unavailable) flows into the where clause for staff', async () => {
+                const { GET } = await import('@/app/api/items/route');
+                const res = await GET(new NextRequest('http://localhost/api/items?restaurantId=1&status=unavailable'));
+                expect(res.status).toBe(200);
+                expect(mockMenuItemFindMany.mock.calls[0][0].where.status).toBe('unavailable');
+        });
+});
+
 // ── users — restaurantId filter ─────────────────────────────────────────
 
 describe('B4 — GET /api/users?restaurantId=', () => {

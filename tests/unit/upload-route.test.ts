@@ -258,3 +258,84 @@ describe('POST /api/upload — اسم الـblob يحمل مسار المستأ�
                 expect(mockPut.mock.calls[0][0] as string).toMatch(/^staff\//);
         });
 });
+
+// ── round91-F-E (D2-#6): عائلة AVIF الموسعة — توسيع مع البقاء فاشلًا-مغلقًا ──
+// كان الفحص يقبل فقط صناديق ftyp بحجم 0x1c/0x20 بعلامة «avif» الرئيسية (التقطيع
+// القديم: upload/route.ts:47)، فترتد ملفات AVIF قانونية برسالة 400 خاطئة (fail-closed
+// false-negative): صور avis المتحركة، علامات mif1/miaf الرئيسية/المتوافقة، أحجام
+// 0x18/0x24. الإصلاح: صندوق ftyp في موضعه + علامة رئيسية أو متوافقة من
+// {avif, avis, mif1, miaf} داخل حدود الصندوق المعلنة. هذا التمديد لا يحذف شيئًا —
+// الاختبارات الأصلية أعلاه (بما فيها عقد الـ12 بايت والـWEBP) تبقى كما هي.
+
+describe('POST /api/upload — round91-F-E: عائلة AVIF الموسعة (كانت تُرفض 400 قبل الإصلاح)', () => {
+        // باني صناديق ftyp حقيقي البايتات: حجم(4) + «ftyp»(4) + رئيسية(4) + إصدار(4) + متوافقة(4×N)
+        const ftypBox = (major: string, compat: string[] = [], declaredSize?: number) => {
+                const box = Buffer.concat([
+                        Buffer.alloc(4), // حجم الصندوق — يُملأ أدناه
+                        Buffer.from('ftyp', 'latin1'),
+                        Buffer.from(major, 'latin1'),
+                        Buffer.alloc(4), // minor version
+                        ...compat.map((b) => Buffer.from(b, 'latin1')),
+                ]);
+                box.writeUInt32BE(declaredSize ?? box.length, 0);
+                return box;
+        };
+        const avifUpload = (buf: Buffer) =>
+                uploadRoute.POST(uploadRequest(new File([new Uint8Array(buf)], 'a.avif', { type: 'image/avif' })));
+
+        it('رؤوس AVIF قانونية متنوعة (أحجام 0x18/0x1c/0x20/0x24 · avif/avis/mif1/miaf · رئيسية أو متوافقة) → 201', async () => {
+                const cases: Buffer[] = [
+                        ftypBox('avif', ['mif1', 'miaf', 'avif']),                 // 0x1c — الشكل القياسي
+                        ftypBox('avif', ['mif1', 'miaf', 'avif', 'MA1B']),         // 0x20 — الشكل القياسي الموسع
+                        ftypBox('avif', ['mif1', 'miaf', 'avif', 'MA1B', 'mp41']), // 0x24 — حجم كان مرفوضًا قبل الإصلاح
+                        ftypBox('avis', ['avif', 'mif1', 'miaf']),                 // الصور المتحركة — العلامة avis
+                        ftypBox('mif1', ['miaf', 'avif']),                         // علامة رئيسية mif1 (أساس HEIF)
+                        ftypBox('miaf', ['mif1']),                                 // 0x18 — علامة miaf الرئيسية
+                        ftypBox('MA1B', ['mif1', 'miaf']),                         // الرئيسية خارج المجموعة والمتوافقة داخلها
+                        Buffer.from('000000206674797061766966', 'hex'),            // مقطوع عند 12 بايت (حجم 0x20) — مقبول كما قبل
+                ];
+                for (const buf of cases) {
+                        const head = `${buf.subarray(0, 4).toString('hex')} ftyp ${buf.subarray(8, 12).toString('latin1')}`;
+                        const res = await avifUpload(buf);
+                        expect(res.status, `${head}… يجب أن يُقبل كـAVIF`).toBe(201);
+                }
+                expect(mockPut).toHaveBeenCalledTimes(cases.length);
+        });
+
+        it('علامة رئيسية غير معروفة (junk) أو عائلة فيديو (isom/mp41) أو خردة غير ftyp أو حجم مشوّه → 400 (فشل مغلق محفوظ)', async () => {
+                const cases: Buffer[] = [
+                        ftypBox('junk'), // رئيسية غير معروفة بلا متوافقة
+                        ftypBox('junk', ['junk', 'junk']), // متوافقة خردة أيضًا
+                        ftypBox('isom', ['isom', 'iso2', 'mp41']), // MP4 فيديو حقيقي — ليس عائلة صور
+                        Buffer.from('0000000c6674797061766966', 'hex'), // حجم صندوق مشوّه (0x0c < 16) بعلامة avif
+                        Buffer.from('ftypavif', 'latin1'), // «ftyp» في الموضع الخطأ (بايتات 0..3)
+                        Buffer.alloc(48, 0x6a), // خردة ثنائية خالصة
+                ];
+                for (const buf of cases) {
+                        const res = await avifUpload(buf);
+                        expect(res.status).toBe(400);
+                }
+                expect(mockPut).not.toHaveBeenCalled();
+        });
+
+        it('علامة «avif» خارج حدود صندوق ftyp المعلنة لا تُحتسب → 400 (المسح مقيّد بحجم الصندوق — فشل مغلق ضد التزوير)', async () => {
+                // صندوق معلن 0x14 (20 بايتًا: رئيسية junk + متوافقة junk) تليها «avif»
+                // خارجه — التوسيع لا يجعلها مقبولة.
+                const forged = Buffer.concat([ftypBox('junk', ['junk'], 20), Buffer.from('avif', 'latin1')]);
+                const res = await avifUpload(forged);
+                expect(res.status).toBe(400);
+                expect(mockPut).not.toHaveBeenCalled();
+        });
+
+        it('فروع JPEG/PNG/WEBP لم تتأثر بالتوسيع (قراءة 48 بايت بدل 12): webp حقيقي 201 وquirky 400 كما كانا', async () => {
+                const real = await uploadRoute.POST(
+                        uploadRequest(new File([new Uint8Array(WEBP)], 'real.webp', { type: 'image/webp' })),
+                );
+                expect(real.status).toBe(201);
+                const quirky = Buffer.concat([Buffer.from('52494646', 'hex'), Buffer.from('57454250', 'hex')]);
+                const bad = await uploadRoute.POST(
+                        uploadRequest(new File([new Uint8Array(quirky)], 'quirky.webp', { type: 'image/webp' })),
+                );
+                expect(bad.status).toBe(400);
+        });
+});

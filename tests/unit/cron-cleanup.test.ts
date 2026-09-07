@@ -8,7 +8,8 @@
  * نافذتا الاحتفاظ بدقة صحيحة إلى الملّي ثانية:
  *   - جلسات: expiresAt < now - 7 أيام
  *   - سجلات تدقيق: createdAt < now - 90 يومًا
- * (القيم المقروءة من الكود: route.ts:22 وroute.ts:33.)
+ *   - أحداث النظام: createdAt < now - 180 يومًا (R91 F-C / D3)
+ * (القيم المقروءة من الكود: route.ts:22 وroute.ts:33 وroute.ts:53.)
  *
  * بلا شبكة وبلا قاعدة حقيقية — prisma.deleteMany مُنكَّر بالكامل.
  */
@@ -19,11 +20,13 @@ import { NextRequest } from 'next/server';
 
 const mockSessionDeleteMany = vi.hoisted(() => vi.fn());
 const mockAuditDeleteMany = vi.hoisted(() => vi.fn());
+const mockSystemEventDeleteMany = vi.hoisted(() => vi.fn());
 const mockLogError = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         session: { deleteMany: mockSessionDeleteMany },
         auditLog: { deleteMany: mockAuditDeleteMany },
+        systemEvent: { deleteMany: mockSystemEventDeleteMany },
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma, getUserById: vi.fn(), withRetry: vi.fn() }));
@@ -55,6 +58,7 @@ beforeEach(() => {
         process.env.CRON_SECRET = 'cron-secret-ascii-test';
         mockSessionDeleteMany.mockResolvedValue({ count: 3 });
         mockAuditDeleteMany.mockResolvedValue({ count: 27 });
+        mockSystemEventDeleteMany.mockResolvedValue({ count: 0 });
 });
 
 afterEach(() => {
@@ -73,6 +77,7 @@ describe('GET /api/cron/cleanup — بوابة CRON_SECRET (ثابتة-الوق�
                 expect(json.error).toBe('Unauthorized');
                 expect(mockSessionDeleteMany).not.toHaveBeenCalled();
                 expect(mockAuditDeleteMany).not.toHaveBeenCalled();
+                expect(mockSystemEventDeleteMany).not.toHaveBeenCalled();
         });
 
         it('bearer خاطئ → 401 (المقارنة timingSafeBearer — «Bearer secret» كاملة)', async () => {
@@ -94,30 +99,36 @@ describe('GET /api/cron/cleanup — بوابة CRON_SECRET (ثابتة-الوق�
                 expect(res.status).toBe(401);
                 expect(mockSessionDeleteMany).not.toHaveBeenCalled();
                 expect(mockAuditDeleteMany).not.toHaveBeenCalled();
+                expect(mockSystemEventDeleteMany).not.toHaveBeenCalled();
         });
 });
 
-// ── النجاح: نافذتا الاحتفاظ ────────────────────────────────────────────
+// ── النجاح: نوافذ الاحتفاظ الثلاث ───────────────────────────────────────
 
-describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنافذتي الاحتفاظ', () => {
-        it('200 + deleteMany مرتين: جلسات أقدم من 7 أيام وسجلات أقدم من 90 يومًا', async () => {
+describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنوافذ الاحتفاظ الثلاث', () => {
+        it('200 + deleteMany ثلاث مرات: جلسات أقدم من 7 أيام وسجلات أقدم من 90 يومًا وأحداث أقدم من 180 يومًا', async () => {
                 const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
                 expect(res.status).toBe(200);
 
                 expect(mockSessionDeleteMany).toHaveBeenCalledTimes(1);
                 expect(mockAuditDeleteMany).toHaveBeenCalledTimes(1);
+                expect(mockSystemEventDeleteMany).toHaveBeenCalledTimes(1);
 
                 const sessionArg = mockSessionDeleteMany.mock.calls[0][0];
                 expect(sessionArg.where.expiresAt.lt.getTime()).toBe(T0 - 7 * DAY);
 
                 const auditArg = mockAuditDeleteMany.mock.calls[0][0];
                 expect(auditArg.where.createdAt.lt.getTime()).toBe(T0 - 90 * DAY);
+
+                const systemEventArg = mockSystemEventDeleteMany.mock.calls[0][0];
+                expect(systemEventArg.where.createdAt.lt.getTime()).toBe(T0 - 180 * DAY);
         });
 
-        it('الجسم يعيد العدّادات: sessionsDeleted وauditLogsDeleted', async () => {
+        it('الجسم يعيد العدّادات: sessionsDeleted وauditLogsDeleted وsystemEventsDeleted', async () => {
+                mockSystemEventDeleteMany.mockResolvedValue({ count: 412 });
                 const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
                 const json = await res.json();
-                expect(json).toEqual({ sessionsDeleted: 3, auditLogsDeleted: 27 });
+                expect(json).toEqual({ sessionsDeleted: 3, auditLogsDeleted: 27, systemEventsDeleted: 412 });
         });
 
         it('فشل حذف الجلسات لا يوقف سجلات التدقيق → 200 مع sessionsError والتنظيف الثاني يعمل', async () => {
@@ -135,7 +146,7 @@ describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنافذت�
                 );
         });
 
-        it('فشل سجلات التدقيق وحدها → 200 مع auditLogsError والجلسات نُظّفت', async () => {
+        it('فشل سجلات التدقيق وحدها → 200 مع auditLogsError والجلسات نُظّفت والأحداث نُظّفت', async () => {
                 mockAuditDeleteMany.mockRejectedValue(new Error('timeout'));
                 const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
                 expect(res.status).toBe(200);
@@ -143,5 +154,42 @@ describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنافذت�
                 expect(json.sessionsDeleted).toBe(3);
                 expect(String(json.auditLogsError)).toContain('timeout');
                 expect(mockSessionDeleteMany).toHaveBeenCalledTimes(1);
+        });
+});
+
+// ── R91 F-C (D3): احتفاظ أحداث النظام 180 يومًا ─────────────────────────
+
+describe('GET /api/cron/cleanup — SystemEvent retention (R91 F-C / D3)', () => {
+        it('نافذة الاحتفاظ 180 يومًا بالضبط (وليست 90 أو سنة) — فلتر createdAt فقط', async () => {
+                await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
+
+                expect(mockSystemEventDeleteMany).toHaveBeenCalledTimes(1);
+                const arg = mockSystemEventDeleteMany.mock.calls[0][0];
+                // النافذة أدق من الملّي: T0 - 180 يومًا بالضبط
+                expect(arg.where.createdAt.lt.getTime()).toBe(T0 - 180 * DAY);
+                // الفلتر على createdAt فقط (لا شروط إضافية مثل read/severity)
+                expect(Object.keys(arg.where)).toEqual(['createdAt']);
+                expect(arg.where.createdAt.lt).toBeInstanceOf(Date);
+        });
+
+        it('فشل حذف أحداث النظام لا يوقف بقية التنظيف → 200 مع systemEventsError والباقي نُظّف', async () => {
+                mockSystemEventDeleteMany.mockRejectedValue(new Error('pg timeout'));
+                const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
+                expect(res.status).toBe(200);
+                const json = await res.json();
+                expect(json.sessionsDeleted).toBe(3);
+                expect(json.auditLogsDeleted).toBe(27);
+                expect(json.systemEventsDeleted).toBeUndefined();
+                expect(String(json.systemEventsError)).toContain('pg timeout');
+                expect(mockLogError).toHaveBeenCalledWith(
+                        'cron: system events cleanup',
+                        expect.objectContaining({ error: expect.stringContaining('pg timeout') }),
+                );
+        });
+
+        it('صفر أحداث قديمة → عدّاد صفر في الجسم وليس غياب المفتاح', async () => {
+                const res = await cleanupRoute.GET(cleanupRequest('Bearer cron-secret-ascii-test'));
+                const json = await res.json();
+                expect(json.systemEventsDeleted).toBe(0);
         });
 });

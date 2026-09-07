@@ -6,7 +6,7 @@ import { useRef, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
 import {
-  Coffee, CupSoda, Pizza, Beef, Milk, Apple, Cookie, Soup, Package,
+  Coffee, CupSoda, Pizza, Beef, Milk, Apple, Cookie, Soup, Package, UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react"
 
@@ -37,6 +37,8 @@ const EMOJI_MAP: Record<string, LucideIcon> = {
   "🍰": Cookie,
   "🍕": Pizza,
   "🍔": Beef,
+  "🍽": UtensilsCrossed,
+  "🍽️": UtensilsCrossed, // F-D/round91: seed uses 1F37D+FE0F (المأكولات) — was falling through to the raw-emoji branch
   "🥩": Beef,
   "🍞": Cookie,
   "🍎": Apple,

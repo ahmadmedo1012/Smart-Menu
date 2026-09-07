@@ -224,7 +224,10 @@ describe('POST /api/restaurants — البوابة (بلا username/password →
                 expect(res.status).toBe(429);
                 const json = await res.json();
                 expect(json.error).toBe('طلبات كثيرة جدًا، حاول بعد 60 ثانية');
-                expect(rlState.keys[0]).toBe('register:127.0.0.1');
+                // round91-D1: unified getClientIp fails closed to 'unknown' when no
+                // trusted header is present — the old local helper's '127.0.0.1'
+                // fallback was the divergent-behavior drift class (D1/F4).
+                expect(rlState.keys[0]).toBe('register:unknown');
                 expect(mockTransaction).not.toHaveBeenCalled();
         });
 });

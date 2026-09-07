@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth';
 import { error, handleError, success, validationError, parsePagination } from '@/lib/api-helpers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { getClientIp } from '@/lib/client-ip';
 
 const reviewDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 // round87-A7: per-ITEM global ceiling — the per-IP limiter (5/min) is trivially
@@ -107,10 +108,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
         try {
                 // Rate limit by IP
-                const ip =
-                        req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        req.headers.get('x-real-ip') ||
-                        'unknown';
+                const ip = getClientIp(req); // round91-D1: unified extraction
                 const limit = await reviewDbLimiter.check(ip);
                 if (!limit.success) {
                         return error('لقد تجاوزت الحد الأقصى من التقييمات. حاول مرة أخرى لاحقاً', 429);

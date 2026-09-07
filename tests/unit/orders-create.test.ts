@@ -25,6 +25,9 @@ const txMock = vi.hoisted(() => ({
         order: { count: vi.fn(), create: vi.fn() },
         // round90-F1 (T1): the route locks the restaurant row FOR UPDATE inside
         // the tx before the cap count — the mock just needs to resolve.
+        // round91-F-B (D2-#4): maxOrders/isActive are re-read under the lock —
+        // resolving nothing keeps the pre-tx values as the fallback.
+        restaurant: { findUnique: vi.fn() },
         $queryRaw: vi.fn(),
 }));
 
@@ -342,10 +345,20 @@ describe('POST /api/orders — guards', () => {
                 expect(mockRateCheck).toHaveBeenCalledWith('order:9.9.9.9');
         });
 
-        it('limiter falls back to x-forwarded-for (first hop, trimmed)', async () => {
-                await callPost(tamperedBody, { 'x-forwarded-for': ' 8.8.8.8 , 10.0.0.1' });
+        it('limiter falls back to x-forwarded-for (single entry, trimmed)', async () => {
+                await callPost(tamperedBody, { 'x-forwarded-for': ' 8.8.8.8 ' });
 
                 expect(mockRateCheck).toHaveBeenCalledWith('order:8.8.8.8');
+        });
+
+        it('round91-D1: multi-entry x-forwarded-for keys on the LAST entry (the hop the trusted proxy appended), not the spoofable first', async () => {
+                await callPost(tamperedBody, { 'x-forwarded-for': ' 8.8.8.8 , 10.0.0.1' });
+
+                // getClientIp trusts TRUST_PROXY_DEPTH=1 from the END: behind an
+                // appending proxy the LAST entry is the proxy-controlled hop —
+                // the old first-hop read let a client rotate spoofed entries to
+                // mint fresh buckets (D1 HIGH finding).
+                expect(mockRateCheck).toHaveBeenCalledWith('order:10.0.0.1');
         });
 
         it('no IP headers → bucket key "order:unknown"', async () => {

@@ -1,6 +1,17 @@
 import { prisma } from "@/lib/db";
 import { success, handleError } from "@/lib/api-helpers";
 
+// R91 F-C (D3 §4 prod data-quality finding): production /api/public/featured
+// was surfacing internal test fixtures — slugs `settings-test-ts` (مطعم
+// المرسى) and `ede` (برغر هاوس) — seeded QA rows that carry showOnLanding=true
+// with NO other marker in the data (the Restaurant model has no isTest field
+// or settings flag; naming IS the marker). Deliberately a NARROW exclusion
+// list, not a broad name/slug regex: a /test|تجريبي|demo/ pattern would also
+// hide the intended public demo restaurants (al-waha-cafe, al-waha-cafe-demo,
+// al-waha-cafeewewe). Proper long-term fix is deactivating/un-featuring those
+// prod rows — then this list can be emptied.
+const TEST_FIXTURE_SLUGS = ["settings-test-ts", "ede"] as const;
+
 // Landing page hits this on every visit — static data (ranked restaurants),
 // safe to revalidate at most every 60s instead of a DB query per request.
 export const revalidate = 60;
@@ -10,7 +21,11 @@ export async function GET() {
         const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
         const restaurants = await prisma.restaurant.findMany({
-            where: { isActive: true, showOnLanding: true },
+            where: {
+                isActive: true,
+                showOnLanding: true,
+                slug: { notIn: [...TEST_FIXTURE_SLUGS] },
+            },
             select: {
                 id: true,
                 name: true,

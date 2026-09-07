@@ -15,10 +15,24 @@ async function getPlans(): Promise<Plan[] | null> {
                         where: { isActive: true },
                         orderBy: { sortOrder: 'asc' },
                 });
+                // F-D/round91: map to explicitly-constructed plain objects — spreading
+                // Prisma rows ({...p}) leaks the row's symbol-keyed props
+                // (nodejs.util.inspect.custom) across the RSC boundary → 5×
+                // "Only plain objects can be passed to Client Components" console
+                // warnings per page load. Explicit field mapping is the RSC contract.
                 return plans.map((p) => ({
-                        ...p,
+                        id: p.id,
+                        name: p.name,
+                        nameAr: p.nameAr,
                         price: Number(p.price),
-                        features: Array.isArray(p.features) ? p.features : JSON.parse(p.features as string),
+                        periodDays: p.periodDays,
+                        features: (Array.isArray(p.features)
+                                ? p.features
+                                : JSON.parse(p.features as string)) as string[],
+                        maxMenus: p.maxMenus,
+                        maxItems: p.maxItems,
+                        maxOrders: p.maxOrders,
+                        sortOrder: p.sortOrder,
                 }));
         } catch {
                 // keep the client-side fallback path alive

@@ -2,6 +2,9 @@
 /**
  * round90-prod-verify — الجولة 90: الفحوص السلوكية الخاصة بموجاتها
  * (تعريب الرسائل · توحيد 401/403 · بوابة الأسرار/CI · حارس env · إصلاح WEBP بالكود حي)
+ * r91-F6: فقرة [4] أعيدت كتابتها بفحص صادق — كانت توثّق زورًا أن الإنتاج يعمل
+ * بRATE_LIMIT_RELAX (تمرير 12×401 بلا 429) بينما الحدود حية فعلًا في الإنتاج؛
+ * الفحص الآن: env=production من health + 429 حقيقي عبر اتصال keep-alive مثبّت.
  */
 import { execSync } from 'node:child_process';
 
@@ -53,28 +56,55 @@ console.log(`[3] دلالة 401/403 الموحدة (r89-E3 محفوظة + توح
   c === 403 ? ok('POST بلا Origin → 403 (بوابة CSRF تعمل)') : bad(`POST بلا Origin = ${c}`);
 }
 
-console.log(`[4] قيود الأحمال الحية (rate-limit حي بعد تغييرات الجولة)`);
+console.log(`[4] قيود الأحمال الحية في الإنتاج (فحص صادق — r91-F6/D1-E3)`);
 {
   // mint زوج CSRF كما يفعل csrf-helper (GET /api/health يزرع كوكي csrf-token)
+  // — الاستجابة نفسها تحمل جسم /api/health فنتحقق من env=production دفعة واحدة.
   const h = curl('/api/health', '-D -');
   const m = h.match(/csrf-token=([^;]+)/);
   const token = m?.[1] ?? '';
   const csrf = token
     ? `-H "X-CSRF-Token: ${token}" -H "Cookie: csrf-token=${token}" -H "Origin: ${BASE}"`
     : '';
-  // 12 محاولة دخول لمستخدم وهمي — البوابة يجب أن تظل حية ومتسقة (401) بلا انهيار.
-  // ملاحظة قياس: الإنتاج يعمل بRATE_LIMIT_RELAX=1 (أرضية prod-qa منذ الجولات 87-89 —
-  // حد الدخول الفعلي يصبح max(20, 10×200)=2000/دقيقة فلا 429 متوقع هنا). تعثر السقف
-  // نفسه محكوم محليًا: rbac-negative e2e «11 failed logins → 429» خضراء 25/25.
-  let last = 0, saw401 = 0;
-  for (let i = 0; i < 12; i++) {
-    last = code('/api/auth/login', `-X POST -H "Content-Type: application/json" ${csrf} -d '{"username":"round90-ghost","password":"wrong-pass-123"}'`);
-    if (last === 401) saw401++;
-    if (last === 429) break;
+  // (أ) الإصدار الصادق: RATE_LIMIT_RELAX خامل بنيويًا في الإنتاج — isRelaxed يتطلب
+  // NODE_ENV ≠ production (rate-limit.ts) — فالتحقق الصحيح هو أن health يبلغ
+  // env=production، لا الافتراض بأن التخفيف مفعّل.
+  // ملاحظة تاريخية (r91-F6): كانت هذه الفقرة تدّعي أن الإنتاج يعمل بRATE_LIMIT_RELAX=1
+  // (حد فعلي 2000/دقيقة «فلا 429 متوقع») وتمرّر 12×401 على هذا الأساس — ادّعاء خاطئ
+  // أثبت D1 عكسه حيًّا: 429 عند المحاولة #11 عبر اتصال keep-alive مثبّت. مرور 12×401
+  // السابق كان سببه تدوير IP الخروج لكل اتصال جديد، لا أي تخفيف.
+  /"env"\s*:\s*"production"/.test(h)
+    ? ok('health يُبلغ env=production ⇒ RATE_LIMIT_RELAX خامل بنيويًا (isRelaxed يتطلب NODE_ENV≠production)')
+    : bad('health لا يُبلغ env=production — راجع بيئة النشر');
+  // (ب) فحص حد الدخول نفسه — مرة واحدة، صادقًا: 13 محاولة دخول بكلمة مرور خاطئة
+  // لمستخدم وهمي عشوائي عبر اتصال keep-alive واحد (socket واحد ⇒ IP خروج واحد ثابت —
+  // اتصالات منفصلة كانت تدير IP الخروج فتفتح دلاء جديدة لكل طلب وتخفي الـ429).
+  // التوقع: 401 متكررة ثم 429 عند/بعد #11 (حد الدخول 10/دقيقة حي في الإنتاج).
+  // نظافة الفحص: مستخدم وهمي r91probe_* لا يملك حسابًا (قفل مستحيل، لا لمس
+  // accountLimiter — يعمل فقط على مستخدمين موجودين)؛ صفوف RateLimitEntry
+  // الناتجة تُكنَس ذاتيًا (الاحتمالية 1/32 + 60ث احتفاظ)؛ لا كتابات DB أخرى.
+  const ghost = `r91probe_${Math.random().toString(36).slice(2, 10)}`;
+  const N = 13;
+  const devnulls = Array.from({ length: N }, () => '-o /dev/null').join(' ');
+  const urls = Array.from({ length: N }, () => `"${BASE}/api/auth/login"`).join(' ');
+  let codes = [];
+  try {
+    codes = execSync(
+      `curl -s -m 40 ${devnulls} -w "%{http_code}\\n" -X POST -H "Content-Type: application/json" ${csrf} -d '{"username":"${ghost}","password":"wrong-pass-123"}' ${urls}`,
+      { timeout: 90_000, maxBuffer: 1 << 20 },
+    )
+      .toString()
+      .trim()
+      .split('\n')
+      .map(Number);
+  } catch {
+    codes = [];
   }
-  (last === 429 || (last === 401 && saw401 === 12))
-    ? ok(`بوابة الدخول حية 12/12 × 401 متسقة (تخفيف الإنتاج مفعّل — السقف محكوم محليًا بrbac 25/25)`)
-    : bad(`بوابة الدخول غير متسقة: last=${last} saw401=${saw401}`);
+  const saw401 = codes.filter((c) => c === 401).length;
+  const saw429 = codes.filter((c) => c === 429).length;
+  saw429 >= 1
+    ? ok(`حد الدخول حي في الإنتاج: ${saw401}×401 ثم ${saw429}×429 خلال ${N} محاولة (المستخدم ${ghost} — يتطلب اتصالًا مثبّتًا واحدًا)`)
+    : bad(`لم يظهر 429 خلال ${N} محاولة عبر اتصال مثبّت (رموز: ${codes.join(',') || 'لا شيء'} — الحدود إما معطلة أو تُخفيها بنية الشبكة)`);
 }
 
 console.log(`[5] 404 النحيفة والمستندات`);

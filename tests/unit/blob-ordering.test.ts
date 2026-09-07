@@ -16,180 +16,188 @@ const mockFindUnique = vi.hoisted(() => vi.fn());
 const mockFindMany = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
-	menuItem: {
-		findUnique: mockFindUnique,
-		update: mockUpdate,
-		delete: mockDelete,
-		findMany: mockFindMany,
-	},
-	restaurant: { findUnique: mockFindUnique, delete: mockDelete },
-	category: { findUnique: mockFindUnique },
+        menuItem: {
+                findUnique: mockFindUnique,
+                update: mockUpdate,
+                delete: mockDelete,
+                findMany: mockFindMany,
+        },
+        restaurant: { findUnique: mockFindUnique, delete: mockDelete },
+        category: { findUnique: mockFindUnique },
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+// round91-F-B (F9): items/[id] PUT now carries a 20/min session-scoped
+// limiter (module scope) — stubbed like every other limited route.
+vi.mock('@/lib/rate-limit', () => ({
+        createDbRateLimiter: () => ({
+                check: vi.fn(async () => ({ success: true, remaining: 19, reset: 0 })),
+                destroy: () => {},
+        }),
+}));
 // round86-A3: the route also imports mediaUrlError (write-side guard) —
 // mock it as permissive so the tests exercise deleteBlob ordering only.
 vi.mock('@/lib/blob', () => ({
-	deleteBlob: mockDeleteBlob,
-	mediaUrlError: () => null,
+        deleteBlob: mockDeleteBlob,
+        mediaUrlError: () => null,
 }));
 vi.mock('@/lib/auth', () => ({
-	requireAuth: () => Promise.resolve({ authorized: true, role: 'admin', restaurantId: 1 }),
-	// `admin` (legacy) passes every permission except MANAGE_USERS — mirrors auth.ts
-	requirePermission: (permission: string) =>
-		Promise.resolve(
-			permission === 'MANAGE_USERS'
-				? { authorized: false, error: 'لا تملك الصلاحية', status: 403 }
-				: { authorized: true, role: 'admin', restaurantId: 1, userId: 1, permissions: [] }
-		),
+        requireAuth: () => Promise.resolve({ authorized: true, role: 'admin', restaurantId: 1 }),
+        // `admin` (legacy) passes every permission except MANAGE_USERS — mirrors auth.ts
+        requirePermission: (permission: string) =>
+                Promise.resolve(
+                        permission === 'MANAGE_USERS'
+                                ? { authorized: false, error: 'لا تملك الصلاحية', status: 403 }
+                                : { authorized: true, role: 'admin', restaurantId: 1, userId: 1, permissions: [] }
+                ),
 }));
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
 function makeRequest(method: string, body?: unknown): NextRequest {
-	const req = new NextRequest('http://localhost/api/items/1', {
-		method,
-		headers: body ? { 'Content-Type': 'application/json' } : undefined,
-		body: body ? JSON.stringify(body) : undefined,
-	});
-	return req;
+        const req = new NextRequest('http://localhost/api/items/1', {
+                method,
+                headers: body ? { 'Content-Type': 'application/json' } : undefined,
+                body: body ? JSON.stringify(body) : undefined,
+        });
+        return req;
 }
 
 describe('items PUT — deleteBlob ordering', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-		mockFindUnique.mockReset();
-		mockUpdate.mockReset();
-		mockDeleteBlob.mockReset();
-	});
+        beforeEach(() => {
+                vi.clearAllMocks();
+                mockFindUnique.mockReset();
+                mockUpdate.mockReset();
+                mockDeleteBlob.mockReset();
+        });
 
-	it('calls deleteBlob only after prisma.update succeeds when image replaced', async () => {
-		mockFindUnique.mockResolvedValue({
-			id: 1,
-			image: 'https://old-image.com/old.jpg',
-			category: { restaurantId: 1 },
-		});
-		mockUpdate.mockResolvedValue({
-			id: 1,
-			image: 'https://new-image.com/new.jpg',
-		});
+        it('calls deleteBlob only after prisma.update succeeds when image replaced', async () => {
+                mockFindUnique.mockResolvedValue({
+                        id: 1,
+                        image: 'https://old-image.com/old.jpg',
+                        category: { restaurantId: 1 },
+                });
+                mockUpdate.mockResolvedValue({
+                        id: 1,
+                        image: 'https://new-image.com/new.jpg',
+                });
 
-		const { PUT } = await import('@/app/api/items/[id]/route');
-		const res = await PUT(
-			makeRequest('PUT', { name: 'test', image: 'https://new-image.com/new.jpg' }),
-			{
-				params: Promise.resolve({ id: '1' }),
-			}
-		);
+                const { PUT } = await import('@/app/api/items/[id]/route');
+                const res = await PUT(
+                        makeRequest('PUT', { name: 'test', image: 'https://new-image.com/new.jpg' }),
+                        {
+                                params: Promise.resolve({ id: '1' }),
+                        }
+                );
 
-		expect(res.status).toBe(200);
-		// prisma.update called before deleteBlob
-		expect(mockUpdate).toHaveBeenCalled();
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-image.com/old.jpg', { restaurantId: 1 });
-	});
+                expect(res.status).toBe(200);
+                // prisma.update called before deleteBlob
+                expect(mockUpdate).toHaveBeenCalled();
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://old-image.com/old.jpg', { restaurantId: 1 });
+        });
 
-	it('does NOT call deleteBlob when prisma.update rejects', async () => {
-		mockFindUnique.mockResolvedValue({
-			id: 1,
-			image: 'https://old-image.com/old.jpg',
-			category: { restaurantId: 1 },
-		});
-		mockUpdate.mockRejectedValue(new Error('DB error'));
+        it('does NOT call deleteBlob when prisma.update rejects', async () => {
+                mockFindUnique.mockResolvedValue({
+                        id: 1,
+                        image: 'https://old-image.com/old.jpg',
+                        category: { restaurantId: 1 },
+                });
+                mockUpdate.mockRejectedValue(new Error('DB error'));
 
-		const { PUT } = await import('@/app/api/items/[id]/route');
-		const res = await PUT(
-			makeRequest('PUT', { name: 'test', image: 'https://new-image.com/new.jpg' }),
-			{
-				params: Promise.resolve({ id: '1' }),
-			}
-		);
+                const { PUT } = await import('@/app/api/items/[id]/route');
+                const res = await PUT(
+                        makeRequest('PUT', { name: 'test', image: 'https://new-image.com/new.jpg' }),
+                        {
+                                params: Promise.resolve({ id: '1' }),
+                        }
+                );
 
-		expect(res.status).toBe(500);
-		expect(mockDeleteBlob).not.toHaveBeenCalled();
-	});
+                expect(res.status).toBe(500);
+                expect(mockDeleteBlob).not.toHaveBeenCalled();
+        });
 });
 
 describe('items DELETE — deleteBlob ordering', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-		mockFindUnique.mockReset();
-		mockDelete.mockReset();
-		mockDeleteBlob.mockReset();
-	});
+        beforeEach(() => {
+                vi.clearAllMocks();
+                mockFindUnique.mockReset();
+                mockDelete.mockReset();
+                mockDeleteBlob.mockReset();
+        });
 
-	it('calls deleteBlob only after prisma.delete succeeds', async () => {
-		mockFindUnique.mockResolvedValue({
-			id: 1,
-			image: 'https://image.com/item.jpg',
-			category: { restaurantId: 1 },
-		});
-		mockDelete.mockResolvedValue({ id: 1 });
+        it('calls deleteBlob only after prisma.delete succeeds', async () => {
+                mockFindUnique.mockResolvedValue({
+                        id: 1,
+                        image: 'https://image.com/item.jpg',
+                        category: { restaurantId: 1 },
+                });
+                mockDelete.mockResolvedValue({ id: 1 });
 
-		const { DELETE } = await import('@/app/api/items/[id]/route');
-		const res = await DELETE(makeRequest('DELETE'), {
-			params: Promise.resolve({ id: '1' }),
-		});
+                const { DELETE } = await import('@/app/api/items/[id]/route');
+                const res = await DELETE(makeRequest('DELETE'), {
+                        params: Promise.resolve({ id: '1' }),
+                });
 
-		expect(res.status).toBe(200);
-		expect(mockDelete).toHaveBeenCalled();
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item.jpg', { restaurantId: 1 });
-	});
+                expect(res.status).toBe(200);
+                expect(mockDelete).toHaveBeenCalled();
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item.jpg', { restaurantId: 1 });
+        });
 
-	it('does NOT call deleteBlob when prisma.delete rejects', async () => {
-		mockFindUnique.mockResolvedValue({
-			id: 1,
-			image: 'https://image.com/item.jpg',
-			category: { restaurantId: 1 },
-		});
-		mockDelete.mockRejectedValue(new Error('DB error'));
+        it('does NOT call deleteBlob when prisma.delete rejects', async () => {
+                mockFindUnique.mockResolvedValue({
+                        id: 1,
+                        image: 'https://image.com/item.jpg',
+                        category: { restaurantId: 1 },
+                });
+                mockDelete.mockRejectedValue(new Error('DB error'));
 
-		const { DELETE } = await import('@/app/api/items/[id]/route');
-		const res = await DELETE(makeRequest('DELETE'), {
-			params: Promise.resolve({ id: '1' }),
-		});
+                const { DELETE } = await import('@/app/api/items/[id]/route');
+                const res = await DELETE(makeRequest('DELETE'), {
+                        params: Promise.resolve({ id: '1' }),
+                });
 
-		expect(res.status).toBe(500);
-		expect(mockDeleteBlob).not.toHaveBeenCalled();
-	});
+                expect(res.status).toBe(500);
+                expect(mockDeleteBlob).not.toHaveBeenCalled();
+        });
 });
 
 describe('restaurants DELETE — deleteBlob ordering', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-		mockFindUnique.mockReset();
-		mockFindMany.mockReset();
-		mockDelete.mockReset();
-		mockDeleteBlob.mockReset();
-	});
+        beforeEach(() => {
+                vi.clearAllMocks();
+                mockFindUnique.mockReset();
+                mockFindMany.mockReset();
+                mockDelete.mockReset();
+                mockDeleteBlob.mockReset();
+        });
 
-	it('calls deleteBlob only after prisma.delete succeeds', async () => {
-		mockFindMany.mockResolvedValue([
-			{ image: 'https://image.com/item1.jpg' },
-			{ image: 'https://image.com/item2.jpg' },
-		]);
-		// First findUnique call -> restaurant with logo+gallery
-		// Second call -> existing item check (findUnique for menuItem is overridden too)
-		mockFindUnique.mockImplementation(async (args: { where: { id: number } }) => {
-			// Return restaurant data for all queries in this route
-			return {
-				id: args.where.id,
-				logo: 'https://image.com/logo.jpg',
-				gallery: ['https://image.com/gallery1.jpg', 'https://image.com/gallery2.jpg'],
-			};
-		});
-		mockDelete.mockResolvedValue({ id: 1 });
+        it('calls deleteBlob only after prisma.delete succeeds', async () => {
+                mockFindMany.mockResolvedValue([
+                        { image: 'https://image.com/item1.jpg' },
+                        { image: 'https://image.com/item2.jpg' },
+                ]);
+                // First findUnique call -> restaurant with logo+gallery
+                // Second call -> existing item check (findUnique for menuItem is overridden too)
+                mockFindUnique.mockImplementation(async (args: { where: { id: number } }) => {
+                        // Return restaurant data for all queries in this route
+                        return {
+                                id: args.where.id,
+                                logo: 'https://image.com/logo.jpg',
+                                gallery: ['https://image.com/gallery1.jpg', 'https://image.com/gallery2.jpg'],
+                        };
+                });
+                mockDelete.mockResolvedValue({ id: 1 });
 
-		const { DELETE } = await import('@/app/api/restaurants/[id]/route');
-		const res = await DELETE(makeRequest('DELETE'), {
-			params: Promise.resolve({ id: '1' }),
-		});
+                const { DELETE } = await import('@/app/api/restaurants/[id]/route');
+                const res = await DELETE(makeRequest('DELETE'), {
+                        params: Promise.resolve({ id: '1' }),
+                });
 
-		expect(res.status).toBe(200);
-		expect(mockDelete).toHaveBeenCalled();
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item1.jpg', { restaurantId: 1 });
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item2.jpg', { restaurantId: 1 });
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/logo.jpg', { restaurantId: 1 });
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery1.jpg', { restaurantId: 1 });
-		expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery2.jpg', { restaurantId: 1 });
-	});
+                expect(res.status).toBe(200);
+                expect(mockDelete).toHaveBeenCalled();
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item1.jpg', { restaurantId: 1 });
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/item2.jpg', { restaurantId: 1 });
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/logo.jpg', { restaurantId: 1 });
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery1.jpg', { restaurantId: 1 });
+                expect(mockDeleteBlob).toHaveBeenCalledWith('https://image.com/gallery2.jpg', { restaurantId: 1 });
+        });
 });

@@ -32,6 +32,14 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+// round91-F-B (F9): items/[id] PUT now carries a 20/min session-scoped
+// limiter (module scope) — stubbed like every other limited route.
+vi.mock('@/lib/rate-limit', () => ({
+        createDbRateLimiter: () => ({
+                check: vi.fn(async () => ({ success: true, remaining: 19, reset: 0 })),
+                destroy: () => {},
+        }),
+}));
 vi.mock('@/lib/audit', () => ({ logAudit: mockLogAudit }));
 vi.mock('@/lib/menu-cache', () => ({ revalidateMenu: mockRevalidate }));
 vi.mock('@/lib/blob', () => ({

@@ -33,6 +33,10 @@ const txMock = vi.hoisted(() => ({
         order: { count: vi.fn(), create: vi.fn() },
         // round90-F1 (T1): the route locks the restaurant row FOR UPDATE
         // inside the tx before the cap count.
+        // round91-F-B (D2-#4): the authoritative maxOrders/isActive are ALSO
+        // re-read inside the tx now (under the lock) — mock resolves nothing
+        // by default → the pre-tx values act as the fallback (old behavior).
+        restaurant: { findUnique: vi.fn() },
         $queryRaw: vi.fn(),
 }));
 
@@ -84,6 +88,10 @@ async function callPost(body: unknown) {
 
 beforeEach(() => {
         vi.clearAllMocks();
+        // round91-F-B: reset the in-tx re-read mock's persistent implementation
+        // (clearAllMocks keeps implementations — tests that pin an authoritative
+        // row must not leak it into the next test).
+        txMock.restaurant.findUnique.mockReset();
         mockRateCheck.mockResolvedValue({ success: true, remaining: 29, reset: 0 });
         mockMenuItemFindMany.mockResolvedValue([{ id: 1, price: 10, discountedPrice: null }]);
         mockModifierOptionFindMany.mockResolvedValue([]);
@@ -97,6 +105,58 @@ beforeEach(() => {
                 ...args.data,
                 items: [],
         }));
+});
+
+// ── round91-F-B (D2-#4): cap/guard values re-read UNDER the lock ────────
+
+describe('POST /api/orders — authoritative values under FOR UPDATE (round91-F-B)', () => {
+        it('the cap value is re-read INSIDE the tx, AFTER the lock and BEFORE the count', async () => {
+                txMock.restaurant.findUnique.mockResolvedValue({ maxOrders: 500, isActive: true });
+
+                await callPost(VALID_BODY);
+
+                expect(txMock.restaurant.findUnique).toHaveBeenCalledTimes(1);
+                expect(txMock.restaurant.findUnique).toHaveBeenCalledWith({
+                        where: { id: 5 },
+                        select: { maxOrders: true, isActive: true },
+                });
+                // lock FIRST, then the re-read, then the count (serialization order)
+                expect(txMock.$queryRaw.mock.invocationCallOrder[0]).toBeLessThan(
+                        txMock.restaurant.findUnique.mock.invocationCallOrder[0]
+                );
+                expect(txMock.restaurant.findUnique.mock.invocationCallOrder[0]).toBeLessThan(
+                        txMock.order.count.mock.invocationCallOrder[0]
+                );
+        });
+
+        it('concurrent downgrade in the race window: the LOCKED maxOrders wins over the stale pre-tx read', async () => {
+                // pre-tx read says 500 (stale); under the lock the plan was downgraded to 12
+                txMock.restaurant.findUnique.mockResolvedValue({ maxOrders: 12, isActive: true });
+                txMock.order.count.mockResolvedValue(12); // === the NEW cap
+
+                const res = await callPost(VALID_BODY);
+
+                expect(res.status).toBe(403);
+                const json = await res.json();
+                // the message carries the AUTHORITATIVE (locked) limit, not the stale one
+                expect(json.error).toBe(
+                        'لقد وصلت للحد الأقصى للطلبات (12) في خطتك. قم بترقية خطتك لإضافة المزيد.'
+                );
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
+
+        it('concurrent suspension in the race window: isActive:false under the lock → the SAME 409 contract as the fast check', async () => {
+                // pre-tx read saw active (fast check passed); suspension committed in between
+                txMock.restaurant.findUnique.mockResolvedValue({ maxOrders: 500, isActive: false });
+
+                const res = await callPost(VALID_BODY);
+
+                expect(res.status).toBe(409);
+                const json = await res.json();
+                expect(json.error).toBe('المطعم غير متاح حالياً');
+                expect(mockTransaction).toHaveBeenCalledTimes(1); // rejected INSIDE the tx
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
 });
 
 // ── T1: the atomic plan cap ─────────────────────────────────────────────

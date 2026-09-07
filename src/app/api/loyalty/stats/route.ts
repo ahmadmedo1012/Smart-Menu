@@ -4,15 +4,13 @@ import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { resolveRestaurantScope } from '@/lib/stats-queries';
+import { getClientIp } from '@/lib/client-ip';
 
 const loyaltyStatsLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 export async function GET(request: NextRequest) {
         try {
-                const ip =
-                        request.headers.get('x-real-ip') ||
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        'unknown';
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const { success: allowed } = await loyaltyStatsLimiter.check(`loyalty-stats:${ip}`);
                 if (!allowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 

@@ -37,6 +37,9 @@ const txMock = vi.hoisted(() => ({
         order: { count: vi.fn(), create: vi.fn() },
         // round90-F1 (T3): the conversion tx locks the referrer's card row
         // FOR UPDATE before the code-cap count — mock just needs to resolve.
+        // round91-F-B (D2-#4): the orders POST path re-reads the Restaurant
+        // row under its FOR UPDATE lock — resolving nothing → pre-tx fallback.
+        restaurant: { findUnique: vi.fn() },
         $queryRaw: vi.fn(),
 }));
 

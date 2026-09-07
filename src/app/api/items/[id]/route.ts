@@ -4,9 +4,16 @@ import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { success, notFound, handleError, error } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { createDbRateLimiter } from '@/lib/rate-limit';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
+
+// round91-F-B (F9/D1 — unthrottled heavy write): items PUT carries up to a
+// 200KB base64 image per request (the R90-E4 cap) with NO limiter — repeated
+// PUTs self-DoS the DB and bloat MenuItem.image rows. Session-scoped key
+// (auth-checked first, per-user: no spoofable header component).
+const itemUpdateDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 /* round90-F3 — enum-backed status whitelist (mirrors items/route.ts: a free
  * z.string() degraded invalid values into Prisma noise → 400 instead of the
@@ -151,6 +158,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return error('غير مصرح', 401);
+
+                // round91-F-B (F9): 20/min per authenticated user — AFTER the 401 gate
+                // so an anonymous probe never burns a bucket.
+                const { success: putAllowed } = await itemUpdateDbLimiter.check(`itemsput:${auth.userId}`);
+                if (!putAllowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
+
                 const { id } = await params;
                 const itemId = Number(id);
                 if (Number.isNaN(itemId)) return error('معرف غير صالح', 400);

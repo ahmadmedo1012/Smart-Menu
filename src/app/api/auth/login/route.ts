@@ -8,6 +8,7 @@ import { notifyEvent } from '@/lib/telegram';
 import { createSession } from '@/lib/session';
 import { verifyHash, needsRehash, hashPassword } from '@/lib/hash';
 import { usernamePresence, passwordPresence } from '@/lib/validation';
+import { getClientIp } from '@/lib/client-ip';
 
 const loginSchema = z.object({
         username: usernamePresence,
@@ -36,16 +37,27 @@ const accountLimiter = createDbRateLimiter({
         max: 20,
         exemptFromRelax: true,
 });
+// round91-D1/F2 backstop: the limiter above keys on `acct:${ip}:${username}` —
+// on non-Vercel deployments (the repo ships output:'standalone' + reverse-proxy
+// support) a client ROTATES spoofed x-real-ip/x-forwarded-for values to mint a
+// fresh lockout bucket per attempt (proven live in D1 §2.1: three spoofed
+// headers → three distinct RateLimitEntry rows). A SECOND limiter keyed on
+// username ALONE caps rotating/distributed brute force at 20 failures/15min
+// no matter how the IP is spelled. It is checked on the SAME failure-only path
+// as the ip-scoped limiter: successful logins never burn it (see the comment
+// below) and the missing-user path skips it (ghost usernames must not mint
+// auth.lockout audit noise). Accepted, bounded tradeoff: 20 failures from ANY
+// IP lock the username for 15 minutes — the price of closing unlimited
+// online brute-force; the ip-scoped limiter above stays the primary cap and
+// keeps the e2e-asserted strict budget via exemptFromRelax.
+const accountBackstopLimiter = createDbRateLimiter({ windowMs: 15 * 60_000, max: 20 }); // round91-D1/F2 backstop
 
 export async function POST(request: Request) {
         try {
                 const parsed = loginSchema.safeParse(await request.json());
                 if (!parsed.success) return error('يرجى إدخال اسم المستخدم وكلمة المرور', 400);
                 const { username, password } = parsed.data;
-                const ip =
-                        request.headers.get('x-real-ip') ||
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        'unknown';
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const lockKey = `${ip}:${username}`;
                 const { success: allowed } = await loginLimiter.check(lockKey);
                 if (!allowed) {
@@ -77,10 +89,12 @@ export async function POST(request: Request) {
                         // Account+IP throttle — checked ONLY on failed auth so successful logins
                         // never count toward the window (legit use from one IP used to fill the
                         // 20-count budget and lock real accounts).
-                        // Keyed on IP+username — username alone lets any attacker lock any
-                        // account (unauthenticated DoS).
+                        // round91-D1/F2: the ip-scoped key (`acct:${ip}:${username}`) is spoofable
+                        // by IP rotation on non-Vercel — the username-only backstop below runs
+                        // on the SAME failure-only path so its 20/15min budget survives rotation.
                         const { success: acctAllowed } = await accountLimiter.check(`acct:${ip}:${username}`);
-                        if (!acctAllowed) {
+                        const { success: backstopAllowed } = await accountBackstopLimiter.check(`acct:${username}`);
+                        if (!acctAllowed || !backstopAllowed) {
                                 // round88-B7: audit the lockout ITSELF (not each 401 — the feed
                                 // must stay signal): a warning SystemEvent the moment the
                                 // account limiter trips. Fire-and-forget with a synchronous
@@ -92,7 +106,13 @@ export async function POST(request: Request) {
                                                         title: 'قفل حساب مؤقت',
                                                         message: `قُفل حساب «${username}» مؤقتاً بعد 20 محاولة فاشلة خلال 15 دقيقة`,
                                                         severity: 'warning',
-                                                        metadata: { username, ip, limiter: 'acct:ip:username' },
+                                                        // round91-D1/F2: name WHICH limiter tripped — the
+                                                        // username-only backstop is new signal for the feed.
+                                                        metadata: {
+                                                                username,
+                                                                ip,
+                                                                limiter: acctAllowed ? 'acct:username' : 'acct:ip:username',
+                                                        },
                                                 },
                                         });
                                 } catch {

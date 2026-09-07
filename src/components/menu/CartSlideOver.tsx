@@ -158,11 +158,15 @@ export function CartSlideOver() {
                                                                         <span className="text-xs font-semibold tabular-nums ms-auto">
                                                                                 {formatPrice(item.price * item.quantity, { decimals: 1 })}
                                                                         </span>
+                                                                        {/* a11y(F-D/round91): trash icon was muted-foreground/30 ≈1.6:1 —
+                                                                            below WCAG 1.4.11 3:1 minimum for a sole remove affordance
+                                                                            (axe can't see low-alpha icon colors). /70 + 44px target
+                                                                            matches the stepper buttons. */}
                                                                         <button
                                                                                 type="button"
                                                                                 onClick={() => removeItem(item.id)}
                                                                                 aria-label={`حذف ${item.name}`}
-                                                                                className="size-10 flex items-center justify-center rounded-sm text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                                                                className="size-11 flex items-center justify-center rounded-sm text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors"
                                                                         >
                                                                                 <AnimatedTrash className="size-3.5" />
                                                                         </button>

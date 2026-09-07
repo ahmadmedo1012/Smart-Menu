@@ -116,6 +116,13 @@ export async function GET(request: NextRequest) {
                         return error('معرف المطعم غير صالح', 400);
                 }
                 const status = searchParams.get('status') || undefined;
+                // round91-F-B (D2-#5): فلتر الحالة كان يمرّ بلا تحقق للطاقم/المالك —
+                // قيمة غير صالحة كانت تصل Prisma كضجيج 500. الآن enum مشتق من
+                // المخطط (نفس itemStatusValues أعلاه) → 400 عربية نظيفة، بنمط
+                // عائلة الطلبات (isValidOrderStatusFilter).
+                if (status !== undefined && !itemStatusValues.includes(status)) {
+                        return error('حالة الصنف غير صالحة', 400);
+                }
 
                 const where: Record<string, unknown> = {};
                 const auth = await requireAuth();
@@ -241,15 +248,23 @@ export async function POST(request: NextRequest) {
                 // the cap. Same pattern the diagnosis prescribed for orders T1.
                 const data = await prisma.$transaction(async (tx) => {
                         await tx.$queryRaw`SELECT id FROM "Restaurant" WHERE id = ${category.restaurant.id} FOR UPDATE`;
+                        // round91-F-B (D2-#4): السقف المعتمد يُقرأ تحت القفل — كانت
+                        // maxItems تُقرأ قبل المعاملة فتمرر الصف الواحد الزائد إذا
+                        // التزمت تخفيض خطة متزامن في نافذة السباق (fail-open بواحد).
+                        // القراءة السابقة تبقى للعرض (اسم الخطة) وللفحص السريع.
+                        const locked = await tx.restaurant.findUnique({
+                                where: { id: category.restaurant.id },
+                                select: { maxItems: true },
+                        });
+                        const effectiveMaxItems = locked?.maxItems ?? category.restaurant.maxItems;
                         const existingCount = await tx.menuItem.count({
                                 where: { category: { is: { restaurantId: category.restaurant.id } } },
                         });
-                        const maxItems = category.restaurant.maxItems;
-                        if (existingCount >= maxItems) {
+                        if (existingCount >= effectiveMaxItems) {
                                 // round89-E1: unified plan-cap error (was local ItemLimitError)
                                 throw new PlanLimitError({
                                         kind: 'items',
-                                        limit: maxItems,
+                                        limit: effectiveMaxItems,
                                         planName: category.restaurant.plan?.nameAr ?? null,
                                 });
                         }

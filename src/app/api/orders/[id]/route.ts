@@ -5,6 +5,7 @@ import { success, error as apiError, notFound, handleError } from '@/lib/api-hel
 import { requireAuth, requirePermission } from '@/lib/auth';
 import { computeTier, generateReferralCode } from '@/lib/loyalty-tiers';
 import { createDbRateLimiter } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/client-ip';
 import { convertReferralForCompletedOrder } from '@/lib/referral-conversion';
 
 const orderDetailDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
@@ -60,10 +61,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
         try {
-                const ip =
-                        request.headers.get('x-real-ip') ||
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        'unknown';
+                // round91-D1: unified client-IP extraction (canonical + validated —
+                // header rotation can no longer mint fresh buckets off-Vercel)
+                const ip = getClientIp(request);
                 const { success: allowed } = await orderDetailDbLimiter.check(`order-update:${ip}`);
                 if (!allowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 

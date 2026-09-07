@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
-import { sendTelegramNotification } from "@/lib/telegram";
+import { sendTelegramNotification, notifyEvent } from "@/lib/telegram";
 import { error } from "@/lib/logger";
+import { logAudit } from "@/lib/audit";
 import { getDecryptedBotToken } from "@/lib/config";
 
 // round87-C4: the decision handlers below used to accept the raw (nullable)
@@ -35,7 +36,9 @@ export type Decision = "verified" | "cancelled";
 
 export type ResolveResult =
   | { ok: true; action: Decision; paymentId: number; restaurant?: { id: number; name: string; slug: string }; user?: { id: number; username: string; role: string; subscriptionStatus: string; restaurantId: number | null } }
-  | { ok: false; reason: string };
+  // round91-F-B: `status` lets callers surface the right HTTP code for the
+  // failure arm (409 for the plan-cap rejection). Absent → the legacy 400.
+  | { ok: false; reason: string; status?: number };
 
 export async function resolveSubscriptionPayment(
   paymentId: number,
@@ -150,6 +153,8 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
       // post-transaction code reads it from `result.restaurant` (round87-C4:
       // the old outer-scope let + `null as …` self-cast confused flow analysis)
       let primaryRestaurant: { id: number; name: string; slug: string } | null = null;
+      // round91-F-B (D2-#1): every created row (post-commit audit/notify below)
+      const createdRestaurants: { id: number; name: string; slug: string }[] = [];
       // Check ALL slugs unique
       for (const m of menus) {
         const slugTaken = await tx.restaurant.findUnique({ where: { slug: m.slug } });
@@ -165,8 +170,24 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
       if (existing.userId) {
         const plan = await tx.subscriptionPlan.findUnique({
           where: { id: existing.planId },
-          select: { maxItems: true, maxOrders: true },
+          select: { maxItems: true, maxOrders: true, maxMenus: true },
         });
+
+        // round91-F-B (D2-#1 — plan-cap bypass): كان هذا المسار ينشئ كل منيو
+        // في metadata دون أي مقارنة بسقف الخطة. نفس نمط owner/restaurants:122 —
+        // قفل صف المستخدم FOR UPDATE ثم عدّ منيوهاته القائمة تحت القفل؛
+        // الخاسر المتزامن (موافقة ثانية/إنشاء مالك متزامن) يعيد العد بعد
+        // commit الفائز فيرى الرقم الحقيقي. مطاعم سبق إنشاؤها تُحسب من السقف
+        // — إعادة تشغيل موافقة ناجحة تصطدم ببوابة الحالة أعلاه أولاً (idempotent).
+        await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${existing.userId} FOR UPDATE`;
+        const existingMenus = await tx.userRestaurant.count({
+          where: { userId: existing.userId },
+        });
+        const maxMenus = plan?.maxMenus ?? 1;
+        if (existingMenus + menus.length > maxMenus) {
+          // caught below → { ok:false, reason: «تجاوز سقف المطاعم للخطة», status: 409 }
+          throw new Error("MENU_CAP_EXCEEDED");
+        }
 
         // Create each restaurant; first = primary
         for (let i = 0; i < menus.length; i++) {
@@ -184,6 +205,7 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
               isActive: true,
             },
           });
+          createdRestaurants.push({ id: created.id, name: created.name, slug: created.slug });
           if (i === 0) primaryRestaurant = created;
           // Link every restaurant to the user via UserRestaurant (many-to-many)
           await tx.userRestaurant.create({
@@ -235,8 +257,28 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
         });
       }
 
-      return { restaurant: primaryRestaurant, user };
+      return { restaurant: primaryRestaurant, createdRestaurants, user };
     });
+
+    // round91-F-B (D2-#1): per-restaurant audit + notify mirroring the two
+    // gated creation routes (owner/restaurants POST, R90-F5b-C create-owner) —
+    // this was the only restaurant-creation path with NO audit/notify per row.
+    // Post-commit, best-effort: failures never fail the approved payment.
+    // actorId null = system actor (the approving admin's id isn't available
+    // inside the lib; the paymentId/userId in metadata trace the flow).
+    for (const r of result.createdRestaurants) {
+      logAudit({
+        action: "create",
+        targetType: "restaurant",
+        targetId: r.id,
+        metadata: { paymentId: existing.id, userId: existing.userId, name: r.name, slug: r.slug, source: "subscription-approval" },
+      }).catch(() => {});
+      notifyEvent(
+        "restaurant_created",
+        { name: r.name, slug: r.slug, plan: existing.planId ? "paid" : "free" },
+        { adminOnly: true }
+      ).catch(() => {});
+    }
 
     // Post-transaction Telegram notifications (fire-and-forget, best-effort)
     const userPart = result.user ? `• المستخدم: ${result.user.username}\n` : "";
@@ -256,6 +298,11 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
     error("[subscription-decisions] new user error:", { error: e });
     const errMsg = e instanceof Error ? e.message : "";
     const prismaErr = e as Record<string, unknown>;
+    // round91-F-B (D2-#1): cap rejection — 409 (conflict with the plan's
+    // maxMenus), Arabic reason surfaced to the approving admin.
+    if (errMsg === "MENU_CAP_EXCEEDED") {
+      return { ok: false, reason: "تجاوز سقف المطاعم للخطة", status: 409 };
+    }
     const isSlugConflict = errMsg === "SLUG_TAKEN" || (prismaErr.code === "P2002" && String(prismaErr.meta ?? "").includes("slug"));
     const reason = isSlugConflict
       ? "رابط المطعم محجوز مسبقاً. يُرجى إبلاغ العميل باختيار رابط آخر."

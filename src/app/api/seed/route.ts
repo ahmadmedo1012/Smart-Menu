@@ -16,7 +16,10 @@ export async function POST() {
       return apiError("غير متاح في الإنتاج", 404);
     }
     const auth = await requireAdmin();
-    if (!auth.authorized) return apiError("غير مصرح", 401);
+    // round91-F-B (D2-#3): 401 only for no-session; a logged-in wrong-role
+    // caller now propagates requireAdmin's 403 (was a blanket 401). The
+    // production guard above stays FIRST — dev-bootstrap semantics preserved.
+    if (!auth.authorized) return apiError(auth.error, auth.status);
 
     // Upsert each plan — corrects existing data (e.g. typos) without dropping tables
     for (const p of DEFAULT_PLANS) {

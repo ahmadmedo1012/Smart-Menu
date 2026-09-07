@@ -4,11 +4,19 @@ import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError, paginated, parsePagination, isValidOrderStatusFilter } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/client-ip';
 import { orderItemCountByOrder } from '@/lib/list-counts';
 import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
 import { PlanLimitError } from '@/lib/plan-limit-error';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
+
+// round91-F-B (F9/D1 — unthrottled heavy GET): GET /api/orders runs the
+// platform's heaviest authenticated query (full list + grouped counts, 15s
+// polls) with NO limiter while POST had one — a session could self-DoS the
+// DB. Session-scoped key: every caller is auth-checked first, so the bucket
+// is per-user (no spoofable header component).
+const ordersListDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
 const orderItemSchema = z.object({
         itemId: z.number().int().positive(),
@@ -46,6 +54,11 @@ export async function GET(request: NextRequest) {
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
+
+                // round91-F-B (F9): 60/min per authenticated user — AFTER the 401 gate
+                // so an anonymous probe never burns a bucket.
+                const { success: listAllowed } = await ordersListDbLimiter.check(`orders:${auth.userId}`);
+                if (!listAllowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 const url = new URL(request.url);
                 const { searchParams } = url;
@@ -137,16 +150,22 @@ export async function GET(request: NextRequest) {
         }
 }
 
+/**
+ * round91-F-B (D2-#4): in-transaction flag — the restaurant was suspended
+ * (isActive→false) in the race window between the pre-tx read and the lock.
+ * Mapped to the SAME 409 contract as the pre-tx fast check (S-5).
+ */
+class InactiveRestaurantError extends Error {}
+
 export async function POST(request: NextRequest) {
         // round90-F1: مرئي للـcatch — مشتق داخل المحاولة قبل أي كتابة؛ التقاط
         // P2002 على orderNo يحتاجه لإرجاع تأكيد الخمول المتعاقد.
         let derivedOrderNo: string | undefined;
         try {
                 // Rate limit order creation (public endpoint)
-                const ip =
-                        request.headers.get('x-real-ip') ||
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                        'unknown';
+                // round91-D1: unified client-IP extraction (canonical + validated —
+                // header rotation can no longer mint fresh buckets off-Vercel)
+                const ip = getClientIp(request);
                 const { success: allowed } = await orderDbLimiter.check(`order:${ip}`);
                 if (!allowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
@@ -251,13 +270,26 @@ export async function POST(request: NextRequest) {
                         // مطعم على نفس الصف الذي يُقرأ منه maxOrders أصلًا: الخاسر
                         // المتزامن ينتظر commit الفائز ثم يعيد العدّ فيرى الرقم الحقيقي.
                         await tx.$queryRaw`SELECT id FROM "Restaurant" WHERE id = ${body.restaurantId} FOR UPDATE`;
+                        // round91-F-B (D2-#4): القيم المعتمدة تُقرأ تحت القفل — كانت
+                        // maxOrders/isActive تُقرآن قبل المعاملة فيمرّ الطلب بسقف قديم
+                        // (fail-open بواحد) إذا التزمت تخفيض/تعليق متزامن في نافذة
+                        // الملّي ثانية. القراءة السابقة تبقى فحصًا سريعًا فقط.
+                        const locked = await tx.restaurant.findUnique({
+                                where: { id: body.restaurantId },
+                                select: { maxOrders: true, isActive: true },
+                        });
+                        if (locked && !locked.isActive) {
+                                // same contract as the pre-tx fast check (S-5), race-proof now
+                                throw new InactiveRestaurantError();
+                        }
+                        const effectiveMaxOrders = locked?.maxOrders ?? restaurant.maxOrders;
                         const orderCount = await tx.order.count({ where: { restaurantId: body.restaurantId } });
-                        if (orderCount >= restaurant.maxOrders) {
+                        if (orderCount >= effectiveMaxOrders) {
                                 // round89-E1: unified plan-cap error (was local OrderLimitError).
                                 // planName stays null here — the restaurant row (already fetched
                                 // for maxOrders) carries planId only, and an extra plan lookup
                                 // on the money path isn't worth the display name.
-                                throw new PlanLimitError({ kind: 'orders', limit: restaurant.maxOrders });
+                                throw new PlanLimitError({ kind: 'orders', limit: effectiveMaxOrders });
                         }
                         // Discount guard (round-77): no server-verified coupon/referral
                         // system exists in the order flow — a client-sent discount is
@@ -308,6 +340,8 @@ export async function POST(request: NextRequest) {
                 return success(data, 201);
         } catch (e) {
                 if (e instanceof PlanLimitError) return apiError(e.message, 403);
+                // round91-F-B (D2-#4): تعليق مطعم متزامن داخل المعاملة → نفس 409 السريع
+                if (e instanceof InactiveRestaurantError) return apiError('المطعم غير متاح حالياً', 409);
                 // round90-F1 (idempotency-race): إرسالان متزامنان بنفس idempotencyKey —
                 // الفحص الأولي (findUnique) يجتازه كلاهما قبل أي كتابة، فيوجّه القيد
                 // الفريد الخاسر إلى handleError العام: 409 «هذا الاسم موجود مسبقاً»

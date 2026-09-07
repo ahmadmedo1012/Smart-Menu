@@ -135,7 +135,8 @@ test.describe('RBAC negative — USER role', () => {
       // round89-E3: an AUTHENTICATED non-admin now gets 403 (was 401 — the
       // 401/403 split: unauthenticated 401, authenticated-but-denied 403).
       ['/api/users', 403],
-      ['/api/admin/audit-logs', 401],
+      // round91-F-B: requireAdmin routes join the split (was 401 for USER).
+      ['/api/admin/audit-logs', 403],
     ];
     for (const [path, expected] of reads) {
       const res = await request.get(path, { headers: { Cookie: session.cookie } });

@@ -170,6 +170,53 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                 ]);
         });
 
+        // ── round91-F-B (D2-#1): the approver is no longer blind to the count ──
+
+        it('approval keyboard message carries «عدد المطاعم: N» = tempRestaurants.length', async () => {
+                const res = await callSubscriptionsPost(
+                        subscribeBody({
+                                tempRestaurants: [
+                                        { name: 'فرع أ', slug: 'branch-a' },
+                                        { name: 'فرع ب', slug: 'branch-b' },
+                                        { name: 'فرع ج', slug: 'branch-c' },
+                                ],
+                        })
+                );
+
+                expect(res.status).toBe(201);
+                const [, , msg] = mockSendKeyboard.mock.calls[0];
+                expect(msg).toContain('عدد المطاعم: 3');
+        });
+
+        it('no tempRestaurants → the count line shows the provisioning fallback (1 default menu)', async () => {
+                await callSubscriptionsPost(subscribeBody());
+
+                const [, , msg] = mockSendKeyboard.mock.calls[0];
+                expect(msg).toContain('عدد المطاعم: 1');
+        });
+
+        // ── round91-F-B (D2-#2): receiptImageUrl length cap reaches the route 400 ──
+
+        it('2_001-char receiptImageUrl → 400 with the Arabic cap message (bank)', async () => {
+                const longReceipt = 'https://example.com/' + 'a'.repeat(2_100);
+
+                const res = await callSubscriptionsPost(
+                        subscribeBody({
+                                planId: 3,
+                                amount: 129,
+                                provider: 'bank',
+                                senderAccountName: 'أحمد المهدي',
+                                senderAccountNumber: '00203004005',
+                                receiptImageUrl: longReceipt,
+                        })
+                );
+
+                expect(res.status).toBe(400);
+                const json = await res.json();
+                expect(json.error).toBe('رابط الإيصال طويل جداً — الحد الأقصى 2000 حرف');
+                expect(mockPaymentCreate).not.toHaveBeenCalled();
+        });
+
         it('unauthenticated → 401 before any DB work', async () => {
                 authHolder.value = { authorized: false, role: 'USER', restaurantId: null, userId: 7, permissions: [] };
 

@@ -5,6 +5,7 @@ import { success, handleError, error } from '@/lib/api-helpers';
 import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getNextTierInfo, generateReferralCode } from '@/lib/loyalty-tiers';
+import { getClientIp } from '@/lib/client-ip';
 
 const loyaltyDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 // round85-A2: GET is an unauthenticated phone-to-card lookup — without a
@@ -42,10 +43,7 @@ export async function POST(request: NextRequest) {
 
                 // Rate limit per IP + restaurant (restaurantId in key) so one
                 // restaurant's traffic can't starve others behind the same IP (kiosk/NAT)
-                const ip =
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-                        request.headers.get('x-real-ip') ??
-                        'unknown';
+                const ip = getClientIp(request); // round91-D1: unified extraction
                 const rateCheck = await loyaltyDbLimiter.check(`${ip}:${restaurantId}`);
                 if (!rateCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
                 // round90-F4: restaurant-independent IP total — rotating restaurantId
@@ -111,10 +109,7 @@ export async function GET(request: NextRequest) {
                 if (!phone || !PHONE_RE.test(phone)) return error('رقم هاتف غير صالح', 400);
 
                 // round85-A2: rate limit the phone lookup (per IP+restaurant)
-                const getIp =
-                        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-                        request.headers.get('x-real-ip') ??
-                        'unknown';
+                const getIp = getClientIp(request); // round91-D1: unified extraction
                 const getRateCheck = await loyaltyGetLimiter.check(`${getIp}:${restaurantId}`);
                 if (!getRateCheck.success) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
                 // round90-F4: same per-IP total cap on the phone-lookup oracle

@@ -121,7 +121,7 @@ npx playwright test --project=qa-teams      # رحلات الفرق (team1-11)
 
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
-- **Database**: PostgreSQL + Prisma 7 (20 هجرة، قابلة لإعادة التشغيل)
+- **Database**: PostgreSQL + Prisma 7 (22 هجرة، قابلة لإعادة التشغيل)
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon
@@ -139,8 +139,8 @@ src/
 ├── lib/             # الأمن، الجلسات، CS­RF، Rate-limit، Zod
 ├── proxy.ts         # CSP/CSRF/جلسات على الحافة
 └── store/           # Zustand
-prisma/              # المخطط + 20 هجرة (parity مضمون)
-tests/               # 78 ملف unit (1219 اختبارًا) + 35 ملف E2E/أمن (فرق team1-11)
+prisma/              # المخطط + 22 هجرة (parity مضمون)
+tests/               # 91 ملف unit (1389 اختبارًا) + 30 ملف E2E/أمن (فرق team1-11 · ~362 فحصًا)
 docs/                # تقارير الجولات + التوثيق الهندسي (فهرس README.md — جولة 85)
 ```
 

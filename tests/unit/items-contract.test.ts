@@ -35,6 +35,9 @@ const mockDeleteBlob = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const txMock = vi.hoisted(() => ({
         $queryRaw: mockQueryRaw,
         menuItem: { count: mockMenuItemCount, create: mockMenuItemCreate },
+        // round91-F-B (D2-#4): maxItems is re-read under the FOR UPDATE lock —
+        // resolving nothing keeps the pre-tx values as the fallback.
+        restaurant: { findUnique: vi.fn() },
 }));
 
 const prismaMock = vi.hoisted(() => ({
@@ -48,6 +51,14 @@ vi.mock('@/lib/db', () => ({ prisma: prismaMock }));
 vi.mock('@/lib/audit', () => ({ logAudit: mockLogAudit }));
 vi.mock('@/lib/menu-cache', () => ({ revalidateMenu: mockRevalidate }));
 vi.mock('@/lib/blob', () => ({ mediaUrlError: mockMediaUrlError, deleteBlob: mockDeleteBlob }));
+// round91-F-B (F9): items/[id] PUT now carries a 20/min session-scoped
+// limiter (module scope) — stubbed like every other limited route.
+vi.mock('@/lib/rate-limit', () => ({
+        createDbRateLimiter: () => ({
+                check: vi.fn(async () => ({ success: true, remaining: 19, reset: 0 })),
+                destroy: () => {},
+        }),
+}));
 vi.mock('@/lib/auth', () => ({
         requireAuth: vi.fn(async () => ({
                 authorized: true,
@@ -77,6 +88,10 @@ const EXISTING_ITEM = {
 
 beforeEach(() => {
         vi.clearAllMocks();
+        // round91-F-B: reset the in-tx re-read mock's persistent implementation
+        // (clearAllMocks keeps implementations — a test that pins an
+        // authoritative maxItems must not leak it into the next test).
+        (txMock.restaurant.findUnique as ReturnType<typeof vi.fn>).mockReset();
         mockTransaction.mockImplementation(
                 async (fn: (tx: typeof txMock) => Promise<unknown>) => fn(txMock)
         );
@@ -219,5 +234,31 @@ describe('POST /api/items — maxItems serialization lock (round90-F3)', () => {
                 // the loser of a concurrent pair re-counts AFTER the lock, i.e.
                 // after the winner's commit — the cap can no longer be bypassed
                 expect(mockQueryRaw).toHaveBeenCalledTimes(1);
+        });
+});
+
+// ── 4. round91-F-B (D2-#4): authoritative maxItems under the lock ──────
+
+describe('POST /api/items — maxItems re-read under FOR UPDATE (round91-F-B)', () => {
+        it('the LOCKED maxItems wins over the stale pre-tx read (concurrent downgrade window)', async () => {
+                // pre-tx category read says 10 (stale); under the lock the plan was downgraded to 5
+                (txMock.restaurant.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ maxItems: 5 });
+                mockMenuItemCount.mockResolvedValue(5); // === the NEW cap
+
+                const res = await postItem({ name: 'شاي', price: 3, categoryId: 3 });
+
+                expect(res.status).toBe(403);
+                const json = await res.json();
+                expect(json.error).toBe(
+                        'لقد وصلت للحد الأقصى للأصناف (5) في خطة «أساسية». قم بترقية خطتك لإضافة المزيد.'
+                );
+                expect(mockMenuItemCreate).not.toHaveBeenCalled();
+                // re-read happens under the lock, before the count
+                expect(mockQueryRaw.mock.invocationCallOrder[0]).toBeLessThan(
+                        (txMock.restaurant.findUnique as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0]
+                );
+                expect((txMock.restaurant.findUnique as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0]).toBeLessThan(
+                        mockMenuItemCount.mock.invocationCallOrder[0]
+                );
         });
 });

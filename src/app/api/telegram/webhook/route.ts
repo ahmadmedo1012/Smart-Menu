@@ -10,6 +10,7 @@ import { resolveSubscriptionPayment } from '@/lib/subscription-decisions';
 import { getHmacKey } from '@/lib/keys';
 import { getDecryptedBotToken } from '@/lib/config';
 import { editMessageReplyMarkup, editMessageText, answerCallbackQuery } from '@/lib/telegram-api';
+import { getClientIp } from '@/lib/client-ip';
 
 // Constant-time string comparison — length mismatch short-circuits (never
 // leaks the expected length through timing) without throwing like
@@ -167,10 +168,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Gate 1: rate limit only verified Telegram traffic.
-        const ip =
-                request.headers.get('x-real-ip') ||
-                request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                'unknown';
+        const ip = getClientIp(request); // round91-D1: unified extraction
         const { success: rlAllowed } = await webhookDbLimiter.check(`webhook:${ip}`);
         if (!rlAllowed) return new Response('Too Many Requests', { status: 429 });
 

@@ -46,7 +46,14 @@ const ITEMS = [
   [0, 'Moroccan Tea', 'شاي مغربي', 'Fresh mint green tea', 'شاي أخضر بالنعناع الطازج', 8, 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=80', 3],
   [1, 'Waha Burger', 'برجر الواحة', 'Grilled beef, cheddar, secret sauce', 'لحم مشوي مع الشيدر وصوص الواحة السري', 25, 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80', 1],
   [1, 'Margherita Pizza', 'بيتزا مارغريتا', 'Classic tomato, mozzarella, basil', 'طماطم وموزاريلا وريحان', 30, 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80', 2],
-  [1, 'Chicken Pasta', 'باستا الدجاج', 'Creamy alfredo with grilled chicken', 'ألفريدو كريمي مع دجاج مشوي', 22, 'https://images.unsplash.com/photo-1563379926898-05f9a9d1bfed?w=800&q=80', 3],
+  // R91 F-C (D3 §4): the original pasta photo (photo-1563379926898-05f9a9d1bfed)
+  // is DEAD on Unsplash (HTTP 404, imgix) — every local re-seed re-planted the
+  // broken image D6 saw rendered. Replacement is from the repo's own verified-
+  // healthy corpus (D3: 33/34 URLs alive): photo-1504674900247-0877df9cc836 is
+  // the generic meal photo the fix-images map already uses for مبكبكة (Libyan
+  // pasta dish) + as the unmapped-meal fallback — the repo-sanctioned stand-in
+  // for an unspecifiable main dish. No external URLs invented.
+  [1, 'Chicken Pasta', 'باستا الدجاج', 'Creamy alfredo with grilled chicken', 'ألفريدو كريمي مع دجاج مشوي', 22, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80', 3],
   [2, 'Chocolate Cake', 'كيك الشوكولاتة', 'Warm fudge cake slice', 'قطعة كيك فدج دافئة', 14, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80', 1],
   [2, 'Mango Smoothie', 'عصير مانجو', 'Fresh mango blended with yogurt', 'مانجو طازج مخفوق مع اللبن', 11, 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=800&q=80', 2],
   [2, 'Butter Croissant', 'كرواسون بالزبدة', 'Flaky French croissant', 'كرواسون فرنسي مقرمش', 7, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80', 3],

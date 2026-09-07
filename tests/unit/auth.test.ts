@@ -242,6 +242,29 @@ describe('auth.ts', () => {
                         const r = await requireAdmin();
                         expect(r.authorized).toBe(false);
                 });
+
+                // round91-F-B (D2-#3): the failure arm carries the split status —
+                // 401 ONLY for no-session, 403 + Arabic error for wrong-role.
+                it('logged-in wrong-role (member) → 403 + «لا تملك الصلاحية»', async () => {
+                        vi.mocked(session.validateSession).mockResolvedValue(validSession);
+                        vi.mocked(db.getUserById).mockResolvedValue(memberRow);
+                        const r = await requireAdmin();
+                        expect(r.authorized).toBe(false);
+                        if (!r.authorized) {
+                                expect(r.status).toBe(403);
+                                expect(r.error).toBe('لا تملك الصلاحية');
+                        }
+                });
+
+                it('no session → 401 + «غير مصرح»', async () => {
+                        vi.mocked(session.validateSession).mockResolvedValue(badSession);
+                        const r = await requireAdmin();
+                        expect(r.authorized).toBe(false);
+                        if (!r.authorized) {
+                                expect(r.status).toBe(401);
+                                expect(r.error).toBe('غير مصرح');
+                        }
+                });
         });
 
         describe('requirePermission', () => {

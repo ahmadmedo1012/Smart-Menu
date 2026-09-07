@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { success, handleError, error } from "@/lib/api-helpers";
 import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/client-ip";
 import { z } from "zod";
 
 const referralSchema = z.object({
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     const auth = await requireAuth();
     if (!auth.authorized) return error("غير مصرح", 401);
 
-    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const ip = getClientIp(request); // round91-D1: unified extraction
     const rl = await referralDbLimiter.check(`referral:${ip}`);
     if (!rl.success) return error("طلبات كثيرة — حاول لاحقاً", 429);
 
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
     if (!code) return error("معامل الاستعلام code مطلوب");
 
     // round85-A2: rate limit the public code lookup
-    const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const ip = getClientIp(request); // round91-D1: unified extraction
     const rl = await referralGetLimiter.check(`referral-get:${ip}`);
     if (!rl.success) return error("طلبات كثيرة — حاول لاحقاً", 429);
 
