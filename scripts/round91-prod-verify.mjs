@@ -75,20 +75,24 @@ console.log(`[2] تغييرات الجولة 91 (2a/2b يفشلان قبل ال�
 
   // [2b] /subscribe?plan=PREMIUM يجب أن يحلّ المعالج بالاسم (D4: المعالج كان يقبل
   // المعرّف الرقمي/الموضع فقط فNumber('PREMIUM')=NaN → «تعذر تحميل الخطة المحددة»).
+  // r91-إغلاق: المعالج يُرندر عميل-side بالكامل (SSR يرسل غلاف Suspense فقط) —
+  // curl لا يرى الاسم/الخطوات أبدًا حتى مع الإصلاح حي. الفحص الصادق الوحيد
+  // متصفح حقيقي: scripts/r91-check-premium.mjs (playwright chromium، يعاد
+  // استخدامه هنا عبر spawn متزامن قصير).
   {
-    const raw = bodyWithCode('/subscribe?plan=PREMIUM');
-    const c = tailCode(raw);
-    const b = raw.slice(0, -4); // الجسم دون سطر رمز الحالة الملحق
-    const hasError = b.includes('تعذر تحميل الخطة المحددة');
-    const hasPlanName = b.includes('بريميوم') || b.includes('Premium');
-    const hasWizard = ['اختر الخطة', 'بيانات المنيو', 'بيانات الدخول', 'خطوات الاشتراك', 'المراجعة'].some((t) =>
-      b.includes(t),
-    );
-    c === 200 && !hasError && (hasPlanName || hasWizard)
-      ? ok(`subscribe?plan=PREMIUM يحلّ المعالج (200 + ${hasPlanName ? 'اسم الخطة' : 'خطوة المعالج'} حاضر)`)
-      : bad(
-          `subscribe?plan=PREMIUM لا يحلّ المعالج بعد: رمز=${c}${hasError ? ' + رسالة «تعذر تحميل الخطة المحددة»' : ' (الاسم/خطوات المعالج غائبة عن الـHTML — المعالجة تُرندر عميل-side قبل النشر)'}`,
-        );
+    let browserOk = false;
+    let browserNote = '';
+    const scriptPath = new URL('r91-check-premium.mjs', import.meta.url).pathname;
+    const projectRoot = new URL('..', import.meta.url).pathname;
+    try {
+      execSync(`node ${scriptPath}`, { timeout: 45_000, cwd: projectRoot, stdio: 'pipe' });
+      browserOk = true;
+    } catch (e) {
+      browserNote = e.stdout ? e.stdout.toString().slice(0, 200) : e.message.slice(0, 120);
+    }
+    browserOk
+      ? ok('subscribe?plan=PREMIUM يحلّ المعالج (متصفح حقيقي: بريميوم ظاهرة، لا dead-end)')
+      : bad(`subscribe?plan=PREMIUM فشل فحص المتصفح: ${browserNote}`);
   }
 
   // [2c] فحص حد الدخول الصادق (r91-F6 — نفس منهجية round90 بعد الإصلاح):
