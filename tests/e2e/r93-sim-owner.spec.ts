@@ -16,7 +16,7 @@
 import { test, expect, type Page, type BrowserContext } from "@playwright/test";
 import { fillSubscribeForm, chooseFreePlan } from "./qa-helpers";
 
-const SHOTS = "/home/z/my-project/download/round93-simulations";
+const SHOTS = "download/round93-simulations"; // نسبي — يعمل محليًا وعلى عدّاء CI (Playwright ينشئ المجلد)
 
 const ts = Date.now().toString().slice(-8);
 const OWNER = `r93own${ts}`;

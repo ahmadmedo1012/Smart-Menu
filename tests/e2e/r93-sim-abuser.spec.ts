@@ -15,7 +15,7 @@
  */
 import { test, expect, type Page } from "@playwright/test";
 
-const SHOTS = "/home/z/my-project/download/round93-simulations";
+const SHOTS = "download/round93-simulations"; // نسبي — يعمل محليًا وعلى عدّاء CI (Playwright ينشئ المجلد)
 
 let restaurantId = 0;
 let itemId = 0;

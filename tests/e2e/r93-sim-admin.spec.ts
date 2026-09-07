@@ -17,7 +17,7 @@
  */
 import { test, expect, type Page, type BrowserContext } from "@playwright/test";
 
-const SHOTS = "/home/z/my-project/download/round93-simulations";
+const SHOTS = "download/round93-simulations"; // نسبي — يعمل محليًا وعلى عدّاء CI (Playwright ينشئ المجلد)
 
 const SUPER_ROOT = "r93_sim_root";
 const SUPER_PASS = "Root#Sim93";
