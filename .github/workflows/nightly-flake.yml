@@ -133,7 +133,11 @@ jobs:
       - name: Start server for E2E
         run: |
           node .next/standalone/server.js &
-          pnpm exec wait-on http://localhost:3000 --timeout 60000
+          for i in $(seq 1 60); do
+            if curl -s -o /dev/null http://localhost:3000/api/health --max-time 3; then break; fi
+            sleep 1
+          done
+          curl -s -o /dev/null -w "e2e server health: %{http_code}\n" http://localhost:3000/api/health --max-time 5
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

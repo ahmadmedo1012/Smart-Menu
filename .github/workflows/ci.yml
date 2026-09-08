@@ -222,14 +222,21 @@ jobs:
       # build-time env does NOT carry over, and src/lib/env.ts validates
       # NEXT_PUBLIC_WHATSAPP_NUMBER at RUNTIME too; without it every
       # env-validating route 500s (verified: CI run 498 webhook/login tests).
-      # round87-D3: wait-on was fetched from the npm registry at RUNTIME via
-      # unpinned `npx wait-on` (outside any lockfile/minimumReleaseAge policy);
-      # it is now an exact-pinned devDependency (9.1.0) and invoked through the
-      # local binary — no network fetch, no version drift.
+      # round94-W3-fix: wait-on was REMOVED from devDependencies as "unused"
+      # (F-report: zero refs in TS/JS) but it WAS used here and in
+      # nightly-flake.yml — the audit missed YAML workflows. Rather than
+      # restoring the dependency, replace it with the native curl wait-loop
+      # (same battle-tested pattern as scripts/r92-e2e-local.sh): zero
+      # registry fetch, zero dependency, zero supply-chain surface — strictly
+      # better than round87-D3's pinned-devDependency rationale.
       - name: Start server for E2E
         run: |
           node .next/standalone/server.js &
-          pnpm exec wait-on http://localhost:3000 --timeout 60000
+          for i in $(seq 1 60); do
+            if curl -s -o /dev/null http://localhost:3000/api/health --max-time 3; then break; fi
+            sleep 1
+          done
+          curl -s -o /dev/null -w "e2e server health: %{http_code}\n" http://localhost:3000/api/health --max-time 5
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
