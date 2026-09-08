@@ -154,6 +154,8 @@
 }
 
 :root {
+        /* r95 — SmartBot twin: color-scheme dark (UA scrollbars/inputs render dark) */
+        color-scheme: dark;
         /* ── Fonts — resolved here so [dir=rtl] and body always find them ── */
         --font-arabic: var(--font-cairo, "Cairo"), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
         --font-sans: var(--font-arabic);
@@ -181,49 +183,50 @@
         --duration-base: 0.4s;
         --duration-slow: 0.7s;
 
-        /* ── Dark theme (default) — deeper, richer ── */
-        --background: oklch(0.045 0.006 55);
-        --background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.68 0.19 45 / 0.08), transparent 70%);
-        --foreground: oklch(0.93 0.008 70);
-        --card: oklch(0.115 0.009 60);
-        --card-foreground: oklch(0.93 0.008 70);
-        --popover: oklch(0.11 0.008 60);
-        --popover-foreground: oklch(0.93 0.008 70);
+        /* ── Dark theme (default) — deeper, richer (r95: SmartBot literal hex — #010000/#070503) ── */
+        --background: #010000;
+        --background-radial: radial-gradient(ellipse 80% 50% at 50% -10%, #f3680f14, transparent 70%);
+        --foreground: #ebe7e2;
+        --card: #070503;
+        --card-foreground: #ebe7e2;
+        --popover: #060403;
+        --popover-foreground: #ebe7e2;
 
-        /* WCAG AA: orange darkened from 0.68->0.55 for 4.5:1 contrast vs white text */
-        --primary: oklch(0.55 0.19 45);
+        /* WCAG AA: orange darkened from 0.68->0.55 for 4.5:1 contrast vs white text
+           (r95 — SmartBot flame #bc4700: white-on-flame = 4.98:1 ✓, same AA grade) */
+        --primary: #bc4700;
         --primary-foreground: oklch(0.98 0 0);
-        --secondary: oklch(0.14 0.008 60);
-        --secondary-foreground: oklch(0.72 0.01 70);
-        --muted: oklch(0.14 0.008 60);
+        --secondary: #0c0806;
+        --secondary-foreground: #a9a49e;
+        --muted: #0c0806;
         /* a11y(round84): 0.52 measured 3.7:1 on dark cards (axe serious — every
          * muted description/footer/meta text failed AA). 0.62 measures 5.54:1 —
          * comfortably AA with the same warm-gray character. */
-        --muted-foreground: oklch(0.62 0.015 70);
-        --accent: oklch(0.55 0.19 45 / 0.15);
-        --accent-foreground: oklch(0.55 0.19 45);
-        --destructive: oklch(0.6 0.22 25);
+        --muted-foreground: #8c857d;  /* r95: SmartBot — 5.59:1 على البطاقات #070503 ✓ AA */
+        --accent: #bc470026;
+        --accent-foreground: #df5a00;  /* r95: SmartBot النصي الأسطع — 5.42:1 على البطاقات ✓ AA */
+        --destructive: #e62b34;  /* r95: SmartBot literal (≈ oklch(0.6 0.22 25) = #e52b34) */
         --destructive-foreground: oklch(0.98 0 0);
-        --border: oklch(0.23 0.01 60);
-        --input: oklch(0.23 0.01 60);
-        --ring: oklch(0.55 0.19 45);
+        --border: #211c18;  /* r95: SmartBot */
+        --input: #625c58;
+        --ring: #bc4700;
 
-        /* Success */
-        --success: oklch(0.62 0.18 145);
+        /* Success — r95: SmartBot literal hex */
+        --success: #23a136;
         --success-foreground: oklch(0.98 0 0);
 
-        /* Warning — amber */
-        --warning: oklch(0.7 0.16 80);
+        /* Warning — amber (r95: SmartBot #ce9200) */
+        --warning: #ce9200;
         --warning-foreground: oklch(0.1 0 0);
 
         /* Info — cool blue */
-                --info: oklch(0.62 0.13 245);      /* lighter in dark for AA text on dark surfaces */
+                --info: #348dcf;      /* lighter in dark for AA text on dark surfaces (r95: SmartBot literal) */
         --info-foreground: oklch(0.98 0 0);
 
         /* Orange palette — use darkened primary for AA */
-        --orange: oklch(0.55 0.19 45);
-        --orange-foreground: oklch(0.98 0 0);
-        --orange-muted: oklch(0.55 0.19 45 / 0.15);
+        --orange: #bc4700;
+        --orange-foreground: oklch(0.98 0 0);  /* r95: يبقى أبيض (SmartBot #f8f8f8 ≈ نفس القيمة) */
+        --orange-muted: #bc470026;
 
         /* Round83 — FeaturedShowcase scene accents (dark theme).
            5 identity pairs, hues >=100 deg apart in rotation order so every
@@ -243,17 +246,17 @@
         --showcase-accent-5-wash: oklch(0.19 0.035 205);
 
         /* Warm kitchen palette — saffron-heat system (dark) */
-        --c-flame: oklch(0.55 0.19 45);            /* brand heat (== --orange) */
-        --c-ember: oklch(0.44 0.17 52);            /* pressed/depth of flame */
-        --c-saffron: oklch(0.78 0.14 70);          /* light amber glow */
-        --c-saffron-ink: oklch(0.78 0.14 70);     /* round94 D/A1: amber-as-TEXT — الداكن = قيمة التوهج نفسها (9.94:1 على البطاقات) */
-        --c-ash: oklch(0.75 0.012 70);             /* warm neutral — UI text */
-        --c-ash-dim: oklch(0.4 0.008 65);          /* warm muted — secondary text/borders */
-        --c-ash-pale: oklch(0.18 0.01 60);         /* deep warm surface wash (dark) */
-        --c-night: oklch(0.16 0.02 55);            /* deep warm charcoal base */
-        --c-basil: oklch(0.64 0.14 150);           /* fresh contrast (dietary/health) */
+        --c-flame: #bc4700;                       /* brand heat (== --orange) */
+        --c-ember: #863800;                       /* pressed/depth of flame */
+        --c-saffron: #f0a646;                     /* light amber glow */
+        --c-saffron-ink: #f0a646;                 /* round94 D/A1: amber-as-TEXT — الداكن = قيمة التوهج نفسها (9.94:1 على البطاقات؛ #f0a646 يحقق 9.93:1 — r95) */
+        --c-ash: #b3ada6;                         /* warm neutral — UI text */
+        --c-ash-dim: #4b4743;                     /* warm muted — secondary text/borders */
+        --c-ash-pale: #15110d;                    /* deep warm surface wash (dark) */
+        --c-night: #140b06;                       /* deep warm charcoal base */
+        --c-basil: #40a35c;                       /* fresh contrast (dietary/health) */
         --c-espresso: #1a130b;                    /* deep coffee — foreground on flame/saffron surfaces */
-        --c-bloom: oklch(0.56 0.2 16);            /* brand pink heat (j66: orange/pink identity) */
+        --c-bloom: #cf284b;                       /* brand pink heat (j66: orange/pink identity) */
 
         /* External brand colors — theme-independent by definition */
         --whatsapp: #25D366;                      /* WhatsApp official green */
@@ -280,48 +283,49 @@
         --confetti-violet: #8b5cf6;
         --confetti-pink: #ec4899;
 
-        /* Overlay backdrop — dark */
-        --overlay: oklch(0 0 0 / 0.55);
+        /* Overlay backdrop — dark (r95: SmartBot #0000008c) */
+        --overlay: #0000008c;
 
-        /* Grid pattern colors */
-        --grid-line: oklch(0.55 0.19 45 / 0.12);
-        --grid-fill: oklch(0.55 0.19 45 / 0.06);
-        --grid-square: oklch(0.55 0.19 45 / 0.12);
+        /* Grid pattern colors (r95: SmartBot flame alphas) */
+        --grid-line: #bc47001f;
+        --grid-fill: #bc47000f;
+        --grid-square: #bc47001f;
 
-        /* Surface variants — richer depth */
-        --surface-raised: oklch(0.14 0.008 60);
-        --surface-overlay: oklch(0.11 0.008 60);
-        --surface-sunken: oklch(0.07 0.007 60);
+        /* Surface variants — richer depth (r95: SmartBot) */
+        --surface-raised: #0c0806;
+        --surface-overlay: #070503;
+        --surface-sunken: #020101;
 
         /* Gradients */
-        --gradient-orange: linear-gradient(135deg, oklch(0.55 0.19 45 / 0.12), oklch(0.52 0.19 45 / 0.06));
+        --gradient-orange: linear-gradient(135deg, #bc47001f, #bc47000f);
         --gradient-shine: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
 
         /* Menu page glow — fixed backdrop (loading + menu page) and hero sheen */
-        --menu-glow: radial-gradient(ellipse_at_50%_0%, oklch(0.55 0.19 45 / 0.08), transparent 70%);
-        --menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.55 0.19 45 / 0.15), transparent 70%);
+        --menu-glow: radial-gradient(ellipse_at_50%_0%, #bc470014, transparent 70%);
+        --menu-glow-strong: radial-gradient(ellipse 80% 50% at 50% -10%, #bc470026, transparent 70%);
 
         /* Image placeholder shimmer — keeps OptimizedImage theme-aware */
-        --image-shimmer: oklch(0.2 0 0 / 0.15);
+        --image-shimmer: #16161626;
 
-        /* Glass — dark, with oxide-tinted edge */
-        --glass-bg: oklch(0.11 0.01 60 / 0.52);
-        --glass-bg-strong: oklch(0.14 0.012 60 / 0.68);
-        --glass-border: oklch(0.55 0.19 45 / 0.10);
-        --glass-border-strong: oklch(0.55 0.19 45 / 0.22);
-        --glass-shadow: 0 10px 40px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.06);
-        --glass-shadow-lg: 0 16px 56px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.08);
+        /* Glass — dark, with oxide-tinted edge (r95: SmartBot literal) */
+        --glass-bg: #06040285;
+        --glass-bg-strong: #0d0805ad;
+        --glass-border: #bc47001a;
+        --glass-border-strong: #bc470038;
+        --glass-shadow: 0 10px 40px rgba(0,0,0,0.478), inset 0 1px 0 rgba(255,255,255,0.059);
+        --glass-shadow-lg: 0 16px 56px rgba(0,0,0,0.522), inset 0 1px 0 rgba(255,255,255,0.078);
 
         /* 4-tier shadow system — dark, cross-browser */
         --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.22);
         --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
         --shadow-lg: 0 12px 40px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
         --shadow-xl: 0 24px 60px rgba(0,0,0,0.45), 0 8px 16px rgba(0,0,0,0.35);
-        --shadow-glow: 0 8px 24px oklch(0.55 0.19 45 / 0.14);
+        --shadow-glow: 0 8px 24px #bc470024;
 }
 
 /* ── Light theme ── */
 .light {
+        color-scheme: light;  /* r95: مرآة :root الداكن — عناصر UA تتبع الثيم الفعّال */
         --background: oklch(0.985 0.004 70);
         --background-radial: radial-gradient(circle at 30% 0%, oklch(0.55 0.19 45 / 0.03), transparent 65%);
         --foreground: oklch(0.12 0.008 70);
@@ -520,7 +524,7 @@ html.high-contrast :focus-visible {
         background: conic-gradient(
                 from 0deg,
                 transparent 0deg,
-                oklch(0.55 0.19 45) 30deg,
+                #bc4700 30deg,
                 transparent 50deg
         );
         mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -789,7 +793,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .light ::-webkit-scrollbar-thumb:hover { background: var(--orange); }
 
 ::selection {
-        background: oklch(0.55 0.19 45 / 0.25);
+        background: #bc470040;
         color: inherit;
 }
 
@@ -803,7 +807,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         justify-content: center;
         border-radius: 22%;
         background: linear-gradient(135deg, var(--c-ember), var(--c-saffron));
-        box-shadow: 0 8px 28px oklch(0.55 0.19 45 / 0.32), inset 0 1px 0 oklch(1 0 0 / 0.12);
+        box-shadow: 0 8px 28px #bc470052, inset 0 1px 0 oklch(1 0 0 / 0.12);
         overflow: hidden;
         color: #1a130b;
         paint-order: stroke fill;
@@ -811,7 +815,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 }
 .qr-corner:hover {
         transform: translateY(-2px) scale(1.04);
-        box-shadow: 0 12px 40px oklch(0.55 0.19 45 / 0.42), inset 0 1px 0 oklch(1 0 0 / 0.15);
+        box-shadow: 0 12px 40px #bc47006b, inset 0 1px 0 oklch(1 0 0 / 0.15);
 }
 .qr-corner:active {
         transform: translateY(0) scale(0.97);
@@ -913,9 +917,9 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         background: conic-gradient(
                 from var(--glow-angle, 0deg),
                 transparent 0%,
-                oklch(0.55 0.19 45 / 0.0) 20%,
+                #bc470000 20%,
                 oklch(0.78 0.14 70 / 0.85) 38%,
-                oklch(0.55 0.19 45 / 0.95) 50%,
+                #bc4700f2 50%,
                 oklch(0.78 0.14 70 / 0.85) 62%,
                 transparent 80%
         );
@@ -954,7 +958,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         inset: -20% -10% auto;
         height: 70%;
         background:
-                radial-gradient(ellipse 50% 60% at 20% 40%, oklch(0.55 0.19 45 / 0.16), transparent 70%),
+                radial-gradient(ellipse 50% 60% at 20% 40%, #bc470029, transparent 70%),
                 radial-gradient(ellipse 45% 55% at 80% 30%, oklch(0.78 0.14 70 / 0.12), transparent 70%),
                 radial-gradient(ellipse 40% 50% at 50% 80%, oklch(0.44 0.17 52 / 0.10), transparent 70%);
         filter: blur(40px);
@@ -970,7 +974,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 /* Soft mesh behind elevated surfaces */
 .mesh-surface {
         background-image:
-                radial-gradient(at 12% 8%, oklch(0.55 0.19 45 / 0.08), transparent 42%),
+                radial-gradient(at 12% 8%, #bc470014, transparent 42%),
                 radial-gradient(at 88% 92%, oklch(0.78 0.14 70 / 0.06), transparent 46%);
 }
 
@@ -1002,8 +1006,8 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 @keyframes breath { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.3; } }
 @keyframes breathe { 0%,100% { transform: scale(1); opacity:0.5; } 50% { transform: scale(1.05); opacity:0.8; } }
 @keyframes pulse-glow {
-        0%, 100% { box-shadow: 0 0 8px oklch(0.55 0.19 45 / 0.15); }
-        50%      { box-shadow: 0 0 25px oklch(0.55 0.19 45 / 0.35); }
+        0%, 100% { box-shadow: 0 0 8px #bc470026; }
+        50%      { box-shadow: 0 0 25px #bc470059; }
 }
 @keyframes hero-glow-pulse {
         0%, 100% { opacity: 0.6; transform: scale(1); }
@@ -1012,6 +1016,25 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 @keyframes pulse-dot {
         0%, 100% { opacity: 0.3; transform: scale(1); }
         50%      { opacity: 1;   transform: scale(1.15); }
+}
+/* r95 — keyframes توأم SmartBot (spec §6): أُضيف الناقص فقط — لا تكرار للموجود.
+   breath/breathe/slide-up/fade-in/scale-in/float/shimmer/pulse-dot أعلاه تبقى كما هي. */
+@keyframes price-swap-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes wipe-up {
+        from { clip-path: inset(100% 0 0 0); }
+        to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes message-draw {
+        from { opacity: 0; transform: translateY(8px) scale(0.96); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes copy-wiggle {
+        0%, 100% { transform: rotate(0); }
+        25%      { transform: rotate(-6deg); }
+        75%      { transform: rotate(6deg); }
 }
 @keyframes orb-float {
         0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -1038,7 +1061,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         60%  { opacity: 1; transform: translateY(3px) scaleY(1); }
         100% { opacity: 1; transform: translateY(0) scaleY(1); }
 }
-@keyframes scale-glow { 0%,100% { box-shadow:0 0 20px oklch(0.55 0.19 45/0.2); } 50% { box-shadow:0 0 50px oklch(0.55 0.19 45/0.4); } }
+@keyframes scale-glow { 0%,100% { box-shadow:0 0 20px #bc470033; } 50% { box-shadow:0 0 50px #bc470066; } }
 @keyframes grain-anim { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-2%, -2%); } 20% { transform: translate(1%, -1%); } 30% { transform: translate(-1%, 2%); } 40% { transform: translate(2%, 1%); } 50% { transform: translate(-2%, 0); } 60% { transform: translate(0, -2%); } 70% { transform: translate(1%, 1%); } 80% { transform: translate(-1%, -1%); } 90% { transform: translate(2%, -2%); } }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1086,6 +1109,20 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 .animate-pulse-dot {
         animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+/* r95 — أدوات حركة توأم SmartBot (لأقسام 95-B/95-C).
+   حذر: ‎.animate-breath أعلاه هو نبض الشفافية القديم (1.5s) الذي تستخدمه ~19 هيكل تحميل —
+   لا يعاد استهدافه؛ مكافئ breath البطيء لـ SmartBot هو الأداة الموجودة ‎animate-breathe
+   (keyframes breathe = نفس دلالات scale+opacity بمدى 1.05). */
+.animate-price-swap-in {
+        animation: price-swap-in 0.35s var(--ease-out-quart) both;
+}
+.animate-wipe-up {
+        animation: wipe-up 0.6s var(--ease-smooth) both;
+}
+.animate-message-draw {
+        animation: message-draw 0.4s var(--ease-smooth) both;
 }
 
 .animate-ticket-drop {

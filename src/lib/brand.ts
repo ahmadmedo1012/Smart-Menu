@@ -4,6 +4,7 @@
  * (HTML <meta name="theme-color"> content attribute, JSON manifests).
  *
  * Keep in sync with `public/manifest.json` and `public/offline.html`.
- * Source of truth for the PWA chrome tint (unified brand amber).
+ * Source of truth for the PWA chrome tint — r95: SmartBot flame #bc4700
+ * (was unified brand amber #d97706).
  */
-export const BRAND_THEME_COLOR = "#d97706" as const;
+export const BRAND_THEME_COLOR = "#bc4700" as const;

@@ -1,3 +1,7 @@
+/* r95 — إصلاح P1 من SmartBot: متغير بلا fallback يحل إلى undefined
+   يجعل font-family كلها invalid فتسقط إلى serif. */
+:root { --font-cairo: "Cairo"; }
+
 /* Cairo — primary UI font (variable subsets, local-first) */
 @font-face {
   font-family: "Cairo";
