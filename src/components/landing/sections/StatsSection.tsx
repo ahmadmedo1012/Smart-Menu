@@ -45,10 +45,11 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
                 transition={{ ...springSnappy, delay: i * 0.1 }}
               >
                 <div className="text-center">
-                  <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2">
-                    <span className="text-orange">
-                      <AnimatedNumber value={item.value} />{item.suffix}
-                    </span>
+                  {/* r95: SmartBot twin — الرقم بحجم المواصفة (§3) بلون foreground
+                      واللاحقة (+) بحجم text-[1rem] بلون accent-foreground */}
+                  <div className="text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] font-bold leading-none mb-2 text-foreground">
+                    <AnimatedNumber value={item.value} />
+                    <span className="text-[1rem] text-accent-foreground">{item.suffix}</span>
                   </div>
                   <div className="text-xs sm:text-sm font-medium text-muted-foreground/95">{item.label}</div>
                   {/* a11y(round84): /75 alpha dropped contrast below 4.5:1 on the
@@ -59,7 +60,8 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
               </m.div>
             ))}
           </div>
-          <div className="mx-auto mt-6 h-px w-16 bg-orange/60" />
+          {/* r95: فاصل متدرج بنمط SmartBot (بدل شريط orange المسطح) */}
+          <div className="mx-auto mt-6 w-16 h-[2px] rounded-full bg-gradient-to-r from-accent-foreground/0 via-accent-foreground to-accent-foreground/0" />
         </div>
       </ScrollReveal>
     </SectionContainer>

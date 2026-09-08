@@ -57,12 +57,12 @@ function TestimonialCard({ t }: { t: typeof TESTIMONIALS[number] }) {
       className="text-center"
     >
       {/* Quote mark */}
-      <Quote className="size-6 sm:size-7 mx-auto mb-3 sm:mb-4 text-orange/30" />
+      <Quote className="size-6 sm:size-7 mx-auto mb-3 sm:mb-4 text-accent-foreground/30" />
 
       {/* Stars */}
       <div className="flex justify-center gap-1 mb-4">
         {[...Array(5)].map((_, j) => (
-          <AnimatedStar key={j} className="size-[13px] sm:size-[14px] fill-orange text-orange/80" />
+          <AnimatedStar key={j} className="size-[13px] sm:size-[14px] fill-accent-foreground text-accent-foreground/80" />
         ))}
       </div>
 
@@ -92,7 +92,7 @@ function NavPill({
       onClick={onClick}
       className={cn(
         "rounded-full transition-[width,height,background-color] duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
-        i === active ? "w-6 h-[5px] bg-orange" : "w-[5px] h-[5px] bg-border/50 hover:bg-orange/40",
+        i === active ? "w-6 h-[5px] bg-primary" : "w-[5px] h-[5px] bg-border/50 hover:bg-accent-foreground/40",
       )}
       aria-label={`التقييم ${i + 1}`}
     />
@@ -119,7 +119,7 @@ export function ClientsSection() {
   const activeT = TESTIMONIALS[active]
 
   return (
-    <SectionContainer className="bg-gradient-to-b from-background via-orange/[0.012] to-background">
+    <SectionContainer className="bg-gradient-to-b from-background via-accent-foreground/[0.012] to-background">
       <ScrollReveal y={20}>
         <SectionHeader title="تجارب من المطاعم" subtitle="ما يقوله أصحاب المطاعم عن إدارة المنيو والطلبات يومياً." />
       </ScrollReveal>
@@ -150,10 +150,10 @@ export function ClientsSection() {
               <div className="flex items-center justify-center gap-4 mt-6 pt-5 border-t border-border/30">
                 <button
                   onClick={prev}
-                  className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
+                  className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-primary hover:border-primary/50 hover:text-primary-foreground transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
                   aria-label="السابق"
                 >
-                  <MotionChevronRight className="size-4 group-hover:text-white transition-colors" />
+                  <MotionChevronRight className="size-4 group-hover:text-primary-foreground transition-colors" />
                 </button>
                 <div className="flex gap-1.5">
                   {TESTIMONIALS.map((_, i) => (
@@ -162,10 +162,10 @@ export function ClientsSection() {
                 </div>
                 <button
                   onClick={next}
-                  className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-orange hover:border-orange/50 hover:text-white transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
+                  className="group size-9 rounded-full bg-background/80 border border-border/40 flex items-center justify-center hover:bg-primary hover:border-primary/50 hover:text-primary-foreground transition-[color,background-color,border-color] duration-300 text-muted-foreground/50"
                   aria-label="التالي"
                 >
-                  <MotionChevronLeft className="size-4 group-hover:text-white transition-colors" />
+                  <MotionChevronLeft className="size-4 group-hover:text-primary-foreground transition-colors" />
                 </button>
               </div>
             )}
@@ -184,7 +184,7 @@ export function ClientsSection() {
         >
           {["متجر رسمي", "دعم فني متكامل", "تحديثات مستمرة", "ضمان استرداد"].map((label) => (
             <span key={label} className="flex items-center gap-1.5">
-              <span className="size-1 rounded-full bg-orange/50" />
+              <span className="size-1 rounded-full bg-accent-foreground/50" />
               {label}
             </span>
           ))}

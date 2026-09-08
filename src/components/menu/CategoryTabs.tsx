@@ -188,9 +188,11 @@ function TabButton({
         <span
           className={cn(
             "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold transition-colors duration-200",
+            /* r95: عداد التبويب غير النشط — accent-foreground الأسطع (#df5a00)
+               بدل text-orange (#bc4700) الذي كان 3.9:1 بلا AA على الداكن. */
             isActive
               ? "bg-white/20 text-white"
-              : "bg-muted/50 text-orange dark:text-orange",
+              : "bg-muted/50 text-accent-foreground",
           )}
         >
           {toArabicNumber(count)}

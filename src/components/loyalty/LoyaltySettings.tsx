@@ -17,288 +17,290 @@ import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 /* ---------- Types ---------- */
 
 interface LoyaltySettingsData {
-	loyalty_enabled: string;
-	loyalty_points_per_lyd: string;
-	loyalty_referral_discount_pct: string;
-	loyalty_referrer_reward_pct: string;
-	loyalty_referral_reward_points: string;
-	loyalty_referral_max_per_customer: string;
-	loyalty_referral_expiry_days: string;
-	loyalty_tier_silver: string;
-	loyalty_tier_gold: string;
-	loyalty_tier_platinum: string;
+        loyalty_enabled: string;
+        loyalty_points_per_lyd: string;
+        loyalty_referral_discount_pct: string;
+        loyalty_referrer_reward_pct: string;
+        loyalty_referral_reward_points: string;
+        loyalty_referral_max_per_customer: string;
+        loyalty_referral_expiry_days: string;
+        loyalty_tier_silver: string;
+        loyalty_tier_gold: string;
+        loyalty_tier_platinum: string;
 }
 
 const DEFAULTS: LoyaltySettingsData = {
-	loyalty_enabled: 'true',
-	loyalty_points_per_lyd: '1',
-	loyalty_referral_discount_pct: '10',
-	loyalty_referrer_reward_pct: '10',
-	loyalty_referral_reward_points: '25',
-	loyalty_referral_max_per_customer: '10',
-	loyalty_referral_expiry_days: '30',
-	loyalty_tier_silver: '50',
-	loyalty_tier_gold: '150',
-	loyalty_tier_platinum: '400',
+        loyalty_enabled: 'true',
+        loyalty_points_per_lyd: '1',
+        loyalty_referral_discount_pct: '10',
+        loyalty_referrer_reward_pct: '10',
+        loyalty_referral_reward_points: '25',
+        loyalty_referral_max_per_customer: '10',
+        loyalty_referral_expiry_days: '30',
+        loyalty_tier_silver: '50',
+        loyalty_tier_gold: '150',
+        loyalty_tier_platinum: '400',
 };
 
 type Props = {
-	onSaved?: () => void;
+        onSaved?: () => void;
 };
 
 /* ---------- Component ---------- */
 
 export function LoyaltySettings({ onSaved }: Props) {
-	// round86-C9: label-control associations
-	const lId = useId();
-	const [form, setForm] = useState<LoyaltySettingsData>(DEFAULTS);
-	const [loading, setLoading] = useState(true);
-	const [saving, setSaving] = useState(false);
+        // round86-C9: label-control associations
+        const lId = useId();
+        const [form, setForm] = useState<LoyaltySettingsData>(DEFAULTS);
+        const [loading, setLoading] = useState(true);
+        const [saving, setSaving] = useState(false);
 
-	useEffect(() => {
-		const controller = new AbortController();
-		async function load() {
-			setLoading(true);
-			try {
-				const res = await fetch('/api/settings', { signal: controller.signal });
-				const json = await res.json();
-				const s = json.data?.settings ?? {};
-				setForm({
-					loyalty_enabled: s.loyalty_enabled ?? DEFAULTS.loyalty_enabled,
-					loyalty_points_per_lyd: s.loyalty_points_per_lyd ?? DEFAULTS.loyalty_points_per_lyd,
-					loyalty_referral_discount_pct:
-						s.loyalty_referral_discount_pct ?? DEFAULTS.loyalty_referral_discount_pct,
-					loyalty_referrer_reward_pct:
-						s.loyalty_referrer_reward_pct ?? DEFAULTS.loyalty_referrer_reward_pct,
-					loyalty_referral_reward_points:
-						s.loyalty_referral_reward_points ?? DEFAULTS.loyalty_referral_reward_points,
-					loyalty_referral_max_per_customer:
-						s.loyalty_referral_max_per_customer ?? DEFAULTS.loyalty_referral_max_per_customer,
-					loyalty_referral_expiry_days:
-						s.loyalty_referral_expiry_days ?? DEFAULTS.loyalty_referral_expiry_days,
-					loyalty_tier_silver: s.loyalty_tier_silver ?? DEFAULTS.loyalty_tier_silver,
-					loyalty_tier_gold: s.loyalty_tier_gold ?? DEFAULTS.loyalty_tier_gold,
-					loyalty_tier_platinum: s.loyalty_tier_platinum ?? DEFAULTS.loyalty_tier_platinum,
-				});
-			} catch (error) {
-				if (error instanceof DOMException && error.name === 'AbortError') return;
-				premiumToast('error', 'فشل تحميل الإعدادات');
-			} finally {
-				setLoading(false);
-			}
-		}
-		load();
-		return () => controller.abort();
-	}, []);
+        useEffect(() => {
+                const controller = new AbortController();
+                async function load() {
+                        setLoading(true);
+                        try {
+                                const res = await fetch('/api/settings', { signal: controller.signal });
+                                const json = await res.json();
+                                const s = json.data?.settings ?? {};
+                                setForm({
+                                        loyalty_enabled: s.loyalty_enabled ?? DEFAULTS.loyalty_enabled,
+                                        loyalty_points_per_lyd: s.loyalty_points_per_lyd ?? DEFAULTS.loyalty_points_per_lyd,
+                                        loyalty_referral_discount_pct:
+                                                s.loyalty_referral_discount_pct ?? DEFAULTS.loyalty_referral_discount_pct,
+                                        loyalty_referrer_reward_pct:
+                                                s.loyalty_referrer_reward_pct ?? DEFAULTS.loyalty_referrer_reward_pct,
+                                        loyalty_referral_reward_points:
+                                                s.loyalty_referral_reward_points ?? DEFAULTS.loyalty_referral_reward_points,
+                                        loyalty_referral_max_per_customer:
+                                                s.loyalty_referral_max_per_customer ?? DEFAULTS.loyalty_referral_max_per_customer,
+                                        loyalty_referral_expiry_days:
+                                                s.loyalty_referral_expiry_days ?? DEFAULTS.loyalty_referral_expiry_days,
+                                        loyalty_tier_silver: s.loyalty_tier_silver ?? DEFAULTS.loyalty_tier_silver,
+                                        loyalty_tier_gold: s.loyalty_tier_gold ?? DEFAULTS.loyalty_tier_gold,
+                                        loyalty_tier_platinum: s.loyalty_tier_platinum ?? DEFAULTS.loyalty_tier_platinum,
+                                });
+                        } catch (error) {
+                                if (error instanceof DOMException && error.name === 'AbortError') return;
+                                premiumToast('error', 'فشل تحميل الإعدادات');
+                        } finally {
+                                setLoading(false);
+                        }
+                }
+                load();
+                return () => controller.abort();
+        }, []);
 
-	const set = (key: keyof LoyaltySettingsData, value: string) =>
-		setForm((prev) => ({ ...prev, [key]: value }));
+        const set = (key: keyof LoyaltySettingsData, value: string) =>
+                setForm((prev) => ({ ...prev, [key]: value }));
 
-	const save = async () => {
-		setSaving(true);
-		try {
-			const body = Object.entries(form).map(([key, value]) => ({ key, value }));
-			const res = await csrfFetch('/api/settings', {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(body),
-			});
-			if (!res.ok) throw new Error('Save failed');
-			premiumToast('save', 'تم حفظ إعدادات الولاء');
-			onSaved?.();
-		} catch {
-			premiumToast('error', 'فشل حفظ الإعدادات');
-		} finally {
-			setSaving(false);
-		}
-	};
+        const save = async () => {
+                setSaving(true);
+                try {
+                        const body = Object.entries(form).map(([key, value]) => ({ key, value }));
+                        const res = await csrfFetch('/api/settings', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(body),
+                        });
+                        if (!res.ok) throw new Error('Save failed');
+                        premiumToast('save', 'تم حفظ إعدادات الولاء');
+                        onSaved?.();
+                } catch {
+                        premiumToast('error', 'فشل حفظ الإعدادات');
+                } finally {
+                        setSaving(false);
+                }
+        };
 
-	if (loading) {
-		return (
-			<Card className="animate-pulse">
-				<LoadingAnnouncer loading message="جاري تحميل إعدادات الولاء..." completedMessage="تم تحميل الإعدادات" />
-				<CardContent className="h-64" />
-			</Card>
-		);
-	}
+        if (loading) {
+                return (
+                        <Card className="animate-pulse">
+                                <LoadingAnnouncer loading message="جاري تحميل إعدادات الولاء..." completedMessage="تم تحميل الإعدادات" />
+                                <CardContent className="h-64" />
+                        </Card>
+                );
+        }
 
-	return (
-		<Card className="border-white/30 bg-card/60 backdrop-blur-xl dark:bg-card dark:border-border/10">
-			<CardHeader>
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-2">
-						<Award className="size-5 text-orange" />
-						<h3 className="text-base font-semibold">إعدادات برنامج الولاء</h3>
-					</div>
-					<Button onClick={save} disabled={saving} size="sm" className="gap-1.5">
-						<AnimatedSave className="size-4" />
-						{saving ? 'جاري الحفظ...' : 'حفظ'}
-					</Button>
-				</div>
-			</CardHeader>
-			<CardContent className="space-y-6">
-				{/* Enable / Disable Toggle */}
-				<div className="flex items-center justify-between rounded-xl bg-muted/30 p-4">
-					<div className="flex items-center gap-3">
-						<div className="flex size-10 items-center justify-center rounded-xl bg-orange-muted">
-							<Award className="size-5 text-orange" />
-						</div>
-						<div>
-							<p className="text-sm font-medium">تفعيل برنامج الولاء</p>
-							<p className="text-xs text-muted-foreground">
-								يسمح للعملاء بكسب النقاط والإحالات
-							</p>
-						</div>
-					</div>
-					<Switch
-						checked={form.loyalty_enabled === 'true'}
-						onCheckedChange={(v) => set('loyalty_enabled', v ? 'true' : 'false')}
-					/>
-				</div>
+        return (
+                <Card className="border-white/30 bg-card/60 backdrop-blur-xl dark:bg-card dark:border-border/10">
+                        <CardHeader>
+                                <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                                {/* r95: أيقونة الولاء — اللهب الأسطع */}
+                                                <Award className="size-5 text-accent-foreground" />
+                                                <h3 className="text-base font-semibold">إعدادات برنامج الولاء</h3>
+                                        </div>
+                                        <Button onClick={save} disabled={saving} size="sm" className="gap-1.5">
+                                                <AnimatedSave className="size-4" />
+                                                {saving ? 'جاري الحفظ...' : 'حفظ'}
+                                        </Button>
+                                </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                                {/* Enable / Disable Toggle */}
+                                <div className="flex items-center justify-between rounded-xl bg-muted/30 p-4">
+                                        <div className="flex items-center gap-3">
+                                                <div className="flex size-10 items-center justify-center rounded-xl bg-orange-muted">
+                                                        {/* r95: أيقونة الولاء — اللهب الأسطع */}
+                                                        <Award className="size-5 text-accent-foreground" />
+                                                </div>
+                                                <div>
+                                                        <p className="text-sm font-medium">تفعيل برنامج الولاء</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                                يسمح للعملاء بكسب النقاط والإحالات
+                                                        </p>
+                                                </div>
+                                        </div>
+                                        <Switch
+                                                checked={form.loyalty_enabled === 'true'}
+                                                onCheckedChange={(v) => set('loyalty_enabled', v ? 'true' : 'false')}
+                                        />
+                                </div>
 
-				<Separator className="bg-card/10" />
+                                <Separator className="bg-card/10" />
 
-				{/* Points Configuration */}
-				<div className="space-y-4">
-					<h4 className="text-sm font-semibold flex items-center gap-2">
-						<AnimatedRefreshCw className="size-4 text-muted-foreground" />
-						النقاط والمكافآت
-					</h4>
-					<div className="grid gap-4 sm:grid-cols-2">
-						<div>
-							<Label htmlFor={`${lId}-points-per-lyd`}>النقاط لكل دينار</Label>
-							<Input id={`${lId}-points-per-lyd`} 
-								type="number"
-								min="0"
-								step="0.5"
-								value={form.loyalty_points_per_lyd}
-								onChange={(e) => set('loyalty_points_per_lyd', e.target.value)}
-								className="mt-1"
-							/>
-							<p className="text-xs text-muted-foreground mt-1">عدد النقاط لكل دينار يُنفق</p>
-						</div>
-						<div>
-							<Label htmlFor={`${lId}-ref-discount`}>خصم الإحالة ٪</Label>
-							<Input id={`${lId}-ref-discount`} 
-								type="number"
-								min="0"
-								max="100"
-								value={form.loyalty_referral_discount_pct}
-								onChange={(e) => set('loyalty_referral_discount_pct', e.target.value)}
-								className="mt-1"
-							/>
-							<p className="text-xs text-muted-foreground mt-1">
-								الخصم لأول طلب لصديق مُحال
-							</p>
-						</div>
-						<div>
-							<Label htmlFor={`${lId}-ref-reward`}>مكافأة المُحيل ٪</Label>
-							<Input id={`${lId}-ref-reward`} 
-								type="number"
-								min="0"
-								max="100"
-								value={form.loyalty_referrer_reward_pct}
-								onChange={(e) => set('loyalty_referrer_reward_pct', e.target.value)}
-								className="mt-1"
-							/>
-							<p className="text-xs text-muted-foreground mt-1">
-								نقاط المُحيل عند التحويل
-							</p>
-						</div>
-					</div>
-				</div>
+                                {/* Points Configuration */}
+                                <div className="space-y-4">
+                                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                                                <AnimatedRefreshCw className="size-4 text-muted-foreground" />
+                                                النقاط والمكافآت
+                                        </h4>
+                                        <div className="grid gap-4 sm:grid-cols-2">
+                                                <div>
+                                                        <Label htmlFor={`${lId}-points-per-lyd`}>النقاط لكل دينار</Label>
+                                                        <Input id={`${lId}-points-per-lyd`} 
+                                                                type="number"
+                                                                min="0"
+                                                                step="0.5"
+                                                                value={form.loyalty_points_per_lyd}
+                                                                onChange={(e) => set('loyalty_points_per_lyd', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">عدد النقاط لكل دينار يُنفق</p>
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor={`${lId}-ref-discount`}>خصم الإحالة ٪</Label>
+                                                        <Input id={`${lId}-ref-discount`} 
+                                                                type="number"
+                                                                min="0"
+                                                                max="100"
+                                                                value={form.loyalty_referral_discount_pct}
+                                                                onChange={(e) => set('loyalty_referral_discount_pct', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">
+                                                                الخصم لأول طلب لصديق مُحال
+                                                        </p>
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor={`${lId}-ref-reward`}>مكافأة المُحيل ٪</Label>
+                                                        <Input id={`${lId}-ref-reward`} 
+                                                                type="number"
+                                                                min="0"
+                                                                max="100"
+                                                                value={form.loyalty_referrer_reward_pct}
+                                                                onChange={(e) => set('loyalty_referrer_reward_pct', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">
+                                                                نقاط المُحيل عند التحويل
+                                                        </p>
+                                                </div>
+                                        </div>
+                                </div>
 
-				<Separator className="bg-card/10" />
+                                <Separator className="bg-card/10" />
 
-				{/* Referral-Specific Settings */}
-				<div className="space-y-4">
-					<h4 className="text-sm font-semibold flex items-center gap-2">
-						<Gift className="size-4 text-muted-foreground" />
-						إعدادات الإحالة
-					</h4>
-					<div className="grid gap-4 sm:grid-cols-3">
-						<div>
-							<Label htmlFor={`${lId}-ref-points`}>نقاط المكافأة لكل إحالة</Label>
-							<Input id={`${lId}-ref-points`} 
-								type="number"
-								min="0"
-								value={form.loyalty_referral_reward_points}
-								onChange={(e) => set('loyalty_referral_reward_points', e.target.value)}
-								className="mt-1"
-							/>
-							<p className="text-xs text-muted-foreground mt-1">
-								النقاط الممنوحة للمُحيل عند التحويل
-							</p>
-						</div>
-						<div>
-							<Label htmlFor={`${lId}-ref-max`}>الحد الأقصى للإحالات للعميل</Label>
-							<Input id={`${lId}-ref-max`} 
-								type="number"
-								min="0"
-								value={form.loyalty_referral_max_per_customer}
-								onChange={(e) => set('loyalty_referral_max_per_customer', e.target.value)}
-								className="mt-1"
-							/>
-							<p className="text-xs text-muted-foreground mt-1">0 = غير محدود</p>
-						</div>
-						<div>
-							<Label htmlFor={`${lId}-expiry-days`}>Auto-Expiry Days</Label>
-							<Input id={`${lId}-expiry-days`} 
-								type="number"
-								min="0"
-								value={form.loyalty_referral_expiry_days}
-								onChange={(e) => set('loyalty_referral_expiry_days', e.target.value)}
-								className="mt-1"
-							/>
-							<p className="text-xs text-muted-foreground mt-1">
-								أيام قبل انتهاء الإحالة المعلقة (0 = أبداً)
-							</p>
-						</div>
-					</div>
-				</div>
+                                {/* Referral-Specific Settings */}
+                                <div className="space-y-4">
+                                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                                                <Gift className="size-4 text-muted-foreground" />
+                                                إعدادات الإحالة
+                                        </h4>
+                                        <div className="grid gap-4 sm:grid-cols-3">
+                                                <div>
+                                                        <Label htmlFor={`${lId}-ref-points`}>نقاط المكافأة لكل إحالة</Label>
+                                                        <Input id={`${lId}-ref-points`} 
+                                                                type="number"
+                                                                min="0"
+                                                                value={form.loyalty_referral_reward_points}
+                                                                onChange={(e) => set('loyalty_referral_reward_points', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">
+                                                                النقاط الممنوحة للمُحيل عند التحويل
+                                                        </p>
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor={`${lId}-ref-max`}>الحد الأقصى للإحالات للعميل</Label>
+                                                        <Input id={`${lId}-ref-max`} 
+                                                                type="number"
+                                                                min="0"
+                                                                value={form.loyalty_referral_max_per_customer}
+                                                                onChange={(e) => set('loyalty_referral_max_per_customer', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">0 = غير محدود</p>
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor={`${lId}-expiry-days`}>Auto-Expiry Days</Label>
+                                                        <Input id={`${lId}-expiry-days`} 
+                                                                type="number"
+                                                                min="0"
+                                                                value={form.loyalty_referral_expiry_days}
+                                                                onChange={(e) => set('loyalty_referral_expiry_days', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">
+                                                                أيام قبل انتهاء الإحالة المعلقة (0 = أبداً)
+                                                        </p>
+                                                </div>
+                                        </div>
+                                </div>
 
-				<Separator className="bg-card/10" />
+                                <Separator className="bg-card/10" />
 
-				{/* Tier Thresholds */}
-				<div className="space-y-4">
-					<h4 className="text-sm font-semibold flex items-center gap-2">
-						<Gift className="size-4 text-muted-foreground" />
-						حدود المستويات (نقاط)
-					</h4>
-					<div className="grid gap-4 sm:grid-cols-3">
-						<div>
-							<Label htmlFor={`${lId}-silver-min`}>فضي (حد أدنى)</Label>
-							<Input id={`${lId}-silver-min`} 
-								type="number"
-								min="1"
-								value={form.loyalty_tier_silver}
-								onChange={(e) => set('loyalty_tier_silver', e.target.value)}
-								className="mt-1"
-							/>
-						</div>
-						<div>
-							<Label htmlFor={`${lId}-gold-min`}>ذهبي (حد أدنى)</Label>
-							<Input id={`${lId}-gold-min`} 
-								type="number"
-								min="1"
-								value={form.loyalty_tier_gold}
-								onChange={(e) => set('loyalty_tier_gold', e.target.value)}
-								className="mt-1"
-							/>
-						</div>
-						<div>
-							<Label htmlFor={`${lId}-platinum-min`}>بلاتيني (حد أدنى)</Label>
-							<Input id={`${lId}-platinum-min`} 
-								type="number"
-								min="1"
-								value={form.loyalty_tier_platinum}
-								onChange={(e) => set('loyalty_tier_platinum', e.target.value)}
-								className="mt-1"
-							/>
-						</div>
-					</div>
-				</div>
-			</CardContent>
-		</Card>
-	);
+                                {/* Tier Thresholds */}
+                                <div className="space-y-4">
+                                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                                                <Gift className="size-4 text-muted-foreground" />
+                                                حدود المستويات (نقاط)
+                                        </h4>
+                                        <div className="grid gap-4 sm:grid-cols-3">
+                                                <div>
+                                                        <Label htmlFor={`${lId}-silver-min`}>فضي (حد أدنى)</Label>
+                                                        <Input id={`${lId}-silver-min`} 
+                                                                type="number"
+                                                                min="1"
+                                                                value={form.loyalty_tier_silver}
+                                                                onChange={(e) => set('loyalty_tier_silver', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor={`${lId}-gold-min`}>ذهبي (حد أدنى)</Label>
+                                                        <Input id={`${lId}-gold-min`} 
+                                                                type="number"
+                                                                min="1"
+                                                                value={form.loyalty_tier_gold}
+                                                                onChange={(e) => set('loyalty_tier_gold', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                </div>
+                                                <div>
+                                                        <Label htmlFor={`${lId}-platinum-min`}>بلاتيني (حد أدنى)</Label>
+                                                        <Input id={`${lId}-platinum-min`} 
+                                                                type="number"
+                                                                min="1"
+                                                                value={form.loyalty_tier_platinum}
+                                                                onChange={(e) => set('loyalty_tier_platinum', e.target.value)}
+                                                                className="mt-1"
+                                                        />
+                                                </div>
+                                        </div>
+                                </div>
+                        </CardContent>
+                </Card>
+        );
 }

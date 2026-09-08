@@ -9,6 +9,9 @@
  *
  * Decorative only: aria-hidden, pointer-events-none, select-none, and fully
  * static for reduced-motion users.
+ *
+ * r95: الحبر switched إلى accent-foreground (#df5a00 الأسطع) — رمزياً زخرفي
+ * فلا قيد AA عليه، لكنه يظهر بلون اللهب على الخلفية #010000 بدل الاختفاء.
  */
 export function HeroDecor() {
         return (
@@ -25,7 +28,7 @@ export function HeroDecor() {
                                         strokeWidth="2.5"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        className="size-full text-orange animate-orb-float"
+                                        className="size-full text-accent-foreground animate-orb-float"
                                 >
                                         {/* plate */}
                                         <circle cx="32" cy="36" r="16" />
@@ -51,7 +54,7 @@ export function HeroDecor() {
                                         strokeWidth="2.5"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        className="size-full text-orange animate-orb-float-delayed"
+                                        className="size-full text-accent-foreground animate-orb-float-delayed"
                                 >
                                         {/* steam wisps */}
                                         <path d="M26 14c-1.5-2 1.5-3.5 0-6" />

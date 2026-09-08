@@ -8,9 +8,8 @@ import type { Plan } from '@/lib/plan-types';
 import Link from 'next/link';
 import { m, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
-import {Star, Crown, Building2, Sparkles, ChevronDown, UtensilsCrossed, type LucideIcon} from 'lucide-react';
+import {Star, Crown, Building2, Sparkles, ChevronDown, UtensilsCrossed, Zap, type LucideIcon} from 'lucide-react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
-import { MotionCheck } from '@/components/ui/motion-icons';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
@@ -22,42 +21,33 @@ import { fetchJson } from '@/lib/fetch-json';
 
 // Map by plan name (not index) — Enterprise previously fell past the 4-item
 // arrays → blank white icon box on the 5th card.
-const PLAN_META: Record<
-        string,
-        { icon: LucideIcon; gradient: string; glow: string; badge: string; badgeColor: string }
-> = {
+// r95: أُزيل حقلا gradient/glow الميتان — شريحة أيقونة SmartBot §5.4
+// (bg-accent-foreground/10) حلّت محل شريحة التدرّج/التوهج القديمة.
+const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: string }> = {
         Free: {
                 icon: Sparkles,
-                gradient: 'from-muted-foreground/60 to-muted-foreground/80',
-                glow: 'shadow-muted-foreground/20',
                 badge: '',
                 badgeColor: '',
         },
         Basic: {
                 icon: Star,
-                gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
-                glow: 'shadow-orange/25',
-                badge: 'الأكثر شعبية',
+                // r95: نص الشارة طُوّر مع شارة zap — «الأكثر طلباً» (فقط إن انزلقت
+                // البطاقة عن موقع الشعبية بتغيّر الخطط النشطة).
+                badge: 'الأكثر طلباً',
                 badgeColor: 'bg-orange text-orange-foreground',
         },
         Premium: {
                 icon: Crown,
-                gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
-                glow: 'shadow-orange/30',
                 badge: 'الأفضل قيمة',
                 badgeColor: 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground',
         },
         Pro: {
                 icon: Building2,
-                gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
-                glow: 'shadow-orange/25',
                 badge: '',
                 badgeColor: '',
         },
         Enterprise: {
                 icon: Building2,
-                gradient: 'from-[var(--c-ember)] to-[var(--c-saffron)]',
-                glow: 'shadow-orange/25',
                 badge: 'للشركات الكبرى',
                 badgeColor: 'bg-gradient-to-r from-primary to-bloom text-primary-foreground dark:text-primary-foreground',
         },
@@ -81,31 +71,51 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
                         viewport={{ once: true, margin: "-40px" }}
                         transition={{ ...springDefault, delay: index * 0.08 }}
                         className={cn(
-                                'group relative flex flex-col rounded-2xl border p-6 transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 sm:p-8',
+                                /* r95: بطاقة SmartBot §5.1 — توهج حدّي بدل الرفع، حركة 500ms */
+                                'group relative flex flex-col rounded-2xl border p-5 sm:p-6 transition-[border-color,background-color,box-shadow] duration-500 hover:shadow-lg hover:shadow-accent-foreground/10 hover:border-accent-foreground/30',
                                 isPopular
-                                        ? 'border-orange/50 bg-card shadow-lg shadow-orange/15 glow-border'
-                                        : 'border-border/50 bg-card hover:border-orange/40 hover:shadow-lg hover:shadow-orange/8'
+                                        ? /* r95: بطاقة الخطة الشعبية §5.2 — تدرّج زاوية + حدّ accent */
+                                          'border-accent-foreground/30 bg-gradient-to-br from-accent-foreground/[0.04] via-card to-card'
+                                        : 'border-border/50 bg-card'
                         )}
                 >
-                        {meta.badge && (
-                                <div
+                        {isPopular && (
+                                <>
+                                        {/* r95: توهج الزاوية الخلفي §5.2 */}
+                                        <div
+                                                aria-hidden="true"
+                                                className="pointer-events-none absolute -top-20 -end-20 size-48 rounded-full bg-accent-foreground/10 blur-3xl"
+                                        />
+                                        {/* r95: شارة zap SmartBot — «الأكثر طلباً» (كانت «الأكثر شعبية»).
+                                               3xs عند SmartBot = 10px — لا توكن 3xs بالمشروع
+                                               فتُستخدم text-[0.625rem] (تكبر مع high-contrast). */}
+                                        <span className="absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold text-primary-foreground">
+                                                <Zap className="size-2.5 fill-current" aria-hidden="true" />
+                                                الأكثر طلباً
+                                        </span>
+                                </>
+                        )}
+                        {!isPopular && meta.badge && (
+                                /* r95: شارات الخطط غير الشعبية — نفس هندسة حبة الزاوية بألوانها الأصلية */
+                                <span
                                         className={cn(
-                                                'absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold shadow-lg',
+                                                'absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.625rem] font-bold',
                                                 meta.badgeColor
                                         )}
                                 >
                                         {meta.badge}
-                                </div>
+                                </span>
                         )}
 
-                        <div className="relative z-10 flex flex-col flex-1">
+                        <div className="relative flex flex-col flex-1">
                                 <div className="flex items-center gap-3 mb-4">
+                                        {/* r95: شريحة أيقونة SmartBot §5.4 — بلا حدّ، bg-accent-foreground/10 */}
                                         <div
                                                 className={cn(
-                                                        'flex size-11 items-center justify-center rounded-lg border',
+                                                        'flex size-11 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110',
                                                         isFree
-                                                                ? 'border-border bg-muted text-muted-foreground'
-                                                                : 'border-orange/20 bg-orange/10 text-orange'
+                                                                ? 'bg-muted text-muted-foreground'
+                                                                : 'bg-accent-foreground/10 text-accent-foreground group-hover:bg-accent-foreground/15'
                                                 )}
                                         >
                                                 <Icon className="size-5" />
@@ -118,10 +128,15 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
 
                                 <div className="mb-6">
                                         {isFree ? (
-                                                <div className="text-3xl sm:text-4xl font-bold tabular-nums">مجاني</div>
+                                                <div className="text-[2.75rem] font-bold leading-none tabular-nums">مجاني</div>
                                         ) : (
                                                 <div className="flex items-baseline gap-1">
-                                                        <span className="text-3xl sm:text-4xl font-bold tracking-normal tabular-nums">
+                                                        {/* r95: رقم السعر SmartBot §5.7 — key على span يعيد تشغيل
+                                                               أنيميشن price-swap-in (أداة 95-A في globals.css) عند التبديل */}
+                                                        <span
+                                                                key={yearly ? 'yearly' : 'monthly'}
+                                                                className="animate-price-swap-in text-[2.75rem] font-bold leading-none tabular-nums"
+                                                        >
                                                                 {formatPrice(displayPrice, { suffix: '' })}
                                                         </span>
                                                         <span className="text-sm sm:text-lg text-muted-foreground font-medium">د.ل</span>
@@ -129,7 +144,10 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
                                                 </div>
                                         )}
                                         {yearly && !isFree && (
-                                                <p className="text-xs text-orange mt-1">وفر شهرين عند الاشتراك السنوي</p>
+                                                /* r95: نص توفيري — accent-foreground الأسطع (#df5a00)
+                                                   5.42:1 على البطاقة الداكنة — text-orange (#bc4700)
+                                                   كان 3.9:1 دون AA للنص. */
+                                                <p className="text-xs text-accent-foreground mt-1">وفر شهرين عند الاشتراك السنوي</p>
                                         )}
                                 </div>
 
@@ -161,11 +179,12 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
                                                         key={i}
                                                         className="flex items-start gap-3 text-sm"
                                                 >
-                                                        <div className="relative shrink-0 mt-0.5">
-                                                                <MotionCheck className="size-4 text-orange transition-transform duration-300 group-hover/feature:scale-110" />
-                                                                <span className="absolute inset-0 size-4 rounded-full bg-orange/20 scale-0 group-hover/feature:scale-150 transition-transform duration-300" />
-                                                        </div>
-                                                        <span>{feature}</span>
+                                                        {/* r95: نقاط ميزات SmartBot بدل علامات الصح المتحركة */}
+                                                        <span
+                                                                aria-hidden="true"
+                                                                className="mt-2 size-1.5 shrink-0 rounded-full bg-accent-foreground/60"
+                                                        />
+                                                        <span className="text-muted-foreground">{feature}</span>
                                                 </div>
                                         ))}
                                 </div>
@@ -225,43 +244,40 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                         <section className="relative border-b border-border/50 pb-16 pt-24 text-center sm:pb-20 sm:pt-28">
 
                                 <div className="relative z-10 max-w-3xl mx-auto px-4">
-                                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange/20 bg-orange/8 px-4 py-1.5 text-sm text-orange">
+                                        {/* r95: حبة علوية — عائلة accent-foreground اللهبية */}
+                                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-foreground/20 bg-accent-foreground/[0.06] px-4 py-1.5 text-sm text-accent-foreground">
                                                 <AnimatedSparkles className="size-4" />
                                                 خطط تناسب جميع الأحجام
                                         </div>
-                                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-[1.35]">اختر خطتك</h1>
+                                        {/* r95: طباعة SmartBot §3 — font-heading + tracking-tight + text-balance */}
+                                        <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-[1.15] tracking-tight text-balance">اختر خطتك</h1>
                                         <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
                                                 ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
                                         </p>
 
-                                        <div className="mt-6 inline-flex items-center gap-1 rounded-lg border border-border/60 bg-card p-1 sm:mt-8">
+                                        {/* r95: مفتاح شهري/سنوي SmartBot §5.7 — كبسولة زجاجية rounded-full */}
+                                        <div className="mt-6 inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/60 p-1 backdrop-blur sm:mt-8">
                                                 <button
                                                         type="button"
                                                         onClick={() => setYearly(false)}
                                                         aria-pressed={!yearly}
                                                         className={cn(
-                                                                'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
-                                                                yearly ? 'text-muted-foreground' : 'bg-orange-muted text-ember dark:text-saffron'
+                                                                'rounded-full px-4 py-2 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:text-sm',
+                                                                yearly ? 'text-muted-foreground' : 'bg-primary text-primary-foreground'
                                                         )}
                                                 >
                                                         شهري
-                                                        {!yearly && (
-                                                                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />
-                                                        )}
                                                 </button>
                                                 <button
                                                         type="button"
                                                         onClick={() => setYearly(true)}
                                                         aria-pressed={yearly}
                                                         className={cn(
-                                                                'rounded-md px-4 py-2 text-xs font-medium transition-colors relative outline-none focus-visible:ring-2 focus-visible:ring-orange/60 sm:text-sm',
-                                                                yearly ? 'bg-orange-muted text-ember dark:text-saffron' : 'text-muted-foreground'
+                                                                'rounded-full px-4 py-2 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:text-sm',
+                                                                yearly ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
                                                         )}
                                                 >
-                                                        سنوي ·<span className="ms-1 text-xs text-ember dark:text-saffron font-bold">وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
-                                                        {yearly && (
-                                                                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-orange" />
-                                                        )}
+                                                        سنوي ·<span className={cn('ms-1 text-xs font-bold', yearly ? 'text-primary-foreground' : 'text-accent-foreground')}>وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
                                                 </button>
                                         </div>
                                 </div>
@@ -274,9 +290,10 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         <LoadingAnnouncer loading={loading} message="جاري تحميل الباقات..." />
                                                         <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
                                                         {[...Array(4)].map((_, i) => (
-                                                                <div key={i} className="rounded-sm border border-border/30 p-6 sm:p-8">
+                                                                /* r95: هياكل التحميل بنفس هندسة بطاقة SmartBot الجديدة */
+                                                                <div key={i} className="rounded-2xl border border-border/50 p-5 sm:p-6">
                                                                         <div className="flex items-center gap-3 mb-4">
-                                                                                <div className="size-11 rounded-sm skeleton" />
+                                                                                <div className="size-11 rounded-xl skeleton" />
                                                                                 <div className="space-y-2 flex-1">
                                                                                         <div className="h-4 w-3/4 skeleton rounded-sm" />
                                                                                         <div className="h-3 w-1/2 skeleton rounded-sm" />
@@ -352,9 +369,9 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 ].map((faq, i) => (
                                                         <details
                                                                 key={i}
-                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color,box-shadow] duration-200 open:border-orange/25 open:shadow-sm"
+                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color,box-shadow] duration-500 open:border-accent-foreground/25 open:shadow-sm"
                                                         >
-                                                                <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-orange/60">
+                                                                <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60">
                                                                                                                                         {faq.q}
                                                                                                                                         <span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300 text-xs">
                                                                                                                                                 <ChevronDown className="size-4" />
@@ -375,8 +392,9 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
 
                         <section className="pb-16 sm:pb-24">
                                 <div className="max-w-2xl mx-auto px-4 text-center">
-                                        <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-6 shadow-sm sm:p-8 md:p-12">
-                                                <div className="absolute inset-x-0 top-0 mx-auto h-1 w-20 bg-orange" />
+                                        {/* r95: بطاقة CTA ختامية بهندسة SmartBot */}
+                                        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 shadow-sm sm:p-8 md:p-12">
+                                                <div className="absolute inset-x-0 top-0 mx-auto h-1 w-20 bg-primary" />
                                                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
                                                         مستعد لانطلاق مطعمك الرقمي؟
                                                 </h2>

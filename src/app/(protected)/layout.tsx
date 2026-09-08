@@ -127,7 +127,7 @@ export default async function RootLayout({
                                         تخطى إلى المحتوى الرئيسي
                                 </a>
                                 <div className="grain-overlay" />
-                                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem nonce={nonce}> <!-- r95: داكن أولاً — توأمة SmartBot (توحيد مع العام) -->
+                                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem nonce={nonce}> {/* r95: داكن أولاً — توأمة SmartBot (توحيد مع العام) */}
                                         <GridPattern
                                                 width={60}
                                                 height={60}

@@ -326,7 +326,8 @@ export function OrderDialog({
                                                                                                                 className={cn(
                                                                                                                         'px-3.5 py-2 rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                                                                         selected
-                                                                                                                                ? 'bg-orange/10 border-orange/40 text-orange'
+                                                                                                                                /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA 5.42:1) */
+                                                                        ? 'bg-orange/10 border-orange/40 text-accent-foreground'
                                                                                                                                 : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground',
                                                                                                                         // gentle maxSelect ceiling: not-selected options dim at capacity
                                                                                                                         disabled && 'opacity-40 cursor-not-allowed'
@@ -337,7 +338,7 @@ export function OrderDialog({
                                                                                                                         <span
                                                                                                                                 className={cn(
                                                                                                                                         'ms-1.5 tabular-nums font-bold',
-                                                                                                                                        o.priceDelta > 0 ? 'text-orange' : 'text-success'
+                                                                                                                                        o.priceDelta > 0 ? 'text-accent-foreground' : 'text-success'
                                                                                                                                 )}
                                                                                                                         >
                                                                                                                                 {o.priceDelta > 0
@@ -392,7 +393,9 @@ export function OrderDialog({
                                                         <span className="text-xs text-muted-foreground">السعر</span>
                                                         <div className="flex items-baseline gap-1.5 mt-0.5">
                                                                 {/* w3-f1: unit price INCLUDING selected modifiers (live) */}
-                                                                <span className="font-bold text-xl text-primary tabular-nums">
+                                                                {/* r95: حبر السعر — أسعار الأصناف بعائلة accent-foreground (#df5a00)
+                                                                   5.42:1 — كان text-primary (#bc4700) 3.9:1 بلا AA على الزجاج الداكن. */}
+                                                                <span className="font-bold text-xl text-accent-foreground tabular-nums">
                                                                         {formatPrice(unitPrice, { decimals: 1, suffix: '' })}
                                                                 </span>
                                                                 <span className="text-xs text-muted-foreground">د.ل</span>
@@ -488,7 +491,8 @@ export function OrderDialog({
                                                                         className={cn(
                                                                                 'px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border',
                                                                                 notes.includes(note)
-                                                                                        ? 'bg-orange/10 border-orange/30 text-orange'
+                                                                                        /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
+                                                                                ? 'bg-orange/10 border-orange/30 text-accent-foreground'
                                                                                         : 'bg-glass-bg/30 border-glass-border text-muted-foreground hover:border-orange/30 hover:text-foreground'
                                                                         )}
                                                                 >
@@ -519,7 +523,8 @@ export function OrderDialog({
                                                         aria-live="polite"
                                                 >
                                                         <span className="font-bold text-sm">المجموع</span>
-                                                        <span className="font-bold text-2xl text-primary tabular-nums">
+                                                        {/* r95: المجموع — accent-foreground الأسطع (#df5a00) 5.42:1 */}
+                                                        <span className="font-bold text-2xl text-accent-foreground tabular-nums">
                                                                 {formatPrice(totalPrice, { decimals: 1, suffix: '' })}{' '}
                                                                 <span className="text-sm font-normal text-muted-foreground">د.ل</span>
                                                         </span>

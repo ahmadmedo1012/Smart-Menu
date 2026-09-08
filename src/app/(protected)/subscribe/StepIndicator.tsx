@@ -67,7 +67,8 @@ export function StepIndicator({
                                                                                    والآن على saffron الصرفة 8.97:1. */
                                                                                 ? 'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso border-transparent shadow-lg shadow-orange/30 font-extrabold'
                                                                                 : isDone
-                                                                                        ? 'bg-orange/15 text-orange border-orange/40'
+                                                                                        /* r95: الخطوة المنجزة — نص أسطع (AA) */
+                                                                                        ? 'bg-orange/15 text-accent-foreground border-orange/40'
                                                                                         : 'bg-muted/50 text-muted-foreground border-border/40'
                                                                 )}
                                                         >
@@ -80,7 +81,8 @@ export function StepIndicator({
                                                         <span
                                                                 className={cn(
                                                                         'text-[11px] sm:text-xs font-medium transition-colors hidden sm:block',
-                                                                        isActive ? 'text-orange font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/50'
+                                                                        /* r95: تسمية الخطوة الحالية — accent-foreground (AA) */
+                                                                        isActive ? 'text-accent-foreground font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/50'
                                                                 )}
                                                         >
                                                                 {STEP_LABELS[s]}

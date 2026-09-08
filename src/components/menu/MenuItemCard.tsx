@@ -6,7 +6,7 @@ import { m, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import type { ModifierGroupProp } from './menu-types';
-import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed } from 'lucide-react';
+import { AlertTriangle, Settings2, Sparkles, UtensilsCrossed, Zap } from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import AnimatedStar from '@/components/ui/star-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -112,8 +112,9 @@ const MenuItemCard = memo(function MenuItemCard({
                         whileHover={{ y: -3, transition: HOVER_SPRING }}
                         whileTap={{ scale: 0.99, transition: HOVER_SPRING }}
                         className={cn(
-                                'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-300 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
-                                'hover:border-orange/40 hover:shadow-lg hover:shadow-orange/10',
+                                'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-500 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
+                                /* r95: توهج SmartBot §5.1 — accent-foreground بدل orange على الحدود/الظل */
+                                'hover:border-accent-foreground/30 hover:shadow-lg hover:shadow-accent-foreground/10',
                                 isFeatured && 'md:col-span-2'
                         )}
                         tabIndex={0}
@@ -136,12 +137,14 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         priority={eager}
                                                         sizes={imageSizes}
                                                         skeleton
-                                                        fallback={<span className="text-2xl text-orange/40"><UtensilsCrossed className="size-6 text-orange/40" /></span>}
+                                                        /* r95: أيقونة البديل — عائلة اللهب الأسطع بذات العتامة الزخرفية */
+                                                        fallback={<span className="text-2xl text-accent-foreground/50"><UtensilsCrossed className="size-6 text-accent-foreground/50" /></span>}
                                                         onError={() => setImageError(true)}
                                                 />
                                         ) : (
                                                 <div className="flex size-full items-center justify-center bg-gradient-to-br from-orange-muted/30 via-orange-muted/10 to-transparent">
-                                                        <div className="text-3xl opacity-40"><UtensilsCrossed className="size-6 text-orange/40" /></div>
+                                                        {/* r95: أيقونة البديل — عائلة اللهب الأسطع بذات العتامة الزخرفية */}
+                                                        <div className="text-3xl opacity-40"><UtensilsCrossed className="size-6 text-accent-foreground/50" /></div>
                                                 </div>
                                         )}
                                 </div>
@@ -156,9 +159,10 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         initial={{ scale: 0, opacity: 0 }}
                                                         animate={{ scale: 1, opacity: 1 }}
                                                         transition={CARD_SPRING}
-                                                        className="flex items-center gap-1 rounded-md bg-orange px-2 py-1 text-[10px] font-bold text-orange-foreground"
+                                                        /* r95: شارة SmartBot — حبة zap بدل النجمة (نفس نمط بطاقات التسعير) */
+                                                        className="flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold text-primary-foreground"
                                                 >
-                                                        <AnimatedStar className="size-2.5 fill-current" />
+                                                        <Zap className="size-2.5 fill-current" aria-hidden="true" />
                                                         الأكثر طلباً
                                                 </m.span>
                                         )}
@@ -254,13 +258,15 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         'text-xl font-bold transition-colors duration-300 tabular-nums',
                                                         hasDiscount
                                                                 ? 'text-success'
+                                                                /* r95: حبر السعر — accent-foreground (#df5a00) 5.42:1 على
+                                                                   البطاقة الداكنة بدرجة واحدة AA في الثيمين. */
                                                                 // a11y(round84): --primary (#c53c00) is
                                                                 // tuned for white-text-on-orange BUTTONS
                                                                 // (4.5:1) — as TEXT on dark cards it is
                                                                 // 3.89:1. ember (light ~6.5:1) /
                                                                 // saffron (dark ~9.8:1) keep the brand
                                                                 // hue at AA in both themes.
-                                                                : 'text-ember dark:text-saffron group-hover:text-primary dark:group-hover:text-saffron'
+                                                                : 'text-accent-foreground'
                                                 )}
                                         >
                                                 {formatPrice(currentPrice, { decimals: 1, suffix: '' })}
@@ -274,7 +280,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                         {/* w3-f1: a light «خيارات متاحة» pill signals choices exist without
                                          * loading the card — muted border, no icon, hidden when none. */}
                                         {hasModifiers && (
-                                                <span className="inline-flex items-center rounded-full border border-orange/25 bg-orange/5 px-2 py-0.5 text-[10px] font-medium text-orange">
+                                                <span className="inline-flex items-center rounded-full border border-accent-foreground/25 bg-accent-foreground/5 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
                                                         خيارات متاحة
                                                 </span>
                                         )}
@@ -291,7 +297,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         onOrder(item);
                                                 }}
                                                 aria-label={`خيارات ${displayName}`}
-                                                className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-orange/40 bg-orange/5 text-orange dark:text-orange hover:bg-orange/10 active:scale-95 transition-[background-color,transform,translate,scale,rotate,box-shadow,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-accent-foreground/40 bg-accent-foreground/5 text-accent-foreground hover:bg-accent-foreground/10 active:scale-95 transition-[background-color,transform,translate,scale,rotate,box-shadow,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                         >
                                                 <Settings2 className="size-4" aria-hidden="true" />
                                                 <span className="text-xs font-bold">خيارات</span>

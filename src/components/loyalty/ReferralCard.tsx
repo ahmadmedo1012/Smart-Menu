@@ -86,6 +86,10 @@ export function ReferralCard({
         }, [restaurantName, discountText, referralUrl, whatsapp, handleCopyLink]);
 
         return (
+                /* r95: نصوص البطاقة — accent-foreground (#df5a00 الأسطع، 5.42:1 على
+                   orange-muted الداكن) بدل text-orange (#bc4700 الذي صار لون الأزرار
+                   الصلبة ويخفق AA كنص على الأسطح الداكنة). التدرّجات والحدود ظلت
+                   بعائلة orange لهب الأزرار. */
                 <div className="relative overflow-hidden rounded-md bg-gradient-to-br from-orange to-orange/80 p-0.5 shadow-xl shadow-orange/30">
                         {/* Decorative glowing orbs */}
                         <div className="absolute -top-20 -end-20 size-40 rounded-full bg-orange/20 blur-3xl" />
@@ -101,13 +105,13 @@ export function ReferralCard({
                                                 <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25 animate-float">
                                                         <Gift className="size-7 text-white" />
                                                 </div>
-                                                <h3 className="text-lg font-bold text-orange dark:text-orange">{restaurantName}</h3>
-                                                <p className="text-sm text-orange/80 dark:text-orange/80 mt-1">{discountText}</p>
+                                                <h3 className="text-lg font-bold text-accent-foreground dark:text-accent-foreground">{restaurantName}</h3>
+                                                <p className="text-sm text-accent-foreground/80 dark:text-accent-foreground/80 mt-1">{discountText}</p>
                                         </div>
 
                                         {/* ===== Referral Code Display ===== */}
                                         <div>
-                                                <label className="block text-xs font-medium text-orange/80 dark:text-orange/80 mb-2 text-center">
+                                                <label className="block text-xs font-medium text-accent-foreground/80 dark:text-accent-foreground/80 mb-2 text-center">
                                                         كود الإحالة الخاص بك
                                                 </label>
                                                 <button
@@ -119,13 +123,13 @@ export function ReferralCard({
                                                         className="mx-auto w-fit block rounded-xl bg-white/90 dark:bg-orange-muted/60 border-2 border-orange/50 dark:border-orange/50 px-6 py-3 text-center cursor-pointer transition-[transform,translate,scale,rotate] outline-none hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1"
                                                 >
                                                         <span
-                                                                className="text-2xl font-bold tracking-[0.1em] text-orange dark:text-orange font-mono"
+                                                                className="text-2xl font-bold tracking-[0.1em] text-accent-foreground dark:text-accent-foreground font-mono"
                                                                 dir="ltr"
                                                         >
                                                                 {referralCode}
                                                         </span>
                                                 </button>
-                                                <p className="text-[10px] text-orange/60 dark:text-orange/60 text-center mt-1.5">
+                                                <p className="text-[10px] text-accent-foreground/60 dark:text-accent-foreground/60 text-center mt-1.5">
                                                         {copied ? (
                                                                 <span className="inline-flex items-center gap-1 text-success">
                                                                         <MotionCheck className="size-3" /> تم النسخ!
@@ -139,24 +143,24 @@ export function ReferralCard({
                                         {/* ===== Stats Bar ===== */}
                                         <div className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-xl bg-white/60 dark:bg-orange-muted/40 border border-orange/30 dark:border-orange/30 p-3 text-center">
-                                                        <Users className="size-4 mx-auto mb-1 text-orange dark:text-orange" />
-                                                        <p className="text-lg font-bold text-orange dark:text-orange tabular-nums">
+                                                        <Users className="size-4 mx-auto mb-1 text-accent-foreground dark:text-accent-foreground" />
+                                                        <p className="text-lg font-bold text-accent-foreground dark:text-accent-foreground tabular-nums">
                                                                 {timesShared}
                                                         </p>
-                                                        <p className="text-[10px] text-orange/60 dark:text-orange/60">تم المشاركة</p>
+                                                        <p className="text-[10px] text-accent-foreground/60 dark:text-accent-foreground/60">تم المشاركة</p>
                                                 </div>
                                                 <div className="rounded-xl bg-white/60 dark:bg-orange-muted/40 border border-orange/30 dark:border-orange/30 p-3 text-center">
-                                                        <TrendingUp className="size-4 mx-auto mb-1 text-orange dark:text-orange" />
-                                                        <p className="text-lg font-bold text-orange dark:text-orange tabular-nums">
+                                                        <TrendingUp className="size-4 mx-auto mb-1 text-accent-foreground dark:text-accent-foreground" />
+                                                        <p className="text-lg font-bold text-accent-foreground dark:text-accent-foreground tabular-nums">
                                                                 {timesUsed}
                                                         </p>
-                                                        <p className="text-[10px] text-orange/60 dark:text-orange/60">تم الاستخدام</p>
+                                                        <p className="text-[10px] text-accent-foreground/60 dark:text-accent-foreground/60">تم الاستخدام</p>
                                                 </div>
                                         </div>
 
                                         {/* ===== Share Buttons ===== */}
                                         <div className="space-y-2">
-                                                <p className="text-xs font-medium text-orange/70 dark:text-orange/70 text-center">
+                                                <p className="text-xs font-medium text-accent-foreground/70 dark:text-accent-foreground/70 text-center">
                                                         شارك عبر
                                                 </p>
                                                 <div className="flex gap-2">
@@ -192,7 +196,7 @@ export function ReferralCard({
                                         {/* ===== Full referral link (copy fallback) ===== */}
                                         <div className="flex items-center gap-2">
                                                 <div
-                                                        className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-orange-muted/50 border border-orange/30 dark:border-orange/30 flex items-center px-3 text-[11px] text-orange/70 dark:text-orange/70 truncate font-mono"
+                                                        className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-orange-muted/50 border border-orange/30 dark:border-orange/30 flex items-center px-3 text-[11px] text-accent-foreground/70 dark:text-accent-foreground/70 truncate font-mono"
                                                         dir="ltr"
                                                 >
                                                         {referralUrl}
@@ -208,7 +212,7 @@ export function ReferralCard({
                                         </div>
 
                                         {/* ===== Footer ===== */}
-                                        <p className="text-center text-[10px] text-orange/50 dark:text-orange/50 flex items-center justify-center gap-1">
+                                        <p className="text-center text-[10px] text-accent-foreground/50 dark:text-accent-foreground/50 flex items-center justify-center gap-1">
                                                 <AnimatedSparkles className="size-3" />
                                                 شارك الرابط مع أصدقائك واحصل على نقاط مكافأة
                                                 <AnimatedSparkles className="size-3" />

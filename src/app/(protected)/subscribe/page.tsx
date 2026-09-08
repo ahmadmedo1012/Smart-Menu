@@ -329,7 +329,7 @@ function SubscribeContent() {
                 return (
                         <div className="min-h-screen flex items-center justify-center">
                                 <LoadingAnnouncer loading={loading} message="جاري تحميل صفحة الاشتراك..." />
-                                <Loader2 className="size-8 animate-spin text-primary" />
+                                <Loader2 className="size-8 animate-spin text-accent-foreground" />
                         </div>
                 );
 
@@ -339,10 +339,11 @@ function SubscribeContent() {
                         <div className="max-w-4xl mx-auto px-4 py-12">
                                 {/* Header */}
                                 <div className="text-center mb-10">
-                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm mb-4">
+                                        {/* r95: حبة علوية — accent-foreground (AA 5.4:1 على الداكن) بدل text-primary */}
+                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-accent-foreground text-sm mb-4">
                                                 <Store className="size-4" /> اشترك الآن
                                         </div>
-                                        <h1 className="text-3xl md:text-5xl font-bold mb-3">
+                                        <h1 className="font-heading text-3xl md:text-5xl font-bold mb-3">
                                                 {upgradeMode ? <span>رقِّ خطة مطعمك</span> : <span>انضم إلى الربط الذكي</span>}
                                         </h1>
                                         <p className="text-muted-foreground text-lg">
@@ -385,7 +386,7 @@ function SubscribeContent() {
                                 {/* Loading state while checking auth (upgrade mode detection) */}
                                 {step === 'menu' && !authLoaded && (
                                         <div className="flex items-center justify-center py-16">
-                                                <Loader2 className="size-6 animate-spin text-primary" />
+                                                <Loader2 className="size-6 animate-spin text-accent-foreground" />
                                         </div>
                                 )}
 
@@ -432,7 +433,7 @@ export default function SubscribePage() {
                 <Suspense
                         fallback={
                                 <div className="min-h-screen flex items-center justify-center">
-                                        <Loader2 className="size-8 animate-spin text-primary" />
+                                        <Loader2 className="size-8 animate-spin text-accent-foreground" />
                                 </div>
                         }
                 >

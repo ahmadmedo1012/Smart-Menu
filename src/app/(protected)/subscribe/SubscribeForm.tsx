@@ -224,14 +224,15 @@ export function SubscribeForm({
                         {/* Selected plan summary */}
                         <div
                                 className={cn(
-                                        'rounded-[20px] p-5 mb-8 border-2 border-orange/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card'
+                                        /* r95: ملخص الخطة — هندسة بطاقة SmartBot (rounded-2xl + حدّ accent) */
+                                        'rounded-2xl p-5 mb-8 border border-accent-foreground/30 bg-gradient-to-r from-orange-muted/80 to-white dark:from-orange-muted/20 dark:to-card'
                                 )}
                         >
                                 <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                                 <div
                                                         className={cn(
-                                                                'size-10 rounded-[20px] bg-gradient-to-br flex items-center justify-center',
+                                                                'size-10 rounded-xl bg-gradient-to-br flex items-center justify-center',
                                                                 PLAN_GRADIENTS[currentPlan.name] ?? 'from-orange to-orange/80'
                                                         )}
                                                 >
@@ -289,9 +290,10 @@ export function SubscribeForm({
 
                                                         {/* Restaurant blocks */}
                                                         {menus.map((restaurant, index) => (
-                                                                <div key={index} className="rounded-[20px] border border-border/40 p-4 space-y-4 relative">
+                                                                <div key={index} className="rounded-2xl border border-border/50 bg-card p-4 space-y-4 relative">
                                                                         <div className="flex items-center justify-between">
-                                                                                <h4 className="text-sm font-semibold text-primary">
+                                                                                {/* r95: عنوان كتلة المنيو — accent-foreground (AA) */}
+                                                                                <h4 className="text-sm font-semibold text-accent-foreground">
                                                                                         المنيو {toArabicNumber(index + 1)} — {currentPlan.nameAr}
                                                                                 </h4>
                                                                                 {menus.length > 1 && (
@@ -468,17 +470,18 @@ export function SubscribeForm({
                                                         <h3 className="font-bold text-base">راجع بياناتك ثم أكّد</h3>
 
                                                         {/* Restaurants summary */}
-                                                        <div className="rounded-[20px] border border-border/40 p-4 space-y-3">
+                                                        <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-3">
                                                                 <div className="flex items-center justify-between">
                                                                         <h4 className="text-sm font-semibold">المنيوهات</h4>
-                                                                        <Button type="button" variant="ghost" size="sm" onClick={() => onStepChange('menu')} className="text-primary">
+                                                                        <Button type="button" variant="ghost" size="sm" onClick={() => onStepChange('menu')} className="text-accent-foreground">
                                                                                 تعديل
                                                                         </Button>
                                                                 </div>
                                                                 {menus.map((r, i) => (
                                                                         <div key={i} className="flex items-center justify-between text-sm border-b border-border/20 pb-2 last:border-0 last:pb-0">
                                                                                 <div className="flex items-center gap-2">
-                                                                                        <span className="size-7 rounded-full bg-orange/10 text-orange flex items-center justify-center text-xs font-bold shrink-0">
+                                                                                        {/* r95: رقم المنيو — نص أسطع على tint اللهب */}
+                                                                                        <span className="size-7 rounded-full bg-orange/10 text-accent-foreground flex items-center justify-center text-xs font-bold shrink-0">
                                                                                                 {toArabicNumber(i + 1)}
                                                                                         </span>
                                                                                         <div>
@@ -496,20 +499,21 @@ export function SubscribeForm({
                                                         </div>
 
                                                         {/* Account summary */}
-                                                        <div className="rounded-[20px] border border-border/40 p-4 flex items-center justify-between">
+                                                        <div className="rounded-2xl border border-border/50 bg-card p-4 flex items-center justify-between">
                                                                 <div>
                                                                         <h4 className="text-sm font-semibold mb-1">بيانات الدخول</h4>
                                                                         <p className="text-sm text-muted-foreground" dir="ltr">
                                                                                 {form.username}
                                                                         </p>
                                                                 </div>
-                                                                <Button type="button" variant="ghost" size="sm" onClick={() => onStepChange('account')} className="text-primary">
+                                                                <Button type="button" variant="ghost" size="sm" onClick={() => onStepChange('account')} className="text-accent-foreground">
                                                                         تعديل
                                                                 </Button>
                                                         </div>
 
                                                         {/* Plan summary */}
-                                                        <div className="rounded-[20px] bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5">
+                                                        {/* r95: ملخص الاشتراك — هندسة SmartBot بعائلة accent-foreground */}
+                                                        <div className="rounded-2xl bg-gradient-to-r from-accent-foreground/[0.05] to-accent-foreground/[0.05] border border-accent-foreground/20 p-5">
                                                                 <h4 className="font-bold mb-3">ملخص الاشتراك</h4>
                                                                 <div className="space-y-2 text-sm">
                                                                         <div className="flex justify-between">
@@ -554,7 +558,7 @@ export function SubscribeForm({
                                                 type="button"
                                                 variant="outline"
                                                 size="lg"
-                                                className="h-14 flex-1 rounded-[20px]"
+                                                className="h-14 flex-1 rounded-2xl"
                                                 onClick={() => {
                                                         if (step === 'account') onStepChange('menu');
                                                         else if (step === 'review') onStepChange('account');
@@ -565,7 +569,7 @@ export function SubscribeForm({
                                         </Button>
                                 )}
                                 {step !== 'review' ? (
-                                        <Button type="button" size="lg" className="h-14 flex-1 rounded-[20px]" onClick={goNext} disabled={validating}>
+                                        <Button type="button" size="lg" className="h-14 flex-1 rounded-2xl" onClick={goNext} disabled={validating}>
                                                 {validating ? (
                                                         <span className="flex items-center gap-2">
                                                                 <Loader2 className="size-4 animate-spin" /> جاري التحقق...
@@ -578,7 +582,7 @@ export function SubscribeForm({
                                                 )}
                                         </Button>
                                 ) : (
-                                        <Button size="lg" className="h-14 flex-1 rounded-[20px]" type="submit" disabled={submitting}>
+                                        <Button size="lg" className="h-14 flex-1 rounded-2xl" type="submit" disabled={submitting}>
                                                 {submitting ? (
                                                         <span className="flex items-center gap-2">
                                                                 <Loader2 className="size-4 animate-spin" /> جاري إنشاء الحساب...
@@ -594,7 +598,8 @@ export function SubscribeForm({
                         {step === 'review' && (
                                 <p className="text-xs text-center text-muted-foreground/60 mt-4">
                                         بالضغط على إنشاء الحساب، أنت توافق على{' '}
-                                        <Link href="/terms" className="text-primary underline">
+                                        {/* r95: رابط الشروط — accent-foreground (AA) */}
+                                        <Link href="/terms" className="text-accent-foreground underline">
                                                 شروط الخدمة
                                         </Link>
                                 </p>

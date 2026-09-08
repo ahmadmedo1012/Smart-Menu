@@ -341,9 +341,10 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                         <p className="text-sm text-destructive mb-3">
                                                                                 فشل تحميل التقييمات. تحقق من اتصالك بالإنترنت.
                                                                         </p>
+                                                                        {/* r95: رابط إعادة المحاولة — accent-foreground الأسطع (AA) */}
                                                                         <button
                                                                                 onClick={() => setRetryKey((k) => k + 1)}
-                                                                                className="text-xs text-orange underline underline-offset-2 hover:no-underline"
+                                                                                className="text-xs text-accent-foreground underline underline-offset-2 hover:no-underline"
                                                                         >
                                                                                 إعادة المحاولة
                                                                         </button>

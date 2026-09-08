@@ -29,7 +29,7 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
       aria-expanded={open}
       aria-controls="mobile-menu"
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
-      className="lg:hidden relative size-11 rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm flex items-center justify-center hover:bg-orange/15 hover:border-orange/30 transition-[color,background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-orange/60"
+      className="lg:hidden relative size-11 rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[color,background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
     >
       <span className="relative size-3.5">
         <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300 origin-center", open && "rotate-45 top-[6px]")} />
@@ -127,7 +127,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-              <button onClick={onClose} className="size-11 rounded-xl border border-border/40 flex items-center justify-center hover:bg-orange/15 hover:border-orange/30 transition-[background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-orange/60" aria-label="إغلاق"><AnimatedX className="size-4" /></button>
+              <button onClick={onClose} className="size-11 rounded-xl border border-border/40 flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60" aria-label="إغلاق"><AnimatedX className="size-4" /></button>
             </div>
             <nav className="px-4 py-4 space-y-1">
               {landingLinks.map((link, i) => {
@@ -143,7 +143,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
                   >
                     <Link href={link.href} onClick={onClose}
                       aria-current={isActive ? "page" : undefined}
-                      className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-[color,background-color] duration-200 focus-visible:ring-2 focus-visible:ring-orange/60", isActive ? "bg-orange/15 text-orange shadow-sm" : "text-muted-foreground hover:bg-orange/10 hover:text-foreground")}
+                      className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-[color,background-color] duration-200 focus-visible:ring-2 focus-visible:ring-accent-foreground/60", isActive ? "bg-accent-foreground/15 text-accent-foreground shadow-sm" : "text-muted-foreground hover:bg-accent-foreground/10 hover:text-foreground")}
                     >
                       {link.label}
                     </Link>
@@ -200,24 +200,25 @@ export function Header({ className }: HeaderProps) {
             <HamburgerButton open={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} />
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-orange transition-colors duration-200" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
+              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-accent-foreground transition-colors duration-200" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
             </Link>
           </div>
 
-          {/* Tubelight Nav (Desktop) */}
+          {/* Tubelight Nav (Desktop) — r95: حبّة SmartBot (§5.6): حاوية دائرية
+              زجاجية + فواصل رأسية بين الروابط. السلوك (tubelight/الإخفاء/الدرج) كما هو. */}
           <div className="hidden lg:flex items-center">
-            <div className="relative flex items-center rounded-full bg-card/50 backdrop-blur-md border border-border/50 p-1 shadow-sm">
+            <div className="relative flex items-center rounded-full bg-card/40 backdrop-blur-sm border border-border/40 p-1 shadow-sm">
               {landingLinks.map((link, i) => {
                 const linkActive = isActive(link.href)
                 return (
                   <div key={link.href} className="relative flex items-center">
-                    {i > 0 && <div className="w-px h-5 bg-border" />}
+                    {i > 0 && <div aria-hidden="true" className="w-px h-5 bg-border" />}
                     <Link
                       href={link.href}
                       aria-current={linkActive ? "page" : undefined}
                       className={cn(
                         "relative z-10 px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-full",
-                        linkActive ? "text-white dark:text-white" : "text-foreground/70 hover:text-foreground"
+                        linkActive ? "text-primary-foreground" : "text-foreground/70 hover:text-foreground"
                       )}
                     >
                       {link.label}
@@ -225,9 +226,9 @@ export function Header({ className }: HeaderProps) {
                         <LayoutMotion>
                           <m.div
                             layoutId="tubelight"
-                            className="absolute inset-0 -z-10 rounded-full bg-orange shadow-lg"
+                            className="absolute inset-0 -z-10 rounded-full bg-primary shadow-lg"
                             style={{
-                              boxShadow: "0 0 18px 3px color-mix(in oklab, var(--orange) 35%, transparent), 0 0 6px color-mix(in oklab, var(--orange) 15%, transparent)",
+                              boxShadow: "0 0 18px 3px color-mix(in oklab, var(--primary) 35%, transparent), 0 0 6px color-mix(in oklab, var(--primary) 15%, transparent)",
                               willChange: "transform, opacity",
                             }}
                             transition={{ type: "spring", stiffness: 420, damping: 28 }}

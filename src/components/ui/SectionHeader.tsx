@@ -70,6 +70,12 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
           {subtitle}
         </m.p>
       )}
+      {/* r95: SmartBot twin — فاصل متدرج بعد رأس القسم (مواصفة §4) */}
+      {title && (
+        <m.div variants={fadeUpSnappy} aria-hidden="true">
+          <div className="mx-auto mt-6 w-16 h-[2px] rounded-full bg-gradient-to-r from-accent-foreground/0 via-accent-foreground to-accent-foreground/0" />
+        </m.div>
+      )}
     </m.div>
   );
 }

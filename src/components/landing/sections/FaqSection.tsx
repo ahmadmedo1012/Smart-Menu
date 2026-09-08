@@ -18,7 +18,8 @@ export function FaqSection() {
   return (
     <SectionContainer>
       <ScrollReveal y={20}>
-        <SectionHeader align="start" title="أسئلة شائعة" subtitle="إجابات سريعة لأكثر الأسئلة تردداً." />
+        {/* r95: الإيقاع الموحد — رأس مركزي + فاصل متدرج (SectionHeader) */}
+        <SectionHeader title="أسئلة شائعة" subtitle="إجابات سريعة لأكثر الأسئلة تردداً." />
       </ScrollReveal>
 
       <ScrollReveal y={16} delay={80}>

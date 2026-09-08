@@ -16,13 +16,14 @@ export function FinalCTASection({ totalRestaurants }: { totalRestaurants?: numbe
   // count is unknown: the trust line renders without a number.
   const trustCount = totalRestaurants && totalRestaurants > 0 ? totalRestaurants : 0;
   return (
-    <SectionContainer className="aurora-wash border-t border-orange/15">
+    <SectionContainer className="aurora-wash border-t border-accent-foreground/15">
       {/* ponytail: removed Unsplash external image (caused 500/503 from Next.js Image Optimization).
            Replaced with pure CSS subtle pattern. Upgrade to a localized blurred photo if marketing needs it. */}
-      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-orange/[0.02] via-transparent to-orange/[0.01]" />
+      {/* r95: washes orange → accent-foreground tokens */}
+      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-br from-accent-foreground/[0.02] via-transparent to-accent-foreground/[0.01]" />
 
       {/* Ring accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[min(60vmin,720px)] rounded-full border border-orange/10 pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[min(60vmin,720px)] rounded-full border border-accent-foreground/10 pointer-events-none z-0" />
 
       <div className="relative z-10 text-center">
         <ScrollReveal y={20}>

@@ -257,7 +257,8 @@ function MenuPageClientInner({
                                            without hunting for the visually-rendered counter. */
                                         aria-live="polite"
                                 >
-                                        <AnimatedSparkles className="size-3.5 text-primary" aria-hidden="true" />
+                                        {/* r95: أيقونة النتائج — عائلة اللهب الأسطع */}
+                                        <AnimatedSparkles className="size-3.5 text-accent-foreground" aria-hidden="true" />
                                         <span>
                                                 {filteredItems.length === 0
                                                         ? 'لا توجد نتائج'
@@ -267,7 +268,7 @@ function MenuPageClientInner({
                                                 <button
                                                         type="button"
                                                         onClick={() => updateURL({ cat: null })}
-                                                        className="text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                                                        className="text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors"
                                                 >
                                                         إعادة تعيين
                                                 </button>

@@ -339,7 +339,7 @@ export function MenuToolbar({
                                                                         }}
                                                                         className={cn(
                                                                                 'w-full px-4 py-3 text-start text-sm transition-colors first:rounded-t-xl last:rounded-b-xl hover:bg-accent focus-visible:bg-accent focus-visible:outline-none',
-                                                                                sort === opt.value && 'bg-accent font-medium text-primary'
+                                                                                sort === opt.value && /* r95: نص الخيار المفعّل — accent-foreground (AA) */ 'bg-accent font-medium text-accent-foreground'
                                                                         )}
                                                                 >
                                                                         {opt.label}
