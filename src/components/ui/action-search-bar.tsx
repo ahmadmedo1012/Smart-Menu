@@ -289,6 +289,18 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 									value={query}
 									onChange={(e) => setQuery(e.target.value)}
 									onKeyDown={onKeyDown}
+									/* round94 (D §6): عقد combobox صريح — التنقل بالأسهم
+									   يُعلن لقارئ الشاشة عبر activedescendant
+									   (كان حقل نص بلا علاقة معلنة بالـlistbox). */
+									role="combobox"
+									aria-expanded={open}
+									aria-controls="action-search-listbox"
+									aria-autocomplete="list"
+									aria-activedescendant={
+										open && filtered[selectedIdx]
+											? `action-search-option-${filtered[selectedIdx].id}`
+											: undefined
+									}
 									// RTL: padding on right for icon + text
 									className="h-12 w-full bg-transparent pe-12 ps-4 text-sm outline-none placeholder:text-muted-foreground/40"
 								/>
@@ -306,6 +318,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 							{/* ── Results with LayoutGroup for smooth highlight ── */}
 							<div
 								ref={listRef}
+								id="action-search-listbox"
 								className="max-h-72 overflow-y-auto p-2 space-y-0.5 scrollbar-thin"
 								role="listbox"
 								aria-label="نتائج البحث"
@@ -327,6 +340,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 													type="button"
 													role="option"
 													aria-selected={isSelected}
+													id={`action-search-option-${action.id}`}
 													onClick={() => navigate(action.href)}
 													onMouseEnter={() => setSelectedIdx(i)}
 													className={cn(

@@ -207,7 +207,8 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 )}
                                         >
                                                 <AnimatedStar
-                                                        className={cn('size-3', hasRating && 'fill-saffron')}
+                                                        // round94 (D/A1): تعبئة النجمة تحاذي لون زر التقييم المحروس (ember فاتح)
+                                                        className={cn('size-3', hasRating && 'fill-ember dark:fill-saffron')}
                                                         aria-hidden="true"
                                                 />
                                                 {hasRating ? toArabicNumber(item.avgRating!.toFixed(1)) : 'قيّم'}

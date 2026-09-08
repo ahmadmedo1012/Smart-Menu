@@ -62,7 +62,10 @@ export function StepIndicator({
                                                                 className={cn(
                                                                         'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-300',
                                                                         isActive
-                                                                                ? 'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-espresso border-transparent shadow-lg shadow-orange/30 font-extrabold'
+                                                                                /* round94 (D/A8): هضبة saffron بمركز دائرة الخطوة (نمط زر flame)
+                                                                                   — الرقم espresso الممركز كان على منتصف المنحدر 4.58:1
+                                                                                   والآن على saffron الصرفة 8.97:1. */
+                                                                                ? 'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso border-transparent shadow-lg shadow-orange/30 font-extrabold'
                                                                                 : isDone
                                                                                         ? 'bg-orange/15 text-orange border-orange/40'
                                                                                         : 'bg-muted/50 text-muted-foreground border-border/40'

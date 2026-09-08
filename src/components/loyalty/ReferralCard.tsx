@@ -113,6 +113,9 @@ export function ReferralCard({
                                                 <button
                                                         type="button"
                                                         onClick={handleCopyLink}
+                                                        /* round94 (D §6): الاسم المسموع يصف الغرض — كان اسم الزر
+                                                           هو كود الإحالة نفسه (قارئ الشاشة يسمع الرمز لا الفعل). */
+                                                        aria-label="نسخ كود الإحالة"
                                                         className="mx-auto w-fit block rounded-xl bg-white/90 dark:bg-orange-muted/60 border-2 border-orange/50 dark:border-orange/50 px-6 py-3 text-center cursor-pointer transition-[transform,translate,scale,rotate] outline-none hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1"
                                                 >
                                                         <span

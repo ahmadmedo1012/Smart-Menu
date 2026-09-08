@@ -13,7 +13,9 @@ import { useEffect, useState } from "react";
 export interface ChartTokens {
 	/** Brand heat — --c-flame (== --orange family). */
 	flame: string;
-	/** Light amber glow — --c-saffron. */
+	/** Series-2 amber — --c-saffron-ink (round94 D/A6): dark = glow 9.94:1,
+	 *  light = ink 6.14:1 — was --c-saffron which collapses to 2.05:1 <3:1
+	 *  (WCAG 1.4.11 non-text) on light cards. */
 	saffron: string;
 }
 
@@ -27,7 +29,9 @@ function readTokens(): ChartTokens {
 	const style = getComputedStyle(document.documentElement);
 	return {
 		flame: style.getPropertyValue("--c-flame").trim() || FALLBACK.flame,
-		saffron: style.getPropertyValue("--c-saffron").trim() || FALLBACK.saffron,
+		// round94 (D/A6): سلسلة-2 تقرأ الحبر المزدوج الإضاءة — في الداكن هو
+		// قيمة التوهج نفسها (الرسوم الداكنة بلا تغيير) وفي الفاتح ink AA.
+		saffron: style.getPropertyValue("--c-saffron-ink").trim() || FALLBACK.saffron,
 	};
 }
 

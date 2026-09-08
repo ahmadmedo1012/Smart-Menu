@@ -80,6 +80,9 @@
         --color-flame: var(--c-flame);
         --color-ember: var(--c-ember);
         --color-saffron: var(--c-saffron);
+        /* round94 (تقرير D/A1): الحبر النصي للعائلة — يتولد منه text-saffron-ink/fill-saffron-ink.
+           .light يحمله على قيمة AA بينما يبقى --c-saffron توهجًا زخرفيًا للتدرجات في الوضعين. */
+        --color-saffron-ink: var(--c-saffron-ink);
         --color-ash: var(--c-ash);
         --color-ash-dim: var(--c-ash-dim);
         --color-ash-pale: var(--c-ash-pale);
@@ -243,6 +246,7 @@
         --c-flame: oklch(0.55 0.19 45);            /* brand heat (== --orange) */
         --c-ember: oklch(0.44 0.17 52);            /* pressed/depth of flame */
         --c-saffron: oklch(0.78 0.14 70);          /* light amber glow */
+        --c-saffron-ink: oklch(0.78 0.14 70);     /* round94 D/A1: amber-as-TEXT — الداكن = قيمة التوهج نفسها (9.94:1 على البطاقات) */
         --c-ash: oklch(0.75 0.012 70);             /* warm neutral — UI text */
         --c-ash-dim: oklch(0.4 0.008 65);          /* warm muted — secondary text/borders */
         --c-ash-pale: oklch(0.18 0.01 60);         /* deep warm surface wash (dark) */
@@ -377,7 +381,14 @@
         /* Warm kitchen palette — saffron-heat system (light) */
         --c-flame: oklch(0.42 0.17 48);            /* pressed brand heat (<-- --primary) */
         --c-ember: oklch(0.5 0.15 52);             /* middle depth */
-        --c-saffron: oklch(0.78 0.14 70);          /* same warm amber glow */
+        /* round94 (تقرير D/A1) — الجذر: كان saffron الفاتح يُستخدم كنص/تعبئة بلا حارس
+           فينهار إلى 2.05:1 على البطاقات الفاتحة. القرار (خيار (ب) بالتقرير، بحساب §1.د):
+           --c-saffron يبقى توهجًا زخرفيًا ثيم-مستقلًا (تدرجات flame/qr-corner/الأسعار تعتمد
+           منحدر الإضاءة 0.78 في الوضعين — تغييره كان يفلطحها ويُ regression لنص espresso
+           على زر flame الفاتح)، والنص/التعبئة يتحولان إلى --c-saffron-ink بمنحدر مزدوج
+           مثل --warning (فاتح oklch(0.5 0.13 70) = 6.14:1 على الأبيض ✓). */
+        --c-saffron: oklch(0.78 0.14 70);          /* same warm amber glow — decorative gradients only (round94) */
+        --c-saffron-ink: oklch(0.5 0.13 70);       /* round94 amber-AA: 6.14:1 on white/light cards (تقرير D §1.د) */
         --c-ash: oklch(0.36 0.012 70);             /* warm ink on paper */
         --c-ash-dim: oklch(0.56 0.012 70);         /* warm muted — secondary text/borders */
         --c-ash-pale: oklch(0.94 0.01 70);         /* warm sunken surface wash (light) */

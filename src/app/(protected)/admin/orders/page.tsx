@@ -350,7 +350,8 @@ export default function AdminOrdersPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-bold">{order.orderNo}</p>
+                        {/* round94 (D §5): bdi بنمط صفحة التفاصيل — عزل اتجاه رقم الطلب اللاتيني داخل RTL */}
+                        <p className="font-bold"><bdi dir="ltr">{order.orderNo}</bdi></p>
                         <Badge className={cn("text-xs", config.bg, config.color)}>
                           <config.icon className="size-3" aria-hidden="true" />
                           {config.label}

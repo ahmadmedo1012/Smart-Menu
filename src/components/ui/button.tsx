@@ -20,7 +20,11 @@ const buttonVariants = cva(
 				orange:
 					'bg-orange text-orange-foreground hover:bg-orange/95 shadow-md shadow-orange/25 hover:shadow-xl hover:shadow-orange/40 border-0 dark:shadow-orange/35 dark:hover:shadow-orange/50',
 				flame:
-					'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] text-espresso hover:brightness-110 shadow-md shadow-orange/30 hover:shadow-2xl hover:shadow-orange/45 border-0 dark:hover:brightness-110',
+					/* round94 (D/A8): هضبة saffron في منتصف التدرج (تقرير D: «يتدرّج من
+					   saffron مركز النص نحو ember عند الأطراف») — النص espresso الممركز
+					   كان يقف على منتصف المنحدر فقط (4.58:1 داكن حدّي) والآن على
+					   saffron الصرفة 8.97:1، مع إبقاء طرفي ember لهوية اللهب. */
+					'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso hover:brightness-110 shadow-md shadow-orange/30 hover:shadow-2xl hover:shadow-orange/45 border-0 dark:hover:brightness-110',
 				outline:
 					'border-border/70 bg-transparent text-foreground hover:bg-foreground/5 hover:border-orange/40 hover:shadow-sm dark:hover:bg-foreground/10 dark:hover:border-orange/35',
 				ghost:

@@ -49,7 +49,9 @@ export const STATUS_CONFIG: Record<
         preparing: {
                 label: 'قيد التحضير',
                 icon: ChefHat,
-                color: 'text-saffron dark:text-saffron',
+                // round94 (D/A1): amber نصي عبر الحبر المزدوج --c-saffron-ink — كان
+                // text-saffron غير المحروس (2.05:1 على بطاقة فاتحة).
+                color: 'text-saffron-ink',
                 bg: 'bg-saffron-muted dark:bg-saffron-muted',
         },
         ready: {

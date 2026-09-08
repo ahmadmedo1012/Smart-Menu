@@ -188,7 +188,8 @@ export default function OwnerReviewsPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-saffron fill-saffron" : "text-muted-foreground/20")} />
+                        /* round94 (D/A3): نمط r84 نفسه — saffron غير المحروس كان 2.05:1 في الفاتح */
+                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-ember dark:text-saffron fill-ember dark:fill-saffron" : "text-muted-foreground/20")} />
                       ))}
                     </div>
                     <span className="text-xs text-muted-foreground">

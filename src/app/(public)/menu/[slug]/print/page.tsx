@@ -64,14 +64,17 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
           .print-sheet {
             --print-foreground: oklch(0.2 0.02 85);
             --print-background: oklch(1 0 0);
-            --print-primary: oklch(0.62 0.18 50);
+            /* round94 (D/A4-A7) — تباينات AA على الورق الأبيض (قياسات تقرير D §1.د):
+               primary 3.88→5.87 · amber-500 نص 2.56 (استبدلناه بالروابط/الزر) ·
+               muted 2.00→4.86 · desc 3.96→6.02 · footer 3.24→6.02. */
+            --print-primary: oklch(0.52 0.18 50);
             --print-amber-500: oklch(0.72 0.14 65);
             --print-amber-700: oklch(0.55 0.12 55);
-            --print-muted: oklch(0.78 0.02 75);
+            --print-muted: oklch(0.55 0.02 75);
             --print-border: oklch(0.85 0.03 70);
             --print-sub: oklch(0.5 0.025 70);
-            --print-desc: oklch(0.6 0.02 70);
-            --print-footer: oklch(0.65 0.02 70);
+            --print-desc: oklch(0.5 0.025 70);
+            --print-footer: oklch(0.5 0.025 70);
           }
           /* الأنماط محصورة تحت .print-sheet — النسخة القديمة كانت تعيد ضبط * وbody
              على مستوى المستند كله فتتصادم مع هيكل التطبيق الذي يغلف الصفحة. */
@@ -96,8 +99,10 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
           .print-sheet .desc { font-size: 0.8rem; color: var(--print-desc); }
           .print-sheet .footer { text-align: center; font-size: 0.75rem; color: var(--print-footer); border-top: 1px solid var(--print-border); padding-top: 1rem; margin-top: 2rem; }
           .print-sheet .actions { text-align: center; margin-bottom: 1rem; }
-          .print-sheet .actions a, .print-sheet .actions button { color: var(--print-amber-500); font-size: 0.85rem; margin: 0 0.5rem; cursor: pointer; background: none; border: none; text-decoration: underline; }
-          .print-sheet .print-btn { background: var(--print-amber-500); color: var(--print-background) !important; text-decoration: none !important; padding: 8px 24px; border-radius: 8px; display: inline-block; margin-top: 0.5rem; font-size: 1rem !important; }
+          /* round94 (D/A4): روابط الإجراءات amber-700 (5.05:1) بدل amber-500 (2.56:1) */
+          .print-sheet .actions a, .print-sheet .actions button { color: var(--print-amber-700); font-size: 0.85rem; margin: 0 0.5rem; cursor: pointer; background: none; border: none; text-decoration: underline; }
+          /* round94 (D/A5): نص الزر foreground على amber-500 (7.08:1) بدل أبيض (2.56:1) */
+          .print-sheet .print-btn { background: var(--print-amber-500); color: var(--print-foreground) !important; text-decoration: none !important; padding: 8px 24px; border-radius: 8px; display: inline-block; margin-top: 0.5rem; font-size: 1rem !important; }
           @media print {
             /* إخفاء هيكل التطبيق المغلف (الجذر العام) وإظهار الورقة وحدها —
                نفس تقنية visibility المعتمدة لورقة QR (round88-E5). */
@@ -109,7 +114,8 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
           }
         `}</style>
                         <div className="actions">
-                                <a href={`/menu/${slug}`}>← العودة للمنيو الرقمي</a>
+                                {/* round94 (D §2): سهم «العودة» في RTL يشير يميناً (→) لا يساراً */}
+                                <a href={`/menu/${slug}`}>→ العودة للمنيو الرقمي</a>
                         </div>
 
                         <h1>{restaurant.name}</h1>

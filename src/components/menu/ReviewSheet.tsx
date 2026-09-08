@@ -80,22 +80,47 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
         }, [open, menuItemId, filterStar, retryKey]);
 
         const sheetRef = useRef<HTMLDivElement>(null);
+        // round94 (A9): آخر نسخة من onOpenChange للمستمع الثابت على مستوى المستند
+        // (Escape يعمل دائماً حتى لو هرب التركيز من الورقة) بلا إعادة اشتراك عند كل تصيير.
+        const closeRef = useRef(onOpenChange);
+        useEffect(() => {
+                closeRef.current = onOpenChange;
+        });
 
         const trapFocus = useCallback((e: KeyboardEvent) => {
-                if (e.key !== 'Tab' || !sheetRef.current) return;
-                const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
+                const sheet = sheetRef.current;
+                if (!sheet) return;
+                // Escape يغلق من أي مكان في المستند — كان يعمل فقط إذا كان التركيز داخل
+                // الورقة (onKeyDown على العنصر) فكان يفشل بعد نقر منطقة غير قابلة للتركيز.
+                if (e.key === 'Escape') {
+                        closeRef.current(false);
+                        return;
+                }
+                if (e.key !== 'Tab') return;
+                const focusable = sheet.querySelectorAll<HTMLElement>(
                         'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
                 );
-                if (focusable.length === 0) return;
+                if (focusable.length === 0) {
+                        e.preventDefault();
+                        return;
+                }
                 const first = focusable[0];
                 const last = focusable[focusable.length - 1];
+                const active = document.activeElement;
+                // سد ثقب المصيدة: نقر حاشية غير قابلة للتركيز يرمي التركيز إلى body —
+                // أعده إلى داخل الورقة (Tab → أول، Shift+Tab → آخر).
+                if (!sheet.contains(active)) {
+                        e.preventDefault();
+                        (e.shiftKey ? last : first).focus();
+                        return;
+                }
                 if (e.shiftKey) {
-                        if (document.activeElement === first) {
+                        if (active === first) {
                                 e.preventDefault();
                                 last.focus();
                         }
                 } else {
-                        if (document.activeElement === last) {
+                        if (active === last) {
                                 e.preventDefault();
                                 first.focus();
                         }
@@ -114,8 +139,10 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                 return () => {
                         cancelAnimationFrame(raf);
                         document.removeEventListener('keydown', trapFocus);
-                        // Cleanup runs on close (open→false) — hand focus back to the trigger.
-                        if (!open && opener) opener.focus();
+                        // round94 (A9): الحارس القديم `!open &&` كان يقرأ قيمة ملتقطة أثناء
+                        // التشغيل (true دائماً) فلم يُرجَع التركيز للمُشغّل أبداً. التنظيف يعمل
+                        // عند الإغلاق/الإزالة فقط — الإرجاع غير مشروط (نمط Header.MobileMenu).
+                        opener?.focus();
                 };
         }, [open, trapFocus]);
 
@@ -241,12 +268,14 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                 aria-label={'تقييم ' + s + ' نجوم'}
                                                                                 className={cn(
                                                                                         'transition-colors cursor-pointer',
+                                                                                        /* round94 (D/A2): نمط r84 — ember فاتح 6.31:1 بدل saffron
+                                                                                           غير المحروس (كان 2.05:1 في الفاتح؛ hover /50 كان 1.42:1) */
                                                                                         s <= formRating
-                                                                                                ? 'text-saffron'
-                                                                                                : 'text-muted-foreground/20 hover:text-saffron/50'
+                                                                                                ? 'text-ember dark:text-saffron'
+                                                                                                : 'text-muted-foreground/20 hover:text-ember dark:hover:text-saffron/50'
                                                                                 )}
                                                                         >
-                                                                                <AnimatedStar className={cn('size-6', s <= formRating && 'fill-saffron')} />
+                                                                                <AnimatedStar className={cn('size-6', s <= formRating && 'fill-ember dark:fill-saffron')} />
                                                                         </m.button>
                                                                 ))}
                                                         </div>
@@ -345,7 +374,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                                                 className={cn(
                                                                                                                         'size-3',
                                                                                                                         s <= review.rating
-                                                                                                                                ? 'text-saffron fill-saffron'
+                                                                                                                                ? 'text-ember dark:text-saffron fill-ember dark:fill-saffron'
                                                                                                                                 : 'text-muted-foreground/20'
                                                                                                                 )}
                                                                                                         />
