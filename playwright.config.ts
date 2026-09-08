@@ -62,6 +62,11 @@ export default defineConfig({
         "tests/e2e/r93-sim-owner.spec.ts",
         "tests/e2e/r93-sim-admin.spec.ts",
         "tests/e2e/r93-sim-abuser.spec.ts",
+        // r94-S1/S2 (موجة 4 — جيش المحاكاة الأضخم): تحقق إصلاحات الجولة
+        // (بوابة الإحالة/الجلسات/واتساب/config) + الواجهة الجديدة
+        // (فاتح/طباعة AA/375px/combobox).
+        "tests/e2e/round94-sim-fixes.spec.ts",
+        "tests/e2e/round94-sim-themes.spec.ts",
       ],
     },
     {

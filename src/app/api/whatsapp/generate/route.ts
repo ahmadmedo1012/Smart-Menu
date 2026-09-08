@@ -15,7 +15,15 @@ const generateSchema = z.object({
 // 20/دقيقة لكل مستخدم مصادَق — نمط items/[id] PUT (r91-F-B): مفتاح جلسة
 // غير قابل للتزوير (لا مكوّن header)، ويُفحص بعد بوابة 401 كي لا يحرق
 // المجهولُ ميزانية أحد.
-const waGenerateDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
+// exemptFromRelax (r94 محاكاة): نفس سابقة accountBackstopLimiter الموثقة
+// (login/route.ts) — الميزانية الصارمة 20/د مُوكَّدة حيًّا بـ e2e
+// (round94-sim-fixes) فلا تُوسَّع تحت RATE_LIMIT_TEST_RELAX؛ المسار شبه
+// مهجور في المواصفات الأخرى (1-2 نداء) فالميزانية الحقيقية آمنة للـCI.
+const waGenerateDbLimiter = createDbRateLimiter({
+  windowMs: 60_000,
+  max: 20,
+  exemptFromRelax: true,
+});
 
 export async function POST(request: NextRequest) {
   try {

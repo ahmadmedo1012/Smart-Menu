@@ -293,7 +293,13 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect
       .poll(async () => loyaltyPostStatus, { timeout: 15000 })
       .toBe(400);
-    expect(loyaltyPostBody).toContain("معرف المطعم مطلوب");
+    /* r94: التقاط الجسم promise غير متزامن (r.text()) — تحت عمال متوازيين
+     * قد يُحل عقب انقلاب الحالة بلحظة، فقراءة sync واحدة تسبق الجسم الفارغ
+     * (أثبت السباق: الملف منفرداً 8/8 بينما المشروع الكامل فشل هنا فقط) —
+     * poll للجسم بنفس نمط الحالة يقتل السباق بلا تغيير التوكيد نفسه. */
+    await expect
+      .poll(async () => loyaltyPostBody, { timeout: 5000 })
+      .toContain("معرف المطعم مطلوب");
     // الخطوة الثانية لا تصل — الحوار بقي على خطوة الهاتف (دليل العطل)
     await expect(page.getByText("رابط الإحالة الخاص بك")).toBeHidden();
     await page.screenshot({ path: `${SHOTS}/sim-customer-10-loyalty-referral.png` });

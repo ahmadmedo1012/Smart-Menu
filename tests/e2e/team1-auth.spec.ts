@@ -122,6 +122,16 @@ test("login: account lockout after 20 failed attempts, then success works", asyn
   const uname = `qa_lock_${ts}`;
   const headers = await csrfHeadersFor(page);
   const BASE = new URL(page.url()).origin;
+  /* r94 (منسق المحاكاة): سباق حد النافذة — accountBackstopLimiter نافذة
+   * ثابتة 15 دقيقة محاذاةً لحدود الساعة (:00/:15/:30/:45). 21 محاولة
+   * متتابعة (~20 ث) تبدأ قرب الحد تنقسم بين دلوين (شوهد حياً: 13+8)
+   * فلا يتجاوز أي دلو 20 ولا يُطلق 429 قطعاً. نبدأ في نافذة بها هامش
+   * كافٍ (أو ننتظر الحد القادم إن كان أقرب من 30 ث — أقصى انتظار <30 ث). */
+  const WINDOW_MS = 15 * 60_000;
+  const msLeftInWindow = WINDOW_MS - (Date.now() % WINDOW_MS);
+  if (msLeftInWindow < 30_000) {
+    await page.waitForTimeout(msLeftInWindow + 1_000);
+  }
   const reg = await page.request.post(`${BASE}/api/auth/register`, {
     data: { username: uname, password: "password123", name: "Lockout QA" },
     headers: { ...headers, "X-Forwarded-For": "10.9.9.1" },
