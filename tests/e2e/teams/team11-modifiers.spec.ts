@@ -157,30 +157,16 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       expect(orderNo.length).toBeGreaterThan(4);
 
       // ── 6. Server truth: the stored order is priced 27 with the option id ──
-      // r96: restaurantId ديناميكي من جلسة المالك — كان مثبتًا على 1 بافتراض أن
-      // بذرة round83 تُنشئ أول مطعم، لكن هجرة 20260909_round96_demo_menu تنشئ
-      // al-waha-cafe-demo قبل البذور (migrate deploy يسبق البذور) فيأخذ id 1.
+      // r96: كل المعرفات ديناميكية — كانت مثبتة (restaurantId=1 / itemId=4 /
+      // categoryId=2) بافتراض ترتيب الإنشاء الذاتي لقاعدة نظيفة، لكن هجرة
+      // 20260909_round96_demo_menu تنشئ al-waha-cafe-demo و25 صنفًا قبل البذور
+      // (migrate deploy يسبق البذور) فيزيح كل الترقيم الذاتي.
       const meJson = await (await page.request.get("/api/auth/me")).json();
       const rid: number = meJson?.data?.restaurantId ?? 1;
-      const listRes = await page.request.get(`/api/orders?restaurantId=${rid}&pageSize=10`);
-      expect(listRes.ok()).toBeTruthy();
-      const listJson = await listRes.json();
-      const row = (listJson.data ?? []).find((o: { orderNo: string }) => o.orderNo === orderNo);
-      expect(row, `order ${orderNo} found via owner session`).toBeTruthy();
-      expect(Number(row.total)).toBe(EXPECTED_TOTAL);
 
-      const detRes = await page.request.get(`/api/orders/${row.id}`);
-      expect(detRes.ok()).toBeTruthy();
-      const detJson = await detRes.json();
-      expect(Number(detJson.data.subtotal)).toBe(EXPECTED_TOTAL);
-      const line = detJson.data.items[0];
-      expect(line.itemId).toBe(4); // Waha Burger
-      expect(Number(line.price)).toBe(25); // stored base price (modifiers ride separately)
-      const storedIds: number[] = JSON.parse(line.modifiersJson ?? "[]");
-      expect(storedIds).toHaveLength(1);
-
-      // the stored id is exactly the «كبير» option of the group we authored
-      const itemsRes = await page.request.get("/api/items?categoryId=2&pageSize=50");
+      // الصنف الحي بمجموعاته الخيارات (قبل توكيد الطلب — المصدر نفسه للمعرفات)
+      const itemsRes = await page.request.get(`/api/items?restaurantId=${rid}&pageSize=100`);
+      expect(itemsRes.ok()).toBeTruthy();
       const itemsJson = await itemsRes.json();
       const burger = (itemsJson.data ?? []).find((i: { name: string }) => i.name === ITEM);
       expect(burger).toBeTruthy();
@@ -193,6 +179,24 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       expect(big).toBeTruthy();
       expect(Number(big.priceDelta)).toBe(2);
       expect(Number(small.priceDelta)).toBe(0);
+
+      const listRes = await page.request.get(`/api/orders?restaurantId=${rid}&pageSize=10`);
+      expect(listRes.ok()).toBeTruthy();
+      const listJson = await listRes.json();
+      const row = (listJson.data ?? []).find((o: { orderNo: string }) => o.orderNo === orderNo);
+      expect(row, `order ${orderNo} found via owner session`).toBeTruthy();
+      expect(Number(row.total)).toBe(EXPECTED_TOTAL);
+
+      const detRes = await page.request.get(`/api/orders/${row.id}`);
+      expect(detRes.ok()).toBeTruthy();
+      const detJson = await detRes.json();
+      expect(Number(detJson.data.subtotal)).toBe(EXPECTED_TOTAL);
+      const line = detJson.data.items[0];
+      expect(line.itemId).toBe(burger.id); // Waha Burger — المعرف الحي (r96: الترقيم الذاتي زاح)
+      expect(Number(line.price)).toBe(25); // stored base price (modifiers ride separately)
+      const storedIds: number[] = JSON.parse(line.modifiersJson ?? "[]");
+      expect(storedIds).toHaveLength(1);
+      // the stored id is exactly the «كبير» option of the group we authored
       expect(storedIds[0]).toBe(big.id);
     }
   );
