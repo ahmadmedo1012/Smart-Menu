@@ -157,7 +157,12 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       expect(orderNo.length).toBeGreaterThan(4);
 
       // ── 6. Server truth: the stored order is priced 27 with the option id ──
-      const listRes = await page.request.get("/api/orders?restaurantId=1&pageSize=10");
+      // r96: restaurantId ديناميكي من جلسة المالك — كان مثبتًا على 1 بافتراض أن
+      // بذرة round83 تُنشئ أول مطعم، لكن هجرة 20260909_round96_demo_menu تنشئ
+      // al-waha-cafe-demo قبل البذور (migrate deploy يسبق البذور) فيأخذ id 1.
+      const meJson = await (await page.request.get("/api/auth/me")).json();
+      const rid: number = meJson?.data?.restaurantId ?? 1;
+      const listRes = await page.request.get(`/api/orders?restaurantId=${rid}&pageSize=10`);
       expect(listRes.ok()).toBeTruthy();
       const listJson = await listRes.json();
       const row = (listJson.data ?? []).find((o: { orderNo: string }) => o.orderNo === orderNo);
