@@ -108,6 +108,14 @@ const FILE_ALLOWLIST = [
     reason: 'local hostile-simulation sweep env (postgres:postgres@localhost:5434) — dev-only localhost, same disposable pattern as CI service-container credentials',
   },
   {
+    // round94 (منسق الجولة): inter-batch DB state reset between chunked local
+    // e2e sweeps — the pg match is the usage-example DATABASE_URL in the doc
+    // comment, same dev-only localhost default as round83-seed/qa-seed.
+    file: 'scripts/r94-db-reset.mjs',
+    id: 'pg',
+    reason: 'local e2e batch-reset script (postgres:postgres@localhost:5434 in usage comment) — dev-only localhost, same disposable pattern as CI service-container credentials',
+  },
+  {
     // round93-S1: simulation seed (modifier groups + sub_admin/super_admin
     // fixtures) — same dev-only embedded-postgres default as round83-seed.
     file: 'scripts/r93-sim-seed.mjs',
