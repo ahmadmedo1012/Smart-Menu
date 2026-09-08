@@ -1,58 +1,60 @@
-# Smart-Menu — Documentation Index (round88)
+# Smart-Menu — فهرس التوثيق (round96-W5)
 
-> **73 ملف** من تقارير الجولات 2→85. هذا الفهرس هو نقطة الدخول: ابدأ من
-> "المرجعية" ثم "الجولات الحديثة" — كل ما قبل الجولة 75 أرشيف تاريخي
-> (اقرأه فقط عند تتبع قرار قديم).
+> **123 ملفًا** موزعة على مرجعية حية + أرشيف جولات منظّم (`docs/rounds/`).
+> هذا الفهرس هو نقطة الدخول: ابدأ من «المرجعية الحية» ثم `rounds/` حسب نوع
+> الوثيقة. كل ملف قبل الجولة 96 كان مبعثرًا في جذر `docs/` وجذر المستودع —
+> أُعيد تنظيمه هنا بـ`git mv` (التاريخ محفوظ بالكامل).
 
-## المرجعية (اقرأها أولاً)
+## القاعدة الذهبية للأرشيف
 
-| الملف | الدور |
-|-------|-------|
-| `../README.md` | نظرة عامة + إعداد + بوابات الجودة (محدّث جولة 84/85) |
-| `../PROJECT.md` | مرجع المشروع الكامل: المعمارية، الأدوار، الاختبارات، البيئة (أعيدت كتابته جولة 85) |
-| `../CLAUDE.md` | قواعد وكيل العمل + بنية المشروع |
-| `../SMART-MENU-ROUND83-PLAN.md` + `round83-implementation-report.md` | خطة/تنفيذ ميزة الأصناف المميزة (featured showcase) |
-| `round84-audit-report.md` | آخر تدقيق عالمي (axe صفر مخالفات، OG card، apple-touch) |
+> **«الأرشيف سجل قرارات — يُنقل ولا يُحذف.»**
+> ملفات الجولات المغلقة تُقرأ «as-of-date»: الأعداد والأوامر والمسارات فيها
+> لا تعكس الحاضر — المصدر الحي دائمًا `README.md` / `PROJECT.md` /
+> `package.json`. ملاحظة: التعليقات التاريخية داخل الكود قد تشير لمسارات
+> ما قبل r96 (مثل `docs/round79-master-plan.md`) — مواقعها الحالية تحت
+> `docs/rounds/…` أدناه.
 
-## الجولات الحديثة (75 → 85) — الحية
+## المرجعية الحية (تُقرأ أولًا — تبقى في مكانها)
 
-| الملف | الموضوع |
-|-------|---------|
-| `round79-launch-readiness.md` + `round79-master-plan.md` + `round79-phase{A,B,C,D,F,H}*.md` | جولة الإطلاق الشاملة: جرد → توحيد الثيم → رحلات → dedup → أمان → showcase |
-| `round80-plan.md` + `round80-closure-report.md` | إغلاق جولة 80: قناة migrate-deploy، P1002، البوابات الصارمة |
-| `round81-audit-report.md` | أول CI أخضر + سلاسل migrations قابلة لإعادة التشغيل |
-| `round78-perf-fixes.md` | تحسينات أداء (aggregate بدل findMany، narrowing الاستعلامات) |
-| `../SMART-MENU-ROUND85-PLAN.md` | الجولة الحالية: أمان/أداء/جودة/اختبارات/توثيق |
+| المسار | الملفات | الدور |
+|-------|---------|-------|
+| `../README.md` | 1 | نظرة عامة + إعداد + بوابات الجودة (الجذر) |
+| `../PROJECT.md` | 1 | مرجع المشروع الكامل: معمارية/أدوار/اختبارات/بيئة (الجذر) |
+| `../CLAUDE.md` | 1 | قواعد وكيل العمل + بنية المشروع (الجذر) |
+| [`ops-runbook.md`](ops-runbook.md) | 1 | تشغيل الإنتاج (PITR/rollback/حوادث) — round86 |
+| [`smartbot-design-spec.md`](smartbot-design-spec.md) | 1 | مواصفة التوأمة البصرية مع SmartBot — مرجع الجولات 95/96 الحي |
+| [`security/`](security/) | 1 | `rbac-matrix-round88.md` — مصفوفة RBAC (مرجع اختبارات `rbac-*`) |
+| [`round90/`](round90/) | 7 | تشخيص الجولة 90 كاملًا (`diagnosis/`: cso-audit · health-devex · investigation · merged-triage · qa-live · review-backend · review-quality) — مذكور حرفيًا في `knip.config.ts` وworkflows |
+| [`reports/`](reports/) | 4 | تقارير مؤرخة 2026-08 (نشر/اختبار/UI) |
 
-## الاختبارات وQA (أرشيف)
+## أرشيف الجولات — `rounds/` (108 ملفات)
 
-- `full-qa-report-round*.md` (10 ملفات) — تقارير QA للجولات 4→19
-- `full-qa-report-2026-08-03*.md` + `qa-run-verbatim-2026-08-03.txt` — سجلات يوم واحد
-- `comprehensive-qa-report.md`، `final-verification-report.md`، `final-mega-report-round41.md`
-- `reports/` — تقارير مؤرخة (نشر/اختبار/تدقيق UI بتاريخ 2026-08)
+| المجلد | الملفات | المحتوى | النطاق |
+|--------|---------|---------|--------|
+| [`rounds/plans/`](rounds/plans/) | 17 | خطط الجولات الرسمية | 66 · 79 · 80 · 83 · 85–96 · repair |
+| [`rounds/closures/`](rounds/closures/) | 11 | تقارير الإغلاق النهائية | 80 · 86–91 · 93 · 94 (+ملاحظات partial) · 95 |
+| [`rounds/inspections/`](rounds/inspections/) | 12 | تقارير الفحص التشغيلي | 93 (a–f) · 94 (a–f) |
+| [`rounds/qa/`](rounds/qa/) | 14 | تقارير QA تاريخية + سجلات حرفية | جولات 4→41 + 2026-08-03 |
+| [`rounds/design/`](rounds/design/) | 7 | تدقيقات ومراجع التصميم | 20–27 · 79 (design-references ما زال مفيدًا) |
+| [`rounds/history/`](rounds/history/) | 47 | سجل الجولات 2→93 (سيناريوهات، إصلاحات، تدقيقات، محاكاة 93) | 29–93 |
 
-## التصميم (أرشيف)
+### أبرز ملفات الجولات الحديثة
 
-- `design-audit-round{20,22,23}.md`، `design-audit-full-round20-21.md`، `design-improvements-round24.md`، `design-opendesign-round26-27.md`
-- `design-references-round79.md` — المراجع البصرية العالمية (ما زالت مفيدة)
+- [`rounds/plans/SMART-MENU-ROUND96-PLAN.md`](rounds/plans/SMART-MENU-ROUND96-PLAN.md) — خطة الجولة الحالية
+- [`rounds/closures/round95-closure-report.md`](rounds/closures/round95-closure-report.md) — إغلاق التوأمة البصرية (9/10)
+- [`rounds/closures/round94-closure-notes-partial.md`](rounds/closures/round94-closure-notes-partial.md) + `round94-closure-report.md` — القرارات المعلقة (MED-1)
+- [`rounds/inspections/round93-inspection-e.md`](rounds/inspections/round93-inspection-e.md) — لغز بيئة 1666/1642 (مُدرج في FILE_ALLOWLIST)
 
-## سجل الجولات التاريخي (2 → 74)
+## أرشيف السكربتات — `../scripts/archive/` (33 ملفًا)
 
-| النطاق | الملفات |
-|--------|---------|
-| 18–41 | `full-qa-report-round18/19.md`، `rounds29-30-scenarios.md`، `round31…round41-*.md`، `rounds42-43-animated-icons.md` |
-| 45–58 | `round45-landing-coherence.md` … `rounds57-58-landing-final.md` (landing/UI) |
-| 59–74 | `round59-tests-pass.md` … `round73-rerun-fixes.md` (اختبارات، نشر، UIUX، onboarding، صلاحيات) |
-| متفرقات | `audit-report-july-2026.md`، `repair-plan.md`، `fix-user-notes-round28.md`، `glowing-search-bar-plan.md` (حُذف — منفّذ) |
+سكربتات الجولات لمرة واحدة (round86–92 · r95 المحاكاة/اللقطات · diff الجلسة المقطوعة 93 ·
+`round88-perf/` بنتائجه) — **لا تستدعَ من CI أو الاختبارات**؛ الأدوات الحية كلها في
+`scripts/` الجذر (`ci-seed` · `round83-seed` · `qa-seed` · `check-secrets` ·
+`check-api-auth` · `r92-e2e-local.sh` … — قائمة كاملة في `../PROJECT.md`).
 
-> **ملاحظة حفظ**: لا تحذف الأرشيف — هو سجل قرارات المشروع الوحيد. الملفات
-> المؤرخة قبل الجولة 75 تُقرأ "as-of-date" فقط: الأعداد والأوامر فيها لا
-> تعكس الحاضر (المصدر الحقيقي دائماً README/PROJECT/package.json).
+## اتفاقية الجولات القادمة
 
-- [ops-runbook.md](ops-runbook.md) — production ops runbook (round86)
-
-## Round 86-87
-- [round86-closure-report.md](round86-closure-report.md) — 115 live production checks closure (round86)
-- [ops-runbook.md](ops-runbook.md) — production ops runbook (PITR/rollback/incident, round86)
-- [round87-closure-report.md](round87-closure-report.md) — internal-integrity round closure (round87: 10 security + 10 perf + 10 quality + 10 tests/infra)
-- [round88-closure-report.md](round88-closure-report.md) — deep-round closure (round88: LazyMotion + indexes + list-counts + showcaseTag drop + isFeatured restore-semantics + referral conversion + UX) — [pending closure]
+1. الخطة → `docs/rounds/plans/` باسم `SMART-MENU-ROUND{N}-PLAN.md`
+2. الفحوص → `docs/rounds/inspections/`، الإغلاق → `docs/rounds/closures/`
+3. سكربت الجولة بعد إغلاقها → `scripts/archive/` (بعد فحص: workflows · knip · FILE_ALLOWLIST · tests)
+4. المرجعية الحية (runbook/مواصفات) تبقى في جذر `docs/` — لا تدخل الأرشيف

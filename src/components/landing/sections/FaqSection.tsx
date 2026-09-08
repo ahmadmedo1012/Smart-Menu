@@ -30,10 +30,11 @@ export function FaqSection() {
           transition={{ ...springGentle, delay: 0.05 }}
           className="max-w-2xl mx-auto space-y-3"
         >
+          {/* r96-W4a: rounded-2xl الرمزي بدل rounded-[20px] المقحم (توحيد سلم radius) */}
           {FAQS.map((faq, i) => (
             <details
               key={i}
-              className="group rounded-[20px] border border-border/40 bg-card shadow-sm open:border-border/60 open:shadow-md transition-[border-color,box-shadow] duration-200 overflow-hidden"
+              className="group rounded-2xl border border-border/40 bg-card shadow-sm open:border-border/60 open:shadow-md transition-[border-color,box-shadow] duration-200 overflow-hidden"
             >
               <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4">
                 {faq.q}

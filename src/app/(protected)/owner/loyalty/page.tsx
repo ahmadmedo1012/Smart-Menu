@@ -119,8 +119,8 @@ function StatCard({
 	bg: string;
 }) {
 	return (
-		<div className="group card-premium relative overflow-hidden rounded-md bg-white/70 p-5 backdrop-blur-xl dark:bg-white/5 dark:backdrop-blur-2xl border border-white/30 dark:border-border/20 shadow-lg shadow-black/5 dark:shadow-black/20">
-			<div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-1/3 group-hover:skew-x-0 dark:via-white/5" />
+		<div className="group card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50 shadow-lg shadow-black/20">
+			<div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-accent-foreground/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-1/3 group-hover:skew-x-0" />
 			<div className="relative z-10 flex items-start justify-between">
 				<div className="space-y-1">
 					<p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -128,7 +128,7 @@ function StatCard({
 						<AnimatedCount value={value} suffix={suffix} />
 					</p>
 				</div>
-				<div className={cn('rounded-md p-3.5 ring-1 ring-white/20 dark:ring-white/10', bg)}>
+				<div className={cn('rounded-md p-3.5 ring-1 ring-border/50', bg)}>
 					<Icon className={cn('size-6', color)} />
 				</div>
 			</div>
@@ -148,7 +148,7 @@ function ConversionRate({
 	converted: number;
 }) {
 	return (
-		<div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+		<div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
 			<div className="flex items-center justify-between mb-3">
 				<div className="flex items-center gap-2">
 					<TrendingUp className="size-4 text-orange dark:text-orange" />
@@ -233,19 +233,19 @@ export default function OwnerLoyaltyPage() {
 				<LoadingAnnouncer loading message="جاري تحميل بيانات الولاء..." completedMessage="تم تحميل بيانات الولاء" />
 				<div className="grid gap-4 sm:grid-cols-4">
 					{[1, 2, 3, 4].map((i) => (
-						<div key={i} className="h-28 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
+						<div key={i} className="h-28 animate-pulse rounded-md bg-muted" />
 					))}
 				</div>
-				<div className="h-64 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
-				<div className="h-48 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
-				<div className="h-48 animate-pulse rounded-md bg-white/10 dark:bg-white/5" />
+				<div className="h-64 animate-pulse rounded-md bg-muted" />
+				<div className="h-48 animate-pulse rounded-md bg-muted" />
+				<div className="h-48 animate-pulse rounded-md bg-muted" />
 			</div>
 		);
 
 	/* ---------- Error ---------- */
 	if (error)
 		return (
-			<div className="card-premium flex flex-col items-center justify-center rounded-md bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
+			<div className="card-premium flex flex-col items-center justify-center rounded-md bg-card/60 px-6 py-20 text-center backdrop-blur-sm border border-border/50">
 				<div className="mb-4 flex size-16 items-center justify-center rounded-md bg-destructive/10">
 					<AlertCircle className="size-7 text-destructive" />
 				</div>
@@ -270,7 +270,7 @@ export default function OwnerLoyaltyPage() {
 				<Button variant="ghost" size="sm" onClick={() => router.push('/owner')} className="mb-2">
 					<MotionArrowRight className="size-4 me-1" /> العودة
 				</Button>
-				<div className="card-premium flex flex-col items-center justify-center rounded-md bg-white/50 px-6 py-20 text-center backdrop-blur-sm dark:bg-white/5 border border-white/20 dark:border-border/20">
+				<div className="card-premium flex flex-col items-center justify-center rounded-md bg-card/60 px-6 py-20 text-center backdrop-blur-sm border border-border/50">
 					<div className="mb-4 flex size-16 items-center justify-center rounded-md bg-orange/10">
 						<Gift className="size-7 text-orange" />
 					</div>
@@ -345,7 +345,7 @@ export default function OwnerLoyaltyPage() {
 					<Button
 						variant="outline"
 						size="sm"
-						className="gap-1.5 border-white/30 backdrop-blur-sm"
+						className="gap-1.5 border-border/50 backdrop-blur-sm"
 						onClick={() => setShowSettings(!showSettings)}
 					>
 						<Award className="size-4" />
@@ -354,7 +354,7 @@ export default function OwnerLoyaltyPage() {
 					<Button
 						variant="outline"
 						size="sm"
-						className="gap-1.5 border-white/30 backdrop-blur-sm"
+						className="gap-1.5 border-border/50 backdrop-blur-sm"
 						onClick={() => load()}
 					>
 						<AnimatedRefreshCw className="size-4" /> تحديث
@@ -389,7 +389,7 @@ export default function OwnerLoyaltyPage() {
 					converted={stats?.convertedReferrals ?? 0}
 				/>
 
-				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+				<div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
 					<h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
 						<Award className="size-4 text-muted-foreground" /> الإحالات حسب الحالة
 					</h2>
@@ -412,7 +412,7 @@ export default function OwnerLoyaltyPage() {
 					</div>
 				</div>
 
-				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 p-5 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+				<div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
 					<h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
 						<Share2 className="size-4 text-muted-foreground" /> مشاركة رابط الإحالة
 					</h2>
@@ -448,7 +448,7 @@ export default function OwnerLoyaltyPage() {
 
 			{/* ---- Referrals + Transactions ---- */}
 			<div className="grid gap-6 lg:grid-cols-2">
-				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+				<div className="card-premium relative overflow-hidden rounded-md bg-card border border-border/50">
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<Gift className="size-4 text-muted-foreground" />
@@ -456,7 +456,7 @@ export default function OwnerLoyaltyPage() {
 						</div>
 						<Badge
 							variant="outline"
-							className="text-[10px] tabular-nums border-white/20 bg-white/30 dark:bg-white/5"
+							className="text-[10px] tabular-nums border-border/50 bg-muted"
 						>
 							{toArabicNumber(stats?.totalReferrals ?? 0)} إجمالي
 						</Badge>
@@ -464,7 +464,7 @@ export default function OwnerLoyaltyPage() {
 					<ReferrerList referrals={stats?.recentReferrals ?? []} />
 				</div>
 
-				<div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+				<div className="card-premium relative overflow-hidden rounded-md bg-card border border-border/50">
 					<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 						<div className="flex items-center gap-2">
 							<AnimatedClock className="size-4 text-muted-foreground" />
@@ -476,7 +476,7 @@ export default function OwnerLoyaltyPage() {
 			</div>
 
 			{/* ---- Tier Distribution ---- */}
-			<div className="card-premium relative overflow-hidden rounded-md bg-white/60 backdrop-blur-xl dark:bg-white/5 border border-white/30 dark:border-border/20">
+			<div className="card-premium relative overflow-hidden rounded-md bg-card border border-border/50">
 				<div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
 					<div className="flex items-center gap-2">
 						<Award className="size-4 text-muted-foreground" />
@@ -484,7 +484,7 @@ export default function OwnerLoyaltyPage() {
 					</div>
 					<Badge
 						variant="outline"
-						className="text-[10px] tabular-nums border-white/20 bg-white/30 dark:bg-white/5"
+						className="text-[10px] tabular-nums border-border/50 bg-muted"
 					>
 						{toArabicNumber(stats?.totalLoyaltyCards ?? 0)} إجمالي
 					</Badge>

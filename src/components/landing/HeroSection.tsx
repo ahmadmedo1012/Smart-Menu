@@ -104,8 +104,10 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                 {/* round92-A7: plain h1 + CSS settle — visible in the SSR HTML
                                                     on first paint (never opacity:0), no hydration gate. */}
                                                 {/* r95: SmartBot h1 scale — 68px/800 (spec §3), classes only. */}
+                                                {/* r96-W4a: font-display الميت حُذف — لا أداة له؛
+                                                    قاعدة base (h1,h2 → var(--font-heading)) تتكفل بـ Readex Pro. */}
                                                 <h1
-                                                        className="r92-hero-settle font-display text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-extrabold leading-[1.15] tracking-tighter text-balance"
+                                                        className="r92-hero-settle text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-extrabold leading-[1.15] tracking-tighter text-balance"
                                                 >
                                                         <span className="block">منيو رقمي لمطعمك</span>
                                                         <span className="block">

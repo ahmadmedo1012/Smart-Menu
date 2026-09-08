@@ -33,19 +33,6 @@ export const ALLERGEN_OPTIONS = [
         'sesame',
 ] as const;
 
-export const DIETARY_ICONS: Record<string, string> = {
-        vegetarian: '🌿',
-        vegan: '🌱',
-        gluten_free: '🌾',
-        dairy_free: '🧀',
-        halal: '☪️',
-        keto: '🥑',
-        sugar_free: '🚫',
-        organic: '🌍',
-        spicy: '🌶️',
-        sugarconscious: '🍃',
-};
-
 /** Arabic labels for dietary badges (owners + customers see the same copy). */
 export const DIETARY_LABELS: Record<string, string> = {
         vegetarian: 'نباتي',

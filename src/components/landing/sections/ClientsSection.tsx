@@ -90,8 +90,9 @@ function NavPill({
   return (
     <button
       onClick={onClick}
+      /* r96-W4a: ease-smooth الرمزي (‏--ease-smooth موجود في @theme) بدل cubic-bezier المقحم */
       className={cn(
-        "rounded-full transition-[width,height,background-color] duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
+        "rounded-full transition-[width,height,background-color] duration-400 ease-smooth",
         i === active ? "w-6 h-[5px] bg-primary" : "w-[5px] h-[5px] bg-border/50 hover:bg-accent-foreground/40",
       )}
       aria-label={`التقييم ${i + 1}`}
@@ -140,7 +141,8 @@ export function ClientsSection() {
           onFocusCapture={() => setPaused(true)}
           onBlurCapture={() => setPaused(false)}
         >
-          <div className="relative rounded-[20px] bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
+          {/* r96-W4a: rounded-2xl الرمزي بدل rounded-[20px] المقحم (توحيد سلم radius) */}
+          <div className="relative rounded-2xl bg-card ring-1 ring-border/40 p-6 sm:p-8 shadow-sm">
             <AnimatePresence mode="wait">
               <TestimonialCard key={active} t={activeT} />
             </AnimatePresence>

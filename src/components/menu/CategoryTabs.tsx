@@ -12,20 +12,21 @@ import {
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string }
 
-// Map stored icon strings to lucide icons + known emoji
-const ICON_MAP: Record<string, { icon: LucideIcon; fallback: string }> = {
-  coffee: { icon: Coffee, fallback: "☕" },
-  "soft-drink": { icon: CupSoda, fallback: "🥤" },
-  cup: { icon: CupSoda, fallback: "🥤" },
-  cupsoda: { icon: CupSoda, fallback: "🥤" },
-  pizza: { icon: Pizza, fallback: "🍕" },
-  beef: { icon: Beef, fallback: "🥩" },
-  milk: { icon: Milk, fallback: "🥛" },
-  apple: { icon: Apple, fallback: "🍎" },
-  cake: { icon: Cookie, fallback: "🍰" },
-  bread: { icon: Cookie, fallback: "🍞" },
-  soup: { icon: Soup, fallback: "🍲" },
-  package: { icon: Package, fallback: "📦" },
+// Map stored icon strings to lucide icons
+// r96-W4b: dead emoji `fallback` fields removed — every path renders an SVG now
+const ICON_MAP: Record<string, LucideIcon> = {
+  coffee: Coffee,
+  "soft-drink": CupSoda,
+  cup: CupSoda,
+  cupsoda: CupSoda,
+  pizza: Pizza,
+  beef: Beef,
+  milk: Milk,
+  apple: Apple,
+  cake: Cookie,
+  bread: Cookie,
+  soup: Soup,
+  package: Package,
 }
 
 // Map common emoji category icons to lucide icons so tabs render crisp SVG
@@ -64,14 +65,16 @@ function TabIcon({ icon }: { icon: string }) {
       const Icon = mapped
       return <Icon className="size-3.5 sm:size-4" strokeWidth={2.4} />
     }
-    return <span className="size-3.5 sm:size-4 flex items-center justify-center text-sm">{icon}</span>
+    // r96-W4b: unmapped emoji → generic SVG, never raw emoji
+    return <UtensilsCrossed className="size-3.5 sm:size-4" strokeWidth={2.4} />
   }
   const mapped = ICON_MAP[icon.toLowerCase().replace(/[-_\s]/g, "")]
   if (mapped) {
-    const Icon = mapped.icon
+    const Icon = mapped
     return <Icon className="size-3.5 sm:size-4" strokeWidth={2.4} />
   }
-  return <span className="text-[10px] sm:text-xs">{icon.slice(0, 2)}</span>
+  // r96-W4b: unrecognized string → generic SVG instead of raw text slice
+  return <UtensilsCrossed className="size-3.5 sm:size-4" strokeWidth={2.4} />
 }
 
 interface CategoryTabsProps {

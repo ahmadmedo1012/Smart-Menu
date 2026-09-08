@@ -1,6 +1,6 @@
 "use client"
 
-import { Smartphone, BarChart3, QrCode, Gift, MessageCircle, CheckCircle, Zap, ArrowUpRight } from "lucide-react"
+import { Smartphone, BarChart3, QrCode, Gift, MessageCircle, CheckCircle, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SectionContainer } from "@/components/ui/SectionContainer"
 import { SectionHeader } from "@/components/ui/SectionHeader"
@@ -112,19 +112,8 @@ export function FeaturesSection() {
                                                                                         ))}
                                                                                 </div>
                                                                         )}
-                                                                </div>
-
-                                                                {/* r95: «اعرف المزيد» hover-reveal — زخرفية غير قابلة للنقر (§3) */}
-                                                                {!isHero && (
-                                                                        <div aria-hidden="true" className={cn(
-                                                                                "mt-3 flex items-center gap-1 text-xs font-semibold text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:text-accent-foreground transition-all duration-300",
-                                                                                isWide && "sm:mt-0 sm:ms-auto sm:shrink-0",
-                                                                        )}>
-                                                                                اعرف المزيد
-                                                                                <ArrowUpRight className="size-3 rtl:-scale-x-100" />
-                                                                        </div>
-                                                                )}
-                                                        </div>
+                                                </div>
+                                                </div>
                                                 </div>
                                         </ScrollReveal>
                                         );

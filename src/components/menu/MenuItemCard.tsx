@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, memo } from 'react';
-import { DIETARY_ICONS, DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
+import { DIETARY_LABELS, ALLERGEN_LABELS } from '@/lib/dietary';
+import { DietaryIcon } from './dietary-icons';
 import { m, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { formatPrice, toArabicNumber } from '@/lib/format';
@@ -235,7 +236,11 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                 key={tag}
                                                                 className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-[10px] text-basil"
                                                         >
-                                                                {DIETARY_ICONS[tag] || '🌿'} {DIETARY_LABELS[tag] || tag}
+                                                                {/* r96-W4b: أيقونة lucide SVG بدل الإيموجي (قاعدة SmartBot
+                                                                   «لا إيموجي كأيقونات») — مفتاح غير مخطط يسقط على Leaf
+                                                                   العام داخل DietaryIcon، بلا إيموجي في أي مسار */}
+                                                                <DietaryIcon tag={tag} className="size-3 shrink-0" />
+                                                                {DIETARY_LABELS[tag] || tag}
                                                         </span>
                                                 ))}
                                                 {item.allergens?.map((tag) => (

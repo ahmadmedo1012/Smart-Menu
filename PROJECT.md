@@ -1,6 +1,6 @@
 # Smart Menu — Project Reference
 
-> آخر تحديث: 7 سبتمبر 2026 (جولة 92 — الوكيل 4-a: مزامنة أرقام مقيسة + تصحيح توثيق الخطوط)
+> آخر تحديث: 9 سبتمبر 2026 (جولة 96 — W5: سجل الجولات + مزامنة أرقام مقيسة؛ سابقًا جولة 92 — الوكيل 4-a: بنية وتوثيق)
 
 ---
 
@@ -233,7 +233,7 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 124 unit (1830 حالة — قياس r93) + 35 e2e/security (team1-11 · 435 فحصًا)
+└── tests/                  ← 130 unit (1903 حالة — قياس r96) + 43 e2e/security (team1-11 · 479 فحصًا)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
     ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security
@@ -345,10 +345,10 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `sharp@0.35.3` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (1830 unit + e2e متعددة المشاريع في CI)
+## Tests (1903 unit + e2e متعددة المشاريع في CI)
 
 ```
-✓ unit/ (124 ملف، 1830 حالة — قياس r93) — auth, core, csrf, rate-limit, loyalty-subscription,
+✓ unit/ (130 ملف، 1903 حالة — قياس r96) — auth, core, csrf, rate-limit, loyalty-subscription,
                               receipt-whatsapp-format, regression (محوّلة لاستيراد الإنتاج الحقيقي r92),
                               r92-* (register/claim/webhook/categories/owner/admins/reviews/cleanup)
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
@@ -378,3 +378,15 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 - **التعامل مع الأخطاء**: `try/catch` في كل API route + `withRetry` للـ DB
 - **التصميم**: Prettier + EditorConfig، CSS مجمع بـ @utility
 - **الثبات**: لا تحوير — always create new objects
+
+---
+
+## سجل الجولات (موجز — أحدث أولًا)
+
+### الجولة 96 (2026-09-09) — منيو عرض واقعي + التوأمة الكاملة + تنظيم المستودع
+- **منيو الديمو الواقعي**: هجرة بيانات idempotent `20260909_round96_demo_menu` (فئات/أصناف عربية واقعية + مجموعات خيارات + featured) + 28 صورة عرض webp في `public/demo/` (سكربتات `scripts/r96-*`)
+- **«اعرف المزيد» حُذفت** نهائيًا من `FeaturesSection` (الموضع الوحيد الموثق)
+- **أيقونات SVG**: أقراص dietary و CategoryTabs بـ lucide بدل الإيموجي + تأديم `owner/loyalty` الداكن (W4b)
+- **استكمال التوأمة البصرية**: 53/53 رمزًا + keyframe `upload-fly` + توهج `background-radial` (W4a — وفق تدقيق r96-A1/A2)
+- **تنظيم المستودع (W5)**: جذر نظيف (README/CLAUDE/PROJECT فقط) + `docs/rounds/{plans,closures,inspections,qa,design,history}` + `scripts/archive/` — قاعدة موثقة: «الأرشيف سجل قرارات — يُنقل ولا يُحذف»
+- قياس الجودة r96: 1903 اختبار وحدة / 130 ملف · 479 فحص e2e / 43 ملف · 25 هجرة قابلة لإعادة التشغيل

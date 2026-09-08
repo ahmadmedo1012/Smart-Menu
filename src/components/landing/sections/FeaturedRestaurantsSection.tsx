@@ -98,7 +98,12 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                 onTouchEnd={() => setPaused(false)}
                         >
                                 {/* ── Slide ── */}
-                                <div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-white/10 bg-card shadow-[0_8px_40px_-16px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_40px_-16px_rgba(0,0,0,0.5)]">
+                                {/* r96-W4a: بطاقة §5.1 — ring/ring-border بدل ring-white المقحم،
+                                    ظل رمزي shadow-lg shadow-black/20 بدل rgba، وحالة hover
+                                    التوأمة (توهج accent + حلقة accent 500ms). الشرائط السوداء
+                                    فوق الصور من-black/80 ونصوص text-white وظيفية (تباين AA فوق
+                                    الصور) فتبقى كما هي. */}
+                                <div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-border/50 bg-card shadow-lg shadow-black/20 transition-[box-shadow] duration-500 hover:shadow-accent-foreground/10 hover:ring-accent-foreground/30">
                                         <AnimatePresence custom={dir} mode="popLayout">
                                                 <m.div
                                                         key={r.id}

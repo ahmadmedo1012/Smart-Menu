@@ -127,7 +127,15 @@ export default async function RootLayout({
                                         }}
                                 />
                         </head>
-                        <body className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased">
+                        {/* r96-W4a: توأم SmartBot — توهج الصفحة الشعاعي العلوي.
+                            الرمز --background-radial معرّف في :root (داكن: توهج
+                            برتقالي خافت فوق الشبكة) و.light (فاتح: هالة دافئة 3%)
+                            فيحل حسب الثيم الفعّال؛ نفس آلية SmartBot الحرفية
+                            (style inline يغلب أداة bg-background في كلا الوضعين). */}
+                        <body
+                                className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased"
+                                style={{ background: 'var(--background-radial), var(--background)' }}
+                        >
                                 <a
                                         href="#main-content"
                                         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"

@@ -52,8 +52,8 @@
 |---|---|---|
 | TypeScript (tsc --noEmit) | صفر أخطاء | ✅ |
 | ESLint (`npm run lint` = eslint src/ tests/) | 0 أخطاء · 6 تحذيرات no-explicit-any في مواصفات e2e فقط — src/ نظيف تمامًا 0/0 (قياس r92) | ✅ |
-| Vitest | **1830 اختبارًا** في 124 ملفًا (قياس r93: +164 على r92 — جزر التغطية admins/categories/owner-restaurants إلى 100% أسطر + إصلاحات الأمن/البيانات/الواجهة + درع سلسلة التوريد) | ✅ |
-| Playwright E2E + أمن | 35 ملف سيناريو · 435 فحصًا (قياس r92 بـ`playwright test --list` — رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
+| Vitest | **1903 اختبارات** في 130 ملفًا (قياس r96: +73 على r93 — جزر التغطية + إصلاحات الأمن/البيانات/الواجهة r94/95 + درع سلسلة التوريد) | ✅ |
+| Playwright E2E + أمن | 43 ملف سيناريو (41 e2e + 2 أمن) · 479 فحصًا (قياس r96 بـ`playwright test --list` — رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
 | axe-core WCAG 2.x | أساس صفري على صفحات المنيو | ✅ |
 | سلسلة الهجرات | **قابلة لإعادة التشغيل من الصفر + مطابقة schema.prisma حرفيًا** (فرق فارغ) | ✅ |
 
@@ -121,7 +121,7 @@ npx playwright test --project=qa-teams      # رحلات الفرق (team1-11)
 
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
-- **Database**: PostgreSQL + Prisma 7 (23 هجرة، قابلة لإعادة التشغيل)
+- **Database**: PostgreSQL + Prisma 7 (25 هجرة، قابلة لإعادة التشغيل — آخرها `20260909_round96_demo_menu`)
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon
@@ -135,13 +135,16 @@ src/
 │   ├── (protected)/ # owner (10 صفحات) + admin (13 صفحة)
 │   ├── api/         # 65 مسار API (حراسة تفويض check-api-auth)
 │   └── demo/        # جولة تجريبية
-├── components/      # 137 ملفًا (menu/ui/layout/landing)
+├── components/      # ~150 ملفًا (menu/ui/layout/landing)
 ├── lib/             # الأمن، الجلسات، CS­RF، Rate-limit، Zod
 ├── proxy.ts         # CSP/CSRF/جلسات على الحافة
 └── store/           # Zustand
-prisma/              # المخطط + 23 هجرة (parity مضمون)
-tests/               # 124 ملف unit (1830 اختبارًا — قياس r93) + 35 ملف E2E/أمن (فرق team1-11 · 435 فحصًا)
-docs/                # تقارير الجولات + التوثيق الهندسي (فهرس README.md — جولة 85)
+public/
+└── demo/            # 28 صورة عرض webp (منيو الديمو — جولة 96)
+prisma/              # المخطط + 25 هجرة (parity مضمون)
+tests/               # 130 ملف unit (1903 اختبارًا — قياس r96) + 43 ملف E2E/أمن (فرق team1-11 · 479 فحصًا)
+docs/                # rounds/{plans,closures,inspections,qa,design,history} + مرجعية حية (فهرس README.md — جولة 96)
+scripts/             # أدوات CI الحية + archive/ لسكربتات الجولات المنتهية
 ```
 
 ---

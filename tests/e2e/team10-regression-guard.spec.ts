@@ -1,7 +1,7 @@
 /**
  * Team 10 — Regression guard: the crown-jewel behaviors of rounds 79-87,
  * as fast localhost spec checks (ideas distilled from
- * scripts/round87-prod-verify.mjs, but running against the LOCAL server
+ * scripts/archive/round87-prod-verify.mjs, but running against the LOCAL server
  * so they gate every CI run, not just production deploys).
  *
  * Guarded behaviors (round → check):

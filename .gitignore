@@ -55,7 +55,12 @@ prisma/.env
 /public/uploads
 public/uploads/*
 !public/uploads/.gitkeep
-remotion/node_modules
+# round96-W5: the remotion/ dir left the repo long ago (history-only blobs);
+# the ignore line was stale — no remotion/ exists on disk or in HEAD.
+# round96-W5: worklog.md is the agents' shared append-only log — local by
+# design, never committed (rule moved here from .git/info/exclude so every
+# clone agrees).
+worklog.md
 screenshots/
 # tmp — secrets safety
 tmp/

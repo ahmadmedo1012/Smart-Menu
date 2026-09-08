@@ -1,6 +1,6 @@
 # دليل تشغيل الاختبارات — Smart Menu
 
-> آخر تحديث: الجولة 92 (الوكيل 4-a — بنية وتوثيق) · 108 ملف وحدة (1666 اختبارًا — قياس r92) · 33 ملف e2e + 2 security = 35 (435 فحصًا)
+> آخر تحديث: الجولة 96 (W5 — تنظيم المستودع) · **130 ملف وحدة (1903 اختبارًا — قياس r96)** · 41 ملف e2e + 2 security = 43 (479 فحصًا — قياس r96 بـ`playwright test --list`)
 > البوابة الدائمة: `tsc` = 0 · `eslint` = 0 أخطاء (تحذيرات no-explicit-any في e2e فقط) · `vitest` أخضر بالكامل — لا يُحذف اختبار قائم أبداً.
 > **متطلب DATABASE_URL (موثّق r90 — أعيد قياسه r92):** أوامر vitest أدناه تمرر `DATABASE_URL` صالحًا عمدًا — في r90 فشل ملفان بدونه (استيراد وحدات تتحقق من البيئة وقت التحميل). القياس الطازج r92 بعد تحويل المرايا: 108/108 أخضر بدونه (وCI نفسه يشغّل `test:coverage` بلا DATABASE_URL) — لكن أبقِه مضبوطًا في التشغيل المحلي: أي ملف جديد يستورد وحدة env حقيقية بلا mock يعيد الفشل فورًا.
 
@@ -27,6 +27,7 @@ DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vites
 ## 2) اختبارات e2e (Playwright)
 
 ### المتطلبات المسبقة
+0. **الطريق المختصر المحلي (r92-D + r95-D)**: `bash scripts/r92-e2e-local.sh "tests/e2e/team3-owner.spec.ts --project=qa-teams"` — يرفع الخادم standalone + يزامن الأصول (`r95-standalone-prepare.sh`) + يشغّل Playwright في **جلسة واحدة** (بيئات تفصل بين الأوامر تقتل خادم node بينها — درس r88)، ويصدّر متغيرات البيئة القياسية نفسها.
 1. **خادم يعمل على :3000** — إما `pnpm dev` أو بعد `pnpm build`: `node .next/standalone/server.js` (مع نسخ static/public كما في postbuild).
 2. **بذور قاعدة البيانات** (Postgres المحلي :5434):
    ```bash

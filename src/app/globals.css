@@ -31,6 +31,8 @@
         --color-background: var(--background);
         --color-foreground: var(--foreground);
         --color-muted-foreground: var(--muted-foreground);
+        /* r96-W4a (فجوة A2): توأم SmartBot — نص تلميح الحقول (placeholder:text-placeholder-text) */
+        --color-placeholder-text: var(--placeholder-text);
         --color-primary: var(--primary);
         --color-primary-foreground: var(--primary-foreground);
         --color-secondary: var(--secondary);
@@ -54,6 +56,11 @@
         --color-info: var(--info);
         --color-info-foreground: var(--info-foreground);
         --color-destructive-foreground: var(--destructive-foreground);
+        /* r96-W4a (فجوة A2): توأم SmartBot — soft tints للحالة (bg-success-soft مع text-success) */
+        --color-success-soft: var(--success-soft);
+        --color-warning-soft: var(--warning-soft);
+        --color-info-soft: var(--info-soft);
+        --color-destructive-soft: var(--destructive-soft);
 
         /* External brand + semantic extensions */
         --color-whatsapp: var(--whatsapp);
@@ -203,6 +210,8 @@
          * muted description/footer/meta text failed AA). 0.62 measures 5.54:1 —
          * comfortably AA with the same warm-gray character. */
         --muted-foreground: #8c857d;  /* r95: SmartBot — 5.59:1 على البطاقات #070503 ✓ AA */
+        /* r96-W4a: SmartBot (spec §1) — تلميح placeholder؛ أفتح درجة من muted كي يبقى التسلسل الهرمي */
+        --placeholder-text: #a59d95;
         --accent: #bc470026;
         --accent-foreground: #df5a00;  /* r95: SmartBot النصي الأسطع — 5.42:1 على البطاقات ✓ AA */
         --destructive: #e62b34;  /* r95: SmartBot literal (≈ oklch(0.6 0.22 25) = #e52b34) */
@@ -222,6 +231,13 @@
         /* Info — cool blue */
                 --info: #348dcf;      /* lighter in dark for AA text on dark surfaces (r95: SmartBot literal) */
         --info-foreground: oklch(0.98 0 0);
+
+        /* r96-W4a: SmartBot soft tints (spec §1) — soft wash خلف نص الحالة الصلب
+           (bg-success-soft …)؛ ألفا 0x24 ≈ 14% مطابقة لقيم SmartBot الحرفية */
+        --success-soft: #23a13624;
+        --warning-soft: #ce920024;
+        --info-soft: #348dcf24;
+        --destructive-soft: #e62b3424;
 
         /* Orange palette — use darkened primary for AA */
         --orange: #bc4700;
@@ -340,6 +356,8 @@
         --secondary-foreground: oklch(0.2 0.01 70);
         --muted: oklch(0.94 0.006 70);
         --muted-foreground: oklch(0.48 0.015 70);
+        /* r96-W4a: SmartBot .light الحرفي — placeholder أدكن من muted-foreground الفاتح بدرجة (AA على الورق) */
+        --placeholder-text: oklch(0.52 0.015 70);
         --accent: oklch(0.55 0.19 45 / 0.12);
         --accent-foreground: oklch(0.55 0.19 45);
         --destructive: oklch(0.58 0.2 25);
@@ -358,6 +376,12 @@
         /* Info — cool blue */
         --info: oklch(0.48 0.13 245);      /* darker in light for AA text on white (dual-lightness like --primary) */
         --info-foreground: oklch(0.98 0 0);
+
+        /* r96-W4a: SmartBot soft tints — ألفا 0.12 من نظائرها الفاتحة (خلفية wash أخف للأسطح الورقية) */
+        --success-soft: oklch(0.48 0.15 150 / 0.12);
+        --warning-soft: oklch(0.52 0.13 60 / 0.12);
+        --info-soft: oklch(0.48 0.13 245 / 0.12);
+        --destructive-soft: oklch(0.58 0.2 25 / 0.12);
 
         /* Grid pattern colors — light */
         --grid-line: oklch(0.55 0.19 45 / 0.08);
@@ -1036,6 +1060,14 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         25%      { transform: rotate(-6deg); }
         75%      { transform: rotate(6deg); }
 }
+/* r96-W4a: upload-fly — الناقص الأخير من مجموعة SmartBot (spec §6)؛ حرفي. */
+@keyframes upload-fly {
+        0%   { transform: translateY(0); opacity: 1; }
+        35%  { transform: translateY(-12px); opacity: 0; }
+        36%  { transform: translateY(12px); opacity: 0; }
+        70%  { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(0); opacity: 1; }
+}
 @keyframes orb-float {
         0%, 100% { transform: translate(0, 0) rotate(0deg); }
         25% { transform: translate(18px, -24px) rotate(2deg); }
@@ -1123,6 +1155,11 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 }
 .animate-message-draw {
         animation: message-draw 0.4s var(--ease-smooth) both;
+}
+/* r96-W4a: توأم SmartBot — سهم الأيقونة «يطير» فوق الحافة ثم يعود من أسفلها
+   (نفس توقيت .ai-icon:hover .arrow-group لديهم: 1s ease-in-out infinite). */
+.animate-upload-fly {
+        animation: upload-fly 1s ease-in-out infinite;
 }
 
 .animate-ticket-drop {

@@ -31,7 +31,9 @@ export function ShowcaseSection() {
                         <ScrollReveal y={30} delay={100}>
                                 <ClipPathReveal direction="up" duration={800}>
                                         <div className="relative bg-foreground/[0.035] dark:bg-white/[0.045] p-1.5 sm:p-2 rounded-2xl ring-1 ring-foreground/10 dark:ring-white/10">
-                                                <div className="relative overflow-hidden rounded-[calc(1rem-0.375rem)] sm:rounded-[calc(1rem-0.5rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
+                                                {/* r96-W4a: الظل الداخلي الرمزي — color-mix من --foreground
+                                                    (يعمل في الوضعين: داكن = خط فاتح يشابه الأصل؛ فاتح = خط داكن) */}
+                                                <div className="relative overflow-hidden rounded-[calc(1rem-0.375rem)] sm:rounded-[calc(1rem-0.5rem)] shadow-[inset_0_1px_1px_color-mix(in_oklab,var(--foreground)_15%,transparent)]">
                                                         <m.div style={{ scale: imageScale, y: imageY }}>
                                                                 <Image
                                                                         src="/main21.webp"

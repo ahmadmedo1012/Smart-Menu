@@ -125,12 +125,13 @@ const FILE_ALLOWLIST = [
   {
     // round93-1-e: test-suite inspection report quotes the local embedded
     // postgres URL while solving the 1666/1642 env puzzle — documentation.
-    file: 'docs/round93-inspection-e.md',
+    // round96-W5: path updated after docs/rounds/ reorganization (git mv).
+    file: 'docs/rounds/inspections/round93-inspection-e.md',
     id: 'pg',
     reason: 'round-93 inspection report documents the local embedded-postgres URL (postgres:postgres@localhost:5434) — dev-only documentation',
   },
   {
-    file: 'SMART-MENU-ROUND88-PLAN.md',
+    file: 'docs/rounds/plans/SMART-MENU-ROUND88-PLAN.md',
     id: 'pg',
     reason: 'round-88 plan documents the local embedded-postgres URL (postgres:postgres@localhost:5434) — dev-only',
   },
@@ -151,14 +152,31 @@ const FILE_ALLOWLIST = [
     reason: 'fake test fixture (user:secret@host/db) — positive security test asserting raw Prisma errors never reach the client',
   },
   {
-    file: 'SMART-MENU-ROUND89-PLAN.md',
+    // round96-W5: path updated after docs/rounds/ reorganization (git mv).
+    file: 'docs/rounds/plans/SMART-MENU-ROUND89-PLAN.md',
     id: 'pg',
     reason: 'round-89 plan documents the local embedded-postgres URL (postgres:postgres@127.0.0.1:5434) — dev-only',
   },
   {
-    file: 'docs/round90-plan.md',
+    // round96-W5: path updated after docs/rounds/ reorganization (git mv).
+    file: 'docs/rounds/plans/round90-plan.md',
     id: 'pg',
     reason: 'round-90 plan documents the local embedded-postgres URL (postgres:postgres@127.0.0.1:5434) — dev-only',
+  },
+  {
+    // round96-W3: local migration harness (PGlite on 5434) — same dev-only
+    // embedded-postgres default as round89/round90 plans. Found by the
+    // scanner's untracked-file sweep; allowlisted by W5 to keep CI green.
+    file: 'scripts/r96-test-migration.mjs',
+    id: 'pg',
+    reason: 'local migration-test harness default (postgres:postgres@127.0.0.1:5434) — dev-only, same pattern as round89/round90 plans',
+  },
+  {
+    // round96-W3b: production-scenario simulation for the r96 demo-menu
+    // migration — same dev-only embedded-postgres default on 127.0.0.1:5434.
+    file: 'scripts/r96-test-migration-prod-sim.mjs',
+    id: 'pg',
+    reason: 'local prod-sim migration test default (postgres:postgres@127.0.0.1:5434) — dev-only, same pattern as round89/round90 plans',
   },
   {
     // The audit report itself quotes the local dev URL, [REDACTED] evidence

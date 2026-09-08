@@ -190,7 +190,7 @@ export function Header({ className }: HeaderProps) {
         "fixed top-0 inset-x-0 z-30 h-16 transition-[transform,background-color,box-shadow,border-color] duration-500 will-change-transform backface-hidden",
         visible ? "translate-y-0" : "-translate-y-full",
         scrolled
-          ? "bg-background/80 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/40 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.22)]"
+          ? "bg-background/80 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/40 shadow-lg shadow-black/20" /* r96-W4a: رموز الظل بدل rgba المقحم */
           : "bg-background/0",
         className
       )}>
