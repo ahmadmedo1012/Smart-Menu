@@ -19,6 +19,12 @@ export BASE_URL='http://localhost:3000'
 
 # fresh server each sweep (stale .next/standalone from a previous run is fine —
 # it is rebuilt by the caller; we only ensure no zombie holds :3000)
+# r95-D: standalone asset sync — without .next/static + public copied into
+# .next/standalone the server 404s every CSS/JS chunk (no hydration, reveal
+# animations never run, fonts fall to Times New Roman). Env-only fix.
+if [ -x scripts/r95-standalone-prepare.sh ] && [ -d .next/standalone ]; then
+  bash scripts/r95-standalone-prepare.sh
+fi
 if curl -s -o /dev/null http://localhost:3000/api/health --max-time 3; then
   echo "[sweep] server already up — reusing"
 else
@@ -32,10 +38,16 @@ else
   curl -s -o /dev/null -w "[sweep] health: %{http_code}\n" http://localhost:3000/api/health --max-time 10 || { echo "[sweep] SERVER FAILED"; tail -20 /tmp/r92-server.log; exit 1; }
 fi
 
-echo "[sweep] running: npx playwright test $*"
-eval "npx playwright test $*"
+echo "[sweep] running: node_modules/.bin/playwright test $*"  # r95-D: no npx (sandbox has no global bin) — direct .bin path
+eval "node_modules/.bin/playwright test $*"
 RC=$?
 
-kill ${SRV_PID:-0} 2>/dev/null
+# r95-D: kill only a server WE started. The old `kill ${SRV_PID:-0}` fell back
+# to `kill 0` (signal the whole process group) whenever a run REUSED an already
+# up server — SIGTERMed the invoking shell itself (tool session died, output
+# lost). Guarded no-op when nothing was started by this sweep.
+if [ -n "${SRV_PID:-}" ] && kill -0 "${SRV_PID}" 2>/dev/null; then
+  kill "${SRV_PID}" 2>/dev/null
+fi
 echo "[sweep] done rc=$RC"
 exit $RC

@@ -245,7 +245,14 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect
       .poll(async () => orderPostStatus, { timeout: 20000 })
       .toBe(201);
-    expect(orderPostBody, "جسم استجابة الطلب").toContain("orderNo");
+    /* r95-D: نفس سباق r94 (السطر أدناه في لوحة الولاء) — r.status() يُضبط
+     * تزامنيًا عند وصول الاستجابة بينما r.text() promise يحل لحظة بعدها؛ تحت
+     * عمال متوازيين (دفعة persona-1 بجانبنا) قراءة sync واحدة سبقت الجسم
+     * الفارغ فأخفق التوكيد رغم 201 حقيقي (أثبت: الملف منفردًا 8/8). poll
+     * للجسم بنفس نمط الحالة — التوكيد نفسه بلا تخفيف. */
+    await expect
+      .poll(async () => orderPostBody, { timeout: 5000 })
+      .toContain("orderNo");
     const popup = await popupPromise;
     if (popup) {
       await popup.waitForLoadState("domcontentloaded").catch(() => {});

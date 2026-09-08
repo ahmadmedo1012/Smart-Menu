@@ -29,8 +29,9 @@ const SUPPORT_WHATSAPP = '218910089975';
 function FloatingShapes() {
         return (
                 <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+                        {/* r95 (95-D): تهدئة الأجواء لمرجع SmartBot الهادئ — توهج واحد خافت فقط */}
                         <div
-                                className="absolute -end-28 -top-24 size-[26rem] rounded-full bg-orange/8 blur-[120px] dark:bg-orange/6"
+                                className="absolute -end-28 -top-24 size-[18rem] rounded-full bg-orange/5 blur-[120px] dark:bg-orange/4"
                         />
                 </div>
         );
@@ -147,7 +148,7 @@ function LoginForm() {
                 <div className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6">
                         {/* r95: خلفية لهبية — oklch(0.55 0.19 45) القديم → var(--c-flame)
                            بنفس الشفافيات عبر color-mix (بنمط FeaturedShowcase المعتمد) */}
-                        <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_78%_10%,color-mix(in_oklab,var(--c-flame)_10%,transparent),transparent_34%),radial-gradient(circle_at_14%_88%,color-mix(in_oklab,var(--c-flame)_6%,transparent),transparent_30%)] dark:bg-[radial-gradient(circle_at_78%_10%,color-mix(in_oklab,var(--c-flame)_12%,transparent),transparent_34%),radial-gradient(circle_at_14%_88%,color-mix(in_oklab,var(--c-flame)_8%,transparent),transparent_30%)]" />
+                        <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_78%_10%,color-mix(in_oklab,var(--c-flame)_6%,transparent),transparent_30%),radial-gradient(circle_at_14%_88%,color-mix(in_oklab,var(--c-flame)_4%,transparent),transparent_26%)] dark:bg-[radial-gradient(circle_at_78%_10%,color-mix(in_oklab,var(--c-flame)_7%,transparent),transparent_30%),radial-gradient(circle_at_14%_88%,color-mix(in_oklab,var(--c-flame)_5%,transparent),transparent_26%)]" />
 
                         <FloatingShapes />
 

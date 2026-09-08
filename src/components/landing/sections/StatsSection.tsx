@@ -34,7 +34,8 @@ export function StatsSection({ stats }: { stats: { totalRestaurants: number; tot
   return (
     <SectionContainer tone="alt">
       <ScrollReveal y={24}>
-        <div className="mx-auto max-w-3xl rounded-2xl border border-border/50 bg-card/80 p-6 shadow-md backdrop-blur-md sm:p-8">
+        {/* r95 (95-D): حاوية بلا إطار — الأرقام تذوب في الخلفية مطابقةً لـ SmartBot */}
+        <div className="mx-auto max-w-4xl p-2 sm:p-4">
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2 lg:gap-6">
             {items.map((item, i) => (
               <m.div
