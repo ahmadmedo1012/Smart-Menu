@@ -10,8 +10,11 @@
  *     client manifest, ~10KB gz per page).
  *   - round87-D10: service worker cache version is smart-menu-v6 with the
  *     bounded LRU image cache.
- *   - round87-B10: promo.mp4 is served as the re-encoded ~150KB video (not
- *     the 1.09MB original) with the video/mp4 content type.
+ *   - round87-B10 → round94-W3: promo.mp4 was re-encoded in r87 (~150KB) then
+ *     DELETED in round94 — zero references in src/ made it 153,895B of dead
+ *     immutable-served weight in the standalone bundle (A-Low7/F report). The
+ *     guard now asserts the deliberate deletion holds (404), so the file
+ *     cannot quietly come back.
  *   - round87-D4: /menu/[slug]/print exists and renders menu content.
  *   - round87-B6: the admin system-events sinceId cursor returns ONLY
  *     additions (id > sinceId, strictly) — the 15s notifier poll contract.
@@ -150,16 +153,15 @@ test.describe("team10: regression guard — rounds 79-87 crown jewels", () => {
     expect(/LRU|maxEntries|MAX_IMAGE/.test(body)).toBe(true);
   });
 
-  // ── round87-B10: re-encoded promo video ───────────────────────────────
-  test("promo.mp4 is served as video/mp4 in the re-encoded size range", async ({ request }) => {
+  // ── round87-B10 → round94-W3: promo.mp4 deliberately deleted ──────────
+  test("promo.mp4 is gone (round94-W3 deliberate deletion — 404, never resurrected)", async ({ request }) => {
+    // round94-W3 (reports A-Low7 + F §4.1): 153,895B served immutable with ZERO
+    // references anywhere in src/ — pure dead weight in the standalone bundle
+    // (postbuild copies all of public/). Deleted on purpose; the guard stays so
+    // a resurrected promo.mp4 (which would re-add ~150KB to every deploy) fails
+    // here instead of slipping through.
     const res = await request.get(`${BASE}/video/promo.mp4`);
-    expect(res.status()).toBe(200);
-    expect(res.headers()["content-type"] ?? "").toContain("video/mp4");
-    // round87-B10 re-encoded 1.09MB → ~150KB; the range catches a regression
-    // to the original heavy asset while tolerating container metadata drift.
-    const len = Number(res.headers()["content-length"] ?? 0);
-    expect(len).toBeGreaterThan(100_000);
-    expect(len).toBeLessThan(250_000);
+    expect(res.status()).toBe(404);
   });
 
   // ── round87-D4: print page exists ─────────────────────────────────────

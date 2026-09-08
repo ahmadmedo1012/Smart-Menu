@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { preload } from 'react-dom';
 import { BRAND_THEME_COLOR } from '@/lib/brand';
 import { HIGH_CONTRAST_BOOT_SCRIPT } from '@/lib/high-contrast';
 import { connection } from 'next/server';
@@ -72,6 +73,14 @@ export default async function RootLayout({
         // proxy.ts. Opt into dynamic rendering so the nonce is available to the
         // client-side theme bootstrap script during SSR.
         await connection();
+        // round94-W3 (A-Low5 — duplicate font preloads): raw <link rel="preload">
+        // JSX renders TWICE in the HTML (the RSC serializer auto-emits a :HL hint
+        // for every preload link ELEMENT *and* the element itself renders again in
+        // place). preload() emits exactly ONE hoisted hint per font — same fix as
+        // (public)/layout.tsx, applied here because protected pages had the same
+        // 2×2 duplication. React forces crossorigin=anonymous for as:"font".
+        preload('/fonts/cairo-arabic.woff2', { as: 'font', type: 'font/woff2' });
+        preload('/fonts/readex-pro.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = (await headers()).get('x-nonce') ?? '';
         return (
                 <html lang="ar" dir="rtl" suppressHydrationWarning>
@@ -90,11 +99,12 @@ export default async function RootLayout({
                                 <meta name="apple-mobile-web-app-title" content="Smart Menu" />
                                 {/* eslint-disable-next-line @next/next/no-css-tags */}
                                 <link rel="stylesheet" href="/fonts/fonts.css" />
-                                {/* LCP: preload the Arabic Cairo subset (the one that renders Arabic text) —
-                                 * fonts.css @font-face already has font-display: swap, so text paints in a
-                                 * fallback instantly and swaps once the woff2 arrives. Preloading moves the
-                                 * font fetch ahead of the CSS discovery, cutting the ~700ms block. */}
-                                <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossOrigin="anonymous" />
+                                {/* LCP: font preloads (Cairo body + Readex Pro headings) moved to
+                                 * preload() calls at the top of RootLayout (round94-W3 — see the
+                                 * comment there). fonts.css @font-face already has font-display:
+                                 * swap, so text paints in a fallback instantly and swaps once the
+                                 * woff2 arrives; the preload moves the font fetch ahead of CSS
+                                 * discovery, cutting the ~700ms block. */}
                                 {/* r93-W2a (U1): خط العناوين — المصدر الواحد للحقيقة هو تعريف
                                  * @theme inline في globals.css (Readex Pro أولًا) وسطر :root مرآة
                                  * مطابقة له. تعليق r88-A2 السابق هنا ادّعى أن Readex Pro «فعّال
@@ -103,7 +113,6 @@ export default async function RootLayout({
                                  * هذا الجولة. هذا الـ preload يطابق الجذر العام ويمنع وميض تبديل
                                  * خط العناوين في الصفحات المحمية. Noto Naskh/Noto Sans كسولتان عبر
                                  * unicode-range. */}
-                                <link rel="preload" as="font" type="font/woff2" href="/fonts/readex-pro.woff2" crossOrigin="anonymous" />
                                 {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
                                         pattern — no first-paint flash). Protected pages run under the
                                         per-request nonce CSP from proxy.ts, so the script carries the

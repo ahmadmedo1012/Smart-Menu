@@ -41,6 +41,10 @@ describe('proxy matcher — static assets are actually excluded (B-1)', () => {
                 '/fonts/cairo-arabic.woff2',
                 '/fonts/readex-pro.woff',
                 '/fonts/fonts.css',
+                // round94-W3: promo.mp4 was deleted (dead weight, reports A+F) — the
+                // path stays as a matcher-regex sample only: what's under test is the
+                // .mp4 EXTENSION exclusion, not the file's existence. promo-poster.webp
+                // (still present, pending owner decision) keeps /video/ real.
                 '/video/promo.mp4',
                 '/video/promo-poster.webp',
                 '/icon-192.png',

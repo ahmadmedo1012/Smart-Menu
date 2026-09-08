@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { preload } from 'react-dom';
 import { BRAND_THEME_COLOR } from '@/lib/brand';
 import { HIGH_CONTRAST_BOOT_SCRIPT } from '@/lib/high-contrast';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
@@ -66,6 +67,18 @@ export default async function RootLayout({
 }: Readonly<{
         children: React.ReactNode;
 }>) {
+        // round94-W3 (A-Low5 — duplicate font preloads, live-measured on /): the
+        // raw <link rel="preload"> JSX this replaces was emitted TWICE in
+        // production HTML — React 19's RSC serializer auto-converts every
+        // preload link ELEMENT into a :HL hint (flushed at the very top of
+        // <head>) AND the element itself renders again in place, so each font
+        // carried two identical preload tags (2×2 per page). The module-level
+        // preload() API emits exactly ONE hoisted hint per font (deduped by
+        // the RSC dispatcher) with no in-place copy — same LCP win, half the
+        // tags. React forces crossorigin=anonymous for as:"font" (matches the
+        // CSS-initiated font fetch, same as the old crossOrigin="anonymous").
+        preload('/fonts/cairo-arabic.woff2', { as: 'font', type: 'font/woff2' });
+        preload('/fonts/readex-pro.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = '';
         return (
                 <html lang="ar" dir="rtl" suppressHydrationWarning>
@@ -84,14 +97,13 @@ export default async function RootLayout({
                                 <meta name="apple-mobile-web-app-title" content="Smart Menu" />
                                 {/* eslint-disable-next-line @next/next/no-css-tags */}
                                 <link rel="stylesheet" href="/fonts/fonts.css" />
-                                {/* LCP: preload the Arabic subsets of the two active families —
-                                 * Cairo (body) + Readex Pro (display headings, now the --font-heading face).
-                                 * fonts.css @font-face has font-display: swap, so text paints in a fallback
-                                 * instantly and swaps once the woff2 arrives. Preloading moves the font fetch
-                                 * ahead of CSS discovery, cutting the ~700ms block. Noto Sans/Naskh Arabic
-                                 * stay lazy via unicode-range (editorial moments only). */}
-                                <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-arabic.woff2" crossOrigin="anonymous" />
-                                <link rel="preload" as="font" type="font/woff2" href="/fonts/readex-pro.woff2" crossOrigin="anonymous" />
+                                {/* LCP: font preloads for the Arabic subsets of the two active
+                                 * families moved to preload() calls at the top of RootLayout
+                                 * (round94-W3 — see comment there). fonts.css @font-face has
+                                 * font-display: swap, so text paints in a fallback instantly
+                                 * and swaps once the woff2 arrives; the preloads move the font
+                                 * fetch ahead of CSS discovery, cutting the ~700ms block.
+                                 * Noto Sans/Naskh Arabic stay lazy via unicode-range. */}
                                 {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
                                         pattern — reads localStorage before first paint so the mode never
                                         flashes). Public pages run under the cacheable-page CSP which allows

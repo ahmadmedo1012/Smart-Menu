@@ -81,9 +81,16 @@ export function proxy(request: NextRequest) {
 
         // CSP with per-request nonce (pages only; API gets strict CSP)
         if (isApiRoute) {
+                // round94-W3 (A-MED3 residue): dropped `https://fonts.gstatic.com` from
+                // font-src — /api/* routes serve JSON only (no HTML, no fonts at all)
+                // and every font in the app is self-hosted from /fonts/*; the external
+                // origin was a leftover of the pre-self-hosting policy. The HTML-serving
+                // CSP branches below never listed it (font-src 'self' data:) — now the
+                // API branch matches them and no CSP in the app grants a font origin it
+                // cannot possibly use.
                 resp.headers.set(
                         'Content-Security-Policy',
-                        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:; frame-ancestors 'none'"
+                        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.telegram.org; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:; frame-ancestors 'none'"
                 );
         } else if (isCacheablePage) {
                 // Public static pages (/, /menu/*, /pricing, /landing): FIXED CSP with

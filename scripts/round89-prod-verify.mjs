@@ -23,7 +23,9 @@ const bad = (m) => { fail++; console.log(`  ❌ ${m}`); };
 console.log(`[1] matcher الـproxy المُصلَح (B-1) — الأصول الثابتة بلا كوكيز/nonce`);
 {
   // قبل الجولة: woff2/png كانت تستلم set-cookie (csrf) + CSP nonce
-  for (const asset of ['/fonts/cairo-arabic.woff2', '/icon-192.png', '/video/promo.mp4']) {
+  // round94-W3: promo.mp4 حُذف عمداً (حمولة ميتة) — استُبدل بالملف الموجود
+  // promo-poster.webp (نفس المجلد/نفس سلوك الاستبعاد) لإبقاء الفحص ذا معنى.
+  for (const asset of ['/fonts/cairo-arabic.woff2', '/icon-192.png', '/video/promo-poster.webp']) {
     const h = headers(`${BASE}${asset}`);
     const hasCookie = /set-cookie/i.test(h);
     const hasCsp = /content-security-policy/i.test(h);

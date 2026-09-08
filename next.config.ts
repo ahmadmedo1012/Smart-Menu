@@ -129,6 +129,19 @@ const nextConfig: NextConfig = {
                                         { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
                                 ],
                         },
+                        // round94-W3 (A-Low6): brand-icon.png had NO rule — every direct
+                        // fetch revalidated (max-age=0, must-revalidate). In practice it is
+                        // rendered through _next/image (Header/Footer/login — the optimizer
+                        // already serves those immutable-year), so the direct URL is hit
+                        // rarely; still, it is a stable brand mark in the icon-PNG family
+                        // (regenerable in place on a rebrand) → icon-512's policy (a week +
+                        // SWR a day), not immutable, so an in-place swap reaches visitors.
+                        {
+                                source: '/brand-icon.png',
+                                headers: [
+                                        { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+                                ],
+                        },
                 ];
         },
 };
