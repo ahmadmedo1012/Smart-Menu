@@ -123,8 +123,19 @@ export async function POST(request: Request) {
                                                         },
                                                 },
                                         });
-                                } catch {
-                                        /* best-effort audit — never block the 429 */
+                                } catch (auditError) {
+                                        // round94 (W1-b/fix 3): still best-effort — never blocks
+                                        // the 429 — but the catch was EMPTY: a silent swallow that
+                                        // hid real DB write failures from the feed and, in unit
+                                        // runs, a TypeError proving the write never happened (the
+                                        // auth.lockout coverage was fake-green). Log it (same
+                                        // pattern as the outer catch below) and keep the 429.
+                                        logError('auth.lockout audit write failed', {
+                                                error:
+                                                        auditError instanceof Error
+                                                                ? auditError.message
+                                                                : String(auditError),
+                                        });
                                 }
                                 return error('تم قفل الحساب مؤقتاً لكثرة المحاولات الفاشلة. حاول لاحقاً.', 429);
                         }

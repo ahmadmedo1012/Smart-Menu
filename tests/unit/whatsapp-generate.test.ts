@@ -24,6 +24,9 @@ import { NextRequest } from 'next/server';
 const mockOrderFindUnique = vi.hoisted(() => vi.fn());
 const mockOrderUpdate = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
+// round94-3a: المسار صار محدود المعدل — منكّر مفتوح دائماً هنا (خلايا 429
+// في round94-whatsapp-generate-ratelimit.test.ts)
+const mockRateCheck = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         order: { findUnique: mockOrderFindUnique, update: mockOrderUpdate },
@@ -31,6 +34,9 @@ const mockPrisma = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma, getUserById: vi.fn(), withRetry: vi.fn() }));
+vi.mock('@/lib/rate-limit', () => ({
+        createDbRateLimiter: () => ({ check: mockRateCheck, destroy: () => {} }),
+}));
 
 const mockValidateSession = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/session', () => ({ validateSession: mockValidateSession }));
@@ -107,6 +113,7 @@ function postRequest(body: unknown): NextRequest {
 beforeEach(() => {
         vi.clearAllMocks();
         setSession(OWNER_A);
+        mockRateCheck.mockResolvedValue({ success: true, remaining: 19, reset: 0 });
         mockOrderFindUnique.mockResolvedValue(ORDER);
         mockOrderUpdate.mockResolvedValue({ ...ORDER, whatsappSent: true });
         mockUserRestaurantFindUnique.mockResolvedValue(null);

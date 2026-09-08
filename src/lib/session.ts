@@ -20,32 +20,42 @@ function hashToken(token: string): string {
         return createHash('sha256').update(token).digest('hex');
 }
 
-async function trimExpiredSessions(userId: number) {
-        await prisma.session.deleteMany({
-                where: { userId, expiresAt: { lte: new Date() } },
-        });
-        const active = await prisma.session.findMany({
-                where: { userId },
-                orderBy: { createdAt: 'desc' },
-                select: { id: true },
-        });
-        if (active.length > MAX_SESSIONS_PER_USER) {
-                const keep = new Set(active.slice(0, MAX_SESSIONS_PER_USER).map((s) => s.id));
-                await prisma.session.deleteMany({
-                        where: { userId, id: { notIn: [...keep] } },
-                });
-        }
-}
-
 export async function createSession(userId: number) {
-        await trimExpiredSessions(userId);
-
         const token = crypto.randomUUID();
         const tokenHash = hashToken(token);
         const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
 
-        await prisma.session.create({
-                data: { userId, token: tokenHash, expiresAt },
+        // round94-3a (تقرير B LOW-2): الإنشاء والقصّ في معاملة واحدة، والقصّ
+        // بعد الإنشاء — كان trimExpiredSessions يُنفَّذ قبل session.create بشرط
+        // (active.length > MAX) فيجد 5 جلسات نشطة لا شيء فوقها ليحذفه، ثم
+        // تُنشأ سادسة: الحالة المستقرة 6 جلسات لا 5 (off-by-one)، والتسلسل
+        // findMany→deleteMany خارج معاملة سمح لتقاطع دخولين متزامنين. الآن
+        // يُعدّ الصف الجديد ضمن السقف قبل القصّ (أحدث 4 جلسات أخرى + الجديد =
+        // 5 بالضبط)، والصف الجديد محميّ بتوكنه فلا يُبعد بقصّه مهما تعادلت
+        // طوابع createdAt (id هنا cuid غير رتيب — الحماية بالتوكن لا بالترتيب).
+        await prisma.$transaction(async (tx) => {
+                await tx.session.create({
+                        data: { userId, token: tokenHash, expiresAt },
+                });
+                // 1) نظّف المنتهية أولاً كي يعدّ القصّ النشطة فقط
+                await tx.session.deleteMany({
+                        where: { userId, expiresAt: { lte: new Date() } },
+                });
+                // 2) عدّ بما فيها الصف الجديد، وابعد الفائض عن السقف
+                const active = await tx.session.findMany({
+                        where: { userId },
+                        orderBy: { createdAt: 'desc' },
+                        select: { id: true, token: true },
+                });
+                if (active.length > MAX_SESSIONS_PER_USER) {
+                        const others = active.filter((s) => s.token !== tokenHash);
+                        const keep = others
+                                .slice(0, MAX_SESSIONS_PER_USER - 1)
+                                .map((s) => s.id);
+                        await tx.session.deleteMany({
+                                where: { userId, id: { notIn: keep }, token: { not: tokenHash } },
+                        });
+                }
         });
 
         const c = await cookies();

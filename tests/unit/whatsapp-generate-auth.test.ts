@@ -17,6 +17,9 @@ const authHolder = vi.hoisted(() => ({ value: null as Record<string, unknown> | 
 const mockOrderFindUnique = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockOrderUpdate = vi.hoisted(() => vi.fn());
+// round94-3a: المسار صار محدود المعدل — منكّر مفتوح دائماً هنا (خلايا 429
+// في round94-whatsapp-generate-ratelimit.test.ts)
+const mockRateCheck = vi.hoisted(() => vi.fn());
 
 const prismaMock = vi.hoisted(() => ({
         order: { findUnique: mockOrderFindUnique, update: mockOrderUpdate },
@@ -25,6 +28,9 @@ const prismaMock = vi.hoisted(() => ({
 
 vi.mock('@/lib/db', () => ({ prisma: prismaMock }));
 vi.mock('@/lib/auth', () => ({ requireAuth: vi.fn(async () => authHolder.value) }));
+vi.mock('@/lib/rate-limit', () => ({
+        createDbRateLimiter: () => ({ check: mockRateCheck, destroy: () => {} }),
+}));
 
 // ── Fixtures ────────────────────────────────────────────────────────────
 
@@ -48,6 +54,7 @@ const OWNER_R1 = { authorized: true, role: 'owner', restaurantId: 1, userId: 10,
 beforeEach(() => {
         vi.clearAllMocks();
         authHolder.value = { ...OWNER_R1 };
+        mockRateCheck.mockResolvedValue({ success: true, remaining: 19, reset: 0 });
         mockOrderFindUnique.mockResolvedValue({ ...ORDER_R2 });
         mockUserRestaurantFindUnique.mockResolvedValue(null);
         mockOrderUpdate.mockResolvedValue({ ...ORDER_R2, whatsappSent: true });

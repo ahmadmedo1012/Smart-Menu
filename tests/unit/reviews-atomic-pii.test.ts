@@ -31,6 +31,15 @@ const mockReviewAggregate = vi.hoisted(() => vi.fn());
 const mockReviewCreate = vi.hoisted(() => vi.fn());
 const mockExecuteRaw = vi.hoisted(() => vi.fn().mockResolvedValue(1));
 const mockTransaction = vi.hoisted(() => vi.fn());
+// r94 (W1-b/fix 2 — D5 noise): the POST path awaits the REAL revalidateMenu
+// (menu-cache), whose prisma.restaurant.findUnique was missing from the mock
+// below — every POST logged «menu revalidate failed … TypeError: Cannot read
+// properties of undefined (reading 'findUnique')» (4 ERROR lines per run).
+// Adding the restaurant model (slug fixture) + a next/cache revalidatePath
+// mock lets the chain run to completion AND makes the r92-A2 synchronous
+// publish contract assertable (see the dedicated test below).
+const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
+const mockRevalidatePath = vi.hoisted(() => vi.fn());
 // spies proving the OLD read-then-write path is gone (they stay on the tx
 // mock on purpose: if the route ever regresses, these light up).
 const mockTxMenuItemFindUnique = vi.hoisted(() => vi.fn());
@@ -46,10 +55,12 @@ const prismaMock = vi.hoisted(() => ({
         menuItem: { findUnique: mockMenuItemFindUnique },
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
         review: { findMany: mockReviewFindMany, aggregate: mockReviewAggregate },
+        restaurant: { findUnique: mockRestaurantFindUnique }, // r94: menu-cache chain (see above)
         $transaction: mockTransaction,
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: prismaMock }));
+vi.mock('next/cache', () => ({ revalidatePath: mockRevalidatePath }));
 vi.mock('@/lib/auth', () => ({ requireAuth: vi.fn(async () => authHolder.value) }));
 vi.mock('@/lib/rate-limit', () => ({
         createDbRateLimiter: () => ({
@@ -84,6 +95,9 @@ beforeEach(() => {
         // the STALE snapshot the old code consumed — served to EVERY read,
         // which is exactly what a concurrent pair sees under READ COMMITTED
         mockTxMenuItemFindUnique.mockResolvedValue({ avgRating: '4.5', ratingCount: 10 });
+        // r94: the item's restaurant resolves to a slug → revalidateMenu runs
+        // the full (mocked) purge chain instead of dying in a TypeError.
+        mockRestaurantFindUnique.mockResolvedValue({ slug: 'al-waha-cafe' });
 });
 
 // ── POST — atomic counter update (T4) ───────────────────────────────────
@@ -151,6 +165,25 @@ describe('POST /api/items/[id]/reviews — atomic rating counters (round90-F3)',
                 // both writes happened on the tx client passed to the callback
                 expect(mockReviewCreate).toHaveBeenCalledTimes(1);
                 expect(mockExecuteRaw).toHaveBeenCalledTimes(1);
+        });
+
+        it("r92-A2 synchronous publish: the 201 waits for the menu purge of the item's restaurant", async () => {
+                // revalidateMenu runs INSIDE the request (awaited — the response
+                // returns only after the purge): the item's restaurant (99, the
+                // LINKED second menu) is resolved to its slug and the public menu
+                // page is purged. Before r94 the prisma mock had no `restaurant`
+                // model, so this chain died silently in a TypeError (the «menu
+                // revalidate failed» CI noise) and no assertion could see it.
+                const res = await postReview(77, 4);
+
+                expect(res.status).toBe(201);
+                expect(mockRestaurantFindUnique).toHaveBeenCalledTimes(1);
+                expect(mockRestaurantFindUnique).toHaveBeenCalledWith({
+                        where: { id: 99 },
+                        select: { slug: true },
+                });
+                expect(mockRevalidatePath).toHaveBeenCalledTimes(1);
+                expect(mockRevalidatePath).toHaveBeenCalledWith('/menu/al-waha-cafe');
         });
 });
 

@@ -4,17 +4,51 @@ import { prisma } from "@/lib/db";
 import { success, notFound, handleError, error as apiError } from "@/lib/api-helpers";
 import { formatDate } from "@/lib/format";
 import { requireAuth } from "@/lib/auth";
+import { createDbRateLimiter } from "@/lib/rate-limit";
 
 const generateSchema = z.object({
   orderId: z.number().int().positive(),
 });
+
+// round94-3a (تقرير B LOW-1): المسار كله كان بلا حد معدل — استدعاء متكرر
+// يضرب DB ويوسم whatsappSent=true أثرًا جانبيًا مجانيًا في كل ضغطة.
+// 20/دقيقة لكل مستخدم مصادَق — نمط items/[id] PUT (r91-F-B): مفتاح جلسة
+// غير قابل للتزوير (لا مكوّن header)، ويُفحص بعد بوابة 401 كي لا يحرق
+// المجهولُ ميزانية أحد.
+const waGenerateDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuth();
     if (!auth.authorized) return apiError("غير مصرح", 401);
 
+    // round94-3a (LOW-1): بعد بوابة 401 — مفتاح لكل مستخدم
+    const { success: allowed } = await waGenerateDbLimiter.check(`wa-gen:${auth.userId}`);
+    if (!allowed) return apiError("محاولات كثيرة جداً. حاول لاحقاً.", 429);
+
     const body = generateSchema.parse(await request.json());
+
+    // round94-3a (LOW-1 — عدّاد 404/403): فروع الترخيص التي لا تحتاج صف
+    // الطلب تُفحص قبل findUnique — كان الجلب يسبق سلّم الأدوار فيميّز أي
+    // مستخدم مصادَق (حتى USER) الطلباتِ الموجودة عن غيرها (404 مقابل 403).
+    // فرع المالك يبقى بعد الجلب لأن فحصه يحتاج order.restaurantId (عقد 403
+    // الموحّد r90-F3 محفوظ: المصادَق غير المصرّح له = 403).
+    if (
+      auth.role !== "owner" &&
+      auth.role !== "super_admin" &&
+      auth.role !== "admin" &&
+      auth.role !== "sub_admin"
+    ) {
+      // USER وأي دور غير معروف — رفض افتراضي دون تسريب وجود الطلب
+      return Response.json({ success: false, error: "غير مصرح" }, { status: 403 });
+    }
+    if (
+      (auth.role === "admin" || auth.role === "sub_admin") &&
+      !(auth.permissions ?? []).includes("APPROVE_ORDERS")
+    ) {
+      // admins need explicit permission to read any order's details
+      return Response.json({ success: false, error: "لا تملك الصلاحية" }, { status: 403 });
+    }
 
     const order = await prisma.order.findUnique({
       where: { id: body.orderId },
@@ -44,18 +78,9 @@ export async function POST(request: NextRequest) {
         // orders/[id] and the round89-E3 401/403 split (was 401).
         if (!link) return Response.json({ success: false, error: "غير مصرح" }, { status: 403 });
       }
-    } else if (auth.role === "super_admin") {
-      // round86-A11: super_admin passes (the role ladder previously omitted it —
-      // a 403 for the highest-privilege role when generating a receipt)
-    } else if (auth.role === "admin" || auth.role === "sub_admin") {
-      // admins need explicit permission to read any order's details
-      if (!(auth.permissions ?? []).includes("APPROVE_ORDERS")) {
-        return Response.json({ success: false, error: "لا تملك الصلاحية" }, { status: 403 });
-      }
-    } else {
-      // USER and any unknown/other role — deny by default, never fall through
-      return Response.json({ success: false, error: "غير مصرح" }, { status: 403 });
     }
+    // super_admin passes (round86-A11) and admin/sub_admin with
+    // APPROVE_ORDERS were already gated above — no other role reaches here.
 
     const lines: string[] = [];
     lines.push(`🧾 *${order.restaurant.name}*`);

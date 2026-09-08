@@ -4,7 +4,9 @@
  * controllable limiter — no real DB.
  *
  * Behaviors read from the route source:
- * POST (authenticated claim):
+ * POST (authenticated claim — round94-3a: the caller fixture is now a
+ * legitimate OWNER of the card's restaurant; USER/staff gate cells moved
+ * to round94-referral-tenant-gate.test.ts after the tenant gate landed):
  *   - auth gate (401) + per-IP limiter bucket referral:<ip> (429)
  *   - referralSchema.parse (NOT safeParse) → ZodError → handleError → 422
  *     validation envelope
@@ -28,7 +30,7 @@ const authHolder = vi.hoisted(() => ({
         value: {
                 authorized: true,
                 role: 'USER',
-                restaurantId: null,
+                restaurantId: null as number | null,
                 userId: 7,
                 permissions: [] as string[],
         },
@@ -40,10 +42,13 @@ const mockReferralCreate = vi.hoisted(() => vi.fn());
 const mockRateCheck = vi.hoisted(() => vi.fn());
 const mockQueryRaw = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
+// round94-3a: سلّم نطاق المستأجر يفحص رابط المالك عبر userRestaurant
+const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
         loyaltyCard: { findUnique: mockCardFindUnique },
         referral: { count: mockReferralCount, create: mockReferralCreate },
+        userRestaurant: { findUnique: mockUserRestaurantFindUnique },
         // round90-F1 (T3): the claim cap check + create now run inside ONE
         // $transaction with a FOR UPDATE lock on the referrer card row. The tx
         // mock hands the SAME spies to the transaction client so every existing
@@ -101,9 +106,13 @@ const claimBody = { referralCode: 'WAHAXYZ' };
 
 beforeEach(() => {
         vi.clearAllMocks();
-        authHolder.value = { authorized: true, role: 'USER', restaurantId: null, userId: 7, permissions: [] };
+        // round94-3a (تقرير B HIGH-1): المسار صار ببوابة نطاق — المتصل
+        // الافتراضي مالك شرعي لمطعم البطاقة (مطابقة رئيسية restaurantId=7)
+        // فلا يحتاج رابط userRestaurant. خلايا الرفض في ملف البوابة الجديد.
+        authHolder.value = { authorized: true, role: 'owner', restaurantId: 7, userId: 70, permissions: [] };
         mockRateCheck.mockResolvedValue({ success: true, remaining: 9, reset: 0 });
         mockCardFindUnique.mockResolvedValue({ ...CARD });
+        mockUserRestaurantFindUnique.mockResolvedValue(null);
         mockReferralCount.mockResolvedValue(3); // under the cap of 10
         mockReferralCreate.mockResolvedValue({
                 id: 55,

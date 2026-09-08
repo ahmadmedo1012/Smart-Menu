@@ -82,6 +82,8 @@ describe('POST /api/admin/telegram/verify — anti-replay (B-6)', () => {
         it('first use of a fresh token → 200 linked:true, spends the token', async () => {
                 const exp = Math.floor(Date.now() / 1000) + 300;
                 const token = buildToken(5, exp);
+                // round94-3a: الرمز صار مربوطًا بمولّده — المتصل هو نفسه المدير 5
+                authHolder.value = { ...authHolder.value, userId: 5 };
 
                 const res = await callVerify(token);
 
@@ -106,6 +108,8 @@ describe('POST /api/admin/telegram/verify — anti-replay (B-6)', () => {
 
         it('second presentation of the same token → 400, user NOT relinked', async () => {
                 const token = buildToken(5, Math.floor(Date.now() / 1000) + 300);
+                // round94-3a: مولّد الرمز نفسه هو المتصل (فحص الربط يمر)
+                authHolder.value = { ...authHolder.value, userId: 5 };
                 // simulate the unique-constraint rejection of the already-spent row
                 mockRateLimitEntryCreate.mockRejectedValue(new Error('Unique constraint failed'));
 
@@ -121,6 +125,8 @@ describe('POST /api/admin/telegram/verify — anti-replay (B-6)', () => {
 
         it('first-then-replay sequence: success, then the DB rejects the second create → 400', async () => {
                 const token = buildToken(6, Math.floor(Date.now() / 1000) + 300);
+                // round94-3a: مولّد الرمز نفسه هو المتصل (فحص الربط يمر)
+                authHolder.value = { ...authHolder.value, userId: 6 };
 
                 // 1st: create succeeds
                 const first = await callVerify(token);

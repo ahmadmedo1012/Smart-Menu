@@ -237,6 +237,15 @@ jobs:
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
           TELEGRAM_BOT_TOKEN: "test"
+          # round94 (W1-b/fix 4 — revive 3 dead webhook-security tests): the
+          # suite's positive-auth cases skip unless TELEGRAM_WEBHOOK_SECRET is
+          # resolvable — CI has no .env, so it never existed here and 3 tests
+          # skipped on EVERY run since r93. The route reads the secret per-request
+          # (fail-closed) so the SERVER must enforce the SAME value the test
+          # process sends. Dummy localhost-only value — public repo, never a real
+          # secret (production sets its own via Vercel env; .env.example documents
+          # the local-run variant).
+          TELEGRAM_WEBHOOK_SECRET: "ci-local-e2e-webhook-secret"
           # round92 flake fix: the standalone server forces NODE_ENV=production,
           # so RATE_LIMIT_RELAX=1 (test-process env below) could never widen the
           # server-side buckets — all register/login e2e specs shared one
@@ -257,6 +266,14 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/smart-menu-test
           JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
+          # round94 (W1-b/fix 4): must match the e2e SERVER's secret above so the
+          # 3 positive-auth webhook tests actually authenticate (was: always skipped).
+          TELEGRAM_WEBHOOK_SECRET: "ci-local-e2e-webhook-secret"
+          # round94 (W1-b/fix 4): the server under test is the standalone
+          # PRODUCTION build — HSTS specs send x-forwarded-proto: https (the
+          # documented TLS-terminating-proxy path) and assert the header; dev
+          # servers (no HSTS by design) skip honestly. Test-process marker only.
+          E2E_SERVER_MODE: production
           # r93: يطابق حالة الخادم (TRIM relax ×200 أعلاه) — مواصفة المخرب
           # r93-sim-abuser تتخطى اختبارَي الضغط 429 في البيئة المرخّصة (الميزانية
           # ×200 غير قابلة للبلوغ عمليًا) وتحتفظ ببقية الفحوص الحية.
@@ -278,6 +295,9 @@ jobs:
           JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           RATE_LIMIT_RELAX: "1"
+          # round94 (W1-b/fix 4): production-mode server marker — revives the
+          # HSTS assertion in round80-security S7 (see core-projects step note).
+          E2E_SERVER_MODE: production
 
       # round85-D2: keep the HTML report + traces when e2e fails (was lost)
       - name: Upload Playwright report

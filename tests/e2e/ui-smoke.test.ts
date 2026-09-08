@@ -75,16 +75,22 @@ test("response has Content-Security-Policy header", async ({ request }) => {
   expect(headers["content-security-policy"]?.length).toBeGreaterThan(0);
 });
 
-// HSTS is emitted only on Vercel production (proxy.ts guards against
-// plain-http hosts where WebKit would upgrade subresources to https and
-// never hydrate). Local dev/prod runs have no HSTS header by design.
+// HSTS (proxy.ts:63-68) is emitted when the SERVER runs NODE_ENV=production AND
+// the request is secure — https OR the documented TLS-terminating-proxy header
+// x-forwarded-proto: https (proxy.ts:27-32). r94 (W1-b/fix 4): the old skip
+// keyed on process.env.VERCEL, which NO runner (CI, nightly, prod-qa) ever
+// sets — the test was dead everywhere. Now we send the proxy header (exactly
+// what a real TLS front door forwards) and assert the exact value; CI marks
+// its standalone production build with E2E_SERVER_MODE=production. Dev servers
+// (no HSTS by design — WebKit plain-http hydration, see proxy.ts) skip honestly.
 test("response has Strict-Transport-Security header", async ({ request }) => {
-  test.skip(!process.env.VERCEL, "HSTS emitted only on Vercel production");
-  const res = await request.get("/");
+  test.skip(
+    process.env.E2E_SERVER_MODE !== "production",
+    "HSTS needs a production-mode server (CI standalone); dev omits it by design"
+  );
+  const res = await request.get("/", { headers: { "x-forwarded-proto": "https" } });
   const headers = await res.headers();
-  const hsts = headers["strict-transport-security"];
-  expect(hsts).toBeDefined();
-  expect(hsts?.length).toBeGreaterThan(0);
+  expect(headers["strict-transport-security"]).toBe("max-age=31536000; includeSubDomains");
 });
 
 test("response has X-Content-Type-Options: nosniff header", async ({ request }) => {

@@ -58,6 +58,16 @@ export async function POST(request: NextRequest) {
       return error("انتهت صلاحية الرمز", 400);
     }
 
+    // round94-3a (تقرير B LOW-3): الرمز مرتبط بمولّده — حمولة الرمز تحمل
+    // userId من أنشأه (admin/telegram/link يوقّع {userId, exp})، لكن المسار
+    // كان يربط حساب أي حامل EDIT_SETTINGS يلتقط رمزًا تسرب لمدير آخر
+    // (paste/شاشة) بقناته هو فيستلم إشعارات مدفوعات/قرارات الضحية. حامل
+    // الصلاحية الآن يربط نفسه فقط؛ مسار webhook /start verify_ يظل كما هو
+    // بالتصميم (المدير يفتح رابطه بنفسه في التيليجرام).
+    if (data.userId !== auth.userId) {
+      return error("رمز غير مخصص لك", 403);
+    }
+
     // round89-B6 (dx-4 #9): anti-replay — same spend-mark as the webhook link
     // flow (api/telegram/webhook/route.ts): the 5-min link token is now
     // single-use. Atomic create-or-die on the rateLimitEntry unique key

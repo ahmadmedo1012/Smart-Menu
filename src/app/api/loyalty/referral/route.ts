@@ -36,6 +36,38 @@ export async function POST(request: NextRequest) {
 
     if (!referrerCard) return error("كود إحالة غير صالح", 404);
 
+    // round94-3a (HIGH-1 من تقرير B §1): نطاق مستأجر + ملكية الإحالة — كانت
+    // البوابة requireAuth وحدها (أي دور، بما فيه USER مجاني التسجيل الذاتي)،
+    // فيستطيع أي حساب غريب حشو صفوف pending بأرقام هواتف عملاء مطعم الضحية؛
+    // التحويل التلقائي عند إكمال طلباتهم (referral-conversion.ts:110) يمنح
+    // بطاقة الحاشي 10% نقاطًا = وجبات مجانية غير مكتسبة. نفس سلّم
+    // loyalty/redeem (43-55): المالك مرتبط بمطعم البطاقة (رئيسي أو رابط
+    // UserRestaurant)، والطاقم يحتاج APPROVE_ORDERS، وUSER مرفوض مطلقًا —
+    // referredPhone لا يُقبل إطلاقًا من حساب لا علاقة له بالمطعم.
+    if (auth.role === "owner") {
+      if (auth.restaurantId !== referrerCard.restaurantId) {
+        const link = await prisma.userRestaurant.findUnique({
+          where: {
+            userId_restaurantId: {
+              userId: auth.userId!,
+              restaurantId: referrerCard.restaurantId,
+            },
+          },
+        });
+        if (!link) return error("غير مصرح", 403);
+      }
+    } else if (auth.role === "super_admin") {
+      // وصول كامل
+    } else if (auth.role === "admin" || auth.role === "sub_admin") {
+      // الطاقم يحتاج صلاحية صريحة على بطاقات الولاء (كما في redeem)
+      if (!(auth.permissions ?? []).includes("APPROVE_ORDERS")) {
+        return error("لا تملك الصلاحية", 403);
+      }
+    } else {
+      // USER وأي دور غير معروف — رفض مطلق: كود صالح + هاتف ضحية لا يكفي
+      return error("غير مصرح", 403);
+    }
+
     // Self-referral guard (round-77): reject redeeming your own code via
     // your own phone — normalized digits compare
     if (referredPhone) {

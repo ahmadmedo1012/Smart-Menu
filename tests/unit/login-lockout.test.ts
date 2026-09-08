@@ -7,6 +7,12 @@ const mockUpdate = vi.hoisted(() => vi.fn());
 const mockCreateSession = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockNotifyEvent = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+// r94 (W1-b/fix 3 — fake coverage): the lockout branch writes the round88-B7
+// auth.lockout SystemEvent, but this file's prisma mock had `user` ONLY — the
+// write died in a TypeError inside the (previously empty) catch and the 429
+// still returned, so the audit event was NEVER actually written in any run of
+// this file. The mock + the dedicated test below make it real and breakable.
+const mockSystemEventCreate = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 
 // Rate limiter state holders — both lockout limiters count FAILED attempts only
 const accountState = vi.hoisted(() => ({ count: 0 }));
@@ -18,6 +24,7 @@ const loginState = vi.hoisted(() => ({ count: 0 }));
 vi.mock('@/lib/db', () => ({
         prisma: {
                 user: { findUnique: mockFindUnique, update: mockUpdate },
+                systemEvent: { create: mockSystemEventCreate }, // r94: auth.lockout audit write
         },
 }));
 vi.mock('@/lib/hash', () => ({
@@ -122,6 +129,33 @@ describe('login lockout — account limiter counts only FAILED attempts', () => 
                 const twentyFirst = await POST(makeRequest('admin', 'wrong-password'));
                 expect(twentyFirst.status).toBe(429);
                 expect(accountState.count).toBe(21);
+        });
+
+        it('the trip moment writes ONE auth.lockout warning SystemEvent (round88-B7 — the audit write actually happens)', async () => {
+                const { POST } = await import('@/app/api/auth/login/route');
+
+                for (let i = 0; i < 20; i++) {
+                        await POST(makeRequest('admin', 'wrong-password'));
+                }
+                const twentyFirst = await POST(makeRequest('admin', 'wrong-password'));
+
+                expect(twentyFirst.status).toBe(429);
+                // r94: before this, prisma.systemEvent was undefined in the mock —
+                // prisma.systemEvent.create threw a TypeError that the empty catch
+                // swallowed: green 429, ZERO audit events, invisible. The realistic
+                // 21-failure journey (not the accountState.limit=0 shortcut of
+                // audit-events.test.ts) must mint exactly ONE event at the trip.
+                expect(mockSystemEventCreate).toHaveBeenCalledTimes(1);
+                const data = mockSystemEventCreate.mock.calls[0][0].data;
+                expect(data.eventType).toBe('auth.lockout');
+                expect(data.severity).toBe('warning');
+                expect(data.metadata).toMatchObject({
+                        username: 'admin',
+                        ip: '1.2.3.4',
+                        // both the ip-scoped limiter and the backstop are over budget on
+                        // the 21st → the event names the ip-scoped one
+                        limiter: 'acct:ip:username',
+                });
         });
 
         it('a successful login after failures does NOT consume the account budget', async () => {

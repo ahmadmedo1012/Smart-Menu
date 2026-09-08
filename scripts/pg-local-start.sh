@@ -6,7 +6,7 @@
 # User/DB: postgres / smartmenu (password: postgres)
 set -euo pipefail
 
-PGHOME=/home/z/pg-embedded/node_modules/@embedded-postgres/linux-x64/native
+PGHOME=/home/z/pg-native
 export LD_LIBRARY_PATH="$PGHOME/lib:${LD_LIBRARY_PATH:-}"
 DATADIR=/home/z/pgdata
 PORT=5434

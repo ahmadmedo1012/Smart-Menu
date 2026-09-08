@@ -141,6 +141,10 @@ jobs:
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           NEXT_PUBLIC_WHATSAPP_NUMBER: "218900000000"
           TELEGRAM_BOT_TOKEN: "test"
+          # round94 (W1-b/fix 4 — same wiring as ci.yml, on purpose: the nightly
+          # baseline must match push-CI exactly): revives the 3 positive-auth
+          # webhook-security tests. Dummy localhost-only value, same as ci.yml.
+          TELEGRAM_WEBHOOK_SECRET: "ci-local-e2e-webhook-secret"
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
@@ -161,6 +165,11 @@ jobs:
           JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           PW_RETRIES: "0"
+          # round94 (W1-b/fix 4): parity with ci.yml — same webhook secret (must
+          # match the server step above) and the production-server marker that
+          # activates the HSTS assertions (x-forwarded-proto path).
+          TELEGRAM_WEBHOOK_SECRET: "ci-local-e2e-webhook-secret"
+          E2E_SERVER_MODE: production
 
       # Rate-limit bucket wipe between the iterations (investigation.md item
       # 4, fix #2): the DB limiter's windows are wall-aligned, so two
@@ -184,6 +193,9 @@ jobs:
           JWT_SECRET: test-secret-for-ci-min-64-chars-long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           NEXT_PUBLIC_DOMAIN: http://localhost:3000
           PW_RETRIES: "0"
+          # round94 (W1-b/fix 4): parity with ci.yml (same as iteration 1).
+          TELEGRAM_WEBHOOK_SECRET: "ci-local-e2e-webhook-secret"
+          E2E_SERVER_MODE: production
 
       # Single step that NAMES the result. Outcome matrix:
       #   success + success            → STABLE

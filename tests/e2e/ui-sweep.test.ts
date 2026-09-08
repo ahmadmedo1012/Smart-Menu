@@ -77,12 +77,17 @@ test.describe("ui-sweep", () => {
   });
 
   test("Strict-Transport-Security header present", async ({ request }) => {
-    test.skip(!process.env.VERCEL, "HSTS emitted only on Vercel production");
-    const res = await request.get("/");
+    // HSTS (proxy.ts:63-68): production server + secure request. r94 (W1-b/fix 4):
+    // the old VERCEL-gated skip never fired (no runner sets VERCEL) — dead test.
+    // Send the TLS-terminating-proxy header and assert the exact value; only
+    // non-production servers (dev omits HSTS by design) skip honestly.
+    test.skip(
+      process.env.E2E_SERVER_MODE !== "production",
+      "HSTS needs a production-mode server (CI standalone); dev omits it by design"
+    );
+    const res = await request.get("/", { headers: { "x-forwarded-proto": "https" } });
     const headers = await res.headers();
-    const hsts = headers["strict-transport-security"];
-    expect(hsts).toBeDefined();
-    expect(hsts?.length).toBeGreaterThan(0);
+    expect(headers["strict-transport-security"]).toBe("max-age=31536000; includeSubDomains");
   });
 
   test("X-Frame-Options header is DENY", async ({ request }) => {

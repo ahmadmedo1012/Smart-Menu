@@ -69,14 +69,23 @@ test("S6: XSS payload in item name never executes", async ({ page }) => {
 });
 
 test("S7: security headers present on every page", async ({ page }) => {
-  // HSTS is emitted only on Vercel production https — locally it makes WebKit
-  // upgrade subresources to https and never hydrate (see proxy.ts).
-  test.skip(!process.env.VERCEL, "HSTS emitted only on Vercel production");
-  const r = await page.request.get("/", { headers: { Accept: "application/json" } });
+  // HSTS (proxy.ts:63-68): production server + secure request. r94 (W1-b/fix 4):
+  // the old VERCEL-gated skip never fired (no runner sets VERCEL) — this WHOLE
+  // header check (XFO/nosniff/CSP included) was dead everywhere. Send the
+  // TLS-terminating-proxy header like a real front door and assert the exact
+  // HSTS value; only non-production servers (dev omits HSTS by design — WebKit
+  // plain-http hydration, see proxy.ts) skip honestly.
+  test.skip(
+    process.env.E2E_SERVER_MODE !== "production",
+    "HSTS needs a production-mode server (CI standalone); dev omits it by design"
+  );
+  const r = await page.request.get("/", {
+    headers: { Accept: "application/json", "x-forwarded-proto": "https" },
+  });
   const h = r.headers();
   expect(h["x-frame-options"] || h["X-Frame-Options"]).toBe("DENY");
   expect(h["x-content-type-options"]).toBe("nosniff");
-  expect(h["strict-transport-security"]).toBeTruthy();
+  expect(h["strict-transport-security"]).toBe("max-age=31536000; includeSubDomains");
   expect(h["content-security-policy"]).toBeTruthy();
   expect(h["content-security-policy"]).toContain("frame-src 'none'");
 });

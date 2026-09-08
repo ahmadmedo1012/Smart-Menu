@@ -46,8 +46,11 @@ const txMock = vi.hoisted(() => ({
 const authHolder = vi.hoisted(() => ({
         value: {
                 authorized: true as boolean,
-                role: 'USER',
-                restaurantId: null,
+                // round94-3a (تقرير B HIGH-1): بوابة نطاق المستأجر — المتصل
+                // هنا مالك شرعي لمطعم البطاقة (restaurantId=7 مطابقة رئيسية)
+                // كي تبقى اختبارات ذرية السقف على السلوك المالي دون بوابة.
+                role: 'owner',
+                restaurantId: 7,
                 userId: 7,
                 permissions: [] as string[],
         },
