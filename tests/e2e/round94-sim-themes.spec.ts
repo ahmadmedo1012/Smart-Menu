@@ -13,28 +13,40 @@
  * Run: bash scripts/r92-e2e-local.sh "tests/e2e/round94-sim-themes.spec.ts --project=ui"
  */
 import { test, expect } from "@playwright/test";
+import { mintCsrfPair, csrfHeadersFor } from "./csrf-helper";
 
 const SHOTS = "download/round94-simulations";
 const MENU = "/menu/al-waha-cafe";
 const OWNER_PASSWORD = process.env.WAHA_OWNER_PASS || "waha123456";
 
-test.beforeAll(async () => {
-  /* حتمية فحص المحرس: نجوم pill تظهر بمحرس r84 فقط عند وجود تقييم
-   * (hasRating = avgRating != null && ratingCount > 0) — نضمن أول صنف
-   * يحمل تقييماً مباشرة (بيانات فقط، idempotent). */
+test.beforeAll(async ({ request }) => {
+  /* حتمية فحص المحرس: نجوم pill تظهر بمحرس r84 فقط عند وجود تقييم.
+   * التقييم يُنشأ عبر API التطبيق نفسه — المسار يستدعي revalidateMenu
+   * (r92-A2) فيبطل كاش ISR بانتظار صحيح؛ الكتابة المباشرة عبر SQL كانت
+   * تلتف على الإبطال فتخدم الصفحة المخزنة بلا نجوم (عطل CI الأول).
+   * التقييمات التراكمية عبر التشغيلات مقبولة — hasRating يكفي >0. */
   const pg = (await import("pg")).default;
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
-  await client.query(
-    `UPDATE "MenuItem" SET "avgRating" = 4.5, "ratingCount" = 1
-     WHERE id = (
-       SELECT m.id FROM "MenuItem" m
-       JOIN "MenuCategory" c ON m."categoryId" = c.id
-       WHERE c."restaurantId" = (SELECT id FROM "Restaurant" WHERE slug = 'al-waha-cafe')
-       ORDER BY m.id LIMIT 1
-     )`,
+  const r = await client.query(
+    `SELECT m.id FROM "MenuItem" m
+     JOIN "MenuCategory" c ON m."categoryId" = c.id
+     WHERE c."restaurantId" = (SELECT id FROM "Restaurant" WHERE slug = 'al-waha-cafe')
+     ORDER BY m.id LIMIT 1`,
   );
+  if (!r.rows[0]) throw new Error("لا أصناف في al-waha-cafe — شغّل البذور");
+  const itemId = r.rows[0].id;
   await client.end();
+
+  const pair = await mintCsrfPair(request);
+  const res = await request.post(`http://localhost:3000/api/items/${itemId}/reviews`, {
+    headers: { "Content-Type": "application/json", ...csrfHeadersFor("http://localhost:3000", pair) },
+    data: { rating: 5, comment: `محاكاة r94 ${Date.now()}`, customerName: "زائر r94" },
+  });
+  // 201 (جديد) أو 200 — كلاهما نجاح؛ الفشل الحقيقي يفجّر الاختبار بصوت عالٍ
+  if (res.status() !== 201 && res.status() !== 200) {
+    throw new Error(`تعذر بذر التقييم عبر API: ${res.status()} ${await res.text()}`);
+  }
 });
 
 test.describe.serial("r94 محاكاة الواجهة — فاتح/طباعة/جوال/ARIA", () => {
