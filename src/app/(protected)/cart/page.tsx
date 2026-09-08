@@ -243,8 +243,11 @@ export default function CartPage() {
                 setIsSubmitting(false);
                 submittingRef.current = false;
                 setTimeout(() => {
+                        // r95-F1: تمرير سياق المطعم في مسار التأكيد — السلة تُفرّغ قبل فتح
+                        // حوار الإحالة فيفقد معرف المطعم فيرسل POST /api/loyalty بلا
+                        // restaurantId فيُرفض 400 «معرف المطعم مطلوب» (خلل r93-S1-A).
                         router.push(
-                                `/order-confirmed?orderNo=${encodeURIComponent(orderNo)}&wa=${encodeURIComponent(waNumber ?? '')}`
+                                `/order-confirmed?orderNo=${encodeURIComponent(orderNo)}&wa=${encodeURIComponent(waNumber ?? '')}&rid=${restaurantId || ''}&slug=${encodeURIComponent(restaurantSlug ?? '')}`
                         );
                 }, 1500);
         };

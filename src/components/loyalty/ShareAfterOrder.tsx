@@ -26,7 +26,8 @@ export function ShareAfterOrder({
         open,
         onOpenChange,
         restaurantSlug,
-}: ShareAfterOrderProps & { restaurantSlug?: string }) {
+        restaurantId,
+}: ShareAfterOrderProps & { restaurantSlug?: string; restaurantId?: number }) {
         const [step, setStep] = useState<'phone' | 'referral'>('phone');
         const [phone, setPhone] = useState('');
         const [loading, setLoading] = useState(false);
@@ -83,7 +84,9 @@ export function ShareAfterOrder({
                                 body: JSON.stringify({
                                         customerPhone: cleaned,
                                         customerName: '',
-                                        restaurantId: cartRestaurantId || undefined,
+                                        // r95-F1: الخاصية أولاً — السلة تُفرّغ قبل فتح هذا الحوار
+                                        // فيكون قيم المخزن صفراً دائماً (خلل 400 «معرف المطعم مطلوب»)
+                                        restaurantId: restaurantId ?? (cartRestaurantId || undefined),
                                 }),
                         });
                         const json = await res.json();
@@ -100,7 +103,7 @@ export function ShareAfterOrder({
                 } finally {
                         setLoading(false);
                 }
-        }, [phone, cartRestaurantId]);
+        }, [phone, cartRestaurantId, restaurantId]); // r95-F1: الخاصية الجديدة ضمن التبعيات
 
         // ─── Copy referral link ────────────────────────────────────────────
 

@@ -133,9 +133,10 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       await expect(bigOption).toHaveAttribute("aria-pressed", "true");
       await expect(groupFieldset.getByText(/المحدد 1/)).toBeVisible();
       // unit price + total both reflect the modifier (estimate mirrors server math)
-      // round89 coordinator fix: scope to the price span (text-primary) — the
-      // quantity stepper also uses text-xl tabular-nums (strict-mode 2-match).
-      await expect(sheet.locator("span.text-xl.text-primary.tabular-nums")).toContainText("27.0");
+      // round89 coordinator fix: scope to the price span — the quantity stepper
+      // also uses text-xl tabular-nums (strict-mode 2-match).
+      // r95: الحبر السعري أصبح text-accent-foreground (توأمة SmartBot) بدل text-primary.
+      await expect(sheet.locator("span.text-xl.text-accent-foreground.tabular-nums")).toContainText("27.0");
       await expect(sheet.locator("span.text-2xl.tabular-nums")).toContainText("27.0");
       await expect(sheet.getByText("شامل الخيارات +2.0 د.ل")).toBeVisible();
 

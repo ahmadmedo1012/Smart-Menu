@@ -286,36 +286,19 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await page.locator("#shareafter-phone").fill(CUSTOMER_PHONE);
     await page.getByRole("button", { name: "احصل على رابط الإحالة" }).click();
 
-    /* 🚨 r93-S1-A (عطل حقيقي موثّق — لا يُصلح في الـspec):
-     * clearCart() يصفّر restaurantId (store/cart.ts:186) قبل التحويل إلى
-     * /order-confirmed، فيقرأه ShareAfterOrder صفرًا ويرسل restaurantId:
-     * undefined، و/خادم الولاء لا يجد كوكي smart-menu-restaurant (لا أحد
-     * يكتبه في مسار إنتاجي — فقط /api/demo المحجوب في الإنتاج) → 400
-     * «معرف المطعم مطلوب» → التعذير «تعذر تفعيل برنامج الولاء» ولا يصل
-     * الزبون إلى رابط الإحالة أبدًا بعد الطلب. أُثبت بالمعاينة المباشرة:
-     * POST بلا معرف → 400، POST بمعرف 4 → 200 + referralCode.
-     * هذا التحقق يثبّت السلوك الحالي كاشفًا (ratchet): عند إصلاح العطل
-     * (إبقاء المعرف بعد الطلب أو تمرير slug) استبدل هذا الحكم بتحقق
-     * «رابط الإحالة الخاص بك» + ?ref= كما في التعليق بالأسفل. */
+    /* ✅ r95-F1 (إصلاح r93-S1-A الموعود): صفحة السلة تمرر rid+slug عبر رابط
+     * التأكيد، وShareAfterOrder يفضل الخاصية على المخزن المُفرَّغ، فيصل
+     * المعرف للخادم ويعود 200 + referralCode. أُستبدل حكم الكشف (400) بحكم
+     * النجاح كما وثّق التعليق الأصلي المضمن بالمواصفة. */
     await expect
       .poll(async () => loyaltyPostStatus, { timeout: 15000 })
-      .toBe(400);
-    /* r94: التقاط الجسم promise غير متزامن (r.text()) — تحت عمال متوازيين
-     * قد يُحل عقب انقلاب الحالة بلحظة، فقراءة sync واحدة تسبق الجسم الفارغ
-     * (أثبت السباق: الملف منفرداً 8/8 بينما المشروع الكامل فشل هنا فقط) —
-     * poll للجسم بنفس نمط الحالة يقتل السباق بلا تغيير التوكيد نفسه. */
-    await expect
-      .poll(async () => loyaltyPostBody, { timeout: 5000 })
-      .toContain("معرف المطعم مطلوب");
-    // الخطوة الثانية لا تصل — الحوار بقي على خطوة الهاتف (دليل العطل)
-    await expect(page.getByText("رابط الإحالة الخاص بك")).toBeHidden();
+      .toBe(200);
+    await expect(page.getByText("رابط الإحالة الخاص بك")).toBeVisible({ timeout: 10000 });
+    const linkText = await page.locator('[dir="ltr"]').filter({ hasText: /ref=/ }).first().textContent();
+    expect(linkText).toContain("/menu/");
+    expect(linkText).toMatch(/\?ref=[A-Za-z0-9]+/);
     await page.screenshot({ path: `${SHOTS}/sim-customer-10-loyalty-referral.png` });
 
-    /* عند إصلاح r93-S1-A يُستبدل الحكم أعلاه بـ:
-     *   await expect(page.getByText("رابط الإحالة الخاص بك")).toBeVisible(...);
-     *   const linkText = await page.locator('[dir="ltr"]').filter({ hasText: /ref=/ }).first().textContent();
-     *   expect(linkText).toContain("/menu/");
-     *   expect(linkText).toMatch(/\?ref=[A-Za-z0-9]+/); */
 
     // لا أخطاء JavaScript في الرحلة كلها (نمط persona-1)
     expect(pageErrors).toEqual([]);
