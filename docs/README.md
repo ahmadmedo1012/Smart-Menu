@@ -1,6 +1,6 @@
 # Smart-Menu — فهرس التوثيق (round96-W5)
 
-> **124 ملفًا** موزعة على مرجعية حية + أرشيف جولات منظّم (`docs/rounds/`).
+> **125 ملفًا** موزعة على مرجعية حية + أرشيف جولات منظّم (`docs/rounds/`).
 > هذا الفهرس هو نقطة الدخول: ابدأ من «المرجعية الحية» ثم `rounds/` حسب نوع
 > الوثيقة. كل ملف قبل الجولة 96 كان مبعثرًا في جذر `docs/` وجذر المستودع —
 > أُعيد تنظيمه هنا بـ`git mv` (التاريخ محفوظ بالكامل).
@@ -27,12 +27,12 @@
 | [`round90/`](round90/) | 7 | تشخيص الجولة 90 كاملًا (`diagnosis/`: cso-audit · health-devex · investigation · merged-triage · qa-live · review-backend · review-quality) — مذكور حرفيًا في `knip.config.ts` وworkflows |
 | [`reports/`](reports/) | 4 | تقارير مؤرخة 2026-08 (نشر/اختبار/UI) |
 
-## أرشيف الجولات — `rounds/` (109 ملفات)
+## أرشيف الجولات — `rounds/` (110 ملفات)
 
 | المجلد | الملفات | المحتوى | النطاق |
 |--------|---------|---------|--------|
 | [`rounds/plans/`](rounds/plans/) | 17 | خطط الجولات الرسمية | 66 · 79 · 80 · 83 · 85–96 · repair |
-| [`rounds/closures/`](rounds/closures/) | 12 | تقارير الإغلاق النهائية | 80 · 86–91 · 93–96 (94 بتقريرين: كامل + ملاحظات partial) |
+| [`rounds/closures/`](rounds/closures/) | 13 | تقارير الإغلاق النهائية | 80 · 86–91 · 93–97 (94 بتقريرين: كامل + ملاحظات partial) |
 | [`rounds/inspections/`](rounds/inspections/) | 12 | تقارير الفحص التشغيلي | 93 (a–f) · 94 (a–f) |
 | [`rounds/qa/`](rounds/qa/) | 14 | تقارير QA تاريخية + سجلات حرفية | جولات 4→41 + 2026-08-03 |
 | [`rounds/design/`](rounds/design/) | 7 | تدقيقات ومراجع التصميم | 20–27 · 79 (design-references ما زال مفيدًا) |
@@ -40,7 +40,8 @@
 
 ### أبرز ملفات الجولات الحديثة
 
-- [`rounds/plans/SMART-MENU-ROUND96-PLAN.md`](rounds/plans/SMART-MENU-ROUND96-PLAN.md) — خطة الجولة 96 (أحدث خطة — لا خطة موثقة للجولة 97 بعد)
+- [`rounds/plans/SMART-MENU-ROUND96-PLAN.md`](rounds/plans/SMART-MENU-ROUND96-PLAN.md) — خطة الجولة 96 (أحدث خطة موثقة؛ 97 عملت من تقارير التشخيص مباشرة)
+- [`rounds/closures/round97-closure-report.md`](rounds/closures/round97-closure-report.md) — إغلاق الجولة 97: أدق التفاصيل (SSR المنيو + إصلاح مالي + RCE + سباق team8)
 - [`rounds/closures/round96-closure-report.md`](rounds/closures/round96-closure-report.md) — إغلاق الجولة 96: منيو الديمو الواقعي + التوأمة الكاملة + تنظيم المستودع
 - [`rounds/closures/round95-closure-report.md`](rounds/closures/round95-closure-report.md) — إغلاق التوأمة البصرية (9/10)
 - [`rounds/closures/round94-closure-notes-partial.md`](rounds/closures/round94-closure-notes-partial.md) + `round94-closure-report.md` — القرارات المعلقة (MED-1)
