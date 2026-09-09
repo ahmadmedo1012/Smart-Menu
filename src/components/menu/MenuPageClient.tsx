@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { SearchX, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '@/store/cart';
@@ -43,13 +42,19 @@ export function foundItemsPhrase(count: number): string {
         return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
 }
 
-/* r97-W6 (منسّق الجولة): عزل قراءة معلمات URL في مكوّن صغير بحدّ Suspense
- * خاص به (fallback={null}). القراءة كانت في جذر MenuPageClient فتُضطرّ Next
- * إلى إسقاط الشجرة كلها إلى الـfallback أثناء التوليد الثابت (ISR) — فكان
- * الـHTML الخام يحمل «جاري تحميل المنيو...» بدل البطاقات والأسعار والصور،
- * ولا يراها زائر بلا JS ولا زاحف لا يشغّله. الآن الشبكة كلها تُخبز في
- * الـHTML، وهذا المكوّن يغذّي معلمات URL للحالة بعد الماء (رابط مباشر
- * ‎?cat=X يرشّح بعد إطار واحد — رابط QR بلا معلمات لا يومض أبدًا). */
+/* r97-W6 (منسّق الجولة): قراءة معلمات URL عبر window.location.search + popstate
+ * بدل useSearchParams. القراءة القديمة كانت في جذر MenuPageClient فتُضطرّ
+ * Next إلى إسقاط الشجرة كلها إلى الـfallback أثناء التوليد الثابت (ISR) — فكان
+ * الـHTML الخام يحمل «جاري تحميل المنيو...» بدل البطاقات والأسعار والصور.
+ * النسخة الأولى من الإصلاح (حدّ Suspense ضيق حول hook معلّق) كشفت سباق
+ * إعادة تعليق أثناء الماء في React 19 على Next 16.3 (شجرة قديمة مخفية
+ * + جديدة مرئية — strict-mode violation في team8) — وهو نفس السباق الذي
+ * حذّر منه تعليق round86 السابق. الإزالة الكاملة للـhook المعلّق تُنهيه:
+ * لا أي تعليق في شجرة العميل إطلاقًا، الـSSR كامل، والمعلمات تُطبّق
+ * بعد الماء بإطار واحد (رابط QR بلا معلمات لا يومض أبدًا).
+ * ملاحظة عقد: التنقل الداخلي عبر Link إلى نفس المسار بمعلمات جديدة لن
+ * يعيد تشغيل القراءة (المكوّن يُحفظ) — لا يوجد اليوم رابط داخلي يحمل
+ * معلمات إلى المنيو؛ إن أُضيف مستقبلًا فأضف مستمعًا لمسار الرواتر. */
 function UrlFilterSync({
         categories,
         onParams,
@@ -57,19 +62,24 @@ function UrlFilterSync({
         categories: CategoryProp[];
         onParams: (p: { q: string; cat: number | null; sort: SortValue }) => void;
 }) {
-        const searchParams = useSearchParams();
         useEffect(() => {
-                const q = searchParams.get('q') || '';
-                let cat: number | null = null;
-                const raw = searchParams.get('cat');
-                if (raw) {
-                        const n = Number(raw);
-                        if (!isNaN(n) && categories.some((c) => c.id === n)) cat = n;
-                }
-                const sortRaw = searchParams.get('sort');
-                const sort = isValidSort(sortRaw) ? sortRaw! : 'default';
-                onParams({ q, cat, sort });
-        }, [searchParams, categories, onParams]);
+                const read = () => {
+                        const p = new URLSearchParams(window.location.search);
+                        const q = p.get('q') || '';
+                        let cat: number | null = null;
+                        const raw = p.get('cat');
+                        if (raw) {
+                                const n = Number(raw);
+                                if (!isNaN(n) && categories.some((c) => c.id === n)) cat = n;
+                        }
+                        const sortRaw = p.get('sort');
+                        const sort = isValidSort(sortRaw) ? sortRaw! : 'default';
+                        onParams({ q, cat, sort });
+                };
+                read(); // التحميل الكامل/الأول: طبّق معلمات الرابط فور الماء
+                window.addEventListener('popstate', read); // رجوع/تقدم المتصفح
+                return () => window.removeEventListener('popstate', read);
+        }, [categories, onParams]);
         return null;
 }
 
@@ -272,12 +282,9 @@ export function MenuPageClient({
 
         return (
                 <>
-                        {/* r97-W6: الحدّ الضيق لمعلمات URL — fallback=null فلا
-                            يختفي شيء من الـHTML الثابت، مع بقاء حماية إعادة
-                            التعليق محليّة أثناء انتقالات React 19 */}
-                        <Suspense fallback={null}>
-                                <UrlFilterSync categories={categories} onParams={setUrlState} />
-                        </Suspense>
+                        {/* r97-W6: قارئ معلمات URL بلا أي تعليق — انظر تعليق
+                            UrlFilterSync أعلاه (لا حاجة لحدّ Suspense إطلاقًا) */}
+                        <UrlFilterSync categories={categories} onParams={setUrlState} />
 
                         {/* Stage H — cinematic featured showcase (addition only; the
                                 full grid below stays untouched). Renders nothing when no
