@@ -233,7 +233,7 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 130 unit (1903 حالة — قياس r96) + 41 e2e/security (team1-11 · 479 فحصًا)
+└── tests/                  ← 131 unit (1908 حالة — قياس r97) + 42 e2e/security (team1-11 · 484 فحصًا)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
     ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security
@@ -345,10 +345,10 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `sharp@0.35.3` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (1903 unit + e2e متعددة المشاريع في CI)
+## Tests (1908 unit + e2e متعددة المشاريع في CI)
 
 ```
-✓ unit/ (130 ملف، 1903 حالة — قياس r96) — auth, core, csrf, rate-limit, loyalty-subscription,
+✓ unit/ (131 ملف، 1908 حالة — قياس r97) — auth, core, csrf, rate-limit, loyalty-subscription,
                               receipt-whatsapp-format, regression (محوّلة لاستيراد الإنتاج الحقيقي r92),
                               r92-* (register/claim/webhook/categories/owner/admins/reviews/cleanup)
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
@@ -429,4 +429,4 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 - **أيقونات SVG**: أقراص dietary و CategoryTabs بـ lucide بدل الإيموجي + تأديم `owner/loyalty` الداكن (W4b)
 - **استكمال التوأمة البصرية**: 53/53 رمزًا + keyframe `upload-fly` + توهج `background-radial` (W4a — وفق تدقيق r96-A1/A2)
 - **تنظيم المستودع (W5)**: جذر نظيف (README/CLAUDE/PROJECT فقط) + `docs/rounds/{plans,closures,inspections,qa,design,history}` + `scripts/archive/` — قاعدة موثقة: «الأرشيف سجل قرارات — يُنقل ولا يُحذف»
-- قياس الجودة r96: 1903 اختبار وحدة / 130 ملف · 479 فحص e2e / 41 ملف · 24 هجرة قابلة لإعادة التشغيل
+- قياس الجودة r97: 1908 اختبارات وحدة / 131 ملفًا · 484 فحص e2e / 42 ملفًا · 24 هجرة قابلة لإعادة التشغيل

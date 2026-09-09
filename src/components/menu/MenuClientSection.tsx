@@ -1,10 +1,13 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-// r97-X1: DefaultLoading المشترك بدل نص «جاري تحميل المنيو...» الأجرد — نفس
-// مؤشر التحميل المستخدم في كل حدود loading.tsx الأخرى.
-import { DefaultLoading } from '@/components/shared/DefaultLoading';
+// r97-W6c: استيراد ثابت بدل dynamic(ssr:true). الحدود البثية لـnext/dynamic
+// (محتوى مخفي في S:1 + $RC reveal) كانت تتسابق مع رندر React للعميل بعد
+// الماء — على أجهزة أبطأ يفوز رندر العميل فلا يُعتمَد المحتوى المبثّ وتبقى
+// نسخة مخفية + نسخة مرئية (بطاقتا عرض مميز — team8 في CI). مكوّنات المنيو
+// مطلوبة فورًا في هذه الصفحة أصلًا فلا مكسب من التحميل الكسول — بل جولة
+// شبكة أقل وSSR مباشر داخل صدفة الصفحة بلا حدود بث إطلاقًا.
+import { MenuPageClient } from './MenuPageClient';
 // w3-f1: the public menu payload now carries modifier groups (available options
 // only — filtered server-side in menu/[slug]/page.tsx). Shared type with the
 // pure selection logic so OrderDialog/MenuItemCard speak the same shape.
@@ -18,13 +21,6 @@ import type { ModifierGroupProp } from './menu-types';
 const StickyMenuHeader = dynamic(
     () => import('./StickyMenuHeader').then((m) => ({ default: m.StickyMenuHeader })),
     { ssr: false }
-);
-const MenuPageClient = dynamic(
-    () => import('./MenuPageClient').then((m) => ({ default: m.MenuPageClient })),
-    // ponytail: SSR enabled — menu content renders server-side with the page (faster
-    // first paint, no blank-until-hydrate). The component handles useSearchParams via
-    // its own Suspense boundary, so server rendering is safe.
-    { ssr: true }
 );
 const LoyaltyWidget = dynamic(
     () => import('../loyalty/LoyaltyWidget').then((m) => ({ default: m.LoyaltyWidget })),
@@ -88,16 +84,18 @@ export function MenuClientSection(props: {
             <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
             <div className="max-w-4xl mx-auto px-4 relative z-10">
-                <Suspense fallback={<DefaultLoading />}>
-                    <MenuPageClient
-                        categories={categories}
-                        items={serializedItems}
-                        restaurantWhatsapp={restaurant.whatsapp ?? undefined}
-                        restaurantName={restaurant.name}
-                        restaurantId={restaurant.id}
-                        restaurantLogo={restaurant.logo}
-                    />
-                </Suspense>
+                {/* r97-W6c: زال حدّ الـSuspense — لم يعد شيء يعلّق: useSearchParams
+                    أزيلت (W6b) وdynamic(ssr:true) صار استيرادًا ثابتًا. الحد البثي
+                    هو نفسه كان مصدر سباق النسختين في CI. loading.tsx للمسار
+                    يغطي الانتقالات من خارج الصفحة. */}
+                <MenuPageClient
+                    categories={categories}
+                    items={serializedItems}
+                    restaurantWhatsapp={restaurant.whatsapp ?? undefined}
+                    restaurantName={restaurant.name}
+                    restaurantId={restaurant.id}
+                    restaurantLogo={restaurant.logo}
+                />
             </div>
 
             <LoyaltyWidget
