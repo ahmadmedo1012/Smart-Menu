@@ -1,6 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 // r97-W6c: استيراد ثابت بدل dynamic(ssr:true). الحدود البثية لـnext/dynamic
 // (محتوى مخفي في S:1 + $RC reveal) كانت تتسابق مع رندر React للعميل بعد
 // الماء — على أجهزة أبطأ يفوز رندر العميل فلا يُعتمَد المحتوى المبثّ وتبقى
@@ -8,24 +8,18 @@ import dynamic from 'next/dynamic';
 // مطلوبة فورًا في هذه الصفحة أصلًا فلا مكسب من التحميل الكسول — بل جولة
 // شبكة أقل وSSR مباشر داخل صدفة الصفحة بلا حدود بث إطلاقًا.
 import { MenuPageClient } from './MenuPageClient';
+// r97-W6d: StickyMenuHeader و LoyaltyWidget كانا dynamic(ssr:false) — قوالب
+// BAILOUT_TO_CLIENT_SIDE_RENDERING التي تتركها next/dynamic بجوار محتوى
+// المنيو المُخبز أصبحت المشتبه الرئيسي المتبقي في سباق النسخة المخفية
+// ببطء CI. حارس التركيب (mounted) يعطي نفس السلوك العميلي-فقط بلا أي
+// قوالب انسحاب أو حدود بث — والرأس اللاصق مطلوب فورًا أصلًا فلا معنى
+// لكسل تحميله.
+import { StickyMenuHeader } from './StickyMenuHeader';
+import { LoyaltyWidget } from '../loyalty/LoyaltyWidget';
 // w3-f1: the public menu payload now carries modifier groups (available options
 // only — filtered server-side in menu/[slug]/page.tsx). Shared type with the
 // pure selection logic so OrderDialog/MenuItemCard speak the same shape.
 import type { ModifierGroupProp } from './menu-types';
-
-/**
- * round86-B6: the hero markup moved to the server component MenuHero.tsx —
- * this client section now only mounts the interactive islands below it
- * (sticky header, the menu itself, loyalty widget).
- */
-const StickyMenuHeader = dynamic(
-    () => import('./StickyMenuHeader').then((m) => ({ default: m.StickyMenuHeader })),
-    { ssr: false }
-);
-const LoyaltyWidget = dynamic(
-    () => import('../loyalty/LoyaltyWidget').then((m) => ({ default: m.LoyaltyWidget })),
-    { ssr: false }
-);
 
 type Restaurant = {
     name: string;
@@ -79,9 +73,14 @@ export function MenuClientSection(props: {
 }) {
     const { restaurant, categories, serializedItems } = props;
 
+    /* r97-W6d: العميل فقط للرأس اللاصق وودجت الولاء (كانا dynamic ssr:false) —
+            نفس دلالات «لا SSR» لكن عبر حارس تركيب واحد بلا قوالب BAILOUT. */
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
     return (
         <>
-            <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
+            {mounted && <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />}
 
             <div className="max-w-4xl mx-auto px-4 relative z-10">
                 {/* r97-W6c: زال حدّ الـSuspense — لم يعد شيء يعلّق: useSearchParams
@@ -98,12 +97,14 @@ export function MenuClientSection(props: {
                 />
             </div>
 
-            <LoyaltyWidget
-                restaurantId={restaurant.id}
-                restaurantName={restaurant.name}
-                whatsapp={restaurant.whatsapp ?? undefined}
-                restaurantSlug={restaurant.slug}
-            />
+            {mounted && (
+                <LoyaltyWidget
+                    restaurantId={restaurant.id}
+                    restaurantName={restaurant.name}
+                    whatsapp={restaurant.whatsapp ?? undefined}
+                    restaurantSlug={restaurant.slug}
+                />
+            )}
         </>
     );
 }

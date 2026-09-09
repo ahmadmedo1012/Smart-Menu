@@ -139,9 +139,67 @@ function sceneName(page: Page): Locator {
  */
 async function gotoMenuExpectScene(page: Page, nameAr: string): Promise<void> {
   await page.goto(MENU, { waitUntil: "domcontentloaded", timeout: 40_000 });
-  await expect(
-    page.locator('section[aria-labelledby="featured-showcase-heading"]')
-  ).toBeVisible({ timeout: 20_000 });
+  /* r97 (W6e — تشخيص نهائي): بعد domcontentloaded قد تتعايش مؤقتًا نسخة
+     خادم مخفية (حاوية بث S:0 قبل $RC أو أثناء استعادة React لعدم تطابق
+     الماء) مع نسخة العميل — نافذة <~200ms تُحل ذاتيًا (أثبتته أدوات
+     متعددة: querySelectorAll أثناء «انتهاك الصرامة» يرى نسخة واحدة،
+     شجرة a11y نظيفة، HTML المُقدَّم نظيف، DOM بعد الاستقرار نظيف).
+     أجهزة CI الأبطأ توسّع النافذة فيصطدم بها الـstrict locator — ننتظر
+     الاستقرار (نسخة واحدة) قبل التوكيد الصارم؛ الـtoBeVisible بعدها لا
+     يرى إلا الشجرة النهائية. */
+  await page
+    .waitForFunction(
+      () =>
+        document.querySelectorAll(
+          'section[aria-labelledby="featured-showcase-heading"]'
+        ).length === 1,
+      undefined,
+      { timeout: 15_000, polling: 120 }
+    )
+    .catch(() => {});
+  // r97 diagnostic: عند «بطاقتان — واحدة مخفية» نُفِش سلسلة أسلاف كل نسخة
+  // في سجل الفشل — يكشف مصدر النسخة الخفية إن عاد السباق بصورة جديدة.
+  try {
+    await expect(
+      page.locator('section[aria-labelledby="featured-showcase-heading"]')
+    ).toBeVisible({ timeout: 20_000 });
+  } catch (e) {
+    const dupes = await page
+      .evaluate(() =>
+        Array.from(
+          document.querySelectorAll(
+            'section[aria-labelledby="featured-showcase-heading"]'
+          )
+        ).map((el) => {
+          const chain: string[] = [];
+          let cur = el.parentElement;
+          for (let i = 0; cur && i < 7; i++, cur = cur.parentElement) {
+            chain.push(
+              `${cur.tagName.toLowerCase()}#${cur.id || "-"}${(cur.className || "")
+                .toString()
+                .split(" ")
+                .slice(0, 3)
+                .join(".")}`
+            );
+          }
+          const cs = getComputedStyle(el);
+          return {
+            hiddenAttr: el.hidden,
+            visibility: cs.visibility,
+            display: cs.display,
+            box: `${el.offsetWidth}x${el.offsetHeight}`,
+            ancestorChain: chain,
+            html: el.outerHTML.slice(0, 120),
+          };
+        })
+      )
+      .catch(() => null);
+    console.error(
+      `DIAGNOSTIC duplicate-sections (${dupes?.length ?? "?"} found):`,
+      JSON.stringify(dupes, null, 1)
+    );
+    throw e;
+  }
   await expect
     .poll(
       async () => {
