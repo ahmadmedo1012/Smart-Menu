@@ -36,7 +36,7 @@ import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import { MotionChevronLeft, MotionChevronRight } from '@/components/ui/motion-icons';
 import SparklesIcon from '@/components/ui/sparkles-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
-import { toArabicNumber } from '@/lib/format';
+import { formatPrice, toArabicNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export type FeaturedItem = {
@@ -280,18 +280,20 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                 </p>
                                                         )}
                                                         <div className="mt-4 flex items-baseline justify-center gap-2">
+                                                                {/* r97-X1: formatPrice (decimals:1) — نفس تكوين بطاقات الشبكة
+                                                                   (كان toArabicNumber بلا كسور: «٣ د.ل» بدل «٣.٠ د.ل»). */}
                                                                 {discounted != null ? (
                                                                         <>
-                                                                                <span className="text-2xl font-bold text-success md:text-3xl">
-                                                                                        {toArabicNumber(discounted)} د.ل
+                                                                                <span className="text-2xl font-bold text-success tabular-nums md:text-3xl">
+                                                                                        {formatPrice(discounted, { decimals: 1 })}
                                                                                 </span>
-                                                                                <span className="text-sm text-foreground/60 line-through md:text-base">
-                                                                                        {toArabicNumber(current.price)} د.ل
+                                                                                <span className="text-sm text-foreground/60 line-through tabular-nums md:text-base">
+                                                                                        {formatPrice(current.price, { decimals: 1 })}
                                                                                 </span>
                                                                         </>
                                                                 ) : (
-                                                                        <span className="text-2xl font-bold text-[var(--scene-accent)] md:text-3xl">
-                                                                                {toArabicNumber(current.price)} د.ل
+                                                                        <span className="text-2xl font-bold text-[var(--scene-accent)] tabular-nums md:text-3xl">
+                                                                                {formatPrice(current.price, { decimals: 1 })}
                                                                         </span>
                                                                 )}
                                                         </div>

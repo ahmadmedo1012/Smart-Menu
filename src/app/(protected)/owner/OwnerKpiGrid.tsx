@@ -76,9 +76,9 @@ export function OwnerKpiGrid({ stats, isLoading = false, error = null, onRetry }
         iconColor="text-success" iconBg="bg-success/10" href="/owner/orders" animated />
       <KpiCard index={2} label="قيد الانتظار" value={pendingOrders} icon={Clock}
         subtitle={stats ? `${toArabicNumber(stats.statusBreakdown["new"] ?? 0)} جديد • ${toArabicNumber(stats.statusBreakdown["preparing"] ?? 0)} تحضير` : ""}
-        iconColor="text-flame dark:text-saffron" iconBg="bg-orange-muted dark:bg-orange-muted" href="/owner/orders" animated />
+        iconColor="text-flame dark:text-saffron" iconBg="bg-orange-muted" href="/owner/orders" animated />
       <KpiCard index={3} label="الأصناف" value={stats?.totalItems ?? 0} icon={ClipboardList}
-        iconColor="text-ember" iconBg="bg-orange-muted dark:bg-orange-muted" href="/owner/menu" animated />
+        iconColor="text-ember" iconBg="bg-orange-muted" href="/owner/menu" animated />
     </div>
   )
 }

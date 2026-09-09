@@ -11,251 +11,251 @@ import AnimatedEyeOff from '@/components/ui/eye-off-icon';
 import AnimatedEye from '@/components/ui/eye-icon';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogDescription,
-	DialogFooter,
+        Dialog,
+        DialogContent,
+        DialogHeader,
+        DialogTitle,
+        DialogDescription,
+        DialogFooter,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { csrfJson } from '@/lib/csrf-client';
 import { getErrorMessage } from '@/lib/get-error-message';
 
 interface ConfigItem {
-	id: number;
-	key: string;
-	value: unknown;
-	category: string;
-	isSecret: boolean;
-	description: string;
-	updatedAt: string;
+        id: number;
+        key: string;
+        value: unknown;
+        category: string;
+        isSecret: boolean;
+        description: string;
+        updatedAt: string;
 }
 
 const CATEGORIES = [
-	'general',
-	'features',
-	'limits',
-	'payments',
-	'notifications',
-	'balance',
-	'payment_config',
-	'fees',
+        'general',
+        'features',
+        'limits',
+        'payments',
+        'notifications',
+        'balance',
+        'payment_config',
+        'fees',
 ];
 
 const CATEGORY_LABELS: Record<string, string> = {
-	general: 'عام',
-	features: 'الميزات',
-	limits: 'الحدود',
-	payments: 'المدفوعات',
-	notifications: 'الإشعارات',
-	balance: 'أرقام التحويل',
-	payment_config: 'إعدادات الدفع',
-	fees: 'الرسوم',
+        general: 'عام',
+        features: 'الميزات',
+        limits: 'الحدود',
+        payments: 'المدفوعات',
+        notifications: 'الإشعارات',
+        balance: 'أرقام التحويل',
+        payment_config: 'إعدادات الدفع',
+        fees: 'الرسوم',
 };
 
 export function ConfigEditor() {
-	const [configs, setConfigs] = useState<ConfigItem[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [activeCategory, setActiveCategory] = useState('general');
-	const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
-	const [editing, setEditing] = useState<Record<string, unknown>>({});
-	const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+        const [configs, setConfigs] = useState<ConfigItem[]>([]);
+        const [loading, setLoading] = useState(true);
+        const [activeCategory, setActiveCategory] = useState('general');
+        const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
+        const [editing, setEditing] = useState<Record<string, unknown>>({});
+        const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-	useEffect(() => {
-		const controller = new AbortController();
-		loadConfig(controller.signal);
-		return () => controller.abort();
-	}, []);
+        useEffect(() => {
+                const controller = new AbortController();
+                loadConfig(controller.signal);
+                return () => controller.abort();
+        }, []);
 
-	async function loadConfig(signal?: AbortSignal) {
-		try {
-			const res = await fetch('/api/admin/config', signal ? { signal } : undefined);
-			const json = await res.json();
-			if (json.success) setConfigs(json.data);
-		} catch (error) {
-			if (error instanceof DOMException && error.name === 'AbortError') return;
-			premiumToast('error', 'فشل تحميل الإعدادات');
-		} finally {
-			setLoading(false);
-		}
-	}
+        async function loadConfig(signal?: AbortSignal) {
+                try {
+                        const res = await fetch('/api/admin/config', signal ? { signal } : undefined);
+                        const json = await res.json();
+                        if (json.success) setConfigs(json.data);
+                } catch (error) {
+                        if (error instanceof DOMException && error.name === 'AbortError') return;
+                        premiumToast('error', 'فشل تحميل الإعدادات');
+                } finally {
+                        setLoading(false);
+                }
+        }
 
-	const filtered = configs.filter((c) => c.category === activeCategory);
+        const filtered = configs.filter((c) => c.category === activeCategory);
 
-	const saveConfig = async (item: ConfigItem) => {
-		try {
-			// round87-C3: csrfJson throws with the server's Arabic message on rejection
-			await csrfJson('/api/admin/config', {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					key: item.key,
-					value: editing[item.key] ?? item.value,
-					category: item.category,
-					isSecret: item.isSecret,
-					description: item.description,
-				}),
-			});
-			premiumToast('save', 'تم الحفظ');
-			loadConfig();
-		} catch (e) {
-			premiumToast('error', getErrorMessage(e, 'فشل الحفظ'));
-		}
-	};
+        const saveConfig = async (item: ConfigItem) => {
+                try {
+                        // round87-C3: csrfJson throws with the server's Arabic message on rejection
+                        await csrfJson('/api/admin/config', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                        key: item.key,
+                                        value: editing[item.key] ?? item.value,
+                                        category: item.category,
+                                        isSecret: item.isSecret,
+                                        description: item.description,
+                                }),
+                        });
+                        premiumToast('save', 'تم الحفظ');
+                        loadConfig();
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'فشل الحفظ'));
+                }
+        };
 
-	const deleteConfig = async (key: string) => {
-		try {
-			await csrfJson(`/api/admin/config?key=${encodeURIComponent(key)}`, {
-				method: 'DELETE',
-			});
-			premiumToast('trash', 'تم الحذف');
-			setDeleteTarget(null);
-			loadConfig();
-		} catch (e) {
-			premiumToast('error', getErrorMessage(e, 'فشل الحذف'));
-		}
-	};
+        const deleteConfig = async (key: string) => {
+                try {
+                        await csrfJson(`/api/admin/config?key=${encodeURIComponent(key)}`, {
+                                method: 'DELETE',
+                        });
+                        premiumToast('trash', 'تم الحذف');
+                        setDeleteTarget(null);
+                        loadConfig();
+                } catch (e) {
+                        premiumToast('error', getErrorMessage(e, 'فشل الحذف'));
+                }
+        };
 
-	if (loading) return <div className="h-32 rounded-md bg-muted/50 animate-breath" />;
+        if (loading) return <div className="h-32 rounded-md bg-muted/50 animate-breath" />;
 
-	return (
-		<div className="space-y-4">
-			{/* Category tabs */}
-			<div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-				{CATEGORIES.map((cat) => (
-					<button
-						key={cat}
-						type="button"
-						onClick={() => setActiveCategory(cat)}
-						className={cn(
-							'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] ',
-							activeCategory === cat
-								? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
-								: 'border-border/30 hover:border-orange/20'
-						)}
-					>
-						{CATEGORY_LABELS[cat] || cat}
-						<Badge variant="outline" className="ms-2 text-[10px] px-1.5">
-							{configs.filter((c) => c.category === cat).length}
-						</Badge>
-					</button>
-				))}
-			</div>
+        return (
+                <div className="space-y-4">
+                        {/* Category tabs */}
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                                {CATEGORIES.map((cat) => (
+                                        <button
+                                                key={cat}
+                                                type="button"
+                                                onClick={() => setActiveCategory(cat)}
+                                                className={cn(
+                                                        'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                        activeCategory === cat
+                                                                ? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
+                                                                : 'border-border/30 hover:border-orange/20'
+                                                )}
+                                        >
+                                                {CATEGORY_LABELS[cat] || cat}
+                                                <Badge variant="outline" className="ms-2 text-[10px] px-1.5">
+                                                        {configs.filter((c) => c.category === cat).length}
+                                                </Badge>
+                                        </button>
+                                ))}
+                        </div>
 
-			{/* Config items */}
-			{filtered.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
-					<Settings className="size-10 text-muted-foreground/50" />
-					<p className="text-sm">لا توجد إعدادات في هذا القسم</p>
-				</div>
-			) : (
-				<div className="space-y-2">
-					{filtered.map((item) => (
-						<div key={item.id} className="rounded-md bg-card/50 border border-border/30 p-4">
-							<div className="flex items-start justify-between gap-4">
-								<div className="flex-1 min-w-0">
-									<div className="flex items-center gap-2">
-										<code className="text-sm font-mono font-bold">{item.key}</code>
-										{item.isSecret && (
-											<Badge
-												variant="outline"
-												className="text-[10px] px-1.5 text-orange border-orange/30"
-											>
-												سري
-											</Badge>
-										)}
-									</div>
-									{item.description && (
-										<p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-									)}
-								</div>
-								<div className="flex items-center gap-1 shrink-0">
-									<Button
-										variant="ghost"
-										size="icon"
-										className="size-8"
-										onClick={() => saveConfig(item)}
-									>
-										<AnimatedSave className="size-3.5" />
-									</Button>
-									<Button
-										variant="ghost"
-										size="icon"
-										className="size-8 text-destructive"
-										onClick={() => setDeleteTarget(item.key)}
-									>
-										<AnimatedTrash className="size-3.5" />
-									</Button>
-								</div>
-							</div>
+                        {/* Config items */}
+                        {filtered.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
+                                        <Settings className="size-10 text-muted-foreground/50" />
+                                        <p className="text-sm">لا توجد إعدادات في هذا القسم</p>
+                                </div>
+                        ) : (
+                                <div className="space-y-2">
+                                        {filtered.map((item) => (
+                                                <div key={item.id} className="rounded-md bg-card/50 border border-border/30 p-4">
+                                                        <div className="flex items-start justify-between gap-4">
+                                                                <div className="flex-1 min-w-0">
+                                                                        <div className="flex items-center gap-2">
+                                                                                <code className="text-sm font-mono font-bold">{item.key}</code>
+                                                                                {item.isSecret && (
+                                                                                        <Badge
+                                                                                                variant="outline"
+                                                                                                className="text-[10px] px-1.5 text-orange border-orange/30"
+                                                                                        >
+                                                                                                سري
+                                                                                        </Badge>
+                                                                                )}
+                                                                        </div>
+                                                                        {item.description && (
+                                                                                <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+                                                                        )}
+                                                                </div>
+                                                                <div className="flex items-center gap-1 shrink-0">
+                                                                        <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="size-8"
+                                                                                onClick={() => saveConfig(item)}
+                                                                        >
+                                                                                <AnimatedSave className="size-3.5" />
+                                                                        </Button>
+                                                                        <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="size-8 text-destructive"
+                                                                                onClick={() => setDeleteTarget(item.key)}
+                                                                        >
+                                                                                <AnimatedTrash className="size-3.5" />
+                                                                        </Button>
+                                                                </div>
+                                                        </div>
 
-							<div className="mt-3">
-								<div className="relative">
-									<Input
-										type={item.isSecret && !showSecrets[item.key] ? 'password' : 'text'}
-										value={String(
-											editing[item.key] ??
-												(typeof item.value === 'string'
-													? item.value
-													: JSON.stringify(item.value)) ??
-												''
-										)}
-										onChange={(e) =>
-											setEditing((prev) => ({ ...prev, [item.key]: e.target.value }))
-										}
-										className={cn('h-10 rounded-xl font-mono text-sm', item.isSecret && 'ps-10')}
-										dir="ltr"
-									/>
-									{item.isSecret && (
-										<button
-											type="button"
-											onClick={() =>
-												setShowSecrets((prev) => ({ ...prev, [item.key]: !prev[item.key] }))
-											}
-											className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-										>
-											{showSecrets[item.key] ? (
-												<AnimatedEyeOff className="size-4" />
-											) : (
-												<AnimatedEye className="size-4" />
-											)}
-										</button>
-									)}
-								</div>
-							</div>
-						</div>
-					))}
-				</div>
-			)}
+                                                        <div className="mt-3">
+                                                                <div className="relative">
+                                                                        <Input
+                                                                                type={item.isSecret && !showSecrets[item.key] ? 'password' : 'text'}
+                                                                                value={String(
+                                                                                        editing[item.key] ??
+                                                                                                (typeof item.value === 'string'
+                                                                                                        ? item.value
+                                                                                                        : JSON.stringify(item.value)) ??
+                                                                                                ''
+                                                                                )}
+                                                                                onChange={(e) =>
+                                                                                        setEditing((prev) => ({ ...prev, [item.key]: e.target.value }))
+                                                                                }
+                                                                                className={cn('h-10 rounded-xl font-mono text-sm', item.isSecret && 'ps-10')}
+                                                                                dir="ltr"
+                                                                        />
+                                                                        {item.isSecret && (
+                                                                                <button
+                                                                                        type="button"
+                                                                                        onClick={() =>
+                                                                                                setShowSecrets((prev) => ({ ...prev, [item.key]: !prev[item.key] }))
+                                                                                        }
+                                                                                        className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                >
+                                                                                        {showSecrets[item.key] ? (
+                                                                                                <AnimatedEyeOff className="size-4" />
+                                                                                        ) : (
+                                                                                                <AnimatedEye className="size-4" />
+                                                                                        )}
+                                                                                </button>
+                                                                        )}
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        ))}
+                                </div>
+                        )}
 
-			<Dialog
-				open={deleteTarget !== null}
-				onOpenChange={(o) => {
-					if (!o) setDeleteTarget(null);
-				}}
-			>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>تأكيد الحذف</DialogTitle>
-						<DialogDescription>
-							هل أنت متأكد من حذف الإعداد <strong>{deleteTarget}</strong>؟ هذا الإجراء لا يمكن
-							التراجع عنه.
-						</DialogDescription>
-					</DialogHeader>
-					<DialogFooter>
-						<Button variant="outline" onClick={() => setDeleteTarget(null)}>
-							إلغاء
-						</Button>
-						<Button
-							variant="destructive"
-							onClick={() => deleteTarget && deleteConfig(deleteTarget)}
-						>
-							حذف
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-		</div>
-	);
+                        <Dialog
+                                open={deleteTarget !== null}
+                                onOpenChange={(o) => {
+                                        if (!o) setDeleteTarget(null);
+                                }}
+                        >
+                                <DialogContent>
+                                        <DialogHeader>
+                                                <DialogTitle>تأكيد الحذف</DialogTitle>
+                                                <DialogDescription>
+                                                        هل أنت متأكد من حذف الإعداد <strong>{deleteTarget}</strong>؟ هذا الإجراء لا يمكن
+                                                        التراجع عنه.
+                                                </DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter>
+                                                <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+                                                        إلغاء
+                                                </Button>
+                                                <Button
+                                                        variant="destructive"
+                                                        onClick={() => deleteTarget && deleteConfig(deleteTarget)}
+                                                >
+                                                        حذف
+                                                </Button>
+                                        </DialogFooter>
+                                </DialogContent>
+                        </Dialog>
+                </div>
+        );
 }

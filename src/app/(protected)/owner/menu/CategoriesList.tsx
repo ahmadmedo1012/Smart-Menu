@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Pencil, Package, GripVertical } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
@@ -82,7 +83,9 @@ export function CategoriesList({
                                                                                 return <I className="size-6 text-primary" />;
                                                                         })()
                                                                 ) : (
-                                                                        <span className="text-2xl">{cat.icon || '📦'}</span>
+                                                                        // r97-X2 [7]: lucide fallback replaces the raw emoji —
+                                                                        // unmapped/legacy icon strings render as a proper icon.
+                                                                        <Package className="size-6 text-muted-foreground" />
                                                                 )}
                                                                 <div>
                                                                         <span className="font-bold">{cat.name}</span>
@@ -155,11 +158,12 @@ export function CategoriesList({
                                                                                         >
                                                                                                 <GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100" />
                                                                                                 {item.image ? (
-                                                                <img
+                                                                                                        <OptimizedImage
                                                                                                                 src={item.image}
                                                                                                                 alt={item.name}
-                                                                                                                loading="lazy"
-                                                                                                                className="size-10 rounded-md object-cover shrink-0 border border-border/30"
+                                                                                                                className="size-10 rounded-md border border-border/30 shrink-0"
+                                                                                                                sizes="40px"
+                                                                                                                skeleton={false}
                                                                                                         />
                                                                                                 ) : (
                                                                                                         <div className="size-10 rounded-md bg-muted/30 flex items-center justify-center shrink-0">

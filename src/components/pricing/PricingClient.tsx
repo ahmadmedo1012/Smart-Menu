@@ -49,7 +49,7 @@ const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: s
         Enterprise: {
                 icon: Building2,
                 badge: 'للشركات الكبرى',
-                badgeColor: 'bg-gradient-to-r from-primary to-bloom text-primary-foreground dark:text-primary-foreground',
+                badgeColor: 'bg-gradient-to-r from-primary to-bloom text-primary-foreground',
         },
 };
 const DEFAULT_META = PLAN_META.Free;
@@ -405,7 +405,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         <Link href="/subscribe">
                                                                 <Button variant="flame" size="lg">ابدأ مجاناً</Button>
                                                         </Link>
-                                                        <Link href="/menu/al-waha-cafe">
+                                                        <Link href="/menu/al-waha-cafe-demo">
                                                                 <Button size="lg" variant="outline">
                                                                         شاهد منيو تجريبي
                                                                 </Button>

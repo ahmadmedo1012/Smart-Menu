@@ -1,6 +1,6 @@
 # Smart Menu — Project Reference
 
-> آخر تحديث: 9 سبتمبر 2026 (جولة 96 — W5: سجل الجولات + مزامنة أرقام مقيسة؛ سابقًا جولة 92 — الوكيل 4-a: بنية وتوثيق)
+> آخر تحديث: الجولة 97 (r97-X5: مزامنة الأرقام المقيسة — عتبات التغطية، React، إحصاءات الملفات — + إضافة قائمة السكربتات الحية أدناه؛ سابقًا 9 سبتمبر 2026 جولة 96 — W5: سجل الجولات + تنظيم المستودع؛ سابقًا جولة 92 — الوكيل 4-a: بنية وتوثيق)
 
 ---
 
@@ -203,7 +203,7 @@ src/
 │   ├── loyalty/            ← LoyaltyWidget, LoyaltySettings, ReferralCard, ShareAfterOrder
 │   └── ui/                 ← shadcn/ui base-nova: button, card, dialog, sheet, select, table...
 │
-├── lib/                    ← ~43 ملف مكتبة (round85: +menu-cache، +secure-compare، +get-error-message، +dietary)
+├── lib/                    ← 58 ملف مكتبة (قياس r97: `ls src/lib | wc -l` — يشمل modifier-schema الجديد؛ round85: +menu-cache، +secure-compare، +get-error-message، +dietary)
 │   ├── auth.ts             ← requireAuth, requireAdmin, requirePermission
 │   ├── session.ts          ← التحقق من الجلسة
 │   ├── db.ts               ← Prisma client + Decimal toNumber + withRetry (SQLSTATE codes)
@@ -233,7 +233,7 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 130 unit (1903 حالة — قياس r96) + 43 e2e/security (team1-11 · 479 فحصًا)
+└── tests/                  ← 130 unit (1903 حالة — قياس r96) + 41 e2e/security (team1-11 · 479 فحصًا)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
     ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
     └── security/           ← webhook-security
@@ -334,7 +334,7 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | المكتبة | الاستخدام |
 |---------|-----------|
 | `next@16.2.12` | الإطار الرئيسي (App Router) |
-| `react@19.2.4` | واجهة المستخدم |
+| `react@19.2.8` | واجهة المستخدم |
 | `prisma@7.8` | ORM مع PostgreSQL (pg adapter + pool tuned) |
 | `zustand` | إدارة حالة السلة مع persist |
 | `motion@12` | حركات CSS (enter/exit، scroll) |
@@ -353,8 +353,48 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
                               r92-* (register/claim/webhook/categories/owner/admins/reviews/cleanup)
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
 ✓ qa-teams (production)    — prod-qa (team1/2/5/6/9) تعمل ضد الإنتاج (continue-on-error)
-✓ coverage gate            — ratchet (round89-D2): 59/54/60/61 — تُرفع فقط ولا تُخفض
+✓ coverage gate            — ratchet (round92-D-ratchet): 80/74/75/83 — تُرفع فقط ولا تُخفض
 ```
+
+## Live Scripts (أدوات `scripts/` الحية — 23 ملفًا، قياس r97-X5)
+
+> سكربتات الجولات لمرة واحدة تُنقل إلى `scripts/archive/` بعد إغلاق الجولة (قاعدة W5)؛
+> ما يلي هو المخزون الحي فقط (الأغراض مأخوذة من تعليقات رأس كل سكربت):
+
+| السكربت | الغرض (سطر واحد) | موصول عبر |
+|---------|------------------|-----------|
+| `ci-seed.mjs` | بذر CI/المحلي: admin + الخطط الافتراضية (idempotent، بلا حلقة مصادقة) | CI + `pnpm db:seed` |
+| `round83-seed.mjs` | بذر التحقق المحلي: مطعم al-waha-cafe + 9 أصناف بصور حقيقية + featured | CI + docs |
+| `qa-seed.mjs` | بذر QA للرحلات العميقة محليًا (testmulti1568 + مطاعم IDOR) | CI |
+| `r93-sim-seed.mjs` | بذرة تكميلية لرحلات محاكاة الجولة 93 (r93_sim_root/sa...) | CI |
+| `check-secrets.mjs` | ماسح تسريبات الأسرار قبل الـcommit (ghp_/sk_/روابط DB — يفشل فورًا) | CI (بوابة أولى) |
+| `check-api-auth.mjs` | حرس تفويض API: كل معالج مُصدّر يستدعي requireAuth/... أو في PUBLIC_ALLOWLIST | CI |
+| `db-unstick.mjs` | فك انغلاق P1002 لقاعدة الإنتاج قبل البناء | `pnpm build` |
+| `register-webhook.mjs` | تسجيل/ضبط ويبهوك بوت تلقجرام مع secret_token | `pnpm webhook:register` |
+| `pg-local-start.sh` | إقلاع PostgreSQL محلي (embedded-postgres — بلا root/docker) | يدوي (round92) |
+| `r92-e2e-local.sh` | مسار e2e محلي بجلسة واحدة: خادم standalone + Playwright (درس r88) | يدوي |
+| `r93-sim-hostile.sh` | نفس المسار للمحاكاة المعادية (بلا ترخيح rate-limit — ميزانيات حقيقية) | يدوي |
+| `r94-db-reset.mjs` | إعادة ضبط حالة DB بين دفعات e2e المحلية (round94) | يدوي |
+| `r97-db-check.mjs` | فحص سريع لحالة قاعدة المرآة المحلية: مطاعم/أصناف/أدمن/خطط | يدوي (r97) |
+| `r97-admin-pass.mjs` | مواءمة كلمة مرور أدمن المرآة المحلية مع عقد المسح SEED_ADMIN_PASS (KDF القديم عمدًا) | يدوي (r97) |
+| `r95-standalone-prepare.sh` | مزامنة أصول standalone (static/public) كي لا تُصدَر 404 (r95-D) | r92-e2e-local.sh |
+| `bundle-report.mjs` | تقرير حجم حزم JS العميل (raw/gzip + مقارنة لقطات) — round88-A1 | يدوي |
+| `image-health.mjs` | فاحص حيوية روابط صور المنيو/الشعار/الأغلفة + og — round91 F-C | يدوي |
+| `qa-cleanup-check.mjs` | تحقق تنظيف الإنتاج من بقايا QA (مستخدمون/مطاعم اختبارية) | يدوي |
+| `r92-compress-og.mjs` | ضغط og-default.png بلا فقد جودة ملحوظ (palette + q80) | يدوي (r92-D12) |
+| `render-og.mjs` | توليد صورة OG عبر page.setContent بخطوط البراند (serverless) | يدوي |
+| `og-template.html` | قالب HTML عربي RTL لبطاقة OG (يُغذّى لـ render-og.mjs) | render-og.mjs |
+| `r96-generate-demo-images.sh` | توليد 28 صورة منيو الديمو الخام (idempotent) — **خط أنابيب أصول الديمو** | يدوي (r96-W2) |
+| `r96-convert-demo-images.mjs` | تحويل صور الديمو الخام إلى webp مضغوط بمقاسات البطاقات — **خط أنابيب أصول الديمو** | يدوي (r96-W2) |
+| `r96-test-migration.mjs` | اختبار محلي لهجرة منيو الديمو على PGlite + إثبات idempotency | يدوي (r96-W3) |
+| `r96-test-migration-prod-sim.mjs` | محاكاة سيناريو الإنتاج لهجرة الديمو (مطعم قائم بـ 16 صنفًا) | يدوي (r96-W3b) |
+
+> ملاحظة r97-X5: سكربتا `r96-generate-demo-images.sh` + `r96-convert-demo-images.mjs`
+> بقيا حيين عمدًا (خط أنابيب إعادة توليد أصول الديمو). أُرشِف دليل الإثبات لمرة واحدة
+> (`r96-screenshots.mjs` · `r96-prod-simulation.mjs` → `scripts/archive/`)، بينما بقيا
+> `r96-test-migration.mjs` + `r96-test-migration-prod-sim.mjs` حيين لأن مساريهما مُدرجان
+> حرفيًا في FILE_ALLOWLIST داخل `scripts/check-secrets.mjs` — نقلهما يُبطل مطابقة
+> الإدخالين ويُحمِّر بوابة الأسرار في CI.
 
 ## Environment Variables
 
@@ -389,4 +429,4 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 - **أيقونات SVG**: أقراص dietary و CategoryTabs بـ lucide بدل الإيموجي + تأديم `owner/loyalty` الداكن (W4b)
 - **استكمال التوأمة البصرية**: 53/53 رمزًا + keyframe `upload-fly` + توهج `background-radial` (W4a — وفق تدقيق r96-A1/A2)
 - **تنظيم المستودع (W5)**: جذر نظيف (README/CLAUDE/PROJECT فقط) + `docs/rounds/{plans,closures,inspections,qa,design,history}` + `scripts/archive/` — قاعدة موثقة: «الأرشيف سجل قرارات — يُنقل ولا يُحذف»
-- قياس الجودة r96: 1903 اختبار وحدة / 130 ملف · 479 فحص e2e / 43 ملف · 25 هجرة قابلة لإعادة التشغيل
+- قياس الجودة r96: 1903 اختبار وحدة / 130 ملف · 479 فحص e2e / 41 ملف · 24 هجرة قابلة لإعادة التشغيل

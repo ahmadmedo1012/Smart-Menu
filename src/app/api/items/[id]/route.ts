@@ -8,6 +8,7 @@ import { createDbRateLimiter } from '@/lib/rate-limit';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { ItemStatus } from '@/generated/prisma/enums';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
+import { modifierGroupSchema, modifierGroupCreateInput } from '@/lib/modifier-schema';
 
 // round91-F-B (F9/D1 — unthrottled heavy write): items PUT carries up to a
 // 200KB base64 image per request (the R90-E4 cap) with NO limiter — repeated
@@ -21,57 +22,13 @@ const itemUpdateDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
  * whitelist can never drift from the schema. */
 const itemStatusValues = Object.values(ItemStatus) as [string, ...string[]];
 
-/* w3-f1 (F1-3) — same write schema as items/route.ts (shared shape, duplicated
- * locally to keep the [id] route self-contained like every other schema here).
+/* w3-f1 (F1-3) — same write schema as items/route.ts (shared shape).
  * `id` fields are accepted-but-ignored: the PUT applies a full REPLACE
  * (deleteMany + create) because the only writer (ItemDialog) always sends the
  * complete current list. Historical orders keep option ids in modifiersJson
- * which no surface renders (grep-verified) — replace is safe and idempotent. */
-const modifierOptionSchema = z.object({
-        id: z.number().int().positive().optional(),
-        nameAr: z.string().min(1, 'اسم الخيار مطلوب').max(60),
-        name: z.string().max(60).optional(),
-        priceDelta: z.number().optional(),
-        isAvailable: z.boolean().optional(),
-        sortOrder: z.number().int().optional(),
-});
-const modifierGroupSchema = z
-        .object({
-                id: z.number().int().positive().optional(),
-                nameAr: z.string().min(1, 'اسم المجموعة مطلوب').max(60),
-                name: z.string().max(60).optional(),
-                minSelect: z.number().int().min(0, 'الحد الأدنى لا يمكن أن يكون سالبًا').max(10).optional(),
-                maxSelect: z.number().int().min(1, 'الحد الأقصى يجب أن يكون 1 على الأقل').max(10).optional(),
-                required: z.boolean().optional(),
-                sortOrder: z.number().int().optional(),
-                options: z.array(modifierOptionSchema).max(20, 'الحد الأقصى 20 خيارًا لكل مجموعة'),
-        })
-        .refine((v) => (v.minSelect ?? 0) <= (v.maxSelect ?? 1), {
-                message: 'الحد الأدنى للاختيار لا يمكن أن يتجاوز الحد الأقصى',
-        });
-
-/** Maps a validated group to the Prisma nested-create input. */
-function modifierGroupCreateInput(
-        g: z.infer<typeof modifierGroupSchema>
-) {
-        return {
-                nameAr: g.nameAr,
-                name: g.name ?? '',
-                minSelect: g.minSelect ?? 0,
-                maxSelect: g.maxSelect ?? 1,
-                required: g.required ?? false,
-                sortOrder: g.sortOrder ?? 0,
-                options: {
-                        create: (g.options ?? []).map((o) => ({
-                                nameAr: o.nameAr,
-                                name: o.name ?? '',
-                                priceDelta: o.priceDelta ?? 0,
-                                isAvailable: o.isAvailable ?? true,
-                                sortOrder: o.sortOrder ?? 0,
-                        })),
-                },
-        };
-}
+ * which no surface renders (grep-verified) — replace is safe and idempotent.
+ * round97-X3: the schema + Prisma mapping now live in src/lib/modifier-schema.ts
+ * — the byte-identical local copy was deleted (pure move, semantics unchanged). */
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
         try {

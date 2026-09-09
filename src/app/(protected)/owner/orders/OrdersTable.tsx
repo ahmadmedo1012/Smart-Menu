@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ClipboardList, SearchX, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatPrice } from '@/lib/format';
 import {
         getOrderStatusMeta,
         getPickupTypeMeta,
@@ -187,7 +187,9 @@ function OrderCard({
 
                                 <div className="text-end shrink-0">
                                         <p className="font-bold text-lg tabular-nums">
-                                                {toArabicNumber(order.total.toFixed(1))}
+                                                {/* round97-X3: shared formatPrice (suffix '' — the د.ل
+                                                    line below stays separate for the compact layout). */}
+                                                {formatPrice(order.total, { decimals: 1, suffix: '' })}
                                         </p>
                                         <p className="text-xs text-muted-foreground">د.ل</p>
                                 </div>

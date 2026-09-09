@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { toArabicNumber, formatDate } from '@/lib/format';
+import { toArabicNumber, formatDate, formatPrice } from '@/lib/format';
 import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
                         {/* Charts: Revenue + Order Volume */}
                         <div className="grid gap-6 lg:grid-cols-2">
                                 {/* Revenue trend */}
-                                <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-2">
                                                         <TrendingUp className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Order volume trend */}
-                                <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-2">
                                                         <AnimatedShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -285,7 +285,7 @@ export default function AdminDashboard() {
                         {/* Charts: Top items + Quick metrics */}
                         <div className="grid gap-6 lg:grid-cols-2">
                                 {/* Top items */}
-                                <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
                                                 <AnimatedBarChart3 className="size-4 text-muted-foreground" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold">الأصناف الأكثر طلباً</h2>
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Quick metrics */}
-                                <div className="rounded-md bg-card/70 border border-border/30 p-6 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4">
                                                 <Activity className="size-4 text-muted-foreground" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold">مؤشرات سريعة</h2>
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
                                         <div className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
                                                         <p className="text-xs text-muted-foreground">معدل الطلب</p>
-                                                        <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(Number(stats.avgOrderValue.toFixed(2)))} د.ل</p>
+                                                        <p className="text-2xl font-bold mt-1 tabular-nums">{formatPrice(stats.avgOrderValue, { decimals: 2 })}</p>
                                                         <p className="text-[11px] text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
                                                 </div>
                                                 <div className="rounded-md bg-success/10 dark:bg-success/15 p-4">
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
                                                         <p className="text-xs text-orange">طلبات اليوم</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.ordersToday.count)}</p>
                                                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                                                                {toArabicNumber(Number(stats.ordersToday.revenue))} د.ل إيراد
+                                                                {formatPrice(stats.ordersToday.revenue, { suffix: ' د.ل إيراد' })}
                                                         </p>
                                                 </div>
                                         </div>
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
 
                         <div className="grid gap-6 lg:grid-cols-3">
                                 {/* Recent signups */}
-                                <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 shadow-sm">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <UserPlus className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Recent logins */}
-                                <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 shadow-sm">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <MotionLogIn className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -428,7 +428,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 {/* Top Restaurants by Orders */}
-                                <div className="rounded-md bg-card/70 border border-border/30 shadow-sm">
+                                <div className="rounded-xl bg-card/70 border border-border/30 shadow-sm">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <AnimatedBarChart3 className="size-4 text-muted-foreground" />
@@ -453,7 +453,7 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Quick actions */}
-                        <div className="rounded-md bg-card/70 border border-border/30 p-5 shadow-sm">
+                        <div className="rounded-xl bg-card/70 border border-border/30 p-5 shadow-sm">
                                 <h2 className="text-sm font-semibold text-muted-foreground mb-4">إجراءات سريعة</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         {[
@@ -472,7 +472,7 @@ export default function AdminDashboard() {
                                                         <Link
                                                                 key={i}
                                                                 href={item.href}
-                                                                className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 dark:border-white/10 dark:bg-white/5 hover:bg-orange-muted/30 dark:hover:bg-orange-muted transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 hover:bg-orange-muted/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         >
                                                                 <Icon
                                                                         className={cn('size-5 group-hover:scale-110 transition-transform', item.color)}

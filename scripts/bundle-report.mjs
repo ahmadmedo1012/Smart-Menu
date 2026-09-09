@@ -15,7 +15,7 @@
  * serves). Raw size is the on-disk byte size.
  */
 
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import process from 'node:process';

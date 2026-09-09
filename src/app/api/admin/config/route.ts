@@ -4,6 +4,7 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
+import type { Prisma } from "@/generated/prisma/client";
 import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
 import { encryptValue } from "@/lib/config";
@@ -13,7 +14,11 @@ const upsertSchema = z.object({
   // round87-A10: value is a Json column, so any JSON shape is legitimate —
   // but its serialized size must be bounded (DB-bloat class; previously
   // z.any() accepted multi-MB payloads). The size check runs after parse.
-  value: z.any(),
+  // round97-X3: z.any() narrowed to z.json() (zod 4) — objects, arrays,
+  // strings, numbers, booleans and null still parse; functions/undefined
+  // (impossible via request.json() anyway) now fail cleanly instead of
+  // flowing into JSON.stringify as "undefined".
+  value: z.json(),
   category: z.string().min(1).max(50).optional().default("general"),
   // round87-A10: NO default — an omitted flag must preserve the stored
   // isSecret instead of silently declassifying the row (the old .default(false)
@@ -92,9 +97,13 @@ export async function PUT(request: NextRequest) {
     }
 
     // Encrypt secret values at rest — serialize non-strings so encryption always runs
-    const value = isSecret
+    // round97-X3: z.json() surfaces Prisma's Json-input contract — a literal JSON
+    // null needs the JsonNull sentinel, so it is excluded from the write type
+    // (in the z.any() era it slipped through typing and died in Prisma
+    // validation at runtime — behavior for that pathological case unchanged).
+    const value: Prisma.InputJsonValue = isSecret
       ? await encryptValue(typeof body.value === "string" ? body.value : JSON.stringify(body.value ?? null))
-      : body.value;
+      : (body.value as Prisma.InputJsonValue);
 
     const config = await prisma.$transaction(async (tx) => {
       return tx.systemConfig.upsert({

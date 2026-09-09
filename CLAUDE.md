@@ -10,15 +10,21 @@
 
 # Internet Access (Agent Reach)
 
+> **Environment check (r97-X5):** the `agent-reach` skill/CLI described below is
+> NOT installed in this workspace — verified: `~/.claude/skills/` does not exist
+> and `agent-reach` is not on PATH. The verified web tooling available here is the
+> `z-ai` CLI (`/usr/local/bin/z-ai`). Keep the channel reference below for
+> environments where agent-reach IS installed.
+
 MANDATORY for any task needing web research, URL reading, social media, or search. Agent Reach is the single entry point for internet access — never improvise your own scraping/search approach.
 
-- **Skill**: `agent-reach` (installed at `~/.claude/skills/agent-reach/` — invoke via Skill tool)
+- **Skill**: `agent-reach` (install path when present: `~/.claude/skills/agent-reach/` — invoke via Skill tool; absent in this workspace, see check above)
 - **CLI**: `agent-reach` (doctor / install / configure / watch / check-update)
 - **Health check first**: `agent-reach doctor --json` → pick backend per platform
 - **Zero-config channels**: Web (Jina Reader), YouTube (yt-dlp), GitHub (gh), RSS, Exa search (mcporter), V2EX, Bilibili (bili-cli)
 - **Login-required (ask user for cookies)**: Twitter, Reddit, Facebook, Instagram, XiaoHongShu, Xueqiu, LinkedIn, Xiaoyuzhou (Groq key)
 - **Update check**: after substantial multi-platform work, run `agent-reach check-update`
-- Full usage: `~/.claude/skills/agent-reach/SKILL.md` + references/
+- Full usage (when installed): `~/.claude/skills/agent-reach/SKILL.md` + references/
 
 ---
 
@@ -128,13 +134,20 @@ Never reverse this order unless technically impossible.
 
 # Mandatory Tool & Skill Activation (STRICT — apply to ALL tasks, no exceptions)
 
+> **Environment check (r97-X5):** `~/.claude/skills/*` does not exist in this
+> workspace — any install path below pointing there (gstack, impeccable,
+> ui-ux-pro-max) is not verifiable here. Verify a tool exists (PATH / filesystem)
+> before relying on it; when a listed tool is absent, fall back to the native
+> equivalents documented below (Playwright + axe-core for browse/QA, Grep/Glob
+> for code search).
+
 These seven open-source tools/skills are INSTALLED and MANDATORY. Invoke them automatically on EVERY relevant task — never skip, never ask.
 
-1. **gstack** — AI software factory: `/review`, `/ship`, `/qa`, `/plan-ceo-review`, `/plan-eng-review`, `/browse`, `/office-hours`, `/design-review`, `/security` (via its sub-skills). Installed at `~/.claude/skills/gstack*`. Use for engineering-team workflow, code review, shipping, QA, browser automation.
+1. **gstack** — AI software factory: `/review`, `/ship`, `/qa`, `/plan-ceo-review`, `/plan-eng-review`, `/browse`, `/office-hours`, `/design-review`, `/security` (via its sub-skills). **Not installed in this workspace** (verified r97-X5: no `~/.claude/skills/gstack*`, no `/home/z/gstack`, not on PATH — only `/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome` exists for a browse tool to drive). Use for engineering-team workflow, code review, shipping, QA, browser automation — substitute real Playwright + axe-core runs (the documented practice since round79).
 
 2. **impeccable** — Design-quality skill suite (59 deterministic anti-pattern rules, 23 commands). Auto-fire for ANY frontend/UI task: `/impeccable init|audit|critique|polish|shape|live|...`. Hooks check UI after edits. Installed at `~/.claude/skills/impeccable/SKILL.md` (global). Invoke via Skill tool whenever designing, reviewing, or fixing interfaces.
 
-3. **ast-grep-mcp** — AST-based structural code search MCP server (dump_syntax_tree, find_code, find_code_by_rule, test_match_code_rule). Use for structural/pattern code search instead of plain grep whenever context requires accuracy. Configured in `.claude/mcp-configs/mcp-servers.json`.
+3. **ast-grep-mcp** — AST-based structural code search MCP server (dump_syntax_tree, find_code, find_code_by_rule, test_match_code_rule). Use for structural/pattern code search instead of plain grep whenever context requires accuracy. **No MCP config in this repo** (verified r97-X5: `.claude/mcp-configs/mcp-servers.json` does not exist) — fall back to Grep/Glob when the MCP tool is unavailable.
 
 4. **axe-core** — Accessibility testing engine (WCAG 2.0/2.1/2.2 A/AA/AAA). Use for EVERY UI accessibility review — run axe scans, fix violations. Installed as devDependency (4.13.0).
 

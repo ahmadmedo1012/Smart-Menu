@@ -57,7 +57,10 @@ const OptimizedImage = memo(function OptimizedImage({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[4px]",
+        /* r97-X1: rounded-lg الافتراضي — rounded-[4px] كان يقصّ «حفرة» زاوية داخل
+           مقصّات rounded-2xl للبطاقات ويتعارض مع تجاوزات النداء (المواقع التي
+           تمرر صنفها الخاص تظل كما هي لأن tailwind-merge يحسم التعارض). */
+        "relative overflow-hidden rounded-lg",
         aspectMap[aspectRatio],
         className,
       )}

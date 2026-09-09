@@ -2,7 +2,10 @@ name: Keep Website Alive
 
 on:
   schedule:
-    - cron: '*/12 * * * *'
+    # r97-X4: was `*/12 * * * *` (120 runs/day of a full ubuntu runner). The
+    # target is a Vercel site with no cold-start problem to keep warm — hourly
+    # is plenty for outage detection.
+    - cron: '0 * * * *'
 
 # round86-D6: least-privilege + cancelled superseded runs
 permissions:
@@ -21,10 +24,14 @@ jobs:
         # Production URL (was: smart-menu-sigma.vercel.app — a dead/old project
         # URL that no longer serves this app). Ping the real domain.
         run: |
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://menu.smart-link.ly)
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://menu.smart-link.ly) || CODE="000"
           echo "HTTP $CODE"
-          # round86-D6: surface persistent outages in the job summary (visible
-          # on the Actions page without log-diving)
+          # r97-X4: the check was DECORATIVE — a non-200 (or curl timeout → 000)
+          # only emitted ::warning::, so the badge stayed green through real
+          # outages. Now the step FAILS (exit 1) so the badge reflects reality;
+          # the ::error:: annotation keeps the status code visible in the
+          # Actions summary without log-diving.
           if [ "$CODE" != "200" ]; then
-            echo "::warning::menu.smart-link.ly returned HTTP $CODE"
+            echo "::error::menu.smart-link.ly returned HTTP $CODE (expected 200)"
+            exit 1
           fi

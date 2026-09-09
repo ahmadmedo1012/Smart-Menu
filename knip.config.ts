@@ -58,6 +58,20 @@ const config = {
 		'scripts/round83-seed.mjs',
 		'scripts/qa-seed.mjs',
 		'scripts/check-api-auth.mjs',
+		// round97-X5: أدوات حية تُشغّل يدويًا محليًا (لا تظهر في npm scripts
+		// ولا ci.yml فيلتقطها knip كملفات غير مستعملة) — موثّقة بالأغراض
+		// في PROJECT.md § Live Scripts:
+		'scripts/bundle-report.mjs',
+		'scripts/image-health.mjs',
+		'scripts/qa-cleanup-check.mjs',
+		'scripts/r92-compress-og.mjs',
+		'scripts/render-og.mjs',
+		'scripts/r94-db-reset.mjs',
+		'scripts/r96-convert-demo-images.mjs',
+		'scripts/r97-db-check.mjs',
+		'scripts/r97-admin-pass.mjs',
+		'scripts/r96-test-migration.mjs',
+		'scripts/r96-test-migration-prod-sim.mjs',
 	],
 	project: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}', 'scripts/**/*.{mjs,ts}'],
 	ignore: [

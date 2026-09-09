@@ -2,6 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+// r97-X1: DefaultLoading المشترك بدل نص «جاري تحميل المنيو...» الأجرد — نفس
+// مؤشر التحميل المستخدم في كل حدود loading.tsx الأخرى.
+import { DefaultLoading } from '@/components/shared/DefaultLoading';
 // w3-f1: the public menu payload now carries modifier groups (available options
 // only — filtered server-side in menu/[slug]/page.tsx). Shared type with the
 // pure selection logic so OrderDialog/MenuItemCard speak the same shape.
@@ -85,13 +88,7 @@ export function MenuClientSection(props: {
             <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
             <div className="max-w-4xl mx-auto px-4 relative z-10">
-                <Suspense
-                    fallback={
-                        <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
-                            جاري تحميل المنيو...
-                        </div>
-                    }
-                >
+                <Suspense fallback={<DefaultLoading />}>
                     <MenuPageClient
                         categories={categories}
                         items={serializedItems}

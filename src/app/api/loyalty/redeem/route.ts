@@ -40,11 +40,19 @@ export async function POST(request: NextRequest) {
                         const card = await tx.loyaltyCard.findUnique({ where: { id: body.cardId } });
                         if (!card) throw new Error('NOT_FOUND');
                         // owner of the card's restaurant only
-                        if (auth.role === 'owner' && auth.restaurantId !== card.restaurantId) {
-                                const link = await tx.userRestaurant.findUnique({
-                                        where: { userId_restaurantId: { userId: auth.userId!, restaurantId: card.restaurantId } },
-                                });
-                                if (!link) throw new Error('UNAUTHORIZED');
+                        // r97-W6 (اكتشفها اختبار e2e الجديد loyalty-redeem): الفرع
+                        // الأول كان مقلوبًا — شرطه `role===owner && restaurantId !==
+                        // card.restaurantId` يقيّد البحث عن رابط UserRestaurant
+                        // بمالكي مطعم *آخر* فقط، بينما المالك المتطابق تمامًا
+                        // (الحالة الشرعية الأساسية) يسقط في else → 403 دائمًا.
+                        // الصواب: مالك → مطابق مباشر أو رابط، ثم بقية الأدوار.
+                        if (auth.role === 'owner') {
+                                if (auth.restaurantId !== card.restaurantId) {
+                                        const link = await tx.userRestaurant.findUnique({
+                                                where: { userId_restaurantId: { userId: auth.userId!, restaurantId: card.restaurantId } },
+                                        });
+                                        if (!link) throw new Error('UNAUTHORIZED');
+                                }
                         } else if (auth.role === 'super_admin') {
                                 // full access
                         } else if (auth.role === 'admin' || auth.role === 'sub_admin') {

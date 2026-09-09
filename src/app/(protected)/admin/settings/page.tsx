@@ -223,7 +223,7 @@ export default function AdminSettingsPage() {
         </div>
 
         {selected ? (
-          <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+          <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-border/20">
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center" aria-hidden="true">
@@ -290,7 +290,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         ) : restaurants.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-md bg-card/50 border border-border/30">
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3 rounded-xl bg-card/50 border border-border/30">
             <Store className="size-10 text-muted-foreground/50" />
             <p>لا توجد مطاعم</p>
           </div>
@@ -304,7 +304,7 @@ export default function AdminSettingsPage() {
           <h2 className="text-lg font-semibold">الملف الشخصي</h2>
         </div>
 
-        <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+        <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
           <div className="p-5 space-y-4">
             {profile && (
               <>

@@ -205,7 +205,7 @@ export default function AdminRestaurantsPage() {
 
       {/* Delete Dialog */}
       <Dialog open={deleteTarget !== null} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-        <DialogContent className="rounded-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>هل أنت متأكد من حذف &ldquo;{deleteTarget?.name}&rdquo;؟ جميع بيانات المطعم والطلبات والمنيو سيتم حذفها نهائياً.</DialogDescription>

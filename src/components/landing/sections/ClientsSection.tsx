@@ -72,7 +72,9 @@ function TestimonialCard({ t }: { t: typeof TESTIMONIALS[number] }) {
 
       <div className="flex items-center justify-center gap-3">
         <AvatarInitials name={t.name} />
-        <div className="text-right rtl:text-left">
+        {/* r97-X1: text-start — كان text-right rtl:text-left معكوساً في الوضعين
+           (اسم المؤلف ينعكس عن الصورة الرمزية في RTL و LTR معاً) */}
+        <div className="text-start">
           <p className="text-sm font-[500] text-foreground/90">{t.name}</p>
           <p className="text-[0.75rem] text-muted-foreground/60 mt-0.5">{t.designation}</p>
         </div>
@@ -92,7 +94,7 @@ function NavPill({
       onClick={onClick}
       /* r96-W4a: ease-smooth الرمزي (‏--ease-smooth موجود في @theme) بدل cubic-bezier المقحم */
       className={cn(
-        "rounded-full transition-[width,height,background-color] duration-400 ease-smooth",
+        "rounded-full transition-[width,height,background-color] duration-400 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
         i === active ? "w-6 h-[5px] bg-primary" : "w-[5px] h-[5px] bg-border/50 hover:bg-accent-foreground/40",
       )}
       aria-label={`التقييم ${i + 1}`}

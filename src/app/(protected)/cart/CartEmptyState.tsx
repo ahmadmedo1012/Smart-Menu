@@ -16,19 +16,23 @@ interface CartEmptyStateProps {
 export function CartEmptyState({ restaurantId, restaurantSlug, restaurantName }: CartEmptyStateProps) {
         return (
                 <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 px-4 text-center animate-fade-in">
-                        <div className="size-16 rounded-[4px] bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
+                        {/* r97-X1: rounded-2xl — يطابق نمط حلقة EmptyState (كان [4px] شاذاً) */}
+                        <div className="size-16 rounded-2xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center animate-float">
                                 <AnimatedCart className="size-12 text-muted-foreground" />
                         </div>
                         <h1 className="text-2xl font-bold">السلة فارغة</h1>
                         <p className="text-muted-foreground">أضف بعض الأصناف إلى السلة</p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
-                                <Link href="/menu">
+                                {/* r97-X1: العودة الأساسية توجّه لمنيو المطعم نفسه عندما يُعرف
+                                    الـ slug (كانت /menu العامة — دليل كل المطاعم). الاحتياط يبقى
+                                    الدليل عندما لا يُعرف المطعم. */}
+                                <Link href={restaurantSlug ? `/menu/${restaurantSlug}` : '/menu'}>
                                         <Button size="lg" className="px-8 gap-2">
                                                 <MotionArrowLeft className="size-4" />
                                                 العودة إلى القائمة
                                         </Button>
                                 </Link>
-                                {/* Secondary CTA — direct path back to browsing the menu */}
+                                {/* Secondary CTA — دليل منيو المطاعم العام */}
                                 <Link href="/menu">
                                         <Button size="lg" variant="outline" className="px-8 gap-2">
                                                 <AnimatedCart className="size-4" />

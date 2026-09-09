@@ -6,7 +6,7 @@ import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
 import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
-import { usernameOptional, passwordOptional } from '@/lib/validation';
+import { usernameOptional, passwordOptional, slugField, slugOptional } from '@/lib/validation';
 import { orderCountByRestaurant, categoryCountByRestaurant } from '@/lib/list-counts';
 import { getClientIp } from '@/lib/client-ip';
 
@@ -20,11 +20,11 @@ const registrationLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
 const restaurantInputSchema = z.object({
         name: z.string().min(1).max(200),
-        slug: z
-                .string()
-                .min(1)
-                .max(100)
-                .regex(/^[a-z0-9-]+$/),
+        // round97-X3: shared slug policy (src/lib/validation.ts) — was an inline
+        // min(1) field; now the canonical min(3) + max(100) + SLUG_RE with the
+        // unified Arabic messages (same tightening rule as the username fields:
+        // validation runs on create input only, stored data is untouched).
+        slug: slugField,
         description: z.string().max(1000).optional(),
         phone: z.string().max(30).optional(),
         whatsapp: z.string().max(30).optional(),
@@ -33,11 +33,8 @@ const restaurantInputSchema = z.object({
 const createSchema = z.object({
         // Support MULTIPLE menus: either legacy single-fields OR array form
         name: z.string().min(1).optional(),
-        slug: z
-                .string()
-                .min(1)
-                .regex(/^[a-z0-9-]+$/)
-                .optional(),
+        // round97-X3: shared slug policy (see restaurantInputSchema above).
+        slug: slugOptional,
         description: z.string().optional(),
         phone: z.string().optional(),
         whatsapp: z.string().optional(),

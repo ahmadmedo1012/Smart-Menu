@@ -9,8 +9,8 @@ import { getArabicPlural } from "@/lib/arabic-plural"
 import { EmptyState } from "@/components/ui/empty-state"
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; indicator: string }> = {
-  new:        { label: "جديد",       color: "text-orange dark:text-orange",       bg: "bg-orange-muted dark:bg-orange-muted",      indicator: "bg-orange" },
-  preparing:  { label: "قيد التحضير", color: "text-orange dark:text-orange",    bg: "bg-orange-muted dark:bg-orange-muted",   indicator: "bg-orange" },
+  new:        { label: "جديد",       color: "text-orange",       bg: "bg-orange-muted",      indicator: "bg-orange" },
+  preparing:  { label: "قيد التحضير", color: "text-orange",    bg: "bg-orange-muted",   indicator: "bg-orange" },
   ready:      { label: "جاهز",       color: "text-success",     bg: "bg-success/10",   indicator: "bg-success" },
   completed:  { label: "مكتمل",      color: "text-muted-foreground",       bg: "bg-muted",     indicator: "bg-muted-foreground" },
   cancelled:  { label: "ملغي",       color: "text-destructive",             bg: "bg-destructive/10",                   indicator: "bg-destructive" },

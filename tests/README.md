@@ -1,7 +1,7 @@
 # دليل تشغيل الاختبارات — Smart Menu
 
-> آخر تحديث: الجولة 96 (W5 — تنظيم المستودع) · **130 ملف وحدة (1903 اختبارًا — قياس r96)** · 41 ملف e2e + 2 security = 43 (479 فحصًا — قياس r96 بـ`playwright test --list`)
-> البوابة الدائمة: `tsc` = 0 · `eslint` = 0 أخطاء (تحذيرات no-explicit-any في e2e فقط) · `vitest` أخضر بالكامل — لا يُحذف اختبار قائم أبداً.
+> آخر تحديث: الجولة 96 (W5 — تنظيم المستودع؛ أرقام e2e/العتبات أُعيد قياسها r97-X5) · **130 ملف وحدة (1903 اختبارًا — قياس r96)** · 39 ملف e2e + 2 security = 41 (479 فحصًا — قياس r97 بـ`playwright test --list`)
+> البوابة الدائمة: `tsc` = 0 · `eslint` = 0 أخطاء (10 تحذيرات في e2e فقط: 6 no-explicit-any + 4 no-unused-vars — قياس r97) · `vitest` أخضر بالكامل — لا يُحذف اختبار قائم أبداً.
 > **متطلب DATABASE_URL (موثّق r90 — أعيد قياسه r92):** أوامر vitest أدناه تمرر `DATABASE_URL` صالحًا عمدًا — في r90 فشل ملفان بدونه (استيراد وحدات تتحقق من البيئة وقت التحميل). القياس الطازج r92 بعد تحويل المرايا: 108/108 أخضر بدونه (وCI نفسه يشغّل `test:coverage` بلا DATABASE_URL) — لكن أبقِه مضبوطًا في التشغيل المحلي: أي ملف جديد يستورد وحدة env حقيقية بلا mock يعيد الفشل فورًا.
 
 ---
@@ -19,7 +19,7 @@ DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vites
 DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vitest run --coverage
 ```
 
-- **العتبات الحالية** (vitest.config.ts، الجولة 89-D2): statements 59 · branches 54 · functions 60 · lines 61 — القياس الفعلي 61.62/56.5/62.28/63.53 بعد موجات 1-3 (+61 اختبار مسارات أدمن ومكتبات) ناقص هامش أمان ~2 نقطة؛ تُرفع فقط ولا تُخفض أبداً.
+- **العتبات الحالية** (vitest.config.ts، الجولة 92-D-ratchet): statements 80 · branches 74 · functions 75 · lines 83 — القياس عند إغلاق الجولة 92: 82.22/75.56/76.7/84.66 (تحويل 102 اختبار مرآة لاستيراد حقيقي + ~200 اختبار جديدة على مسارات الأموال/الأمن/CRUD) ناقص هامش أمان ~2 نقطة؛ تُرفع فقط ولا تُخفض أبداً.
 - **الموقع**: `tests/unit/*.test.ts` فقط (انظر `include` في vitest.config.ts).
 - **النمط المعتمد**: عزل كامل عبر `vi.mock('@/lib/db')` + `vi.hoisted` — لا اتصال DB حقيقي (الاستثناء الوحيد: `db-withretry.test.ts` يستورد `@/lib/db` الحقيقي لأن إنشاء العميل/المجمع lazy ولا يفتح اتصالاً إلا عند استعلام فعلي).
 - **ممنوع**: اختبارات شكلية (tautology) — كل اختبار يجب أن ينكسر فعلاً لو انكسر السلوك (درس persona-6 الموثق).
@@ -42,7 +42,7 @@ DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vites
 ### القاعدة الذهبية: الفرق تعمل **متسلسلة** إلزاماً
 حد تسجيل الدخول **5 محاولات/دقيقة لكل مستخدم** — تشغيل الفرق بالتوازي يستهلك الميزانية ويُسقط الدخول. لذا:
 - `workers: 1` في CI، و`--workers=1` يدوياً عند تشغيل أكثر من فريق.
-- المشروع `qa-teams` (فرق team1..team10 + personas + round*) هو حاملة الفرق — لا تُشغّله مع `round79-c` بالتوازي المحلي.
+- المشروع `qa-teams` (فرق team1..team11 + personas + round*) هو حاملة الفرق — لا تُشغّله مع `round79-c` بالتوازي المحلي.
 
 ```bash
 # فريق واحد:
@@ -67,7 +67,7 @@ npx playwright show-report
 | `api` | api-smoke/sweep/full-sweep + referral-claim + round86-security | طلبات HTTP فقط |
 | `ui` | ui-smoke/ui-sweep | متصفح |
 | `auth-verify` | auth-fix-verification | دخول/حدود الدخول |
-| `qa-teams` | team1..**team10** + personas 1/3/4/6/7 + round4/5/6/8/29/80/87 | **متسلسلة** — ترحيلات متصفح كاملة |
+| `qa-teams` | team1..**team11** (`team11-modifiers.spec.ts` داخل `tests/e2e/teams/` — رحلة المشتقات: محرر المالك ← المنيو العام ← طلب مُسعّر، w3-f1) + personas 1/3/4/6/7 + round4/5/6/8/29/80/87 | **متسلسلة** — ترحيلات متصفح كاملة |
 | `round79-c` | round79-phaseC-journey | مصفوفة رحلة الزبون الكاملة (actionTimeout 15s) |
 | `qa-cross-browser(-webkit)` | ui-smoke + ... | firefox/webkit — تشغيل صريح فقط |
 

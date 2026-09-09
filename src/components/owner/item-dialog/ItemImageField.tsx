@@ -15,59 +15,59 @@ import AnimatedUpload from '@/components/ui/upload-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export function ItemImageField({
-	fId,
-	image,
-	uploading,
-	onImageChange,
-	onUploadFile,
+        fId,
+        image,
+        uploading,
+        onImageChange,
+        onUploadFile,
 }: {
-	fId: string;
-	image: string;
-	uploading: boolean;
-	onImageChange: (v: string) => void;
-	onUploadFile: (file: File) => Promise<void>;
+        fId: string;
+        image: string;
+        uploading: boolean;
+        onImageChange: (v: string) => void;
+        onUploadFile: (file: File) => Promise<void>;
 }) {
-	return (
-		<div>
-			<Label htmlFor={`${fId}-image`}>الصورة</Label>
-			<div className="flex gap-2 mt-1.5">
-				<Input
-					id={`${fId}-image`}
-					value={image}
-					onChange={(e) => onImageChange(e.target.value)}
-					className="h-11 rounded-md text-start flex-1"
-					dir="ltr"
-					placeholder="https://..."
-					disabled={uploading}
-				/>
-				<label
-					className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
-					style={{ opacity: uploading ? 0.5 : 1, pointerEvents: uploading ? 'none' : 'auto' }}
-				>
-					<input
-						type="file"
-						accept="image/*"
-						className="hidden"
-						onChange={(e) => {
-							const file = e.target.files?.[0];
-							if (!file) return;
-							void onUploadFile(file);
-						}}
-						disabled={uploading}
-					/>
-					{uploading ? (
-						<Loader2 className="size-4 text-muted-foreground animate-spin" />
-					) : (
-						<AnimatedUpload className="size-4 text-muted-foreground" />
-					)}
-				</label>
-			</div>
-			{image && (
-				<div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30">
-					{/* round88-A2: box is size-20 (80px) */}
-					<OptimizedImage src={image} alt="" className="size-full" skeleton={false} sizes="80px" />
-				</div>
-			)}
-		</div>
-	);
+        return (
+                <div>
+                        <Label htmlFor={`${fId}-image`}>الصورة</Label>
+                        <div className="flex gap-2 mt-1.5">
+                                <Input
+                                        id={`${fId}-image`}
+                                        value={image}
+                                        onChange={(e) => onImageChange(e.target.value)}
+                                        className="text-start flex-1"
+                                        dir="ltr"
+                                        placeholder="https://..."
+                                        disabled={uploading}
+                                />
+                                <label
+                                        className="size-12 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
+                                        style={{ opacity: uploading ? 0.5 : 1, pointerEvents: uploading ? 'none' : 'auto' }}
+                                >
+                                        <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (!file) return;
+                                                        void onUploadFile(file);
+                                                }}
+                                                disabled={uploading}
+                                        />
+                                        {uploading ? (
+                                                <Loader2 className="size-4 text-muted-foreground animate-spin" />
+                                        ) : (
+                                                <AnimatedUpload className="size-4 text-muted-foreground" />
+                                        )}
+                                </label>
+                        </div>
+                        {image && (
+                                <div className="mt-2 rounded-md overflow-hidden size-20 border border-border/30">
+                                        {/* round88-A2: box is size-20 (80px) */}
+                                        <OptimizedImage src={image} alt="" className="size-full rounded-none" skeleton={false} sizes="80px" />
+                                </div>
+                        )}
+                </div>
+        );
 }

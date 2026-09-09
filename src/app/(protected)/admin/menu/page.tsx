@@ -195,19 +195,19 @@ export default function AdminMenuPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold tabular-nums">{toArabicNumber(items.length)}</p>
           <p className="text-xs text-muted-foreground">إجمالي الأصناف</p>
         </div>
-        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold text-success tabular-nums">{toArabicNumber(items.filter(i => i.status === "available").length)}</p>
           <p className="text-xs text-muted-foreground">متوفر</p>
         </div>
-        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold text-destructive tabular-nums">{toArabicNumber(items.filter(i => i.status !== "available").length)}</p>
           <p className="text-xs text-muted-foreground">غير متوفر</p>
         </div>
-        <div className="rounded-md bg-card/50 border border-border/30 p-4 text-center shadow-sm">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4 text-center shadow-sm">
           <p className="text-2xl font-bold tabular-nums">{toArabicNumber(restaurants.length)}</p>
           <p className="text-xs text-muted-foreground">مطاعم</p>
         </div>
@@ -270,7 +270,7 @@ export default function AdminMenuPage() {
 
       {/* Delete confirmation */}
       <Dialog open={deleteTarget !== null} onOpenChange={o => !o && setDeleteTarget(null)}>
-        <DialogContent className="rounded-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>

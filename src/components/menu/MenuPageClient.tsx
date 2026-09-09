@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'rea
 import { useSearchParams } from 'next/navigation';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { SearchX, UtensilsCrossed } from 'lucide-react';
-import { m } from 'motion/react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -20,7 +19,6 @@ const OrderDialog = dynamic(() => import('./OrderDialog').then((m) => ({ default
 const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default: m.ReviewSheet })), { ssr: false });
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
-import { fadeUp } from '@/lib/motion';
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string };
 
@@ -45,7 +43,37 @@ export function foundItemsPhrase(count: number): string {
         return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
 }
 
-function MenuPageClientInner({
+/* r97-W6 (منسّق الجولة): عزل قراءة معلمات URL في مكوّن صغير بحدّ Suspense
+ * خاص به (fallback={null}). القراءة كانت في جذر MenuPageClient فتُضطرّ Next
+ * إلى إسقاط الشجرة كلها إلى الـfallback أثناء التوليد الثابت (ISR) — فكان
+ * الـHTML الخام يحمل «جاري تحميل المنيو...» بدل البطاقات والأسعار والصور،
+ * ولا يراها زائر بلا JS ولا زاحف لا يشغّله. الآن الشبكة كلها تُخبز في
+ * الـHTML، وهذا المكوّن يغذّي معلمات URL للحالة بعد الماء (رابط مباشر
+ * ‎?cat=X يرشّح بعد إطار واحد — رابط QR بلا معلمات لا يومض أبدًا). */
+function UrlFilterSync({
+        categories,
+        onParams,
+}: {
+        categories: CategoryProp[];
+        onParams: (p: { q: string; cat: number | null; sort: SortValue }) => void;
+}) {
+        const searchParams = useSearchParams();
+        useEffect(() => {
+                const q = searchParams.get('q') || '';
+                let cat: number | null = null;
+                const raw = searchParams.get('cat');
+                if (raw) {
+                        const n = Number(raw);
+                        if (!isNaN(n) && categories.some((c) => c.id === n)) cat = n;
+                }
+                const sortRaw = searchParams.get('sort');
+                const sort = isValidSort(sortRaw) ? sortRaw! : 'default';
+                onParams({ q, cat, sort });
+        }, [searchParams, categories, onParams]);
+        return null;
+}
+
+export function MenuPageClient({
         categories,
         items,
         restaurantWhatsapp,
@@ -60,18 +88,17 @@ function MenuPageClientInner({
         restaurantId: number;
         restaurantLogo?: string;
 }) {
-        const searchParams = useSearchParams();
-
-        // Read state from URL params
-        const search = searchParams.get('q') || '';
-        const activeCategory = (() => {
-                const raw = searchParams.get('cat');
-                if (!raw) return null;
-                const n = Number(raw);
-                if (isNaN(n) || !categories.some((c) => c.id === n)) return null;
-                return n;
-        })();
-        const sort = isValidSort(searchParams.get('sort')) ? searchParams.get('sort')! : 'default';
+        /* r97-W6: حالة معلمات URL محلية (كانت قراءة useSearchParams مباشرة —
+           انظر UrlFilterSync أعلاه). القيم الافتراضية تعرض المنيو كاملًا في
+           SSR؛ الرابط المُعلم يُطبّق فور الماء. */
+        const [urlState, setUrlState] = useState<{ q: string; cat: number | null; sort: SortValue }>({
+                q: '',
+                cat: null,
+                sort: 'default',
+        });
+        const search = urlState.q;
+        const activeCategory = urlState.cat;
+        const sort = urlState.sort;
 
         const [orderItem, setOrderItem] = useState<MenuItemProp | null>(null);
         /* a11y: one shared ReviewSheet instance (was mounted per-card — N dialogs in the DOM).
@@ -89,9 +116,12 @@ function MenuPageClientInner({
         // customer typing 4-6 characters triggered 4-6 server renders + full menu
         // flights on the QR path. Next syncs useSearchParams with the History API,
         // so the URL stays shareable with zero server involvement.
+        // r97-W6: window.location.search هو المصدر الدائم (لا closure قديمة من
+        // searchParams) + تحديث الحالة المحلية فورًا — UrlFilterSync يؤكد نفس
+        // القيم عند مزامنة Next للـHistory API (idempotent).
         const updateURL = useCallback(
                 (updates: { q?: string; cat?: number | null; sort?: string }) => {
-                        const p = new URLSearchParams(searchParams.toString());
+                        const p = new URLSearchParams(window.location.search);
                         if (updates.q !== undefined) {
                                 if (updates.q) p.set('q', updates.q);
                                 else p.delete('q');
@@ -106,8 +136,16 @@ function MenuPageClientInner({
                         }
                         const qs = p.toString();
                         window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+                        setUrlState((prev) => {
+                                const next = { ...prev };
+                                if (updates.q !== undefined) next.q = updates.q;
+                                if (updates.cat !== undefined) next.cat = updates.cat;
+                                if (updates.sort !== undefined)
+                                        next.sort = isValidSort(updates.sort) ? updates.sort : 'default';
+                                return next;
+                        });
                 },
-                [searchParams]
+                []
         );
 
         const addLockRef = useRef(false);
@@ -234,6 +272,13 @@ function MenuPageClientInner({
 
         return (
                 <>
+                        {/* r97-W6: الحدّ الضيق لمعلمات URL — fallback=null فلا
+                            يختفي شيء من الـHTML الثابت، مع بقاء حماية إعادة
+                            التعليق محليّة أثناء انتقالات React 19 */}
+                        <Suspense fallback={null}>
+                                <UrlFilterSync categories={categories} onParams={setUrlState} />
+                        </Suspense>
+
                         {/* Stage H — cinematic featured showcase (addition only; the
                                 full grid below stays untouched). Renders nothing when no
                                 item is featured. */}
@@ -283,24 +328,22 @@ function MenuPageClientInner({
                                 itemCounts={itemCounts}
                         />
 
-                        {/* Popular grid with stagger entrance + fadeUp */}
+                        {/* Popular grid — r97-W6: نظام دخول موحّد CSS animate-reveal
+                                (كان framer fadeUp مزدوجًا مع دخول البطاقة نفسها ويحتاج JS):
+                                يعمل بلا JS، لا دخول مزدوج، وLCP أسرع (البطاقة بلا initial
+                                مخفي في الـHTML الخام) — نفس نظام الشبكة العادية أدناه. */}
                         {popularItems.length >= 2 && (
                                 <section id="menu-popular" className="mb-8">
                                         <div className="flex items-center gap-2 mb-3 px-1">
                                                 <span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
                                         </div>
-                                        <m.div
-                                                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}
-                                                initial="hidden"
-                                                animate="visible"
-                                                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                                        >
+                                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                                 {popularVisible.map((item, index) => (
-                                                        <m.div
+                                                        <div
                                                                 key={item.id}
-                                                                variants={fadeUp}
-                                                                transition={{ delay: (index % 6) * 0.06 }}
+                                                                className="animate-reveal"
+                                                                style={{ animationDelay: `${(index % 6) * 60}ms` }}
                                                         >
                                                                 <MenuItemCard
                                                                         item={item}
@@ -313,9 +356,9 @@ function MenuPageClientInner({
                                                                         /* LCP: first 4 popular items above the fold → eager + fetchPriority=high */
                                                                         eager={index < 4}
                                                                 />
-                                                        </m.div>
+                                                        </div>
                                                 ))}
-                                        </m.div>
+                                        </div>
                                 </section>
                         )}
 
@@ -389,28 +432,5 @@ function MenuPageClientInner({
                                 }}
                         />
                 </>
-        );
-}
-
-// ponytail: dedicated Suspense boundary for useSearchParams
-// The dynamic() in MenuClientSection can't reliably catch re-suspension during React 19 transitions
-export function MenuPageClient(props: {
-        categories: CategoryProp[];
-        items: Array<MenuItemProp & FeaturedItem>;
-        restaurantWhatsapp?: string;
-        restaurantName?: string;
-        restaurantId: number;
-        restaurantLogo?: string;
-}) {
-        return (
-                <Suspense
-                        fallback={
-                                <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
-                                        جاري تحميل المنيو...
-                                </div>
-                        }
-                >
-                        <MenuPageClientInner {...props} />
-                </Suspense>
         );
 }

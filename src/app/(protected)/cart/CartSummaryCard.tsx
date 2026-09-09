@@ -36,7 +36,9 @@ export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
                                 <span className="text-muted-foreground">المجموع الإجمالي</span>
                                 <div className="flex items-baseline gap-1">
                                         <span className="text-2xl font-bold text-primary tabular-nums">
-                                                {toArabicNumber(total.toFixed(1))}
+                                                {/* round97-X3: shared formatPrice (suffix '' — the د.ل
+                                                    span below stays separate for the baseline layout). */}
+                                                {formatPrice(total, { decimals: 1, suffix: '' })}
                                         </span>
                                         <span className="text-sm text-muted-foreground">د.ل</span>
                                 </div>

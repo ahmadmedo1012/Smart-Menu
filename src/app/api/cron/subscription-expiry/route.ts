@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { error as logError } from '@/lib/logger';
+import { error as apiError } from '@/lib/api-helpers';
 import { timingSafeBearer } from '@/lib/secure-compare';
 
 export const maxDuration = 60;
@@ -42,6 +43,12 @@ export async function GET(request: NextRequest) {
                 return NextResponse.json({ expired: users.length });
         } catch (e) {
                 logError('cron: subscription expiry', { error: String(e) });
-                return NextResponse.json({ error: 'Expiry job failed' }, { status: 500 });
+                // round97-X3: the 500 branch now uses the shared error() helper
+                // ({success:false, error}) — it was the only hand-rolled envelope
+                // left in the route family. The 401 below and the {expired: N}
+                // body above stay as-is deliberately: cron-subscription-expiry.test.ts
+                // documents them as the cron-consumer contract (Vercel Cron reads
+                // the bare shape, not the app envelope), same as cron/cleanup.
+                return apiError('Expiry job failed', 500);
         }
 }

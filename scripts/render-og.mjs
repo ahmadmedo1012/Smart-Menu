@@ -16,7 +16,7 @@
 // regenerates and reviews it (public/** is outside the round88-E file scope
 // apart from manifest/offline).
 import { chromium } from '@playwright/test';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 
 const ROOT = '/home/z/my-project/Smart-Menu';
 

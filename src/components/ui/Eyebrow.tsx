@@ -7,7 +7,7 @@ export function Eyebrow({ children, className }: { children: React.ReactNode; cl
       /* r95: SmartBot twin — النصي الأسطع (#df5a00) في الداكن؛ /90 الحرفية من المواصفة
          محفوظة في الداكن (≈5.5:1 ✓) بينما الفاتح يبقى بعتامة كاملة (بوابة AA §7:
          oklch(0.55 0.19 45)/90 على الكريمي = 4.32:1 ✗ — نفس قياس round94 أدناه). */
-      "font-naskh inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-accent-foreground dark:text-accent-foreground/90 mb-5",
+      "font-naskh inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-accent-foreground/90 mb-5",
       className
     )}>
       {/* Animated pulsing dot — subtle premium indicator */}

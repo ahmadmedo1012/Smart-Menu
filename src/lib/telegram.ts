@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/db";
 import { broadcastToAll } from "@/lib/telegram-broadcast";
 
+/**
+ * round97-X3: TelegramConfig.events is a JSON column — an unchecked
+ * `(config.events as string[])` cast let non-array values (a stray string,
+ * number, or object from a bad write) flow into .length/.includes calls in
+ * notifyEvent and the diagnostics route. Only a genuine string array passes.
+ */
+export function toStringArray(v: unknown): string[] {
+  return Array.isArray(v) && v.every((x) => typeof x === "string") ? v : [];
+}
+
 type BroadcastResult = { sent: number; failed: { chatId: string; reason: string }[] };
 
 export async function sendTelegramNotification(
@@ -17,7 +27,7 @@ export async function notifyEvent(
 ): Promise<BroadcastResult> {
   const config = await prisma.telegramConfig.findFirst();
   if (!config || !config.isActive) return { sent: 0, failed: [] };
-  const activeEvents = (config.events as string[]) ?? [];
+  const activeEvents = toStringArray(config.events);
   if (activeEvents.length > 0 && !activeEvents.includes(eventType)) {
     return { sent: 0, failed: [] };
   }

@@ -23,24 +23,24 @@ export function StatsRow({ total, restaurants }: StatsRowProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange dark:text-orange">إجمالي المطاعم</p>
-        <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">{toArabicNumber(total)}</p>
+        <p className="text-xs text-orange">إجمالي المطاعم</p>
+        <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(total)}</p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange dark:text-orange">على الخطة المدفوعة</p>
-        <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
+        <p className="text-xs text-orange">على الخطة المدفوعة</p>
+        <p className="text-2xl font-bold mt-1 text-orange">
           {toArabicNumber(restaurants.filter((r) => r.plan?.price && Number(r.plan.price) > 0).length)}
         </p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange dark:text-orange">إجمالي الطلبات</p>
-        <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
+        <p className="text-xs text-orange">إجمالي الطلبات</p>
+        <p className="text-2xl font-bold mt-1 text-orange">
           {toArabicNumber(restaurants.reduce((a, r) => a + r._count.orders, 0))}
         </p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange dark:text-orange">مجاني</p>
-        <p className="text-2xl font-bold mt-1 text-orange dark:text-orange">
+        <p className="text-xs text-orange">مجاني</p>
+        <p className="text-2xl font-bold mt-1 text-orange">
           {toArabicNumber(restaurants.filter((r) => !r.planId || Number(r.plan?.price) === 0).length)}
         </p>
       </div>

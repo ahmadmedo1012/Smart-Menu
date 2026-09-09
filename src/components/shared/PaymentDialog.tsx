@@ -1,7 +1,7 @@
 'use client';
 import { getErrorMessage } from '@/lib/get-error-message';
 
-import { useState, useEffect, useCallback, useRef, useId } from 'react';
+import { useState, useEffect, useRef, useId } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +25,17 @@ import { ProviderPicker } from '@/components/payment/ProviderPicker';
 import { ReceiptUpload } from '@/components/payment/ReceiptUpload';
 
 type Provider = PaymentProvider;
+
+/**
+ * r97-X2 [5]: SystemConfig values arrive as JSON (unknown) — a cast like
+ * `config?.x as string` renders numbers/booleans as text if the stored type
+ * ever drifts. This tiny guard only accepts non-empty strings and falls
+ * back otherwise, so the money-path dialog can never print a wrong-typed
+ * value.
+ */
+function configStr(v: unknown, fb: string): string {
+        return typeof v === 'string' && v.trim() ? v : fb;
+}
 
 interface PaymentDialogProps {
         open: boolean;
@@ -60,8 +71,8 @@ export function PaymentDialog({
                 }
         }, [requiresBank, provider]);
         const { config } = useConfig();
-        const MADAR_PHONE = (config?.balance_transfer_phone_1 as string) || MADAR_PHONE_FALLBACK;
-        const LIBYANA_PHONE = (config?.balance_transfer_phone_2 as string) || LIBYANA_PHONE_FALLBACK;
+        const MADAR_PHONE = configStr(config?.balance_transfer_phone_1, MADAR_PHONE_FALLBACK);
+        const LIBYANA_PHONE = configStr(config?.balance_transfer_phone_2, LIBYANA_PHONE_FALLBACK);
 
         const [phone, setPhone] = useState('');
         // round79 Stage C: axe caught the bank form fields having unassociated
@@ -85,9 +96,9 @@ export function PaymentDialog({
         const providerName = provider === 'libyana' ? 'ليبيانا' : 'مدار';
 
         // Bank account details from SystemConfig (same mechanism as the phones)
-        const BANK_NAME = (config?.bank_transfer_bank_name as string) || '';
-        const BANK_ACCOUNT = (config?.bank_transfer_account_number as string) || '';
-        const BANK_IBAN = (config?.bank_transfer_iban as string) || '';
+        const BANK_NAME = configStr(config?.bank_transfer_bank_name, '');
+        const BANK_ACCOUNT = configStr(config?.bank_transfer_account_number, '');
+        const BANK_IBAN = configStr(config?.bank_transfer_iban, '');
 
         const quickTransferCode =
                 provider === 'libyana'
@@ -186,22 +197,43 @@ export function PaymentDialog({
                 },
         });
 
-        const handleOpenChange = useCallback(
-                (open: boolean) => {
-                        if (!open) {
-                                sentRef.current = false; // fresh submit allowed on reopen
-                                setStep('form');
-                                setPhone('');
-                                setBankAmount(price);
-                                setSenderAccountName('');
-                                setSenderAccountNumber('');
-                                setReceiptImageUrl('');
-                                setPaymentId(null);
-                        }
-                        onOpenChange(open);
-                },
-                [onOpenChange, price]
-        );
+        // r97-X2 [4]: reset-on-open (mirrors the OrderDialog.tsx ~74-86 pattern).
+        // The old close-side handler latched `setBankAmount(price)` at close time,
+        // so closing on plan A and reopening on plan B kept the bank form on plan
+        // A's amount (money-path bug — the submitted amount could be stale) and
+        // let `step`/`resolutionMsg` leak across sessions. Resetting here with the
+        // CURRENT props guarantees a clean form on every open or plan switch.
+        useEffect(() => {
+                if (open) {
+                        sentRef.current = false; // fresh submit allowed for the new flow
+                        setStep('form');
+                        setBankAmount(price);
+                        setPhone('');
+                        setSenderAccountName('');
+                        setSenderAccountNumber('');
+                        setReceiptImageUrl('');
+                        setPaymentId(null);
+                        setResolutionMsg('');
+                        setSubmitting(false);
+                }
+        }, [open, planId, price]);
+
+        // r97-X2: plain function (no manual useCallback) — react-compiler
+        // auto-memoizes; the manual deps [onOpenChange, price] couldn't be
+        // preserved once the reset effect above joined the component.
+        const handleOpenChange = (open: boolean) => {
+                if (!open) {
+                        sentRef.current = false; // fresh submit allowed on reopen
+                        setStep('form');
+                        setPhone('');
+                        setBankAmount(price);
+                        setSenderAccountName('');
+                        setSenderAccountNumber('');
+                        setReceiptImageUrl('');
+                        setPaymentId(null);
+                }
+                onOpenChange(open);
+        };
 
         return (
                 <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -250,7 +282,7 @@ export function PaymentDialog({
                                                                                         <button
                                                                                                 type="button"
                                                                                                 onClick={() => copyToClipboard(providerPhone)}
-                                                                                                className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors"
+                                                                                                className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                                                 title="نسخ الرقم"
                                                                                         >
                                                                                                 <AnimatedCopy className="size-3.5" />
@@ -278,7 +310,7 @@ export function PaymentDialog({
                                                                                                                         window.location.href = `tel:${encodedUSSD}`;
                                                                                                                 }, 150);
                                                                                                         }}
-                                                                                                        className="h-9 px-3 rounded-lg bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors"
+                                                                                                        className="h-9 px-3 rounded-lg bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                                                         title="نسخ الرمز وفتح الاتصال"
                                                                                                 >
                                                                                                         <AnimatedCopy className="size-3.5" />
@@ -330,7 +362,7 @@ export function PaymentDialog({
                                                                                                 <button
                                                                                                         type="button"
                                                                                                         onClick={() => copyToClipboard(row.value)}
-                                                                                                        className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0"
+                                                                                                        className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                                                         title={`نسخ ${row.label}`}
                                                                                                 >
                                                                                                         <AnimatedCopy className="size-4" />

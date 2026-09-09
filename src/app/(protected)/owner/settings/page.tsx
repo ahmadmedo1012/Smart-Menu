@@ -252,7 +252,7 @@ export default function OwnerSettingsPage() {
 						{logo ? (
 							<>
 								{/* round88-A2: box is size-24 (96px) */}
-								<OptimizedImage src={logo} alt="الشعار" className="size-full" priority={false} sizes="96px" />
+								<OptimizedImage src={logo} alt="الشعار" className="size-full rounded-none" priority={false} sizes="96px" />
 								{/* a11y: visible by default (touch screens have no hover); hover-hidden
 									only from sm up, and always revealed on focus */}
 								<button

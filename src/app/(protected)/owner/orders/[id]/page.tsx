@@ -309,7 +309,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
 							className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors"
 						>
 							<div className="flex items-center gap-3">
-								<span className="size-7 rounded-lg bg-orange-muted dark:bg-orange-muted text-orange/80 dark:text-orange text-xs font-bold flex items-center justify-center">
+								<span className="size-7 rounded-lg bg-orange-muted text-orange/80 dark:text-orange text-xs font-bold flex items-center justify-center">
 									{toArabicNumber(oi.quantity)}
 								</span>
 								<span className="font-medium">{oi.item.nameAr || oi.item.name}</span>

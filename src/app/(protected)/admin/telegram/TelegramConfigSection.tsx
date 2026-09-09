@@ -46,7 +46,7 @@ export function TelegramConfigSection({
           {config.isActive ? "نشط" : "غير نشط"}
         </Badge>
       </div>
-      <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+      <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
         <div className="p-5 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <Label htmlFor="tg-active" className="flex items-center gap-2 cursor-pointer">
@@ -60,7 +60,7 @@ export function TelegramConfigSection({
             <div className="relative mt-1.5">
               <Input id="tg-bot-token" type={showToken ? "text" : "password"} value={config.botToken}
                 onChange={(e) => onConfigChange({ ...config, botToken: e.target.value })}
-                placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="h-11 rounded-xl text-left ltr ps-10 pe-12" dir="ltr" />
+                placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="h-11 rounded-xl text-left ps-10 pe-12" dir="ltr" />
               <button type="button" onClick={onToggleShowToken}
                 className="absolute end-3 top-1/2 -translate-y-1/2 size-11 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={showToken ? "إخفاء الرمز" : "إظهار الرمز"}>

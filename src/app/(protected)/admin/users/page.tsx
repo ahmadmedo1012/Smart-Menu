@@ -30,7 +30,7 @@ import { useAccessGate } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 // users gate: super_admin/sub_admin always; legacy admin needs MANAGE_USERS.
 const allowUsersGate = (me: { role: string | null; permissions: string[] }) =>
-	me.role === 'super_admin' || me.role === 'sub_admin' || (me.role === 'admin' && me.permissions.includes('MANAGE_USERS'));
+        me.role === 'super_admin' || me.role === 'sub_admin' || (me.role === 'admin' && me.permissions.includes('MANAGE_USERS'));
 
 interface OwnerUser {
   id: number; username: string; name: string; role: string
@@ -148,19 +148,19 @@ export default function AdminUsersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-md bg-card/50 border border-border/30 p-4">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-md bg-info/10 dark:bg-info/15 border border-info/20 p-4">
+        <div className="rounded-xl bg-info/10 dark:bg-info/15 border border-info/20 p-4">
           <p className="text-xs text-info">مديرون</p>
           <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
-        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
+        <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange">أصحاب مطاعم</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
-        <div className="rounded-md bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+        <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
           <p className="text-xs text-success">مرتبط بمطعم</p>
           <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
         </div>
@@ -205,16 +205,16 @@ export default function AdminUsersPage() {
         <>
           <div className="space-y-3">
             {users.map(user => (
-              <div key={user.id} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]">
+              <div key={user.id} className="rounded-xl border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       "size-11 rounded-xl flex items-center justify-center shrink-0",
-                      user.role === "admin" ? "bg-info/10 dark:bg-info/15" : "bg-orange-muted dark:bg-orange-muted"
+                      user.role === "admin" ? "bg-info/10 dark:bg-info/15" : "bg-orange-muted"
                     )} aria-hidden="true">
                       {user.role === "admin"
                         ? <Shield className="size-5 text-info" />
-                        : <UserPlus className="size-5 text-orange dark:text-orange" />
+                        : <UserPlus className="size-5 text-orange" />
                       }
                     </div>
                     <div>
@@ -322,7 +322,7 @@ export default function AdminUsersPage() {
 
       {/* Reset Password Dialog */}
       <Dialog open={resetTarget !== null} onOpenChange={o => !o && setResetTarget(null)}>
-        <DialogContent className="rounded-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>إعادة تعيين كلمة المرور</DialogTitle>
             <DialogDescription>أدخل كلمة مرور جديدة للمستخدم {resetTarget?.name}</DialogDescription>
@@ -349,7 +349,7 @@ export default function AdminUsersPage() {
 
       {/* Delete Dialog */}
       <Dialog open={deleteTarget !== null} onOpenChange={o => !o && setDeleteTarget(null)}>
-        <DialogContent className="rounded-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>

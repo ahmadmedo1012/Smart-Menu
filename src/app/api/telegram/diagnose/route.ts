@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { getDecryptedBotToken } from "@/lib/config";
+import { toStringArray } from "@/lib/telegram";
 
 async function testChatId(
   botToken: string,
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       configExists: true,
       isActive: config.isActive,
       hasToken: !!botToken,
-      events: (config.events as string[]) ?? [],
+      events: toStringArray(config.events),
       broadcastTargets: targetResults.map((r) => (r.status === "fulfilled" ? r.value : { error: "Test failed" })),
       linkedAdmins,
     });

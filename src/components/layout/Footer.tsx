@@ -16,7 +16,7 @@ interface FooterProps {
 
 const QUICK_LINKS = [
         { href: '/pricing', label: 'الخطط' },
-        { href: '/menu/al-waha-cafe', label: 'منيو تجريبي' },
+        { href: '/menu/al-waha-cafe-demo', label: 'منيو تجريبي' },
         { href: '/login', label: 'تسجيل الدخول' },
         { href: '/subscribe', label: 'اشترك الآن' },
 ];

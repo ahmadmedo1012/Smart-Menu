@@ -11,7 +11,7 @@ import { premiumToast } from "@/lib/premium-toast"
 import { ClipboardList, Store, Clock, ChefHat, CheckCircle, XCircle, Activity } from 'lucide-react';
 import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
 import { cn } from "@/lib/utils"
-import { toArabicNumber } from "@/lib/format"
+import { toArabicNumber, formatPrice } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
@@ -24,8 +24,8 @@ interface Order {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
-  new: { label: "جديد", icon: Clock, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange dark:text-orange", bg: "bg-orange-muted dark:bg-orange-muted" },
+  new: { label: "جديد", icon: Clock, color: "text-orange", bg: "bg-orange-muted" },
+  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange", bg: "bg-orange-muted" },
   ready: { label: "جاهز", icon: CheckCircle, color: "text-success", bg: "bg-success/10" },
   completed: { label: "مكتمل", icon: CheckCircle, color: "text-muted-foreground", bg: "bg-muted" },
   cancelled: { label: "ملغي", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
@@ -238,19 +238,19 @@ export default function AdminOrdersPage() {
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-md bg-card/50 border border-border/30 p-4 shadow-sm">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4 shadow-sm">
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(orders.length)}</p>
         </div>
-        <div className="rounded-md bg-orange-muted border border-orange/30 p-4 shadow-sm">
+        <div className="rounded-xl bg-orange-muted border border-orange/30 p-4 shadow-sm">
           <p className="text-xs text-orange">جديد</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(totalNew)}</p>
         </div>
-        <div className="rounded-md bg-orange-muted border border-orange/30 p-4 shadow-sm">
+        <div className="rounded-xl bg-orange-muted border border-orange/30 p-4 shadow-sm">
           <p className="text-xs text-orange">قيد التحضير</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(totalPreparing)}</p>
         </div>
-        <div className="rounded-md bg-success/10 border border-success/20 p-4 shadow-sm">
+        <div className="rounded-xl bg-success/10 border border-success/20 p-4 shadow-sm">
           <p className="text-xs text-success">جاهز</p>
           <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(totalReady)}</p>
         </div>
@@ -259,7 +259,7 @@ export default function AdminOrdersPage() {
       {/* Top & Bottom Restaurants */}
       {sortedRests.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-md bg-card/70 border border-border/30 p-4 shadow-sm">
+          <div className="rounded-xl bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <AnimatedBarChart3 className="size-4 text-success" />
               <h2 className="text-sm font-semibold">المطاعم الأكثر طلبات</h2>
@@ -276,7 +276,7 @@ export default function AdminOrdersPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-md bg-card/70 border border-border/30 p-4 shadow-sm">
+          <div className="rounded-xl bg-card/70 border border-border/30 p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <AnimatedBarChart3 className="size-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold">المطاعم الأقل طلبات</h2>
@@ -369,7 +369,7 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
                   <div className="text-end shrink-0">
-                    <p className="font-bold text-lg tabular-nums">{toArabicNumber(order.total.toFixed(1))}</p>
+                    <p className="font-bold text-lg tabular-nums">{formatPrice(order.total, { decimals: 1, suffix: '' })}</p>
                     <p className="text-xs text-muted-foreground">د.ل</p>
                   </div>
                 </div>

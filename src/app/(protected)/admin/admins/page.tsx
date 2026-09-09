@@ -202,19 +202,19 @@ export default function AdminAdminsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-md bg-card/50 border border-border/30 p-4">
+        <div className="rounded-xl bg-card/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(admins.length)}</p>
         </div>
-        <div className="rounded-md bg-info/10 dark:bg-info/15 border border-info/20 p-4">
+        <div className="rounded-xl bg-info/10 dark:bg-info/15 border border-info/20 p-4">
           <p className="text-xs text-info">مدير عام</p>
           <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(superAdmins.length)}</p>
         </div>
-        <div className="rounded-md bg-orange-muted dark:bg-orange-muted border border-orange/20 p-4">
+        <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
           <p className="text-xs text-orange">مسؤول</p>
           <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(subAdmins.length)}</p>
         </div>
-        <div className="rounded-md bg-success/10 dark:bg-success/15 border border-success/20 p-4">
+        <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
           <p className="text-xs text-success">نشط اليوم</p>
           <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(admins.filter(a => {
             if (!a.lastLoginAt) return false
@@ -237,7 +237,7 @@ export default function AdminAdminsPage() {
         ) : (
           <div className="space-y-2">
             {superAdmins.map(admin => (
-              <div key={admin.id} className="rounded-md bg-card/50 border border-border/30 p-5">
+              <div key={admin.id} className="rounded-xl bg-card/50 border border-border/30 p-5">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="size-11 rounded-xl bg-info/10 dark:bg-info/15 flex items-center justify-center">
@@ -275,7 +275,7 @@ export default function AdminAdminsPage() {
         ) : (
           <div className="space-y-2">
             {subAdmins.map(admin => (
-              <div key={admin.id} className="rounded-md bg-card/50 border border-border/30 p-5 hover:border-orange/20 transition-colors">
+              <div key={admin.id} className="rounded-xl bg-card/50 border border-border/30 p-5 hover:border-orange/20 transition-colors">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="size-11 rounded-xl bg-orange-muted flex items-center justify-center">

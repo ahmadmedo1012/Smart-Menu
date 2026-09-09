@@ -35,12 +35,19 @@ const ARABIC_MONTHS = [
   "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
 ];
 
-function formatDate(date: Date): string {
+/**
+ * Format a date with Arabic month names and Western digits only.
+ * round97-X3: optional `timeSeparator` lets callers keep their historical
+ * output shape (receipt.ts renders "… 2025 | 14:30") while sharing this one
+ * implementation — the default (" ") is byte-identical to the previous
+ * inline version.
+ */
+function formatDate(date: Date, opts?: { timeSeparator?: string }): string {
   const d = date.getDate();
   const m = ARABIC_MONTHS[date.getMonth()];  const y = date.getFullYear();
   const h = date.getHours().toString().padStart(2, '0');
   const min = date.getMinutes().toString().padStart(2, '0');
-  return `${toArabicNumber(d)} ${m} ${toArabicNumber(y)} ${h}:${min}`;
+  return `${toArabicNumber(d)} ${m} ${toArabicNumber(y)}${opts?.timeSeparator ?? ' '}${h}:${min}`;
 }
 
 /**

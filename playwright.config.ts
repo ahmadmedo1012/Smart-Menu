@@ -47,6 +47,9 @@ export default defineConfig({
         "tests/e2e/referral-claim.spec.ts",
         // round86-A12: negative specs for the USER-role gates (A1/A2/A4/A6)
         "tests/e2e/round86-security.spec.ts",
+        // r97-W6 (X4): loyalty redemption journey — was zero-coverage (earn
+        // only). Same wiring rationale as round85-D1 above.
+        "tests/e2e/loyalty-redeem.spec.ts",
       ],
     },
     {

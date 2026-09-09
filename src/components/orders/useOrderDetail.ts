@@ -122,7 +122,18 @@ export async function updateOrderStatus(
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status }),
         });
-        return body.data ?? (body as unknown as OrderDetailData);
+        // round97-X3: the response was double-cast (`body as unknown as
+        // OrderDetailData`) — a malformed body flowed silently into the page
+        // state. The envelope's `data` is the contract (success() in the PUT
+        // route); the legacy raw-object tolerance is kept but narrowed by
+        // shape, and genuinely malformed bodies now throw a typed error the
+        // pages' existing catch block toasts.
+        if (body.data) return body.data;
+        const legacy = body as Partial<OrderDetailData>;
+        if (typeof legacy.id === 'number' && typeof legacy.orderNo === 'string') {
+                return legacy as OrderDetailData;
+        }
+        throw new Error('فشل تحديث حالة الطلب');
 }
 
 /**

@@ -296,7 +296,7 @@ export default function OwnerMenuPage() {
 
                         {/* Delete Confirmation */}
                         <Dialog open={deleteTarget !== null} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-                                <DialogContent className="rounded-md">
+                                <DialogContent>
                                         <DialogHeader>
                                                 <DialogTitle>تأكيد الحذف</DialogTitle>
                                                 <DialogDescription>

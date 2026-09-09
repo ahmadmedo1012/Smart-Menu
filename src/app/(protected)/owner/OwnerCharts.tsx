@@ -90,7 +90,7 @@ function RangeToggle({
                                                 disabled={disabled}
                                                 onClick={() => onChange(r.id)}
                                                 className={cn(
-                                                        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-xs font-medium transition-colors',
+                                                        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                         selected
                                                                 ? 'border-orange/40 bg-orange-muted text-orange'
                                                                 : 'border-border/50 bg-background text-muted-foreground hover:border-orange/20'

@@ -8,7 +8,12 @@ import { fillSubscribeForm, chooseFreePlan, login, loginBudget, csrfToken, advan
 
 const TEST_USER = "testmulti1568";
 const TEST_PASS = "testpass123";
-const ts = Date.now().toString().slice(-8);
+// r97-X4: was Date.now().toString().slice(-8) — the ms-clock suffix wraps
+// every ~27.7h and collided across re-runs against the production DB (a
+// re-registration of a taken username 400s the whole register test). A random
+// 8-hex slice from crypto.randomUUID() is collision-safe for practical
+// purposes; total username stays ≤30 (form policy: 3–30 chars).
+const ts = crypto.randomUUID().slice(0, 8);
 
 // Each test gets its own context with an empty cookie jar, so mint per test —
 // a module-cached token would mismatch the jar and 403.

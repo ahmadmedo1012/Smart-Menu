@@ -42,6 +42,8 @@ export function useDebouncedCallback(fn: (v: string) => void, delay = 275) {
 }
 import { MotionSearch } from '@/components/ui/motion-icons';
 import AnimatedX from '@/components/ui/x-icon';
+import { SlidersHorizontal } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { cn } from '@/lib/utils';
 import { formatPrice, normalizeArabic } from '@/lib/format';
 
@@ -258,7 +260,16 @@ export function MenuToolbar({
                                                                 >
                                                                         {s.image && (
                                                                                 <div className="size-10 rounded-lg overflow-hidden shrink-0 bg-muted/30 ring-1 ring-border/20">
-                                                                                        <img src={s.image} alt="" aria-hidden="true" loading="lazy" className="size-full object-cover" />
+                                                                                        {/* r97-X1: OptimizedImage بدل <img> الخام (توحيد السياسة) —
+                                                                                            الإطار يحدد الصندوق ٤٠px فيمرر size-full */}
+                                                                                        <OptimizedImage
+                                                                                                src={s.image}
+                                                                                                alt=""
+                                                                                                aspectRatio="square"
+                                                                                                className="size-full"
+                                                                                                skeleton={false}
+                                                                                                sizes="40px"
+                                                                                        />
                                                                                 </div>
                                                                         )}
                                                                         <span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
@@ -290,16 +301,8 @@ export function MenuToolbar({
                                         }}
                                         className="flex h-12 w-12 items-center justify-center rounded-lg border border-border/70 bg-card shadow-sm transition-[background-color,border-color] duration-200 hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none sm:h-14 sm:w-14"
                                 >
-                                        <svg
-                                                className="size-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                aria-hidden="true"
-                                        >
-                                                <path d="M3 7h18M6 12h12M10 17h4" strokeLinecap="round" />
-                                        </svg>
+                                        {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
+                                        <SlidersHorizontal className="size-4" aria-hidden="true" />
                                 </button>
                                 {showSort && (
                                         <>

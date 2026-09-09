@@ -90,7 +90,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                 <OptimizedImage src={logo} alt="" className="size-full" aspectRatio="square" skeleton={false} sizes="32px" />
                                         ) : (
                                                 <svg
-                                                        className="size-4 text-white"
+                                                        className="size-4 text-orange-foreground"
                                                         viewBox="0 0 24 24"
                                                         fill="none"
                                                         stroke="currentColor"
@@ -118,7 +118,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                         <Link
                                                                 key={l.href}
                                                                 href={l.href}
-                                                                className="px-3 py-2 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors"
+                                                                className="px-3 py-2 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         >
                                                                 {l.label}
                                                         </Link>
@@ -135,7 +135,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                 aria-expanded={mobileOpen}
                                                 aria-controls="mobile-global-drawer"
                                                 onClick={() => setMobileOpen((o) => !o)}
-                                                className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 md:hidden"
+                                                className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                         >
                                                 <MotionMenu className="size-5" />
                                         </button>
@@ -161,7 +161,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                                 key={l.href}
                                                                 href={l.href}
                                                                 onClick={() => setMobileOpen(false)}
-                                                                className="px-4 py-3 rounded-xl text-sm font-medium hover:bg-accent/40 transition-colors"
+                                                                className="px-4 py-3 rounded-xl text-sm font-medium hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         >
                                                                 {l.label}
                                                         </Link>
@@ -170,9 +170,12 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                 )}
                         </AnimatePresence>
 
-                        {/* Scroll progress bar — RTL-aware origin-right */}
+                        {/* Scroll progress bar — r97-X1: origin-left rtl:origin-right (was
+                            inverted: rtl:origin-left filled LTR-style in the always-RTL app).
+                            In RTL the bar anchors at the reading start (right) and grows
+                            leftward; the gradient flips to -l so the strong tip leads the fill. */}
                         <m.div
-                                className="fixed inset-x-0 top-14 z-30 h-[2px] origin-right rtl:origin-left bg-gradient-to-r from-orange/60 to-orange"
+                                className="fixed inset-x-0 top-14 z-30 h-[2px] origin-left rtl:origin-right bg-gradient-to-l from-orange/60 to-orange"
                                 style={{ scaleX: progress }}
                                 aria-hidden
                         />

@@ -19,8 +19,14 @@ const eslintConfig = defineConfig([
     ".claude/**",
     "playwright-report/**",
     "open-design/**",
-    "public/**",
-    "scripts/**",
+    // r97-X4: scripts/** and public/** were blanket-ignored — which silently
+    // excluded the CI SECURITY GATES themselves (scripts/check-secrets.mjs,
+    // check-api-auth.mjs) and the SHIPPED runtime JS (public/sw.js) from all
+    // linting. Both are now in the `lint` script scope (clean: 0 errors).
+    // scripts/archive/** stays ignored — frozen round audit-trail evidence
+    // (2 legacy require() errors + a dozen unused-var warnings by design);
+    // r97-X5 keeps archiving round scripts there.
+    "scripts/archive/**",
     "facebook-workspace/**",
     "obsidian-vault/**",
     "smart-menu/**",

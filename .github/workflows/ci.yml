@@ -12,14 +12,20 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  NODE_VERSION: "24.x"
+# r97-X4: the Node version is now pinned by .nvmrc (major "24"), read via
+# node-version-file on every setup-node step. actions/setup-node v4.1+
+# resolves a partial major in .nvmrc to the latest matching release — the
+# same resolution the old NODE_VERSION="24.x" env gave, with one source of
+# truth shared between local (nvm/bun) and CI.
 
 # round86-D6: least-privilege token permissions
 permissions:
   contents: read
 
 jobs:
+  # TODO(r98): lint-build-test is a 20+ step monolith (gates → build → e2e in
+  # one job). Splitting it (lint/typecheck/unit | build+e2e, sharing a build
+  # artifact) is documented future debt — do not restructure in passing rounds.
   lint-build-test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -59,7 +65,9 @@ jobs:
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # r97-X4: .nvmrc (major "24") — partial majors resolve to the
+          # latest matching release on setup-node v4.1+
+          node-version-file: .nvmrc
           cache: pnpm
 
       # round88-D6: secret-leak scanner (scripts/check-secrets.mjs) —
@@ -291,9 +299,16 @@ jobs:
       # team4 payments flow and the round80/86 security suites. Runs against
       # the same CI server (seeds already loaded), so it is a BLOCKING gate.
       # workers=2 (vs the golden workers=1): safe ONLY in this step because
-      # RATE_LIMIT_RELAX=1 widens the login/limiter budgets below it and each
-      # team persona logs in under its own username (bucket is ip:username) —
-      # the golden rule targets the serialized team budget, not correctness.
+      # the server-side login/limiter budgets are already widened by
+      # RATE_LIMIT_TEST_RELAX=1 (set on the "Start server for E2E" step — the
+      # ONLY relax var that survives the standalone server's production
+      # NODE_ENV) and each team persona logs in under its own username (bucket
+      # is ip:username) — the golden rule targets the serialized team budget,
+      # not correctness.
+      # r97-X4 (comment fix, no functional change): the RATE_LIMIT_RELAX=1 env
+      # kept below is INERT against this production-mode server (relaxation
+      # never came from it — see the round92 flake-fix note on the server
+      # step). Both vars stay exactly as they were.
       - name: E2E deep journeys (qa-teams + security suites, localhost)
         run: npx playwright test --project=qa-teams --project=round79-c --workers=2
         env:
@@ -329,7 +344,9 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # r97-X4: .nvmrc (major "24") — partial majors resolve to the
+          # latest matching release on setup-node v4.1+
+          node-version-file: .nvmrc
           cache: pnpm
 
       # round87-D10: prod-qa re-downloaded the ~170MB chromium bundle on every

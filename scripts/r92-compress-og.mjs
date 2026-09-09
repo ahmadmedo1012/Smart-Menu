@@ -24,9 +24,8 @@
 // follow-up is to chain this same sharp palette step into render-og.mjs;
 // left out of this round's file scope on purpose.
 import sharp from 'sharp';
-import { createReadStream } from 'node:fs';
 import { statSync, mkdirSync, writeFileSync, readFileSync, unlinkSync, renameSync, existsSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
+import { basename, join } from 'node:path';
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);

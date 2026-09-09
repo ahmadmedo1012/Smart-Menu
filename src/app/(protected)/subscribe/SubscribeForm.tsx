@@ -300,7 +300,7 @@ export function SubscribeForm({
                                                                                         <button
                                                                                                 type="button"
                                                                                                 onClick={() => removeRestaurant(index)}
-                                                                                                className="text-xs text-destructive hover:underline"
+                                                                                                className="text-xs text-destructive hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/60"
                                                                                         >
                                                                                                 حذف
                                                                                         </button>
@@ -330,7 +330,7 @@ export function SubscribeForm({
                                                                                 <div>
                                                                                         <Label htmlFor={`menu-slug-${index}`}>الرابط المختصر *</Label>
                                                                                         <div className="flex items-center mt-1.5">
-                                                                                                <span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
+                                                                                                <span className="text-xs text-muted-foreground bg-muted/50 h-12 px-3 rounded-s-lg border-e-0 border-input flex items-center shrink-0">
                                                                                                         /menu/
                                                                                                 </span>
                                                                                                 <Input
@@ -343,7 +343,7 @@ export function SubscribeForm({
                                                                                                         }
                                                                                                         placeholder="الرابط المختصر (مثال: al-waha-cafe)"
                                                                                                         className={cn(
-                                                                                                                'h-11 rounded-[4px] -me-[2px] text-left',
+                                                                                                                'h-12 rounded-e-lg -me-[2px] text-start',
                                                                                                                 submitted && restaurant.slug.trim().length < 3 && 'border-destructive ring-1 ring-destructive/30'
                                                                                                         )}
                                                                                                         dir="ltr"

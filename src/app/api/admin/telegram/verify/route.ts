@@ -7,6 +7,18 @@ import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { AuditAction } from "@/generated/prisma/enums";
 import { getHmacKey } from "@/lib/keys";
+import { z } from "zod";
+
+// round97-X3: the body used to be a blind `Record<string, unknown>` + `as`
+// casts (token as string, chatId as string | number) — a number token or an
+// object chatId flowed into Buffer.from/HMAC unchecked. Same 400 + Arabic
+// message contract as before (telegram-verify-anti-replay pins the 400),
+// now with typed fields after safeParse.
+const verifySchema = z.object({
+  token: z.string().min(1),
+  chatId: z.union([z.string(), z.number()]),
+  username: z.string().optional(),
+});
 
 // Constant-time string comparison — length mismatch short-circuits (never
 // leaks the expected length through timing) without throwing like
@@ -18,14 +30,9 @@ export async function POST(request: NextRequest) {
     const auth = await requirePermission("EDIT_SETTINGS");
     if (!auth.authorized) return error(auth.error, auth.status);
 
-    const body: Record<string, unknown> = await request.json();
-    const token = body.token as string | undefined;
-    const chatId = body.chatId as string | number | undefined;
-    const username = body.username as string | undefined;
-
-    if (!token || chatId === undefined) {
-      return error("token و chatId مطلوبان", 400);
-    }
+    const parsed = verifySchema.safeParse(await request.json());
+    if (!parsed.success) return error("token و chatId مطلوبان", 400);
+    const { token, chatId, username } = parsed.data;
 
     let hmacKey: Buffer;
     try { hmacKey = Buffer.from(getHmacKey()); }

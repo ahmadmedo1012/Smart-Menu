@@ -38,6 +38,18 @@ const JUNK_SLUG_PATTERNS: RegExp[] = [
 // round92-A5: freshness window for the activity gate.
 const ACTIVITY_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
 
+// round97-X3: content gate — a restaurant needs ≥3 menu items OR the
+// showOnLanding directory flag (a human quality signal, same flag the public
+// landing uses) to consume crawl budget. The junk-name patterns still missed
+// thin mash rows (ahmed, al-waha-cafeewewe — 1-2 items each).
+const MIN_MENU_ITEMS = 3;
+
+// round97-X3: the canonical flagship demo (25 items) is whitelisted past the
+// junk-name patterns ONLY — it matches the `-demo` rule, which exists for
+// throwaway demo-* rows, not this showcase. The content gate above (25 ≥ 3)
+// and the 90-day activity gate below still apply to it like every other row.
+const CANONICAL_DEMO_SLUG = 'al-waha-cafe-demo';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // round89-C3 (dx-2 ب-2): item counts per restaurant. The old shape
         // (`categories: { select: { _count: { select: { items: true } } } }`)
@@ -49,7 +61,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const [restaurants, itemCounts, recentOrders] = await Promise.all([
                 prisma.restaurant.findMany({
                         where: { isActive: true },
-                        select: { id: true, slug: true, updatedAt: true },
+                        // round97-X3: showOnLanding feeds the content gate (the
+                        // landing-directory flag vouches for thin-but-real menus).
+                        select: { id: true, slug: true, updatedAt: true, showOnLanding: true },
                 }),
                 prisma.$queryRaw<{ restaurantId: number; items: bigint }[]>`
                         SELECT c."restaurantId" AS "restaurantId", COUNT(mi."id") AS "items"
@@ -79,12 +93,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 (lastOrderByRestaurant.get(r.id)?.getTime() ?? 0) >= cutoff;
 
         const menuPages: MetadataRoute.Sitemap = restaurants
-                .filter(
-                        (r) =>
-                                (itemsByRestaurant.get(r.id) ?? 0) > 0 &&
-                                !JUNK_SLUG_PATTERNS.some((re) => re.test(r.slug)) &&
-                                isAlive(r)
-                )
+                .filter((r) => {
+                        // round97-X3 (a): content gate — ≥3 items OR showOnLanding.
+                        const itemCount = itemsByRestaurant.get(r.id) ?? 0;
+                        if (itemCount < MIN_MENU_ITEMS && !r.showOnLanding) return false;
+                        // round97-X3 (b): flagship demo bypasses the junk-name
+                        // patterns (see CANONICAL_DEMO_SLUG) — not the gates.
+                        if (r.slug === CANONICAL_DEMO_SLUG) return isAlive(r);
+                        // round92-A5: junk-name patterns + (c) the 90-day activity gate.
+                        return !JUNK_SLUG_PATTERNS.some((re) => re.test(r.slug)) && isAlive(r);
+                })
                 .map((r) => ({
                         url: `${BASE_URL}/menu/${r.slug}`,
                         lastModified: r.updatedAt,

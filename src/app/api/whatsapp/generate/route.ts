@@ -2,7 +2,8 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { success, notFound, handleError, error as apiError } from "@/lib/api-helpers";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatPrice } from "@/lib/format";
+import { normalizeWaNumber } from "@/lib/whatsapp";
 import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 
@@ -100,20 +101,31 @@ export async function POST(request: NextRequest) {
     lines.push("*الطلبات:*");
     for (const oi of order.items) {
       const itemName = oi.item.nameAr || oi.item.name;
-      lines.push(`  ${oi.quantity}x ${itemName} - ${oi.price} د.ل`);
+      // round97-X3: prices render through the canonical formatPrice (raw
+      // template interpolation before) — integers are byte-identical
+      // ("10 د.ل"), non-half floats now round to the app-wide 1-decimal
+      // convention instead of emitting 12.25.
+      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price))}`);
       if (oi.notes) lines.push(`    ملاحظات: ${oi.notes}`);
     }
     lines.push("");
-    lines.push(`💰 المجموع: ${order.total} د.ل`);
-    if (Number(order.discount) > 0) lines.push(`🔖 الخصم: ${order.discount} د.ل`);
+    lines.push(`💰 المجموع: ${formatPrice(Number(order.total))}`);
+    if (Number(order.discount) > 0) lines.push(`🔖 الخصم: ${formatPrice(Number(order.discount))}`);
     lines.push(`📅 ${formatDate(order.createdAt)}`);
 
     const message = lines.join("\n");
 
     await prisma.order.update({ where: { id: body.orderId }, data: { whatsappSent: true } });
 
-    const whatsappUrl = order.restaurant.whatsapp
-      ? `https://wa.me/${order.restaurant.whatsapp}?text=${encodeURIComponent(message)}`
+    // round97-X3 (HIGH — money path): the deep link was built from the RAW
+    // stored whatsapp value — "+218…" or "218 91…" produced a broken wa.me
+    // URL (the phone never received the order). normalizeWaNumber (the
+    // canonical shared normalizer) strips separators/+/00 and validates
+    // length; an invalid stored number falls back to whatsappUrl:null exactly
+    // like the stored-null case (the client then falls back to copy).
+    const wa = normalizeWaNumber(order.restaurant.whatsapp);
+    const whatsappUrl = wa
+      ? `https://wa.me/${wa}?text=${encodeURIComponent(message)}`
       : null;
 
     return success({ message, whatsappUrl, orderId: order.id });

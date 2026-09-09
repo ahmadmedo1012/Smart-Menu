@@ -13,7 +13,7 @@ import { springDefault } from "@/lib/motion"
 
 interface HeaderProps { className?: string }
 
-const PARTNER_SLUG = "al-waha-cafe"
+const PARTNER_SLUG = "al-waha-cafe-demo"
 
 const landingLinks = [
   { href: "/pricing", label: "الخطط والأسعار" },

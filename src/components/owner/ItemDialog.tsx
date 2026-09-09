@@ -31,130 +31,130 @@ import type { Item } from './item-dialog/types';
  * ItemModifierGroup). ItemModifierOption/ModifierGroupPayload stay exported
  * as the documented POST/PUT contract (knip advisory, unchanged). */
 export type {
-	Item,
-	ItemModifierOption,
-	ItemModifierGroup,
-	ModifierGroupPayload,
+        Item,
+        ItemModifierOption,
+        ItemModifierGroup,
+        ModifierGroupPayload,
 } from './item-dialog/types';
 
 export function ItemDialog({
-	open,
-	onOpenChange,
-	editing,
-	categoryId,
-	onSaved,
+        open,
+        onOpenChange,
+        editing,
+        categoryId,
+        onSaved,
 }: {
-	open: boolean;
-	onOpenChange: (o: boolean) => void;
-	editing: Item | null;
-	categoryId: number;
-	onSaved: () => void;
+        open: boolean;
+        onOpenChange: (o: boolean) => void;
+        editing: Item | null;
+        categoryId: number;
+        onSaved: () => void;
 }) {
-	// round86-C9: label-control associations (axe: label-without-control)
-	// — ONE useId for the whole dialog so multiple dialog instances can
-	// never collide (same as before the split).
-	const fId = useId();
-	const {
-		form,
-		patch,
-		badgeDraft,
-		setBadgeDraft,
-		addBadge,
-		removeBadge,
-		toggleDietaryTag,
-		toggleAllergen,
-		reset: resetForm,
-	} = useItemForm();
-	const {
-		groups,
-		addGroup,
-		updateGroup,
-		removeGroup,
-		addOption,
-		updateOption,
-		removeOption,
-		reset: resetGroups,
-		buildPayload,
-	} = useModifierGroups();
-	const { uploading, uploadFile } = useImageUpload((url) => patch({ image: url }));
-	const { saving, save } = useItemSave({
-		editing,
-		form,
-		groups,
-		buildPayload,
-		onOpenChange,
-		onSaved,
-	});
+        // round86-C9: label-control associations (axe: label-without-control)
+        // — ONE useId for the whole dialog so multiple dialog instances can
+        // never collide (same as before the split).
+        const fId = useId();
+        const {
+                form,
+                patch,
+                badgeDraft,
+                setBadgeDraft,
+                addBadge,
+                removeBadge,
+                toggleDietaryTag,
+                toggleAllergen,
+                reset: resetForm,
+        } = useItemForm();
+        const {
+                groups,
+                addGroup,
+                updateGroup,
+                removeGroup,
+                addOption,
+                updateOption,
+                removeOption,
+                reset: resetGroups,
+                buildPayload,
+        } = useModifierGroups();
+        const { uploading, uploadFile } = useImageUpload((url) => patch({ image: url }));
+        const { saving, save } = useItemSave({
+                editing,
+                form,
+                groups,
+                buildPayload,
+                onOpenChange,
+                onSaved,
+        });
 
-	// Reset form when dialog opens (source effect 332–358): same condition and
-	// same deps [open, editing, categoryId] as before the split. The reset
-	// fns are deliberately NOT in the deps: they are recreated every render
-	// (the plan forbids useCallback in this wave) and only read stable state
-	// setters, so listing them would re-run this effect after every render —
-	// and each run sets fresh objects, i.e. an endless re-render loop.
-	useEffect(() => {
-		if (open) {
-			setBadgeDraft(''); // stays FIRST (call-order parity with the old effect)
-			resetGroups(editing?.modifierGroups);
-			resetForm(editing, categoryId);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [open, editing, categoryId]);
+        // Reset form when dialog opens (source effect 332–358): same condition and
+        // same deps [open, editing, categoryId] as before the split. The reset
+        // fns are deliberately NOT in the deps: they are recreated every render
+        // (the plan forbids useCallback in this wave) and only read stable state
+        // setters, so listing them would re-run this effect after every render —
+        // and each run sets fresh objects, i.e. an endless re-render loop.
+        useEffect(() => {
+                if (open) {
+                        setBadgeDraft(''); // stays FIRST (call-order parity with the old effect)
+                        resetGroups(editing?.modifierGroups);
+                        resetForm(editing, categoryId);
+                }
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [open, editing, categoryId]);
 
-	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-lg rounded-md">
-				<DialogHeader>
-					<DialogTitle>{editing ? 'تعديل صنف' : 'إضافة صنف'}</DialogTitle>
-				</DialogHeader>
-				<div className="space-y-4 max-h-[60vh] overflow-y-auto">
-					<ItemCoreFields fId={fId} form={form} patch={patch} />
-					<ItemImageField
-						fId={fId}
-						image={form.image}
-						uploading={uploading}
-						onImageChange={(v) => patch({ image: v })}
-						onUploadFile={uploadFile}
-					/>
-					<ModifierGroupsEditor
-						fId={fId}
-						groups={groups}
-						onAddGroup={addGroup}
-						onRemoveGroup={removeGroup}
-						onUpdateGroup={updateGroup}
-						onAddOption={addOption}
-						onUpdateOption={updateOption}
-						onRemoveOption={removeOption}
-					/>
-					<FeaturedShowcaseSection
-						fId={fId}
-						isFeatured={form.isFeatured}
-						onToggleFeatured={(v) => patch({ isFeatured: v })}
-						featuredRank={form.featuredRank}
-						onRankChange={(v) => patch({ featuredRank: v })}
-						showcaseTags={form.showcaseTags}
-						badgeDraft={badgeDraft}
-						onBadgeDraftChange={setBadgeDraft}
-						onAddBadge={addBadge}
-						onRemoveBadge={removeBadge}
-					/>
-					<DietaryAllergensSection
-						fId={fId}
-						dietaryTags={form.dietaryTags}
-						allergens={form.allergens}
-						onToggleDietary={toggleDietaryTag}
-						onToggleAllergen={toggleAllergen}
-					/>
-				</div>
-				<div className="flex justify-end gap-2 mt-2">
-					<Button variant="outline" onClick={() => onOpenChange(false)}>
-						إلغاء
-					</Button>
-					<Button variant="orange" onClick={save} disabled={saving || uploading}>
-						{editing ? 'تحديث' : 'إضافة'}
-					</Button>
-				</div>
-			</DialogContent>
-		</Dialog>
-	);
+        return (
+                <Dialog open={open} onOpenChange={onOpenChange}>
+                        <DialogContent className="max-w-lg">
+                                <DialogHeader>
+                                        <DialogTitle>{editing ? 'تعديل صنف' : 'إضافة صنف'}</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                                        <ItemCoreFields fId={fId} form={form} patch={patch} />
+                                        <ItemImageField
+                                                fId={fId}
+                                                image={form.image}
+                                                uploading={uploading}
+                                                onImageChange={(v) => patch({ image: v })}
+                                                onUploadFile={uploadFile}
+                                        />
+                                        <ModifierGroupsEditor
+                                                fId={fId}
+                                                groups={groups}
+                                                onAddGroup={addGroup}
+                                                onRemoveGroup={removeGroup}
+                                                onUpdateGroup={updateGroup}
+                                                onAddOption={addOption}
+                                                onUpdateOption={updateOption}
+                                                onRemoveOption={removeOption}
+                                        />
+                                        <FeaturedShowcaseSection
+                                                fId={fId}
+                                                isFeatured={form.isFeatured}
+                                                onToggleFeatured={(v) => patch({ isFeatured: v })}
+                                                featuredRank={form.featuredRank}
+                                                onRankChange={(v) => patch({ featuredRank: v })}
+                                                showcaseTags={form.showcaseTags}
+                                                badgeDraft={badgeDraft}
+                                                onBadgeDraftChange={setBadgeDraft}
+                                                onAddBadge={addBadge}
+                                                onRemoveBadge={removeBadge}
+                                        />
+                                        <DietaryAllergensSection
+                                                fId={fId}
+                                                dietaryTags={form.dietaryTags}
+                                                allergens={form.allergens}
+                                                onToggleDietary={toggleDietaryTag}
+                                                onToggleAllergen={toggleAllergen}
+                                        />
+                                </div>
+                                <div className="flex justify-end gap-2 mt-2">
+                                        <Button variant="outline" onClick={() => onOpenChange(false)}>
+                                                إلغاء
+                                        </Button>
+                                        <Button variant="orange" onClick={save} disabled={saving || uploading}>
+                                                {editing ? 'تحديث' : 'إضافة'}
+                                        </Button>
+                                </div>
+                        </DialogContent>
+                </Dialog>
+        );
 }

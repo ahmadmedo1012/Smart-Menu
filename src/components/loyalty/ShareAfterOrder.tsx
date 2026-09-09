@@ -12,6 +12,7 @@ import { premiumToast } from '@/lib/premium-toast';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { csrfFetch } from '@/lib/csrf-client';
+import { buildWhatsAppShareUrl } from '@/lib/whatsapp';
 
 type ShareAfterOrderProps = {
         orderNo: string;
@@ -130,7 +131,8 @@ export function ShareAfterOrder({
 ${referralUrl}
 
 استمتع بخصم 10٪ عند استخدام رابط الإحالة الخاص بي! 😊`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                // round97-X3: shared wa.me builder (encodes internally).
+                window.open(buildWhatsAppShareUrl(text), '_blank');
         }, [referralUrl, referralCode]);
 
         // ─── Share via Instagram ───────────────────────────────────────────

@@ -65,7 +65,7 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
               aria-pressed={statusFilter === s}
               className={cn("h-11 rounded-lg px-3 text-xs font-medium transition-[background-color,border-color,color] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1",
                 statusFilter === s
-                  ? "bg-orange/10 text-orange dark:text-orange border border-orange/20"
+                  ? "bg-orange/10 text-orange border border-orange/20"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent")}>
               {s === "all" ? "الكل" : s === "pending" ? "معلق" : s === "converted" ? "تم التحويل" : s === "expired" ? "منتهي" : s}
             </button>

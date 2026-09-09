@@ -601,7 +601,12 @@ describe("Telegram admin ID config (real getAdminTelegramIds)", () => {
 describe("Upgrade flow registration guard (real server-side boundaries)", () => {
   it("auth not loaded/unauthenticated -> admin path without credentials is rejected 401", async () => {
     authState.requirePermissionResult = { authorized: false, error: "غير مصرح", status: 401 };
-    const res = await restaurantsPost(makePostRequest("/api/restaurants", { name: "م", slug: "m" }));
+    // r97-X4: slug "m" was fine under the old inline min(1) policy but round97-X3
+    // moved /api/restaurants to the shared slugField (min 3) — createSchema.parse
+    // runs BEFORE the permission gate, so the short slug 422'd before this test
+    // could reach the 401 path it exists to assert. "abc" is valid under BOTH
+    // policies; the auth-gate contract is what's under test here.
+    const res = await restaurantsPost(makePostRequest("/api/restaurants", { name: "م", slug: "abc" }));
     expect(res.status).toBe(401);
   });
 

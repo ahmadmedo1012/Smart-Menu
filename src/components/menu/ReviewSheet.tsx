@@ -5,7 +5,7 @@ import { m, AnimatePresence } from 'motion/react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import AnimatedSend from '@/components/ui/send-icon';
 import AnimatedX from '@/components/ui/x-icon';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDateShort } from '@/lib/format';
 import { premiumToast } from '@/lib/premium-toast';
@@ -219,13 +219,19 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                 <span className="text-ember dark:text-saffron font-bold">
                                                                                         {toArabicNumber(stats.avgRating?.toFixed(1) ?? '0')}
                                                                                 </span>{' '}
-                                                                                ⭐ · {toArabicNumber(stats.totalCount)} تقييم
+                                                                                {/* r97-X1: نجمة lucide SVG بدل الإيموجي (قاعدة «لا إيموجي كأيقونات»)
+                                                                                   — نفس عائلة ألوان النجوم في MenuItemCard (fill-ember/saffron). */}
+                                                                                <Star
+                                                                                        className="size-3 fill-ember dark:fill-saffron inline"
+                                                                                        aria-hidden="true"
+                                                                                />{' '}
+                                                                                · {toArabicNumber(stats.totalCount)} تقييم
                                                                         </p>
                                                                 )}
                                                         </div>
                                                         <button
                                                                 onClick={() => onOpenChange(false)}
-                                                                className="size-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                                                                className="size-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="إغلاق"
                                                         >
                                                                 <AnimatedX className="size-4" />
@@ -239,13 +245,21 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                         key={star ?? 'all'}
                                                                         onClick={() => setFilterStar(star)}
                                                                         className={cn(
-                                                                                'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border',
+                                                                                'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                                 filterStar === star
-                                                                                        ? 'bg-orange text-white border-orange shadow-sm'
+                                                                                        ? 'bg-orange text-orange-foreground border-orange shadow-sm'
                                                                                         : 'bg-muted/30 text-muted-foreground border-border/20 hover:bg-muted/50'
                                                                         )}
                                                                 >
-                                                                        {star ? `${star} ⭐` : 'الكل'}
+                                                                        {/* r97-X1: رقم عربي + نجمة lucide بدل `${star} ⭐` */}
+                                                                        {star ? (
+                                                                                <>
+                                                                                        {toArabicNumber(star)}{' '}
+                                                                                        <Star className="size-3 fill-current inline" aria-hidden="true" />
+                                                                                </>
+                                                                        ) : (
+                                                                                'الكل'
+                                                                        )}
                                                                 </button>
                                                         ))}
                                                 </div>
@@ -267,7 +281,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                 }}
                                                                                 aria-label={'تقييم ' + s + ' نجوم'}
                                                                                 className={cn(
-                                                                                        'transition-colors cursor-pointer',
+                                                                                        'transition-colors cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                                         /* round94 (D/A2): نمط r84 — ember فاتح 6.31:1 بدل saffron
                                                                                            غير المحروس (كان 2.05:1 في الفاتح؛ hover /50 كان 1.42:1) */
                                                                                         s <= formRating
@@ -312,10 +326,10 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 aria-label="إرسال التقييم"
                                                                 disabled={formRating < 1 || submitting}
                                                                 className={cn(
-                                                                        'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-[color,background-color]',
+                                                                        'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                         formRating < 1
                                                                                 ? 'bg-muted/40 text-muted-foreground/40 cursor-not-allowed'
-                                                                                : 'bg-orange text-white shadow-sm hover:shadow-md active:scale-[0.97]'
+                                                                                : 'bg-orange text-orange-foreground shadow-sm hover:shadow-md active:scale-[0.97]'
                                                                 )}
                                                         >
                                                                 {submitting ? (

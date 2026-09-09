@@ -11,6 +11,7 @@ import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/store/cart';
 import { ShareAfterOrder } from '@/components/loyalty/ShareAfterOrder';
+import { buildWhatsAppShareUrl } from '@/lib/whatsapp';
 
 const Confetti = dynamic(
         () => import('@/components/shared/Confetti').then((m) => ({ default: m.Confetti })),
@@ -51,13 +52,10 @@ function OrderContent() {
         }, [cleared, orderNo, isSubscription]);
 
         const handleWhatsApp = () => {
-                const text = encodeURIComponent(
-                        `طلب رقم: ${displayOrderNo ?? '---'}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`
-                );
-                const phone = waNumber
-                        ? `https://wa.me/${waNumber}?text=${text}`
-                        : `https://wa.me/?text=${text}`;
-                window.open(phone, '_blank');
+                // round97-X3: shared wa.me builder (encodes internally; waNumber is
+                // passed verbatim — identical URLs to the inline templates).
+                const text = `طلب رقم: ${displayOrderNo ?? '---'}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`;
+                window.open(buildWhatsAppShareUrl(text, waNumber || undefined), '_blank');
         };
 
         if (isSubscription) {
@@ -66,7 +64,7 @@ function OrderContent() {
                                 <Header />
                                 <main className="min-h-screen bg-background flex flex-col">
                                         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-                                                <div className="size-20 rounded-full bg-orange-muted dark:bg-orange-muted flex items-center justify-center animate-scale-in">
+                                                <div className="size-20 rounded-full bg-orange-muted flex items-center justify-center animate-scale-in">
                                                         <CheckCircle className="size-10 text-orange" />
                                                 </div>
                                                 <div className="space-y-2">

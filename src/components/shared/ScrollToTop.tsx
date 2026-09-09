@@ -44,7 +44,7 @@ function ScrollButton() {
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
-        "fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] start-4 sm:start-6 z-[61] size-11 rounded-full bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 hover:scale-105 transition-[transform,translate,scale,rotate,box-shadow,opacity,visibility] duration-300 flex items-center justify-center",
+        "fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] start-4 sm:start-6 z-[61] size-11 rounded-full bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 hover:scale-105 transition-[transform,translate,scale,rotate,box-shadow,opacity,visibility] duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none",
       )}
       aria-label="العودة للأعلى"

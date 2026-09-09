@@ -15,6 +15,10 @@ export NEXT_PUBLIC_WHATSAPP_NUMBER='218900000000'
 export TELEGRAM_BOT_TOKEN='test'
 export RATE_LIMIT_TEST_RELAX='1'
 export SEED_ADMIN_PASS='smart123' # عقد بذرة المحلية (ci-seed الافتراضي admin123456)
+# r97: ربط عقود كلمات مرور الأدمن للفحوصات التي تقرأ متغيرات أخرى — كان
+# round79-phaseC يقرأ PHASEC_ADMIN_PASS (افتراضي admin123456) بينما العقد
+# المحلي smart123 → فشل دخول الأدمن داخل الرحلة. مواءمة صريحة الآن.
+export PHASEC_ADMIN_PASS="$SEED_ADMIN_PASS"
 export BASE_URL='http://localhost:3000'
 
 # fresh server each sweep (stale .next/standalone from a previous run is fine —

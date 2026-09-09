@@ -97,7 +97,7 @@ export function DiagnosticsSection({
 					<AnimatedUserCheck className="size-5 text-muted-foreground" />
 					<h2 className="text-lg font-semibold">الموافقون على الاشتراكات</h2>
 				</div>
-				<div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+				<div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
 					<div className="p-5 space-y-4">
 						<p className="text-sm text-muted-foreground">
 							أضف معرفات تليجرام لأشخاص إضافيين يمكنهم الموافقة أو رفض طلبات الاشتراك عبر البوت
@@ -191,7 +191,7 @@ export function DiagnosticsSection({
 						<Stethoscope className="size-5 text-muted-foreground" />
 						<h2 className="text-lg font-semibold">نتيجة التشخيص</h2>
 					</div>
-					<div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+					<div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
 						<div className="p-5 space-y-3">
 							<div className="flex items-center justify-between">
 								<span className="text-sm">الإعدادات موجودة</span>

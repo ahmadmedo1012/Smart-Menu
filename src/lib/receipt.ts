@@ -2,17 +2,13 @@
  * Build a WhatsApp receipt message for an order.
  * Shared between OrderDialog and CartPage.
  */
-import { formatPrice, toArabicNumber } from "@/lib/format";
+// round97-X3: the local AR_MONTHS + ts() duplicates were deleted — the date
+// line now renders through format.ts's formatDate. Its " | " separator is
+// preserved via the timeSeparator option so the receipt OUTPUT is unchanged.
+import { formatPrice, toArabicNumber, formatDate } from "@/lib/format";
 
 const SEP = "━━━━━━━━━━━━━━━━━━━━━━";
 const SEP_L = "──────────────────────";
-const AR_MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو",
-  "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-
-function ts(): string {
-  const d = new Date();
-  return `${d.getDate()} ${AR_MONTHS[d.getMonth()]} ${d.getFullYear()} | ${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`;
-}
 
 export type ReceiptItem = { name: string; qty: number; price: number; notes?: string };
 
@@ -39,7 +35,7 @@ export function buildReceiptMessage(opts: {
 
   // ── Order info ──
   if (opts.orderNo) lines.push(`🆔 *رقم الطلب*       ${opts.orderNo}`);
-  lines.push(`🕐 *التاريخ*         ${ts()}`);
+  lines.push(`🕐 *التاريخ*         ${formatDate(new Date(), { timeSeparator: " | " })}`);
   if (opts.pickupType) lines.push(`📍 *نوع الطلب*       ${labels[opts.pickupType] || opts.pickupType}`);
   lines.push("");
 

@@ -3,13 +3,17 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
-import { usernameOptional } from "@/lib/validation";
+import { usernameOptional, slugOptional, slugField } from "@/lib/validation";
 import { getClientIp } from "@/lib/client-ip";
 
+// round97-X3: slug fields come from the shared policy in src/lib/validation.ts
+// (SLUG_RE + normalizeSlug + min 3) — the inline duplicates (identical
+// constraints on the single-slug path) were removed; behavior is unchanged
+// for valid slugs and the array items now carry the same Arabic messages.
 const validateSchema = z.object({
   username: usernameOptional,
-  slug: z.string().min(3, "الرابط يجب أن يكون 3 أحرف على الأقل").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط").optional(),
-  slugs: z.array(z.string().min(3).regex(/^[a-z0-9-]+$/)).optional(),
+  slug: slugOptional,
+  slugs: z.array(slugField).optional(),
 });
 
 const validateLimiter = createDbRateLimiter({ windowMs: 60_000, max: 10 });

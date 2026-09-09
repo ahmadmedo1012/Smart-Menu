@@ -315,7 +315,7 @@ function LoginForm() {
                                                         </p>
                                                         {/* r95: نص accent-foreground — #df5a00 يحقق 5.42:1 على
                                                                            bg-card/60 (text-orange كان 3.9:1 بلا AA للنص). */}
-                                                        <Link href="/menu/al-waha-cafe" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-orange/30 bg-card/60 px-3 py-2 text-xs font-semibold text-accent-foreground transition-colors hover:bg-orange/10">
+                                                        <Link href="/menu/al-waha-cafe-demo" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-orange/30 bg-card/60 px-3 py-2 text-xs font-semibold text-accent-foreground transition-colors hover:bg-orange/10">
                                                                 فتح المنيو التجريبي
                                                         </Link>
                                                 </div>

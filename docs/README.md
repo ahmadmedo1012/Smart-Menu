@@ -1,6 +1,6 @@
 # Smart-Menu — فهرس التوثيق (round96-W5)
 
-> **123 ملفًا** موزعة على مرجعية حية + أرشيف جولات منظّم (`docs/rounds/`).
+> **124 ملفًا** موزعة على مرجعية حية + أرشيف جولات منظّم (`docs/rounds/`).
 > هذا الفهرس هو نقطة الدخول: ابدأ من «المرجعية الحية» ثم `rounds/` حسب نوع
 > الوثيقة. كل ملف قبل الجولة 96 كان مبعثرًا في جذر `docs/` وجذر المستودع —
 > أُعيد تنظيمه هنا بـ`git mv` (التاريخ محفوظ بالكامل).
@@ -27,12 +27,12 @@
 | [`round90/`](round90/) | 7 | تشخيص الجولة 90 كاملًا (`diagnosis/`: cso-audit · health-devex · investigation · merged-triage · qa-live · review-backend · review-quality) — مذكور حرفيًا في `knip.config.ts` وworkflows |
 | [`reports/`](reports/) | 4 | تقارير مؤرخة 2026-08 (نشر/اختبار/UI) |
 
-## أرشيف الجولات — `rounds/` (108 ملفات)
+## أرشيف الجولات — `rounds/` (109 ملفات)
 
 | المجلد | الملفات | المحتوى | النطاق |
 |--------|---------|---------|--------|
 | [`rounds/plans/`](rounds/plans/) | 17 | خطط الجولات الرسمية | 66 · 79 · 80 · 83 · 85–96 · repair |
-| [`rounds/closures/`](rounds/closures/) | 11 | تقارير الإغلاق النهائية | 80 · 86–91 · 93 · 94 (+ملاحظات partial) · 95 |
+| [`rounds/closures/`](rounds/closures/) | 12 | تقارير الإغلاق النهائية | 80 · 86–91 · 93–96 (94 بتقريرين: كامل + ملاحظات partial) |
 | [`rounds/inspections/`](rounds/inspections/) | 12 | تقارير الفحص التشغيلي | 93 (a–f) · 94 (a–f) |
 | [`rounds/qa/`](rounds/qa/) | 14 | تقارير QA تاريخية + سجلات حرفية | جولات 4→41 + 2026-08-03 |
 | [`rounds/design/`](rounds/design/) | 7 | تدقيقات ومراجع التصميم | 20–27 · 79 (design-references ما زال مفيدًا) |
@@ -40,17 +40,18 @@
 
 ### أبرز ملفات الجولات الحديثة
 
-- [`rounds/plans/SMART-MENU-ROUND96-PLAN.md`](rounds/plans/SMART-MENU-ROUND96-PLAN.md) — خطة الجولة الحالية
+- [`rounds/plans/SMART-MENU-ROUND96-PLAN.md`](rounds/plans/SMART-MENU-ROUND96-PLAN.md) — خطة الجولة 96 (أحدث خطة — لا خطة موثقة للجولة 97 بعد)
+- [`rounds/closures/round96-closure-report.md`](rounds/closures/round96-closure-report.md) — إغلاق الجولة 96: منيو الديمو الواقعي + التوأمة الكاملة + تنظيم المستودع
 - [`rounds/closures/round95-closure-report.md`](rounds/closures/round95-closure-report.md) — إغلاق التوأمة البصرية (9/10)
 - [`rounds/closures/round94-closure-notes-partial.md`](rounds/closures/round94-closure-notes-partial.md) + `round94-closure-report.md` — القرارات المعلقة (MED-1)
 - [`rounds/inspections/round93-inspection-e.md`](rounds/inspections/round93-inspection-e.md) — لغز بيئة 1666/1642 (مُدرج في FILE_ALLOWLIST)
 
-## أرشيف السكربتات — `../scripts/archive/` (33 ملفًا)
+## أرشيف السكربتات — `../scripts/archive/` (35 ملفًا)
 
 سكربتات الجولات لمرة واحدة (round86–92 · r95 المحاكاة/اللقطات · diff الجلسة المقطوعة 93 ·
-`round88-perf/` بنتائجه) — **لا تستدعَ من CI أو الاختبارات**؛ الأدوات الحية كلها في
-`scripts/` الجذر (`ci-seed` · `round83-seed` · `qa-seed` · `check-secrets` ·
-`check-api-auth` · `r92-e2e-local.sh` … — قائمة كاملة في `../PROJECT.md`).
+`round88-perf/` بنتائجه · لقطات/محاكاة إنتاج r96 — أُرشِفت r97-X5 وفق القاعدة #3) —
+**لا تستدعَ من CI أو الاختبارات**؛ الأدوات الحية كلها في
+`scripts/` الجذر (23 ملفًا — قائمة كاملة بالأغراض في `../PROJECT.md` § Live Scripts).
 
 ## اتفاقية الجولات القادمة
 

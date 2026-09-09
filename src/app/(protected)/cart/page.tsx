@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { csrfFetch } from '@/lib/csrf-client';
 import { getErrorMessage } from '@/lib/get-error-message';
 import { orderSubmitErrorMessage } from './submit-error';
-import { normalizeWaNumber } from "@/lib/whatsapp";
+import { normalizeWaNumber, buildWhatsAppShareUrl } from "@/lib/whatsapp";
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
@@ -237,7 +237,9 @@ export default function CartPage() {
                 });
                 // H4 fix: clear cart immediately after successful order (prevents double-submit on popup-block)
                 clearCart();
-                window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(receipt)}`, '_blank');
+                // round97-X3: shared wa.me builder (encodes internally; waNumber is
+                // guaranteed non-null here — the checkout guard returned early above).
+                window.open(buildWhatsAppShareUrl(receipt, waNumber), '_blank');
 
                 setConfirmed(true);
                 setIsSubmitting(false);

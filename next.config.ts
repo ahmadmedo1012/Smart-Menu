@@ -44,6 +44,17 @@ const nextConfig: NextConfig = {
         reactStrictMode: true,
         compress: true,
 
+        // round97-X3 (A1 finding): /register and /dashboard are live 404s —
+        // legacy entry points users still type/bookmark. Signup lives at
+        // /subscribe; dashboards live at /owner (and /admin). Permanent (308)
+        // so search engines drop the dead URLs and carry the link equity over.
+        async redirects() {
+                return [
+                        { source: '/register', destination: '/subscribe', permanent: true },
+                        { source: '/dashboard', destination: '/owner', permanent: true },
+                ];
+        },
+
         async headers() {
                 // HSTS only on Vercel production — on dev OR a local prod server running
                 // plain HTTP, WebKit upgrades every subresource to https://localhost and

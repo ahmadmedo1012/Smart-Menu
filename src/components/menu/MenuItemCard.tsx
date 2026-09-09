@@ -106,10 +106,11 @@ const MenuItemCard = memo(function MenuItemCard({
 
         return (
                 <m.div
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-60px' }}
-                        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                        /* r97-W6: أُزيل دخول whileInView (initial مخفي كان يُخبز في
+                           HTML الثابت فلا يرى البطاقات زائر بلا-JS، وLCP ينتظر
+                           الماء، وكان دخولًا مزدوجًا مع animate-reveal على الغلاف).
+                           الدخول الآن CSS خالص على غلاف الشبكة — يعمل بلا JS. تبقى
+                           نوابض hover/tap التوأمة أدناه. */
                         whileHover={{ y: -3, transition: HOVER_SPRING }}
                         whileTap={{ scale: 0.99, transition: HOVER_SPRING }}
                         className={cn(
@@ -134,7 +135,13 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 <OptimizedImage
                                                         src={item.image}
                                                         alt={displayName}
-                                                        aspectRatio="square"
+                                                        /* r97-X1: "auto" + size-full — كان aspect-square داخل صندوق
+                                                           ٤:٣ أطول منه (يعتمد على القصّ) فيقصّ الصورة مرتين. الآن
+                                                           يملأ الصندوق تماماً. rounded-none — الصورة ممتدة حتى حافة
+                                                           البطاقة ومقصّ rounded-2xl للبطاقة يعرّف الزوايا (بدل 18px
+                                                           داخل 16px = هلال خلفية). */
+                                                        aspectRatio="auto"
+                                                        className="size-full rounded-none"
                                                         priority={eager}
                                                         sizes={imageSizes}
                                                         skeleton
@@ -343,11 +350,11 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                                 onDecrementCart?.(item);
                                                                         }}
                                                                         aria-label={`إنقاص كمية ${displayName}`}
-                                                                        className="flex items-center justify-center size-[48px] text-white hover:brightness-110 transition-colors active:brightness-90"
+                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-colors active:brightness-90"
                                                                 >
                                                                         <MotionMinus className="size-4" />
                                                                 </button>
-                                                                <span className="flex-1 min-w-[2ch] text-center text-sm font-bold text-white bg-orange tabular-nums leading-none py-1.5">
+                                                                <span className="flex-1 min-w-[2ch] text-center text-sm font-bold text-orange-foreground bg-orange tabular-nums leading-none py-1.5">
                                                                         {toArabicNumber(cartQty)}
                                                                 </span>
                                                                 <button
@@ -358,7 +365,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                                 needsConfig ? onOrder(item) : onAddToCart(item);
                                                                         }}
                                                                         aria-label={`زيادة كمية ${displayName}`}
-                                                                        className="flex items-center justify-center size-[48px] text-white hover:brightness-110 transition-colors active:brightness-90"
+                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-colors active:brightness-90"
                                                                 >
                                                                         <MotionPlus className="size-4" />
                                                                 </button>

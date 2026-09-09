@@ -75,6 +75,7 @@ export function CartSlideOver() {
                                                 'shadow-2xl shadow-orange/30 ring-1 ring-white/10',
                                                 'hover:shadow-orange/40 hover:scale-105',
                                                 'active:scale-95 transition-transform duration-300 ease-out',
+                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                 bounce && 'scale-110'
                                         )}
                                 >
@@ -100,16 +101,18 @@ export function CartSlideOver() {
                                 showCloseButton={false}
                                 className={cn(
                                         'flex flex-col gap-0 p-0 w-[85vw] data-[side=left]:w-[85vw] data-[side=right]:w-[85vw] sm:max-w-sm sm:data-[side=right]:w-3/4',
-                                        'bg-background/95 backdrop-blur-2xl border-s border-white/5'
+                                        /* r97-X1: border-border/10 بدل border-white/5 — حدود الزجاج
+                                           الأبيض كانت تختفي في الثيم الفاتح */
+                                        'bg-background/95 backdrop-blur-2xl border-s border-border/10'
                                 )}
                         >
                                 {/* Glass-strong header */}
-                                <SheetHeader className="flex-row items-center justify-between gap-2 border-b border-white/5 px-4 py-3 bg-background/80 backdrop-blur-xl">
+                                <SheetHeader className="flex-row items-center justify-between gap-2 border-b border-border/10 px-4 py-3 bg-background/80 backdrop-blur-xl">
                                         <div className="flex items-center gap-2">
                                                 <button
                                                         type="button"
                                                         onClick={() => setOpen(false)}
-                                                        className="size-11 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2"
+                                                        className="size-11 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         aria-label="إغلاق"
                                                 >
                                                         <MotionArrowLeft className="size-4" />
@@ -126,7 +129,7 @@ export function CartSlideOver() {
                                                         key={item.id}
                                                         className={cn(
                                                                 'flex gap-3 items-start p-2.5 rounded-lg',
-                                                                'bg-background/50 backdrop-blur-lg border border-white/5'
+                                                                'bg-background/50 backdrop-blur-lg border border-border/10'
                                                         )}
                                                 >
                                                         {item.image && (
@@ -157,7 +160,9 @@ export function CartSlideOver() {
                                                                                                                                                                         type="button"
                                                                                                                                                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                                                                                                                                                         aria-label="إنقاص الكمية"
-                                                                                                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors"
+                                                                                                                                                                        /* r97-X1: ring-inset — الأب overflow-hidden يقصّ أي حلقة خارجية،
+                                                                                                                                                                           فالحلقة الداخلية هي المؤشر المرئي الوحيد الممكن */
+                                                                                                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60"
                                                                                                                                                                 >
                                                                                                                                                                         <MotionMinus className="size-4" />
                                                                                                                                                         </button>
@@ -168,7 +173,7 @@ export function CartSlideOver() {
                                                                                         type="button"
                                                                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                                                         aria-label="زيادة الكمية"
-                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors"
+                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60"
                                                                                 >
                                                                                         <MotionPlus className="size-4" />
                                                                                 </button>
@@ -184,7 +189,7 @@ export function CartSlideOver() {
                                                                                 type="button"
                                                                                 onClick={() => removeItem(item.id)}
                                                                                 aria-label={`حذف ${item.name}`}
-                                                                                className="size-11 flex items-center justify-center rounded-sm text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                                                                className="size-11 flex items-center justify-center rounded-sm text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                         >
                                                                                 <AnimatedTrash className="size-3.5" />
                                                                         </button>
@@ -195,7 +200,7 @@ export function CartSlideOver() {
                                 </div>
 
                                 {/* Glass-strong footer */}
-                                <div className="border-t border-white/5 px-4 py-4 space-y-3 bg-background/80 backdrop-blur-xl">
+                                <div className="border-t border-border/10 px-4 py-4 space-y-3 bg-background/80 backdrop-blur-xl">
                                         <div className="flex items-center justify-between text-sm">
                                                 <span className="text-muted-foreground">الإجمالي</span>
                                                 <span className="font-bold tabular-nums text-base">

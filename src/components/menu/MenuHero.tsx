@@ -8,7 +8,7 @@
  * OptimizedImage, animated icons); everything else renders on the server.
  */
 import { normalizeWaNumber } from '@/lib/whatsapp';
-import { Store } from 'lucide-react';
+import { Store, Printer, Phone, Mail } from 'lucide-react';
 import { QrCornerMark } from '@/components/ui/QrCornerMark';
 import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedClock from '@/components/ui/clock-icon';
@@ -71,7 +71,7 @@ export function MenuHero({
                                 style={{ animationDelay: '0.5s' }}
                             />
                             {/* Glass orb container */}
-                            <div className="relative size-28 md:size-32 rounded-2xl overflow-hidden shadow-2xl shadow-orange/20 ring-2 ring-orange/15 dark:ring-orange/15 backdrop-blur-sm bg-white/5 dark:bg-white/[0.04] gpu-layer">
+                            <div className="relative size-28 md:size-32 rounded-2xl overflow-hidden shadow-2xl shadow-orange/20 ring-2 ring-orange/15 backdrop-blur-sm bg-white/5 dark:bg-white/[0.04] gpu-layer">
                                 {/* LCP: hero logo is above the fold → eager fetch with high priority.
                                     round88-A2 sizes: box is size-28 (112px) / md:size-32 (128px) — the
                                     old generic 100vw/50vw/33vw made the browser fetch a viewport-sized
@@ -80,6 +80,9 @@ export function MenuHero({
                                     src={restaurant.logo}
                                     alt={restaurant.name}
                                     aspectRatio="square"
+                                    /* r97-X1: rounded-none — الحاوية الزجاجية rounded-2xl + الحلقة
+                                       تعرّفان الزوايا؛ الافتراضي 18px كان سيقصّ 2px إضافية داخلها */
+                                    className="rounded-none"
                                     imageClassName="size-full object-cover"
                                     fallback={<Store className="size-10 text-white" />}
                                     skeleton
@@ -93,7 +96,7 @@ export function MenuHero({
                         <div className="relative mx-auto mb-6">
                             <div className="absolute -inset-4 rounded-full bg-orange/5 blur-[40px]" />
                             <div className="relative size-20 rounded-2xl bg-gradient-to-br from-orange to-saffron/80 flex items-center justify-center shadow-xl shadow-orange/25 ring-2 ring-white/10 gpu-layer">
-                                <Store className="size-10 text-white" />
+                                <Store className="size-10 text-orange-foreground" />
                             </div>
                         </div>
                     )}
@@ -128,17 +131,10 @@ export function MenuHero({
                         <a
                             href={`/menu/${slug}/print`}
                             target="_blank"
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                         >
-                            <svg
-                                className="size-3.5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 9V3h12v6M6 18h12v3H6v-3z" />
-                            </svg>
+                            {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
+                            <Printer className="size-3.5" aria-hidden="true" />
                             طباعة
                         </a>
                     </div>
@@ -150,17 +146,10 @@ export function MenuHero({
                                 <a
                                     href={`tel:${restaurant.phone}`}
                                     dir="ltr"
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                 >
-                                    <svg
-                                        className="size-3.5"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                    >
-                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                                    </svg>
+                                    {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
+                                    <Phone className="size-3.5" aria-hidden="true" />
                                     {restaurant.phone}
                                 </a>
                             )}
@@ -169,7 +158,7 @@ export function MenuHero({
                                     href={`https://wa.me/${normalizeWaNumber(restaurant.whatsapp)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-success/15 transition-colors duration-300 backdrop-blur-md border border-success/30 text-success shadow-lg shadow-success/20"
+                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-success/15 transition-colors duration-300 backdrop-blur-md border border-success/30 text-success shadow-lg shadow-success/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                 >
                                     <span className="relative flex size-2">
                                         <span className="absolute inline-flex size-full animate-ping rounded-full bg-whatsapp opacity-60" />
@@ -184,18 +173,10 @@ export function MenuHero({
                             {restaurant.email && (
                                 <a
                                     href={`mailto:${restaurant.email}`}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04]"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                 >
-                                    <svg
-                                        className="size-3.5"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                    >
-                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                                        <polyline points="22,6 12,13 2,6" />
-                                    </svg>
+                                    {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
+                                    <Mail className="size-3.5" aria-hidden="true" />
                                     {restaurant.email}
                                 </a>
                             )}

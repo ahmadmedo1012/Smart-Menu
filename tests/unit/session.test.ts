@@ -129,10 +129,28 @@ describe('destroySession', () => {
                 db.session.deleteMany
                         .mockRejectedValueOnce(new Error('ECONNRESET'))
                         .mockResolvedValueOnce({ count: 1 });
-                await new Promise((r) => setTimeout(r, 350)); // the module waits 300ms before retrying
-                await destroySession();
-                // first call from a previous await… simpler: assert it was called at least twice in total
-                expect(db.session.deleteMany.mock.calls.length).toBeGreaterThanOrEqual(2);
+                // r97-X4: كان الاختبار ينام 350ms حقيقية قبل الاستدعاء (والوحدة
+                // تنتظر 300ms داخل إعادة المحاولة على مؤقتات حقيقية أيضًا) مع
+                // تأكيد ضعيف `>=2`. الآن: مؤقتات وهمية scoped لهذا الاختبار فقط —
+                // نقدّم نافذة إعادة المحاولة الداخلية (300ms) بالضبط، فيصبح
+                // عدد الاستدعاءات حتميًا (2) والتأكيد صارمًا.
+                vi.useFakeTimers();
+                try {
+                        const p = destroySession();
+                        // advanceTimersByTimeAsync: the retry delay sits inside an
+                        // async catch — the async variant flushes the microtasks
+                        // (rejection → catch → setTimeout) around the timer window.
+                        await vi.advanceTimersByTimeAsync(300);
+                        await p;
+                } finally {
+                        vi.useRealTimers();
+                }
+                expect(db.session.deleteMany).toHaveBeenCalledTimes(2);
+                const expectedArg = { where: { token: hash('11111111-1111-4111-8111-111111111111') } };
+                expect(db.session.deleteMany).toHaveBeenNthCalledWith(1, expectedArg);
+                expect(db.session.deleteMany).toHaveBeenNthCalledWith(2, expectedArg);
+                // the cookie is still cleared after a successful retry
+                expect(cookieStore.get(SESSION_COOKIE)!.opts.maxAge).toBe(0);
         });
 
         it('clears the cookie WITHOUT db access for a malformed token', async () => {

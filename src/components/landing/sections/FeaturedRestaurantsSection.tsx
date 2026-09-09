@@ -247,7 +247,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                         <button
                                                                 onClick={prev}
                                                                 type="button"
-                                                                className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100"
+                                                                className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="السابق"
                                                         >
                                                                 <MotionArrowLeft className="size-5" />
@@ -255,7 +255,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                         <button
                                                                 onClick={next}
                                                                 type="button"
-                                                                className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100"
+                                                                className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="التالي"
                                                         >
                                                                 <MotionArrowRight className="size-5" />

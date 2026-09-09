@@ -158,7 +158,7 @@ export default function OwnerRestaurantsPage() {
 						<div>
 							<Label htmlFor={`${lId}-slug`}>الرابط المختصر *</Label>
 							<div className="flex items-center mt-1.5">
-								<span className="text-xs text-muted-foreground bg-muted/50 h-11 px-3 rounded-sm border-e-0 border-input flex items-center shrink-0">
+								<span className="text-xs text-muted-foreground bg-muted/50 h-12 px-3 rounded-s-lg border-e-0 border-input flex items-center shrink-0">
 									/menu/
 								</span>
 								<Input id={`${lId}-slug`} 
@@ -170,7 +170,7 @@ export default function OwnerRestaurantsPage() {
 										})
 									}
 									placeholder="al-jabal"
-									className="h-11 rounded-[4px] -me-[2px] text-start"
+									className="h-12 rounded-e-lg -me-[2px] text-start"
 									dir="ltr"
 								/>
 							</div>

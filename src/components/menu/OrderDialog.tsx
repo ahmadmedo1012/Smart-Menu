@@ -203,7 +203,9 @@ export function OrderDialog({
                                         <OptimizedImage
                                                 src={item.image}
                                                 alt={displayName}
-                                                className="size-full"
+                                                /* r97-X1: rounded-none — رأس الحوار ممتد لمقصّ DialogContent
+                                                   rounded-2xl الذي يعرّف الزوايا العلوية */
+                                                className="size-full rounded-none"
                                                 aspectRatio="video"
                                                 skeleton
                                                 /* round88-A2: dialog is sm:max-w-md (448px); header image fills it.
@@ -216,7 +218,7 @@ export function OrderDialog({
                                         <button
                                                 type="button"
                                                 onClick={() => onOpenChange(false)}
-                                                className="absolute top-3 start-3 size-10 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center"
+                                                className="absolute top-3 start-3 size-10 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                 aria-label="إغلاق"
                                         >
                                                 <AnimatedX className="size-4" />
@@ -233,7 +235,7 @@ export function OrderDialog({
                                                 {/* decorative backdrop — checkmark lives in the orange circle only */}
                                         </div>
                                         <div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-lg shadow-orange/30">
-                                                <MotionCheck className="size-10 text-white" />
+                                                <MotionCheck className="size-10 text-orange-foreground" />
                                         </div>
                                         <h3 className="text-xl font-bold mb-1">تم إرسال الطلب!</h3>
                                         <p className="text-sm text-muted-foreground">جاري تحويلك إلى واتساب...</p>
@@ -260,7 +262,7 @@ export function OrderDialog({
                                                                         sizes="48px"
                                                                 />
                                                         ) : (
-                                                                <Store className="size-6 text-white" />
+                                                                <Store className="size-6 text-orange-foreground" />
                                                         )}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -268,8 +270,10 @@ export function OrderDialog({
                                                         <p className="text-xs text-muted-foreground">طلب جديد</p>
                                                 </div>
                                                 {hasDiscount && (
-                                                        <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">
-                                                                -{Math.round((1 - item.discountedPrice! / item.price) * 100)}%
+                                                        /* round80: unified savings semantic — success family (matches
+                                                           MenuItemCard's discount badge), destructive stays for errors. */
+                                                        <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full">
+                                                                -{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
                                                         </span>
                                                 )}
                                         </div>
@@ -412,7 +416,7 @@ export function OrderDialog({
                                                                 type="button"
                                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                                                 disabled={quantity <= 1}
-                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow]"
+                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="إنقاص الكمية"
                                                         >
                                                                 <MotionMinus className="size-4" />
@@ -424,7 +428,7 @@ export function OrderDialog({
                                                                 type="button"
                                                                 onClick={() => setQuantity(Math.min(99, quantity + 1))}
                                                                 disabled={quantity >= 99}
-                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow]"
+                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="زيادة الكمية"
                                                         >
                                                                 <MotionPlus className="size-4" />
@@ -469,7 +473,7 @@ export function OrderDialog({
                                                                 className={cn(
                                                                         'flex-1 py-2.5 rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                         orderType === type
-                                                                                ? 'bg-orange text-white shadow-md'
+                                                                                ? 'bg-orange text-orange-foreground shadow-md'
                                                                                 : 'text-muted-foreground hover:text-foreground'
                                                                 )}
                                                         >
@@ -489,7 +493,7 @@ export function OrderDialog({
                                                                         aria-pressed={notes.includes(note)}
                                                                         onClick={() => toggleQuickNote(note)}
                                                                         className={cn(
-                                                                                'px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border',
+                                                                                'px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                                 notes.includes(note)
                                                                                         /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
                                                                                 ? 'bg-orange/10 border-orange/30 text-accent-foreground'
@@ -531,7 +535,7 @@ export function OrderDialog({
                                                 </div>
                                                 <button
                                                         type="button"
-                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98]"
+                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         onClick={handleConfirm}
                                                         disabled={submitting || !restaurantWhatsapp}
                                                 >
