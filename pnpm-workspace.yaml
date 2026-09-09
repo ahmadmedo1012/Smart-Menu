@@ -27,14 +27,14 @@ overrides:
   'knip>zod': ^3.25.76
   postcss: 8.5.26
   nanoid: ^3.3.18
-  hono: ^4.13.3
+  hono: ^4.13.7
   '@hono/node-server': ^1.19.17
   fast-uri: ^3.1.6  # round86-D7: >=3.1.6 fixes SSRF/host-confusion advisories
   browserslist: ^4.28.7  # round86-D7: fixes OOM + prototype-write advisories (via next/babel chain)
   mysql2: ^3.23.1  # round86-D7: fixes auth-downgrade + zlib advisories (via prisma)
   deepmerge-ts: ^8.0.1
   valibot: ^1.4.2
-  sharp: 0.35.3
+  sharp: 0.35.4
   # round88-B8: patch-level fixes for the 5 high advisories in the eslint
   # dev chain (dev-tooling only, zero production-runtime exposure; semver-
   # compatible — same major):

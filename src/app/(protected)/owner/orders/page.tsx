@@ -79,6 +79,9 @@ export default function OwnerOrdersPage() {
                                 const url = `/api/orders?${params.toString()}`;
                                 const res = await fetch(url);
                                 if (res.status === 401) {
+                                        // r97: تحميل كامل عمدًا — انتهاء الجلسة يجب أن يمحو كل
+                                        // حالة العميل (المتجر/السلة) لا مجرد تغيير المسار.
+                                        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                                         window.location.href = '/login';
                                         return;
                                 }

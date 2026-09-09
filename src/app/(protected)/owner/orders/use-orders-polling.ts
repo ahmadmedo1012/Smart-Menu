@@ -47,6 +47,8 @@ export function useOrdersPolling({ filter, activeId, fetchOrders }: UseOrdersPol
                                 if (activeId) params.set('restaurantId', String(activeId));
                                 const res = await fetch(`/api/orders?${params.toString()}`);
                                 if (res.status === 401) {
+                                        // r97: تحميل كامل عمدًا (نفس عقد صفحة الطلبات أعلاه).
+                                        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                                         window.location.href = '/login';
                                         return;
                                 }

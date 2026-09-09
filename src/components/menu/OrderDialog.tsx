@@ -156,6 +156,8 @@ export function OrderDialog({
                 whatsappTimerRef.current = setTimeout(() => {
                         onOpenChange(false);
                         // Redirect to unified cart page where user reviews + sends WhatsApp
+                        // r97: تحميل كامل عمدًا — صفحة السلة تبدأ بحالة نظيفة بعد الطلب.
+                        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                         window.location.href = '/cart';
                 }, 800);
         }, [
