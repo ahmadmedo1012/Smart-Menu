@@ -46,6 +46,7 @@
     "open-design",
     "scripts",
     "skills",
-    "tests/e2e"
+    "tests/e2e",
+    "mobile"
   ]
 }

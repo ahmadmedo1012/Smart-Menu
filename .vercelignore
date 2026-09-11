@@ -1,0 +1,18 @@
+# Ignore mobile app — it's a separate Expo project built via EAS, not Vercel
+mobile/
+mobile/node_modules/
+mobile/.expo/
+mobile/android/
+mobile/ios/
+mobile/dist/
+mobile/web-build/
+
+# Ignore WebToMobile plugin docs/skills (not needed in deployment)
+docs/web-to-mobile/
+docs/mobile-progress.md
+docs/mobile-final-report.md
+
+# Ignore AI/tooling
+.agents/
+.claude/
+claude.md
