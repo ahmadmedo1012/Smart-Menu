@@ -90,7 +90,8 @@
 
 ## Verification log (append newest first)
 
-- **r103 (2026-09-12)**: fresh clone @ `174719b4` — TS 0 / lint 0 (10 legacy warnings) / 1930-1930 unit / production build OK (local PG) / mobile TS+lint+doctor 18/18 + Metro export 7.56MB. Live repros: F1 (400 on the admin probe), F8 (wa.me/null in code; ISR made the live grep stale). F13 (print/isActive) REFUTED live — parent layout gate 404s correctly (agent false positive). 24 fixes applied + 22 new unit tests + 3 test-contract updates (rbac-matrix, r92-cleanup-ratelimit, regression-sweep/restaurants-create mocks). **Deployment + live regression: see newest commit below.**
+- **r103 (2026-09-12) — DEPLOYED**: commit `cb8e781f` (fix batch `ff97a777` + CI fix) LIVE on production via API deployment `dpl_DjJnUDSnDAsoFx9yRqMvEGgL` (git-integration BLOCKED by the stale-concurrency entry again — cancelled, per the documented runbook). `/api/health`: sha cb8e781f, db connected. Gates: TS 0 · lint 0 errors · 1930/1930 unit · build OK · mobile TS/lint/doctor 18/18 + Metro export 7.56MB · secrets PASS · api-auth PASS. CI: mobile job **SUCCESS**, prod-qa **SUCCESS**. LIVE REGRESSION: pages 200, security negatives intact (401/403), anonymous items still 400 (F1 scope preserved), F12 new copy live, full order journey 201 (`ORD-MTXCK5X4-8EB096DE`, برجر الواحة ×2 + الحجم modifier, server-priced, notes carried). EAS preview APK build `6691ae92` on cb8e781f.
+- **r103 (2026-09-12) — pre-deploy**: fresh clone @ `174719b4` — TS 0 / lint 0 (10 legacy warnings) / 1930-1930 unit / production build OK (local PG) / mobile TS+lint+doctor 18/18 + Metro export 7.56MB. Live repros: F1 (400 on the admin probe), F8 (wa.me/null in code; ISR made the live grep stale). F13 (print/isActive) REFUTED live — parent layout gate 404s correctly (agent false positive). 24 fixes applied + 22 new unit tests + 3 test-contract updates (rbac-matrix, r92-cleanup-ratelimit, regression-sweep/restaurants-create mocks).
 
 ---
 
