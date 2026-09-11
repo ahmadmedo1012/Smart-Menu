@@ -30,9 +30,12 @@ async function main() {
   console.log('connected to', (url || '').replace(/:[^:@/]*@/, ':***@'));
 
   // 1) who holds advisory locks right now?
+  // r98-deploy-fix: state_change أضيفت — تمييز الزومبي "idle in transaction"
+  // (بقايا بناء قُتل في منتصف migrate) عن الجلسة الحية: القديمة فقط تُقتل.
   const { rows: holders } = await c.query(`
     SELECT pid, state, application_name,
            backend_start::text AS started,
+           state_change::text AS state_changed,
            wait_event_type, wait_event,
            left(coalesce(query, ''), 70) AS q
     FROM pg_stat_activity
@@ -41,11 +44,27 @@ async function main() {
   `);
   console.log('ADVISORY_LOCK_HOLDERS =', JSON.stringify(holders, null, 2));
 
-  // 2) terminate only IDLE holders (stale build sessions); log active ones
+  // 2) terminate only stale holders; log active ones.
+  // r98-deploy-fix: كان الشرط `state !== 'idle'` يقفز فوق زومبي
+  // "idle in transaction" — بقايا بناء مقتول نصًا، تحمل قفل P1002 وتعطّل
+  // كل بناء لاحق (حلقة ذاتية التجذير). القاعدة الآن:
+  //   - idle: اقتل دائمًا (كما كان — جلسة بناء قديمة)
+  //   - idle in transaction/aborted: اقتل فقط إن مر عليها 5 دقائق+
+  //     (خلال دقائقها الأولى قد تكون معاملة حقيقية تستقر)
+  //   - active: سجّل فقط (قد تعمل عملًا حقيقيًا)
+  const FIVE_MIN_MS = 5 * 60 * 1000;
   for (const h of holders) {
+    const idleInTx = h.state === 'idle in transaction' || h.state === 'idle in transaction aborted';
     if (h.state !== 'idle') {
-      console.log('SKIPPED (active) pid=' + h.pid + ' state=' + h.state + ' q=' + (h.q || ''));
-      continue;
+      if (!idleInTx) {
+        console.log('SKIPPED (active) pid=' + h.pid + ' state=' + h.state + ' q=' + (h.q || ''));
+        continue;
+      }
+      const sinceChange = Date.now() - new Date(h.state_changed).getTime();
+      if (sinceChange < FIVE_MIN_MS) {
+        console.log('SKIPPED (idle-in-tx fresh, ' + Math.round(sinceChange / 1000) + 's) pid=' + h.pid);
+        continue;
+      }
     }
     try {
       await c.query('SELECT pg_terminate_backend($1)', [h.pid]);

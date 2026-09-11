@@ -2,10 +2,17 @@ name: Keep Website Alive
 
 on:
   schedule:
-    # r97-X4: was `*/12 * * * *` (120 runs/day of a full ubuntu runner). The
-    # target is a Vercel site with no cold-start problem to keep warm — hourly
-    # is plenty for outage detection.
-    - cron: '0 * * * *'
+    # r98-deploy-fix: كان `*/12` (120 تشغيلًا/يوم) فخُفّض إلى ساعي في r97-X4
+    # بتبرير «لا مشكلة إقلاع بارد عند Vercel» — التبرير صحيح للـ lambda لكنه
+    # تجاهل من يستيقظ فعلاً: **Neon compute** خلف التطبيق. نافذة 9 سبتمبر
+    # 00:39→08:52 بلا ping واحد تزامنت مع فشل كل عمليات نشر الجولة 97 عند
+    # `prisma migrate deploy` (P1001 على Neon بارد). التصحيح المزدوج:
+    #   1) الهدف صار /api/health — استعلام DB حي (الرئيسية static ولا تلمس
+    #      قاعدة البيانات أصلاً)، يوقظ Neon ويراقب DB معًا (503 عند التعطل).
+    #   2) كل 15 دقيقة (96/يوم ≈ دقيقة GitHub واحدة) — كافٍ للمراقبة،
+    #      والبناء محمي بغلاف إعادة المحاولة scripts/migrate-deploy.mjs
+    #      حتى لو نام Neon بين الـ pings.
+    - cron: '*/15 * * * *'
 
 # round86-D6: least-privilege + cancelled superseded runs
 permissions:
@@ -21,17 +28,22 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Ping Server
-        # Production URL (was: smart-menu-sigma.vercel.app — a dead/old project
-        # URL that no longer serves this app). Ping the real domain.
+        # r98-deploy-fix: الهدف الآن /api/health لا الرئيسية:
+        #   - الرئيسية static (مُولّدة مسبقًا) — ping لا يلمس DB إطلاقًا، فكان
+        #     «الإبقاء على الدفء» وهمًا: Neon كان ينام تحت كل الـ pings.
+        #   - /api/health يستعلم DB فعليًا (round92: db connected + latency)
+        #     ويعيد 503 عند تعطله — فالـ ping الآن يوقظ Neon ويراقب القاعدة
+        #     معًا (كشف انقطاع حقيقي لا مجرد استجابة CDN).
         run: |
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://menu.smart-link.ly) || CODE="000"
+          CODE=$(curl -s -o /tmp/health.json -w "%{http_code}" --max-time 30 https://menu.smart-link.ly/api/health) || CODE="000"
           echo "HTTP $CODE"
+          cat /tmp/health.json 2>/dev/null || true
           # r97-X4: the check was DECORATIVE — a non-200 (or curl timeout → 000)
           # only emitted ::warning::, so the badge stayed green through real
           # outages. Now the step FAILS (exit 1) so the badge reflects reality;
           # the ::error:: annotation keeps the status code visible in the
           # Actions summary without log-diving.
           if [ "$CODE" != "200" ]; then
-            echo "::error::menu.smart-link.ly returned HTTP $CODE (expected 200)"
+            echo "::error::menu.smart-link.ly/api/health returned HTTP $CODE (expected 200)"
             exit 1
           fi
