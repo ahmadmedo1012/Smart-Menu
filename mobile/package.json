@@ -38,6 +38,7 @@
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-native": "0.79.6",
+    "react-native-css-interop": "0.1.22",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-get-random-values": "~1.11.0",
     "react-native-reanimated": "~3.17.4",
@@ -52,6 +53,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "babel-plugin-module-resolver": "^5.0.3",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~9.2.0",
     "tailwindcss": "^3.4.17",
@@ -63,7 +65,9 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": ["clsx"]
+        "exclude": [
+          "clsx"
+        ]
       }
     }
   }

@@ -1,6 +1,8 @@
 import "react-native-get-random-values";
-// eslint-disable-next-line import/no-unresolved
-import "./global.css";
+// r100c: global.css lives at the project root — this was "./global.css" which
+// Metro could not resolve from src/app/ (only the tsc `noUncheckedSideEffectImports`-era
+// check passed because the comment above silenced the unresolved-import lint).
+import "../../global.css";
 
 import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
