@@ -42,6 +42,12 @@ vi.mock('next/headers', () => ({
                         cookieStore.set(name, { value, opts });
                 },
         }),
+        // r98: session.validateSession صار يقرأ ترويسة Authorization: Bearer
+        // (دعم تطبيق الموبايل c4951bb6) عند غياب الكوكي — الـ mock كان يعرّف
+        // cookies فقط فانفجر المسار السريع «لا كوكي» بـ "No 'headers' export
+        // is defined". ترويسات فارغة افتراضيًا: كل اختبارات الجلسة الحالية
+        // بلا Bearer، والمسار يبقى كما اختُبر أصلاً (no cookie → invalid fast).
+        headers: async () => new Headers(),
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: db }));
