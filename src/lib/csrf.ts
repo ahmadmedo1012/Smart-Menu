@@ -67,6 +67,14 @@ export function assertSameOrigin(request: Request): void {
                 return;
         }
 
+        // دعم تطبيق الموبايل لـ login: الطلب يُرسل قبل إنشاء الجلسة (لا يوجد Bearer
+        // بعد). لا حاجة لحماية CSRF على login — الـ password نفسه يحمي الطلب.
+        // تطبيق React Native لا يستطيع إرسال كوكي CSRF صالح. تخطّي الفحص.
+        const clientType = request.headers.get('x-client-type');
+        if (clientType === 'mobile') {
+                return;
+        }
+
         const origin = request.headers.get('origin');
         if (!origin) {
                 throw new Error('CSRF check failed: missing Origin');
