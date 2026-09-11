@@ -41,16 +41,14 @@ pg-native (embedded-postgres 16.14) + pg-local-start.sh بلا psql (node+pg —
 - [x] SSR المنيو: 26 سعرًا + 28 صورة + صفر fallback في HTML الخام · redirects 308 · sitemap نظيف
 - [x] أسرار: 0 تسريب (904 ملفات) · check-api-auth PASS
 
-## ⚠️ النشر — حُلَّ جذريًا في r98 (تشخيص سببي من مدد Vercel)
-**كل عمليات نشر Vercel الست للجولة فشلت** بينما CI بنفس الكود أخضر؛ سجلات البناء خلف SSO (توكن Vercel فُقد). **تشخيص r98** (من لقطة المستخدم + مقارنة سببية `ca8bd0e2→9f42b5e2` بفرق أحادي المتغير):
-- **الخمس الفاشلة في 4-5 ثوانٍ** (4c04a3e1→ca8bd0e2): وجود `overrides` في package.json **و**pnpm-workspace.yaml معًا (أدخله f745b33e) — إزالتها وحدها (9f42b5e2) نقلت الفشل من 4s إلى 1m16s. الحل: pnpm-workspace.yaml هو المصدر الوحيد (حالة 42532f48 التي نُشرت بنجاح).
-- **فشل 9f42b5e2 عند 1m16s** (= مدة بناء ناجح بالضبط): التثبيت نجح والبناء وصل نهايته — الباقي الوحيد الذي يلمس DB وقت البناء هو `prisma migrate deploy`، ونافذة 9 سبتمبر 00:39→08:52 بلا ping واحد (keep_alive صار ساعيًا في r97-X4 والرئيسية static لا تلمس DB أصلًا) => **Neon compute نائم => P1001** — نمط Neon+Prisma المعروف. ترقيم الجرعة: البناء لم يلمس DB في أي مكان آخر (generateStaticParams = [] عمدًا من round92-A2).
-**إصلاحات r98** (برهان محلي: بناء كامل بنمط Vercel بلا .env + قاعدة فارغة = EXIT 0، و1908/1908، وlint/tsc صفر):
-1. إزالة overrides من package.json (استرجاع حالة آخر نجاح) + استرجاع مسار upload الذي حذفه commit الجلسة المقطوعة 898605c4 (كان يكسر اختبار upload-route والfeature).
-2. `scripts/migrate-deploy.mjs`: غلاف migrate deploy — 3 محاولات (10s/20s backoff) **للأخطاء العابرة فقط** (P1001/P1002/P1003/P1004/P1008 + أكواد الشبكة)؛ انجراف/هجرة فاشلة يُجهض فورًا (فاشل-مغلق ضد إخفاء الخلل).
-3. db-unstick: يقتل الآن زومبي `idle in transaction` (بقايا بناء مقتول كانت تحمل قفل P1002 وتعطّل كل بناء لاحق — كانت تُتخطى لأن الشرط القديم `state !== 'idle'`).
-4. keep_alive: ي ping `/api/health` (استعلام DB حي — يوقظ Neon ويراقب القاعدة معًا، 503 عند التعطل) كل 15 دقيقة بدل الرئيسية static ساعيًا.
-للفحص القديم: `npx vercel inspect dpl_BxcgUuwMq24zMA985p3DUkndv43A --logs` (لم يعد ضروريًا).
+## ⚠️ النشر — حُلَّ جذريًا في r98 (السببان مؤكدان بمصادر خارجية)
+**كل عمليات نشر Vercel الست للجولة فشلت** بينما CI بنفس الكود أخضر؛ سجلات البناء خلف SSO (توكن Vercel فُقد). **تشخيص r98** (لقطة المستخدم + مقارنة سببية `ca8bd0e2→9f42b5e2` أحادية المتغير + بحث مصدري):
+- **الخمس الفاشلة في 4-5 ثوانٍ** (4c04a3e1→ca8bd0e2): `overrides` في package.json **و**pnpm-workspace.yaml معًا (أدخلها f745b33e) — إزالتها وحدها (9f42b5e2) نقلت الفشل من 4s إلى 1m16s. الحل: pnpm-workspace.yaml هو المصدر الوحيد (حالة 42532f48 الناجحة).
+- **فشل 9f42b5e2 عند 1m16s** (= مدة بناء ناجح): الترقية الأمنية 06e3e581 رفعت next 16.2.12→**16.3.4** — و**vercel/next.js#96646**: `output:'standalone'` + next 16.3.x + Vercel = فشل حتمي في `onBuildComplete` (ENOENT `.next/next-server.js.nft.json`) بعد اكتمال البناء نفسه — «يبني محليًا ويَفشل على Vercel حتميًا، وينجح على 16.2.x» — حرفيًا بصمتنا. الإصلاح دخل canary فقط (#97287، 14 أغسطس) ويشحن في 16.4.0؛ **كل 16.3.x المستقرة معطوبة** (v16.3.1 و v16.3.4 على الـ hash المعطوب نفسه). الحل المعتمد من المجتمع: `output: process.env.VERCEL ? undefined : 'standalone'` — standalone يبقى للبناءات المحلية/CI (e2e يعتمد `node .next/standalone/server.js`) وundefined على Vercel.
+**إصلاحات r98** (برهان محلي: بناء كامل بنمط Vercel بلا .env = EXIT 0 على المسارين — مع/بدون VERCEL — و1908/1908، وlint/tsc صفر):
+1. next.config.ts: output مشروط بـ VERCEL (الإصلاح الجذري للفشل المتأخر — #96646).
+2. إزالة overrides من package.json (الإصلاح الجذري للفشل الفوري) + استرجاع مسار upload الذي حذفه commit الجلسة المقطوعة 898605c4.
+3. تحصينات no-regret لسلسلة DB عند البناء (تظل قيمة ضد البرد/القفل العابر الحقيقيين): `scripts/migrate-deploy.mjs` (3 محاولات للأخطاء العابرة فقط P1001/P1002/…؛ الانجراف يُجهض فورًا) · db-unstick يقتل زومبي idle-in-transaction · keep_alive ي ping `/api/health` كل 15 دقيقة (يوقظ Neon ويراقب DB فعليًا بدل ping رئيسية static لا تلمسها).
 
 ## ذيل الجولات القادمة
 - CI monolith lint-build-test (~45 د) يمكن شطره quality/e2e (TODO r98 موثق في ci.yml)

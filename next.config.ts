@@ -1,7 +1,19 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-        output: 'standalone',
+        // r98-deploy-fix (السبب الجذري الثاني لفشل عمليات النشر الست):
+        // next 16.3.x + output:'standalone' + Vercel = فشل حتمي في onBuildComplete
+        // (ENOENT .next/next-server.js.nft.json — vercel/next.js#96646). البناء
+        // نفسه يكتمل ثم ينهار في خطاف Vercel عند تجميع الـ lambdas: 16.3 أوقف
+        // إصدار ملف تتبع next-server (is_using_adapter() early return من
+        // #93684) بينما onBuildComplete ما زال يقرؤه. الإصلاح دخل canary فقط
+        // (14 أغسطس #97287) ويشحن في 16.4.0 — لم يُلحق بأي 16.3.x مستقر
+        // (v16.3.1 و v16.3.4 كلاهما على الـ hash المعطوب نفسه).
+        // الحل المعتمد من المجتمع (#96646): standalone للبناءات المحلية/CI فقط
+        // (e2e يعتمد node .next/standalone/server.js + postbuild ينسق الملفات
+        // الثابتة إليه)، وundefined على Vercel حيث يُستخدم نشرها الأصلي —
+        // مطابق للنمط القائم أدناه في experimental.cpus.
+        output: process.env.VERCEL ? undefined : 'standalone',
         turbopack: {
                 root: process.cwd(),
         },
