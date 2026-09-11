@@ -6,15 +6,15 @@ import { Check } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
 import { Button } from "@/components/ui/Button";
-import { Spinner, EmptyState } from "@/components/ui";
+import { Spinner } from "@/components/ui";
 import { toast } from "@/app/providers";
 import { formatPrice } from "@/lib/format";
+import { getErrorMessage } from "@/lib/get-error-message";
+import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
 
-type Nav = any;
-
 export function SubscribePlanScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<RootNavigation>();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -65,7 +65,7 @@ export function SubscribePlanScreen() {
 }
 
 export function SubscribeMenuScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<RootNavigation>();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [phone, setPhone] = useState("");
@@ -80,8 +80,8 @@ export function SubscribeMenuScreen() {
       const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
       await AsyncStorage.setItem("subscribe_pending", JSON.stringify({ name, slug, phone, whatsapp }));
       navigation.navigate("SubscribePayment", { planId: 1 });
-    } catch (e: any) {
-      toast.error(e?.message || "الاسم أو الـ slug مستخدم بالفعل");
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, "الاسم أو الـ slug مستخدم بالفعل"));
     } finally { setSubmitting(false); }
   };
 
@@ -102,7 +102,7 @@ export function SubscribeMenuScreen() {
 }
 
 export function SubscribePaymentScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<RootNavigation>();
   const [provider, setProvider] = useState<"libyana" | "madar" | "bank">("libyana");
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
@@ -119,8 +119,8 @@ export function SubscribePaymentScreen() {
       });
       toast.success("تم إرسال طلب الدفع — سيتم تأكيده خلال دقائق");
       navigation.getParent()?.getParent()?.navigate("Landing");
-    } catch (e: any) {
-      toast.error(e?.message || "فشل إرسال الطلب");
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, "فشل إرسال الطلب"));
     } finally { setSubmitting(false); }
   };
 

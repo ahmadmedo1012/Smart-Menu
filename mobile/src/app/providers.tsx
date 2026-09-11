@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Toast from "react-native-toast-message";
+import Toast, { type ToastConfig } from "react-native-toast-message";
 import { View, Text } from "react-native";
 
 const queryClient = new QueryClient({
@@ -15,28 +15,29 @@ const queryClient = new QueryClient({
   },
 });
 
-const renderToast = (props: { type: "success" | "error" | "info"; text1: string; text2?: string }) => {
-  const accentColor = props.type === "success" ? "#5b8c5a" : props.type === "error" ? "#c0392b" : "#3a8eb5";
+const renderToast = ({ type, text1, text2 }: { type: "success" | "error" | "info"; text1?: string; text2?: string }) => {
+  const accentColor = type === "success" ? "#5b8c5a" : type === "error" ? "#c0392b" : "#3a8eb5";
   return (
     <View style={{
-      backgroundColor: "#070503", borderLeftWidth: 4, borderLeftColor: accentColor,
+      // RTL: the accent rides the START edge — right side in this forced-RTL app
+      backgroundColor: "#070503", borderRightWidth: 4, borderRightColor: accentColor,
       borderRadius: 12, padding: 12, marginHorizontal: 16, marginVertical: 8,
       shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
       width: "92%", maxWidth: 460, alignSelf: "center",
     }}>
-      <Text style={{ color: "#ebe7e2", fontFamily: "Cairo", fontSize: 14, fontWeight: "600" }}>{props.text1}</Text>
-      {props.text2 ? (
-        <Text style={{ color: "#9c948a", fontFamily: "Cairo", fontSize: 12, marginTop: 2 }}>{props.text2}</Text>
+      <Text style={{ color: "#ebe7e2", fontFamily: "Cairo", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
+      {text2 ? (
+        <Text style={{ color: "#9c948a", fontFamily: "Cairo", fontSize: 12, marginTop: 2 }}>{text2}</Text>
       ) : null}
     </View>
   );
 };
 
-const customToastConfig = {
-  success: (props: any) => renderToast({ ...props, type: "success" }),
-  error: (props: any) => renderToast({ ...props, type: "error" }),
-  info: (props: any) => renderToast({ ...props, type: "info" }),
+const customToastConfig: ToastConfig = {
+  success: ({ text1, text2 }) => renderToast({ type: "success", text1, text2 }),
+  error: ({ text1, text2 }) => renderToast({ type: "error", text1, text2 }),
+  info: ({ text1, text2 }) => renderToast({ type: "info", text1, text2 }),
 };
 
 export function AppProviders({ children }: PropsWithChildren) {
@@ -45,7 +46,7 @@ export function AppProviders({ children }: PropsWithChildren) {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
       </GestureHandlerRootView>
-      <Toast config={customToastConfig as any} />
+      <Toast config={customToastConfig} />
     </QueryClientProvider>
   );
 }

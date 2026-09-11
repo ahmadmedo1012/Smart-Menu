@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { CheckCircle } from "lucide-react-native";
@@ -6,10 +6,11 @@ import * as Clipboard from "expo-clipboard";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/app/providers";
 import { toArabicNumber } from "@/lib/format";
+import type { RootNavigation } from "@/navigation/types";
 
 export function OrderConfirmedScreen() {
   const route = useRoute();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootNavigation>();
   const { orderId } = (route.params || {}) as { orderId?: string };
 
   const onShare = async () => {

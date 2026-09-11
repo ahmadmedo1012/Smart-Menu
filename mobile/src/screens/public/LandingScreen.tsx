@@ -10,16 +10,15 @@ import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { Button } from "@/components/ui/Button";
 import { toArabicNumber } from "@/lib/format";
+import type { RootNavigation } from "@/navigation/types";
 
 interface PublicStats { totalRestaurants: number; totalUsers: number; }
 interface FeaturedRestaurant {
   id: number; name: string; slug: string; description: string; logo: string; city: string | null;
 }
 
-type Nav = any;
-
 export function LandingScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<RootNavigation>();
   const [stats, setStats] = useState<PublicStats | null>(null);
   const [featured, setFeatured] = useState<FeaturedRestaurant[]>([]);
 
@@ -59,8 +58,8 @@ export function LandingScreen() {
         ) : null}
 
         <View className="gap-3 mb-12">
-          <Button title="ابدأ تجربتك الآن" onPress={() => navigation.navigate("Pricing" as any)} size="lg" className="w-full" />
-          <Button title="تسجيل الدخول" variant="outline" onPress={() => navigation.navigate("Login" as any)} size="lg" className="w-full" />
+          <Button title="ابدأ تجربتك الآن" onPress={() => navigation.navigate("Pricing")} size="lg" className="w-full" />
+          <Button title="تسجيل الدخول" variant="outline" onPress={() => navigation.navigate("Login")} size="lg" className="w-full" />
         </View>
 
         {featured.length > 0 ? (
@@ -70,7 +69,7 @@ export function LandingScreen() {
               {featured.map((r) => (
                 <Pressable
                   key={r.id}
-                  onPress={() => navigation.navigate("Menu" as any, { slug: r.slug } as any)}
+                  onPress={() => navigation.navigate("Menu", { slug: r.slug })}
                   style={({ pressed }) => ({
                     width: 200, backgroundColor: "#070503", borderRadius: 12, padding: 12,
                     borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.9 : 1,

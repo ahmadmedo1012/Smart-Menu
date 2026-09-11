@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, ScrollView, RefreshControl } from "react-native";
+import { View, Text, ScrollView, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Check, Sparkles } from "lucide-react-native";
@@ -9,12 +9,12 @@ import { Spinner, EmptyState, ErrorState } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { formatPrice } from "@/lib/format";
+import { getErrorMessage } from "@/lib/get-error-message";
+import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
 
-type Nav = any;
-
 export function PricingScreen() {
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<RootNavigation>();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -25,8 +25,8 @@ export function PricingScreen() {
     try {
       const list = await api.get<Plan[]>("/api/plans");
       setPlans(list ?? []);
-    } catch (e: any) {
-      setError(e?.message || "تعذّر تحميل الباقات");
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "تعذّر تحميل الباقات"));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -91,7 +91,7 @@ export function PricingScreen() {
                 <Limit label="صنف" value={plan.maxItems} />
                 <Limit label="طلب" value={plan.maxOrders} />
               </View>
-              <Button title="اشترك الآن" onPress={() => navigation.navigate("Login" as any)} variant={isPopular ? "orange" : "outline"} size="lg" className="w-full mt-4" />
+              <Button title="اشترك الآن" onPress={() => navigation.navigate("Login")} variant={isPopular ? "orange" : "outline"} size="lg" className="w-full mt-4" />
             </View>
           );
         })}

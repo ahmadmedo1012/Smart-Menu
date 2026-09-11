@@ -2,13 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { View, Text, ScrollView, RefreshControl, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Store, Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star } from "lucide-react-native";
+import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
 import { Spinner, EmptyState, ErrorState } from "@/components/ui";
 import { useAuth } from "@/store/auth";
 import { usePollWhenVisible } from "@/hooks/usePollWhenVisible";
-import { formatPrice, toArabicNumber, formatDate } from "@/lib/format";
+import { formatPrice, toArabicNumber } from "@/lib/format";
+import { formatRelativeTimeAr, getOrderStatusMeta, getPickupTypeMeta } from "@/lib/order-status";
+import { getErrorMessage } from "@/lib/get-error-message";
+import type { RootNavigation } from "@/navigation/types";
 
 interface OwnerStats {
   totalOrders: number; todayOrders: number; todayRevenue: number; totalItems: number;
@@ -18,7 +21,7 @@ interface OwnerStats {
 }
 
 export function OwnerDashboardScreen() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootNavigation>();
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
   const [stats, setStats] = useState<OwnerStats | null>(null);
@@ -31,8 +34,8 @@ export function OwnerDashboardScreen() {
     try {
       const s = await api.get<OwnerStats>("/api/stats");
       setStats(s);
-    } catch (e: any) {
-      setError(e?.message || "تعذّر تحميل الإحصائيات");
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "تعذّر تحميل الإحصائيات"));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -64,11 +67,11 @@ export function OwnerDashboardScreen() {
             <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color="#bc4700" />} full />
             <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#ebe7e2", marginVertical: 16 }}>إجراءات سريعة</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              <QuickAction icon={<ClipboardList size={20} color="#ebe7e2" />} label="الطلبات" onPress={() => (navigation as any).getParent()?.navigate("OwnerOrders")} />
-              <QuickAction icon={<Package size={20} color="#ebe7e2" />} label="المنيو" onPress={() => (navigation as any).getParent()?.navigate("OwnerMenu")} />
+              <QuickAction icon={<ClipboardList size={20} color="#ebe7e2" />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
+              <QuickAction icon={<Package size={20} color="#ebe7e2" />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
               <QuickAction icon={<QrCode size={20} color="#ebe7e2" />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
               <QuickAction icon={<Star size={20} color="#ebe7e2" />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
-              <QuickAction icon={<Award size={20} color="#ebe7e2" />} label="الولاء" onPress={() => (navigation as any).getParent()?.navigate("OwnerLoyalty")} />
+              <QuickAction icon={<Award size={20} color="#ebe7e2" />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
               <QuickAction icon={<Settings size={20} color="#ebe7e2" />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
             </View>
             <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#ebe7e2", marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
@@ -79,11 +82,11 @@ export function OwnerDashboardScreen() {
                 <Pressable key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#070503", borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
                   <View>
                     <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2" }}>{o.orderNo}</Text>
-                    <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }}>{formatDate(new Date(o.createdAt))}</Text>
+                    <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
                     <Text style={{ fontFamily: "ReadexPro", fontSize: 13, fontWeight: "700", color: "#bc4700" }}>{formatPrice(o.total)}</Text>
-                    <Text style={{ fontFamily: "Cairo", fontSize: 10, color: "#9c948a", marginTop: 2 }}>{o.status}</Text>
+                    <Text style={{ fontFamily: "Cairo", fontSize: 10, color: "#9c948a", marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
                   </View>
                 </Pressable>
               ))
@@ -124,7 +127,7 @@ interface Order {
 }
 
 export function OwnerOrdersScreen() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootNavigation>();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,8 +137,8 @@ export function OwnerOrdersScreen() {
     try {
       const list = await api.get<Order[]>("/api/orders");
       setOrders(list ?? []);
-    } catch (e: any) {
-      setError(e?.message || "تعذّر تحميل الطلبات");
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "تعذّر تحميل الطلبات"));
     } finally {
       setLoading(false);
     }
@@ -168,11 +171,11 @@ export function OwnerOrdersScreen() {
             <Pressable key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                 <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2" }}>{o.orderNo}</Text>
-                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#bc4700", fontWeight: "600" }}>{o.status}</Text>
+                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#bc4700", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
               </View>
               <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a" }}>{formatDate(new Date(o.createdAt))}</Text>
+                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
                 <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700" }}>{formatPrice(o.total)}</Text>
               </View>
             </Pressable>
@@ -184,7 +187,6 @@ export function OwnerOrdersScreen() {
 }
 
 export function OwnerOrderDetailScreen() {
-  const navigation = useNavigation<any>();
   const route = useRoute();
   const { orderId } = (route.params || {}) as { orderId: number };
   const [order, setOrder] = useState<Order | null>(null);
@@ -196,8 +198,8 @@ export function OwnerOrderDetailScreen() {
     try {
       const o = await api.get<Order>(`/api/orders/${orderId}`);
       setOrder(o);
-    } catch (e: any) {
-      setError(e?.message || "تعذّر تحميل الطلب");
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "تعذّر تحميل الطلب"));
     } finally {
       setLoading(false);
     }
@@ -205,13 +207,23 @@ export function OwnerOrderDetailScreen() {
 
   useEffect(() => { void load(); }, [load]);
 
-  if (loading || !order) {
+  if (loading && !order) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
+
+  if (error && !order) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+        <ErrorState message={error} onRetry={load} />
+      </SafeAreaView>
+    );
+  }
+
+  if (!order) return null;
 
   const updateStatus = async (status: string) => {
     try { await api.put(`/api/orders/${orderId}`, { status }); void load(); } catch {}
@@ -221,12 +233,12 @@ export function OwnerOrderDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", marginBottom: 4 }}>{order.orderNo}</Text>
-        <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", marginBottom: 16 }}>{formatDate(new Date(order.createdAt))}</Text>
+        <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
         <View style={{ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: "#1f1813" }}>
           <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2", marginBottom: 4 }}>بيانات الزبون</Text>
           <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>الاسم: {order.customerName || "—"}</Text>
           <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>الهاتف: {order.customerPhone || "—"}</Text>
-          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>النوع: {order.pickupType}</Text>
+          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
           {order.notes ? <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>ملاحظات: {order.notes}</Text> : null}
         </View>
         <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#ebe7e2", marginBottom: 8 }}>الأصناف</Text>
@@ -243,8 +255,8 @@ export function OwnerOrderDetailScreen() {
         <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#ebe7e2", marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {["new", "preparing", "ready", "completed", "cancelled"].map((s) => (
-            <Pressable key={s} onPress={() => updateStatus(s)} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#bc4700" : "#1f1813" }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "600", color: order.status === s ? "#fff" : "#9c948a" }}>{s}</Text>
+            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#bc4700" : "#1f1813" }}>
+              <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "600", color: order.status === s ? "#fff" : "#9c948a" }}>{getOrderStatusMeta(s).label}</Text>
             </Pressable>
           ))}
         </View>

@@ -28,7 +28,7 @@ export function usePollWhenVisible(
       inflightRef.current = true;
       Promise.resolve(fnRef.current()).catch(() => {}).finally(() => { inflightRef.current = false; });
     }, intervalMs);
-  }, [intervalMs, opts.immediate, opts.inFlightGuard, opts.enabled]);
+  }, [intervalMs, opts.immediate, opts.inFlightGuard]);
 
   const stop = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }

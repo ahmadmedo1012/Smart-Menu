@@ -18,6 +18,7 @@ import { useCart } from "@/store/cart";
 import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
 import { buildReceiptMessage } from "@/lib/receipt";
 import { formatPrice, toArabicNumber } from "@/lib/format";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 interface RestaurantInfo {
   id: number; name: string; slug: string; description: string;
@@ -85,9 +86,11 @@ export function MenuScreen() {
       setCategories(activeCats);
       setItems(its);
       if (activeCats.length > 0) setActiveCategory(activeCats[0].id);
-      cart.setRestaurantDetails(r.id, r.whatsapp || r.phone, r.name);
-    } catch (e: any) {
-      setError(e?.message || "تعذّر تحميل المنيو");
+      // Static accessor: zustand actions are identity-stable, so this needs
+      // no dependency-array entry and can never go stale.
+      useCart.getState().setRestaurantDetails(r.id, r.whatsapp || r.phone, r.name);
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "تعذّر تحميل المنيو"));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -272,8 +275,8 @@ function CartSheet({ restaurant, onClose }: { restaurant: RestaurantInfo; onClos
       const waUrl = buildWhatsAppShareUrl(receipt, normalizeWaNumber(restaurant.whatsapp || restaurant.phone));
       await Linking.openURL(waUrl);
       cart.clearCart(); onClose();
-    } catch (e: any) {
-      toast.error(e?.message || "فشل إرسال الطلب");
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, "فشل إرسال الطلب"));
     } finally {
       setSubmitting(false);
     }

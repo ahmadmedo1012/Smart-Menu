@@ -4,13 +4,12 @@ import { useNavigation } from "@react-navigation/native";
 import { Users, Store, CreditCard, Settings, Bell, FileText, Send } from "lucide-react-native";
 import { EmptyState } from "@/components/ui";
 import { useAuth } from "@/store/auth";
-
-type Nav = any;
+import type { RootNavigation } from "@/navigation/types";
 
 export function AdminDashboardScreen() {
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation<RootNavigation>();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
