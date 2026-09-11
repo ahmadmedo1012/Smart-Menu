@@ -52,20 +52,35 @@ export function MenuScreen() {
     if (!slug) return;
     setError(null);
     try {
-      // Try slug-based endpoint first; fallback to listing
+      // Primary: the public menu endpoint (unauthenticated-friendly, one
+      // round-trip — restaurant + categories + items). Fallback: the legacy
+      // per-resource calls (work when the caller happens to be authenticated).
       let r: RestaurantInfo | null = null;
+      let cats: MenuCategory[] = [];
+      let its: MenuItem[] = [];
       try {
-        r = await api.get<RestaurantInfo>(`/api/restaurants/slug/${slug}`);
+        const pub = await api.get<{ restaurant: RestaurantInfo; categories: MenuCategory[]; items: MenuItem[] }>(
+          `/api/public/menu/${slug}`,
+        );
+        r = pub.restaurant;
+        cats = pub.categories;
+        its = pub.items;
       } catch {
-        const list = await api.get<RestaurantInfo[]>("/api/restaurants").catch(() => []);
-        r = list.find((x) => x.slug === slug) ?? null;
+        try {
+          r = await api.get<RestaurantInfo>(`/api/restaurants/slug/${slug}`);
+        } catch {
+          const list = await api.get<RestaurantInfo[]>("/api/restaurants").catch(() => []);
+          r = list.find((x) => x.slug === slug) ?? null;
+        }
+        if (r) {
+          [cats, its] = await Promise.all([
+            api.get<MenuCategory[]>(`/api/categories?restaurantId=${r.id}`).catch(() => []),
+            api.get<MenuItem[]>(`/api/items?restaurantId=${r.id}`).catch(() => []),
+          ]);
+        }
       }
       if (!r) throw new Error("المطعم غير موجود");
       setRestaurant(r);
-      const [cats, its] = await Promise.all([
-        api.get<MenuCategory[]>(`/api/categories?restaurantId=${r.id}`).catch(() => []),
-        api.get<MenuItem[]>(`/api/items?restaurantId=${r.id}`).catch(() => []),
-      ]);
       const activeCats = cats.filter((c) => c.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
       setCategories(activeCats);
       setItems(its);
@@ -243,9 +258,12 @@ function CartSheet({ restaurant, onClose }: { restaurant: RestaurantInfo; onClos
     try {
       const refCode = (await AsyncStorage.getItem("smartmenu_referral")) || undefined;
       const res = await api.post<{ id: number; orderNo: string }>("/api/orders", {
-        items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, modifierOptionIds: i.modifierOptionIds })),
+        items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, price: i.price, modifierOptionIds: i.modifierOptionIds })),
         restaurantId: restaurant.id, customerName, customerPhone, notes, pickupType, referralCode: refCode,
-      });
+        // The API schema requires positive subtotal/total (the server recalculates
+        // both from DB prices anyway — these are advisory client-side values).
+        subtotal, total: subtotal,
+      }, { mobileClient: true });
       const receipt = buildReceiptMessage({
         restaurantName: restaurant.name, orderNo: res.orderNo,
         items: items.map((i) => ({ name: i.name, qty: i.quantity, price: i.price, notes: i.notes })),

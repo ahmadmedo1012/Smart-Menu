@@ -12,12 +12,17 @@
       "supportsTablet": true,
       "bundleIdentifier": "ly.smartlink.smartmenu",
       "infoPlist": {
-        "CFBundleLocalizations": ["ar", "en"],
+        "CFBundleLocalizations": [
+          "ar",
+          "en"
+        ],
         "CFBundleDevelopmentRegion": "ar",
         "NSCameraUsageDescription": "نحتاج الكاميرا لالتقاط صور إيصالات الدفع وصور المنتجات.",
         "NSPhotoLibraryUsageDescription": "نحتاج الوصول للصور لرفع إيصالات الدفع وصور المنتجات."
       },
-      "associatedDomains": ["applinks:menu.smart-link.ly"]
+      "associatedDomains": [
+        "applinks:menu.smart-link.ly"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -29,8 +34,16 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "data": [{ "scheme": "https", "host": "menu.smart-link.ly" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "https",
+              "host": "menu.smart-link.ly"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -53,14 +66,16 @@
         }
       ],
       "expo-secure-store",
-      "expo-image-manipulator",
-      "expo-image-picker",
-      "expo-clipboard",
-      "expo-sharing"
+      "expo-image-picker"
     ],
-    "experiments": { "tsconfigPaths": true },
-    "runtimeVersion": { "policy": "appVersion" },
-    "updates": { "url": "" },
-    "extra": { "eas": { "projectId": "" } }
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4a2678f7-1871-4049-8962-06367cd5c1a9"
+      }
+    },
+    "owner": "rh2011"
   }
 }

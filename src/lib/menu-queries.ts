@@ -8,22 +8,22 @@ import { prisma, withRetry } from '@/lib/db';
 // Note: isActive:true is applied here (not just in the page) so inactive
 // restaurants get neither metadata nor a page — the page 404s anyway.
 export const getRestaurantBySlug = cache(async (slug: string) =>
-	withRetry(() =>
-		prisma.restaurant.findUnique({
-			where: { slug, isActive: true },
-			select: {
-				id: true,
-				name: true,
-				description: true,
-				logo: true,
-				phone: true,
-				whatsapp: true,
-				slug: true,
-				address: true,
-				workingHours: true,
-				gallery: true,
-				email: true,
-			},
-		})
-	)
+        withRetry(() =>
+                prisma.restaurant.findUnique({
+                        where: { slug, isActive: true },
+                        select: {
+                                id: true,
+                                name: true,
+                                description: true,
+                                logo: true,
+                                phone: true,
+                                whatsapp: true,
+                                slug: true,
+                                address: true,
+                                workingHours: true,
+                                gallery: true,
+                                email: true,
+                        },
+                })
+        )
 );
