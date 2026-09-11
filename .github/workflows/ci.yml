@@ -346,11 +346,13 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      # mobile/package.json declares its own packageManager (pnpm@10.34.5) —
-      # pin it explicitly so the action doesn't read the root's 11.9.0.
+      # No explicit version here: the action reads the ROOT packageManager
+      # (pnpm@11.9.0), and pnpm's manage-package-manager-versions then honors
+      # mobile/package.json's own packageManager (10.34.5) inside mobile/ —
+      # the exact behavior of a local bare `pnpm` in that directory
+      # (verified: local install prints "using pnpm v10.34.5"). Pinning BOTH
+      # makes action-setup fail with "Multiple versions of pnpm specified".
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-        with:
-          version: 10.34.5
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
