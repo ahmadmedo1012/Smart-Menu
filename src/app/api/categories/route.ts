@@ -9,8 +9,11 @@ import { itemCountByCategory } from '@/lib/list-counts';
 
 const createSchema = z.object({
         name: z.string().min(1).max(100),
-        nameAr: z.string().nullable().optional(),
-        icon: z.string().optional(),
+        // r103-F7: bound free text — every other field in the app is capped; an
+        // unbounded nameAr/icon was storable AND ships inside the public ISR menu
+        // payload (client-side DoS vector).
+        nameAr: z.string().max(100).nullable().optional(),
+        icon: z.string().max(200).optional(),
         sortOrder: z.number().int().optional(),
         isActive: z.boolean().optional(),
         restaurantId: z.number().int().positive(),

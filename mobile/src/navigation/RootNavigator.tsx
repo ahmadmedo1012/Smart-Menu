@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { NavigationContainer, DarkTheme, type InitialState } from "@react-navigation/native";
 import { NavigationIndependentTree } from "@react-navigation/core";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
@@ -29,6 +29,15 @@ type PublicRoute =
   | { name: "Privacy" }
   | { name: "OrderConfirmed"; params?: { orderId?: string } }
   | { name: "Menu"; params: { slug: string; ref?: string } };
+
+/**
+ * r103-N7: the PUBLIC (unauthenticated) NavigationContainer consumes the
+ * launch URL via its own linking config — once that branch has rendered, a
+ * later login (stack swap → AuthenticatedApp mount) must NOT replay the SAME
+ * Linking.getInitialURL() result over the dashboard. Set during render of the
+ * public branch; read by AuthenticatedApp's cold-start handler below.
+ */
+let publicStackRendered = false;
 
 /**
  * r102-M6: map a public web URL to its PublicStack route.
@@ -109,6 +118,9 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
 function AuthenticatedApp({ children }: { children: React.ReactNode }) {
   const [publicRoute, setPublicRoute] = useState<PublicRoute | null>(null);
   const closeOverlay = useCallback(() => setPublicRoute(null), []);
+  // r103-N7: consume the launch URL at most once per AuthenticatedApp lifetime —
+  // Linking.getInitialURL() returns the same value for the whole JS run.
+  const initialConsumed = useRef(false);
 
   useEffect(() => {
     const handleUrl = (url: string) => {
@@ -117,7 +129,12 @@ function AuthenticatedApp({ children }: { children: React.ReactNode }) {
     };
     // Cold start with an authed session: NavigationContainer's own linking
     // cannot resolve a PUBLIC route inside an authed stack — do it manually.
-    void Linking.getInitialURL().then((u) => { if (u) handleUrl(u); });
+    // But ONLY when the public container never consumed it already (N7) and
+    // only on the first mount of this component.
+    if (!publicStackRendered && !initialConsumed.current) {
+      initialConsumed.current = true;
+      void Linking.getInitialURL().then((u) => { if (u) handleUrl(u); });
+    }
     const sub = Linking.addEventListener("url", ({ url }) => handleUrl(url));
     return () => sub.remove();
   }, []);
@@ -143,6 +160,9 @@ export function RootNavigator() {
   }
 
   if (status === "unauthenticated" || !user) {
+    // r103-N7: this branch's NavigationContainer consumes the launch URL via
+    // its own linking — flag it so a later login swap never replays it.
+    publicStackRendered = true;
     return (
       <NavigationContainer theme={NAV_THEME} linking={linking}>
         <PublicStack />

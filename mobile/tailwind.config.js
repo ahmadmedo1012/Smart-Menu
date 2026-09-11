@@ -12,7 +12,7 @@ module.exports = {
         // border tint while mobile composes it as the field FILL (#241c16).
         brand: {
           DEFAULT: "#bc4700",
-          50: "#fdf5ec", 100: "#fbe5cd", 200: "#f6c896", 300: "#f1aa60",
+          50: "#fdf5ec", 100: "#fbe5cd", 200: "#f6c896", 300: "#f0a646",
           400: "#ed8c30", 500: "#bc4700", 600: "#a33e00", 700: "#7d2f00",
           800: "#521f00", 900: "#291000",
         },
@@ -26,7 +26,7 @@ module.exports = {
         ring: "#bc4700",
         flame: "#bc4700",
         ember: "#863800",
-        saffron: "#f1aa60",
+        saffron: "#f0a646",
         whatsapp: "#25D366",
         success: "#23a136",
         warning: "#ce9200",

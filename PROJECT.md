@@ -333,7 +333,7 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 
 | المكتبة | الاستخدام |
 |---------|-----------|
-| `next@16.2.12` | الإطار الرئيسي (App Router) |
+| `next@16.3.4` | الإطار الرئيسي (App Router) |
 | `react@19.2.8` | واجهة المستخدم |
 | `prisma@7.8` | ORM مع PostgreSQL (pg adapter + pool tuned) |
 | `zustand` | إدارة حالة السلة مع persist |

@@ -223,7 +223,10 @@ export async function POST(request: NextRequest) {
                                 const allowed = validForItem.get(item.itemId);
                                 for (const mid of item.modifierOptionIds ?? []) {
                                         if (!allowed?.has(mid)) {
-                                                return apiError(`الخيار ${mid} غير متاح للصنف ${item.itemId}`, 400);
+                                                // r103-F12: raw numeric ids leak DB internals to a
+                                                // customer whose cart holds a just-unavailable
+                                                // option — actionable copy instead.
+                                                return apiError('أحد الخيارات المختارة لم يعد متاحاً — حدّث السلة وحاول مجدداً', 400);
                                         }
                                 }
                         }
@@ -233,7 +236,9 @@ export async function POST(request: NextRequest) {
                 for (const item of body.items) {
                         const db = priceMap.get(item.itemId);
                         if (!db) {
-                                return apiError(`الصنف ${item.itemId} غير موجود`, 400);
+                                // r103-F12: same family as the modifier error above — the
+                                // customer sees an actionable message, not a DB id.
+                                return apiError('أحد الأصناف في سلتك لم يعد متوفراً — حدّث السلة وحاول مجدداً', 400);
                         }
                         const eff = db.discountedPrice ? Number(db.discountedPrice) : Number(db.price);
                         const modTotal = (item.modifierOptionIds ?? []).reduce(

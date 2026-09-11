@@ -316,11 +316,11 @@ describe('RBAC matrix — GET /api/users', () => {
                 expect(mockUserFindMany).not.toHaveBeenCalled();
         });
 
-        it('sub_admin with zero permissions → 200 (staff list read)', async () => {
+        it('sub_admin with zero permissions → 403 (r103-F6: user rows are PII — MANAGE_USERS required)', async () => {
                 setSession(SUB_ADMIN_ZERO);
                 const res = await getUsers();
-                expect(res.status).toBe(200);
-                expect(mockUserFindMany).toHaveBeenCalled();
+                expect(res.status).toBe(403);
+                expect(mockUserFindMany).not.toHaveBeenCalled();
         });
 
         it('admin → 200', async () => {

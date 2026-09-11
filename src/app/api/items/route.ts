@@ -129,6 +129,15 @@ export async function GET(request: NextRequest) {
                 } else if (categoryId) {
                         where.categoryId = categoryId;
                         if (!canSeeAll) where.status = 'available';
+                } else if (isStaff) {
+                        // r103-F1: the multi-restaurant admin console (/admin/menu)
+                        // lists items ACROSS all restaurants — the round87-B9 staff
+                        // embed (category.restaurant below) exists exactly for it.
+                        // round88-wave4 made this branch an unconditional 400, which
+                        // silently emptied the admin menu page (its fetch has no
+                        // scope by design). Staff keeps full read access (round85-A1);
+                        // owners/USER/anonymous still require an explicit scope so no
+                        // tenant boundary is opened.
                 } else {
                         return error('معرف التصنيف أو المطعم مطلوب', 400);
                 }

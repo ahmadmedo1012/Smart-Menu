@@ -203,7 +203,8 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
 
                 expect(res.status).toBe(400);
                 const json = await res.json();
-                expect(json.error).toContain('الصنف 1 غير موجود');
+                // r103-F12: actionable copy replaces the raw-DB-id message
+                expect(json.error).toContain('أحد الأصناف في سلتك لم يعد متوفراً');
                 expect(mockTransaction).not.toHaveBeenCalled();
                 expect(txMock.order.create).not.toHaveBeenCalled();
         });
@@ -222,7 +223,8 @@ describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
 
                 expect(res.status).toBe(400);
                 const json = await res.json();
-                expect(json.error).toContain('الخيار 99 غير متاح للصنف 1');
+                // r103-F12: actionable copy replaces the raw-DB-id message
+                expect(json.error).toContain('أحد الخيارات المختارة لم يعد متاحاً');
                 expect(mockTransaction).not.toHaveBeenCalled();
         });
 });

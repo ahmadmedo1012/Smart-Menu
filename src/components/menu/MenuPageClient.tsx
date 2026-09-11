@@ -170,12 +170,24 @@ export function MenuPageClient({
                 (item: MenuItemProp) => {
                         if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
                         addLockRef.current = true;
+                        // r103-N3: honest feedback when the cart switches restaurants
+                        const cart = useCart.getState();
+                        if (
+                                cart.items.length > 0 &&
+                                cart.restaurantId &&
+                                restaurantId &&
+                                cart.restaurantId !== restaurantId
+                        ) {
+                                premiumToast('info', 'بدأنا سلة جديدة لهذا المنيو');
+                        }
                         addItem({
                                 itemId: item.id,
                                 name: item.nameAr || item.name,
                                 price: item.discountedPrice ?? item.price,
                                 image: item.image || undefined,
                                 restaurantId,
+                                restaurantName: restaurantName || undefined,
+                                restaurantWhatsapp: restaurantWhatsapp || undefined,
                         });
                         premiumToast('cart', 'تمت الإضافة!', item.nameAr || item.name, {
                                 duration: 3200,
@@ -184,7 +196,7 @@ export function MenuPageClient({
                         if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
                         addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
                 },
-                [addItem, restaurantId]
+                [addItem, restaurantId, restaurantName, restaurantWhatsapp]
         );
 
         const handleDecrement = useCallback(

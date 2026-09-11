@@ -5,6 +5,7 @@ import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 import { usernameOptional, slugOptional, slugField } from "@/lib/validation";
 import { getClientIp } from "@/lib/client-ip";
+import { requireAuth } from "@/lib/auth";
 
 // round97-X3: slug fields come from the shared policy in src/lib/validation.ts
 // (SLUG_RE + normalizeSlug + min 3) — the inline duplicates (identical
@@ -36,7 +37,16 @@ export async function POST(request: NextRequest) {
 
     if (username) {
       const existingUser = await prisma.user.findUnique({ where: { username } });
-      if (existingUser) errors.username = "اسم المستخدم مستخدم بالفعل";
+      // r103-F3: an already-registered user retrying a REJECTED paid payment
+      // (account created before payment) re-enters the same username — that is
+      // the designed retry path (subscriptions POST allows tempUsername == the
+      // authenticated user), so it must not be reported as taken here.
+      let isSelf = false;
+      if (existingUser) {
+        const auth = await requireAuth();
+        isSelf = auth.authorized && existingUser.id === auth.userId;
+      }
+      if (existingUser && !isSelf) errors.username = "اسم المستخدم مستخدم بالفعل";
     }
 
     for (const s of slugList) {

@@ -11,6 +11,13 @@ export async function GET(request: NextRequest) {
     // used to answer 401 for both, hiding "logged in but forbidden").
     if (!auth.authorized) return apiError("غير مصرح", 401);
     if (!["super_admin", "sub_admin", "admin"].includes(auth.role)) return apiError("غير مصرح", 403);
+    // r103-F6: the role gate alone let a ZERO-permission sub_admin enumerate
+    // every owner's username/name/restaurant — every sibling list route requires
+    // a permission (restaurants→VIEW_ANALYTICS, orders→APPROVE_ORDERS,
+    // system-events→VIEW_ANALYTICS); this is the users list → MANAGE_USERS.
+    if (auth.role === "sub_admin" && !(auth.permissions ?? []).includes("MANAGE_USERS")) {
+      return apiError("لا تملك الصلاحية", 403);
+    }
     const url = new URL(request.url);
     const { searchParams } = url;
     const restaurantId = parseIdSearchParam(url, "restaurantId");

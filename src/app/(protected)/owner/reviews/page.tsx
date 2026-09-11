@@ -3,16 +3,20 @@
 import { useEffect, useState, useCallback } from "react";
 import { m } from "motion/react";
 import AnimatedStar from '@/components/ui/star-icon';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Trash2 } from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils";
 import { toArabicNumber, formatDateShort } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useRouter } from "next/navigation";
 import { useActiveRestaurant } from "@/components/owner/useActiveRestaurant";
+import { csrfJson } from "@/lib/csrf-client";
+import { getErrorMessage } from "@/lib/get-error-message";
+import { premiumToast } from "@/lib/premium-toast";
 import { error as logError } from '@/lib/logger';
 
 type ReviewWithItem = {
@@ -32,6 +36,10 @@ export default function OwnerReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStar, setFilterStar] = useState<number | null>(null);
+  // r103-F5b: moderation — remove spam/abusive reviews (the API contract is
+  // owner-scoped DELETE /api/items/[id]/reviews?reviewId=N).
+  const [deleteTarget, setDeleteTarget] = useState<ReviewWithItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
   // round87-C5: server-computed stats (full set, unfiltered) — shape from
   // the paginated() extras field
   const [stats, setStats] = useState<{ total: number; avg: number; distribution: { star: number; count: number }[] }>({
@@ -63,6 +71,24 @@ export default function OwnerReviewsPage() {
   }, [filterStar, activeId]);
 
   useEffect(() => { load(); }, [load]);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      // csrfJson throws on non-2xx with the server's Arabic error message
+      await csrfJson(`/api/items/${deleteTarget.menuItem.id}/reviews?reviewId=${deleteTarget.id}`, {
+        method: 'DELETE',
+      });
+      premiumToast('success', 'تم حذف التقييم');
+      setDeleteTarget(null);
+      load();
+    } catch (e) {
+      premiumToast('error', getErrorMessage(e, 'فشل حذف التقييم'));
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // round87-C5: the server already applies minRating — the old client-side
   // re-filter was a duplicate of server logic (dual maintenance)
@@ -203,14 +229,46 @@ export default function OwnerReviewsPage() {
                     <p className="text-sm text-foreground/70 leading-relaxed">{review.comment}</p>
                   )}
                 </div>
-                <span className="shrink-0 text-[11px] text-muted-foreground">
-                  {formatDateShort(new Date(review.createdAt))}
-                </span>
+                <div className="shrink-0 flex items-center gap-2">
+                  <span className="text-[11px] text-muted-foreground">
+                    {formatDateShort(new Date(review.createdAt))}
+                  </span>
+                  {/* r103-F5b: moderation — 44px touch target (size-11) per the
+                      same rule the web round r102-W2 enforced elsewhere */}
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(review)}
+                    aria-label={`حذف تقييم ${review.customerName || 'مجهول'}`}
+                    className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </div>
             </m.div>
           ))}
         </div>
       )}
+
+      {/* Delete confirmation (r103-F5b) */}
+      <Dialog open={deleteTarget !== null} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>حذف التقييم</DialogTitle>
+            <DialogDescription>
+              سيُحذف تقييم {deleteTarget?.customerName || "مجهول"} ({toArabicNumber(deleteTarget?.rating ?? 0)} ⭐) على «{deleteTarget?.menuItem.nameAr || deleteTarget?.menuItem.name}»
+              نهائياً وسيُعاد حساب متوسط التقييم. هذا الإجراء لا يمكن التراجع عنه.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>إلغاء</Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
+              {deleting ? <AnimatedRefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+              حذف
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

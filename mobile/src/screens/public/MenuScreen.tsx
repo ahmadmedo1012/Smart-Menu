@@ -101,7 +101,12 @@ export function MenuScreen() {
         if (r) {
           [cats, its] = await Promise.all([
             api.get<MenuCategory[]>(`/api/categories?restaurantId=${r.id}`).catch(() => []),
-            api.get<MenuItem[]>(`/api/items?restaurantId=${r.id}`).catch(() => []),
+            // r103-N10: the fallback (authenticated /api/items) does not return
+            // isAvailable — every card rendered grayed-out and untappable when
+            // the public menu endpoint failed but the fallback succeeded. The
+            // fallback query already filters status=available for non-staff,
+            // so mapping it on is the honest default.
+            api.get<MenuItem[]>(`/api/items?restaurantId=${r.id}`).catch(() => []).then((list) => list.map((i) => ({ ...i, isAvailable: i.isAvailable ?? true }))),
           ]);
         }
       }
@@ -235,7 +240,7 @@ export function MenuScreen() {
         </View>
       ) : null}
 
-      {cartOpen ? <CartSheet restaurant={restaurant} onDone={(orderNo) => { setCartOpen(false); navigation.navigate("OrderConfirmed", { orderId: orderNo }); }} onClose={() => setCartOpen(false)} /> : null}
+      {cartOpen ? <CartSheet restaurant={restaurant} onDone={(orderNo, waUrl) => { setCartOpen(false); navigation.navigate("OrderConfirmed", { orderId: orderNo, waUrl }); }} onClose={() => setCartOpen(false)} /> : null}
 
       {detailItem ? <ItemDetailSheet item={detailItem} restaurant={restaurant} onClose={() => setDetailItem(null)} /> : null}
     </SafeAreaView>
@@ -307,10 +312,18 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
     const displayName = item.nameAr || item.name;
     // Same pattern as the web dialog: one addItem per unit — the store merges
     // repeats by itemId + modifier signature, so qty lands on one line.
+    // r103-N3: restaurant meta rides along (cross-restaurant reset consistency)
+    // + an honest toast when the cart switches restaurants.
+    const preAdd = useCart.getState();
+    if (preAdd.items.length > 0 && preAdd.restaurantId && preAdd.restaurantId !== restaurant.id) {
+      toast.info("بدأنا سلة جديدة لهذا المنيو");
+    }
     for (let i = 0; i < quantity; i++) {
       useCart.getState().addItem({
         itemId: item.id, name: displayName, price: unit,
         image: item.image || undefined, restaurantId: restaurant.id,
+        restaurantName: restaurant.name,
+        restaurantWhatsapp: restaurant.whatsapp || restaurant.phone,
         ...(modifierOptionIds.length > 0 ? { modifierOptionIds, modifiersSummary } : {}),
       });
     }
@@ -406,7 +419,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
   );
 }
 
-function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo; onDone: (orderNo: string) => void; onClose: () => void }) {
+function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo; onDone: (orderNo: string, waUrl?: string) => void; onClose: () => void }) {
   const cart = useCart();
   const items = useCart((s) => s.items);
   const customerName = useCart((s) => s.customerName);
@@ -421,9 +434,14 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
     setSubmitting(true);
     try {
       const refCode = (await AsyncStorage.getItem("smartmenu_referral")) || undefined;
+      // r103-N4: one key per checkout attempt — a retry after a WhatsApp-open
+      // failure reuses the SERVER-side order (dedupe via orderNo), never mints
+      // a second order. Key length ≤ 40 (the server's orderNo slice) and random
+      // enough to be collision-free against the global namespace.
+      const idempotencyKey = `M${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
       const res = await api.post<{ id: number; orderNo: string }>("/api/orders", {
         items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, modifierOptionIds: i.modifierOptionIds })),
-        restaurantId: restaurant.id, customerName, customerPhone, notes, pickupType, referralCode: refCode,
+        restaurantId: restaurant.id, customerName, customerPhone, notes, pickupType, referralCode: refCode, idempotencyKey,
       }, { mobileClient: true });
       const receipt = buildReceiptMessage({
         restaurantName: restaurant.name, orderNo: res.orderNo,
@@ -431,11 +449,20 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
         totalPrice: subtotal, customerName, customerPhone, notes, pickupType,
       });
       const waUrl = buildWhatsAppShareUrl(receipt, normalizeWaNumber(restaurant.whatsapp || restaurant.phone));
-      await Linking.openURL(waUrl);
+      // r103-N4: the order IS placed at this point — a WhatsApp-open failure
+      // (no app installed / OS blocked the jump) is NOT an order failure. The
+      // old catch showed «فشل إرسال الطلب» (the order succeeded!), kept the
+      // cart, and a retry created a DUPLICATE order. Now: clear + confirm + a
+      // WhatsApp retry button on the confirmation screen.
+      let waOpenFailed = false;
+      try { await Linking.openURL(waUrl); } catch { waOpenFailed = true; }
       cart.clearCart();
       // r102-M5: land on the confirmation screen — it existed but was only
       // reachable via deep link; the in-app flow dead-ended after checkout.
-      onDone(res.orderNo);
+      onDone(res.orderNo, waOpenFailed ? waUrl : undefined);
+      if (waOpenFailed) {
+        toast.error("تم تسجيل طلبك — تعذّر فتح واتساب تلقائيًا، جرّب زر الإرسال في شاشة التأكيد");
+      }
     } catch (e: unknown) {
       toast.error(getErrorMessage(e, "فشل إرسال الطلب"));
     } finally {

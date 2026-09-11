@@ -22,6 +22,7 @@ import { ReferrerList } from './ReferrerList';
 import { TransactionTable } from './TransactionTable';
 import { ReferralQR } from './ReferralQR';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
+import { csrfJson } from '@/lib/csrf-client';
 
 const LoyaltySettings = dynamic(
         () =>
@@ -167,6 +168,140 @@ function ConversionRate({
                                 <span>{toArabicNumber(converted)} تم التحويل</span>
                                 <span>{toArabicNumber(total)} إجمالي</span>
                         </div>
+                </div>
+        );
+}
+
+/* ---------- Redeem Panel (r103-F2) ----------
+ * The stamp-card promise ("اطلب 5 مرات واحصل على وجبة مجانية") was display-only:
+ * the redeem endpoint existed (tested, race-safe) but NO UI anywhere could call
+ * it — the loyalty loop could never close through the product. This panel gives
+ * the owner the counter-side flow: look up a customer's card by phone →
+ * confirm → POST /api/loyalty/redeem. All money/state logic stays server-side.
+ */
+function RedeemPanel({ restaurantId, onRedeemed }: { restaurantId: number | null; onRedeemed: () => void }) {
+        const [phone, setPhone] = useState('');
+        const [card, setCard] = useState<{ id: number; tier: string; totalOrders: number; points: number } | null>(null);
+        const [phase, setPhase] = useState<'idle' | 'searching' | 'found' | 'redeeming'>('idle');
+        const [notice, setNotice] = useState<{ kind: 'error' | 'info'; text: string } | null>(null);
+
+        const REWARD_COST = 5; // stamps per free meal — mirrors the endpoint's contract
+        const eligible = card !== null && card.totalOrders >= REWARD_COST && (card.points ?? 0) >= REWARD_COST;
+
+        const search = async () => {
+                const trimmed = phone.trim();
+                if (!/^\+?[0-9]{7,15}$/.test(trimmed.replace(/[\s-]/g, ''))) {
+                        setNotice({ kind: 'error', text: 'أدخل رقم هاتف صالحاً' });
+                        return;
+                }
+                setPhase('searching');
+                setNotice(null);
+                setCard(null);
+                try {
+                        const qs = new URLSearchParams({ phone: trimmed.replace(/[\s-]/g, '') });
+                        if (restaurantId) qs.set('restaurantId', String(restaurantId));
+                        const res = await fetch(`/api/loyalty?${qs.toString()}`);
+                        const json = await res.json();
+                        if (res.ok && json.success && json.data?.card) {
+                                const c = json.data.card as { id: number; tier: string; totalOrders: number; points: number };
+                                setCard(c);
+                                setPhase('found');
+                        } else {
+                                setPhase('idle');
+                                setNotice({ kind: 'error', text: json.error ?? 'بطاقة الولاء غير موجودة' });
+                        }
+                } catch {
+                        setPhase('idle');
+                        setNotice({ kind: 'error', text: 'تعذر البحث — تحقق من الاتصال' });
+                }
+        };
+
+        const redeem = async () => {
+                if (!card || !eligible) return;
+                setPhase('redeeming');
+                setNotice(null);
+                try {
+                        // csrfJson throws on non-2xx with the server's Arabic message
+                        const json = await csrfJson<{ success: boolean; data?: { message?: string } }>('/api/loyalty/redeem', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ cardId: card.id }),
+                        });
+                        premiumToast('success', json.data?.message ?? 'تم الاستبدال بنجاح');
+                        setCard(null);
+                        setPhone('');
+                        setPhase('idle');
+                        onRedeemed();
+                } catch (e) {
+                        setPhase('found');
+                        setNotice({ kind: 'error', text: e instanceof Error ? e.message : 'فشل الاستبدال — حاول مجدداً' });
+                }
+        };
+
+        return (
+                <div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
+                        <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+                                <Gift className="size-4 text-muted-foreground" /> استبدال وجبة مجانية
+                        </h2>
+                        <p className="text-xs text-muted-foreground mb-4">
+                                ابحث عن بطاقة العميل برقم هاتفه، ثم أكّد الاستبدال عند تسليم الوجبة — يُخصم {toArabicNumber(REWARD_COST)} طلبات من البطاقة.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                                <input
+                                        type="tel"
+                                        dir="ltr"
+                                        inputMode="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && phase !== 'searching' && search()}
+                                        placeholder="+218 91 000 0000"
+                                        aria-label="رقم هاتف العميل"
+                                        className="flex-1 h-11 rounded-md border border-border/40 bg-background/60 px-3 text-sm outline-none focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/40 tabular-nums"
+                                />
+                                <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-11 px-4 gap-1.5"
+                                        onClick={search}
+                                        disabled={phase === 'searching'}
+                                >
+                                        {phase === 'searching' ? <AnimatedRefreshCw className="size-4 animate-spin" /> : <Users className="size-4" />}
+                                        بحث
+                                </Button>
+                        </div>
+
+                        {notice && (
+                                <p className={cn('text-xs mt-3', notice.kind === 'error' ? 'text-destructive' : 'text-muted-foreground')} role="status">
+                                        {notice.text}
+                                </p>
+                        )}
+
+                        {card && (
+                                <div className="mt-4 rounded-md border border-border/40 bg-background/40 p-4 animate-fade-in">
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2 text-sm">
+                                                        <Badge variant="outline" className="border-border/50 bg-muted text-xs">{card.tier}</Badge>
+                                                        <span className="text-muted-foreground">
+                                                                {toArabicNumber(card.totalOrders)} طلب · {toArabicNumber(card.points ?? 0)} نقطة
+                                                        </span>
+                                                </div>
+                                                <Button
+                                                        size="sm"
+                                                        className="gap-1.5"
+                                                        onClick={redeem}
+                                                        disabled={!eligible || phase === 'redeeming'}
+                                                >
+                                                        {phase === 'redeeming' ? <AnimatedRefreshCw className="size-4 animate-spin" /> : <Gift className="size-4" />}
+                                                        استبدال الوجبة
+                                                </Button>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                                {eligible
+                                                        ? 'البطاقة مؤهلة للاستبدال الآن.'
+                                                        : `الاستبدال يتطلب ${toArabicNumber(REWARD_COST)} طلبات و${toArabicNumber(REWARD_COST)} نقاط على الأقل.`}
+                                        </p>
+                                </div>
+                        )}
                 </div>
         );
 }
@@ -381,6 +516,9 @@ export default function OwnerLoyaltyPage() {
                                         <StatCard key={card.label} {...card} />
                                 ))}
                         </div>
+
+                        {/* ---- Redeem (r103-F2): close the loyalty loop at the counter ---- */}
+                        <RedeemPanel restaurantId={activeId} onRedeemed={load} />
 
                         {/* ---- Referral Dashboard ---- */}
                         <div className="grid gap-6 lg:grid-cols-3">

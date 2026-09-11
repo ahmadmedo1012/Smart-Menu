@@ -13,7 +13,7 @@ export function ConnectivityBanner() {
   }, []);
   if (online) return null;
   return (
-    <View style={{ backgroundColor: "#c0392b", paddingVertical: 8, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 8, zIndex: 100 }}>
+    <View style={{ backgroundColor: "#e62b34", paddingVertical: 8, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 8, zIndex: 100 }}>
       <WifiOff size={16} color="#fff" />
       <Text style={{ color: "#fff", fontFamily: "Cairo", fontSize: 12, fontWeight: "600" }}>
         لا يوجد اتصال بالإنترنت — تحقق من شبكتك

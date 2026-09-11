@@ -232,17 +232,34 @@ function SubscribeContent() {
                 if (currentPlan && Number(currentPlan.price) > 0) {
                         setSubmitting(true);
                         try {
-                                const regRes = await csrfFetch('/api/auth/register', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                                username: form.username.trim(),
-                                                password: form.password.trim(),
-                                                name: form.restaurants[0]?.name.trim() || form.username.trim(),
-                                        }),
-                                });
-                                const regJson = await regRes.json();
-                                if (!regRes.ok) throw new Error(regJson.error ?? 'فشل إنشاء الحساب');
+                                // r103-F3: retry after a REJECTED payment — the account was
+                                // already created on the first attempt (register runs before
+                                // payment). Re-registering 409s and the pre-flight validate
+                                // blocks the same username, dead-ending the user into orphan
+                                // accounts. The server's retry contract (subscriptions POST
+                                // allows tempUsername == the authenticated user) is now honored
+                                // client-side: same logged-in username → skip register.
+                                let alreadyRegistered = false;
+                                try {
+                                        const meRes = await fetch('/api/auth/me');
+                                        const meJson = await meRes.json();
+                                        if (meJson.success && meJson.data?.username === form.username.trim()) {
+                                                alreadyRegistered = true;
+                                        }
+                                } catch { /* offline me-check → fall through to register */ }
+                                if (!alreadyRegistered) {
+                                        const regRes = await csrfFetch('/api/auth/register', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                        username: form.username.trim(),
+                                                        password: form.password.trim(),
+                                                        name: form.restaurants[0]?.name.trim() || form.username.trim(),
+                                                }),
+                                        });
+                                        const regJson = await regRes.json();
+                                        if (!regRes.ok) throw new Error(regJson.error ?? 'فشل إنشاء الحساب');
+                                }
                                 setPaymentOpen(true);
                                 setSseOpen(true);
                         } catch (e) {

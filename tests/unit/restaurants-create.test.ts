@@ -69,6 +69,9 @@ const tx = {
 const mockPrisma = vi.hoisted(() => ({
         $transaction: mockTransaction,
         user: { findUnique: mockUserFindUnique },
+        // r103-F4: the public-registration path now pre-checks pending payments
+        // for slug reservations — returning nothing means "no reservation".
+        subscriptionPayment: { findFirst: vi.fn(async () => null) },
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma, getUserById: vi.fn(), withRetry: vi.fn() }));

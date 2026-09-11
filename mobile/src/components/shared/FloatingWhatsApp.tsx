@@ -10,7 +10,12 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
   useEffect(() => { const t = setTimeout(() => setVisible(true), 600); return () => clearTimeout(t); }, []);
   if (!visible) return null;
   const open = () => {
-    const digits = number.replace(/[^\d]/g, "");
+    // r103-F9: parity with the web normalizeWaNumber — strip a leading "00"
+    // (international prefix) and validate 8–15 digits; an invalid stored
+    // number must not open a dead wa.me/00… link.
+    let digits = number.replace(/[^\d]/g, "");
+    if (digits.startsWith("00")) digits = digits.slice(2);
+    if (digits.length < 8 || digits.length > 15) return;
     void Linking.openURL(`https://wa.me/${digits}?text=${encodeURIComponent("مرحبًا، أحتاج مساعدة بخصوص Smart Menu")}`);
   };
   return (

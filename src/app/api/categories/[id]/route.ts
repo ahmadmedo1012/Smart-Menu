@@ -8,8 +8,9 @@ import { requireAuth, requirePermission } from "@/lib/auth";
 import { revalidateMenu } from "@/lib/menu-cache";
 const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  nameAr: z.string().nullable().optional(),
-  icon: z.string().optional(),
+  // r103-F7: same bounds as the create schema (was the only unbounded pair).
+  nameAr: z.string().max(100).nullable().optional(),
+  icon: z.string().max(200).optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
 });

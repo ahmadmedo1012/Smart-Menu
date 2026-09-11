@@ -28,9 +28,12 @@ import { toArabicNumber } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { useAccessGate } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
-// users gate: super_admin/sub_admin always; legacy admin needs MANAGE_USERS.
+// users gate: super_admin always; sub_admin needs MANAGE_USERS (r103-F6 —
+// mirrors the API gate); legacy admin needs MANAGE_USERS.
 const allowUsersGate = (me: { role: string | null; permissions: string[] }) =>
-        me.role === 'super_admin' || me.role === 'sub_admin' || (me.role === 'admin' && me.permissions.includes('MANAGE_USERS'));
+        me.role === 'super_admin' ||
+        me.role === 'sub_admin' && me.permissions.includes('MANAGE_USERS') ||
+        me.role === 'admin' && me.permissions.includes('MANAGE_USERS');
 
 interface OwnerUser {
   id: number; username: string; name: string; role: string

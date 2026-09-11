@@ -46,6 +46,15 @@ export type CartItem = {
         modifiersSummary?: string;
 };
 
+/** r103-N3: addItem input now carries the line's restaurant meta so a
+ * cross-restaurant reset can leave a FULLY consistent store (id + whatsapp +
+ * name) — previously the reset kept the OLD restaurant's whatsapp, so an
+ * order for B was WhatsApped to A. */
+export type AddItemInput = Omit<CartItem, 'id' | 'quantity' | 'notes'> & {
+        restaurantName?: string;
+        restaurantWhatsapp?: string;
+};
+
 /** Stable signature of a line's modifier configuration (for merging/lookup). */
 function modifierSignature(i: Pick<CartItem, 'modifierOptionIds'>): string {
         return (i.modifierOptionIds ?? []).join(',');
@@ -61,7 +70,7 @@ interface CartStore {
         restaurantWhatsapp: string;
         restaurantName: string;
         setRestaurantDetails: (id: number, whatsapp: string, name: string) => void;
-        addItem: (item: Omit<CartItem, 'id' | 'quantity' | 'notes'>) => void;
+        addItem: (item: AddItemInput) => void;
         removeItem: (id: string) => void;
         undoRemove: () => void;
         lastRemoved: CartItem | null;
@@ -97,8 +106,20 @@ export const useCart = create<CartStore>()(
                         restaurantWhatsapp: '',
                         restaurantName: '',
 
+                        /* r103-N3: visiting /menu/B with a cart holding A-items used to
+                         * silently flip restaurantId to B while the items stayed A —
+                         * every later add merged B-items into the A cart and checkout
+                         * dead-ended on the server's ownership filter (400). While the
+                         * cart holds another restaurant's items, its OWN restaurant
+                         * details stay authoritative; the switch happens in addItem
+                         * (with a full consistent reset) the moment a B-item is added. */
                         setRestaurantDetails: (id, whatsapp, name) =>
-                                set({ restaurantId: id, restaurantWhatsapp: whatsapp, restaurantName: name }),
+                                set((s) => {
+                                        if (s.items.length > 0 && s.restaurantId && s.restaurantId !== id) {
+                                                return {} as Partial<CartStore>;
+                                        }
+                                        return { restaurantId: id, restaurantWhatsapp: whatsapp, restaurantName: name };
+                                }),
 
                         addItem: (item) =>
                                 set((s) => {
@@ -121,6 +142,11 @@ export const useCart = create<CartStore>()(
                                         ) {
                                                 return {
                                                         restaurantId: item.restaurantId,
+                                                        // r103-N3: the reset must carry the NEW restaurant's
+                                                        // contact too — the order goes to B, so the WhatsApp
+                                                        // handoff must open B's chat, not A's.
+                                                        restaurantName: item.restaurantName ?? '',
+                                                        restaurantWhatsapp: item.restaurantWhatsapp ?? '',
                                                         items: [{ ...item, id: genId(), quantity: 1, notes: '' } as CartItem].filter(
                                                                 (i) => i.itemId
                                                         ),

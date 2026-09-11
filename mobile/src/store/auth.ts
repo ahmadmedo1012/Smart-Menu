@@ -42,6 +42,19 @@ export const useAuth = create<AuthState>((set) => ({
         },
       });
     } catch (e) {
+      // r103-N1: the token is destroyed ONLY on a definitive rejection —
+      // a server-responded 401 (session expired) or an authenticated:false body.
+      // A network failure / timeout / 5xx at cold launch keeps the token: the
+      // user lands on the public stack (optionally with the error surfaced)
+      // and the next launch or manual login recovers without losing the
+      // stored session. Wiping it here logged owners out on every flaky
+      // network — the exact failure mode this fix closes.
+      const definitiveLogout = e instanceof ApiError && e.status === 401;
+      if (definitiveLogout) {
+        await setStoredToken(null);
+        set({ status: "unauthenticated", user: null, token: null });
+        return;
+      }
       const msg = e instanceof ApiError ? e.message : "تعذر الاتصال بالخادم";
       set({ status: "unauthenticated", user: null, error: msg });
     }

@@ -1,1 +1,14 @@
 packages: []
+
+# r103-D1: mobile inherits the SAME supply-chain posture as the web root
+# (pnpm-workspace.yaml there) — previously this file was empty, so the root's
+# security overrides never applied to the Expo tree and the mobile audit
+# carried 8 advisories (4 high) that the root had already fixed via overrides.
+# postcss 8.4.49 (via @expo/metro-config): 2 high path-traversal + 2 moderate
+# XSS advisories — build-time only, but pinned to the patched 8.5.26 anyway.
+# decode-uri-component 0.2.2 (via @react-navigation/native): moderate DoS —
+# the ONLY RUNTIME advisory in the shipped bundle, and deep-link parsing
+# (expo-linking) is exactly the attack surface. Patched line is ^0.5.0.
+overrides:
+  postcss: 8.5.26
+  decode-uri-component: ^0.5.0

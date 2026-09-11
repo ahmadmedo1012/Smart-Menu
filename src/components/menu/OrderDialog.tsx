@@ -24,6 +24,7 @@ import {
 } from './menu-types';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { premiumToast } from '@/lib/premium-toast';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useCart } from '@/store/cart';
 
@@ -131,6 +132,16 @@ export function OrderDialog({
                 // Add item with quantity matching dialog selection. A configured line
                 // (modifier ids + summary) is carried on EVERY call — the store merges
                 // repeats by itemId + modifier signature, so qty lands on one line.
+                // r103-N3: restaurant meta rides along so a cross-restaurant reset in
+                // the store lands on a fully consistent state (see cart.ts).
+                const preAddCart = useCart.getState();
+                if (
+                        preAddCart.items.length > 0 &&
+                        preAddCart.restaurantId &&
+                        preAddCart.restaurantId !== restaurantId
+                ) {
+                        premiumToast('info', 'بدأنا سلة جديدة لهذا المنيو');
+                }
                 for (let i = 0; i < quantity; i++) {
                         addItem({
                                 itemId: item.id,
@@ -138,6 +149,8 @@ export function OrderDialog({
                                 price: unit,
                                 image: item.image || undefined,
                                 restaurantId,
+                                restaurantName,
+                                restaurantWhatsapp,
                                 ...(modifierOptionIds.length > 0
                                         ? { modifierOptionIds, modifiersSummary }
                                         : {}),
@@ -167,6 +180,7 @@ export function OrderDialog({
         }, [
                 item,
                 restaurantWhatsapp,
+                restaurantName,
                 customerName,
                 customerPhone,
                 orderType,

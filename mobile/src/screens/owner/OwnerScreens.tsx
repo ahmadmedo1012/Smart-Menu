@@ -94,7 +94,7 @@ export function OwnerDashboardScreen() {
               ))
             )}
             <Pressable onPress={logout} style={{ marginTop: 24, padding: 12, alignItems: "center" }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#c0392b", fontWeight: "600" }}>تسجيل الخروج</Text>
+              <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#e62b34", fontWeight: "600" }}>تسجيل الخروج</Text>
             </Pressable>
           </>
         ) : null}
@@ -321,18 +321,24 @@ export function OwnerQrScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const list = await api.get<OwnerRestaurantLite[]>("/api/owner/restaurants");
-        setRestaurants(list ?? []);
-      } catch (e: unknown) {
-        setError(getErrorMessage(e, "تعذّر تحميل مطاعمك"));
-      } finally {
-        setLoading(false);
-      }
-    })();
+  // r103-N2: the fetch lived in a `deps: []` effect — the ErrorState's onRetry
+  // only flipped state (loading=true), the effect never re-ran, and the screen
+  // dead-ended into an eternal spinner. Hoisted into a callback (the MenuScreen
+  // `load` pattern) so retry actually refetches.
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await api.get<OwnerRestaurantLite[]>("/api/owner/restaurants");
+      setRestaurants(list ?? []);
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "تعذّر تحميل مطاعمك"));
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { void load(); }, [load]);
 
   if (loading) {
     return (
@@ -347,7 +353,7 @@ export function OwnerQrScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
         <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>رمز QR لمنيوك</Text>
         {error ? (
-          <ErrorState message={error} onRetry={() => { setLoading(true); setError(null); setRestaurants(null); }} />
+          <ErrorState message={error} onRetry={() => { void load(); }} />
         ) : restaurants && restaurants.length > 0 ? (
           restaurants.map((r) => {
             const url = `${domain}/menu/${r.slug}`;
@@ -405,7 +411,7 @@ export function OwnerSettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>الإعدادات</Text>
         <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: "#1f1813", borderRadius: 8 }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#c0392b", fontWeight: "700" }}>تسجيل الخروج</Text>
+          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#e62b34", fontWeight: "700" }}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

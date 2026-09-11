@@ -24,7 +24,7 @@ export function AdminDashboardScreen() {
           <AdminAction icon={<Settings size={20} color="#ebe7e2" />} label="الإعدادات" onPress={() => navigation.navigate("AdminSettings")} />
         </View>
         <Pressable onPress={logout} style={{ marginTop: 32, padding: 12, alignItems: "center", backgroundColor: "#1f1813", borderRadius: 8 }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#c0392b", fontWeight: "700" }}>تسجيل الخروج</Text>
+          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#e62b34", fontWeight: "700" }}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -145,7 +145,7 @@ export function AdminSettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>الإعدادات</Text>
         <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: "#1f1813", borderRadius: 8 }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#c0392b", fontWeight: "700" }}>تسجيل الخروج</Text>
+          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#e62b34", fontWeight: "700" }}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

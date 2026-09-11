@@ -82,7 +82,7 @@ export function PricingScreen() {
               <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginBottom: 16 }}>لمدة {plan.periodDays} يوم</Text>
               {plan.features?.map((f, i) => (
                 <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
-                  <Check size={14} color="#5b8c5a" style={{ marginTop: 2 }} />
+                  <Check size={14} color="#23a136" style={{ marginTop: 2 }} />
                   <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#ebe7e2", flex: 1 }}>{f}</Text>
                 </View>
               ))}

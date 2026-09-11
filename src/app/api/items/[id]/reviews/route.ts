@@ -15,7 +15,9 @@ const reviewDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 const itemReviewLimiter = createDbRateLimiter({ windowMs: 3_600_000, max: 30 });
 
 const createReviewSchema = z.object({
-        rating: z.number().min(1).max(5),
+        // r103-F5a: .int() — 4.5 passed min/max then hit the Prisma Int column as
+        // a validation error (generic 400) instead of a clean 422 at the boundary.
+        rating: z.number().int().min(1).max(5),
         comment: z.string().max(500).default(''),
         customerName: z.string().max(50).default(''),
         customerPhone: z.string().max(30).default(''),
@@ -127,6 +129,102 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                         },
                         meta: { total: stats._count, page, pageSize, totalPages: Math.ceil(stats._count / pageSize) },
                 });
+        } catch (e) {
+                return handleError(e);
+        }
+}
+
+/**
+ * r103-F5b: owner/staff moderation — the review surface was write-only for the
+ * public (POST) with no way to remove spam/abusive reviews. Ownership ladder
+ * mirrors the GET PII ladder exactly (r93-W1a):
+ *   - super_admin/admin: full access
+ *   - sub_admin: MANAGE_RESTAURANTS (destructive moderation needs more than
+ *     VIEW_ANALYTICS) or a real UserRestaurant ownership link
+ *   - owner: the item's restaurant is the primary restaurant or linked via
+ *     UserRestaurant (multi-menu aware — round90-F3)
+ * The public counters (ratingCount/avgRating) are recomputed exactly from the
+ * remaining rows in the same transaction (set-based UPDATE ... FROM aggregate
+ * subquery — no drift, no read-then-write race), then the ISR menu page is
+ * revalidated synchronously (round92-A2 publish contract).
+ */
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+        try {
+                const auth = await requireAuth();
+                if (!auth.authorized) return error('غير مصرح', 401);
+
+                const { id } = await params;
+                const itemId = Number(id);
+                if (Number.isNaN(itemId)) return error('معرف غير صالح', 400);
+
+                const url = new URL(req.url);
+                const reviewId = Number(url.searchParams.get('reviewId'));
+                if (Number.isNaN(reviewId) || reviewId <= 0) return error('معرف التقييم غير صالح', 400);
+
+                // Ownership ladder
+                let allowed = false;
+                if (auth.role === 'super_admin' || auth.role === 'admin') {
+                        allowed = true;
+                } else if (auth.role === 'sub_admin') {
+                        if ((auth.permissions ?? []).includes('MANAGE_RESTAURANTS')) {
+                                allowed = true;
+                        } else {
+                                const link = await prisma.userRestaurant.findFirst({
+                                        where: {
+                                                userId: auth.userId!,
+                                                restaurant: { categories: { some: { items: { some: { id: itemId } } } } },
+                                        },
+                                });
+                                allowed = !!link;
+                        }
+                } else if (auth.role === 'owner') {
+                        const item = await prisma.menuItem.findUnique({
+                                where: { id: itemId },
+                                select: { category: { select: { restaurantId: true } } },
+                        });
+                        if (item) {
+                                if (item.category.restaurantId === auth.restaurantId) {
+                                        allowed = true;
+                                } else {
+                                        const link = await prisma.userRestaurant.findUnique({
+                                                where: { userId_restaurantId: { userId: auth.userId!, restaurantId: item.category.restaurantId } },
+                                        });
+                                        allowed = !!link;
+                                }
+                        }
+                }
+                if (!allowed) return error('غير مصرح', 403);
+
+                const deleted = await prisma.$transaction(async (tx) => {
+                        const review = await tx.review.delete({
+                                where: { id: reviewId },
+                                select: { id: true, menuItemId: true, rating: true },
+                        }).catch(() => null);
+                        // P2025 (not found) OR a review belonging to another item →
+                        // both mean the id is invalid for THIS item's scope.
+                        if (!review || review.menuItemId !== itemId) return null;
+                        // Exact recompute from remaining rows — mirrors the POST's
+                        // incremental formula (round-76) but cannot drift.
+                        await tx.$executeRaw`
+                                UPDATE "MenuItem" m SET
+                                        "ratingCount" = s.c,
+                                        "avgRating" = s.a
+                                FROM (
+                                        SELECT COUNT(*)::int AS c, ROUND(AVG(rating), 1) AS a
+                                        FROM "Review" WHERE "menuItemId" = ${itemId}
+                                ) s
+                                WHERE m.id = ${itemId}`;
+                        return review;
+                });
+                if (!deleted) return error('التقييم غير موجود', 404);
+
+                const itemForReval = await prisma.menuItem.findUnique({
+                        where: { id: itemId },
+                        select: { category: { select: { restaurantId: true } } },
+                });
+                await revalidateMenu(itemForReval?.category.restaurantId);
+
+                return success({ deleted: true });
         } catch (e) {
                 return handleError(e);
         }

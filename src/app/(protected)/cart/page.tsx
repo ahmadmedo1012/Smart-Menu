@@ -131,7 +131,9 @@ export default function CartPage() {
                 return () => clearTimeout(id);
         }, []);
 
-        const { subtotal, total } = useCartTotals(items);
+        // r103-N9: `total` left the destructure — the server re-prices; the
+        // checkout payload no longer carries client money fields.
+        const { subtotal } = useCartTotals(items);
 
         const handleCheckout = async () => {
                 if (submittingRef.current) return; // double-click guard
@@ -166,11 +168,10 @@ export default function CartPage() {
                                                 itemId: i.itemId,
                                                 quantity: i.quantity,
                                                 notes: i.notes,
-                                                price: i.price,
-                                                // w3-f1: configured modifier choices — the SERVER
-                                                // re-prices from DB rows (priceDelta + ownership +
-                                                // availability); the client's price field stays
-                                                // informational as before (round86-A4 invariant).
+                                                // r103-N9 (companion to r102-A5): the order schema drops
+                                                // client money fields — the server re-prices every row from
+                                                // DB (price + modifiers + ownership + availability). Kept
+                                                // intentionally: itemId/quantity/notes/option ids ONLY.
                                                 ...(i.modifierOptionIds?.length
                                                         ? { modifierOptionIds: i.modifierOptionIds }
                                                         : {}),
@@ -181,8 +182,6 @@ export default function CartPage() {
                                                 .filter(Boolean)
                                                 .join('\n'),
                                         pickupType,
-                                        subtotal,
-                                        total,
                                         restaurantId: restaurantId || undefined,
                                         referralCode,
                                 }),

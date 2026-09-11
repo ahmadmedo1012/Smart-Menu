@@ -60,13 +60,13 @@ export function LoginScreen() {
           <View className="mb-6">
             <Label>اسم المستخدم</Label>
             <Input value={username} onChangeText={setUsername} placeholder="اسم المستخدم" autoCapitalize="none" autoCorrect={false} returnKeyType="next" error={Boolean(errors.username)} />
-            {errors.username ? <Text style={{ color: "#c0392b", fontFamily: "Cairo", fontSize: 12, marginTop: 4 }}>{errors.username}</Text> : null}
+            {errors.username ? <Text style={{ color: "#e62b34", fontFamily: "Cairo", fontSize: 12, marginTop: 4 }}>{errors.username}</Text> : null}
           </View>
 
           <View className="mb-6">
             <Label>كلمة المرور</Label>
             <PasswordInput value={password} onChangeText={setPassword} placeholder="كلمة المرور" returnKeyType="done" onSubmitEditing={onSubmit} error={Boolean(errors.password)} />
-            {errors.password ? <Text style={{ color: "#c0392b", fontFamily: "Cairo", fontSize: 12, marginTop: 4 }}>{errors.password}</Text> : null}
+            {errors.password ? <Text style={{ color: "#e62b34", fontFamily: "Cairo", fontSize: 12, marginTop: 4 }}>{errors.password}</Text> : null}
           </View>
 
           <Button title={submitting ? "جارٍ الدخول..." : "تسجيل الدخول"} loading={submitting} onPress={onSubmit} className="w-full" />

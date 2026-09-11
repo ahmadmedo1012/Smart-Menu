@@ -119,7 +119,10 @@ describe('GET /api/cron/cleanup — RateLimitEntry safety-net (r92-D8)', () => {
                 expect(json.auditLogsDeleted).toBe(27);
                 expect(json.systemEventsDeleted).toBe(412);
                 expect(json.rateLimitEntriesDeleted).toBeUndefined();
-                expect(String(json.rateLimitEntriesError)).toContain('pg connection lost');
+                // r103-N5: the JSON body is the generic A4 copy — the raw driver error
+                // lives ONLY in the server log (asserted below)
+                expect(json.rateLimitEntriesError).toBe('cleanup failed');
+                expect(json.rateLimitEntriesError).not.toContain('pg connection');
                 expect(mockLogError).toHaveBeenCalledWith(
                         'cron: rate limit entries cleanup',
                         expect.objectContaining({ error: expect.stringContaining('pg connection lost') }),

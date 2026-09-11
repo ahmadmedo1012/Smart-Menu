@@ -178,6 +178,28 @@ export async function POST(request: NextRequest) {
                         planCaps = { maxItems: plan.maxItems, maxOrders: plan.maxOrders };
                 }
 
+                // r103-F4 (pre-flight, same pattern as /api/subscriptions:60-74): a free
+                // self-registration could snipe a slug held by a PENDING paid payment
+                // (that path checks pending payments — this one checked only the Restaurant
+                // table). The payer's later approval then failed on SLUG_TAKEN while their
+                // payment stayed pending forever: no rejection event, no retry possible
+                // ("لديك طلب دفع معلق"). Free registration must honor the same reservation.
+                if (isPublicRegistration) {
+                        const menuSlugs = (body.restaurants?.length ? body.restaurants : [{ slug: body.slug! }]).map(
+                                (m) => m.slug
+                        );
+                        for (const slug of menuSlugs) {
+                                const slugPending = await prisma.subscriptionPayment.findFirst({
+                                        where: {
+                                                status: 'pending',
+                                                metadata: { path: ['tempRestaurants'], array_contains: [{ slug }] },
+                                        },
+                                        select: { id: true },
+                                });
+                                if (slugPending) return error(`الرابط ${slug} محجوز بطلب دفع معلق`, 409);
+                        }
+                }
+
                 const result = await prisma.$transaction(async (tx) => {
                         // round87-A6: public self-registration must run at the FREE plan's
                         // advertised caps (10 items / 100 orders). Previously the row kept

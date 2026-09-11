@@ -15,7 +15,7 @@ export type PublicStackParamList = {
         Login: undefined;
         Menu: { slug: string; ref?: string };
         Pricing: undefined;
-        OrderConfirmed: { orderId?: string };
+        OrderConfirmed: { orderId?: string; orderNo?: string; waUrl?: string };
         Terms: undefined;
         Privacy: undefined;
 };

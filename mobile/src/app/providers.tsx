@@ -16,7 +16,10 @@ const queryClient = new QueryClient({
 });
 
 const renderToast = ({ type, text1, text2 }: { type: "success" | "error" | "info"; text1?: string; text2?: string }) => {
-  const accentColor = type === "success" ? "#5b8c5a" : type === "error" ? "#c0392b" : "#3a8eb5";
+  // r103-N6: web palette tokens (globals.css) — success #23a136, destructive
+  // #e62b34, info #348dcf (were #5b8c5a/#c0392b/#3a8eb5 — the drift the M8
+  // alignment missed: the toasts M3/M9 added rendered in the OLD palette).
+  const accentColor = type === "success" ? "#23a136" : type === "error" ? "#e62b34" : "#348dcf";
   return (
     <View style={{
       // RTL: the accent rides the START edge — right side in this forced-RTL app

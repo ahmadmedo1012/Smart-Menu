@@ -58,7 +58,7 @@ const mockPrisma = vi.hoisted(() => ({
                 findUnique: mockTelegramApproverFindUnique,
         },
         systemEvent: { findMany: mockSystemEventFindMany },
-        subscriptionPayment: { findUnique: mockPaymentFindUnique },
+        subscriptionPayment: { findUnique: mockPaymentFindUnique, findFirst: vi.fn().mockResolvedValue(null) },
         user: { findUnique: mockUserFindUnique, update: vi.fn() },
         restaurant: { findUnique: vi.fn() },
         rateLimitEntry: {

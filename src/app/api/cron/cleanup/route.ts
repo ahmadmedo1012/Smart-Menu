@@ -87,7 +87,9 @@ export async function GET(request: NextRequest) {
                 results.rateLimitEntriesDeleted = count;
         } catch (e) {
                 logError('cron: rate limit entries cleanup', { error: String(e) });
-                results.rateLimitEntriesError = String(e);
+                // r103-N5: same A4 contract as the three blocks above — raw driver
+                // errors stay in the server log; the JSON body says only this.
+                results.rateLimitEntriesError = 'cleanup failed';
         }
 
         return NextResponse.json(results);

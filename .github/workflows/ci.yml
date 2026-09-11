@@ -332,6 +332,51 @@ jobs:
             test-results/
           retention-days: 7
 
+  # r103-D6: the mobile app had NO CI job — typecheck/lint/bundle were run
+  # manually per round only, so a regression in mobile/ could land silently
+  # while every web gate was green. Blocking gates mirror the manual r102
+  # verification exactly (typecheck + eslint + Metro/Hermes export); doctor
+  # stays advisory (registry-dependent, flaky as a gate).
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      # mobile/package.json declares its own packageManager (pnpm@10.34.5) —
+      # pin it explicitly so the action doesn't read the root's 11.9.0.
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 10.34.5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+
+      # .npmrc forces node-linker=hoisted (RN autolinking) — same install the
+      # EAS build uses.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      # eslint-config-expo still ships the legacy eslintrc format — the repo's
+      # mobile lint script pins ESLINT_USE_FLAT_CONFIG=false for it.
+      - run: pnpm lint
+
+      # The strongest signal short of an EAS build: a full Metro/Hermes export
+      # catches broken imports/resolution that tsc alone can miss.
+      - name: Metro bundle export (android)
+        run: npx expo export --platform android
+
+      - name: expo-doctor (advisory)
+        run: npx expo-doctor
+        continue-on-error: true
+
   # round86-D2: production QA is now a SEPARATE job — previously it ran with
   # continue-on-error inside the blocking job, and the report upload (if:
   # failure()) ran BEFORE it, so prod-QA failures left zero artifacts.
