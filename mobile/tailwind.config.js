@@ -5,6 +5,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // r102-M8: semantic tokens aligned 1:1 with the web design system
+        // (src/app/globals.css — r95 SmartBot AA-tuned dark palette). The web
+        // values are the single source of truth for cross-platform parity.
+        // `input` intentionally keeps the mobile value: web uses --input as a
+        // border tint while mobile composes it as the field FILL (#241c16).
         brand: {
           DEFAULT: "#bc4700",
           50: "#fdf5ec", 100: "#fbe5cd", 200: "#f6c896", 300: "#f1aa60",
@@ -14,19 +19,19 @@ module.exports = {
         background: "#010000",
         foreground: "#ebe7e2",
         card: "#070503",
-        muted: "#1a1410",
-        "muted-foreground": "#9c948a",
-        border: "#1f1813",
+        muted: "#0c0806",
+        "muted-foreground": "#8c857d",
+        border: "#211c18",
         input: "#241c16",
         ring: "#bc4700",
-        flame: "#e85d2c",
-        ember: "#c0392b",
+        flame: "#bc4700",
+        ember: "#863800",
         saffron: "#f1aa60",
-        whatsapp: "#25d366",
-        success: "#5b8c5a",
-        warning: "#f1aa60",
-        info: "#3a8eb5",
-        destructive: "#c0392b",
+        whatsapp: "#25D366",
+        success: "#23a136",
+        warning: "#ce9200",
+        info: "#348dcf",
+        destructive: "#e62b34",
       },
       fontFamily: {
         sans: ["Cairo", "System"],

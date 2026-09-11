@@ -259,7 +259,7 @@ export default function OwnerSettingsPage() {
 									type="button"
 									onClick={() => setLogo('')}
 									aria-label="حذف الشعار"
-									className="absolute top-1.5 end-1.5 size-8 sm:size-6 rounded-full bg-destructive/80 text-white flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+									className="absolute top-1.5 end-1.5 size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
 								>
 									<AnimatedX className="size-3" aria-hidden="true" />
 								</button>

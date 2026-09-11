@@ -3,6 +3,11 @@ import type { AuthUser, LoginResponse } from "@/types";
 
 export interface MeResponse {
   authenticated: boolean;
+  /** r102-M13: identity fields — the RN store hydrates a REAL user now
+   * (the endpoint reads the row's id/username/name; absent on older deploys). */
+  id?: number | null;
+  username?: string;
+  name?: string;
   role: AuthUser["role"];
   restaurantId: AuthUser["restaurantId"] | null;
   subscriptionStatus: AuthUser["subscriptionStatus"];
@@ -33,7 +38,9 @@ export async function bootstrapAuth(): Promise<AuthUser | null> {
   const me = await meRequest();
   if (!me || !me.authenticated) { await setStoredToken(null); return null; }
   return {
-    id: 0, username: "", name: "",
+    id: me.id ?? 0,
+    username: me.username ?? "",
+    name: me.name ?? "",
     role: me.role,
     restaurantId: me.restaurantId,
     subscriptionStatus: me.subscriptionStatus,

@@ -131,6 +131,7 @@ export function MenuHero({
                         <a
                             href={`/menu/${slug}/print`}
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                         >
                             {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}

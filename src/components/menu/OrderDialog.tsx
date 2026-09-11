@@ -122,7 +122,11 @@ export function OrderDialog({
                         if (customerName.trim()) s.setCustomerName(customerName.trim());
                         if (customerPhone.trim()) s.setCustomerPhone(customerPhone.trim());
                         s.setPickupType(orderType);
-                        s.setOrderNotes(notes.trim());
+                        // r102-W1: notes live on the ITEM line only (updateNotes below).
+                        // The previous setOrderNotes(notes.trim()) double-wrote the same
+                        // text into order-level notes (duplicated in the WhatsApp receipt)
+                        // and — worse — ran UNCONDITIONALLY, so an empty dialog notes
+                        // field wiped order notes the user had typed on /cart.
                 };
                 // Add item with quantity matching dialog selection. A configured line
                 // (modifier ids + summary) is carried on EVERY call — the store merges

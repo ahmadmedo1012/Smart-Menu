@@ -145,7 +145,8 @@ describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنوافذ 
                 expect(res.status).toBe(200);
                 const json = await res.json();
                 expect(json.sessionsDeleted).toBeUndefined();
-                expect(String(json.sessionsError)).toContain('connection lost');
+                // r102-A4: الجسم مُقنّع ("cleanup failed") — التفصيل الخام في سجل الخادم فقط.
+                expect(json.sessionsError).toBe('cleanup failed');
                 expect(json.auditLogsDeleted).toBe(27);
                 expect(mockAuditDeleteMany).toHaveBeenCalledTimes(1);
                 expect(mockLogError).toHaveBeenCalledWith(
@@ -160,7 +161,8 @@ describe('GET /api/cron/cleanup — bearer صحيح → تنظيف بنوافذ 
                 expect(res.status).toBe(200);
                 const json = await res.json();
                 expect(json.sessionsDeleted).toBe(3);
-                expect(String(json.auditLogsError)).toContain('timeout');
+                // r102-A4: الجسم مُقنّع — لا تسريب لرسائل المشغل الداخلية.
+                expect(json.auditLogsError).toBe('cleanup failed');
                 expect(mockSessionDeleteMany).toHaveBeenCalledTimes(1);
         });
 });
@@ -188,7 +190,8 @@ describe('GET /api/cron/cleanup — SystemEvent retention (R91 F-C / D3)', () =>
                 expect(json.sessionsDeleted).toBe(3);
                 expect(json.auditLogsDeleted).toBe(27);
                 expect(json.systemEventsDeleted).toBeUndefined();
-                expect(String(json.systemEventsError)).toContain('pg timeout');
+                // r102-A4: الجسم مُقنّع — التفصيل الخام مؤكد في سجل الخادم أدناه.
+                expect(json.systemEventsError).toBe('cleanup failed');
                 expect(mockLogError).toHaveBeenCalledWith(
                         'cron: system events cleanup',
                         expect.objectContaining({ error: expect.stringContaining('pg timeout') }),

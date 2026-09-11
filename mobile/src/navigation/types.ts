@@ -23,7 +23,9 @@ export type PublicStackParamList = {
 export type AuthStackParamList = {
         Login: undefined;
         SubscribePlan: undefined;
-        SubscribeMenu: undefined;
+        /** r102-M3: the selected plan finally rides the flow — it was dropped
+         * between the plan picker and the payment POST (hardcoded planId: 1). */
+        SubscribeMenu: { planId: number };
         SubscribePayment: { planId: number };
 };
 

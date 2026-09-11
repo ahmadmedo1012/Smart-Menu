@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, ScrollView, RefreshControl, Pressable } from "react-native";
+import { View, Text, ScrollView, RefreshControl, Pressable, Share } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star } from "lucide-react-native";
+import QRCode from "react-native-qrcode-svg";
+import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2 } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
 import { Spinner, EmptyState, ErrorState } from "@/components/ui";
@@ -11,6 +12,7 @@ import { usePollWhenVisible } from "@/hooks/usePollWhenVisible";
 import { formatPrice, toArabicNumber } from "@/lib/format";
 import { formatRelativeTimeAr, getOrderStatusMeta, getPickupTypeMeta } from "@/lib/order-status";
 import { getErrorMessage } from "@/lib/get-error-message";
+import { toast } from "@/app/providers";
 import type { RootNavigation } from "@/navigation/types";
 
 interface OwnerStats {
@@ -130,6 +132,7 @@ export function OwnerOrdersScreen() {
   const navigation = useNavigation<RootNavigation>();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -141,11 +144,14 @@ export function OwnerOrdersScreen() {
       setError(getErrorMessage(e, "تعذّر تحميل الطلبات"));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => { void load(); }, [load]);
   usePollWhenVisible(load, 15_000, [], { inFlightGuard: true });
+
+  const onRefresh = useCallback(() => { setRefreshing(true); void load(); }, [load]);
 
   if (loading) {
     return (
@@ -163,7 +169,7 @@ export function OwnerOrdersScreen() {
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={false} onRefresh={load} tintColor="#bc4700" />}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#bc4700" />}>
         {orders.length === 0 ? (
           <EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#9c948a" />} />
         ) : (
@@ -226,7 +232,15 @@ export function OwnerOrderDetailScreen() {
   if (!order) return null;
 
   const updateStatus = async (status: string) => {
-    try { await api.put(`/api/orders/${orderId}`, { status }); void load(); } catch {}
+    // r102-M9: الفشل كان يُبتلع بصمت (catch {}) — المالك يضغط زر الحالة ولا يرى
+    // شيئًا إذا رفض الخادم التغيير. الوميض بالخطأ + إعادة التحميل عند النجاح فقط.
+    try {
+      await api.put(`/api/orders/${orderId}`, { status });
+      toast.success(`تم تحديث الحالة إلى ${getOrderStatusMeta(status).label}`);
+      void load();
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, "فشل تحديث الحالة"));
+    }
   };
 
   return (
@@ -289,17 +303,74 @@ export function OwnerRestaurantsScreen() {
   );
 }
 
+interface OwnerRestaurantLite {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+/**
+ * r102-M2: was a static placeholder (hardcoded `your-slug`, text instead of a
+ * QR). Now loads the owner's REAL restaurants and renders each one's QR —
+ * offline via react-native-qrcode-svg (pure JS on react-native-svg; no third-
+ * party qrserver call, no menu URL leaving the device) — with native share.
+ */
 export function OwnerQrScreen() {
   const domain = process.env.EXPO_PUBLIC_DOMAIN ?? "https://menu.smart-link.ly";
-  const url = `${domain}/menu/your-slug`;
+  const [restaurants, setRestaurants] = useState<OwnerRestaurantLite[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const list = await api.get<OwnerRestaurantLite[]>("/api/owner/restaurants");
+        setRestaurants(list ?? []);
+      } catch (e: unknown) {
+        setError(getErrorMessage(e, "تعذّر تحميل مطاعمك"));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
         <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>رمز QR لمنيوك</Text>
-        <View style={{ backgroundColor: "#fff", padding: 16, borderRadius: 12 }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#000" }}>{url}</Text>
-        </View>
-        <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a", marginTop: 16, textAlign: "center" }}>شارك هذا الرابط أو اطبع رمز QR لعملائك</Text>
+        {error ? (
+          <ErrorState message={error} onRetry={() => { setLoading(true); setError(null); setRestaurants(null); }} />
+        ) : restaurants && restaurants.length > 0 ? (
+          restaurants.map((r) => {
+            const url = `${domain}/menu/${r.slug}`;
+            return (
+              <View key={r.id} style={{ backgroundColor: "#070503", borderRadius: 12, borderWidth: 1, borderColor: "#1f1813", padding: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
+                <Text style={{ fontFamily: "Cairo", fontSize: 15, fontWeight: "700", color: "#ebe7e2", marginBottom: 12 }}>{r.name}</Text>
+                <View style={{ backgroundColor: "#fff", padding: 12, borderRadius: 12 }}>
+                  <QRCode value={url} size={200} backgroundColor="#ffffff" color="#010000" />
+                </View>
+                <Pressable
+                  onPress={() => { void Share.share({ message: url }).catch(() => {}); }}
+                  accessibilityLabel={`مشاركة رابط منيو ${r.name}`}
+                  style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: "#bc4700", opacity: pressed ? 0.9 : 1 })}>
+                  <Share2 size={16} color="#fff" />
+                  <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#fff" }}>مشاركة الرابط</Text>
+                </Pressable>
+                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
+              </View>
+            );
+          })
+        ) : (
+          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={32} color="#9c948a" />} />
+        )}
       </ScrollView>
     </SafeAreaView>
   );

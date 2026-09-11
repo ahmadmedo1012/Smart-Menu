@@ -25,8 +25,11 @@ export async function GET(request: NextRequest) {
                 });
                 results.sessionsDeleted = count;
         } catch (e) {
+                // r102-A4: full raw error goes to the SERVER log only — the JSON body
+                // is readable by whoever holds CRON_SECRET and shouldn't echo internal
+                // driver messages (connection strings/SQL fragments) back out.
                 logError('cron: sesion cleanup', { error: String(e) });
-                results.sessionsError = String(e);
+                results.sessionsError = 'cleanup failed';
         }
 
         try {
@@ -37,7 +40,7 @@ export async function GET(request: NextRequest) {
                 results.auditLogsDeleted = count;
         } catch (e) {
                 logError('cron: audit cleanup', { error: String(e) });
-                results.auditLogsError = String(e);
+                results.auditLogsError = 'cleanup failed';
         }
 
         // R91 F-C (D3 growth table): SystemEvent was the one unbounded operational
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest) {
                 results.systemEventsDeleted = count;
         } catch (e) {
                 logError('cron: system events cleanup', { error: String(e) });
-                results.systemEventsError = String(e);
+                results.systemEventsError = 'cleanup failed';
         }
 
         // round92-D8 (1-d P2 finding): RateLimitEntry was the ONLY operational

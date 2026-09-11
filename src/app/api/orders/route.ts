@@ -23,7 +23,10 @@ const orderItemSchema = z.object({
         quantity: z.number().int().positive().default(1),
         // round86-A7: bound free-text fields (DB bloat + receipt/telegram payload hygiene)
         notes: z.string().max(500).optional(),
-        price: z.number().positive(),
+        // r102-A5: client `price` dropped — the server re-prices every line from
+        // its own DB rows (eff = discountedPrice ?? price, line 235) and the old
+        // required field forced every client to send a fake value that was then
+        // ignored. Unknown keys are stripped by zod, so existing senders keep working.
         modifierOptionIds: z.array(z.number().int().positive()).optional(),
 });
 
@@ -33,9 +36,9 @@ const createSchema = z.object({
         customerPhone: z.string().max(30).optional(),
         notes: z.string().max(500).optional(),
         pickupType: z.enum(['inside', 'takeaway', 'delivery']).optional(),
-        subtotal: z.number().positive(),
-        discount: z.number().min(0).optional(),
-        total: z.number().positive(),
+        // r102-A5: subtotal/discount/total dropped — same rationale as item price
+        // above (server-side recalculation is the only source of truth; the old
+        // REQUIRED positive subtotal/total rejected clients that sent nothing).
         restaurantId: z.number().int().positive(),
         // round89-A2: payload cap (dx-2 #9) — an unbounded items array fed
         // giant IN lists + createMany batches into the money path; 50 covers

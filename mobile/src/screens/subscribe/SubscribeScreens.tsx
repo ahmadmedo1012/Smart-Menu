@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Check } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
@@ -58,7 +58,7 @@ export function SubscribePlanScreen() {
         ))}
       </ScrollView>
       <View style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
-        <Button title="التالي" onPress={() => selectedId && navigation.navigate("SubscribeMenu")} disabled={!selectedId} size="lg" className="w-full" />
+        <Button title="التالي" onPress={() => selectedId && navigation.navigate("SubscribeMenu", { planId: selectedId })} disabled={!selectedId} size="lg" className="w-full" />
       </View>
     </SafeAreaView>
   );
@@ -66,6 +66,10 @@ export function SubscribePlanScreen() {
 
 export function SubscribeMenuScreen() {
   const navigation = useNavigation<RootNavigation>();
+  const route = useRoute();
+  // r102-M3: the plan chosen on the previous screen — persisted with the
+  // pending-restaurant payload so the payment step can read it after reload.
+  const { planId } = (route.params || {}) as { planId: number };
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [phone, setPhone] = useState("");
@@ -78,8 +82,8 @@ export function SubscribeMenuScreen() {
     try {
       await api.post("/api/subscriptions/validate", { tempUsername: slug, tempRestaurants: [{ name, slug }] }, { skipAuth: true });
       const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
-      await AsyncStorage.setItem("subscribe_pending", JSON.stringify({ name, slug, phone, whatsapp }));
-      navigation.navigate("SubscribePayment", { planId: 1 });
+      await AsyncStorage.setItem("subscribe_pending", JSON.stringify({ name, slug, phone, whatsapp, planId }));
+      navigation.navigate("SubscribePayment", { planId });
     } catch (e: unknown) {
       toast.error(getErrorMessage(e, "الاسم أو الـ slug مستخدم بالفعل"));
     } finally { setSubmitting(false); }
@@ -113,7 +117,11 @@ export function SubscribePaymentScreen() {
     try {
       const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
       const pending = JSON.parse((await AsyncStorage.getItem("subscribe_pending")) || "{}");
+      // r102-M3: planId rides the payload — the server zod schema has required
+      // it all along; the old POST omitted it entirely (defaulting server-side)
+      // and the user's chosen plan was silently discarded.
       await api.post("/api/subscriptions", {
+        planId: typeof pending.planId === "number" ? pending.planId : undefined,
         provider, phone, amount: Number(amount),
         tempRestaurants: [{ name: pending.name, slug: pending.slug }], tempUsername: pending.slug,
       });

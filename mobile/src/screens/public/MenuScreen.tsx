@@ -2,14 +2,13 @@ import { useEffect, useState, useCallback } from "react";
 import { View, Text, Pressable, ScrollView, RefreshControl, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
-import { useRoute } from "@react-navigation/native";
-import { Search, ShoppingCart, Plus, Minus, X, ShoppingBag } from "lucide-react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { Search, ShoppingCart, Plus, Minus, X, ShoppingBag, AlertCircle } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 
 import { api } from "@/services/api/client";
 import { OptimizedImage } from "@/components/shared/OptimizedImage";
-import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, Spinner } from "@/components/ui";
@@ -19,6 +18,13 @@ import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
 import { buildReceiptMessage } from "@/lib/receipt";
 import { formatPrice, toArabicNumber } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
+import {
+  type ModifierGroupProp, type ModifierSelection,
+  visibleModifierGroups, toggleModifierOption, validateModifierGroups,
+  modifierDelta, unitPriceWithModifiers, buildModifierPayload,
+  isOptionDisabled, modifierGroupHint, selectedCount,
+} from "@/lib/menu-types";
+import type { RootNavigation } from "@/navigation/types";
 
 interface RestaurantInfo {
   id: number; name: string; slug: string; description: string;
@@ -30,11 +36,18 @@ interface MenuItem {
   id: number; name: string; nameAr: string | null; description: string;
   price: number; discountedPrice: number | null; image: string;
   isAvailable: boolean; isFeatured: boolean; categoryId: number;
+  /** r102-M4: served by /api/public/menu/[slug] — same data the web
+   * OrderDialog configures its modifier groups from. */
+  modifierGroups?: ModifierGroupProp[];
 }
+
+/** Same shape the server enforces on the referral claim (REFERRAL_CODE_RE). */
+const REFERRAL_RE = /^[A-Z0-9]{6,16}$/;
 
 export function MenuScreen() {
   const route = useRoute();
-  const { slug } = (route.params || {}) as { slug?: string };
+  const navigation = useNavigation<RootNavigation>();
+  const { slug, ref } = (route.params || {}) as { slug?: string; ref?: string };
 
   const [restaurant, setRestaurant] = useState<RestaurantInfo | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
@@ -45,9 +58,21 @@ export function MenuScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
 
-  const cart = useCart();
   const cartItems = useCart((s) => s.items);
+
+  // r102-M7: deep-link attribution — the Menu route type carries ref? (r101) but
+  // it was never persisted, so ?ref=CODE died on arrival and the checkout's
+  // AsyncStorage lookup always found nothing. Store it exactly like the web's
+  // ReferralHandler does (localStorage key smartmenu_referral).
+  useEffect(() => {
+    if (!ref) return;
+    const code = ref.toUpperCase();
+    if (REFERRAL_RE.test(code)) {
+      void AsyncStorage.setItem("smartmenu_referral", code);
+    }
+  }, [ref]);
 
   const load = useCallback(async () => {
     if (!slug) return;
@@ -183,7 +208,7 @@ export function MenuScreen() {
         renderItem={({ item }) => (
           <MenuItemCard
             item={item}
-            onPress={() => cart.addItem({ itemId: item.id, name: item.nameAr || item.name, price: item.discountedPrice ?? item.price, image: item.image, restaurantId: restaurant.id })}
+            onPress={() => setDetailItem(item)}
           />
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#bc4700" />}
@@ -191,7 +216,7 @@ export function MenuScreen() {
         ListEmptyComponent={<EmptyState title="لا توجد أصناف" description="جرّب فئة أخرى أو ابحث بكلمة مختلفة" icon={<ShoppingBag size={32} color="#9c948a" />} />}
       />
 
-      {cartCount > 0 && !cartOpen ? (
+      {cartCount > 0 && !cartOpen && !detailItem ? (
         <View style={{ position: "absolute", bottom: 16, left: 16, right: 16, zIndex: 50 }}>
           <Pressable
             onPress={() => setCartOpen(true)}
@@ -210,19 +235,21 @@ export function MenuScreen() {
         </View>
       ) : null}
 
-      {cartOpen ? <CartSheet restaurant={restaurant} onClose={() => setCartOpen(false)} /> : null}
+      {cartOpen ? <CartSheet restaurant={restaurant} onDone={(orderNo) => { setCartOpen(false); navigation.navigate("OrderConfirmed", { orderId: orderNo }); }} onClose={() => setCartOpen(false)} /> : null}
 
-      <FloatingWhatsApp number={restaurant.whatsapp || restaurant.phone} />
+      {detailItem ? <ItemDetailSheet item={detailItem} restaurant={restaurant} onClose={() => setDetailItem(null)} /> : null}
     </SafeAreaView>
   );
 }
 
 const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }) => {
   const price = item.discountedPrice ?? item.price;
+  const groups = visibleModifierGroups(item.modifierGroups);
   return (
     <Pressable
       onPress={onPress}
       disabled={!item.isAvailable}
+      accessibilityLabel={`تفاصيل ${item.nameAr || item.name}`}
       style={({ pressed }) => ({
         flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#070503",
         borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813",
@@ -236,7 +263,14 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
       <View style={{ flex: 1 }}>
         <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "600", color: "#ebe7e2" }} numberOfLines={1}>{item.nameAr || item.name}</Text>
         {item.description ? <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }} numberOfLines={2}>{item.description}</Text> : null}
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700", marginTop: 4 }}>{formatPrice(price)}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
+          <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700" }}>{formatPrice(price)}</Text>
+          {groups.length > 0 ? (
+            <View style={{ backgroundColor: "#1f1813", borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+              <Text style={{ fontFamily: "Cairo", fontSize: 10, color: "#9c948a" }}>خيارات</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
       <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}>
         <Plus size={18} color="#fff" />
@@ -245,7 +279,134 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
   );
 };
 
-function CartSheet({ restaurant, onClose }: { restaurant: RestaurantInfo; onClose: () => void }) {
+/**
+ * r102-M4: item detail + modifier configuration — the missing half of customer
+ * parity. Web opens OrderDialog (modifier groups, quantity, notes); mobile
+ * previously added the raw item on tap with NO way to pick options. This sheet
+ * reuses the exact same pure engine the web dialog uses (menu-types.ts) and
+ * feeds the cart store's modifier-aware line shape.
+ */
+function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restaurant: RestaurantInfo; onClose: () => void }) {
+  const groups = visibleModifierGroups(item.modifierGroups);
+  const [selection, setSelection] = useState<ModifierSelection>({});
+  const [quantity, setQuantity] = useState(1);
+  const [notes, setNotes] = useState("");
+  const [modError, setModError] = useState<{ groupId: number | null; message: string } | null>(null);
+
+  const delta = modifierDelta(groups, selection);
+  const unit = unitPriceWithModifiers(item.price, item.discountedPrice, delta);
+
+  const onAdd = () => {
+    const validation = validateModifierGroups(groups, selection);
+    if (!validation.ok) {
+      setModError({ groupId: validation.groupId, message: validation.message });
+      return;
+    }
+    setModError(null);
+    const { modifierOptionIds, modifiersSummary } = buildModifierPayload(groups, selection);
+    const displayName = item.nameAr || item.name;
+    // Same pattern as the web dialog: one addItem per unit — the store merges
+    // repeats by itemId + modifier signature, so qty lands on one line.
+    for (let i = 0; i < quantity; i++) {
+      useCart.getState().addItem({
+        itemId: item.id, name: displayName, price: unit,
+        image: item.image || undefined, restaurantId: restaurant.id,
+        ...(modifierOptionIds.length > 0 ? { modifierOptionIds, modifiersSummary } : {}),
+      });
+    }
+    const line = useCart.getState().items.find(
+      (li) => li.itemId === item.id && (li.modifierOptionIds ?? []).join(",") === modifierOptionIds.join(","),
+    );
+    if (line && notes.trim()) useCart.getState().updateNotes(line.id, notes.trim());
+    toast.success(`أُضيف ${displayName} إلى السلة`);
+    onClose();
+  };
+
+  return (
+    <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.7)", zIndex: 100 }}>
+      <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="إغلاق تفاصيل الصنف" />
+      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#070503", borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "88%", padding: 16, borderWidth: 1, borderColor: "#1f1813" }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", flex: 1 }} numberOfLines={1}>{item.nameAr || item.name}</Text>
+          <Pressable onPress={onClose} hitSlop={8} accessibilityLabel="إغلاق"><X size={20} color="#9c948a" /></Pressable>
+        </View>
+        <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
+          {item.description ? (
+            <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", lineHeight: 20, marginBottom: 12 }}>{item.description}</Text>
+          ) : null}
+          {modError ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#e62b3424", borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: "#e62b3455" }}>
+              <AlertCircle size={16} color="#e62b34" />
+              <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#e62b34", flex: 1 }}>{modError.message}</Text>
+            </View>
+          ) : null}
+          {groups.map((g) => {
+            const groupName = g.nameAr || g.name;
+            return (
+              <View key={g.id} style={{ marginBottom: 16 }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#ebe7e2" }}>{groupName}</Text>
+                  <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a" }}>
+                    {modifierGroupHint(g)}{g.maxSelect > 1 ? ` · المحدد ${toArabicNumber(selectedCount(selection, g.id))}/${toArabicNumber(g.maxSelect)}` : ""}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                  {g.options.map((o) => {
+                    const selected = (selection[g.id] ?? []).includes(o.id);
+                    const disabled = isOptionDisabled(g, selection, o.id);
+                    return (
+                      <Pressable
+                        key={o.id}
+                        onPress={() => setSelection((prev) => toggleModifierOption(groups, prev, g.id, o.id))}
+                        disabled={disabled}
+                        accessibilityLabel={`${o.nameAr || o.name}${o.priceDelta > 0 ? ` بإضافة ${formatPrice(o.priceDelta)}` : ""}`}
+                        accessibilityState={{ selected, disabled }}
+                        style={{
+                          paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10,
+                          backgroundColor: selected ? "#bc4700" : "#010000",
+                          borderWidth: 1, borderColor: selected ? "#bc4700" : disabled ? "#1f1813" : "#1f1813",
+                          opacity: disabled ? 0.4 : 1,
+                        }}>
+                        <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "600", color: selected ? "#fff" : "#ebe7e2" }}>
+                          {o.nameAr || o.name}{o.priceDelta > 0 ? ` (+${formatPrice(o.priceDelta)})` : o.priceDelta < 0 ? ` (${formatPrice(o.priceDelta)})` : ""}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })}
+          <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2", marginBottom: 8 }}>ملاحظات على الصنف (اختياري)</Text>
+          <TextInput
+            placeholder="مثال: بدون بصل..."
+            placeholderTextColor="#9c948a"
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+            style={{ minHeight: 72, borderRadius: 8, borderWidth: 1, borderColor: "#1f1813", backgroundColor: "#010000", paddingHorizontal: 12, paddingVertical: 8, color: "#ebe7e2", fontFamily: "Cairo", fontSize: 13, textAlignVertical: "top", marginBottom: 8 }}
+          />
+        </ScrollView>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginTop: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <Pressable onPress={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} accessibilityLabel="إنقاص الكمية" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#1f1813", alignItems: "center", justifyContent: "center", opacity: quantity <= 1 ? 0.4 : 1 }}>
+              <Minus size={16} color="#ebe7e2" />
+            </Pressable>
+            <Text style={{ fontFamily: "Cairo", fontSize: 16, fontWeight: "700", color: "#ebe7e2", minWidth: 28, textAlign: "center" }}>{toArabicNumber(quantity)}</Text>
+            <Pressable onPress={() => setQuantity((q) => Math.min(99, q + 1))} accessibilityLabel="زيادة الكمية" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}>
+              <Plus size={16} color="#fff" />
+            </Pressable>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button title={`أضف إلى السلة · ${formatPrice(unit * quantity)}`} onPress={onAdd} size="lg" className="w-full" />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo; onDone: (orderNo: string) => void; onClose: () => void }) {
   const cart = useCart();
   const items = useCart((s) => s.items);
   const customerName = useCart((s) => s.customerName);
@@ -261,20 +422,20 @@ function CartSheet({ restaurant, onClose }: { restaurant: RestaurantInfo; onClos
     try {
       const refCode = (await AsyncStorage.getItem("smartmenu_referral")) || undefined;
       const res = await api.post<{ id: number; orderNo: string }>("/api/orders", {
-        items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, price: i.price, modifierOptionIds: i.modifierOptionIds })),
+        items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, modifierOptionIds: i.modifierOptionIds })),
         restaurantId: restaurant.id, customerName, customerPhone, notes, pickupType, referralCode: refCode,
-        // The API schema requires positive subtotal/total (the server recalculates
-        // both from DB prices anyway — these are advisory client-side values).
-        subtotal, total: subtotal,
       }, { mobileClient: true });
       const receipt = buildReceiptMessage({
         restaurantName: restaurant.name, orderNo: res.orderNo,
-        items: items.map((i) => ({ name: i.name, qty: i.quantity, price: i.price, notes: i.notes })),
+        items: items.map((i) => ({ name: i.modifiersSummary ? `${i.name} (${i.modifiersSummary})` : i.name, qty: i.quantity, price: i.price, notes: i.notes })),
         totalPrice: subtotal, customerName, customerPhone, notes, pickupType,
       });
       const waUrl = buildWhatsAppShareUrl(receipt, normalizeWaNumber(restaurant.whatsapp || restaurant.phone));
       await Linking.openURL(waUrl);
-      cart.clearCart(); onClose();
+      cart.clearCart();
+      // r102-M5: land on the confirmation screen — it existed but was only
+      // reachable via deep link; the in-app flow dead-ended after checkout.
+      onDone(res.orderNo);
     } catch (e: unknown) {
       toast.error(getErrorMessage(e, "فشل إرسال الطلب"));
     } finally {
@@ -297,15 +458,18 @@ function CartSheet({ restaurant, onClose }: { restaurant: RestaurantInfo; onClos
             <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", textAlign: "center", paddingVertical: 24 }}>السلة فارغة</Text>
           ) : (
             items.map((i) => (
-              <View key={i.id} style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1f1813" }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2" }} numberOfLines={1}>{i.name}</Text>
-                  <Text style={{ fontFamily: "ReadexPro", fontSize: 12, color: "#bc4700", marginTop: 4 }}>{formatPrice(i.price)}</Text>
-                </View>
+              <View key={i.id} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1f1813" }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#1f1813", alignItems: "center", justifyContent: "center" }}><Minus size={12} color="#ebe7e2" /></Pressable>
-                  <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2", minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
-                  <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}><Plus size={12} color="#fff" /></Pressable>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2" }} numberOfLines={1}>{i.name}</Text>
+                    {i.modifiersSummary ? <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }} numberOfLines={2}>{i.modifiersSummary}</Text> : null}
+                    <Text style={{ fontFamily: "ReadexPro", fontSize: 12, color: "#bc4700", marginTop: 4 }}>{formatPrice(i.price)}</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#1f1813", alignItems: "center", justifyContent: "center" }}><Minus size={12} color="#ebe7e2" /></Pressable>
+                    <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2", minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
+                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}><Plus size={12} color="#fff" /></Pressable>
+                  </View>
                 </View>
               </View>
             ))

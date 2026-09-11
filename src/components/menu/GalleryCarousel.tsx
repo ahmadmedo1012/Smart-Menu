@@ -212,7 +212,7 @@ export function GalleryCarousel({
 										goTo(i);
 									}}
 									className={cn(
-										'h-1.5 rounded-full transition-[width,height,background-color] duration-300',
+										'relative h-1.5 rounded-full transition-[width,height,background-color] duration-300 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
 										i === current
 											? 'w-6 bg-orange shadow-md'
 											: 'w-1.5 bg-white/40 hover:bg-white/60'
@@ -301,7 +301,7 @@ export function GalleryCarousel({
 											onClick={() => setLightboxIdx(i)}
 											aria-label={`صورة ${i + 1}`}
 											className={cn(
-												'h-1.5 rounded-full transition-[width,height,background-color] duration-300',
+												'relative h-1.5 rounded-full transition-[width,height,background-color] duration-300 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
 												i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
 											)}
 										/>

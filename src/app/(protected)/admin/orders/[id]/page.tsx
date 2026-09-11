@@ -115,6 +115,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                         <Link
                                                 href={`/menu/${order.restaurant.slug}`}
                                                 target="_blank"
+                                                rel="noopener noreferrer"
                                                 className="text-xs text-primary hover:text-orange transition-colors ms-auto"
                                         >
                                                 عرض المنيو ←

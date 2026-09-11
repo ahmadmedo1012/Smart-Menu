@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { loginRequest, logoutRequest, meRequest } from "@/services/auth/auth-service";
-import { setStoredToken, getStoredToken } from "@/services/api/client";
+import { setStoredToken, getStoredToken, registerUnauthorizedHandler } from "@/services/api/client";
 import type { AuthUser } from "@/types";
 import { ApiError } from "@/types";
 
@@ -30,8 +30,13 @@ export const useAuth = create<AuthState>((set) => ({
       }
       set({
         status: "authenticated", token,
+        // r102-M13: identity comes from the /me row (id/username/name are now
+        // served by the endpoint). Fabricating {id:0, username:""} is gone —
+        // greetings fall back to a role label instead of a fake empty user.
         user: {
-          id: 0, username: "", name: "",
+          id: me.id ?? 0,
+          username: me.username ?? "",
+          name: me.name ?? "",
           role: me.role, restaurantId: me.restaurantId,
           subscriptionStatus: me.subscriptionStatus, permissions: me.permissions,
         },
@@ -60,3 +65,10 @@ export const useAuth = create<AuthState>((set) => ({
   },
   clearError: () => set({ error: null }),
 }));
+
+// r102-M1: mid-session expiry (server returned 401 on a request that carried our
+// Bearer token) resets the whole app to the public stack exactly once, instead
+// of every screen surfacing a raw unauthorized error.
+registerUnauthorizedHandler(() => {
+  useAuth.setState({ user: null, token: null, status: "unauthenticated", error: null });
+});

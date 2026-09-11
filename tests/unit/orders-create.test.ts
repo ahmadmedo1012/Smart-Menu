@@ -375,10 +375,17 @@ describe('POST /api/orders — guards', () => {
                 expect(json.success).toBe(false);
         });
 
-        it('non-positive total → 422', async () => {
+        it('non-positive client total → IGNORED (server re-prices; field dropped from schema r102-A5)', async () => {
+                // r102-A5: subtotal/total/discount لم تعد حقول مخطط — أي قيمة يرسلها
+                // العميل تُتجاهل (zod يطرح المفاتيح غير المعروفة) والسعر الوحيد
+                // المعتمد هو إعادة الحساب من صفوف DB (اختبار منفصل أعلاه يثبّتها).
                 const res = await callPost({ ...tamperedBody, total: -5 });
 
-                expect(res.status).toBe(422);
+                expect(res.status).toBe(201);
+                const json = await res.json();
+                expect(json.success).toBe(true);
+                // المجموع من DB لا من العميل — الكتابة حدثت داخل المعاملة
+                expect(mockTransaction).toHaveBeenCalled();
         });
 
         it('unknown restaurant → 404 before any write', async () => {

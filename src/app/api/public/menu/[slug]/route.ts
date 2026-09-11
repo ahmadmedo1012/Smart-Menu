@@ -81,6 +81,33 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
                     allergens: true,
                     avgRating: true,
                     ratingCount: true,
+                    // r102-M4: modifier groups — the web /menu/[slug] RSC payload ships
+                    // them to OrderDialog; without them the RN item-detail sheet cannot
+                    // offer the same configuration the web offers. Same visibility
+                    // discipline as the web serializer: unavailable options are dropped,
+                    // and groups left without options are omitted entirely (map below).
+                    modifierGroups: {
+                        orderBy: { sortOrder: 'asc' },
+                        select: {
+                            id: true,
+                            name: true,
+                            nameAr: true,
+                            minSelect: true,
+                            maxSelect: true,
+                            required: true,
+                            options: {
+                                where: { isAvailable: true },
+                                orderBy: { sortOrder: 'asc' },
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    nameAr: true,
+                                    priceDelta: true,
+                                    isAvailable: true,
+                                },
+                            },
+                        },
+                    },
                 },
             }),
         ]);
@@ -106,9 +133,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
             categories,
             items: items.map((i) => ({
                 ...i,
+                // the query above filters status = 'available' — mirror it explicitly
+                // so the client type (isAvailable: boolean) is honest without trusting
+                // a field the select never fetched.
+                isAvailable: true,
                 price: Number(i.price),
                 discountedPrice: i.discountedPrice == null ? null : Number(i.discountedPrice),
                 avgRating: i.avgRating == null ? null : Number(i.avgRating),
+                modifierGroups: i.modifierGroups
+                    .filter((g) => g.options.length > 0)
+                    .map((g) => ({
+                        ...g,
+                        options: g.options.map((o) => ({ ...o, priceDelta: Number(o.priceDelta) })),
+                    })),
             })),
         });
     } catch (e) {

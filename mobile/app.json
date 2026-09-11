@@ -66,7 +66,16 @@
         }
       ],
       "expo-secure-store",
-      "expo-image-picker"
+      "expo-image-picker",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/adaptive-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#010000"
+        }
+      ]
     ],
     "experiments": {
       "tsconfigPaths": true

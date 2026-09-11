@@ -230,7 +230,7 @@ export default function OwnerDashboard() {
                                                                                 <AnimatedQrCode className="size-3.5" /> احصل على QR
                                                                         </Button>
                                                                 </Link>
-                                                                <Link href={`/menu/${restaurant.slug}`} target="_blank">
+                                                                <Link href={`/menu/${restaurant.slug}`} target="_blank" rel="noopener noreferrer">
                                                                         <Button size="sm" variant="outline" className="gap-1.5 text-xs">
                                                                                 <AnimatedExternalLink className="size-3.5" /> عرض المنيو
                                                                         </Button>
@@ -317,7 +317,7 @@ export default function OwnerDashboard() {
                                                                 </div>
                                                         </div>
                                                 </div>
-                                                <Link href={`/menu/${restaurant.slug}`} target="_blank">
+                                                <Link href={`/menu/${restaurant.slug}`} target="_blank" rel="noopener noreferrer">
                                                         <Button variant="outline" size="sm" className="gap-1.5 text-xs">
                                                                 <AnimatedExternalLink className="size-3.5" /> عرض المنيو
                                                         </Button>

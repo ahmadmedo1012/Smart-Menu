@@ -370,7 +370,7 @@ export default function AdminDashboard() {
                                                                                         </p>
                                                                                 </div>
                                                                         </div>
-                                                                        <Link href={`/menu/${r.slug}`} target="_blank" aria-label={`عرض منيو ${r.name}`}>
+                                                                        <Link href={`/menu/${r.slug}`} target="_blank" rel="noopener noreferrer" aria-label={`عرض منيو ${r.name}`}>
                                                                                 <ArrowUpRight className="size-3 text-muted-foreground rtl:-scale-x-100" aria-hidden="true" />
                                                                         </Link>
                                                                 </div>

@@ -3,12 +3,17 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
+import { createDbRateLimiter } from '@/lib/rate-limit';
 import { toArabicNumber } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
 
 const redeemSchema = z.object({
         cardId: z.number().int().positive(),
 });
+
+// r102-A2: مثل أخواتها (whatsapp/generate 20/min) — الاستبدال كتابة مالية،
+// لا تُترك بلا سقف. مفتاح لكل مستخدم موثّق، بعد بوابة 401 (مجهول لا يحرق ميزانية).
+const redeemDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 20 });
 
 // r93-W2a (U2): جمع عربي ديناميكي لرصيد الطلبات المتبقي بعد الاستبدال (نمط
 // cartCountPhrase من r92-A9) — «طلب واحد / طلبان / 5 طلبات / 12 طلبًا» بدل
@@ -33,6 +38,9 @@ export async function POST(request: NextRequest) {
         try {
                 const auth = await requireAuth();
                 if (!auth.authorized) return apiError('غير مصرح', 401);
+
+                const { success: allowed } = await redeemDbLimiter.check(`redeem:${auth.userId}`);
+                if (!allowed) return apiError('طلبات كثيرة جدًا، حاول بعد دقيقة', 429);
 
                 const body = redeemSchema.parse(await request.json());
 

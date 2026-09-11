@@ -70,8 +70,19 @@ export function assertSameOrigin(request: Request): void {
         // دعم تطبيق الموبايل لـ login: الطلب يُرسل قبل إنشاء الجلسة (لا يوجد Bearer
         // بعد). لا حاجة لحماية CSRF على login — الـ password نفسه يحمي الطلب.
         // تطبيق React Native لا يستطيع إرسال كوكي CSRF صالح. تخطّي الفحص.
+        //
+        // r102-A1: التخطي كان مفتوحًا لأي مسار يحمل الترويسة — أي موقع خارجي
+        // يستطيع قراءة الاسم نفسه وتجاوز فحص Origin/double-submit لطرف
+        // لا يملك Bearer. حصرناه بالمستويين الوحيدين اللذين يحتاجهما عميل
+        // React Native فعليًا (client.ts يرسل mobileClient:true فقط هنا):
+        //  1) /api/auth/login — محمي بكلمة المرور نفسها (لا كوكي جلسة بعد).
+        //  2) /api/orders    — الطلب العام مجهول الهوية أصلًا (نفس الفعل يمكن
+        //     لأي متصفح تنفيذه بالكوكي + التوكن؛ لا جلسة ضحية تُستغل).
+        // كل ما عداهما من الجوال يرسل Bearer (تخطي مسبق أعلاه) أو كوكي
+        // متصفح صالح (يمر بالفحص الكامل).
         const clientType = request.headers.get('x-client-type');
-        if (clientType === 'mobile') {
+        const MOBILE_UNAUTH_PATHS = new Set(['/api/auth/login', '/api/orders']);
+        if (clientType === 'mobile' && MOBILE_UNAUTH_PATHS.has(pathname)) {
                 return;
         }
 
