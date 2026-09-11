@@ -12,7 +12,7 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **see "Verification log" below for the newest entry** |
+| Last verified commit | **`a4b64552`** (2026-09-12 — r103 final; production serves it, CI all-green, EAS APK built from it) |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | Code-complete; **READY FOR REAL DEVICE TESTING** (EAS preview APK per round; no real-device run available in the sandbox) |
@@ -90,7 +90,8 @@
 
 ## Verification log (append newest first)
 
-- **r103 (2026-09-12) — DEPLOYED**: commit `cb8e781f` (fix batch `ff97a777` + CI fix) LIVE on production via API deployment `dpl_DjJnUDSnDAsoFx9yRqMvEGgL` (git-integration BLOCKED by the stale-concurrency entry again — cancelled, per the documented runbook). `/api/health`: sha cb8e781f, db connected. Gates: TS 0 · lint 0 errors · 1930/1930 unit · build OK · mobile TS/lint/doctor 18/18 + Metro export 7.56MB · secrets PASS · api-auth PASS. CI: mobile job **SUCCESS**, prod-qa **SUCCESS**. LIVE REGRESSION: pages 200, security negatives intact (401/403), anonymous items still 400 (F1 scope preserved), F12 new copy live, full order journey 201 (`ORD-MTXCK5X4-8EB096DE`, برجر الواحة ×2 + الحجم modifier, server-priced, notes carried). EAS preview APK build `6691ae92` on cb8e781f.
+- **r103 FINAL (2026-09-12)**: HEAD `a4b64552` (mobile EAS-compat fix on top of the fix batch) — **production serves it** (API deployment after the recurring git-integration BLOCK; stale entries cancelled), `/api/health` sha=a4b64552 db=connected. **CI run 34641877469: ALL THREE JOBS SUCCESS** (lint-build-test incl. full e2e matrix · NEW mobile job · prod-qa). EAS build `a87b1ce7` **FINISHED** → APK validated (90.4MB, manifest+dex) at `smart-menu-preview-r103.apk`. The first EAS attempt (`6691ae92`) failed in seconds with `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` (frozen-install overrides comparison on EAS's pnpm) → fixed with exact pins + a `pnpm.overrides` mirror in package.json (pnpm 9 reads package.json, pnpm 10 prefers the workspace yaml — identical values satisfy both). Final live sweep: all pages 200, negatives 401/403 intact, bad slug 404, F12 copy live, public menu 25 items + 2 modifier groups.
+- **r103 (2026-09-12) — DEPLOYED**: commit `cb8e781f` (fix batch `ff97a777` + CI fix) LIVE via API deployment `dpl_DjJnUDSnDAsoFx9yRqMvEGgL`. Gates: TS 0 · lint 0 errors · 1930/1930 unit · build OK · mobile TS/lint/doctor 18/18 + Metro 7.56MB · secrets PASS · api-auth PASS. LIVE REGRESSION incl. full order journey 201 (`ORD-MTXCK5X4-8EB096DE`, برجر الواحة ×2 + الحجم modifier, server-priced, notes carried).
 - **r103 (2026-09-12) — pre-deploy**: fresh clone @ `174719b4` — TS 0 / lint 0 (10 legacy warnings) / 1930-1930 unit / production build OK (local PG) / mobile TS+lint+doctor 18/18 + Metro export 7.56MB. Live repros: F1 (400 on the admin probe), F8 (wa.me/null in code; ISR made the live grep stale). F13 (print/isActive) REFUTED live — parent layout gate 404s correctly (agent false positive). 24 fixes applied + 22 new unit tests + 3 test-contract updates (rbac-matrix, r92-cleanup-ratelimit, regression-sweep/restaurants-create mocks).
 
 ---
