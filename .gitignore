@@ -43,6 +43,9 @@ open-design/
 *.pem
 .playwright-mcp/
 *.png
+# mobile (r100): app icons are source assets, not build output — the blanket
+# *.png above (web build artifacts) must not swallow them.
+!mobile/assets/images/*.png
 .pnp.*
 /.pnp
 .pnpm-debug.log*
