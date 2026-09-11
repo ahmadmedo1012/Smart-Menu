@@ -1,0 +1,1 @@
+export { PrivacyScreen } from "./StaticScreens";

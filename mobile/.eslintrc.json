@@ -1,0 +1,13 @@
+{
+  "extends": "expo",
+  "ignorePatterns": [
+    "metro.config.js", "babel.config.js", "tailwind.config.js",
+    "global.css", "nativewind-env.d.ts", "assets.d.ts",
+    "node_modules/", ".expo/", "android/", "ios/", "dist/", "web-build/", "assets/", "scripts/"
+  ],
+  "rules": {
+    "@typescript-eslint/no-require-imports": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
+}

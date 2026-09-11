@@ -1,0 +1,17 @@
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+*.orig.*
+android/
+ios/
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.tsbuildinfo
+.vscode/
+.idea/
+coverage/
+*.tgz

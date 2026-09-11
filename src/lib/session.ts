@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { createHash } from 'node:crypto';
 import { error as logError } from '@/lib/logger';
 
@@ -20,7 +20,7 @@ function hashToken(token: string): string {
         return createHash('sha256').update(token).digest('hex');
 }
 
-export async function createSession(userId: number) {
+export async function createSession(userId: number): Promise<string> {
         const token = crypto.randomUUID();
         const tokenHash = hashToken(token);
         const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
@@ -66,6 +66,11 @@ export async function createSession(userId: number) {
                 path: '/',
                 maxAge: SESSION_TTL_MS / 1000,
         });
+
+        // إرجاع التوكن الخام ليتمكن طالب الاستدعاء (مثل /api/auth/login مع
+        // ترويسة X-Client-Type: mobile) من إرجاعه في جسم الاستجابة. تطبيق
+        // الموبايل يخزّنه في SecureStore ويرسله لاحقًا عبر Authorization: Bearer.
+        return token;
 }
 
 export async function destroySession() {
@@ -119,7 +124,20 @@ export async function validateSession(): Promise<{
         } | null;
 }> {
         const c = await cookies();
-        const token = c.get(SESSION_COOKIE)?.value;
+        let token = c.get(SESSION_COOKIE)?.value;
+        // دعم تطبيق الموبايل: عند غياب الكوكي، نلجأ إلى ترويسة Authorization: Bearer.
+        // تطبيق React Native لا يستطيع قراءة كوكي httpOnly يُضبط عبر Set-Cookie،
+        // لذا يخزّن التوكن الخام في SecureStore ويرسله كـ Bearer. التوكن هو نفس
+        // UUID المخزّن (مُجزّأ SHA-256) في جدول Session — نفس منطق الـ sliding
+        // window + الـ absolute cap + سقف الـ 5 جلسات/مستخدم يبقى ساريًا.
+        if (!token) {
+                const h = await headers();
+                const authHeader = h.get('authorization') ?? h.get('Authorization');
+                if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+                        const bearer = authHeader.slice(7).trim();
+                        if (/^[0-9a-f-]{36}$/i.test(bearer)) token = bearer;
+                }
+        }
         if (!token) return { valid: false, userId: null };
 
         try {

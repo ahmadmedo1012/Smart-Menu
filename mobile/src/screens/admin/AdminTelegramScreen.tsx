@@ -1,0 +1,1 @@
+export { AdminTelegramScreen } from "./AdminScreens";

@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #010000;
+  --foreground: #ebe7e2;
+  --card: #070503;
+  --orange: #bc4700;
+}

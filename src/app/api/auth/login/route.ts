@@ -167,7 +167,14 @@ export async function POST(request: Request) {
                 );
 
                 // Create server-side session
-                await createSession(user.id);
+                const sessionToken = await createSession(user.id);
+
+                // دعم تطبيق الموبايل: عند ضبط ترويسة X-Client-Type: mobile، نُرجع
+                // أيضًا التوكن الخام في جسم JSON. fetch في React Native لا يستطيع
+                // قراءة كوكي httpOnly يُضبط عبر Set-Cookie، لذا يخزّنه التطبيق
+                // في SecureStore ويرسله لاحقًا كـ Authorization: Bearer. الكوكي
+                // يبقى يُضبط لعملاء الويب — سلوك الويب ما تغيّر إطلاقًا.
+                const isMobileClient = request.headers.get('x-client-type') === 'mobile';
 
                 return success({
                         user: {
@@ -178,6 +185,7 @@ export async function POST(request: Request) {
                                 restaurantId: user.restaurantId,
                                 subscriptionStatus: user.subscriptionStatus ?? 'UNPAID',
                         },
+                        ...(isMobileClient ? { sessionToken } : {}),
                 });
         } catch (e) {
                 logError('Login error:', { error: e instanceof Error ? e.message : String(e) });
