@@ -109,7 +109,7 @@
 
 1. **REBUILD the EAS preview APK from the r104 commit** (every APK ≤ r103 is dead-on-arrival from the Intl crash) and run the manual real-device pass: install → browse → item detail w/ modifiers → order → WhatsApp → owner login → QR.
 2. Push r104 → CI (3 jobs must stay green) — the web change is behavior-identical (pure refactor of the classifier), but the full e2e matrix is the safety net.
-3. Android App Links: publish `/.well-known/assetlinks.json` (SHA-256 of the signing cert) + `expo-build-properties` intent-filter metadata so `https://menu.smart-link.ly/...` deep links open directly (no chooser).
+3. ~~App Links assetlinks.json~~ **DONE (r104)**: `public/.well-known/assetlinks.json` committed with the EAS keystore SHA-256 — verify live after deploy, then retest a deep link on the emulator.
 5. TLS floor decision for Android ≤7.x (see ledger #2) — monitor or serve the LE alternate chain.
 6. Web checkout `idempotencyKey` (mirror mobile N4) + namespacing decision for the key.
 7. Self-hosted QR render on the web owner QR page (retire `api.qrserver.com` — the `qrcode` dep is already installed).
