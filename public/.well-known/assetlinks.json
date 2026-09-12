@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ly.smartlink.smartmenu",
+      "sha256_cert_fingerprints": [
+        "7B:5D:FC:9C:61:AF:11:49:68:AA:9A:46:49:A2:6B:8F:CA:85:03:FC:09:74:70:71:E9:61:D9:F0:A0:D8:C1:2D"
+      ]
+    }
+  }
+]
