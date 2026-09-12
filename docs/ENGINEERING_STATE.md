@@ -12,10 +12,10 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **(r104 pending — see below)** `a4b64552` (2026-09-12 — r103 final; production serves it, CI all-green, EAS APK built from it) |
+| Last verified commit | **`c6a065cf`** (2026-09-12 — r104 final: crash fix + assetlinks; production serves it, CI SUCCESS, EAS APK `4c872f91` FINISHED + emulator-verified) |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
-| Mobile status | **r104: STARTUP CRASH ROOT-CAUSED AND FIXED** (Intl.PluralRules on Hermes) — emulator-verified: installs, launches, renders UI, no crash. EAS rebuild of the fixed APK pending at session end. |
+| Mobile status | **r104: STARTUP CRASH FIXED AND FULLY VERIFIED** — the official EAS APK (4c872f91, from the fix commit) installs, launches, renders, and runs on a real Android system (API 24 emulator). App Links (assetlinks.json) now served live. |
 | Unit tests | 1930/1930 (132 files — r103: 1908 → 1930, +22; r104: same suite green with the fix, incl. the 14 arabic-plural boundary pins) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
@@ -96,6 +96,8 @@
 - **Deploy**: push to `main` → Vercel git-integration. If the build stays BLOCKED (stale concurrency entry — happened r102): create a deployment via the Vercel API with the VERCEL_TOKEN, then cancel the stale one.
 
 ## Verification log (append newest first)
+
+- **r104 FINAL (2026-09-12)**: production serves **`c6a065cf`** (API deployment `smart-menu-kznxfge45` after the recurring git-integration BLOCK; health: db=connected). **CI run 34701130344: SUCCESS** on the tip. **EAS build `4c872f91` FINISHED** → `smart-menu-preview-r104.apk` (90.4MB) downloaded + signer SHA-256 verified to match the published assetlinks fingerprint (`7b5dfc9c…d8c12d`) + **installed and launched on the emulator: MainActivity displayed +22s, fabric runtime, process alive, no crash**. `/.well-known/assetlinks.json` LIVE on production (HTTP 200, correct JSON). Live smoke: all pages 200, negatives 401/404 intact.
 
 - **r104 (2026-09-12) — MOBILE STARTUP CRASH FIXED + FIRST REAL RUNTIME VERIFICATION**: fresh clone @ `086c2532` (= r103 final docs commit; production verified serving `a4b64552`, db connected). Built Android 7.0 x86_64 emulator (TCG) in-sandbox → installed the ACTUAL EAS r103 APK (`smart-menu-preview-r103.apk`, 90.4MB): install SUCCESS (pm path + dexopt x86_64 + intent-filter verification in logcat), launch → process up → **crash at 17s**: `JavascriptException: [runtime not ready]: TypeError: Cannot read property 'prototype' of undefined, js engine: hermes` (crash dialog screenshot captured). Symbolication: dev-bundle swap (`expo export --dev --no-bytecode` + hermesc v96 + `zip -n .so:.arsc:.bundle` + apksigner) → crash stack with line numbers → **`mobile/src/lib/arabic-plural.ts:39` `new Intl.PluralRules('ar')`** (r90-F4 regression; Hermes has no Intl.PluralRules; web unaffected). FIX: pure-JS CLDR `ar` classifier in web+mobile (identical files). RE-VERIFICATION on the emulator with the fixed bundle: install SUCCESS (`pm path .../ly.smartlink.smartmenu-2/base.apk`), MainActivity **displayed +20.5s**, RN `Running "main" {..., "fabric":true}`, **APP_PID alive >2min, NO FATAL**, landing screen renders (Arabic RTL dark+orange — VLM-verified screenshot), deep link `https://menu.smart-link.ly/menu/al-waha-cafe-demo` → routes to Menu screen (chooser shown — autoVerify not provisioned; explicit-component launch works), API unreachable on API-24 → **controlled error state + retry renders, no crash** (TLS: prod chain `YR2 ← ISRG Root YR`, no DST cross-sign). Gates: web TS 0 · lint 0 (10 legacy warnings) · **1930/1930** (incl. the 14 arabic-plural pins) · mobile TS 0 · lint 0 · doctor 18/18 · Metro export OK. Evidence: `download/mobile-*.png`, `download/mobile-*-logcat.txt` (in-session artifacts).
 
