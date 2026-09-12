@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **`a4b64552`** (2026-09-12 — r103 final; production serves it, CI all-green, EAS APK built from it) |
+| Last verified commit | **(r104 pending — see below)** `a4b64552` (2026-09-12 — r103 final; production serves it, CI all-green, EAS APK built from it) |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
-| Mobile status | Code-complete; **READY FOR REAL DEVICE TESTING** (EAS preview APK per round; no real-device run available in the sandbox) |
-| Unit tests | 1930/1930 (132 files — r103: 1908 → 1930, +22 for this round's fixes) |
+| Mobile status | **r104: STARTUP CRASH ROOT-CAUSED AND FIXED** (Intl.PluralRules on Hermes) — emulator-verified: installs, launches, renders UI, no crash. EAS rebuild of the fixed APK pending at session end. |
+| Unit tests | 1930/1930 (132 files — r103: 1908 → 1930, +22; r104: same suite green with the fix, incl. the 14 arabic-plural boundary pins) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -28,6 +28,8 @@
 - **Ops**: `docs/ops-runbook.md` (PITR/rollback/incidents).
 
 ## Round history (recent, newest first)
+
+- **r104 (2026-09-12)** — **THE MOBILE STARTUP CRASH, root-caused and fixed on a real Android system.** Built an Android 7.0 (API 24) x86_64 emulator inside the sandbox (TCG software emulation; system image sparsified; ext4 data partition formatted with Android-7-compatible features — `metadata_csum`/`64bit` must be OFF, Hermes-side details below) and ran the actual EAS-built APK: it **installed fine, launched, then crashed 17s in** with `JavascriptException: [runtime not ready]: TypeError: Cannot read property 'prototype' of undefined` → symbolicated via a dev-bundle swap → **`src/lib/arabic-plural.ts:39` `new Intl.PluralRules('ar')` at module scope** (r90-F4 regression). **Hermes does not implement Intl.PluralRules** → the crash fired on EVERY Android device at startup (web unaffected — browsers/Node have Intl). Fix: pure-JS CLDR `ar` classifier (identical boundaries; the 14 test pins incl. 101→many / 103→few / 100→many all green), applied to web+mobile for parity. **Emulator re-verification with the fixed bundle: app installs, MainActivity displays in 20s (TCG), RN bridgeless/Fabric runtime healthy, landing screen renders (Arabic RTL, dark+orange), deep link `https://menu.smart-link.ly/menu/al-waha-cafe-demo` routes to the Menu screen, controlled error-state + retry renders when the API is unreachable** (emulator-specific TLS: production serves `ISRG Root YR` without the old-Android DST cross-sign — see known issues). 4 cosmetic react-navigation warnings (lowercase inline screen components in StaticScreens/SubscribeMenu — polish item). Gates at r104: web TS 0 · lint 0 (10 legacy warnings) · 1930/1930 · mobile TS 0 · lint 0 · doctor 18/18 · bundle export OK.
 
 - **r103 (2026-09-12)** — fresh-clone full audit + 24 fixes. See "r103 fix batch" below.
 - **r102 (2026-09-11)** — ultimate audit: 20 fixes (web W1-W5, API A1-A5, mobile M1-M13), deployed `174719b4`, live regression green, CI SUCCESS, EAS APK (90.4MB). Report: `docs/rounds/closures/` + session worklog.
@@ -69,15 +71,20 @@
 
 ## Known issues / deferred work (honest ledger)
 
-1. **Mobile: no real-device test** in the sandbox — all mobile verification is static+bundle-level; the EAS preview APK is the vehicle for manual device testing (install → browse → item detail w/ modifiers → order → WhatsApp → owner login → QR).
-2. `idempotencyKey` shares a GLOBAL namespace (theoretical squat) — no client sent one before r103-N4; the mobile app does now (random 14-char). Web `/cart` still doesn't send one (double-click guard is client-side only). **Next step**: web checkout idempotencyKey + namespacing decision.
-3. Web QR page still renders via `api.qrserver.com` (third-party) — self-host option documented since r102-W6; changing it without visual-preview ability was judged riskier than the benefit. Mobile already renders QR locally (`react-native-qrcode-svg`).
-4. Remaining mobile advisories: `image-size` (2 high, metro build-time, **no patched version exists** — unfixable until metro bumps), `uuid` 7.0.3 (moderate, iOS xcode build-time only; overriding broadly risks breaking metro consumers).
-5. Mobile full menu CRUD / branches / reviews management / loyalty detail / admin screens remain web-first by design (documented parity gap, not a defect).
-6. `text-[10px]` micro-typography (×92 sites) + container-token polish — unclaimed.
-7. Dep upgrades deliberately deferred: TS 7 (native rewrite), eslint 10 (flat-only), motion 13, knip 6 (documented pins), expo SDK 53→54+ migration, coordinated zod 4.3.6→4.6 web+mobile.
-8. owner/reviews caps at `pageSize=100` with no pagination UI (comment claims it covers the tenant set; >100 reviews would truncate — fine for current data volumes).
-9. `/api/upload` chunked-body bypass (no content-length) — Vercel's ~4.5MB platform cap covers production; a self-hosted Docker deployment would need a stream limit.
+1. **r104 (2026-09-12): the EAS r103 APK — and every APK since r90-F4 — CRASHED at startup on ALL Android devices** (`Intl.PluralRules` missing on Hermes). Fixed in r104 (see round history) — the EAS preview APK must be REBUILT from the r104 commit; the artifacts from `a4b64552` and earlier are dead-on-arrival. **All prior 'code-complete' mobile rounds were validated by static checks only — the runtime gap is why the app 'did not work'.**
+2. **TLS chain vs very old Android** (r104 finding): production serves `*.smart-link.ly` via Let's Encrypt `YR2 ← ISRG Root YR` with NO old-Android (DST Root CA X3 cross-sign) fallback — Android ≤ 7.x with stale trust stores may fail TLS to the API (the emulator on API 24 showed the app's controlled error state + retry, no crash). Modern, updated devices are unaffected. Follow-up: consider Vercel/LE alternate-chain serving or accept the floor; monitor real-device errors.
+3. **Android App Links `autoVerify` not effective** (r104 finding): deep links on API 24 open the chooser (no `/.well-known/assetlinks.json` served with the SHA-256 fingerprint of the app's signing key). Follow-up: publish assetlinks.json + set `expo-build-properties` androidIntentFilters assetlinks metadata.
+4. 4 react-navigation dev warnings: lowercase inline screen components ('v' Pricing, 'h' OrderConfirmed, 'c' Terms, 's' Privacy — StaticScreens/SubscribeMenu). Cosmetic; rename to Capitalized components.
+5. **Mobile: no real-device test** — r104 upgraded verification to a real Android system (API 24 emulator: install → launch → render → deep-link → error-state), but a physical modern device pass (browse → item w/ modifiers → order → WhatsApp → owner flows) remains the final vehicle.
+6. `idempotencyKey` shares a GLOBAL namespace (theoretical squat) — no client sent one before r103-N4; the mobile app does now (random 14-char). Web `/cart` still doesn't send one (double-click guard is client-side only). **Next step**: web checkout idempotencyKey + namespacing decision.
+7. Web QR page still renders via `api.qrserver.com` (third-party) — self-host option documented since r102-W6; changing it without visual-preview ability was judged riskier than the benefit. Mobile already renders QR locally (`react-native-qrcode-svg`).
+8. Remaining mobile advisories: `image-size` (2 high, metro build-time, **no patched version exists** — unfixable until metro bumps), `uuid` 7.0.3 (moderate, iOS xcode build-time only; overriding broadly risks breaking metro consumers).
+9. Mobile full menu CRUD / branches / reviews management / loyalty detail / admin screens remain web-first by design (documented parity gap, not a defect).
+10. `text-[10px]` micro-typography (×92 sites) + container-token polish — unclaimed.
+11. Dep upgrades deliberately deferred: TS 7 (native rewrite), eslint 10 (flat-only), motion 13, knip 6 (documented pins), expo SDK 53→54+ migration, coordinated zod 4.3.6→4.6 web+mobile.
+12. owner/reviews caps at `pageSize=100` with no pagination UI (comment claims it covers the tenant set; >100 reviews would truncate — fine for current data volumes).
+13. `/api/upload` chunked-body bypass (no content-length) — Vercel's ~4.5MB platform cap covers production; a self-hosted Docker deployment would need a stream limit.
+14. **r104 sandbox emulator recipe (reusable)**: API-24 x86_64 image (sparsified `qemu-img convert -O raw` saves ~1.7GB), 6GiB sparse data partition pre-formatted `mke2fs -F -b 4096 -m 0 -O has_journal,extent,huge_file,dir_nlink,extra_isize` (modern mkfs defaults `metadata_csum`/`64bit` are REJECTED by Android-7's kernel), `-accel off -gpu swiftshader_indirect`, full cycle (fresh boot ~75-95s + APK install ~30-75s) must fit ONE 10-min command window — the sandbox reaps background processes unpredictably; adb install must never be killed in-flight (it wedges adbd; recover via `adb emu restart`); release APK swaps of `assets/index.android.bundle` (dev bundle via `expo export --dev --no-bytecode` + hermesc, or release via `expo export`) must keep `.so`/`.arsc`/`.bundle` STORED (`zip -n .so:.arsc:.bundle`) and be re-signed (build-tools zipalign+apksigner).
 
 ## Environment / verification recipes
 
@@ -90,6 +97,8 @@
 
 ## Verification log (append newest first)
 
+- **r104 (2026-09-12) — MOBILE STARTUP CRASH FIXED + FIRST REAL RUNTIME VERIFICATION**: fresh clone @ `086c2532` (= r103 final docs commit; production verified serving `a4b64552`, db connected). Built Android 7.0 x86_64 emulator (TCG) in-sandbox → installed the ACTUAL EAS r103 APK (`smart-menu-preview-r103.apk`, 90.4MB): install SUCCESS (pm path + dexopt x86_64 + intent-filter verification in logcat), launch → process up → **crash at 17s**: `JavascriptException: [runtime not ready]: TypeError: Cannot read property 'prototype' of undefined, js engine: hermes` (crash dialog screenshot captured). Symbolication: dev-bundle swap (`expo export --dev --no-bytecode` + hermesc v96 + `zip -n .so:.arsc:.bundle` + apksigner) → crash stack with line numbers → **`mobile/src/lib/arabic-plural.ts:39` `new Intl.PluralRules('ar')`** (r90-F4 regression; Hermes has no Intl.PluralRules; web unaffected). FIX: pure-JS CLDR `ar` classifier in web+mobile (identical files). RE-VERIFICATION on the emulator with the fixed bundle: install SUCCESS (`pm path .../ly.smartlink.smartmenu-2/base.apk`), MainActivity **displayed +20.5s**, RN `Running "main" {..., "fabric":true}`, **APP_PID alive >2min, NO FATAL**, landing screen renders (Arabic RTL dark+orange — VLM-verified screenshot), deep link `https://menu.smart-link.ly/menu/al-waha-cafe-demo` → routes to Menu screen (chooser shown — autoVerify not provisioned; explicit-component launch works), API unreachable on API-24 → **controlled error state + retry renders, no crash** (TLS: prod chain `YR2 ← ISRG Root YR`, no DST cross-sign). Gates: web TS 0 · lint 0 (10 legacy warnings) · **1930/1930** (incl. the 14 arabic-plural pins) · mobile TS 0 · lint 0 · doctor 18/18 · Metro export OK. Evidence: `download/mobile-*.png`, `download/mobile-*-logcat.txt` (in-session artifacts).
+
 - **r103 FINAL (2026-09-12)**: HEAD `a4b64552` (mobile EAS-compat fix on top of the fix batch) — **production serves it** (API deployment after the recurring git-integration BLOCK; stale entries cancelled), `/api/health` sha=a4b64552 db=connected. **CI run 34641877469: ALL THREE JOBS SUCCESS** (lint-build-test incl. full e2e matrix · NEW mobile job · prod-qa). EAS build `a87b1ce7` **FINISHED** → APK validated (90.4MB, manifest+dex) at `smart-menu-preview-r103.apk`. The first EAS attempt (`6691ae92`) failed in seconds with `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` (frozen-install overrides comparison on EAS's pnpm) → fixed with exact pins + a `pnpm.overrides` mirror in package.json (pnpm 9 reads package.json, pnpm 10 prefers the workspace yaml — identical values satisfy both). Final live sweep: all pages 200, negatives 401/403 intact, bad slug 404, F12 copy live, public menu 25 items + 2 modifier groups.
 - **r103 (2026-09-12) — DEPLOYED**: commit `cb8e781f` (fix batch `ff97a777` + CI fix) LIVE via API deployment `dpl_DjJnUDSnDAsoFx9yRqMvEGgL`. Gates: TS 0 · lint 0 errors · 1930/1930 unit · build OK · mobile TS/lint/doctor 18/18 + Metro 7.56MB · secrets PASS · api-auth PASS. LIVE REGRESSION incl. full order journey 201 (`ORD-MTXCK5X4-8EB096DE`, برجر الواحة ×2 + الحجم modifier, server-priced, notes carried).
 - **r103 (2026-09-12) — pre-deploy**: fresh clone @ `174719b4` — TS 0 / lint 0 (10 legacy warnings) / 1930-1930 unit / production build OK (local PG) / mobile TS+lint+doctor 18/18 + Metro export 7.56MB. Live repros: F1 (400 on the admin probe), F8 (wa.me/null in code; ISR made the live grep stale). F13 (print/isActive) REFUTED live — parent layout gate 404s correctly (agent false positive). 24 fixes applied + 22 new unit tests + 3 test-contract updates (rbac-matrix, r92-cleanup-ratelimit, regression-sweep/restaurants-create mocks).
@@ -98,8 +107,11 @@
 
 ## Next recommended engineering actions
 
-1. Deploy r103 (push → CI green → verify `/api/health` serves the new SHA) + live regression sweep of the fixed flows (admin/menu list, subscribe retry, review delete, loyalty redeem, cart switch).
-2. Rebuild the EAS preview APK on the r103 commit and run the manual real-device pass (see the mobile checklist in item 1 of the ledger).
-3. Web checkout `idempotencyKey` (mirror mobile N4) + namespacing decision for the key.
-4. Self-hosted QR render on the web owner QR page (retire `api.qrserver.com` — the `qrcode` dep is already installed).
-5. Consider a subscribe-page e2e spec for the rejected-payment retry path (currently unit-covered only).
+1. **REBUILD the EAS preview APK from the r104 commit** (every APK ≤ r103 is dead-on-arrival from the Intl crash) and run the manual real-device pass: install → browse → item detail w/ modifiers → order → WhatsApp → owner login → QR.
+2. Push r104 → CI (3 jobs must stay green) — the web change is behavior-identical (pure refactor of the classifier), but the full e2e matrix is the safety net.
+3. Android App Links: publish `/.well-known/assetlinks.json` (SHA-256 of the signing cert) + `expo-build-properties` intent-filter metadata so `https://menu.smart-link.ly/...` deep links open directly (no chooser).
+4. Rename the 4 lowercase inline screen components (StaticScreens/SubscribeMenu) to clear the react-navigation warnings.
+5. TLS floor decision for Android ≤7.x (see ledger #2) — monitor or serve the LE alternate chain.
+6. Web checkout `idempotencyKey` (mirror mobile N4) + namespacing decision for the key.
+7. Self-hosted QR render on the web owner QR page (retire `api.qrserver.com` — the `qrcode` dep is already installed).
+8. Consider a subscribe-page e2e spec for the rejected-payment retry path (currently unit-covered only).

@@ -22,21 +22,45 @@
 export type ArabicNumberState = 'zero' | 'one' | 'two' | 'few' | 'many';
 
 /**
- * round90-F4 (advisory S3, gstack simplification): the classifier now
- * delegates to the platform's Intl.PluralRules('ar') — it implements the
- * SAME six-state Arabic grammar (zero/one/two/few/many/other) that the old
- * manual derivation encoded, and is the CLDR-maintained source of truth.
+ * round90-F4 → reverted 2026-09-12 (r104): the "simplification" to
+ * `new Intl.PluralRules('ar')` crashed the MOBILE app at startup on every
+ * Android device — Hermes does NOT implement Intl.PluralRules, so the
+ * module-scope constructor threw
+ * `TypeError: Cannot read property 'prototype' of undefined`
+ * (emulator-verified: API 24 x86_64, hermes engine, crash 17s after launch,
+ * before ANY screen rendered — the root cause of "the mobile app does not
+ * work"). The classifier below is the pure-JS CLDR `ar` rules — identical
+ * boundaries to the native one the round90-F4 tests pinned (101 → many,
+ * 103 → few, 100/1000 → many), with zero Intl dependency so Web and Mobile
+ * share one implementation.
  *
- * Two deliberate mapping notes:
- *  - CLDR 'other' (multiples of 100: 100, 200, 1000…) → 'many' — both
- *    states render the singular form here ("100 صنف"/"15 صنفاً" family),
- *    exactly the old behavior for 100+.
+ * Mapping notes (unchanged from round90-F4):
+ *  - CLDR 'other' (100, 101, 200, 1000…) → 'many' — both states render the
+ *    singular form here ("100 صنف"/"15 صنفاً" family).
  *  - CLDR is GRAMMATICALLY tighter than the old flat "11+ → many" rule for
  *    values like 103 (103 % 100 = 3 → 'few' → plural "103 أصناف") and 111
  *    (11 → 'many' → singular). That is correct classical Arabic and the
  *    boundary the existing tests already pin (11/99 vs 100).
  */
-const AR_PLURAL_RULES = new Intl.PluralRules('ar');
+const AR_PLURAL_RULES = {
+  /**
+   * CLDR plural rules for Arabic (`ar`), integers only — the public
+   * `arabicNumberState` validates `count` is a non-negative integer:
+   *   0 → zero · 1 → one · 2 → two · n%100 ∈ 3..10 → few ·
+   *   n%100 ∈ 11..99 → many · everything else (100, 101, 1000…) → other.
+   * (In CLDR Arabic — unlike Russian — 'one'/'two' are the EXACT values 1/2,
+   * NOT n%100 ∈ {1,2}; 101 is 'other'.)
+   */
+  select(count: number): string {
+    if (count === 0) return 'zero';
+    if (count === 1) return 'one';
+    if (count === 2) return 'two';
+    const mod100 = count % 100;
+    if (mod100 >= 3 && mod100 <= 10) return 'few';
+    if (mod100 >= 11 && mod100 <= 99) return 'many';
+    return 'other';
+  },
+};
 const STATE_FROM_RULE: Record<string, ArabicNumberState> = {
   zero: 'zero',
   one: 'one',
