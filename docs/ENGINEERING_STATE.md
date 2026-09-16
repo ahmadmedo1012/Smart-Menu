@@ -108,6 +108,16 @@
 
 ## Verification log (append newest first)
 
+- **r109 FINAL (2026-09-16) — ALL SIX FIXES LIVE-VERIFIED on production `4c798679`** (db connected; deployed minutes after push via git-integration; migration `zz_round109` ran on deploy):
+  - **F1**: API live — qty=100000 → `422 «الحد الأقصى 99 وحدة لكل صنف في الطلب»`; qty=100 → 422; 1.5/0/-5/string → 422; **qty=99 → 201** (`ORD-MU40229U-D1EF9B3A`, 99×12=1188 د.ل math exact). The 1.8M-dinar order class is dead.
+  - **F2**: full customer journey on al-waha-cafe (stored number 0910089975, local) — checkout `window.open` captured **`wa.me/218910089975?text=<full invoice>`** (was `wa.me/0910089975` = never delivered); both menu-header contact links now `wa.me/218910089975`; second journey on qa-r108-test (0912345678) → `wa.me/218912345678`.
+  - **F9**: qa-r108-test dialog (the r108 defect group) — hint now **«اختر على الأقل 1 — المحدد 0/1»** (was «اختياري»); empty submit **BLOCKED** with «اختر على الأقل 1 من حجم الشاي», no order created; migration confirmed applied. Positive path: size selected → order `ORD-WMU407GTVK3818N` created 201.
+  - **F10**: order-confirmed «إرسال عبر واتساب» captured **the FULL itemized invoice** (restaurant/orderNo/items/modifiers/total — was a bare thank-you note) → `wa.me/218910089975`.
+  - **N1**: fetch-intercepted checkout POST body carries **`"idempotencyKey":"WMU40870WWYAB07"`** (W-namespaced; intercepted before the server — no test order).
+  - **N2**: /owner/qr renders `data:image/png;base64,…` with `data-testid="qr-code"`; **0 qrserver network requests**; screenshot `audit/r109/qr-selfhosted.png`.
+  - **Regression**: 16-route sweep all 200/308/307/404 as designed (print lives at `/menu/[slug]/print` → 200); security negatives 401/403/422/405 all correct; public menu API 25 items/5 categories; warm TTFB 0.08–0.10s; fresh-load console errors **0**; 390px no overflow. QA orders flagged for purge: `ORD-MU40229U-D1EF9B3A` (cap boundary), `ORD-WMU403JD6O4897O` (al-waha F2), `ORD-WMU407GTVK3818N` (qa-r108 F9) — customerName «QA-r109-cap» on the first.
+  - CI on `4c798679`: `prod-qa` SUCCESS · `mobile` SUCCESS · `lint-build-test` (full e2e matrix) result appended below.
+
 - **r106 (2026-09-16) — F1 quantity cap, pre-deploy**: fresh clone @ `0370e3a1` (origin/main; one docs commit past production `c6a065cf`). Fix batch (10 files: API zod ceiling + web/mobile store clamps + 4 stepper disable states + constant twins + 4 regression tests). Gates on the fix branch: web `tsc --noEmit` 0 · eslint (changed files) 0 · **unit 1934/1934 (132 files)** incl. the new cap pins · mobile `tsc --noEmit` 0. Live verification of the deployed cap (422 on 100000/100, 201 on 99) logged below after the push deploys.
 
 - **r104 FINAL (2026-09-12)**: production serves **`c6a065cf`** (API deployment `smart-menu-kznxfge45` after the recurring git-integration BLOCK; health: db=connected). **CI run 34701130344: SUCCESS** on the tip. **EAS build `4c872f91` FINISHED** → `smart-menu-preview-r104.apk` (90.4MB) downloaded + signer SHA-256 verified to match the published assetlinks fingerprint (`7b5dfc9c…d8c12d`) + **installed and launched on the emulator: MainActivity displayed +22s, fabric runtime, process alive, no crash**. `/.well-known/assetlinks.json` LIVE on production (HTTP 200, correct JSON). Live smoke: all pages 200, negatives 401/404 intact.
