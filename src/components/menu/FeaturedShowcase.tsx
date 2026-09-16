@@ -322,19 +322,27 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                         <MotionChevronRight className="size-5 rtl:-scale-x-100" aria-hidden="true" />
                                                 </button>
 
-                                                {/* Position dots (active = scene accent) + live counter */}
-                                                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-1.5" aria-hidden="true">
+                                                {/* Position dots (active = scene accent) + live counter.
+                                                        r110-F5: the dots were aria-hidden + tabIndex=-1 — screen
+                                                        readers only had the sr-only counter and the arrows. But a
+                                                        dot is a real jump-to-item control for pointer users, and
+                                                        automated a11y audits flagged 5 unnamed buttons. They are
+                                                        now first-class named controls: each carries the item's
+                                                        name + position, keyboard focusable, aria-current on the
+                                                        active one (the sr-only live counter above stays). */}
+                                                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-1.5">
                                                         {featured.map((f, i) => (
                                                                 <button
                                                                         key={f.id}
                                                                         type="button"
-                                                                        tabIndex={-1}
+                                                                        aria-label={`الانتقال إلى ${toArabicNumber(i + 1)}: ${f.nameAr?.trim() ? f.nameAr : f.name}`}
+                                                                        aria-current={i === index ? 'true' : undefined}
                                                                         onClick={() => {
                                                                                 setDirection(i > index ? 1 : -1);
                                                                                 setIndex(i);
                                                                         }}
                                                                         className={cn(
-                                                                                'size-2 rounded-full transition-all',
+                                                                                'size-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--scene-accent)] focus-visible:ring-offset-2',
                                                                                 i === index ? 'w-4 bg-[var(--scene-accent)]' : 'bg-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] hover:bg-[var(--scene-accent)]/60'
                                                                         )}
                                                                 />

@@ -10,6 +10,7 @@ import { MenuItemCard, type MenuItemProp } from './MenuItemCard';
 import { CategoryTabs } from './CategoryTabs';
 import { MenuToolbar } from './MenuToolbar';
 import { FeaturedShowcase, type FeaturedItem } from './FeaturedShowcase';
+import { CartSwitchDialog, willReplaceOtherRestaurantCart, type CartSwitchInfo } from './CartSwitchDialog';
 import dynamic from 'next/dynamic';
 
 // round86-B8: 426 + 369 line dialogs load only when opened — they were
@@ -166,20 +167,45 @@ export function MenuPageClient({
                 if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
         }, []);
 
-        const handleQuickAdd = useCallback(
-                (item: MenuItemProp) => {
-                        if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
-                        addLockRef.current = true;
-                        // r103-N3: honest feedback when the cart switches restaurants
-                        const cart = useCart.getState();
-                        if (
-                                cart.items.length > 0 &&
-                                cart.restaurantId &&
-                                restaurantId &&
-                                cart.restaurantId !== restaurantId
-                        ) {
-                                premiumToast('info', 'بدأنا سلة جديدة لهذا المنيو');
+        /* r110-F11: الفعل المؤجل بعد موافقة تبديل السلة — الإضافة السريعة أو فتح
+                نافذة الصنف. يُخزَّن هنا لأن حوار التأكيد لا يعرف سياق الفعل. */
+        const [pendingCartSwitch, setPendingCartSwitch] = useState<
+                { info: CartSwitchInfo; action: () => void } | null
+        >(null);
+
+        /* r110-F11: هل إضافة من هذا المنيو ستفرغ سلة مطعم آخر؟ (شرط المطابقة
+                نفسه من store/cart.ts — لكن للقراءة فقط هنا؛ التنفيذ يبقى في addItem) */
+        const crossRestaurantCart = useCallback((targetRestaurantId: number) => {
+                return willReplaceOtherRestaurantCart(useCart.getState(), targetRestaurantId);
+        }, []);
+
+        /* r110-F11: حارس التبديل — يستقبل فعلاً مطلوبًا في مطعم مختلف عن سلة
+                المستخدم الحالية؛ إن كان التبديل إتلافيًا (سلة غير فارغة) يعرض تأكيدًا
+                صريحًا بدل الإفراغ الصامت، وإلا ينفّذ فورًا. */
+        const guardCartSwitch = useCallback(
+                (action: () => void, itemDisplayName: string) => {
+                        if (!crossRestaurantCart(restaurantId)) {
+                                action();
+                                return;
                         }
+                        const cart = useCart.getState();
+                        setPendingCartSwitch({
+                                info: {
+                                        fromRestaurantName: cart.restaurantName || 'مطعم آخر',
+                                        itemCount: cart.items.reduce((a, i) => a + i.quantity, 0),
+                                        toRestaurantName: restaurantName || 'هذا المنيو',
+                                },
+                                action: () => {
+                                        action();
+                                        premiumToast('info', `أُفرغت سلة «${cart.restaurantName || 'المطعم السابق'}» وبدأنا سلة جديدة — «${itemDisplayName}»`);
+                                },
+                        });
+                },
+                [crossRestaurantCart, restaurantId, restaurantName]
+        );
+
+        const performQuickAdd = useCallback(
+                (item: MenuItemProp) => {
                         addItem({
                                 itemId: item.id,
                                 name: item.nameAr || item.name,
@@ -193,10 +219,34 @@ export function MenuPageClient({
                                 duration: 3200,
                                 anim: true,
                         });
-                        if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
-                        addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
                 },
                 [addItem, restaurantId, restaurantName, restaurantWhatsapp]
+        );
+
+        const handleQuickAdd = useCallback(
+                (item: MenuItemProp) => {
+                        if (addLockRef.current) return; // H1 fix: block double-tap rapid adds
+                        /* r110-F11: اعتراض التبديل قبل القفل — إن رفض المستخدم لا يجب أن
+                                يبقى القفل ممسكًا 400ms بلا فعل، وإن ظهر حوار التأكيد فالقفل
+                                يُطبَّق عند التنفيذ الفعلي (performQuickAdd يمر بهذا المسار). */
+                        guardCartSwitch(() => {
+                                addLockRef.current = true;
+                                performQuickAdd(item);
+                                if (addLockTimerRef.current) clearTimeout(addLockTimerRef.current);
+                                addLockTimerRef.current = setTimeout(() => { addLockRef.current = false; }, 400);
+                        }, item.nameAr || item.name);
+                },
+                [guardCartSwitch, performQuickAdd]
+        );
+
+        /* r110-F11: فتح نافذة الصنف يمر بنفس الحارس — أفضل من الاعتراض عند
+                «تأكيد» النافذة لأن المستخدم لو خيّر المعدلات ثم عرف أن السلة ستُفرغ
+                لضاع جهده؛ الاعتراض المبكر أوضح. */
+        const handleOpenOrder = useCallback(
+                (item: MenuItemProp) => {
+                        guardCartSwitch(() => setOrderItem(item), item.nameAr || item.name);
+                },
+                [guardCartSwitch]
         );
 
         const handleDecrement = useCallback(
@@ -281,9 +331,9 @@ export function MenuPageClient({
         const handleSuggestionClick = useCallback(
                 (id: number) => {
                         const found = items.find((i) => i.id === id);
-                        if (found) setOrderItem(found);
+                        if (found) handleOpenOrder(found);
                 },
-                [items]
+                [items, handleOpenOrder]
         );
 
         const handleReview = useCallback((item: MenuItemProp) => {
@@ -366,7 +416,7 @@ export function MenuPageClient({
                                                         >
                                                                 <MenuItemCard
                                                                         item={item}
-                                                                        onOrder={setOrderItem}
+                                                                        onOrder={handleOpenOrder}
                                                                         onAddToCart={handleQuickAdd}
                                                                         onDecrementCart={handleDecrement}
                                                                         onReview={handleReview}
@@ -416,7 +466,7 @@ export function MenuPageClient({
                                                 >
                                                         <MenuItemCard
                                                                 item={item}
-                                                                onOrder={setOrderItem}
+                                                                onOrder={handleOpenOrder}
                                                                 onAddToCart={handleQuickAdd}
                                                                 onDecrementCart={handleDecrement}
                                                                 onReview={handleReview}
@@ -449,6 +499,17 @@ export function MenuPageClient({
                                 onOpenChange={(o) => {
                                         if (!o) setReviewItem(null);
                                 }}
+                        />
+
+                        {/* r110-F11: تأكيد صريح قبل إفراغ سلة مطعم آخر — انظر CartSwitchDialog */}
+                        <CartSwitchDialog
+                                pending={pendingCartSwitch?.info ?? null}
+                                onConfirm={() => {
+                                        const p = pendingCartSwitch;
+                                        setPendingCartSwitch(null);
+                                        p?.action();
+                                }}
+                                onCancel={() => setPendingCartSwitch(null)}
                         />
                 </>
         );

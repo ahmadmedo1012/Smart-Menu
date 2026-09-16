@@ -127,6 +127,24 @@ const nextConfig: NextConfig = {
                                         { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
                                 ],
                         },
+                        // r110-F4: unify the icon-PNG family policy — icon-192 and
+                        // apple-touch-icon are the same "stable but regenerable in
+                        // place" assets as icon-512 (rebrandable), yet they had NO
+                        // rule and fell back to revalidate-on-every-visit. A PWA
+                        // home-screen install fetches all three; two of them
+                        // round-tripped every time. Same policy as icon-512/brand-icon.
+                        {
+                                source: '/icon-192.png',
+                                headers: [
+                                        { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+                                ],
+                        },
+                        {
+                                source: '/apple-touch-icon.png',
+                                headers: [
+                                        { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+                                ],
+                        },
                         // round92-D3 (plan D3, from 1-d P1 finding): the two heaviest public
                         // images — main21.webp (122K, ShowcaseSection) and hero-phone.webp
                         // (77K, HeroSection) — had NO rule and were re-downloaded on every
