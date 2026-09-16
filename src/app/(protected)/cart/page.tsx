@@ -252,6 +252,18 @@ export default function CartPage() {
                         customerPhone: customerPhone.trim() || undefined,
                         pickupType,
                 });
+                // r109-F10: stash the FULL receipt (items/totals/address) keyed by
+                // orderNo — the order-confirmed fallback button re-sends the itemized
+                // invoice instead of the old bare thank-you note. sessionStorage is
+                // per-tab: the confirmation page (same tab, router.push) reads it.
+                try {
+                        sessionStorage.setItem(
+                                'smartmenu_last_receipt',
+                                JSON.stringify({ orderNo, receipt })
+                        );
+                } catch {
+                        /* private mode — fallback text still works */
+                }
                 // H4 fix: clear cart immediately after successful order (prevents double-submit on popup-block)
                 clearCart();
                 // round97-X3: shared wa.me builder (encodes internally; waNumber is

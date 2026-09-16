@@ -5,12 +5,24 @@
  *  - strip everything except digits
  *  - convert leading "00" to "+"
  *  - remove a leading "+" (wa.me wants digits only)
+ *  - r109-F2: a leading "0" is a LOCAL trunk prefix, never a valid E.164
+ *    start (country codes begin 1-9) — wa.me rejected the number verbatim so
+ *    orders to local-format restaurants were never delivered (live-proven
+ *    r107/r108). This platform's restaurants are Libyan: strip the trunk 0
+ *    and prepend 218 (0912345678 → 218912345678).
  *  - validate length 8-15
  */
 export function normalizeWaNumber(input: string | null | undefined): string | null {
         if (!input) return null;
         let digits = input.replace(/[^\d]/g, "");
         if (digits.startsWith("00")) digits = digits.slice(2);
+        if (digits.startsWith("0")) {
+                // plausible Libyan local formats are 9-11 digits (09XXXXXXXX mobile,
+                // 0XXXXXXXX landline); shorter is garbage (stays null as before),
+                // longer can't be E.164 either way.
+                if (digits.length >= 9 && digits.length <= 11) digits = `218${digits.slice(1)}`;
+                else return null;
+        }
         // 8-15 digits (E.164 international)
         if (digits.length < 8 || digits.length > 15) return null;
         return digits;

@@ -52,9 +52,26 @@ function OrderContent() {
         }, [cleared, orderNo, isSubscription]);
 
         const handleWhatsApp = () => {
+                // r109-F10: prefer the FULL itemized receipt stashed by the checkout
+                // (keyed by orderNo) over the bare thank-you note — the restaurant
+                // needs the items/totals/address, not just the order number.
+                let receipt: string | null = null;
+                try {
+                        const stashed = sessionStorage.getItem('smartmenu_last_receipt');
+                        if (stashed) {
+                                const parsed = JSON.parse(stashed) as { orderNo?: string; receipt?: string };
+                                if (parsed.orderNo && parsed.orderNo === displayOrderNo && parsed.receipt) {
+                                        receipt = parsed.receipt;
+                                }
+                        }
+                } catch {
+                        /* private mode / corrupted stash — fall back to the note */
+                }
+                const text =
+                        receipt ??
+                        `طلب رقم: ${displayOrderNo ?? '---'}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`;
                 // round97-X3: shared wa.me builder (encodes internally; waNumber is
-                // passed verbatim — identical URLs to the inline templates).
-                const text = `طلب رقم: ${displayOrderNo ?? '---'}\n\nشكراً لطلبك! سنقوم بتجهيز طلبك في أقرب وقت.`;
+                // normalized E.164 since r109-F2 — local 0-prefix numbers convert).
                 window.open(buildWhatsAppShareUrl(text, waNumber || undefined), '_blank');
         };
 

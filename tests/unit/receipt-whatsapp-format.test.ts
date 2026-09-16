@@ -99,8 +99,15 @@ describe('normalizeWaNumber', () => {
         it('valid 8-15 digits pass', () => {
                 expect(normalizeWaNumber('218911234567')).toBe('218911234567');
         });
-        it('local 9-digit LY format passes unchanged', () => {
-                expect(normalizeWaNumber('0912345678')).toBe('0912345678');
+        it('r109-F2: local LY trunk format (leading 0) → 218-prefixed international', () => {
+                expect(normalizeWaNumber('0912345678')).toBe('218912345678');
+        });
+        it('r109-F2: local LY landline trunk format also converts', () => {
+                expect(normalizeWaNumber('0211234567')).toBe('218211234567');
+        });
+        it('r109-F2: already-international numbers never get double-prefixed', () => {
+                expect(normalizeWaNumber('218912345678')).toBe('218912345678');
+                expect(normalizeWaNumber('+218 91 234 5678')).toBe('218912345678');
         });
 });
 
