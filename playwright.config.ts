@@ -109,6 +109,10 @@ export default defineConfig({
         "tests/e2e/round6-subscriptions.spec.ts",
         "tests/e2e/round8-whatsapp.spec.ts",
         "tests/e2e/round29-cart-regression.spec.ts",
+        // r110 (ledger #8): subscribe-page rejected-payment retry path —
+        // dialog flips to «تم رفض»، «إعادة المحاولة» reopens the form, and a
+        // second submit creates a NEW payment (the latch must not brick).
+        "tests/e2e/r110-payment-rejection-retry.spec.ts",
       ],
     },
     {
