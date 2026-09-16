@@ -16,6 +16,8 @@ import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 // round89-E5: shared row type (was a local id/name/slug-only copy)
 import type { Restaurant } from '@/lib/restaurant-types';
+// r106-N2: self-hosted QR (retire api.qrserver.com) — same brand colors.
+import { SelfHostedQR, qrPngDataUrl } from '@/components/shared/SelfHostedQR';
 
 const QR_SIZES = [
         { value: 200, label: 'صغير' },
@@ -61,22 +63,16 @@ export default function AdminQRPage() {
         const downloadQR = async () => {
                 premiumToast('save', 'جاري تحميل رمز QR');
                 try {
-                        // Fetch the QR as a blob then trigger a local download — the plain
-                        // anchor with download+target=_blank silently opens a tab for
-                        // cross-origin images (browser ignores download attr).
-                        const res = await fetch(
-                                `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=a86b1f`
-                        );
-                        if (!res.ok) throw new Error('qr_fetch_failed');
-                        const blob = await res.blob();
-                        const url = URL.createObjectURL(blob);
+                        // r106-N2: generated locally (data URL = same-origin) — the old
+                        // blob/fetch dance existed only because the third-party PNG was
+                        // cross-origin; `download` just works now.
+                        const dataUrl = await qrPngDataUrl(menuUrl, qrSize);
                         const link = document.createElement('a');
-                        link.href = url;
+                        link.href = dataUrl;
                         link.download = `qr-${selectedSlug}-${qrSize}.png`;
                         document.body.appendChild(link);
                         link.click();
                         link.remove();
-                        setTimeout(() => URL.revokeObjectURL(url), 5000);
                 } catch {
                         premiumToast('error', 'تعذر تحميل رمز QR — حاول مجدداً');
                 }
@@ -141,9 +137,11 @@ export default function AdminQRPage() {
                                                 {menuUrl && (
                                                         <div className="flex justify-center py-6 bg-white/30 dark:bg-white/5 rounded-xl">
                                                                 <div className="relative group">
-                                                                        {/* ponytail: raw <img> — external QR API URL. next/image remotePatterns can't handle query-param-variant URLs. Needs precise pixel dimensions per size selection. */}
-                                                                        <img
-                                                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(menuUrl)}&format=png&bgcolor=ffffff&color=a86b1f`}
+                                                                        {/* r106-N2: self-hosted render (data URL) — pixel-precise sizing kept,
+                                                                            identical brand colors, zero third-party calls. */}
+                                                                        <SelfHostedQR
+                                                                                value={menuUrl}
+                                                                                size={qrSize}
                                                                                 alt={`QR - ${selectedName}`}
                                                                                 className="rounded-xl shadow-lg transition-shadow group-hover:shadow-xl"
                                                                                 style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}

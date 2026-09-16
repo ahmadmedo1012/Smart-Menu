@@ -487,13 +487,14 @@ for (const cell of MATRIX) {
     /* 11 ── QR generation + resize */
     await page.goto(`${BASE}/owner/qr`, { waitUntil: "domcontentloaded", timeout: 45000 });
     await settle(page, 3000);
-    const qrImg = page.locator('img[src*="api.qrserver.com"]');
+    /* r106-N2: self-hosted QR — data URL generated locally, stable testid hook. */
+    const qrImg = page.locator('[data-testid="qr-code"]');
     await expect(qrImg.first()).toBeVisible({ timeout: 45000 });
     await expect(page.locator("body")).toContainText(`/menu/${slug}`);
     const loadedOk = await page.evaluate(
       async () =>
         await new Promise<boolean>((resolve) => {
-          const img = document.querySelector('img[src*="api.qrserver.com"]') as HTMLImageElement | null;
+          const img = document.querySelector('[data-testid="qr-code"]') as HTMLImageElement | null;
           if (!img) return resolve(false);
           if (img.complete && img.naturalWidth > 0) return resolve(true);
           img.addEventListener("load", () => resolve(img.naturalWidth > 0), { once: true });
@@ -501,7 +502,7 @@ for (const cell of MATRIX) {
           setTimeout(() => resolve(img.naturalWidth > 0), 15000);
         })
     );
-    expect(loadedOk, "QR image actually loaded from generator").toBeTruthy();
+    expect(loadedOk, "QR image actually rendered (self-hosted)").toBeTruthy();
     await page.locator('button[aria-pressed]').filter({ hasText: "طباعة" }).first().click();
     await settle(page, 1500);
     await expect(qrImg.first()).toBeVisible();

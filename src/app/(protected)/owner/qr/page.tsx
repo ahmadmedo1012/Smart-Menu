@@ -15,6 +15,8 @@ import AnimatedCopy from '@/components/ui/copy-icon';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
+// r106-N2: self-hosted QR (retire api.qrserver.com) — same brand colors.
+import { SelfHostedQR, qrPngDataUrl } from '@/components/shared/SelfHostedQR';
 
 const QR_SIZES = [
         { value: 200, label: 'صغير' },
@@ -72,20 +74,15 @@ export default function OwnerQRPage() {
 
         const downloadQR = async () => {
                 try {
-                        // fetch the QR as a blob so the download attribute works
-                        // (cross-origin hrefs ignore `download` in Chromium → opened a tab instead)
-                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=a86b1f`;
-                        const res = await fetch(qrUrl);
-                        if (!res.ok) throw new Error('فشل تحميل رمز QR');
-                        const blob = await res.blob();
-                        const objectUrl = URL.createObjectURL(blob);
+                        // r106-N2: generated locally (data URL = same-origin) — no blob/fetch
+                        // round-trip, no third-party call; `download` just works.
+                        const dataUrl = await qrPngDataUrl(url, qrSize);
                         const link = document.createElement('a');
-                        link.href = objectUrl;
+                        link.href = dataUrl;
                         link.download = `qr-${slug || 'menu'}-${qrSize}.png`;
                         document.body.appendChild(link);
                         link.click();
                         link.remove();
-                        setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
                         premiumToast('save', 'تم تحميل رمز QR');
                 } catch {
                         premiumToast('error', 'فشل تحميل رمز QR');
@@ -163,9 +160,11 @@ export default function OwnerQRPage() {
                                         <div ref={qrRef} className="flex justify-center py-8 bg-white/30 dark:bg-white/5">
                                                 {url ? (
                                                         <div className="relative group">
-                                                                {/* ponytail: raw <img> — external QR API URL. next/image remotePatterns doesn't support query-param-variant URLs (size changes per render). layout needs precise pixel dimensions (not fill+cover). */}
-                                                                <img
-                                                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=a86b1f`}
+                                                                {/* r106-N2: self-hosted render (data URL) — pixel-precise sizing kept,
+                                                                    identical brand colors, zero third-party calls. */}
+                                                                <SelfHostedQR
+                                                                        value={url}
+                                                                        size={qrSize}
                                                                         alt={`QR Code - ${name}`}
                                                                         className="rounded-xl shadow-lg transition-[transform,translate,scale,rotate,box-shadow] duration-300 group-hover:shadow-xl group-hover:scale-[1.02] motion-reduce:transition-none"
                                                                         style={{ width: qrSize, height: qrSize, maxWidth: '100%' }}
@@ -265,14 +264,15 @@ export default function OwnerQRPage() {
 
                         {/* round88-E5 — print sheet: invisible on screen (display:none), the ONLY
                                 visible block on paper (globals.css body.qr-print-root rules). Placed
-                                AFTER the live card so e2e `img[src*=qrserver].first()` keeps matching the
-                                on-screen QR (round79 journey depends on it). */}
+                                AFTER the live card; e2e now targets [data-testid="qr-code"] (r106-N2
+                                retired the qrserver <img> the old selectors matched). */}
                         {url && (
                                 <div className="print-qr-sheet" aria-hidden="true">
                                         <div className="hidden print:flex flex-col items-center gap-4">
                                                 <p className="text-2xl font-bold text-black">{name || 'المطعم'}</p>
-                                                <img
-                                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(url)}&format=png&bgcolor=ffffff&color=a86b1f`}
+                                                <SelfHostedQR
+                                                        value={url}
+                                                        size={1000}
                                                         alt=""
                                                         className="w-[65mm] h-[65mm]"
                                                 />

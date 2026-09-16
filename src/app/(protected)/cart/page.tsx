@@ -71,6 +71,15 @@ export default function CartPage() {
         const [pickupTypesError, setPickupTypesError] = useState(false);
         const [waError, setWaError] = useState(false);
         const submittingRef = useRef(false);
+        // r106-N1 (Next-actions #6, mirroring mobile N4 with a stronger lifecycle):
+        // idempotency key for POST /api/orders. Minted once per checkout attempt
+        // and REUSED on retry — an ambiguous failure (network cut after the server
+        // committed) resubmits the same key and gets the inert {already:true}
+        // confirmation instead of a duplicate order. Cleared ONLY after a confirmed
+        // success (201 or already:true) so the NEXT order in the same session mints
+        // a fresh key — a session-scoped key would alias the second order onto the
+        // first's orderNo. Namespaced "W…" (mobile sends "M…").
+        const checkoutKeyRef = useRef('');
 
         // Warn on accidental navigation if cart has items
         useEffect(() => {
@@ -160,10 +169,16 @@ export default function CartPage() {
                         } catch {
                                 /* private mode — referral is a progressive enhancement */
                         }
+                        if (!checkoutKeyRef.current) {
+                                checkoutKeyRef.current = `W${Date.now().toString(36)}${Math.random()
+                                        .toString(36)
+                                        .slice(2, 8)}`.toUpperCase();
+                        }
                         const res = await csrfFetch('/api/orders', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
+                                        idempotencyKey: checkoutKeyRef.current,
                                         items: items.map((i) => ({
                                                 itemId: i.itemId,
                                                 quantity: i.quantity,
@@ -204,6 +219,9 @@ export default function CartPage() {
                         }
                         const json = await res.json();
                         orderNo = json.data?.orderNo ?? '';
+                        // r106-N1: confirmed success (fresh 201 OR the inert already:true
+                        // replay) — retire the key so the next checkout mints a new one.
+                        checkoutKeyRef.current = '';
                 } catch (e) {
                         // round90-F4 (M1): the thrown Error already carries the mapped
                         // server message; network failures fall back to the general copy.

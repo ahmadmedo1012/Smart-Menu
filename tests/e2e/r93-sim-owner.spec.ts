@@ -39,15 +39,8 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
   test.beforeAll(async ({ browser }) => {
     ownerCtx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     ownerPage = await ownerCtx.newPage();
-    /* مولّد QR خارجي (api.qrserver.com) — stub ببكسل PNG حقيقي حتى لا تتوقف
-     * صفحة QR على الشبكة الخارجية وتبقى العناصر قابلة للتحقق واللقطة. */
-    const px1 = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
-      "base64"
-    );
-    await ownerCtx.route(/https:\/\/api\.qrserver\.com\//, (route) =>
-      route.fulfill({ status: 200, contentType: "image/png", body: px1 })
-    );
+    /* r106-N2: كان هنا stub لمولّد QR الخارجي (api.qrserver.com) — لم يعد
+     * ضرورياً؛ الصفحة تولّد الرمز محلياً عبر حزمة qrcode (data URL). */
   });
 
   test.afterAll(async () => {
@@ -292,8 +285,8 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
     await expect(ownerPage.getByRole("heading", { name: "رمز QR" })).toBeVisible({
       timeout: 20000,
     });
-    // صورة QR الحية (stub محلي للشبكة الخارجية) بحجم افتراضي
-    await expect(ownerPage.locator('img[src*="qrserver"]').first()).toBeVisible({
+    // صورة QR الحية (توليد محلي — data URL) بحجم افتراضي
+    await expect(ownerPage.locator('[data-testid="qr-code"]').first()).toBeVisible({
       timeout: 15000,
     });
     // رابط المنيو داخل حقل القراءة فقط + أدوات النسخ والتحميل والطباعة
