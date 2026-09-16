@@ -262,3 +262,51 @@ describe('POST /api/orders — P2002 on orderNo → the contracted inert confirm
                 expect(json.success).toBe(false);
         });
 });
+
+// ── r106-F1: per-item quantity cap (99) ─────────────────────────────────
+
+describe('POST /api/orders — per-item quantity cap 99 (r106-F1)', () => {
+        it('quantity=100000 → 422 with the Arabic cap message, no create (the 1.8M-dinar order is dead)', async () => {
+                const res = await callPost({
+                        restaurantId: 5,
+                        items: [{ itemId: 1, quantity: 100000 }],
+                });
+
+                expect(res.status).toBe(422);
+                const json = await res.json();
+                expect(json.success).toBe(false);
+                expect(json.error).toContain('الحد الأقصى 99');
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
+
+        it('quantity=100 (one past the cap) → 422, boundary enforced exactly at 99', async () => {
+                const res = await callPost({
+                        restaurantId: 5,
+                        items: [{ itemId: 1, quantity: 100 }],
+                });
+
+                expect(res.status).toBe(422);
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
+
+        it('quantity=99 (the cap itself) → still a valid order, create reached', async () => {
+                const res = await callPost({
+                        restaurantId: 5,
+                        items: [{ itemId: 1, quantity: 99 }],
+                });
+
+                expect(res.status).toBe(201);
+                expect(txMock.order.create).toHaveBeenCalledTimes(1);
+        });
+
+        it('quantity=0 / negative / fractional stay rejected (min/int semantics preserved)', async () => {
+                for (const bad of [0, -1, 1.5]) {
+                        const res = await callPost({
+                                restaurantId: 5,
+                                items: [{ itemId: 1, quantity: bad }],
+                        });
+                        expect(res.status).toBe(422);
+                }
+                expect(txMock.order.create).not.toHaveBeenCalled();
+        });
+});

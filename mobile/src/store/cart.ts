@@ -4,6 +4,7 @@ import "react-native-get-random-values";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { MAX_ITEM_QUANTITY } from "@/lib/constants";
 
 export type CartItem = {
   id: string; itemId: number; name: string; price: number;
@@ -87,7 +88,7 @@ export const useCart = create<CartStore>()(
         }
         const existing = s.items.find((i) => i.itemId === item.itemId && modifierSignature(i) === modifierSignature(item));
         return existing
-          ? { items: s.items.map((i) => i.itemId === item.itemId && modifierSignature(i) === modifierSignature(item) ? { ...i, quantity: i.quantity + 1 } : i) }
+          ? { items: s.items.map((i) => i.itemId === item.itemId && modifierSignature(i) === modifierSignature(item) ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, i.quantity + 1) } : i) }
           : { items: [...s.items, { ...item, id: genId(), quantity: 1, notes: "" }] };
       }),
       removeItem: (id) => set((s) => {
@@ -96,7 +97,8 @@ export const useCart = create<CartStore>()(
       }),
       undoRemove: () => set((s) => s.lastRemoved ? { items: [...s.items, s.lastRemoved], lastRemoved: null } : {}),
       updateQuantity: (id, q) => set((s) => ({
-        items: q <= 0 ? s.items.filter((i) => i.id !== id) : s.items.map((i) => i.id === id ? { ...i, quantity: q } : i),
+        // r106-F1: clamp — نفس سقف API (99) حتى لا تتراكم قيمة منتهية في AsyncStorage.
+        items: q <= 0 ? s.items.filter((i) => i.id !== id) : s.items.map((i) => i.id === id ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, q) } : i),
       })),
       updateNotes: (id, n) => set((s) => ({ items: s.items.map((i) => i.id === id ? { ...i, notes: n } : i) })),
       setCustomerName: (n) => set({ customerName: n }),

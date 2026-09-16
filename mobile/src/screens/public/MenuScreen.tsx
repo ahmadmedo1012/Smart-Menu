@@ -17,6 +17,7 @@ import { useCart } from "@/store/cart";
 import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
 import { buildReceiptMessage } from "@/lib/receipt";
 import { formatPrice, toArabicNumber } from "@/lib/format";
+import { MAX_ITEM_QUANTITY } from "@/lib/constants";
 import { getErrorMessage } from "@/lib/get-error-message";
 import {
   type ModifierGroupProp, type ModifierSelection,
@@ -406,7 +407,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
               <Minus size={16} color="#ebe7e2" />
             </Pressable>
             <Text style={{ fontFamily: "Cairo", fontSize: 16, fontWeight: "700", color: "#ebe7e2", minWidth: 28, textAlign: "center" }}>{toArabicNumber(quantity)}</Text>
-            <Pressable onPress={() => setQuantity((q) => Math.min(99, q + 1))} accessibilityLabel="زيادة الكمية" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}>
+            <Pressable onPress={() => setQuantity((q) => Math.min(MAX_ITEM_QUANTITY, q + 1))} disabled={quantity >= MAX_ITEM_QUANTITY} accessibilityLabel="زيادة الكمية" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center", opacity: quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}>
               <Plus size={16} color="#fff" />
             </Pressable>
           </View>
@@ -495,7 +496,7 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                     <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#1f1813", alignItems: "center", justifyContent: "center" }}><Minus size={12} color="#ebe7e2" /></Pressable>
                     <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2", minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
-                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}><Plus size={12} color="#fff" /></Pressable>
+                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={12} color="#fff" /></Pressable>
                   </View>
                 </View>
               </View>

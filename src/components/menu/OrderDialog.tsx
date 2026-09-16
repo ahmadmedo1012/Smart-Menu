@@ -25,6 +25,7 @@ import {
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { premiumToast } from '@/lib/premium-toast';
+import { MAX_ITEM_QUANTITY } from '@/lib/constants';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useCart } from '@/store/cart';
 
@@ -446,8 +447,8 @@ export function OrderDialog({
                                                         </span>
                                                         <button
                                                                 type="button"
-                                                                onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                                                                disabled={quantity >= 99}
+                                                                onClick={() => setQuantity(Math.min(MAX_ITEM_QUANTITY, quantity + 1))}
+                                                                disabled={quantity >= MAX_ITEM_QUANTITY}
                                                                 className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="زيادة الكمية"
                                                         >

@@ -15,6 +15,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { cn } from '@/lib/utils';
+import { MAX_ITEM_QUANTITY } from '@/lib/constants';
 
 // round92-A9 (live audit A9): the cart trigger's aria-label read
 // «السلة - 1 أصناف» — a singular count followed by a plural noun: broken
@@ -162,7 +163,7 @@ export function CartSlideOver() {
                                                                                                                                                                         aria-label="إنقاص الكمية"
                                                                                                                                                                         /* r97-X1: ring-inset — الأب overflow-hidden يقصّ أي حلقة خارجية،
                                                                                                                                                                            فالحلقة الداخلية هي المؤشر المرئي الوحيد الممكن */
-                                                                                                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60"
+                                                                                                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
                                                                                                                                                                 >
                                                                                                                                                                         <MotionMinus className="size-4" />
                                                                                                                                                         </button>
@@ -171,9 +172,9 @@ export function CartSlideOver() {
                                                                                 </span>
                                                                                 <button
                                                                                         type="button"
-                                                                                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                                                        disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                                                         aria-label="زيادة الكمية"
-                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60"
+                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
                                                                                 >
                                                                                         <MotionPlus className="size-4" />
                                                                                 </button>

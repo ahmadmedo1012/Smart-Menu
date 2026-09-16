@@ -5,6 +5,7 @@ import { formatPrice, toArabicNumber } from '@/lib/format';
 import { MotionMinus, MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import type { CartItem } from '@/store/cart';
+import { MAX_ITEM_QUANTITY } from '@/lib/constants';
 
 interface CartLineItemProps {
         /** Cart line (item + modifier choices + notes) rendered by the page's items.map. */
@@ -58,7 +59,7 @@ export function CartLineItem({
                                         <button
                                                 type="button"
                                                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label="إنقاص الكمية"
                                         >
                                                 <MotionMinus className="size-4" />
@@ -68,8 +69,8 @@ export function CartLineItem({
                                         </span>
                                         <button
                                                 type="button"
-                                                onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label="زيادة الكمية"
                                         >
                                                 <MotionPlus className="size-4" />

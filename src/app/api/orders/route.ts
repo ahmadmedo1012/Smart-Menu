@@ -8,6 +8,7 @@ import { getClientIp } from '@/lib/client-ip';
 import { orderItemCountByOrder } from '@/lib/list-counts';
 import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
 import { PlanLimitError } from '@/lib/plan-limit-error';
+import { MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY_MESSAGE } from '@/lib/constants';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
@@ -20,7 +21,9 @@ const ordersListDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 
 const orderItemSchema = z.object({
         itemId: z.number().int().positive(),
-        quantity: z.number().int().positive().default(1),
+        // r106-F1: السقف كان مفقوداً — أي عدد صحيح موجب كان مقبولاً (100000 مرّ).
+        // نفس الحد المعروض في عدّادات الواجهة (OrderDialog/MenuScreen = 99).
+        quantity: z.number().int().positive().max(MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY_MESSAGE).default(1),
         // round86-A7: bound free-text fields (DB bloat + receipt/telegram payload hygiene)
         notes: z.string().max(500).optional(),
         // r102-A5: client `price` dropped — the server re-prices every line from

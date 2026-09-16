@@ -1,6 +1,7 @@
 'use client';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { MAX_ITEM_QUANTITY } from '@/lib/constants';
 
 // SSR-safe localStorage wrapper — returns null on server to prevent hydration mismatch
 const ssrSafeStorage = () => ({
@@ -162,7 +163,7 @@ export const useCart = create<CartStore>()(
                                                 ? {
                                                                 items: s.items.map((i) =>
                                                                         i.itemId === item.itemId && modifierSignature(i) === modifierSignature(item)
-                                                                                ? { ...i, quantity: i.quantity + 1 }
+                                                                                ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, i.quantity + 1) }
                                                                                 : i
                                                                 ),
                                                         }
@@ -191,7 +192,9 @@ export const useCart = create<CartStore>()(
                                         items:
                                                 qty <= 0
                                                         ? s.items.filter((i) => i.id !== id)
-                                                        : s.items.map((i) => (i.id === id ? { ...i, quantity: qty } : i)),
+                                                        // r106-F1: clamp — نافذة الطلب محدودة بـ99 لكن هذه الدالة كانت
+                                                        // تقبل أي قيمة (زر السلة أو localStorage قديم).
+                                                        : s.items.map((i) => (i.id === id ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, qty) } : i)),
                                 })),
                         updateNotes: (id, notes) =>
                                 set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, notes } : i)) })),
