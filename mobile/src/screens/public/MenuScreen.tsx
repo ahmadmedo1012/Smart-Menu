@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, ScrollView, RefreshControl, TextInput } from "react-native";
+import { View, Text, Pressable, ScrollView, RefreshControl, TextInput, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -311,14 +311,30 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
     setModError(null);
     const { modifierOptionIds, modifiersSummary } = buildModifierPayload(groups, selection);
     const displayName = item.nameAr || item.name;
-    // Same pattern as the web dialog: one addItem per unit — the store merges
-    // repeats by itemId + modifier signature, so qty lands on one line.
-    // r103-N3: restaurant meta rides along (cross-restaurant reset consistency)
-    // + an honest toast when the cart switches restaurants.
+    /* r110-F11 (توازي الويب): إفراغ سلة مطعم آخر فعل إتلافي — كان يتم بصمت
+       مع إشعار معلومات واحد بعد الفعل. نفس إصلاح الويب: تأكيد صريح قبل
+       الإفراغ يُسمّي المطعمين وعدد الأصناف المفقودة؛ «إلغاء» لا يلمس السلة.
+       المتجر يبقى المُنفّذ (نفس شرط الاستبدال) — هذا موافقة مسبقة فقط. */
     const preAdd = useCart.getState();
     if (preAdd.items.length > 0 && preAdd.restaurantId && preAdd.restaurantId !== restaurant.id) {
-      toast.info("بدأنا سلة جديدة لهذا المنيو");
+      const itemCount = preAdd.items.reduce((a, i) => a + i.quantity, 0);
+      Alert.alert(
+        "تغيير المطعم؟",
+        `سلتك الحالية تحتوي ${itemCount === 1 ? "صنفًا واحدًا" : `${itemCount} أصناف`} من «${preAdd.restaurantName || "مطعم آخر"}». إضافة صنف من «${restaurant.name}» ستفرغ السلة الحالية وتبدأ سلة جديدة.`,
+        [
+          { text: "إلغاء", style: "cancel" },
+          { text: "متابعة وبدء سلة جديدة", style: "default", onPress: () => performAdd(modifierOptionIds, modifiersSummary, displayName) },
+        ],
+        { cancelable: true },
+      );
+      return;
     }
+    performAdd(modifierOptionIds, modifiersSummary, displayName);
+  };
+
+  /* تنفيذ الإضافة الفعلي (بعد المرور بالحارس أو بموافقة صريحة عليه) —
+     نفس نمط الويب: addItem لكل وحدة، والدمج يتم في المتجر بالتوقيع. */
+  const performAdd = (modifierOptionIds: number[], modifiersSummary: string | undefined, displayName: string) => {
     for (let i = 0; i < quantity; i++) {
       useCart.getState().addItem({
         itemId: item.id, name: displayName, price: unit,
