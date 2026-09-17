@@ -182,3 +182,10 @@
 8. ~~Subscribe-page e2e spec for the rejected-payment retry path~~ **DONE (r110)**.
 9. Owner data hygiene (user actions, no code): replace the 3 dead unsplash images on al-aseel (exact URLs + working replacements in the r110 log entry), review/delete the duplicate restaurant `al-waha-cafeewewe`, purge the QA orders (r105-r113 logs; r113 added none — its E2E probe selectors failed before order submission).
 10. Vercel token was REJECTED in r110 (rotated) — git-integration still deploys fine; re-provision only if the stale-concurrency BLOCKER ever recurs.
+
+## r114 (in progress) — local release build from c800e7a7 + app↔site parity
+- APK built LOCALLY (EAS token unavailable in session): preview profile reproduced —
+  Expo SDK 53 prebuild + local release keystore (SHA-256 A1:F3:C2…:30:B8) + gradle assembleRelease.
+- arm64-v8a deliverable: download/smart-menu-preview-r114.apk (36.0MB, v2-signed, prod API baked).
+- x86_64 twin built for emulator verification: app installs, MainActivity launches, process alive.
+- assetlinks.json now carries BOTH fingerprints (EAS + local) — commit 39262a60.
