@@ -20,7 +20,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         // getRestaurantBySlug محفوظة بـ React cache() — نفس استدعاء بوابة التخطيط (لا استعلام إضافي)
         const { slug } = await params;
         const restaurant = await getRestaurantBySlug(slug);
-        return { title: restaurant ? `${restaurant.name} — المنيو | للطباعة` : 'طباعة المنيو' };
+        /* r112: كان العنوان «… — المنيو | للطباعة | المنيو الذكي» (أنبوبان
+         * من قالب العنوان الأب) — تبسيط إلى صيغة بلا تكرار. */
+        return { title: restaurant ? `${restaurant.name} — نسخة للطباعة` : 'طباعة المنيو' };
 }
 
 export default async function PrintMenuPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -103,10 +105,31 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
           .print-sheet .actions a, .print-sheet .actions button { color: var(--print-amber-700); font-size: 0.85rem; margin: 0 0.5rem; cursor: pointer; background: none; border: none; text-decoration: underline; }
           /* round94 (D/A5): نص الزر foreground على amber-500 (7.08:1) بدل أبيض (2.56:1) */
           .print-sheet .print-btn { background: var(--print-amber-500); color: var(--print-foreground) !important; text-decoration: none !important; padding: 8px 24px; border-radius: 8px; display: inline-block; margin-top: 0.5rem; font-size: 1rem !important; }
+          /* r112: كانفس الطباعة الأبيض — ثلاث طبقات كانت تتشارك الرسم الداكن
+             للحواف (#121212) في PDF بـ printBackground، وفُكّكت تباعًا بالتجربة:
+             (أ) :root العام في globals.css يعلن color-scheme: dark فيرسم
+                 Chromium كانفس الورقة بلون UA الداكن —
+             (ب) next-themes يضيف color-scheme: dark INLINE على وسم html
+                 الجذري وقت التشغيل (خاصية enableColorScheme الافتراضية) —
+                 وهذا ما يهزم أي قاعدة :root عادية حتى لو تأخرت في ترتيب
+                 المستند؛ لا يكسرها إلا !important (تجربة حاسمة: الحقن بلا
+                 !important يخفق، وبـ !important يبيّض الكانفس فورًا) —
+             (ج) خلفية body الداكنة (#010000) تُرسم في الهوامش أيضًا (تُعالج
+                 داخل @media print أدناه).
+             color-scheme داخل @media print لا يُقرأ للكانفس أصلًا (Chromium
+             يأخذ النظام الفعّال للصفحة) فالقاعدة بلا نطاق وسائط + !important.
+             الوسم محصور بهذه الصفحة وحدها؛ لا مدخلات UA هنا (أزرار/روابط
+             مصممة)، والورقة بيضاء بطبعها فيتوافق النظام الفاتح معها بصريًا. */
+          :root { color-scheme: light !important; }
           @media print {
             /* إخفاء هيكل التطبيق المغلف (الجذر العام) وإظهار الورقة وحدها —
                نفس تقنية visibility المعتمدة لورقة QR (round88-E5). */
             body * { visibility: hidden; }
+            /* r112: حافظة حبر (المصدر الثاني) — خلفية body الداكنة (#010000)
+               كانت ترسم في هوامش الصفحة عند الطباعة مع «رسومات الخلفية»
+               مفعّلة. تُطبّق بعد استقرار انتقال background-color 0.3s
+               (قياس منتصف الانتقال يُظهر قيمًا وسيطة مضللة — مُثبت بالتجربة). */
+            body { background: #fff !important; }
             .print-sheet, .print-sheet * { visibility: visible; }
             .print-sheet { position: absolute; inset-block-start: 0; inset-inline-start: 0; max-width: none; box-shadow: none; padding: 0; }
             .print-sheet .actions { display: none; }
