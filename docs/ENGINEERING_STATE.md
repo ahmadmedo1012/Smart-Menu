@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **`c6a065cf`** (2026-09-12 — r104 final: crash fix + assetlinks; production serves it, CI SUCCESS, EAS APK `4c872f91` FINISHED + emulator-verified) |
+| Last verified commit | **`551fbaea`** (2026-09-17 — r112: themed 404 F12 3-layer + F13 global-error css; production serves it, CI SUCCESS) |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r104: STARTUP CRASH FIXED AND FULLY VERIFIED** — the official EAS APK (4c872f91, from the fix commit) installs, launches, renders, and runs on a real Android system (API 24 emulator). App Links (assetlinks.json) now served live. |
-| Unit tests | 1934/1934 (132 files — r103: 1908 → 1930; r106: +4 per-item quantity-cap regression tests) |
+| Unit tests | 1946/1946 (134 files — r109: 1941; r110: +5 cart-switch truth table) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -108,6 +108,16 @@
 
 ## Verification log (append newest first)
 
+- **r112 (2026-09-17) — F12 themed 404 + F13 global-error stylesheet PUSHED LIVE (re-implementation of the r111 local commits, lost to the container reset before they could be pushed; spec re-derived from the r111 report/evidence, which survived)**: fresh clone @ `4b1cb9f1` (= r110 final; production verified healthy at baseline). Commit `551fbaea`.
+  - **F12 (3 layers)**: (1) `(public)/[...notfound]` catch-all — every unmatched URL now flows through the full (public) root layout (theme+fonts+CSS+RTL) with `notFound()` preserving the 404 status + noindex metadata; (2) `(public)/not-found.tsx` themed boundary — catches notFound() from (public) pages (bad menu slugs) AND the catch-all; own dir/lang wrapper (Next error shell strips html/body attrs on some entry paths — r111-proven), header + ThemeToggle + 4 suggestions + back button, renders hoisted `<meta robots noindex>`; (3) root `not-found.tsx` rewritten SELF-CONTAINED (inline styles only, zero CSS/CSS-component deps, dark brand palette #010000/#ebe7e2/#bc4700, system fonts) — cannot lose its styling.
+  - **F13**: `global-error.tsx` now imports `./globals.css` (it replaces the root layout, so its Tailwind classes were inert); the fonts.css `<link>` stays (globals.css does not load Cairo).
+  - Gates: web tsc 0 · eslint 0 errors (10 legacy warnings) · unit **1946/1946 (134 files)** · production build OK (`ƒ /[...notfound]` registered) · prisma generate + embedded PG 16.14 on :5434 (container-local DATABASE_URL export must be overridden per-session — dotenv never overrides pre-set env vars).
+  - Local browser verification (Playwright headless): `/xyz` and `/menu/zzz` BOTH render 404-status + fully themed RTL dark page (dir=rtl, lang=ar, CSS loaded, h1, 4 suggestions + skip-link + toggle + back button; VLM: «fully styled dark theme, RTL-correct, no defects»); `/api/zzz` JSON 404 unchanged; server HTML for both 404 paths is the Next `__next_error__` shell with client-rendered content (same as pre-change — Googlebot full-renders, noindex in payload).
+  - Route sweep local: 17/17 concrete routes correct; 4 by-design local artifacts (/demo dev-only 404 per round90-F6; /menu 307→demo; al-waha-cafe + al-aseel absent from the empty local DB — production-only rows).
+  - **LIVE VERIFIED on production (serving `551fbaea`, /api/health commitSha match)**: statuses 404 on /xyz-r112 + /menu/zzz-r112 + /api/zzz + /menu/a/b/c; themed render on both page paths (dir=rtl · lang=ar · h1 · suggestions nav · **noindex meta LIVE** · CSS loaded · dark); theme toggle dark↔light works ON the 404; VLM on production screenshot: «fully styled, centered, RTL correct, no visual defects». Console clean (only the 404 document error itself).
+
+- **r111 (2026-09-16) — deepest measured visual audit (المظهر/تجربة المستخدم/الوظائف focus, per user directive)**: 53 full-page screenshots (10 pages × 375/768/1440 × dark/light) + 27 native-res detail shots → VLM review with EVERY claim re-measured against hard DOM numbers — **design system fully vindicated** (dark contrast 5.4-16.5:1, light 5.2-20.3:1, nav centerY=32 all items, CTA/h1 right-edge 1306 both, FAB 16px Material gap, stepper RTL order correct, «cart name truncation» was 3px line-height rounding, pricing free-card by design). Functional sweep all-pass (category tabs w/ live counts, sort, search exact/empty, review sheet, lightbox, print 200, font control, back-to-top, WhatsApp float, share chain, URL params sync). **F12 discovered** (unstyled 404 — root boundary renders outside both route-group layouts, bare `<html>`, no CSS/dir/lang) + **F13** (global-error without stylesheet). Both fixed locally, gated (TS 0 · lint 0 · 1946/1946 · build OK), locally verified — commits `56b7dc62`+`7cb364be` were LOST to the container reset before push (token expired mid-round); re-implemented and pushed as `551fbaea` in r112. Local-env gotchas pinned: standalone CSRF expected-hosts resolve from NEXT_PUBLIC_DOMAIN (not the bind host) + Secure cookie rejected on plain http → 403 local-only; `pkill -f next-server` (the process renames itself post-launch).
+
 - **r110 (2026-09-16) — cart-switch consent + a11y/SEO polish + ledger #8 closed; gstack v1.87.4 (from github.com/garrytan/gstack) as the browser-QA engine**: fresh clone @ `77b96ce4` (= r109 final; production verified live). Three pushes, all gates green before each (TS 0 · lint 0 · unit · build):
   - **Batch A `dca7cf4c` (F11+F5+F6+F4, live-verified on production minutes after push)**:
     - **F11 (web)**: cross-restaurant add was a SILENT cart wipe (re-proven live: كنافة بالجبن rid=312 vanished for ليموناضة rid=102, no warning). Every add path (quick-add, OrderDialog open, search suggestion) now routes through `willReplaceOtherRestaurantCart` + `CartSwitchDialog` — explicit Arabic confirm naming both restaurants + the item count at stake. LIVE truth table: dialog opens with exact copy, cart untouched while open; «إلغاء»/Escape → cart preserved; «متابعة» → store performs its consistent r103-N3 reset (rid 102 + name مقهى الواحة). Keyboard: autofocus on «إلغاء», Escape closes. Unit pin: `r110-cart-switch-guard.test.ts` truth table.
@@ -147,7 +157,8 @@
 
 ## Next recommended engineering actions
 
-1. **EAS preview APK from r110 rebuilding** (build `79ab6499`, from `623482a8` — includes r106 cap UX + r109 fixes + r110 mobile cart-switch confirm; every APK ≤ r104 is dead-on-arrival or cap-less). When it finishes: download, install on a real device, run the manual pass: install → browse → item detail w/ modifiers → order → WhatsApp → owner login → QR.
+1. **EAS preview APK from r110** (build `79ab6499`, from `623482a8` — includes r106 cap UX + r109 fixes + r110 mobile cart-switch confirm; every APK ≤ r104 is dead-on-arrival or cap-less). Status unknown since r110 (Expo token not re-provisioned since) — query with `eas whoami`/`eas build:view 79ab6499` when a fresh EXPO_TOKEN is provided, then run the real-device manual pass: install → browse → item detail w/ modifiers → order → WhatsApp → owner login → QR.
+0. **r112 live follow-ups**: verify themed 404 on production (typo URL + bad slug), confirm CI on `551fbaea` green; Vercel deploys via git-integration (no token needed).
 2. ~~Push r104 → CI~~ **DONE (r104-r110)** — CI SUCCESS on every round since (r110: `623482a8` SUCCESS, tip in flight).
 3. ~~App Links assetlinks.json~~ **DONE (r104)**: `public/.well-known/assetlinks.json` committed with the EAS keystore SHA-256 — verify live after deploy, then retest a deep link on the emulator.
 5. TLS floor decision for Android ≤7.x (see ledger #2) — monitor or serve the LE alternate chain.
