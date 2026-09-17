@@ -41,7 +41,11 @@ export function ShowcaseSection() {
                                                                         width={1536}
                                                                         height={1024}
                                                                         className="w-full h-[360px] sm:h-[460px] md:h-[560px] object-cover"
-                                                                        priority
+                                                                        /* r113-F116: كانت priority بلا sizes — الصورة تحت الطية فكانت
+                                                                           تُحمّل مسبقاً بعرض 1920 (60KB) وتنافس LCP الحقيقي (خلفية الهاتف)،
+                                                                           وعلى الجوال تُجلب نسخة 640 فقط. الحاوية max-w-[1220px] بلا هوامش
+                                                                           داخلية px-4/px-6 (عرض العرض الفعلي 1188/1172px كحد أقصى). */
+                                                                        sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1280px) calc(100vw - 48px), 1172px"
                                                                 />
                                                         </m.div>
 

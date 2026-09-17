@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { preload } from 'react-dom';
 import { HomePage } from '@/components/landing/HomePage';
 import { prisma } from '@/lib/db';
 import { getFeaturedRestaurants, type FeaturedRestaurant } from '@/lib/landing';
@@ -31,6 +32,12 @@ async function getPublicStats(): Promise<PublicStats | null> {
 }
 
 export default async function Home() {
+        /* r113-F116: خلفية هاتف البطل (hero-phone.webp) تُطبّق عبر CSS background
+           على DIV داخل IPhoneMockup — المتصفح لا يكتشفها إلا بعد تحليل CSS ورسم
+           المشهد، فتصبح عنصر LCP على الشبكات البطيئة (مقيس 4.3-4.5s على 3G).
+           preload عالي الأولوية من الخادم يجعلها تُجلب بالتوازي مع CSS/JS. */
+        preload('/hero-phone.webp', { as: 'image', fetchPriority: 'high' });
+
         const [stats, featured] = await Promise.all([
                 getPublicStats(),
                 getFeaturedRestaurants().catch(() => [] as FeaturedRestaurant[]),

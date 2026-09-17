@@ -130,7 +130,8 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                                                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                                                                                         sizes="(max-width: 768px) 100vw, 1060px"
                                                                                         quality={85}
-                                                                                        priority
+                                                                                        /* r113-F116: priority أزيلت — القسم تحت الطية (البطل 80vh ثم
+                                                                                           قسم المعاينة قبله)؛ التحميل المسبق كان ينافس LCP الحقيقي. */
                                                                                 />
                                                                         ) : (
                                                                                 <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))]">

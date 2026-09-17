@@ -29,7 +29,23 @@ export function ShareButtonIsland({ url, title }: { url: string; title: string }
     return <ShareButton url={url} title={title} />;
 }
 
+/**
+ * r113-F115: قبل الإيدراج كان هذا الجزء يرجع null ثم يرسم الكاروسيل
+ * (155px على 390px) بعد اكتمال الإيدراج — إزاحة كاملة للمنيو تحت المعرض
+ * (CLS مقيس 0.06-0.155 على 3G). الحجز هنا بنفس غلاف الكاروسيل ونفس
+ * نسبة العرض-الارتفاع (21/9 موبايل / 3/1 ديسكتوب) + حدود glass-card نفسها،
+ * فلا يتغير الارتفاع إطلاقاً عند التبديل، مع لمعة تحميل خفيفة للمظهر.
+ */
 export function GalleryIsland({ images, restaurantName }: { images: string[]; restaurantName: string }) {
-    if (!useMounted()) return null;
+    const mounted = useMounted();
+    if (!mounted) {
+        return (
+            <div className="group glass-card rounded-xl overflow-hidden" aria-hidden="true">
+                <div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
+                    <div className="absolute inset-0 shimmer" style={{ background: 'linear-gradient(90deg, transparent 0%, var(--image-shimmer) 50%, transparent 100%)', backgroundSize: '200% 100%' }} />
+                </div>
+            </div>
+        );
+    }
     return <GalleryCarousel images={images} restaurantName={restaurantName} />;
 }

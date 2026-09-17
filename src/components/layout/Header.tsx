@@ -29,7 +29,9 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
       aria-expanded={open}
       aria-controls="mobile-menu"
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
-      className="lg:hidden relative size-11 rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[color,background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
+      /* r113-F118: shrink-0 — الزر كان يُعصر بواسطة flex-shrink إلى 23px على 375px
+         و116px على 320px (رابط العلامة shrink-0 يأخذ كل المساحة). هدف لمس 44px مصان. */
+      className="lg:hidden relative size-11 shrink-0 rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[color,background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
     >
       <span className="relative size-3.5">
         <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300 origin-center", open && "rotate-45 top-[6px]")} />
@@ -198,9 +200,12 @@ export function Header({ className }: HeaderProps) {
           {/* Logo & Hamburger */}
           <div className="flex items-center gap-3 flex-1">
             <HamburgerButton open={mobileMenuOpen} onClick={() => setMobileMenuOpen(true)} />
-            <Link href="/" className="flex items-center gap-2 shrink-0 group">
-              <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-accent-foreground transition-colors duration-200" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
+            {/* r113-F118: النص يختفي تحت 420px (شعار فقط) — بعد تثبيت الهمبرغر 44px
+               لا تتسع الصفوف (144px على 320px) للعلامة الكاملة (137px)؛ الشعار وحده
+               يحفظ الهوية ويتيح مساحة تنفس للزرين. */}
+            <Link href="/" className="flex items-center gap-2 group">
+              <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto shrink-0" priority />
+              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-accent-foreground transition-colors duration-200 max-[420px]:hidden" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
             </Link>
           </div>
 
