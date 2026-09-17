@@ -3,6 +3,13 @@
 import { useEffect } from "react"
 import { AlertTriangle } from "lucide-react"
 
+// r111-F13: global-error REPLACES the root layout when it renders, so Tailwind
+// utility classes (bg-background, text-muted-foreground, …) were inert here —
+// no layout meant no globals.css. Importing the stylesheet directly keeps the
+// catastrophic-error screen styled with the real design tokens. The fonts
+// <link> below stays: it re-attaches Cairo, which globals.css does not load.
+import "./globals.css"
+
 export default function GlobalError({
   error,
   reset,
