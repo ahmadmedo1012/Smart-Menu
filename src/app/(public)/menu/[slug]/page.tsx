@@ -273,6 +273,18 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 else itemsByCategory.set(i.categoryId, [i]);
         }
 
+        // r115-F123: Google's Restaurant rich-result guidelines mark priceRange
+        // and image as RECOMMENDED — Lighthouse/a11y audits flagged the missing
+        // priceRange. Computed from the REAL item prices (discount-aware) so it
+        // can never drift from the rendered menu. Address added when the owner
+        // filled it (free-text; schema.org accepts a Text address).
+        const effectivePrices = items.map((i) => Number(i.discountedPrice ?? i.price));
+        const restaurantImage = restaurant.logo
+                ? restaurant.logo.startsWith('http') ? restaurant.logo : `${origin}${restaurant.logo}`
+                : (Array.isArray(restaurant.gallery) && restaurant.gallery.length > 0
+                        ? (restaurant.gallery[0] as string).startsWith('http') ? (restaurant.gallery[0] as string) : `${origin}${restaurant.gallery[0]}`
+                        : undefined);
+
         const jsonLd = {
                 '@context': 'https://schema.org',
                 '@type': 'Restaurant',
@@ -281,6 +293,11 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 url: `${origin}/menu/${slug}`,
                 telephone: restaurant.phone || restaurant.whatsapp || undefined,
                 servesCuisine: 'Libyan',
+                ...(effectivePrices.length > 0 ? {
+                        priceRange: `${Math.min(...effectivePrices)}-${Math.max(...effectivePrices)} د.ل`,
+                } : {}),
+                ...(restaurantImage ? { image: restaurantImage } : {}),
+                ...(restaurant.address ? { address: restaurant.address } : {}),
                 hasMenu: {
                         '@type': 'Menu',
                         name: `قائمة ${restaurant.name}`,

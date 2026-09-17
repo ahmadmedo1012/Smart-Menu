@@ -11,307 +11,315 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 /* a11y (WCAG 2.2.2): autoplay must not start for reduced-motion users.
    Read once at mount — the OS-level preference rarely changes mid-session. */
 const prefersReducedMotion =
-	typeof window !== 'undefined' &&
-	typeof window.matchMedia === 'function' &&
-	window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function GalleryCarousel({
-	images,
-	restaurantName,
+        images,
+        restaurantName,
 }: {
-	images: string[];
-	restaurantName?: string;
+        images: string[];
+        restaurantName?: string;
 }) {
-	const [current, setCurrent] = useState(0);
-	const [lightbox, setLightbox] = useState(false);
-	const [lightboxIdx, setLightboxIdx] = useState(0);
-	// Reduced-motion users start paused (opt back in via the Pause/Play button)
-	const [paused, setPaused] = useState(prefersReducedMotion);
-	const [loaded, setLoaded] = useState<Set<number>>(new Set([0]));
-	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+        const [current, setCurrent] = useState(0);
+        const [lightbox, setLightbox] = useState(false);
+        const [lightboxIdx, setLightboxIdx] = useState(0);
+        // Reduced-motion users start paused (opt back in via the Pause/Play button)
+        const [paused, setPaused] = useState(prefersReducedMotion);
+        const [loaded, setLoaded] = useState<Set<number>>(new Set([0]));
+        const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-	const next = useCallback(() => {
-		setCurrent((prev) => {
-			const nextIdx = (prev + 1) % images.length;
-			setLoaded((s) => new Set(s).add(nextIdx));
-			return nextIdx;
-		});
-	}, [images.length]);
+        const next = useCallback(() => {
+                setCurrent((prev) => {
+                        const nextIdx = (prev + 1) % images.length;
+                        setLoaded((s) => new Set(s).add(nextIdx));
+                        return nextIdx;
+                });
+        }, [images.length]);
 
-	const prev = useCallback(() => {
-		setCurrent((prev) => {
-			const nextIdx = (prev - 1 + images.length) % images.length;
-			setLoaded((s) => new Set(s).add(nextIdx));
-			return nextIdx;
-		});
-	}, [images.length]);
+        const prev = useCallback(() => {
+                setCurrent((prev) => {
+                        const nextIdx = (prev - 1 + images.length) % images.length;
+                        setLoaded((s) => new Set(s).add(nextIdx));
+                        return nextIdx;
+                });
+        }, [images.length]);
 
-	useEffect(() => {
-		const start = () => {
-			if (paused || document.visibilityState !== 'visible') return;
-			if (!intervalRef.current) intervalRef.current = setInterval(next, 5000);
-		};
-		const stop = () => {
-			if (intervalRef.current) {
-				clearInterval(intervalRef.current);
-				intervalRef.current = null;
-			}
-		};
-		start();
-		const onVis = () => {
-			if (document.visibilityState === 'visible') start();
-			else stop();
-		};
-		document.addEventListener('visibilitychange', onVis);
-		return () => {
-			stop();
-			document.removeEventListener('visibilitychange', onVis);
-		};
-	}, [next, paused]);
+        useEffect(() => {
+                const start = () => {
+                        if (paused || document.visibilityState !== 'visible') return;
+                        if (!intervalRef.current) intervalRef.current = setInterval(next, 5000);
+                };
+                const stop = () => {
+                        if (intervalRef.current) {
+                                clearInterval(intervalRef.current);
+                                intervalRef.current = null;
+                        }
+                };
+                start();
+                const onVis = () => {
+                        if (document.visibilityState === 'visible') start();
+                        else stop();
+                };
+                document.addEventListener('visibilitychange', onVis);
+                return () => {
+                        stop();
+                        document.removeEventListener('visibilitychange', onVis);
+                };
+        }, [next, paused]);
 
-	const closeRef = useRef<HTMLButtonElement>(null);
-	const lightboxPrevRef = useRef<HTMLButtonElement>(null);
-	const lightboxNextRef = useRef<HTMLButtonElement>(null);
+        const closeRef = useRef<HTMLButtonElement>(null);
+        const lightboxPrevRef = useRef<HTMLButtonElement>(null);
+        const lightboxNextRef = useRef<HTMLButtonElement>(null);
 
-	const closeLightbox = () => {
-		setLightbox(false);
-		setPaused(false);
-	};
+        const closeLightbox = () => {
+                setLightbox(false);
+                setPaused(false);
+        };
 
-	const trapFocus = useCallback((e: KeyboardEvent) => {
-		if (e.key === 'Escape') {
-			closeLightbox();
-			return;
-		}
-		if (e.key !== 'Tab') return;
-		const focusable = [closeRef.current, lightboxPrevRef.current, lightboxNextRef.current].filter(
-			Boolean
-		) as HTMLElement[];
-		if (focusable.length < 2) return;
-		const first = focusable[0];
-		const last = focusable[focusable.length - 1];
-		if (e.shiftKey && document.activeElement === first) {
-			e.preventDefault();
-			last.focus();
-		} else if (!e.shiftKey && document.activeElement === last) {
-			e.preventDefault();
-			first.focus();
-		}
-	}, []);
+        const trapFocus = useCallback((e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                        closeLightbox();
+                        return;
+                }
+                if (e.key !== 'Tab') return;
+                const focusable = [closeRef.current, lightboxPrevRef.current, lightboxNextRef.current].filter(
+                        Boolean
+                ) as HTMLElement[];
+                if (focusable.length < 2) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                }
+        }, []);
 
-	useEffect(() => {
-		if (lightbox) closeRef.current?.focus();
-	}, [lightbox]);
+        useEffect(() => {
+                if (lightbox) closeRef.current?.focus();
+        }, [lightbox]);
 
-	if (!images.length) return null;
+        if (!images.length) return null;
 
-	const openLightbox = (idx: number) => {
-		setLightboxIdx(idx);
-		setLightbox(true);
-		setPaused(true);
-	};
+        const openLightbox = (idx: number) => {
+                setLightboxIdx(idx);
+                setLightbox(true);
+                setPaused(true);
+        };
 
-	const goTo = (idx: number) => {
-		setCurrent(idx);
-		setLoaded((s) => new Set(s).add(idx));
-	};
+        const goTo = (idx: number) => {
+                setCurrent(idx);
+                setLoaded((s) => new Set(s).add(idx));
+        };
 
-	return (
-		<>
-			<div className="group glass-card rounded-xl overflow-hidden">
-				<div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
-					{images.map((img, i) => (
-						<div
-							key={i}
-							role="group"
-							aria-roledescription="شريحة"
-							aria-label={`صورة ${i + 1} من ${images.length}`}
-							aria-hidden={i !== current}
-							tabIndex={i === current ? 0 : -1}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ' ') {
-									e.preventDefault();
-									openLightbox(i);
-								}
-							}}
-							className={cn(
-								'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-700 ease-out cursor-pointer',
-								i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-							)}
-							onClick={() => openLightbox(i)}
-						>
-							{loaded.has(i) && (
-								<OptimizedImage
-									src={img}
-									alt={`${restaurantName || 'صورة'} ${i + 1}`}
-									className="size-full"
-									skeleton={false}
-									priority={i === 0}
-									/* round88-A2: strip fills the max-w-4xl (896px) hero container
-									   minus its px-4 gutter — 21/9 aspect. Old generic sizes
-									   underfetched 640-1024 (50vw vs ~100vw box) → blur. */
-									sizes="(max-width: 928px) calc(100vw - 32px), 896px"
-								/>
-							)}
-							<div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />
-						</div>
-					))}
-				</div>
+        return (
+                <>
+                        <div className="group glass-card rounded-xl overflow-hidden">
+                                <div className="relative aspect-[21/9] md:aspect-[3/1] overflow-hidden">
+                                        {images.map((img, i) => (
+                                                <div
+                                                        key={i}
+                                                        role="group"
+                                                        aria-roledescription="شريحة"
+                                                        aria-label={`صورة ${i + 1} من ${images.length}`}
+                                                        aria-hidden={i !== current}
+                                                        tabIndex={i === current ? 0 : -1}
+                                                        onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                        e.preventDefault();
+                                                                        openLightbox(i);
+                                                                }
+                                                        }}
+                                                        className={cn(
+                                                                'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-700 ease-out cursor-pointer',
+                                                                i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                                                        )}
+                                                        onClick={() => openLightbox(i)}
+                                                >
+                                                        {loaded.has(i) && (
+                                                                <OptimizedImage
+                                                                        src={img}
+                                                                        alt={`${restaurantName || 'صورة'} ${i + 1}`}
+                                                                        className="size-full"
+                                                                        skeleton={false}
+                                                                        priority={i === 0}
+                                                                        /* round88-A2: strip fills the max-w-4xl (896px) hero container
+                                                                           minus its px-4 gutter — 21/9 aspect. Old generic sizes
+                                                                           underfetched 640-1024 (50vw vs ~100vw box) → blur. */
+                                                                        sizes="(max-width: 928px) calc(100vw - 32px), 896px"
+                                                                />
+                                                        )}
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />
+                                                </div>
+                                        ))}
+                                </div>
 
-				{images.length > 1 && (
-					<>
-						{/* glass-pill arrows — revealed on hover AND on keyboard focus
-							(a11y 2.4.7: focus-visible keeps controls visible without a mouse) */}
-						<button
-							type="button"
-							onClick={(e) => {
-								e.stopPropagation();
-								prev();
-							}}
-							aria-label="الصورة السابقة"
-							className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-						>
-							<MotionChevronLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-						</button>
-						<button
-							type="button"
-							onClick={(e) => {
-								e.stopPropagation();
-								next();
-							}}
-							aria-label="الصورة التالية"
-							className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-						>
-							<MotionChevronRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-						</button>
+                                {images.length > 1 && (
+                                        <>
+                                                {/* glass-pill arrows — revealed on hover AND on keyboard focus
+                                                        (a11y 2.4.7: focus-visible keeps controls visible without a mouse) */}
+                                                <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                prev();
+                                                        }}
+                                                        aria-label="الصورة السابقة"
+                                                        className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                >
+                                                        <MotionChevronLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
+                                                </button>
+                                                <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                next();
+                                                        }}
+                                                        aria-label="الصورة التالية"
+                                                        className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                >
+                                                        <MotionChevronRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
+                                                </button>
 
-						<button
-							type="button"
-							onClick={(e) => {
-								e.stopPropagation();
-								setPaused((p) => !p);
-							}}
-							aria-label={paused ? 'تشغيل العرض التلقائي' : 'إيقاف العرض التلقائي'}
-							className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-						>
-							{paused ? (
-								<Play className="size-3.5" aria-hidden="true" />
-							) : (
-								<Pause className="size-3.5" aria-hidden="true" />
-							)}
-						</button>
+                                                <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setPaused((p) => !p);
+                                                        }}
+                                                        aria-label={paused ? 'تشغيل العرض التلقائي' : 'إيقاف العرض التلقائي'}
+                                                        className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                >
+                                                        {paused ? (
+                                                                <Play className="size-3.5" aria-hidden="true" />
+                                                        ) : (
+                                                                <Pause className="size-3.5" aria-hidden="true" />
+                                                        )}
+                                                </button>
 
-						{/* dot indicators — active w-6 bg-orange */}
-						<div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-							{images.map((_, i) => (
-								<button
-									key={i}
-									type="button"
-									onClick={(e) => {
-										e.stopPropagation();
-										goTo(i);
-									}}
-									className={cn(
-										'relative h-1.5 rounded-full transition-[width,height,background-color] duration-300 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
-										i === current
-											? 'w-6 bg-orange shadow-md'
-											: 'w-1.5 bg-white/40 hover:bg-white/60'
-									)}
-									aria-label={`صورة ${i + 1}`}
-								/>
-							))}
-						</div>
-					</>
-				)}
+                                                {/* dot indicators — active w-6 bg-orange */}
+                                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-0.5">
+                                                        {images.map((_, i) => (
+                                                                // r115-F121: الزر نفسه الآن 24×24 (الحد الأدنى WCAG 2.5.8
+                                                                // للمس) — النقطة البصرية عنصر داخلي. قبل الإصلاح كان صندوق
+                                                                // الزر 6px فقط (مع ::after توسعة غير قابلة للقياس من أدوات
+                                                                // التدقيق) ففشل فحص target-size في Lighthouse.
+                                                                <button
+                                                                        key={i}
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                goTo(i);
+                                                                        }}
+                                                                        className="relative flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                                                                        aria-label={`صورة ${i + 1}`}
+                                                                >
+                                                                        <span
+                                                                                className={cn(
+                                                                                        'block h-1.5 rounded-full transition-[width,background-color] duration-300',
+                                                                                        i === current
+                                                                                                ? 'w-6 bg-orange shadow-md'
+                                                                                                : 'w-1.5 bg-white/40 hover:bg-white/60'
+                                                                                )}
+                                                                        />
+                                                                </button>
+                                                        ))}
+                                                </div>
+                                        </>
+                                )}
 
-				<button
-					type="button"
-					onClick={(e) => {
-						e.stopPropagation();
-						openLightbox(current);
-					}}
-					className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
-					aria-label="تكبير الصورة"
-				>
-					<Maximize2 className="size-3.5" aria-hidden="true" />
-				</button>
-			</div>
+                                <button
+                                        type="button"
+                                        onClick={(e) => {
+                                                e.stopPropagation();
+                                                openLightbox(current);
+                                        }}
+                                        className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                        aria-label="تكبير الصورة"
+                                >
+                                        <Maximize2 className="size-3.5" aria-hidden="true" />
+                                </button>
+                        </div>
 
-			{/* Lightbox */}
-			{lightbox && (
-				<div
-					role="dialog"
-					aria-modal="true"
-					aria-label={restaurantName ? `معرض صور ${restaurantName}` : 'معرض الصور'}
-					className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
-					onClick={closeLightbox}
-					onKeyDown={trapFocus}
-				>
-					<button
-						ref={closeRef}
-						type="button"
-						onClick={closeLightbox}
-						aria-label="إغلاق"
-						className="absolute top-4 start-4 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-[background-color,opacity] z-10"
-					>
-						<AnimatedX className="size-5" aria-hidden="true" />
-					</button>
+                        {/* Lightbox */}
+                        {lightbox && (
+                                <div
+                                        role="dialog"
+                                        aria-modal="true"
+                                        aria-label={restaurantName ? `معرض صور ${restaurantName}` : 'معرض الصور'}
+                                        className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
+                                        onClick={closeLightbox}
+                                        onKeyDown={trapFocus}
+                                >
+                                        <button
+                                                ref={closeRef}
+                                                type="button"
+                                                onClick={closeLightbox}
+                                                aria-label="إغلاق"
+                                                className="absolute top-4 start-4 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/20 transition-[background-color,opacity] z-10"
+                                        >
+                                                <AnimatedX className="size-5" aria-hidden="true" />
+                                        </button>
 
-					<div
-						className="relative max-w-5xl max-h-[92vh] mx-4 w-full flex items-center justify-center"
-						onClick={(e) => e.stopPropagation()}
-					>
-						{/* ponytail: raw <img> because OptimizedImage uses fill+object-cover. Lightbox needs object-contain with max-height constraint. next/image doesn't support this layout without hardcoding dimensions. */}
-						<img
-							src={images[lightboxIdx]}
-							alt={`${restaurantName || 'صورة'} ${lightboxIdx + 1}`}
-							className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-scale-in"
-							loading="lazy"
-						/>
+                                        <div
+                                                className="relative max-w-5xl max-h-[92vh] mx-4 w-full flex items-center justify-center"
+                                                onClick={(e) => e.stopPropagation()}
+                                        >
+                                                {/* ponytail: raw <img> because OptimizedImage uses fill+object-cover. Lightbox needs object-contain with max-height constraint. next/image doesn't support this layout without hardcoding dimensions. */}
+                                                <img
+                                                        src={images[lightboxIdx]}
+                                                        alt={`${restaurantName || 'صورة'} ${lightboxIdx + 1}`}
+                                                        className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl animate-scale-in"
+                                                        loading="lazy"
+                                                />
 
-						{images.length > 1 && (
-							<>
-								{/* glass-pill lightbox nav */}
-								<button
-									type="button"
-									ref={lightboxPrevRef}
-									onClick={() =>
-										setLightboxIdx((prev) => (prev - 1 + images.length) % images.length)
-									}
-									aria-label="الصورة السابقة"
-									className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-[background-color,box-shadow] shadow-lg"
-								>
-									<MotionChevronLeft className="size-5 rtl:-scale-x-100" aria-hidden="true" />
-								</button>
-								<button
-									type="button"
-									ref={lightboxNextRef}
-									onClick={() => setLightboxIdx((prev) => (prev + 1) % images.length)}
-									aria-label="الصورة التالية"
-									className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-[background-color,box-shadow] shadow-lg"
-								>
-									<MotionChevronRight className="size-5 rtl:-scale-x-100" aria-hidden="true" />
-								</button>
+                                                {images.length > 1 && (
+                                                        <>
+                                                                {/* glass-pill lightbox nav */}
+                                                                <button
+                                                                        type="button"
+                                                                        ref={lightboxPrevRef}
+                                                                        onClick={() =>
+                                                                                setLightboxIdx((prev) => (prev - 1 + images.length) % images.length)
+                                                                        }
+                                                                        aria-label="الصورة السابقة"
+                                                                        className="absolute -start-4 md:start-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-[background-color,box-shadow] shadow-lg"
+                                                                >
+                                                                        <MotionChevronLeft className="size-5 rtl:-scale-x-100" aria-hidden="true" />
+                                                                </button>
+                                                                <button
+                                                                        type="button"
+                                                                        ref={lightboxNextRef}
+                                                                        onClick={() => setLightboxIdx((prev) => (prev + 1) % images.length)}
+                                                                        aria-label="الصورة التالية"
+                                                                        className="absolute -end-4 md:end-4 top-1/2 -translate-y-1/2 size-11 rounded-full bg-white/10 backdrop-blur-sm text-white flex items-center justify-center hover:bg-white/25 transition-[background-color,box-shadow] shadow-lg"
+                                                                >
+                                                                        <MotionChevronRight className="size-5 rtl:-scale-x-100" aria-hidden="true" />
+                                                                </button>
 
-								<div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-									{images.map((_, i) => (
-										<button
-											key={i}
-											type="button"
-											onClick={() => setLightboxIdx(i)}
-											aria-label={`صورة ${i + 1}`}
-											className={cn(
-												'relative h-1.5 rounded-full transition-[width,height,background-color] duration-300 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
-												i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
-											)}
-										/>
-									))}
-								</div>
-							</>
-						)}
-					</div>
-				</div>
-			)}
-		</>
-	);
+                                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                                                        {images.map((_, i) => (
+                                                                                <button
+                                                                                        key={i}
+                                                                                        type="button"
+                                                                                        onClick={() => setLightboxIdx(i)}
+                                                                                        aria-label={`صورة ${i + 1}`}
+                                                                                        className={cn(
+                                                                                                'relative h-1.5 rounded-full transition-[width,height,background-color] duration-300 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
+                                                                                                i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
+                                                                                        )}
+                                                                                />
+                                                                        ))}
+                                                                </div>
+                                                        </>
+                                                )}
+                                        </div>
+                                </div>
+                        )}
+                </>
+        );
 }

@@ -330,8 +330,11 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                         now first-class named controls: each carries the item's
                                                         name + position, keyboard focusable, aria-current on the
                                                         active one (the sr-only live counter above stays). */}
-                                                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-1.5">
+                                                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 flex items-center gap-0.5">
                                                         {featured.map((f, i) => (
+                                                                // r115-F121: same WCAG 2.5.8 fix as GalleryCarousel —
+                                                                // the button box is now 24×24 with the visual dot as an
+                                                                // inner span (was a bare size-2 = 8px box).
                                                                 <button
                                                                         key={f.id}
                                                                         type="button"
@@ -341,11 +344,15 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                                 setDirection(i > index ? 1 : -1);
                                                                                 setIndex(i);
                                                                         }}
-                                                                        className={cn(
-                                                                                'size-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--scene-accent)] focus-visible:ring-offset-2',
-                                                                                i === index ? 'w-4 bg-[var(--scene-accent)]' : 'bg-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] hover:bg-[var(--scene-accent)]/60'
-                                                                        )}
-                                                                />
+                                                                        className="flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-[color-mix(in_oklab,var(--scene-accent)_12%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--scene-accent)] focus-visible:ring-offset-2"
+                                                                >
+                                                                        <span
+                                                                                className={cn(
+                                                                                        'block size-2 rounded-full transition-all',
+                                                                                        i === index ? 'w-4 bg-[var(--scene-accent)]' : 'bg-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] hover:bg-[var(--scene-accent)]/60'
+                                                                                )}
+                                                                        />
+                                                                </button>
                                                         ))}
                                                 </div>
                                                 <p className="sr-only" aria-live="polite">
