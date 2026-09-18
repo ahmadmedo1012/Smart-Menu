@@ -121,14 +121,21 @@ describe('sendMessageWithKeyboard', () => {
                 });
         });
 
-        it('network/abort rejection propagates to the caller (the route catches it)', async () => {
+        it('r116: network rejection is SWALLOWED — caller gets null + a warn (no thrown rejection can skip answerCallbackQuery anymore)', async () => {
+                // كان العقد القديم «الرفض يتسرب للمنادِ» — أي تعديل بطيء/فاشل في
+                // الويبهوك كان يقفز فوق answerCallbackQuery فيرى المشرف سبينرًا
+                // ميتًا فيضغط ثانية ويصطدم بـ«تمت معالجة هذا الطلب مسبقاً».
                 const { sendMessageWithKeyboard } = await import('@/lib/telegram-api');
                 fetchMock.mockRejectedValue(new Error('ECONNRESET'));
 
-                await expect(sendMessageWithKeyboard('111:ABC', 123, 'hi', BUTTONS)).rejects.toThrow('ECONNRESET');
+                await expect(sendMessageWithKeyboard('111:ABC', 123, 'hi', BUTTONS)).resolves.toBeNull();
+                expect(mockWarn).toHaveBeenCalledWith(
+                        'telegram apiCall transport failure',
+                        expect.objectContaining({ method: 'sendMessage', error: 'ECONNRESET' })
+                );
         });
 
-        it('10s timeout: the AbortController aborts the in-flight fetch (fake timers, no real sleep)', async () => {
+        it('r116: 10s timeout aborts the in-flight fetch → resolves null (synthetic non-ok), never rejects (fake timers, no real sleep)', async () => {
                 const { sendMessageWithKeyboard } = await import('@/lib/telegram-api');
                 vi.useFakeTimers();
 
@@ -145,12 +152,16 @@ describe('sendMessageWithKeyboard', () => {
                 );
 
                 const pending = sendMessageWithKeyboard('111:ABC', 123, 'hi', BUTTONS);
-                const expectRejection = expect(pending).rejects.toThrow('aborted');
+                const expectNull = expect(pending).resolves.toBeNull();
 
                 await vi.advanceTimersByTimeAsync(10_000);
 
-                await expectRejection;
+                await expectNull;
                 expect(capturedSignal?.aborted).toBe(true);
+                expect(mockWarn).toHaveBeenCalledWith(
+                        'telegram apiCall transport failure',
+                        expect.objectContaining({ method: 'sendMessage' })
+                );
         });
 });
 

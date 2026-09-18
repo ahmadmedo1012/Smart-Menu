@@ -48,7 +48,12 @@ export type ResolveResult =
   | { ok: true; action: Decision; paymentId: number; restaurant?: { id: number; name: string; slug: string }; user?: { id: number; username: string; role: string; subscriptionStatus: string; restaurantId: number | null } }
   // round91-F-B: `status` lets callers surface the right HTTP code for the
   // failure arm (409 for the plan-cap rejection). Absent → the legacy 400.
-  | { ok: false; reason: string; status?: number };
+  // r116: `alreadyStatus` accompanies the already-processed rejection so the
+  // Telegram webhook can tell an idempotent REPLAY (admin re-tapped the same
+  // decision — friendly toast, not an error) apart from a CONFLICT (payment
+  // already resolved the OPPOSITE way — alert). The web panel keeps the same
+  // `reason` string; only the status code sharpens 400 → 409.
+  | { ok: false; reason: string; status?: number; alreadyStatus?: "verified" | "cancelled" };
 
 export async function resolveSubscriptionPayment(
   paymentId: number,
@@ -56,7 +61,20 @@ export async function resolveSubscriptionPayment(
 ): Promise<ResolveResult> {
   const existing = await loadPayment(paymentId);
   if (!existing) return { ok: false, reason: "الطلب غير موجود" };
-  if (existing.status !== "pending") return { ok: false, reason: "تمت معالجة هذا الطلب مسبقاً" };
+  if (existing.status !== "pending") {
+    // r116: bare «تمت معالجة هذا الطلب مسبقاً» left the approving admin blind —
+    // a re-tap after a successful approval (double-tap / Telegram webhook
+    // redelivery / a stale keyboard copy) looked identical to a real failure.
+    // The stored status now rides along so the webhook can answer with the
+    // right message (idempotent success vs conflict), and the panel maps the
+    // 409 conflict instead of a generic 400.
+    return {
+      ok: false,
+      reason: "تمت معالجة هذا الطلب مسبقاً",
+      status: 409,
+      alreadyStatus: existing.status === "verified" ? "verified" : "cancelled",
+    };
+  }
 
   if (decision === "verified") {
     return handleVerified(existing);

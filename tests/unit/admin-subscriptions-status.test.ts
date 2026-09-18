@@ -14,7 +14,14 @@ import { NextRequest } from 'next/server';
 // ── Hoisted mocks ───────────────────────────────────────────────────────
 
 const mockResolve = vi.hoisted(() => vi.fn());
+// r116: مسار اللوحة يستدعي الآن مزامنة رسائل تليجرام بعد كل حسم ناجح —
+// تُهمَل هنا (سلوكها مُقفَل في ملفها الخاص) حتى يبقى هذا الملف مقتصرًا على
+// خريطة أكواد HTTP.
+const mockSync = vi.hoisted(() => vi.fn());
 
+vi.mock('@/lib/telegram-payment-sync', () => ({
+        syncPaymentMessagesAfterDecision: mockSync,
+}));
 vi.mock('@/lib/db', () => ({ prisma: {} }));
 vi.mock('@/lib/auth', () => ({
         requirePermission: vi.fn(async () => ({
@@ -32,6 +39,7 @@ vi.mock('@/lib/subscription-decisions', () => ({
 
 beforeEach(() => {
         vi.clearAllMocks();
+        mockSync.mockResolvedValue(undefined);
 });
 
 async function callVerify(id: number, status: 'verified' | 'cancelled') {
@@ -84,5 +92,23 @@ describe('POST /api/admin/subscriptions — failure-status mapping (round91-F-B)
                 const json = await res.json();
                 expect(json.success).toBe(true);
                 expect(json.data).toEqual({ ok: true, action: 'verified', paymentId: 50 });
+        });
+
+        it('r116: success ALSO syncs Telegram keyboards (stale live buttons caused the reported «تمت معالجة هذا الطلب مسبقاً»)', async () => {
+                mockResolve.mockResolvedValueOnce({ ok: true, action: 'cancelled', paymentId: 51 });
+
+                const res = await callVerify(51, 'cancelled');
+
+                expect(res.status).toBe(200);
+                expect(mockSync).toHaveBeenCalledWith(51, 'cancelled', { source: 'panel' });
+        });
+
+        it('r116: failure does NOT sync (payment stays pending, buttons must stay live)', async () => {
+                mockResolve.mockResolvedValueOnce({ ok: false, reason: 'تجاوز سقف المطاعم للخطة', status: 409 });
+
+                const res = await callVerify(50, 'verified');
+
+                expect(res.status).toBe(409);
+                expect(mockSync).not.toHaveBeenCalled();
         });
 });

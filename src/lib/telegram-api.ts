@@ -15,6 +15,14 @@ async function apiCall(
 	method: string,
 	body: Record<string, unknown>
 ): Promise<Response> {
+	// r116: network failures / abort timeouts used to REJECT, and every
+	// caller (editMessageReplyMarkup, editMessageText, answerCallbackQuery)
+	// propagated the rejection up into the webhook handler — one flaky
+	// edit could skip answerCallbackQuery entirely, leaving the admin with
+	// a dead spinner, so they re-tapped and hit «تمت معالجة هذا الطلب
+	// مسبقاً» on a payment that had actually JUST been approved. A synthetic
+	// non-ok Response routes every failure through the existing !res.ok
+	// logWarn path instead — no caller can throw on transport errors.
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 10_000);
 	try {
@@ -23,6 +31,15 @@ async function apiCall(
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
 			signal: controller.signal,
+		});
+	} catch (e) {
+		logWarn('telegram apiCall transport failure', {
+			method,
+			error: e instanceof Error ? e.message : String(e),
+		});
+		return new Response(JSON.stringify({ ok: false, error: 'transport_failure' }), {
+			status: 599,
+			headers: { 'Content-Type': 'application/json' },
 		});
 	} finally {
 		clearTimeout(timeout);

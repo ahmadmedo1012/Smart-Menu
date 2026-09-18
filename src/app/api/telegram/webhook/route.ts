@@ -80,68 +80,96 @@ async function handleCallbackQuery(
                 return new Response('OK', { status: 200 });
         }
 
-        const toastSuccess: string =
-                decision === 'verified' ? '✅ تم التفعيل والموافقة' : '❌ تم رفض الطلب';
+        const result = await resolveSubscriptionPayment(paymentId, decision);
+
+        // ── r116: compute the admin-facing outcome BEFORE any Telegram edit ──
+        // ثلاث حالات بدل اثنتين:
+        //  1) نجاح — التوست والنص كما كانا.
+        //  2) إعادة idempotent (alreadyStatus يطابق القرار: ضغطة ثانية على موافقة
+        //     ناجحة، أو إعادة تسليم ويبهوك) — توست ودّي «تمت الموافقة مسبقاً»
+        //     وليس خطأً مريبًا؛ هذا هو مصدر بلاغ «تمت معالجة هذا الطلب مسبقاً».
+        //  3) تعارض (alreadyStatus عكس القرار: طلب موافق عليه والآن رفض أو
+        //     العكس) — تنبيه صريح بحدوث تعارض ولا يمكن تنفيذ عكس المحسوم.
+        // فشل قابل للإعادة (سقف خطة/رابط محجوز/خطأ عابر) — التوست بالسبب فقط
+        // ويبقى لوح الأزرار حيًا كي يستطيع المشرف الرفض أو إعادة المحاولة.
         const statusLine: string =
                 decision === 'verified'
                         ? '\n\n⚡ [الحالة: تم التفعيل والموافقة بواسطة المشرف]'
                         : '\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]';
 
-        const result = await resolveSubscriptionPayment(paymentId, decision);
+        let toastText: string;
+        let showAlert = false;
+        let finalText: string | null = null; // null → لا تُلمَس الرسالة (فشل قابل للإعادة)
 
-        // Strip keyboard from the tapped message
-        if (cq.message?.chat?.id && cq.message?.message_id) {
+        if (result.ok) {
+                toastText = decision === 'verified' ? '✅ تم التفعيل والموافقة' : '❌ تم رفض الطلب';
+                finalText = `${decision === 'verified' ? '✅ تم التفعيل' : '❌ تم الرفض'}${statusLine}`;
+        } else if (result.alreadyStatus === 'verified') {
+                if (decision === 'verified') {
+                        toastText = '✅ تمت الموافقة على هذا الطلب مسبقاً';
+                        finalText = `✅ تم التفعيل والموافقة مسبقاً${statusLine}`;
+                } else {
+                        toastText = '⚠️ هذا الطلب تمت الموافقة عليه مسبقاً — لا يمكن رفضه';
+                        showAlert = true;
+                        finalText = '⚠️ هذا الطلب تمت الموافقة عليه مسبقاً — لا يمكن رفضه';
+                }
+        } else if (result.alreadyStatus === 'cancelled') {
+                if (decision === 'cancelled') {
+                        toastText = '✅ تم رفض هذا الطلب مسبقاً';
+                        finalText = `❌ تم رفض هذا الطلب مسبقاً${statusLine}`;
+                } else {
+                        toastText = '⚠️ هذا الطلب تم رفضه مسبقاً — لا يمكن الموافقة عليه';
+                        showAlert = true;
+                        finalText = '⚠️ هذا الطلب تم رفضه مسبقاً — لا يمكن الموافقة عليه';
+                }
+        } else if (result.reason === 'الطلب غير موجود') {
+                toastText = result.reason;
+                showAlert = true;
+                finalText = '⚠️ الطلب غير موجود';
+        } else {
+                // فشل قابل للإعادة (سقف المطاعم/رابط محجوز/خطأ) — الأزرار تبقى حية
+                toastText = result.reason;
+                showAlert = true;
+        }
+
+        // r116: التوست أولًا — قبل أي استدعاء تليجرام بطيء. كان answerCallbackQuery
+        // آخر استدعاء بعد المعاملة وتعديلين، فأي بطء/فشل شبكي يتجاوز نافذة
+        // تيليجرام (~10ث) يترك المشرف بلا رد فيضغط ثانيةً ويصطدم بـ«تمت معالجة
+        // هذا الطلب مسبقاً» رغم نجاح أول ضغطة. الاستدعاءات نفسها لم تعد ترمي
+        // استثناءات شبكة (تحصين apiCall — r116) فلا مسار يتخطى التوست.
+        await answerCallbackQuery(botToken, cq.id, toastText, showAlert);
+
+        if (finalText !== null && cq.message?.chat?.id && cq.message?.message_id) {
+                await editMessageText(botToken, cq.message.chat.id, cq.message.message_id, finalText);
                 await editMessageReplyMarkup(botToken, cq.message.chat.id, cq.message.message_id);
         }
 
-        if (!result.ok) {
-                // Already processed or not found — toast reason, update text
-                if (cq.message?.chat?.id && cq.message?.message_id) {
-                        await editMessageText(
-                                botToken,
-                                cq.message.chat.id,
-                                cq.message.message_id,
-                                `${result.reason}${statusLine}`
-                        );
-                }
-                await answerCallbackQuery(botToken, cq.id, result.reason, true);
-                return new Response('OK', { status: 200 });
-        }
-
-        // Success — update message text with status line
-        if (cq.message?.chat?.id && cq.message?.message_id) {
-                await editMessageText(
-                        botToken,
-                        cq.message.chat.id,
-                        cq.message.message_id,
-                        // round92-wave3-6: الإيموجي يطابق الحالة — الرفض ب❌ (كان ✅ ثابتًا
-                        // على نص الرفض بينما التوست «❌ تم رفض الطلب» — تعارض مربك للمشرف)
-                        `${decision === 'verified' ? '✅ تم التفعيل' : '❌ تم الرفض'}${statusLine}`
-                );
-        }
-
-        await answerCallbackQuery(botToken, cq.id, toastSuccess);
-
         // Clean up any other keyboard instances stored in payment metadata
-        try {
-                const payment = await prisma.subscriptionPayment.findUnique({
-                        where: { id: paymentId },
-                        select: { metadata: true },
-                });
-                const meta = payment?.metadata as {
-                        telegramMessages?: { chatId: number; messageId: number }[];
-                } | null;
-                if (meta?.telegramMessages) {
-                        for (const ref of meta.telegramMessages) {
-                                // Skip the chat we already cleaned up
-                                if (cq.message?.chat?.id === ref.chatId && cq.message?.message_id === ref.messageId)
-                                        continue;
-                                await editMessageReplyMarkup(botToken, ref.chatId, ref.messageId);
+        // (result.ok يضمن finalText معيَّن — الشرط المزدوج يمنح TS تصفية النوع)
+        if (result.ok && finalText) {
+                try {
+                        const payment = await prisma.subscriptionPayment.findUnique({
+                                where: { id: paymentId },
+                                select: { metadata: true },
+                        });
+                        const meta = payment?.metadata as {
+                                telegramMessages?: { chatId: number; messageId: number }[];
+                        } | null;
+                        if (meta?.telegramMessages) {
+                                for (const ref of meta.telegramMessages) {
+                                        // Skip the chat we already cleaned up
+                                        if (cq.message?.chat?.id === ref.chatId && cq.message?.message_id === ref.messageId)
+                                                continue;
+                                        // r116: النسخ الأخرى تحمل النص النهائي أيضًا — ليس فقط
+                                        // تجريد الأزرار — فتتطابق كل النسخ على الحالة المحسومة.
+                                        await editMessageText(botToken, ref.chatId, ref.messageId, finalText);
+                                        await editMessageReplyMarkup(botToken, ref.chatId, ref.messageId);
+                                }
                         }
+                } catch (e) {
+                        // Best-effort cleanup — non-critical
+                        logError('[webhook] keyboard cleanup error:', { error: String(e) });
                 }
-        } catch (e) {
-                // Best-effort cleanup — non-critical
-                logError('[webhook] keyboard cleanup error:', { error: String(e) });
         }
 
         return new Response('OK', { status: 200 });

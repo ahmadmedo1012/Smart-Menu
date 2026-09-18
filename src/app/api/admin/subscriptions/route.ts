@@ -4,6 +4,10 @@ import { success, error, handleError, notFound, parsePagination } from "@/lib/ap
 import { requirePermission } from "@/lib/auth";
 import { z } from "zod";
 import { resolveSubscriptionPayment } from "@/lib/subscription-decisions";
+// r116: موافقة/رفض اللوحة كانا يتركان أزرار تليجرام حية على كل النسخ —
+// أي ضغطة لاحقة تعطي «تمت معالجة هذا الطلب مسبقاً». المزامنة تجرّد الأزرار
+// وتحدّث النص على كل النسخ المسجلة (best-effort — لا تفشل الحسم).
+import { syncPaymentMessagesAfterDecision } from "@/lib/telegram-payment-sync";
 
 const verifySchema = z.object({
   id: z.number().int().positive(),
@@ -68,9 +72,14 @@ export async function POST(request: NextRequest) {
     if (!result.ok) {
       if (result.reason === "الطلب غير موجود") return notFound("SubscriptionPayment");
       // round91-F-B: the decision lib now carries the failure status (409 for
-      // the plan-cap rejection) — absent → the legacy 400.
+      // the plan-cap rejection / r116 already-processed conflict) — absent →
+      // the legacy 400.
       return error(result.reason, result.status ?? 400);
     }
+
+    // r116: الحسم من اللوحة يجب أن يُذهب أزرار تليجرام أيضًا — الدالة لا ترمي
+    // استثناءً أبدًا، فلا تغيير في مغلف الاستجابة الناجح.
+    await syncPaymentMessagesAfterDecision(id, status, { source: 'panel' });
 
     return success(result);
   } catch (e) {

@@ -109,12 +109,25 @@ describe('resolveSubscriptionPayment — entry gates', () => {
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it.each(['verified', 'cancelled', 'expired'])('already-processed payment (status %s) → idempotent rejection', async (status) => {
+  // r116: الرفض Idempotent يحمل الآن الحالة المخزّنة (alreadyStatus) + 409 —
+  // الويبهوك يميّز بها الإعادة الودّية عن التعارض، واللوحة ترسم 409 بدل 400.
+  it.each([
+    ['verified', 'verified'],
+    ['cancelled', 'cancelled'],
+    // قيمة دفاعية خارج الـenum الفعلي (pending/verified/cancelled فقط) —
+    // أي قيمة أخرى تُعامَل كغير موافقة في التحويل الثنائي.
+    ['expired', 'cancelled'],
+  ] as const)('already-processed payment (status %s) → idempotent rejection with alreadyStatus=%s + 409', async (status, alreadyStatus) => {
     mockPayment({ status });
 
     const result = await resolveSubscriptionPayment(50, 'verified');
 
-    expect(result).toEqual({ ok: false, reason: 'تمت معالجة هذا الطلب مسبقاً' });
+    expect(result).toEqual({
+      ok: false,
+      reason: 'تمت معالجة هذا الطلب مسبقاً',
+      status: 409,
+      alreadyStatus,
+    });
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });
@@ -286,7 +299,12 @@ describe('resolveSubscriptionPayment — verified, NEW-USER branch', () => {
 
     const result = await resolveSubscriptionPayment(50, 'verified');
 
-    expect(result).toEqual({ ok: false, reason: 'تمت معالجة هذا الطلب مسبقاً' });
+    expect(result).toEqual({
+      ok: false,
+      reason: 'تمت معالجة هذا الطلب مسبقاً',
+      status: 409,
+      alreadyStatus: 'verified',
+    });
     // the status gate short-circuits BEFORE any transaction/cap logic — a
     // successful approval's restaurants count toward the cap, and the replay
     // returns already-ok (no duplicate create, no cap rejection)

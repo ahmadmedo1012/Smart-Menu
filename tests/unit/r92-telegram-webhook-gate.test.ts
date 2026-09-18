@@ -655,7 +655,7 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                         '✅ تم التفعيل\n\n⚡ [الحالة: تم التفعيل والموافقة بواسطة المشرف]',
                 );
                 // success toast (no alert)
-                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة');
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة', false);
                 // metadata cleanup lookup ran
                 expect(mockPaymentFindUnique).toHaveBeenCalledWith({
                         where: { id: 55 },
@@ -663,30 +663,29 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                 });
         });
 
-        it('sub_rej (reject) with an ALREADY-PROCESSED payment → reason toast + status line, keyboard still stripped', async () => {
+        it('sub_rej with an already-CANCELLED payment (alreadyStatus rides along) → friendly idempotent toast, text reflects the STORED status, keyboard stripped', async () => {
+                // r116: الضغطة الثانية على رفضٍ محسوم لم تعد «خطأً» — توست ودّي بلا
+                // alert، والنص يعكس الحالة المخزّنة فعلًا (رفض) لا الحالة المطلوبة.
                 mockResolveSubscriptionPayment.mockResolvedValue({
                         ok: false,
                         reason: 'تمت معالجة هذا الطلب مسبقاً',
+                        status: 409,
+                        alreadyStatus: 'cancelled',
                 });
 
                 const res = await post(callbackUpdate({ data: 'sub_rej:55' }));
 
                 expect(res.status).toBe(200);
                 expect(mockResolveSubscriptionPayment).toHaveBeenCalledWith(55, 'cancelled');
-                // strip happens BEFORE the result check — even a stale tap cleans up
                 expect(mockEditReplyMarkup).toHaveBeenCalledWith(BOT_TOKEN, 100, 10);
                 expect(mockEditText).toHaveBeenCalledWith(
                         BOT_TOKEN,
                         100,
                         10,
-                        'تمت معالجة هذا الطلب مسبقاً\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]',
+                        '❌ تم رفض هذا الطلب مسبقاً\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]',
                 );
-                expect(mockAnswerCq).toHaveBeenCalledWith(
-                        BOT_TOKEN,
-                        'cq-1',
-                        'تمت معالجة هذا الطلب مسبقاً',
-                        true,
-                );
+                // idempotent replay — toast WITHOUT the alert flag
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم رفض هذا الطلب مسبقاً', false);
         });
 
         it('sub_rej (reject) SUCCESS → the cancelled status line with the ❌ prefix (round92-wave3-6: the emoji now matches the decision)', async () => {
@@ -705,7 +704,7 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                         10,
                         '❌ تم الرفض\n\n⚠️ [الحالة: تم رفض الطلب وإبلاغ العميل]',
                 );
-                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '❌ تم رفض الطلب');
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '❌ تم رفض الطلب', false);
         });
 
         it('keyboard cleanup: other stored instances get stripped, the ALREADY-cleaned tapped one is skipped', async () => {
@@ -738,7 +737,7 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                         '[webhook] keyboard cleanup error:',
                         expect.objectContaining({ error: expect.stringContaining('metadata read failed') }),
                 );
-                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة');
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة', false);
         });
 
         it('callback_query with NO message (too old to edit) → decision still processed, edits skipped, toast still sent', async () => {
@@ -754,7 +753,7 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                 expect(mockResolveSubscriptionPayment).toHaveBeenCalledWith(55, 'verified');
                 expect(mockEditReplyMarkup).not.toHaveBeenCalled();
                 expect(mockEditText).not.toHaveBeenCalled();
-                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة');
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة', false);
         });
 
         it('round92-wave3-1: handler failure in the callback path is caught by the try (await) → logged + 200 «OK», never a leaked rejection/500', async () => {
@@ -783,7 +782,131 @@ describe('POST /api/telegram/webhook — callback_query: decision flow', () => {
                 expect(res.status).toBe(200);
                 expect(await res.text()).toBe('OK');
                 expect(mockResolveSubscriptionPayment).toHaveBeenCalledWith(55, 'verified');
-                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة');
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تم التفعيل والموافقة', false);
+        });
+});
+
+// ── r116: idempotent replays, conflicts, retryable failures, toast order ──
+
+describe('POST /api/telegram/webhook — r116 already-processed semantics', () => {
+        beforeEach(() => {
+                vi.stubEnv('TELEGRAM_ADMIN_IDS', String(ADMIN_ID));
+        });
+
+        it('re-played APPROVE on an already-VERIFIED payment → friendly toast «تمت الموافقة مسبقاً» (no alert), text reflects approval', async () => {
+                mockResolveSubscriptionPayment.mockResolvedValue({
+                        ok: false,
+                        reason: 'تمت معالجة هذا الطلب مسبقاً',
+                        status: 409,
+                        alreadyStatus: 'verified',
+                });
+
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', '✅ تمت الموافقة على هذا الطلب مسبقاً', false);
+                expect(mockEditText).toHaveBeenCalledWith(
+                        BOT_TOKEN,
+                        100,
+                        10,
+                        '✅ تم التفعيل والموافقة مسبقاً\n\n⚡ [الحالة: تم التفعيل والموافقة بواسطة المشرف]',
+                );
+                expect(mockEditReplyMarkup).toHaveBeenCalledWith(BOT_TOKEN, 100, 10);
+        });
+
+        it('REJECT on an already-VERIFIED payment → CONFLICT alert, decision never re-applied, text says approval is final', async () => {
+                mockResolveSubscriptionPayment.mockResolvedValue({
+                        ok: false,
+                        reason: 'تمت معالجة هذا الطلب مسبقاً',
+                        status: 409,
+                        alreadyStatus: 'verified',
+                });
+
+                const res = await post(callbackUpdate({ data: 'sub_rej:55' }));
+
+                expect(res.status).toBe(200);
+                expect(mockAnswerCq).toHaveBeenCalledWith(
+                        BOT_TOKEN,
+                        'cq-1',
+                        '⚠️ هذا الطلب تمت الموافقة عليه مسبقاً — لا يمكن رفضه',
+                        true,
+                );
+                expect(mockEditText).toHaveBeenCalledWith(
+                        BOT_TOKEN,
+                        100,
+                        10,
+                        '⚠️ هذا الطلب تمت الموافقة عليه مسبقاً — لا يمكن رفضه',
+                );
+                expect(mockEditReplyMarkup).toHaveBeenCalledWith(BOT_TOKEN, 100, 10);
+        });
+
+        it('APPROVE on an already-CANCELLED payment → CONFLICT alert, rejection is final', async () => {
+                mockResolveSubscriptionPayment.mockResolvedValue({
+                        ok: false,
+                        reason: 'تمت معالجة هذا الطلب مسبقاً',
+                        status: 409,
+                        alreadyStatus: 'cancelled',
+                });
+
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(mockAnswerCq).toHaveBeenCalledWith(
+                        BOT_TOKEN,
+                        'cq-1',
+                        '⚠️ هذا الطلب تم رفضه مسبقاً — لا يمكن الموافقة عليه',
+                        true,
+                );
+                expect(mockEditText).toHaveBeenCalledWith(
+                        BOT_TOKEN,
+                        100,
+                        10,
+                        '⚠️ هذا الطلب تم رفضه مسبقاً — لا يمكن الموافقة عليه',
+                );
+        });
+
+        it('RETRYABLE failure (plan cap, no alreadyStatus) → reason toast + alert, keyboard/message untouched (admin can still reject)', async () => {
+                // r116: سقف الخطة فشل قابل للإعادة — تجريد الأزرار كان يحرم المشرف
+                // من الرفض من نفس الرسالة؛ الآن تبقى الرسالة حية والتوست يشرح السبب.
+                mockResolveSubscriptionPayment.mockResolvedValue({
+                        ok: false,
+                        reason: 'تجاوز سقف المطاعم للخطة',
+                        status: 409,
+                });
+
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', 'تجاوز سقف المطاعم للخطة', true);
+                expect(mockEditText).not.toHaveBeenCalled();
+                expect(mockEditReplyMarkup).not.toHaveBeenCalled();
+        });
+
+        it('not-found payment → alert toast, dead buttons stripped, text says not found', async () => {
+                mockResolveSubscriptionPayment.mockResolvedValue({
+                        ok: false,
+                        reason: 'الطلب غير موجود',
+                });
+
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(mockAnswerCq).toHaveBeenCalledWith(BOT_TOKEN, 'cq-1', 'الطلب غير موجود', true);
+                expect(mockEditText).toHaveBeenCalledWith(BOT_TOKEN, 100, 10, '⚠️ الطلب غير موجود');
+                expect(mockEditReplyMarkup).toHaveBeenCalledWith(BOT_TOKEN, 100, 10);
+        });
+
+        it('r116 ordering: the toast is answered BEFORE any message edit (inside Telegram\'s callback-answer window)', async () => {
+                // كان answerCallbackQuery آخر استدعاء — بطء/فشل التعديلات يتخطاه
+                // فيضغط المشرف ثانية ويصطدم بـ«تمت معالجة مسبقاً». الآن هو الأول.
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                const answerOrder = mockAnswerCq.mock.invocationCallOrder[0];
+                const editTextOrder = mockEditText.mock.invocationCallOrder[0];
+                const stripOrder = mockEditReplyMarkup.mock.invocationCallOrder[0];
+                expect(answerOrder).toBeLessThan(editTextOrder);
+                expect(answerOrder).toBeLessThan(stripOrder);
         });
 });
 

@@ -115,7 +115,13 @@ describe('resolveSubscriptionPayment — CANCELLED (full rejection path)', () =>
       status: 'verified',
     });
     const result = await resolveSubscriptionPayment(77, 'cancelled');
-    expect(result).toEqual({ ok: false, reason: 'تمت معالجة هذا الطلب مسبقاً' });
+    // r116: الحالة المخزّنة تركب مع الرفض (تمييز الإعادة عن التعارض في الويبهوك)
+    expect(result).toEqual({
+      ok: false,
+      reason: 'تمت معالجة هذا الطلب مسبقاً',
+      status: 409,
+      alreadyStatus: 'verified',
+    });
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
