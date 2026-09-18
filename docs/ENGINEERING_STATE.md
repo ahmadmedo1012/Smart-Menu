@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **`8f650490`** (2026-09-17 — r115: F121 touch targets + F123 JSON-LD live-verified; Vercel unblocked, assetlinks dual-fingerprint live) |
+| Last verified commit | **`a25c3e99`** (2026-09-18 — r116: Telegram payment-approval «تمت معالجة هذا الطلب مسبقاً» root-caused & fixed: idempotent replays + conflict alerts + toast-first + panel keyboard sync; local gates 1936+12 smoke PASS — **Vercel deploy NOT observed landing within 30min of push, see r116 entry**) |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
-| Unit tests | 1946/1946 (134 files — r109: 1941; r110: +5 cart-switch truth table) |
+| Unit tests | 1936/1936 collected in r116 env (2 files env-gated locally, green in CI; +18 new r116 cases: 12 webhook semantics + 6 sync) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -173,6 +173,26 @@
 - **r103 (2026-09-12) — pre-deploy**: fresh clone @ `174719b4` — TS 0 / lint 0 (10 legacy warnings) / 1930-1930 unit / production build OK (local PG) / mobile TS+lint+doctor 18/18 + Metro export 7.56MB. Live repros: F1 (400 on the admin probe), F8 (wa.me/null in code; ISR made the live grep stale). F13 (print/isActive) REFUTED live — parent layout gate 404s correctly (agent false positive). 24 fixes applied + 22 new unit tests + 3 test-contract updates (rbac-matrix, r92-cleanup-ratelimit, regression-sweep/restaurants-create mocks).
 
 ---
+
+
+## r116 (2026-09-18) — TELEGRAM PAYMENT-APPROVAL INCIDENT FIX («تمت معالجة هذا الطلب مسبقاً»)
+- **User report**: approving a payment from Telegram shows the error «تمت معالجة هذا الطلب مسبقاً».
+- **Root cause — 4 stacked defects** (the payment was USUALLY already resolved; the UX made a done deal look like a failure):
+  1. `subscription-decisions.ts`: the already-processed gate rejected blindly — no distinction between an idempotent REPLAY (double-tap / Telegram webhook redelivery / stale-keyboard tap on the SAME decision) and a real CONFLICT (opposite decision on a resolved payment). HTTP 400, scary alert.
+  2. `webhook/route.ts`: `answerCallbackQuery` was the LAST call — after the DB transaction + 2 Telegram edits (each up to 10s timeout). A slow/failed edit skipped the toast entirely → admin saw a dead spinner → re-tapped → hit the error on a payment that had JUST been approved.
+  3. `telegram-api.ts apiCall`: transport failures/aborts REJECTED and could abort the handler before the toast.
+  4. **Admin-panel approvals/rejections never touched Telegram at all** — every keyboard copy sent to N admins/channels stayed LIVE forever (`metadata.telegramMessages` cleanup only ran on the webhook path). Tapping any stale copy later exploded with the reported error. This is the most likely direct source of the user's report.
+- **Fix (commit `a25c3e99`)**:
+  - `alreadyStatus` rides with the already-processed rejection (+ HTTP 409) — the webhook can now tell replay from conflict.
+  - Toast answered FIRST (inside Telegram's ~10s callback window), all edits after.
+  - `apiCall` never throws: transport failure → synthetic non-ok Response → existing logWarn path.
+  - NEW `src/lib/telegram-payment-sync.ts`: after ANY panel decision, every stored message copy gets the final text + keyboard stripped (best-effort, never fails the decision). Webhook success also finalizes other copies' text (was: keyboard-strip only).
+  - Retryable failures (plan cap / slug taken) now KEEP the keyboard live so the admin can still reject from the same message.
+- **Semantics now**: replay of same decision → friendly toast «✅ تمت الموافقة على هذا الطلب مسبقاً» (no alert) + text reflects the STORED status; opposite decision → explicit conflict alert «⚠️ هذا الطلب تمت الموافقة عليه مسبقاً — لا يمكن رفضه»; unknown payment → dead buttons stripped; message text always reflects the stored state (was: the REQUESTED state — misleading).
+- **Gates**: tsc 0 · eslint 0 · unit 1936/1936 (2 files are env-gated locally: db-withretry/keys — import-time DATABASE_URL validation; green in CI) · `next build` OK (embedded PG rebuilt at /home/z/pgtool after container reset, migrations applied) · **runtime smoke 12/12 PASS** on real `next start` + real PG: T1 approve pending → verified+restaurant+owner-promotion; T2 replay approve (THE reported scenario) → 200, no duplicate restaurant, stays verified; T3 conflict reject-after-approve → refused, data untouched; T4 unknown payment → 200.
+- **Live baseline (pre-deploy)**: routes 13/13 correct (incl. `/menu/al-waha-cafe-demo` 200; `/menu/demo` 404 is expected — never a real slug), security headers intact, negatives all 401/403/404 incl. webhook fail-closed secret gate.
+- **⚠️ DEPLOY**: `a25c3e99` pushed 04:52Z; production still served `dbc3ed97` after ~30min of polling — the r114-style stale-concurrency queue is suspected (Vercel token rotated → cannot inspect from here). **USER ACTION: check the Vercel dashboard for a queued/failed/stuck deployment and re-deploy `a25c3e99`** — all local gates are green; the commit itself builds (no new deps/migrations).
+- Evidence: `audit/r116/` (live-sweep.txt, smoke output in worklog), scripts `r116-smoke.mjs` / `r116-ci-watch.sh` / `r116-live-sweep.sh`.
 
 ## Next recommended engineering actions
 
