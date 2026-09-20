@@ -214,3 +214,31 @@
 - arm64-v8a deliverable: download/smart-menu-preview-r114.apk (36.0MB, v2-signed, prod API baked).
 - x86_64 twin built for emulator verification: app installs, MainActivity launches, process alive.
 - assetlinks.json now carries BOTH fingerprints (EAS + local) — commit 39262a60.
+
+## r117 — gstack full-power round: infra P0s resolved + race/timeout fixes + CI-sustainability
+**Commit `c465a270` — LIVE-VERIFIED on production (deployed ~90s after push).**
+
+### Infrastructure root-causes (evidence-first)
+- **GitHub Actions DEAD since Sep 19 01:18 UTC**: every job fails in 2-3s with ZERO steps. Official annotation: «The job was not started because recent account payments have failed or your spending limit needs to be increased». Sept usage: 4374 min (keep-alive alone ~2880/mo at */15). **USER ACTION: fix billing** (Settings → Billing & plans); then workflow_dispatch `Keep Website Alive` to verify F3 and re-run nightly.
+- **Vercel token invalid** (`invalidToken: true` on /v2/user). Git-integration ALIVE: c465a270 deployed in ~90s → **the r116 deploy gap self-cleared; a25c3e99 + r117 all live.** Production sha now matches HEAD.
+- CI down ⇒ local gates were the verification source this round: tsc 0 · eslint 0 · 1964/1964 · next build OK (119 routes, embedded PG 16.14 one-shot pattern — the sandbox kills background processes between tool calls; scripts/r117-one-shot-build.sh documents it).
+
+### Fixes (all pushed in c465a270)
+- **r117-F1 (race)**: concurrent resolution losers (webhook redelivery / panel+telegram tap within ms) hit P2025 from the pending-guarded update → generic error. Now re-read + friendly already-processed (409 + alreadyStatus) in BOTH verified-branch catches. +4 regression tests (fail-pre-fix by construction; incl. P2025-but-still-pending → NO false already-processed claim, and non-P2025 → unchanged generic path).
+- **r117-F2 (timeout)**: webhook /start used a raw fetch with NO timeout — could pin the whole webhook until the function timeout. New `sendPlainMessage` export through the r116-hardened apiCall (10s AbortController, never throws).
+- **r117-F3 (sustainability)**: keep_alive.yml 96→19 runs/day (-80% minutes): hourly 07:00-23:00 UTC (Libya peak) + 01:00/04:00 canaries + `workflow_dispatch`. Neon autosuspends at 5min anyway — */15 kept it warm only 1/3 of the time; self-wake measured 30-40ms cold vs 3-4ms warm.
+
+### gstack methodologies applied (full power, per user request)
+- **/review** Pass-1 on r116 diff → F1+F2 (enum-completeness VERIFIED against Prisma schema: PaymentStatus = {pending, verified, cancelled} — r116's binary mapping is sound).
+- **/cso**: secrets 0 leaks (1034 files + recent history) · pnpm audit 0 vulns · webhook chain verified · live headers complete (CSP/HSTS/DENY/nosniff/referrer/permissions) · live OWASP negatives: 401 unauth, 403 cross-origin, 403 webhook no-secret, 422 qty=100 (r106-F1 cap CONFIRMED LIVE), 404 bad slug.
+- **/qa**: Health Score **98.6/100** — full customer journey FRESH on c465a270 (search «قهوة» → cart → notes → review dialog → ORD-WMU9CCQSZ6TKCX2 → Arabic WhatsApp invoice 7.00 د.ل), ZERO console errors on every page/action, login negative = Arabic toast role=alert, 375px no overflow ×3 pages, touch targets ≥44px (skip-link 1×1 = intended a11y pattern), a11y structure: 0 img-no-alt / 0 empty buttons / 0 dup ids / valid heading order / lang=ar dir=rtl.
+- **/design-review** (VLM + code verification): home PASS (no AI-slop), menu PASS after disproving 2 VLM false-positives — «arrow backwards» (code has rtl:rotate-180 = CORRECT RTL) and «black cards» (full-page-screenshot lazy-image artifact; real scroll = 16/16 images loaded, VLM re-confirmed clean).
+- **/benchmark** (real getEntries, median×3): home LCP 488ms/TTFB 16ms, menu 644/16, pricing 268/16, login 796/316 — ALL within gstack budgets except request counts on home(52)/menu(67) vs 50 → P4 documented (menu = 16 lazy item images, by design). Baseline: audit/r117/benchmark-baseline.json.
+- **/canary** post-deploy: 5 key routes 200 · all security negatives correct · zero regressions.
+
+### Ledger adds: F1 ✅ F2 ✅ F3 ✅ P4a/P4b (request-count, deferred) · VLM-FP1/FP2 disproven · legacy r105-F1 qty-cap CONFIRMED live-fixed (422).
+
+### Remaining user actions (unchanged + updated)
+1. **GitHub billing fix** → CI restored (then dispatch Keep Website Alive).
+2. Optional: fresh Vercel token (git-integration suffices for normal operation).
+3. Legacy: delete duplicate `al-waha-cafeewewe`, real-device r114 APK pass, minSdk 25 decision.
