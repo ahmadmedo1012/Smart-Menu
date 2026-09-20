@@ -465,3 +465,78 @@ describe('resolveSubscriptionPayment — verified, UPGRADE branch', () => {
     expect(updateArg.data.maxOrders).toBeUndefined();
   });
 });
+
+// ── r117-F1: TOCTOU race regression ────────────────────────────────────────
+// الخاسر المتزامن: القراءة الأولى ترى pending، لكن update المحمي داخل
+// المعاملة يخسر ضد حسم متزامن (P2025 «Record to update not found»).
+// قبل r117-F1: catch العام يعيد «حدث خطأ أثناء معالجة الطلب» الغامض
+// (نفس عمى المشرف الذي أصلحه r116 للمسار التسلسلي).
+// بعد r117-F1: إعادة قراءة الحالة → شكل already-processed الكامل
+// (409 + alreadyStatus) فيصيب الخاسرَ معاملةُ إعادة الضغط الودية.
+const p2025 = () =>
+  Object.assign(new Error('Record to update not found.'), { code: 'P2025' });
+
+describe('resolveSubscriptionPayment — r117-F1 concurrent-race losers', () => {
+  it('NEW-USER race loser (tx update P2025, re-read shows verified) → friendly already-processed 409 + alreadyStatus, NOT the generic error', async () => {
+    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ ...PAYMENT, metadata: null }) // entry read: pending
+      .mockResolvedValueOnce({ ...PAYMENT, status: 'verified' }); // reread: winner verified
+    (prisma.$transaction as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      p2025()
+    );
+
+    const result = await resolveSubscriptionPayment(50, 'verified');
+
+    expect(result).toEqual({
+      ok: false,
+      reason: 'تمت معالجة هذا الطلب مسبقاً',
+      status: 409,
+      alreadyStatus: 'verified',
+    });
+  });
+
+  it('UPGRADE race loser (tx update P2025, re-read shows cancelled) → already-processed 409 + alreadyStatus cancelled', async () => {
+    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ ...PAYMENT, metadata: { upgradeRestaurantId: 88 } }) // pending
+      .mockResolvedValueOnce({ ...PAYMENT, status: 'cancelled' }); // reread
+    (prisma.$transaction as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      p2025()
+    );
+
+    const result = await resolveSubscriptionPayment(50, 'verified');
+
+    expect(result).toEqual({
+      ok: false,
+      reason: 'تمت معالجة هذا الطلب مسبقاً',
+      status: 409,
+      alreadyStatus: 'cancelled',
+    });
+  });
+
+  it('P2025 but the re-read STILL shows pending (row vanished / replication lag) → fall through to the generic error, never a wrong already-processed claim', async () => {
+    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ ...PAYMENT, metadata: null })
+      .mockResolvedValueOnce({ ...PAYMENT, status: 'pending' }); // reread: still pending
+    (prisma.$transaction as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      p2025()
+    );
+
+    const result = await resolveSubscriptionPayment(50, 'verified');
+
+    expect(result).toEqual({ ok: false, reason: 'حدث خطأ أثناء معالجة الطلب' });
+  });
+
+  it('non-P2025 transaction failure keeps the generic error (race path must not swallow real failures)', async () => {
+    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ...PAYMENT,
+      metadata: null,
+    });
+    (prisma.$transaction as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('db exploded')
+    );
+
+    const result = await resolveSubscriptionPayment(50, 'verified');
+
+    expect(result).toEqual({ ok: false, reason: 'حدث خطأ أثناء معالجة الطلب' });
+  });
+});

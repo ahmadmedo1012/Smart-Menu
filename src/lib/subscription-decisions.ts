@@ -42,6 +42,31 @@ async function notifyUserViaTelegram(chatId: string | null, text: string) {
   }
 }
 
+// r117-F1 (TOCTOU race): فروع verified تستخدم update محميًا بـ
+// `where: { id, status: "pending" }` — الخاسر المتزامن (ويبهوك مُعاد التسليم
+// أو ضغطة لوحة تتقاطع مع ضغطة تليجرام داخل نافذة الملي ثواني) يرمي P2025
+// «Record to update not found» فيلتقطه catch العام ويعيد خطأً عامًا غامضًا
+// («حدث خطأ أثناء معالجة الطلب») رغم أن الدفع محسوم فعلًا — نفس عمى المشرف
+// الذي أصلحه r116 للمسار التسلسلي. هذه الدالة تعيد قراءة الحالة المحفوظة
+// وتعيد شكل already-processed الكامل (reason + 409 + alreadyStatus) فيصيب
+// الخاسرَ المتزامنَ نفسُ معاملة إعادة الضغط الودية. ترجع null إن لم يكن
+// الخطأ P2025 أو اختفى السجل فعلًا.
+async function raceResolvedResult(paymentId: number): Promise<ResolveResult | null> {
+  const reread = await loadPayment(paymentId);
+  if (!reread || reread.status === "pending") return null;
+  return {
+    ok: false,
+    reason: "تمت معالجة هذا الطلب مسبقاً",
+    status: 409,
+    alreadyStatus: reread.status === "verified" ? "verified" : "cancelled",
+  };
+}
+
+// r117-F1: توصيف موحد لكشف P2025 (update المحمي على صف لم يعد pending).
+function isPrismaRecordNotFound(e: unknown): boolean {
+  return (e as Record<string, unknown>)?.code === "P2025";
+}
+
 export type Decision = "verified" | "cancelled";
 
 export type ResolveResult =
@@ -163,6 +188,12 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
 
       return { ok: true, action: "verified", paymentId: existing.id };
     } catch (e: unknown) {
+      // r117-F1: سباق متزامن — update المحمي خسر ضد حسم آخر: أعد قراءة
+      // الحالة وأعد نفس شكل already-processed الودي بدل الخطأ العام.
+      if (isPrismaRecordNotFound(e)) {
+        const raced = await raceResolvedResult(existing.id);
+        if (raced) return raced;
+      }
       error("[subscription-decisions] upgrade error:", { error: e });
       return { ok: false, reason: "حدث خطأ أثناء ترقية الخطة" };
     }
@@ -328,6 +359,12 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
 
     return { ok: true, action: "verified", paymentId: existing.id, restaurant: result.restaurant ? { id: result.restaurant.id, name: result.restaurant.name, slug: result.restaurant.slug } : undefined, user: result.user ?? undefined };
   } catch (e: unknown) {
+    // r117-F1: نفس معالجة السباق — update المحمي في بداية المعاملة خسر ضد
+    // حسم متزامن (P2025) → already-processed الودي بدل «حدث خطأ أثناء المعالجة».
+    if (isPrismaRecordNotFound(e)) {
+      const raced = await raceResolvedResult(existing.id);
+      if (raced) return raced;
+    }
     error("[subscription-decisions] new user error:", { error: e });
     const errMsg = e instanceof Error ? e.message : "";
     const prismaErr = e as Record<string, unknown>;

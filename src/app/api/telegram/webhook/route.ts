@@ -9,7 +9,7 @@ import { getAdminTelegramIds } from '@/lib/telegram-admin';
 import { resolveSubscriptionPayment } from '@/lib/subscription-decisions';
 import { getHmacKey } from '@/lib/keys';
 import { getDecryptedBotToken } from '@/lib/config';
-import { editMessageReplyMarkup, editMessageText, answerCallbackQuery } from '@/lib/telegram-api';
+import { editMessageReplyMarkup, editMessageText, answerCallbackQuery, sendPlainMessage } from '@/lib/telegram-api';
 import { getClientIp } from '@/lib/client-ip';
 
 // Constant-time string comparison — length mismatch short-circuits (never
@@ -236,11 +236,10 @@ export async function POST(request: NextRequest) {
                         const chatIdNum = update.message?.chat?.id;
                         if (chatIdNum && startBotToken) {
                                 const msg = `مرحباً! 👋\n\nمعرف التليجرام الخاص بك:\n\`${chatIdNum}\`\n\nإذا كنت بحاجة لإضافة هذا المعرف كموافٍ على الاشتراكات، يرجى التواصل مع مدير النظام.\n\nلربط حسابك بالمنصة (/start verify_الرمز_الخاص_بك).`;
-                                await fetch(`https://api.telegram.org/bot${startBotToken}/sendMessage`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ chat_id: chatIdNum, text: msg, parse_mode: 'Markdown' }),
-                                });
+                                // r117-F2: كان fetch خامًا بلا مهلة — تعليق تيليجرام كان
+                                // يعلّق الويبهوك حتى مهلة الدالة؛ الآن عبر sendPlainMessage
+                                // المحصّنة (مهلة 10ث + لا رمي أبدًا).
+                                await sendPlainMessage(startBotToken, chatIdNum, msg, { parseMode: 'Markdown' });
                         }
                         return new Response('OK', { status: 200 });
                 }

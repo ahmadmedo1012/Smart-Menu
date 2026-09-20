@@ -41,6 +41,7 @@ const mockResolveSubscriptionPayment = vi.hoisted(() => vi.fn());
 const mockEditReplyMarkup = vi.hoisted(() => vi.fn());
 const mockEditText = vi.hoisted(() => vi.fn());
 const mockAnswerCq = vi.hoisted(() => vi.fn());
+const mockSendPlainMessage = vi.hoisted(() => vi.fn());
 const mockLogError = vi.hoisted(() => vi.fn());
 const mockLogWarn = vi.hoisted(() => vi.fn());
 const mockLogInfo = vi.hoisted(() => vi.fn());
@@ -73,6 +74,8 @@ vi.mock('@/lib/telegram-api', () => ({
         editMessageReplyMarkup: mockEditReplyMarkup,
         editMessageText: mockEditText,
         answerCallbackQuery: mockAnswerCq,
+        // r117-F2: /start يرسل الآن عبر sendPlainMessage المحصّنة بدل fetch الخام
+        sendPlainMessage: mockSendPlainMessage,
         sendMessageWithKeyboard: vi.fn(),
 }));
 vi.mock('@/lib/logger', () => ({
@@ -176,6 +179,7 @@ beforeEach(() => {
         mockEditReplyMarkup.mockResolvedValue(undefined);
         mockEditText.mockResolvedValue(undefined);
         mockAnswerCq.mockResolvedValue(undefined);
+        mockSendPlainMessage.mockResolvedValue(undefined);
         mockFetch.mockResolvedValue({ ok: true } as unknown as Response);
         vi.stubGlobal('fetch', mockFetch);
 });
@@ -332,18 +336,22 @@ describe('POST /api/telegram/webhook — content-type ack & unsupported updates'
 // ── /start: tell the user their Telegram ID ─────────────────────────────
 
 describe('POST /api/telegram/webhook — /start (ID echo)', () => {
-        it('plain /start with chatId + bot token → one sendMessage carrying the chat id (Markdown)', async () => {
+        it('plain /start with chatId + bot token → one sendPlainMessage carrying the chat id (Markdown, r117-F2 hardened path)', async () => {
                 const res = await post({ message: { text: '/start', chat: { id: 77 } } });
 
                 expect(res.status).toBe(200);
-                expect(mockFetch).toHaveBeenCalledTimes(1);
-                const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
-                expect(url).toBe(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`);
-                const body = JSON.parse(String(init.body));
-                expect(body.chat_id).toBe(77);
-                expect(body.parse_mode).toBe('Markdown');
-                expect(body.text).toContain('77'); // the echoed Telegram ID
-                expect(body.text).toContain('معرف التليجرام الخاص بك');
+                // r117-F2: الإرسال عبر telegram-api المحصّنة (مهلة + لا رمي) —
+                // كان fetch خامًا بلا مهلة؛ الاختبار يتحقق من المسار الجديد.
+                expect(mockSendPlainMessage).toHaveBeenCalledTimes(1);
+                expect(mockFetch).not.toHaveBeenCalled();
+                const [token, chatId, text, opts] = mockSendPlainMessage.mock.calls[0] as [
+                        string, number, string, { parseMode?: string } | undefined,
+                ];
+                expect(token).toBe(BOT_TOKEN);
+                expect(chatId).toBe(77);
+                expect(opts?.parseMode).toBe('Markdown');
+                expect(text).toContain('77'); // the echoed Telegram ID
+                expect(text).toContain('معرف التليجرام الخاص بك');
         });
 
         it('/start with NO bot token → 200, no fetch (fail-safe, not a crash)', async () => {
