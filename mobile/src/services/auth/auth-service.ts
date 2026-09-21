@@ -36,9 +36,20 @@ export async function meRequest(): Promise<MeResponse> {
   return api.get<MeResponse>("/api/auth/me");
 }
 
+/**
+ * r119-B2-M (S6 P2-1): the server call is BEST-EFFORT only — it can never
+ * reject and it no longer owns the local token wipe (the auth store's logout
+ * clears state + SecureStore FIRST, before any network round-trip, so an
+ * offline device or a hung request can never leave the user logged in).
+ *
+ * NOTE (verified r119): /api/auth/logout revokes the session COOKIE
+ * (destroySession reads cookies only) — the mobile Bearer sessionToken is not
+ * covered, so this call is effectively a no-op for mobile today. Kept for
+ * contract parity + future server-side Bearer revocation; the local teardown
+ * in store/auth.ts is the real logout for the app.
+ */
 export async function logoutRequest(): Promise<void> {
-  try { await api.post("/api/auth/logout", undefined); } catch {}
-  await setStoredToken(null);
+  try { await api.post("/api/auth/logout", undefined); } catch { /* best-effort */ }
 }
 
 export async function bootstrapAuth(): Promise<AuthUser | null> {

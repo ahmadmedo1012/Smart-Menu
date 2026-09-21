@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { View, Text, ScrollView, RefreshControl, Pressable, Share, FlatList } from "react-native";
+import { View, Text, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
@@ -148,6 +148,13 @@ export function OwnerOrdersScreen() {
   // frame, so two rapid onEndReached calls could otherwise double-fetch.
   const pageRef = useRef(1);
   const hasMoreRef = useRef(true);
+  // r119-B2-M (S12 QW2): id bookkeeping for the new-order haptic. The poll
+  // merge knows which ids are fresh; this ref tells us which the user has
+  // ALREADY seen, so only POLL-discovered orders vibrate. Pull-to-refresh and
+  // load-more update the same ref silently (user-initiated loads are not
+  // news). Null until the first list lands — the first poll after an empty/
+  // failed load records ids without vibrating.
+  const knownOrderIdsRef = useRef<Set<number> | null>(null);
 
   const setPagination = useCallback((page: number, more: boolean) => {
     pageRef.current = page;
@@ -160,6 +167,7 @@ export function OwnerOrdersScreen() {
     try {
       const res = await api.getPaginated<Order>(`/api/orders?page=1&pageSize=${ORDERS_PAGE_SIZE}`);
       setOrders(res.data ?? []);
+      knownOrderIdsRef.current = new Set((res.data ?? []).map((o) => o.id));
       setPagination(1, res.meta ? res.meta.page < res.meta.totalPages : (res.data ?? []).length >= ORDERS_PAGE_SIZE);
     } catch (e: unknown) {
       setError(getErrorMessage(e, "تعذّر تحميل الطلبات"));
@@ -187,6 +195,17 @@ export function OwnerOrdersScreen() {
         const existingIds = new Set(prev.map((o) => o.id));
         return [...rows.filter((o) => !existingIds.has(o.id)), ...prev.map((o) => byId.get(o.id) ?? o)];
       });
+      // r119-B2-M (S12 QW2): haptic new-order alert — the owner is often away
+      // from the screen; a short double-pulse (Android pattern; iOS vibrates
+      // once, pattern is Android-only) says "new order" without sound or a
+      // notification permission. Only POLL-discovered ids trigger it.
+      const known = knownOrderIdsRef.current;
+      if (known && rows.some((o) => !known.has(o.id))) {
+        Vibration.vibrate([0, 200, 100, 200]);
+      }
+      const nextKnown = known ?? new Set<number>();
+      for (const o of rows) nextKnown.add(o.id);
+      knownOrderIdsRef.current = nextKnown;
       if (res.meta) setPagination(pageRef.current, res.meta.totalPages > pageRef.current);
     } catch {
       // Silent by design: a transient poll failure keeps the loaded history
@@ -211,6 +230,11 @@ export function OwnerOrdersScreen() {
         const seen = new Set(prev.map((o) => o.id));
         return [...prev, ...rows.filter((o) => !seen.has(o.id))];
       });
+      // Older pages are user-initiated history, not news — record ids silently
+      // so the poll's haptic never fires for them (S12 QW2).
+      const known = knownOrderIdsRef.current ?? new Set<number>();
+      for (const o of rows) known.add(o.id);
+      knownOrderIdsRef.current = known;
       setPagination(next, res.meta ? res.meta.page < res.meta.totalPages : rows.length >= ORDERS_PAGE_SIZE);
     } catch (e: unknown) {
       toast.error(getErrorMessage(e, "تعذّر تحميل المزيد من الطلبات"));

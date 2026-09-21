@@ -16,6 +16,7 @@ import { toast } from "@/app/providers";
 import { useCart } from "@/store/cart";
 import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
 import { buildReceiptMessage } from "@/lib/receipt";
+import { getOrCreateCheckoutIdempotencyKey, retireCheckoutIdempotencyKey } from "@/lib/checkout-idempotency";
 import { formatPrice, toArabicNumber, normalizeArabic } from "@/lib/format";
 import { MAX_ITEM_QUANTITY } from "@/lib/constants";
 import { getErrorMessage } from "@/lib/get-error-message";
@@ -79,43 +80,23 @@ export function MenuScreen() {
     if (!slug) return;
     setError(null);
     try {
-      // Primary: the public menu endpoint (unauthenticated-friendly, one
-      // round-trip — restaurant + categories + items). Fallback: the legacy
-      // per-resource calls (work when the caller happens to be authenticated).
-      let r: RestaurantInfo | null = null;
-      let cats: MenuCategory[] = [];
-      let its: MenuItem[] = [];
-      try {
-        const pub = await api.get<{ restaurant: RestaurantInfo; categories: MenuCategory[]; items: MenuItem[] }>(
-          `/api/public/menu/${slug}`,
-        );
-        r = pub.restaurant;
-        cats = pub.categories;
-        its = pub.items;
-      } catch {
-        try {
-          r = await api.get<RestaurantInfo>(`/api/restaurants/slug/${slug}`);
-        } catch {
-          const list = await api.get<RestaurantInfo[]>("/api/restaurants").catch(() => []);
-          r = list.find((x) => x.slug === slug) ?? null;
-        }
-        if (r) {
-          [cats, its] = await Promise.all([
-            api.get<MenuCategory[]>(`/api/categories?restaurantId=${r.id}`).catch(() => []),
-            // r103-N10: the fallback (authenticated /api/items) does not return
-            // isAvailable — every card rendered grayed-out and untappable when
-            // the public menu endpoint failed but the fallback succeeded. The
-            // fallback query already filters status=available for non-staff,
-            // so mapping it on is the honest default.
-            api.get<MenuItem[]>(`/api/items?restaurantId=${r.id}`).catch(() => []).then((list) => list.map((i) => ({ ...i, isAvailable: i.isAvailable ?? true }))),
-          ]);
-        }
-      }
-      if (!r) throw new Error("المطعم غير موجود");
+      // r119-B2-M (S8 P1-3): the legacy fallback chain is GONE. It called
+      // /api/restaurants/slug/[slug] — a route that does not exist (the [id]
+      // handler Number()s the slug into a NaN 400) — and then /api/restaurants
+      // (staff-only: 401/403 for the anonymous QR diner, swallowed by
+      // .catch(() => [])), degrading every public-menu failure (429 rate
+      // limit, transient 5xx, offline) into the misleading «المطعم غير موجود»
+      // error screen. The public menu endpoint is now the single source; its
+      // real error message surfaces through the ErrorState + retry below
+      // (the r103-N2 hoisted-load pattern).
+      const pub = await api.get<{ restaurant: RestaurantInfo; categories: MenuCategory[]; items: MenuItem[] }>(
+        `/api/public/menu/${slug}`,
+      );
+      const r = pub.restaurant;
       setRestaurant(r);
-      const activeCats = cats.filter((c) => c.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+      const activeCats = pub.categories.filter((c) => c.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
       setCategories(activeCats);
-      setItems(its);
+      setItems(pub.items);
       if (activeCats.length > 0) setActiveCategory(activeCats[0].id);
       // Static accessor: zustand actions are identity-stable, so this needs
       // no dependency-array entry and can never go stale.
@@ -280,7 +261,14 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
         {item.description ? <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }} numberOfLines={2}>{item.description}</Text> : null}
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
           <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700" }}>{formatPrice(price)}</Text>
-          {groups.length > 0 ? (
+          {/* r119-B2-M (S12 QW5): sold-out text badge — a dimmed card alone left
+              diners wondering WHY an item was untappable; the API payload already
+              carries isAvailable (same field the dimming uses). */}
+          {!item.isAvailable ? (
+            <View style={{ backgroundColor: "#e62b3424", borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+              <Text style={{ fontFamily: "Cairo", fontSize: 10, color: "#e62b34" }}>نفدت الكمية</Text>
+            </View>
+          ) : groups.length > 0 ? (
             <View style={{ backgroundColor: "#1f1813", borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
               <Text style={{ fontFamily: "Cairo", fontSize: 10, color: "#9c948a" }}>خيارات</Text>
             </View>
@@ -445,6 +433,32 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
   );
 }
 
+/** r119-B2-M (S2-P1-1 mobile leg, mirrors web cart/page.tsx r119-S2-P1): the
+ * POST /api/orders echo. A fresh 201 returns the re-priced created order —
+ * items with the r118-A7-P3 modifier snapshot (modifiersJson) and per-line
+ * server prices; the idempotent replay returns only { orderNo, already: true }
+ * (no itemization). Prisma Decimal fields serialize as JSON strings — coerce
+ * with Number(). */
+interface OrderEchoItem {
+  quantity: number;
+  price: number | string;
+  notes?: string | null;
+  modifiersJson?: string | null;
+  item?: { id: number; name: string; nameAr: string | null } | null;
+}
+
+interface OrderEcho {
+  id?: number;
+  orderNo: string;
+  total?: number | string;
+  notes?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  pickupType?: string;
+  items?: OrderEchoItem[];
+  already?: boolean;
+}
+
 function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo; onDone: (orderNo: string, waUrl?: string) => void; onClose: () => void }) {
   const cart = useCart();
   const items = useCart((s) => s.items);
@@ -460,20 +474,63 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
     setSubmitting(true);
     try {
       const refCode = (await AsyncStorage.getItem("smartmenu_referral")) || undefined;
-      // r103-N4: one key per checkout attempt — a retry after a WhatsApp-open
-      // failure reuses the SERVER-side order (dedupe via orderNo), never mints
-      // a second order. Key length ≤ 40 (the server's orderNo slice) and random
-      // enough to be collision-free against the global namespace.
-      const idempotencyKey = `M${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
-      const res = await api.post<{ id: number; orderNo: string }>("/api/orders", {
+      // r119-B2-M (S6 P2-2, mirrors the web checkoutKeyRef — r106-N1): ONE
+      // idempotency key per cart-submission session, minted lazily and REUSED
+      // on every retry. A 15s-timeout POST that actually landed must replay
+      // into the server's orderNo dedupe ({already:true}) — NOT mint a new
+      // key and create a duplicate order. Retired only on confirmed success
+      // (see retireCheckoutIdempotencyKey below); every failure keeps it.
+      const idempotencyKey = getOrCreateCheckoutIdempotencyKey();
+      const res = await api.post<OrderEcho>("/api/orders", {
         items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, modifierOptionIds: i.modifierOptionIds })),
         restaurantId: restaurant.id, customerName, customerPhone, notes, pickupType, referralCode: refCode, idempotencyKey,
       }, { mobileClient: true });
-      const receipt = buildReceiptMessage({
-        restaurantName: restaurant.name, orderNo: res.orderNo,
-        items: items.map((i) => ({ name: i.modifiersSummary ? `${i.name} (${i.modifiersSummary})` : i.name, qty: i.quantity, price: i.price, notes: i.notes })),
-        totalPrice: subtotal, customerName, customerPhone, notes, pickupType,
-      });
+      // Confirmed success (fresh 201 OR the inert already:true replay) — retire
+      // the key so the NEXT order in this app session mints a fresh one.
+      retireCheckoutIdempotencyKey();
+      // r119-B2-M (S2-P1-1 mobile leg, mirroring the web r119-B1 fix): the
+      // server's re-priced echo is the money truth — the local cart can hold
+      // stale prices (owner raised a price between add-to-cart and checkout).
+      // Build the WhatsApp receipt from the echo (names, per-line prices incl.
+      // discountedPrice + modifier snapshot deltas, stored notes); fall back to
+      // the cart ONLY for the inert idempotent replay, whose echo carries no
+      // itemization.
+      const serverItems = res.items ?? [];
+      const receipt = serverItems.length > 0
+        ? buildReceiptMessage({
+            restaurantName: restaurant.name,
+            orderNo: res.orderNo,
+            items: serverItems.map((i) => {
+              let modifierNames: string[] = [];
+              try {
+                const mods: unknown = JSON.parse(i.modifiersJson || "[]");
+                if (Array.isArray(mods)) {
+                  modifierNames = mods
+                    .map((m) => (typeof m === "object" && m !== null ? ((m as { nameAr?: string; name?: string }).nameAr || (m as { name?: string }).name || "") : ""))
+                    .filter(Boolean);
+                }
+              } catch {
+                /* corrupt snapshot — the receipt keeps the bare item line */
+              }
+              return {
+                name: i.item?.nameAr || i.item?.name || "",
+                qty: i.quantity,
+                price: Number(i.price),
+                // modifier choices ride the notes line (w3-f1 pattern, same as web)
+                notes: [...modifierNames, i.notes || undefined].filter(Boolean).join("\n") || undefined,
+              };
+            }),
+            totalPrice: Number(res.total ?? 0),
+            notes: res.notes || undefined,
+            customerName: res.customerName?.trim() || undefined,
+            customerPhone: res.customerPhone?.trim() || undefined,
+            pickupType: res.pickupType || pickupType,
+          })
+        : buildReceiptMessage({
+            restaurantName: restaurant.name, orderNo: res.orderNo,
+            items: items.map((i) => ({ name: i.modifiersSummary ? `${i.name} (${i.modifiersSummary})` : i.name, qty: i.quantity, price: i.price, notes: i.notes })),
+            totalPrice: subtotal, customerName, customerPhone, notes, pickupType,
+          });
       const waUrl = buildWhatsAppShareUrl(receipt, normalizeWaNumber(restaurant.whatsapp || restaurant.phone));
       // r103-N4: the order IS placed at this point — a WhatsApp-open failure
       // (no app installed / OS blocked the jump) is NOT an order failure. The

@@ -73,8 +73,20 @@ export const useAuth = create<AuthState>((set) => ({
     }
   },
   logout: async () => {
-    await logoutRequest();
+    // r119-B2-M (S6 P2-1): LOCAL session teardown FIRST — zustand state reset
+    // (instant: RootNavigator lands on the public stack this frame) and the
+    // SecureStore token wipe both happen BEFORE any network round-trip, so an
+    // offline device or a request hung up to the 15s client timeout can never
+    // leave the user logged in. The old order (server call → then reset) also
+    // relied on logoutRequest's internal catch alone — an unexpected rejection
+    // would have skipped the local wipe entirely AND surfaced as an unhandled
+    // promise at the four onPress={logout} call sites.
     set({ user: null, token: null, status: "unauthenticated", error: null });
+    await setStoredToken(null);
+    // Best-effort server call, last and guarded (never rejects — see
+    // auth-service.ts: it revokes the session cookie only, a no-op for the
+    // mobile Bearer session today, kept for contract parity).
+    await logoutRequest().catch(() => {});
   },
   clearError: () => set({ error: null }),
 }));
