@@ -236,6 +236,12 @@ export const useCart = create<CartStore>()(
                 }),
                 {
                         name: 'cart-storage',
+                        // r118-A5-F10: no version/migrate existed — the FIRST shape change
+                        // to the persisted cart would have loaded stale structures into
+                        // new code. v1 = current shape verbatim; future changes bump and
+                        // migrate from here.
+                        version: 1,
+                        migrate: (persisted) => persisted as unknown as CartStore,
                         storage: createJSONStorage(ssrSafeStorage),
                         skipHydration: true, // rehydrated by CartHydrator in root layout
                         partialize: (state) => ({

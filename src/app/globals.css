@@ -1002,17 +1002,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
                 radial-gradient(at 88% 92%, oklch(0.78 0.14 70 / 0.06), transparent 46%);
 }
 
-/* Premium hover lift — cards, KPI, pricing */
-.hover-lift {
-        transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth), border-color 0.35s var(--ease-smooth);
-}
-.hover-lift:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-lg), var(--shadow-glow);
-}
-.hover-lift:active {
-        transform: translateY(-1px);
-}
 
 /* ══════════════════════════════════════════════════════════════
    Keyframes
@@ -1026,13 +1015,8 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 @keyframes shimmer-sweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 @keyframes shimmer-advanced { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-@keyframes magnetic-float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.02); } }
 @keyframes breath { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.3; } }
 @keyframes breathe { 0%,100% { transform: scale(1); opacity:0.5; } 50% { transform: scale(1.05); opacity:0.8; } }
-@keyframes pulse-glow {
-        0%, 100% { box-shadow: 0 0 8px #bc470026; }
-        50%      { box-shadow: 0 0 25px #bc470059; }
-}
 @keyframes hero-glow-pulse {
         0%, 100% { opacity: 0.6; transform: scale(1); }
         50%      { opacity: 1;   transform: scale(1.05); }
@@ -1047,36 +1031,11 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         from { opacity: 0; transform: translateY(6px); }
         to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes wipe-up {
-        from { clip-path: inset(100% 0 0 0); }
-        to   { clip-path: inset(0 0 0 0); }
-}
-@keyframes message-draw {
-        from { opacity: 0; transform: translateY(8px) scale(0.96); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes copy-wiggle {
-        0%, 100% { transform: rotate(0); }
-        25%      { transform: rotate(-6deg); }
-        75%      { transform: rotate(6deg); }
-}
-/* r96-W4a: upload-fly — الناقص الأخير من مجموعة SmartBot (spec §6)؛ حرفي. */
-@keyframes upload-fly {
-        0%   { transform: translateY(0); opacity: 1; }
-        35%  { transform: translateY(-12px); opacity: 0; }
-        36%  { transform: translateY(12px); opacity: 0; }
-        70%  { transform: translateY(0); opacity: 1; }
-        100% { transform: translateY(0); opacity: 1; }
-}
 @keyframes orb-float {
         0%, 100% { transform: translate(0, 0) rotate(0deg); }
         25% { transform: translate(18px, -24px) rotate(2deg); }
         50% { transform: translate(-12px, -6px) rotate(-1deg); }
         75% { transform: translate(22px, -12px) rotate(3deg); }
-}
-@keyframes ring-drain {
-        from { stroke-dashoffset: 0; }
-        to   { stroke-dashoffset: 251.327; }
 }
 @keyframes confetti {
         0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
@@ -1094,7 +1053,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         100% { opacity: 1; transform: translateY(0) scaleY(1); }
 }
 @keyframes scale-glow { 0%,100% { box-shadow:0 0 20px #bc470033; } 50% { box-shadow:0 0 50px #bc470066; } }
-@keyframes grain-anim { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-2%, -2%); } 20% { transform: translate(1%, -1%); } 30% { transform: translate(-1%, 2%); } 40% { transform: translate(2%, 1%); } 50% { transform: translate(-2%, 0); } 60% { transform: translate(0, -2%); } 70% { transform: translate(1%, 1%); } 80% { transform: translate(-1%, -1%); } 90% { transform: translate(2%, -2%); } }
 
 /* ══════════════════════════════════════════════════════════════
    Animation classes
@@ -1109,7 +1067,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 .animate-float { animation: float 3s var(--ease-smooth) infinite; }
 .animate-float-delayed { animation: float 3.5s var(--ease-smooth) infinite 1s; }
-.animate-magnetic-float { animation: magnetic-float 4s var(--ease-smooth) infinite; }
 
 .animate-breath { animation: breath 1.5s ease-in-out infinite; }
 
@@ -1117,11 +1074,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
 
-.animate-pulse-glow {
-        animation: pulse-glow 2.5s ease-in-out infinite;
-}
 
 .animate-hero-glow-pulse {
         animation: hero-glow-pulse 4s var(--ease-smooth) infinite;
@@ -1129,11 +1082,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 .animate-orb-float { animation: orb-float 14s ease-in-out infinite; }
 .animate-orb-float-delayed { animation: orb-float 16s ease-in-out infinite 4s; }
-.animate-orb-float-slow { animation: orb-float 20s ease-in-out infinite 8s; }
 
-.animate-ring-drain {
-        animation: ring-drain 30s linear forwards;
-}
 
 .animate-confetti {
         animation: confetti ease-in forwards;
@@ -1150,17 +1099,8 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 .animate-price-swap-in {
         animation: price-swap-in 0.35s var(--ease-out-quart) both;
 }
-.animate-wipe-up {
-        animation: wipe-up 0.6s var(--ease-smooth) both;
-}
-.animate-message-draw {
-        animation: message-draw 0.4s var(--ease-smooth) both;
-}
 /* r96-W4a: توأم SmartBot — سهم الأيقونة «يطير» فوق الحافة ثم يعود من أسفلها
    (نفس توقيت .ai-icon:hover .arrow-group لديهم: 1s ease-in-out infinite). */
-.animate-upload-fly {
-        animation: upload-fly 1s ease-in-out infinite;
-}
 
 .animate-ticket-drop {
         animation: ticket-drop 0.55s var(--ease-out-expo) both;
@@ -1227,10 +1167,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 }
 @media (prefers-color-scheme: light) { .grain-overlay::before { opacity: 0.012; } }
 
-.phone-mask {
-        -webkit-mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
-        mask-image: linear-gradient(to bottom, white 75%, transparent 100%);
-}
 
 .empty-state-icon {
         width: 3.5rem; height: 3.5rem; border-radius: var(--radius-md); background: var(--muted);
@@ -1251,7 +1187,6 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         }
         .card-premium { transition: none !important; }
         .card-premium:hover { transform: none !important; }
-        .hover-lift:hover { transform: none !important; }
         .glow-border:hover::before,
         .glow-border:focus-visible::before,
         .glow-border[data-active="true"]::before { animation: none; }

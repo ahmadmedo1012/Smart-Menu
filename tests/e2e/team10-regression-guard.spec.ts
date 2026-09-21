@@ -162,6 +162,10 @@ test.describe("team10: regression guard — rounds 79-87 crown jewels", () => {
     // here instead of slipping through.
     const res = await request.get(`${BASE}/video/promo.mp4`);
     expect(res.status()).toBe(404);
+    // r118-A5-F9: the poster twin shipped with every deploy since round94 —
+    // same deliberate-deletion treatment, same resurrection guard.
+    const poster = await request.get(`${BASE}/video/promo-poster.webp`);
+    expect(poster.status()).toBe(404);
   });
 
   // ── round87-D4: print page exists ─────────────────────────────────────
