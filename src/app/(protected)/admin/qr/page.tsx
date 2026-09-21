@@ -31,12 +31,17 @@ export default function AdminQRPage() {
 
 
         const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+        // r118-A5-F4: distinguish loading / fetch-failure / genuinely-empty —
+        // all three used to render «لا توجد مطاعم» (a flash on every visit and
+        // a LIE on network failure).
+        const [loadState, setLoadState] = useState<'loading' | 'error' | 'loaded'>('loading');
         const [selectedSlug, setSelectedSlug] = useState('');
         const [selectedName, setSelectedName] = useState('');
         const [copied, setCopied] = useState(false);
         const [qrSize, setQrSize] = useState(300);
 
         useEffect(() => {
+                setLoadState('loading');
                 fetch('/api/restaurants')
                         .then((r) => r.json())
                         .then((json) => {
@@ -46,8 +51,12 @@ export default function AdminQRPage() {
                                         setSelectedSlug(list[0].slug);
                                         setSelectedName(list[0].name);
                                 }
+                                setLoadState('loaded');
                         })
-                        .catch(() => premiumToast('error', 'فشل تحميل المطاعم'));
+                        .catch(() => {
+                                setLoadState('error');
+                                premiumToast('error', 'فشل تحميل المطاعم');
+                        });
         }, []);
 
         const menuUrl = selectedSlug ? `${window.location.origin}/menu/${selectedSlug}` : '';
@@ -92,7 +101,54 @@ export default function AdminQRPage() {
                                 </div>
                         </div>
 
-                        {restaurants.length === 0 && (
+                        {/* r118-A5-F4: three honest states instead of one conflated
+                            «لا توجد مطاعم» for loading, failure AND empty. */}
+                        {loadState === 'loading' && (
+                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-card/50 border border-border/30">
+                                        <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4 animate-pulse">
+                                                <AnimatedQrCode className="size-7 text-orange/40" />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">جارٍ تحميل المطاعم…</p>
+                                </div>
+                        )}
+
+                        {loadState === 'error' && (
+                                <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-card/50 border border-border/30">
+                                        <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
+                                                <AnimatedQrCode className="size-7 text-orange/40" />
+                                        </div>
+                                        <h2 className="text-lg font-semibold mb-1">تعذر تحميل المطاعم</h2>
+                                        <p className="text-sm text-muted-foreground max-w-xs mb-4">
+                                                حدث خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً.
+                                        </p>
+                                        <Button
+                                                variant="outline"
+                                                onClick={() => {
+                                                        // re-run the effect by reloading restaurants inline
+                                                        setLoadState('loading');
+                                                        fetch('/api/restaurants')
+                                                                .then((r) => r.json())
+                                                                .then((json) => {
+                                                                        const list = json.data?.restaurants ?? [];
+                                                                        setRestaurants(list);
+                                                                        if (list.length > 0) {
+                                                                                setSelectedSlug(list[0].slug);
+                                                                                setSelectedName(list[0].name);
+                                                                        }
+                                                                        setLoadState('loaded');
+                                                                })
+                                                                .catch(() => {
+                                                                        setLoadState('error');
+                                                                        premiumToast('error', 'فشل تحميل المطاعم');
+                                                                });
+                                                }}
+                                        >
+                                                إعادة المحاولة
+                                        </Button>
+                                </div>
+                        )}
+
+                        {loadState === 'loaded' && restaurants.length === 0 && (
                                 <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-card/50 border border-border/30">
                                         <div className="size-16 rounded-full bg-orange/5 flex items-center justify-center mb-4">
                                                 <AnimatedQrCode className="size-7 text-orange/40" />

@@ -8,7 +8,7 @@
 //      so RootNavigator lands the user back on the public stack.
 
 import * as SecureStore from "expo-secure-store";
-import { ApiError, type ApiEnvelope } from "@/types";
+import { ApiError, type ApiEnvelope, type PaginatedMeta } from "@/types";
 
 export const API_BASE_URL =
   (process.env.EXPO_PUBLIC_API_BASE_URL as string | undefined) ?? "https://menu.smart-link.ly";
@@ -47,7 +47,15 @@ type Init = Omit<RequestInit, "body"> & {
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
-export async function apiFetch<T>(path: string, init: Init = {}): Promise<T> {
+/** r118-B3 (A6 P3-1): full result of a paginated GET — rows plus the page
+ * math the plain envelope unwrapping used to discard (api.get returns only
+ * `data`). `meta` is undefined on non-paginated endpoints. */
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: PaginatedMeta | undefined;
+}
+
+async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ data: T; meta: PaginatedMeta | undefined }> {
   const { body, skipAuth, mobileClient, timeoutMs, headers, ...rest } = init;
   const token = skipAuth ? null : await getStoredToken();
 
@@ -98,14 +106,24 @@ export async function apiFetch<T>(path: string, init: Init = {}): Promise<T> {
   }
 
   const env = parsed as ApiEnvelope<T>;
-  if (res.ok && env?.success) return env.data;
+  if (res.ok && env?.success) {
+    return { data: env.data, meta: (env as { meta?: PaginatedMeta }).meta };
+  }
 
   const errMsg = (env && !env.success && env.error) || `فشل الطلب (${res.status})`;
   throw new ApiError(errMsg, res.status, (env as { details?: unknown })?.details);
 }
 
+export async function apiFetch<T>(path: string, init: Init = {}): Promise<T> {
+  return (await apiFetchEnvelope<T>(path, init)).data;
+}
+
 export const api = {
   get: <T>(path: string, init?: Init) => apiFetch<T>(path, { ...init, method: "GET" }),
+  /** r118-B3: paginated list GET — rows + { total, page, pageSize, totalPages }
+   * so screens can implement load-more against the API's `paginated()` shape. */
+  getPaginated: <T>(path: string, init?: Init): Promise<PaginatedResult<T>> =>
+    apiFetchEnvelope<T[]>(path, { ...init, method: "GET" }),
   post: <T>(path: string, body?: unknown, init?: Init) => apiFetch<T>(path, { ...init, method: "POST", body }),
   put: <T>(path: string, body?: unknown, init?: Init) => apiFetch<T>(path, { ...init, method: "PUT", body }),
   patch: <T>(path: string, body?: unknown, init?: Init) => apiFetch<T>(path, { ...init, method: "PATCH", body }),

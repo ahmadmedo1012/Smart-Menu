@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { prisma } from './db';
 import { error as logError } from './logger';
 
@@ -34,6 +34,15 @@ export async function revalidateMenu(restaurantId: number | null | undefined) {
                 });
                 if (!restaurant?.slug) return;
                 revalidatePath(`/menu/${restaurant.slug}`);
+                // r118-A9-P3: the public menu API (mobile data path) now caches its
+                // heavy payload in the Data Cache (60s TTL) — purge its per-restaurant
+                // tag on the same mutations so an owner's edit is live for the mobile
+                // app on the very next open, exactly like the web page above.
+                try {
+                        revalidateTag(`public-menu-${restaurantId}`, { expire: 60 });
+                } catch {
+                        /* best-effort: the 60s TTL bounds staleness on failure */
+                }
         } catch (e) {
                 logError('menu revalidate failed', {
                         error: String(e),

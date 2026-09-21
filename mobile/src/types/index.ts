@@ -15,9 +15,18 @@ export interface LoginResponse {
   sessionToken: string;
 }
 
+/** r118-B3: pagination meta attached to list envelopes by the `paginated()`
+ * API helper (page math the mobile api.get used to discard). */
+export interface PaginatedMeta {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export type ApiEnvelope<T> =
   | { success: true; data: T }
-  | { success: true; data: T; meta: { total: number; page: number; pageSize: number; totalPages: number } }
+  | { success: true; data: T; meta: PaginatedMeta }
   | { success: false; error: string }
   | { success: false; error: string; details: unknown };
 

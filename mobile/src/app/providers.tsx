@@ -8,7 +8,11 @@ import { View, Text } from "react-native";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1, staleTime: 30_000, gcTime: 5 * 60_000,
+      // r118-B3 (A6 P3-6): retry as a predicate — up to 2 retries (3 attempts
+      // total) with the default exponential backoff. Was a flat `retry: 1`;
+      // the predicate form also lets future callers opt out per-query.
+      retry: (failureCount: number) => failureCount < 2,
+      staleTime: 30_000, gcTime: 5 * 60_000,
       refetchOnWindowFocus: true, refetchOnReconnect: true, networkMode: "online",
     },
     mutations: { retry: 0, networkMode: "online" },

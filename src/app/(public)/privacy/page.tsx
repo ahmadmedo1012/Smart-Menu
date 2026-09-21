@@ -2,6 +2,11 @@ import type { Metadata } from "next"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 
+// r118-A9-P3: this legal-content page sat under the (protected) layout's
+// per-request CSP-nonce flow → served no-store at ~0.4s TTFB on every visit.
+// Moved to the (public) group (same layout minus the nonce) + hourly ISR.
+export const revalidate = 3600
+
 export const metadata: Metadata = {
         title: "سياسة الخصوصية",
         // round93 (W2-b / تقرير 1-a §3): وصف مميز بدل وصف الهبوط الافتراضي + canonical

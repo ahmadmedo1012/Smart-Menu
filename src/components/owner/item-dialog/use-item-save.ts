@@ -111,7 +111,12 @@ export function useItemSave({
 				try {
 					const e = await res.json();
 					errMsg = e?.error || errMsg;
-					if (e?.details?.length) errMsg += ' — ' + e.details.join('; ');
+					// r118-A5-F6: raw zod details are ENGLISH ("String must contain at
+					// most 100 character(s)") and used to be appended to the Arabic
+					// toast verbatim. The inputs are now capped client-side
+					// (maxLength 100/1000), so this only fires on genuinely unexpected
+					// shapes — keep the toast fully Arabic.
+					if (e?.details?.length) errMsg += ' — تحقق من الحقول وأعد المحاولة';
 				} catch {}
 				throw new Error(errMsg);
 			}

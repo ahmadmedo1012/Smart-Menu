@@ -16,7 +16,7 @@ import { toast } from "@/app/providers";
 import { useCart } from "@/store/cart";
 import { buildWhatsAppShareUrl, normalizeWaNumber } from "@/lib/whatsapp";
 import { buildReceiptMessage } from "@/lib/receipt";
-import { formatPrice, toArabicNumber } from "@/lib/format";
+import { formatPrice, toArabicNumber, normalizeArabic } from "@/lib/format";
 import { MAX_ITEM_QUANTITY } from "@/lib/constants";
 import { getErrorMessage } from "@/lib/get-error-message";
 import {
@@ -134,8 +134,17 @@ export function MenuScreen() {
   const filteredItems = items.filter((it) => {
     if (activeCategory && it.categoryId !== activeCategory) return false;
     if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      return it.name.toLowerCase().includes(q) || (it.nameAr ?? "").toLowerCase().includes(q) || it.description.toLowerCase().includes(q);
+      // r118-B3 (A6 P3-2): web-parity matcher (round88-E1) — the mobile
+      // src/lib/format.ts copy of normalizeArabic is byte-identical to the
+      // web's (tashkeel/tatweel strip + alef folding أإآ→ا + ى→ي + ة→ه +
+      // latin lowercase). The old raw toLowerCase().includes made searching
+      // "احمد" miss items stored as "أحمد".
+      const q = normalizeArabic(search.trim());
+      return (
+        normalizeArabic(it.name).includes(q) ||
+        normalizeArabic(it.nameAr ?? "").includes(q) ||
+        normalizeArabic(it.description).includes(q)
+      );
     }
     return true;
   });

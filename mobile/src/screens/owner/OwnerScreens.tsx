@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
-import { View, Text, ScrollView, RefreshControl, Pressable, Share } from "react-native";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { View, Text, ScrollView, RefreshControl, Pressable, Share, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
@@ -13,6 +13,7 @@ import { formatPrice, toArabicNumber } from "@/lib/format";
 import { formatRelativeTimeAr, getOrderStatusMeta, getPickupTypeMeta } from "@/lib/order-status";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { toast } from "@/app/providers";
+import { ORDERS_POLL_INTERVAL_MS } from "@/constants";
 import type { RootNavigation } from "@/navigation/types";
 
 interface OwnerStats {
@@ -128,30 +129,123 @@ interface Order {
   createdAt: string; items: { id: number; name: string; quantity: number; price: number }[];
 }
 
+/** r118-B3 (A6 P3-1): /api/orders page size — matches the server default
+ * (api-helpers.ts parsePagination) the list was silently fetching as its one
+ * and only page before pagination existed. */
+const ORDERS_PAGE_SIZE = 50;
+
 export function OwnerOrdersScreen() {
   const navigation = useNavigation<RootNavigation>();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // r118-B3 (A6 P3-1): pagination — the list previously fetched page 1 only
+  // (API pageSize=50) and silently dropped the rest of the history.
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  // Refs mirror the page/hasMore state for synchronous guards — state lags a
+  // frame, so two rapid onEndReached calls could otherwise double-fetch.
+  const pageRef = useRef(1);
+  const hasMoreRef = useRef(true);
+
+  const setPagination = useCallback((page: number, more: boolean) => {
+    pageRef.current = page;
+    hasMoreRef.current = more;
+    setHasMore(more);
+  }, []);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      const list = await api.get<Order[]>("/api/orders");
-      setOrders(list ?? []);
+      const res = await api.getPaginated<Order>(`/api/orders?page=1&pageSize=${ORDERS_PAGE_SIZE}`);
+      setOrders(res.data ?? []);
+      setPagination(1, res.meta ? res.meta.page < res.meta.totalPages : (res.data ?? []).length >= ORDERS_PAGE_SIZE);
     } catch (e: unknown) {
       setError(getErrorMessage(e, "تعذّر تحميل الطلبات"));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [setPagination]);
 
   useEffect(() => { void load(); }, [load]);
-  usePollWhenVisible(load, 15_000, [], { inFlightGuard: true });
+
+  // r118-B3: the 15s poll refreshes page 1 only and MERGES it into the loaded
+  // history (prepend new orders, refresh the page-1 subset in place). The
+  // pre-pagination poll replaced the list wholesale — fine while there was a
+  // single page, but with several loaded pages it would yank the owner back
+  // to the newest 50 rows every 15 seconds while they are scrolled into
+  // older history.
+  const poll = useCallback(async () => {
+    try {
+      const res = await api.getPaginated<Order>(`/api/orders?page=1&pageSize=${ORDERS_PAGE_SIZE}`);
+      const rows = res.data ?? [];
+      setOrders((prev) => {
+        if (prev.length === 0) return rows;
+        const byId = new Map(rows.map((o) => [o.id, o] as const));
+        const existingIds = new Set(prev.map((o) => o.id));
+        return [...rows.filter((o) => !existingIds.has(o.id)), ...prev.map((o) => byId.get(o.id) ?? o)];
+      });
+      if (res.meta) setPagination(pageRef.current, res.meta.totalPages > pageRef.current);
+    } catch {
+      // Silent by design: a transient poll failure keeps the loaded history
+      // visible; pull-to-refresh and load-more still surface their errors.
+    }
+  }, [setPagination]);
+
+  usePollWhenVisible(poll, ORDERS_POLL_INTERVAL_MS, [], { inFlightGuard: true });
 
   const onRefresh = useCallback(() => { setRefreshing(true); void load(); }, [load]);
+
+  const loadMore = useCallback(async () => {
+    if (loading || loadingMore || error || !hasMoreRef.current) return;
+    const next = pageRef.current + 1;
+    setLoadingMore(true);
+    try {
+      const res = await api.getPaginated<Order>(`/api/orders?page=${next}&pageSize=${ORDERS_PAGE_SIZE}`);
+      const rows = res.data ?? [];
+      setOrders((prev) => {
+        // Dedupe by id — the 15s poll prepends new orders, shifting page
+        // boundaries between loads (the classic offset-pagination skew).
+        const seen = new Set(prev.map((o) => o.id));
+        return [...prev, ...rows.filter((o) => !seen.has(o.id))];
+      });
+      setPagination(next, res.meta ? res.meta.page < res.meta.totalPages : rows.length >= ORDERS_PAGE_SIZE);
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e, "تعذّر تحميل المزيد من الطلبات"));
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loading, loadingMore, error, setPagination]);
+
+  const renderFooter = useCallback(() => {
+    if (loadingMore) {
+      return (
+        <View style={{ paddingVertical: 16, alignItems: "center" }}>
+          <Spinner size="small" />
+        </View>
+      );
+    }
+    if (hasMore) {
+      return (
+        <Pressable
+          onPress={() => { void loadMore(); }}
+          accessibilityLabel="تحميل المزيد من الطلبات"
+          style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: "#070503", borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
+          <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#bc4700" }}>تحميل المزيد</Text>
+        </Pressable>
+      );
+    }
+    // End state — only when pagination actually happened (more than one page
+    // was ever loadable); a short single-page list needs no "no more" noise.
+    if (orders.length > ORDERS_PAGE_SIZE) {
+      return (
+        <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a", textAlign: "center", paddingVertical: 16 }}>لا مزيد من الطلبات</Text>
+      );
+    }
+    return null;
+  }, [loadingMore, hasMore, orders.length, loadMore]);
 
   if (loading) {
     return (
@@ -169,25 +263,29 @@ export function OwnerOrdersScreen() {
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#bc4700" />}>
-        {orders.length === 0 ? (
-          <EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#9c948a" />} />
-        ) : (
-          orders.map((o) => (
-            <Pressable key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2" }}>{o.orderNo}</Text>
-                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#bc4700", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
-              </View>
-              <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
-                <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700" }}>{formatPrice(o.total)}</Text>
-              </View>
-            </Pressable>
-          ))
+      <FlatList
+        data={orders}
+        keyExtractor={(o) => String(o.id)}
+        renderItem={({ item: o }) => (
+          <Pressable onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2" }}>{o.orderNo}</Text>
+              <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#bc4700", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
+            </View>
+            <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+              <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
+              <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700" }}>{formatPrice(o.total)}</Text>
+            </View>
+          </Pressable>
         )}
-      </ScrollView>
+        onEndReached={() => { void loadMore(); }}
+        onEndReachedThreshold={0.4}
+        contentContainerStyle={{ padding: 16, paddingBottom: 32, flexGrow: 1 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#bc4700" />}
+        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#9c948a" />} />}
+        ListFooterComponent={renderFooter}
+      />
     </SafeAreaView>
   );
 }

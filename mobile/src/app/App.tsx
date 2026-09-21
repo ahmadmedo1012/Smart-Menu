@@ -20,6 +20,7 @@ import ReadexProBold from "../../assets/fonts/ReadexPro-Bold.ttf";
 
 import { AppProviders } from "@/app/providers";
 import { RootNavigator } from "@/navigation/RootNavigator";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAuth } from "@/store/auth";
 
 if (!I18nManager.isRTL) {
@@ -67,7 +68,12 @@ export default function App() {
       <SafeAreaProvider>
         <AppProviders>
           <StatusBar style="light" />
-          <RootNavigator />
+          {/* r118-B3 (A6 P1-1): crash containment — one malformed API payload used
+              to kill the whole process. Providers stay ABOVE the boundary so the
+              toast/query layers survive a caught render error. */}
+          <ErrorBoundary>
+            <RootNavigator />
+          </ErrorBoundary>
         </AppProviders>
       </SafeAreaProvider>
     </GestureHandlerRootView>

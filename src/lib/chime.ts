@@ -15,12 +15,35 @@ function getAudioContextCtor(): AudioContextCtor | undefined {
 	return window.AudioContext ?? w.webkitAudioContext;
 }
 
+/**
+ * r118-A5-F3: every playBeep/playChime call used to mint a NEW AudioContext
+ * and never closed it — Chromium caps a page at ~6 concurrent contexts, so
+ * the new-order chime went permanently silent after a few batches. One lazy
+ * module-level singleton (never closed — one context per page, no leak),
+ * resumed when the autoplay policy suspends it after the first user gesture.
+ */
+let sharedCtx: AudioContext | null = null;
+function getSharedAudioContext(): AudioContext | undefined {
+	try {
+		const Ctor = getAudioContextCtor();
+		if (!Ctor) return undefined;
+		if (!sharedCtx) sharedCtx = new Ctor();
+		if (sharedCtx.state === 'suspended') {
+			sharedCtx.resume().catch(() => {
+				/* still suspended (no gesture yet) — silent no-op */
+			});
+		}
+		return sharedCtx;
+	} catch {
+		return undefined;
+	}
+}
+
 /** Play a short sine beep. Never throws; no-op when audio is unavailable. */
 export function playBeep(freq: number, duration: number): void {
 	try {
-		const Ctor = getAudioContextCtor();
-		if (!Ctor) return;
-		const ctx = new Ctor();
+		const ctx = getSharedAudioContext();
+		if (!ctx) return;
 		const osc = ctx.createOscillator();
 		const gain = ctx.createGain();
 		osc.connect(gain);
@@ -39,9 +62,8 @@ export function playBeep(freq: number, duration: number): void {
 /** Play a gentle 3-note arpeggio chime (C5-E5-G5). Never throws. */
 export function playChime(): void {
 	try {
-		const Ctor = getAudioContextCtor();
-		if (!Ctor) return;
-		const ctx = new Ctor();
+		const ctx = getSharedAudioContext();
+		if (!ctx) return;
 		[523.25, 659.25, 783.99].forEach((freq, i) => {
 			const osc = ctx.createOscillator();
 			const gain = ctx.createGain();

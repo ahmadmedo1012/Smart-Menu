@@ -34,6 +34,7 @@ export function ItemCoreFields({
                                                 value={form.name}
                                                 onChange={(e) => patch({ name: e.target.value })}
                                                 placeholder="كابتشينو"
+                                                maxLength={100}
                                                 className="mt-1.5"
                                         />
                                 </div>
@@ -44,6 +45,7 @@ export function ItemCoreFields({
                                                 value={form.nameAr}
                                                 onChange={(e) => patch({ nameAr: e.target.value })}
                                                 placeholder="اختياري — بالإنجليزية"
+                                                maxLength={100}
                                                 className="mt-1.5 text-start"
                                                 dir="ltr"
                                         />
@@ -58,6 +60,7 @@ export function ItemCoreFields({
                                                 onChange={(e) => patch({ description: e.target.value })}
                                                 className="mt-1.5"
                                                 rows={2}
+                                                maxLength={1000}
                                         />
                                 </div>
                                 <div>
