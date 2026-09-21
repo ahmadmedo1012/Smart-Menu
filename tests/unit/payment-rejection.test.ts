@@ -98,13 +98,40 @@ describe('resolveSubscriptionPayment — CANCELLED (full rejection path)', () =>
     expect(eventTypes).toEqual(['payment_rejected']);
   });
 
-  it('concurrent double-processing (count 0) skips user + events, still returns ok', async () => {
-    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(PAYMENT);
+  it('r118-A1-F2: concurrent loser (count 0) re-reads the STORED status — no false ok, no false rejection broadcast', async () => {
+    // The concurrent winner VERIFIED the payment between our load and the
+    // guarded update. The re-read must see that stored status.
+    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce(PAYMENT) // initial load (pending)
+      .mockResolvedValueOnce({ ...PAYMENT, status: 'verified' }); // race re-read
     txMock.subscriptionPayment.updateMany.mockResolvedValue({ count: 0 });
 
     const result = await resolveSubscriptionPayment(77, 'cancelled');
 
-    expect(result).toEqual({ ok: true, action: 'cancelled', paymentId: 77 });
+    // The OLD contract returned ok:true — the panel then broadcast «❌ تم رفض
+    // طلب الدفع» and told the paying customer their activation was REJECTED
+    // while the DB said verified (they might re-pay). Now: the friendly
+    // already-processed shape with alreadyStatus, so the webhook answers the
+    // idempotent/conflict toast correctly.
+    expect(result).toEqual({
+      ok: false,
+      reason: 'تمت معالجة هذا الطلب مسبقاً',
+      status: 409,
+      alreadyStatus: 'verified',
+    });
+    expect(txMock.user.updateMany).not.toHaveBeenCalled();
+    expect(txMock.systemEvent.create).not.toHaveBeenCalled();
+  });
+
+  it('r118-A1-F2: count 0 and the row VANISHED (deleted mid-race) → the generic failure arm, no broadcast either', async () => {
+    (prisma.subscriptionPayment.findUnique as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce(PAYMENT)
+      .mockResolvedValueOnce(null);
+    txMock.subscriptionPayment.updateMany.mockResolvedValue({ count: 0 });
+
+    const result = await resolveSubscriptionPayment(77, 'cancelled');
+
+    expect(result).toEqual({ ok: false, reason: 'حدث خطأ أثناء رفض الطلب' });
     expect(txMock.user.updateMany).not.toHaveBeenCalled();
     expect(txMock.systemEvent.create).not.toHaveBeenCalled();
   });

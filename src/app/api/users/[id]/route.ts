@@ -46,6 +46,13 @@ export async function PATCH(
     });
     if (!target) return apiError("المستخدم غير موجود", 404);
 
+    // r118-A2-P3: the sibling guards (admins/[id]:29, reset-password:37) block
+    // super_admin targets — a MANAGE_USERS sub_admin could still rename a
+    // super_admin's name/username here (root-account lockout via username).
+    if (target.role === "super_admin" && auth.role !== "super_admin") {
+      return apiError("غير مصرح — لا يمكن تعديل بيانات مدير عام", 403);
+    }
+
     const updated = await prisma.user.update({
       where: { id: uid },
       data: parsed.data,

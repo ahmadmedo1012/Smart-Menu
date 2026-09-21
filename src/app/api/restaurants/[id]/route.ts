@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { success, error as apiError, handleError } from '@/lib/api-helpers';
 import { requireAuth, requirePermission } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { revalidatePath } from 'next/cache';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
@@ -267,8 +268,16 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                 });
                 const restRow = await prisma.restaurant.findUnique({
                         where: { id: rId },
-                        select: { logo: true, gallery: true, slug: true },
+                        select: { logo: true, gallery: true, slug: true, name: true },
                 });
+
+                // r118-A7-P3: orders are financial records — hard-deleting a tenant
+                // that ever took orders is irreversible data loss. super_admin keeps
+                // full trust (still audited below).
+                const orderCount = await prisma.order.count({ where: { restaurantId: rId } });
+                if (orderCount > 0 && auth.role !== 'super_admin') {
+                        return apiError('لا يمكن حذف مطعم لديه طلبات مسجلة — يُحتفظ بسجل الطلبات لأغراض المحاسبة', 409);
+                }
 
                 // r93-N1 (F2/H-1): حذف التقييمات صراحة داخل معاملة قبل restaurant.delete
                 // — قيد Review_menuItemId_fkey=Restrict لا يُحذفها أي cascade، فالمطعم
@@ -290,6 +299,16 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                 // captured BEFORE the delete because revalidateMenu resolves it
                 // from the row (gone post-delete); revalidatePath is fire-and-forget
                 // and safe to call after the row is gone.
+                // r118-A2-P3: tenant deletion was the only unaudited destructive
+                // family — the row is captured above (restRow) pre-cascade.
+                logAudit({
+                        action: 'delete',
+                        actorId: auth.userId ?? undefined,
+                        targetType: 'restaurant',
+                        targetId: rId,
+                        metadata: { name: restRow?.name, slug: restRow?.slug, source: 'admin-api', orderCount },
+                }).catch(() => {});
+
                 if (restRow?.slug) {
                         try {
                                 revalidatePath(`/menu/${restRow.slug}`);

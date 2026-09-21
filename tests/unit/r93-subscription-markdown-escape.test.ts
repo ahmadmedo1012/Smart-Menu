@@ -190,7 +190,10 @@ describe('r93-W1a — مسار «مستخدم جديد»: ترميز Markdown ف
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
 
     const body = userBodies()[0];
-    expect(body.chat_id).toBe('555');
+    // r118-A1-F1: notifyUserViaTelegram now goes through the hardened
+    // sendPlainMessage — numeric-looking chat ids are normalized to NUMBERS
+    // (Telegram's canonical form; the old raw fetch sent the raw string).
+    expect(body.chat_id).toBe(555);
     expect(body.parse_mode).toBe('Markdown');
     expect(String(body.text)).toContain(EVIL_ESCAPED);
     expect(String(body.text)).not.toContain('[رابط](https://evil.example)');

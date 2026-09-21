@@ -225,7 +225,7 @@ describe('broadcastToAll — failure collection & pruning', () => {
 
                 expect(result).toEqual({
                         sent: 1,
-                        failed: [{ chatId: '200', reason: 'Telegram API 429: Too Many Requests' }],
+                        failed: [{ chatId: '200', reason: 'Telegram 429 flood: Too Many Requests' }],
                 });
                 expect(mockLogError).toHaveBeenCalledWith(
                         '[Telegram Broadcast] Failed:',
@@ -280,14 +280,21 @@ describe('broadcastToAll — failure collection & pruning', () => {
                 });
         });
 
-        it('non-Error rejection reason → falls back to "Unknown"', async () => {
+        it('r118-A1-F1: transport failure → STRUCTURED synthetic 599 (never a raw rejection)', async () => {
                 const { broadcastToAll } = await import('@/lib/telegram-broadcast');
                 mockTargetsFindMany.mockResolvedValue([{ chatId: '100' }]);
-                // fetch itself rejects with a plain string (network layer)
+                // fetch itself rejects with a plain string (network layer) — the
+                // hardened apiCall converts every transport failure into a
+                // synthetic non-ok Response instead of letting the raw rejection
+                // escape, so the collected reason is always structured.
                 fetchMock.mockRejectedValue('boom');
 
                 const result = await broadcastToAll('مرحبا');
 
-                expect(result).toEqual({ sent: 0, failed: [{ chatId: '100', reason: 'Unknown' }] });
+                expect(result.sent).toBe(0);
+                expect(result.failed).toHaveLength(1);
+                expect(result.failed[0].chatId).toBe('100');
+                expect(result.failed[0].reason).toContain('Telegram API 599');
+                expect(result.failed[0].reason).toContain('transport_failure');
         });
 });

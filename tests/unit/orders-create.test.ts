@@ -16,6 +16,9 @@ import { NextRequest } from 'next/server';
 
 const mockMenuItemFindMany = vi.hoisted(() => vi.fn());
 const mockModifierOptionFindMany = vi.hoisted(() => vi.fn());
+// r118-A3-P1: the route now fetches SERVICEABLE modifier groups (min/max
+// contract enforcement) — default: the item has no groups.
+const mockModifierGroupFindMany = vi.hoisted(() => vi.fn());
 const mockOrderFindUnique = vi.hoisted(() => vi.fn());
 const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
@@ -34,6 +37,7 @@ const txMock = vi.hoisted(() => ({
 const mockPrisma = vi.hoisted(() => ({
         menuItem: { findMany: mockMenuItemFindMany },
         modifierOption: { findMany: mockModifierOptionFindMany },
+        modifierGroup: { findMany: mockModifierGroupFindMany },
         order: { findUnique: mockOrderFindUnique },
         restaurant: { findUnique: mockRestaurantFindUnique },
         $transaction: mockTransaction,
@@ -76,6 +80,7 @@ const tamperedBody = {
 
 beforeEach(() => {
         vi.clearAllMocks();
+        mockModifierGroupFindMany.mockResolvedValue([]);
         mockRateCheck.mockResolvedValue({ success: true, remaining: 29, reset: 0 });
         // default: one available item, price 10, no discount, restaurant 5
         mockMenuItemFindMany.mockResolvedValue([{ id: 1, price: 10, discountedPrice: null }]);
@@ -146,7 +151,12 @@ describe('POST /api/orders — server-side total recalculation (anti price-tampe
                 const createArg = txMock.order.create.mock.calls[0][0];
                 // (10 + 2) × 2 = 24
                 expect(createArg.data.subtotal).toBe(24);
-                expect(createArg.data.items.create[0].modifiersJson).toBe('[99]');
+                // r118-A7-P3: modifiersJson is now an order-time SNAPSHOT
+                // (names + deltas), not bare ids — historical orders survive
+                // later group edits.
+                expect(createArg.data.items.create[0].modifiersJson).toBe(
+                        JSON.stringify([{ id: 99, nameAr: undefined, name: undefined, priceDelta: 2 }])
+                );
         });
 
         it('multiple items accumulate into the recalculated subtotal', async () => {
@@ -183,14 +193,16 @@ describe('POST /api/orders — server-side total recalculation (anti price-tampe
 });
 
 describe('POST /api/orders — round86-A4 tenant / availability guards', () => {
-        it('menuItem query is scoped to the order restaurant + available status (tenant isolation at the query level)', async () => {
+        it('menuItem query is scoped to the order restaurant + available status + ACTIVE category (tenant isolation at the query level)', async () => {
                 await callPost(tamperedBody);
 
                 expect(mockMenuItemFindMany).toHaveBeenCalledWith({
                         where: {
                                 id: { in: [1] },
                                 status: 'available',
-                                category: { is: { restaurantId: 5 } },
+                                // r118-A3-P2: inactive-category items are hidden from the menu
+                                // surfaces — the order path now enforces the same visibility.
+                                category: { is: { restaurantId: 5, isActive: true } },
                         },
                         select: { id: true, price: true, discountedPrice: true },
                 });

@@ -181,6 +181,17 @@ export const useCart = create<CartStore>()(
                         undoRemove: () =>
                                 set((s) => {
                                         if (!s.lastRemoved) return {};
+                                        // r118-A5-F1: restaurant guard — restoring an item from
+                                        // restaurant A into restaurant B's cart dead-ends checkout
+                                        // with a misleading 400 (server re-pricing is scoped to the
+                                        // order's restaurant). Drop the stale undo instead.
+                                        if (
+                                                s.lastRemoved.restaurantId !== undefined &&
+                                                s.restaurantId !== 0 &&
+                                                s.lastRemoved.restaurantId !== s.restaurantId
+                                        ) {
+                                                return { lastRemoved: null };
+                                        }
                                         // restore with the same id so quantity updates keep working
                                         return {
                                                 items: [...s.items, s.lastRemoved],
@@ -215,6 +226,10 @@ export const useCart = create<CartStore>()(
                                         restaurantId: 0,
                                         restaurantWhatsapp: '',
                                         restaurantName: '',
+                                        // r118-A5-F1: the undo entry survived checkout — a ghost
+                                        // «تم حذف» banner could reappear sessions later and
+                                        // resurrect an item into an unrelated restaurant's cart.
+                                        lastRemoved: null,
                                 }),
                         totalItems: () => get().items.reduce((a, i) => a + i.quantity, 0),
                         subtotal: () => get().items.reduce((a, i) => a + i.price * i.quantity, 0),

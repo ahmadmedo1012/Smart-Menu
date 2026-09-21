@@ -40,10 +40,15 @@ const tx = vi.hoisted(() => ({
 
 const mockPrisma = vi.hoisted(() => ({
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
+        // r118-A7-P3: the DELETE path now counts orders (has-orders guard) and
+        // captures the row for the audit entry before the cascade.
+        order: { count: vi.fn().mockResolvedValue(0) },
+        restaurant: { findUnique: vi.fn().mockResolvedValue({ id: 313, name: 'مقهى الواحة', slug: 'al-waha-cafe' }) },
         $transaction: mockTransaction,
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+vi.mock('@/lib/audit', () => ({ logAudit: vi.fn().mockResolvedValue(undefined) }));
 
 // Mirrors src/lib/subscription-guard.isOwnerSubscriptionActive: staff roles
 // bypass; everyone else (owner) is at the mercy of the holder flag.

@@ -69,6 +69,8 @@ vi.mock('@/lib/rate-limit', () => ({
 vi.mock('@/lib/config', () => ({ getDecryptedBotToken: mockGetBotToken }));
 vi.mock('@/lib/subscription-decisions', () => ({
         resolveSubscriptionPayment: mockResolveSubscriptionPayment,
+        // r118-A2-P2: حارس الموافقة الذاتية في الويبهوك — الافتراضي: ليس الدافع.
+        isPaymentSelfApproval: vi.fn(async () => false),
 }));
 vi.mock('@/lib/telegram-api', () => ({
         editMessageReplyMarkup: mockEditReplyMarkup,
@@ -402,10 +404,14 @@ describe('POST /api/telegram/webhook — /start verify_ account linking', () => 
                 });
 
                 // confirmation message to the user
-                expect(mockFetch).toHaveBeenCalledTimes(1);
-                const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
-                expect(url).toBe(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`);
-                expect(JSON.parse(String(init.body)).text).toBe('تم ربط حسابك بنجاح ✅');
+                // r118-A1-F1: the verify_ confirmation now flows through the
+                // hardened sendPlainMessage (10s bound, never throws) instead of
+                // the raw fetch this test used to observe.
+                expect(mockSendPlainMessage).toHaveBeenCalledTimes(1);
+                const [tokenArg, chatIdArg, textArg] = mockSendPlainMessage.mock.calls[0] as [string, string, string];
+                expect(tokenArg).toBe(BOT_TOKEN);
+                expect(chatIdArg).toBe(77);
+                expect(textArg).toBe('تم ربط حسابك بنجاح ✅');
         });
 
         it('replayed token (unique constraint on the anti-replay row) → 200, NO user lookup, NO update', async () => {

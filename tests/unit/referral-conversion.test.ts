@@ -47,6 +47,7 @@ const mockPrisma = vi.hoisted(() => ({
         referral: { updateMany: vi.fn() },
         systemEvent: { create: vi.fn().mockResolvedValue({}) },
         menuItem: { findMany: vi.fn() },
+        modifierGroup: { findMany: vi.fn().mockResolvedValue([]) },  // r118-A3-P1
         modifierOption: { findMany: vi.fn() },
         order: { findUnique: vi.fn() },
         restaurant: { findUnique: vi.fn() },

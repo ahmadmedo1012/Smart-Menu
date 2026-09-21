@@ -24,6 +24,8 @@ import { NextRequest } from 'next/server';
 
 const mockMenuItemFindMany = vi.hoisted(() => vi.fn());
 const mockModifierOptionFindMany = vi.hoisted(() => vi.fn());
+// r118-A3-P1: serviceable-group fetch (min/max contract) — default: none.
+const mockModifierGroupFindMany = vi.hoisted(() => vi.fn());
 const mockOrderFindUnique = vi.hoisted(() => vi.fn());
 const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
@@ -43,6 +45,7 @@ const txMock = vi.hoisted(() => ({
 const mockPrisma = vi.hoisted(() => ({
         menuItem: { findMany: mockMenuItemFindMany },
         modifierOption: { findMany: mockModifierOptionFindMany },
+        modifierGroup: { findMany: mockModifierGroupFindMany },
         order: { findUnique: mockOrderFindUnique },
         restaurant: { findUnique: mockRestaurantFindUnique },
         $transaction: mockTransaction,
@@ -88,6 +91,7 @@ async function callPost(body: unknown) {
 
 beforeEach(() => {
         vi.clearAllMocks();
+        mockModifierGroupFindMany.mockResolvedValue([]);
         // round91-F-B: reset the in-tx re-read mock's persistent implementation
         // (clearAllMocks keeps implementations — tests that pin an authoritative
         // row must not leak it into the next test).

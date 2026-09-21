@@ -10,13 +10,16 @@ export function DeliveryAddressField({ value, onChange }: DeliveryAddressFieldPr
         return (
                 <div className="mb-6 animate-slide-up delay-150">
                         <label className="text-sm font-medium mb-2 block">عنوان التوصيل</label>
+                        {/* r118-A5-F2: the client composes notes + «العنوان:» + address into
+                                ONE field capped at 500 server-side (120 + 9 + 500 used to compose
+                                629 → guaranteed 422 with no field detail). */}
                         <textarea
                                 placeholder="أدخل عنوان التوصيل بالتفصيل"
                                 value={value}
                                 onChange={(e) => onChange(e.target.value)}
                                 className="w-full rounded-lg border border-border/30 bg-card/50 p-3 text-sm outline-none focus-visible:border-orange resize-none"
                                 rows={2}
-                                maxLength={500}
+                                maxLength={360}
                         />
                 </div>
         );

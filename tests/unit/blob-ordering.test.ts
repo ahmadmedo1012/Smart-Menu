@@ -29,12 +29,15 @@ const mockPrisma = vi.hoisted(() => {
                 restaurant: { findUnique: mockFindUnique, delete: mockDelete },
                 category: { findUnique: mockFindUnique },
                 review: { deleteMany: mockReviewDeleteMany },
+                // r118-A7-P3: DELETE counts orders (has-orders guard) — default 0.
+                order: { count: vi.fn().mockResolvedValue(0) },
                 $transaction: async (fn: (t: unknown) => Promise<unknown>) => fn(p),
         };
         return p;
 });
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
+vi.mock('@/lib/audit', () => ({ logAudit: vi.fn().mockResolvedValue(undefined) }));
 // round91-F-B (F9): items/[id] PUT now carries a 20/min session-scoped
 // limiter (module scope) — stubbed like every other limited route.
 vi.mock('@/lib/rate-limit', () => ({

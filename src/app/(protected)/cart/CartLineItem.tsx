@@ -90,6 +90,7 @@ export function CartLineItem({
                                 placeholder="ملاحظات للصنف..."
                                 aria-label={`ملاحظات للصنف ${item.name}`}
                                 value={item.notes}
+                                maxLength={500}
                                 onChange={(e) => onUpdateNotes(item.id, e.target.value)}
                                 className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
                         />

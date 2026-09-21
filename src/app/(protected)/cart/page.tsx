@@ -174,6 +174,19 @@ export default function CartPage() {
                                         .toString(36)
                                         .slice(2, 8)}`.toUpperCase();
                         }
+                        // r118-A5-F2: defensive budget guard — the composed notes
+                        // (ملاحظات + العنوان) must stay within the server's 500-char
+                        // cap. The inputs are capped to fit (120 + 360), but a stale
+                        // persisted cart/address (older localStorage shape) could still
+                        // exceed it — block with an actionable message instead of a
+                        // doomed 422 that names no field.
+                        const composedNotes = [notes, pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '']
+                                .filter(Boolean)
+                                .join('\n');
+                        if (composedNotes.length > 500) {
+                                premiumToast('error', 'الملاحظات أو عنوان التوصيل طويل جداً — اختصر قليلاً ثم أعد المحاولة');
+                                return;
+                        }
                         const res = await csrfFetch('/api/orders', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -193,9 +206,7 @@ export default function CartPage() {
                                         })),
                                         customerName: customerName.trim(),
                                         customerPhone: customerPhone.trim(),
-                                        notes: [notes, pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '']
-                                                .filter(Boolean)
-                                                .join('\n'),
+                                        notes: composedNotes,
                                         pickupType,
                                         restaurantId: restaurantId || undefined,
                                         referralCode,
@@ -287,6 +298,14 @@ export default function CartPage() {
                 return (
                         <>
                                 <Header />
+                                {/* r118-A5-F5: removing the LAST item used to early-return
+                                        here — the undo banner was unreachable exactly when it
+                                        mattered most (the only removal that empties the cart). */}
+                                {lastRemoved && (
+                                        <div className="max-w-2xl mx-auto px-4 pt-20">
+                                                <CartUndoBanner item={lastRemoved} onUndo={undoRemove} />
+                                        </div>
+                                )}
                                 <CartEmptyState
                                         restaurantId={restaurantId}
                                         restaurantSlug={restaurantSlug}

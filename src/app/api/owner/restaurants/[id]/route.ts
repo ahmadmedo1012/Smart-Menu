@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { logAudit } from "@/lib/audit";
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
@@ -107,6 +108,21 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 			if (link.isPrimary) return error('لا يمكن حذف المنيو الأساسي. عيّن منيو آخر كأساسي أولاً.', 400);
 		}
 
+		// r118-A7-P3: orders are financial records — a restaurant that ever took
+		// an order is NOT hard-deletable by owners/admins (one click erased the
+		// whole tenant irreversibly). super_admin keeps full trust (still audited).
+		const orderCount = await prisma.order.count({ where: { restaurantId } });
+		if (orderCount > 0 && auth.role !== 'super_admin') {
+			return error('لا يمكن حذف مطعم لديه طلبات مسجلة — تواصل مع الدعم للاحتفاظ بسجل الطلبات', 409);
+		}
+
+		// r118-A2-P3: tenant deletion was the only unaudited destructive family
+		// (every sibling delete audits) — capture the row BEFORE the cascade.
+		const restRow = await prisma.restaurant.findUnique({
+			where: { id: restaurantId },
+			select: { name: true, slug: true },
+		});
+
 		// Delete the link, then the restaurant (cascade removes categories/items/orders)
 		await prisma.$transaction(async (tx) => {
 			if (!isAdmin) {
@@ -125,6 +141,14 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 			});
 			await tx.restaurant.delete({ where: { id: restaurantId } });
 		});
+
+		logAudit({
+			action: 'delete',
+			actorId: auth.userId ?? undefined,
+			targetType: 'restaurant',
+			targetId: restaurantId,
+			metadata: { name: restRow?.name, slug: restRow?.slug, source: 'owner-api', orderCount },
+		}).catch(() => {});
 
 		return success({ deleted: true });
 	} catch (e) {

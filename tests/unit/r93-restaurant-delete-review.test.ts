@@ -86,6 +86,8 @@ const mockPrisma = vi.hoisted(() => ({
         menuItem: { findMany: mockMenuItemFindMany },
         restaurant: { findUnique: mockRestaurantFindUnique },
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
+        // r118-A7-P3: مسار الحذف يعدّ الطلبات الآن (حارس «لديه طلبات») — الافتراضي 0.
+        order: { count: vi.fn().mockResolvedValue(0) },
 }));
 
 vi.mock('@/lib/db', () => ({ prisma: mockPrisma }));
