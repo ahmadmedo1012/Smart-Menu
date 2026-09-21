@@ -146,6 +146,16 @@ export default function CartPage() {
 
         const handleCheckout = async () => {
                 if (submittingRef.current) return; // double-click guard
+                // r119-S5-P1-2: a delivery order with an empty address was silently
+                // submitted — the restaurant got «العنوان:» with nothing after it and
+                // the customer got a call-back hunt. Block at the source with an
+                // Arabic toast + focus the field.
+                if (pickupType === 'delivery' && !deliveryAddress.trim()) {
+                        premiumToast('error', 'يُرجى إدخال عنوان التوصيل قبل إتمام الطلب');
+                        document.getElementById('delivery-address')?.focus();
+                        setIsSubmitting(false);
+                        return;
+                }
                 const waNumber = normalizeWaNumber(restaurantWhatsapp);
                 if (!waNumber) {
                         setWaError(true);

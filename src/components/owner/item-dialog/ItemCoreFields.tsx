@@ -112,6 +112,9 @@ export function ItemCoreFields({
                                                         key={s}
                                                         type="button"
                                                         onClick={() => patch({ status: s })}
+                                                        // r119-S5-P2: selection was color-only — aria-pressed
+                                                        // exposes the toggle state (WCAG 1.4.1).
+                                                        aria-pressed={form.status === s}
                                                         className={cn(
                                                                 'flex-1 py-2.5 rounded-md text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                 form.status === s

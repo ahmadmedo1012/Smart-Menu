@@ -82,44 +82,30 @@ export default async function RootLayout({
         preload('/fonts/cairo-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/readex-pro.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = (await headers()).get('x-nonce') ?? '';
+        // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout
+        // (see src/app/layout.tsx) — the links/metas below hoist into <head> via
+        // React 19; the nonce'd boot script renders at body top, still pre-paint.
         return (
-                <html lang="ar" dir="rtl" suppressHydrationWarning>
-                        <head>
-                                <link rel="manifest" href="/manifest.json" />
-                                <link rel="icon" type="image/png" href="/favicon.png" />
-                                <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-                                <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-                                {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
-                                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-                                {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
-                                <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
-                                <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
-                                <meta name="mobile-web-app-capable" content="yes" />
-                                <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-                                <meta name="apple-mobile-web-app-title" content="Smart Menu" />
-                                {/* eslint-disable-next-line @next/next/no-css-tags */}
-                                <link rel="stylesheet" href="/fonts/fonts.css" />
-                                {/* LCP: font preloads (Cairo body + Readex Pro headings) moved to
-                                 * preload() calls at the top of RootLayout (round94-W3 — see the
-                                 * comment there). fonts.css @font-face already has font-display:
-                                 * swap, so text paints in a fallback instantly and swaps once the
-                                 * woff2 arrives; the preload moves the font fetch ahead of CSS
-                                 * discovery, cutting the ~700ms block. */}
-                                {/* r93-W2a (U1): خط العناوين — المصدر الواحد للحقيقة هو تعريف
-                                 * @theme inline في globals.css (Readex Pro أولًا) وسطر :root مرآة
-                                 * مطابقة له. تعليق r88-A2 السابق هنا ادّعى أن Readex Pro «فعّال
-                                 * في الوضع الفاتح» — لم يعد دقيقًا: نسخة :root كانت تقلب h1-h5
-                                 * إلى Cairo بصمت (غير الطبقية تغلب @layer theme) حتى وحّدناها
-                                 * هذا الجولة. هذا الـ preload يطابق الجذر العام ويمنع وميض تبديل
-                                 * خط العناوين في الصفحات المحمية. Noto Naskh/Noto Sans كسولتان عبر
-                                 * unicode-range. */}
-                                {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
-                                        pattern — no first-paint flash). Protected pages run under the
-                                        per-request nonce CSP from proxy.ts, so the script carries the
-                                        same nonce Next stamps on every other inline script here. */}
-                                <script nonce={nonce} dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }} />
-                        </head>
-                        <body className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased">
+                <>
+                        <link rel="manifest" href="/manifest.json" />
+                        <link rel="icon" type="image/png" href="/favicon.png" />
+                        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+                        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+                        {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
+                        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                        {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
+                        <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
+                        <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
+                        <meta name="mobile-web-app-capable" content="yes" />
+                        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+                        <meta name="apple-mobile-web-app-title" content="Smart Menu" />
+                        {/* eslint-disable-next-line @next/next/no-css-tags */}
+                        <link rel="stylesheet" href="/fonts/fonts.css" />
+                        {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
+                                pattern — no first-paint flash). Protected pages run under the
+                                per-request nonce CSP from proxy.ts, so the script carries the
+                                same nonce Next stamps on every other inline script here. */}
+                        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }} />
                                 <a
                                         href="#main-content"
                                         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
@@ -171,7 +157,6 @@ export default async function RootLayout({
                                         />
                                         <Analytics />
                                 </ThemeProvider>
-                        </body>
-                </html>
+                </>
         );
 }

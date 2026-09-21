@@ -74,7 +74,10 @@ export function premiumToast(
     (t) => (
       <div
         role="alert"
-        aria-live="polite"
+        /* r119-S5-P2: role="alert" already implies aria-live="assertive" —
+           the previous explicit aria-live="polite" contradicted it and made
+           AT behavior browser-dependent. role=alert alone is the correct,
+           unambiguous contract for actionable toasts. */
         onClick={() => toast.dismiss(t)}
         className="pointer-events-auto flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border/40 bg-card/95 p-4 shadow-xl backdrop-blur-xl rtl:flex-row-reverse animate-slide-up"
         style={{ animationDuration: "0.35s" }}

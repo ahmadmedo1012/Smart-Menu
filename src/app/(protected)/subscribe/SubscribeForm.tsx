@@ -362,8 +362,11 @@ export function SubscribeForm({
 
                                                                         {/* Description */}
                                                                         <div>
-                                                                                <Label htmlFor={"`w-w-desc`"}>الوصف</Label>
-                                                                                <Input id={"`w-w-desc`"} 
+                                                                                {/* r119-S5-P1-1: these were LITERAL backtick strings ("`w-w-desc`") —
+                                                                                  duplicate ids on every multi-menu row, so labels/inputs never
+                                                                                  associated past row 0. Now indexed per restaurant row. */}
+                                                                                <Label htmlFor={`w-w-desc-${index}`}>الوصف</Label>
+                                                                                <Input id={`w-w-desc-${index}`} 
                                                                                         value={restaurant.description}
                                                                                         onChange={(e) => updateRestaurant(index, { description: e.target.value })}
                                                                                         placeholder="وصف المطعم (اختياري)"
@@ -374,8 +377,8 @@ export function SubscribeForm({
                                                                         {/* Phone + WhatsApp */}
                                                                         <div className="grid grid-cols-2 gap-3">
                                                                                 <div>
-                                                                                        <Label htmlFor={"`w-w-phone`"}>رقم الهاتف</Label>
-                                                                                        <Input id={"`w-w-phone`"} 
+                                                                                        <Label htmlFor={`w-w-phone-${index}`}>رقم الهاتف</Label>
+                                                                                        <Input id={`w-w-phone-${index}`} 
                                                                                                 value={restaurant.phone}
                                                                                                 onChange={(e) => updateRestaurant(index, { phone: e.target.value })}
                                                                                                 placeholder="رقم الهاتف (مثال: 0912345678)"
@@ -384,8 +387,8 @@ export function SubscribeForm({
                                                                                         />
                                                                                 </div>
                                                                                 <div>
-                                                                                        <Label htmlFor="sub-wa-wa">رقم واتساب</Label>
-                                                                                        <Input id="sub-wa-wa" 
+                                                                                        <Label htmlFor={`sub-wa-wa-${index}`}>رقم واتساب</Label>
+                                                                                        <Input id={`sub-wa-wa-${index}`} 
                                                                                                 value={restaurant.whatsapp}
                                                                                                 onChange={(e) => updateRestaurant(index, { whatsapp: e.target.value })}
                                                                                                 placeholder="رقم الواتساب (مثال: 0912345678)"

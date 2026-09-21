@@ -80,69 +80,64 @@ export default async function RootLayout({
         preload('/fonts/cairo-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/readex-pro.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = '';
+        // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout —
+        // the multiple-root-layouts pattern left every 404 rendering in Next's
+        // bare error shell (no lang/dir, homepage title, no CSS). The links/metas
+        // below hoist into <head> via React 19; the boot script renders at body
+        // top (still pre-paint — it precedes every theme-relevant node).
         return (
-                <html lang="ar" dir="rtl" suppressHydrationWarning>
-                        <head>
-                                <link rel="manifest" href="/manifest.json" />
-                                <link rel="icon" type="image/png" href="/favicon.png" />
-                                <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-                                <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-                                {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
-                                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-                                {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
-                                <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
-                                <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
-                                <meta name="mobile-web-app-capable" content="yes" />
-                                <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-                                <meta name="apple-mobile-web-app-title" content="Smart Menu" />
-                                {/* eslint-disable-next-line @next/next/no-css-tags */}
-                                <link rel="stylesheet" href="/fonts/fonts.css" />
-                                {/* LCP: font preloads for the Arabic subsets of the two active
-                                 * families moved to preload() calls at the top of RootLayout
-                                 * (round94-W3 — see comment there). fonts.css @font-face has
-                                 * font-display: swap, so text paints in a fallback instantly
-                                 * and swaps once the woff2 arrives; the preloads move the font
-                                 * fetch ahead of CSS discovery, cutting the ~700ms block.
-                                 * Noto Sans/Naskh Arabic stay lazy via unicode-range. */}
-                                {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
-                                        pattern — reads localStorage before first paint so the mode never
-                                        flashes). Public pages run under the cacheable-page CSP which allows
-                                        'unsafe-inline' scripts, so no nonce is needed here. */}
-                                <script
-                                        dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }}
-                                />
-                                <script
-                                        type="application/ld+json"
-                                        nonce={nonce}
-                                        dangerouslySetInnerHTML={{
-                                                __html: JSON.stringify({
-                                                        '@context': 'https://schema.org',
-                                                        '@type': 'SoftwareApplication',
-                                                        name: 'الربط الذكي | Smart Menu',
-                                                        description: 'منيو رقمي ذكي للمطاعم والمقاهي',
-                                                        applicationCategory: 'BusinessApplication',
-                                                        operatingSystem: 'Web',
-                                                        offers: { '@type': 'Offer', price: '0', priceCurrency: 'LYD' },
-                                                }),
-                                        }}
-                                />
-                        </head>
+                <>
+                        <link rel="manifest" href="/manifest.json" />
+                        <link rel="icon" type="image/png" href="/favicon.png" />
+                        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+                        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+                        {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
+                        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                        {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
+                        <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
+                        <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
+                        <meta name="mobile-web-app-capable" content="yes" />
+                        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+                        <meta name="apple-mobile-web-app-title" content="Smart Menu" />
+                        {/* eslint-disable-next-line @next/next/no-css-tags */}
+                        <link rel="stylesheet" href="/fonts/fonts.css" />
+                        {/* round88-E2: high-contrast/large-text pre-paint bootstrap (next-themes
+                                pattern — reads localStorage before first paint so the mode never
+                                flashes). Public pages run under the cacheable-page CSP which allows
+                                'unsafe-inline' scripts, so no nonce is needed here. */}
+                        <script
+                                dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }}
+                        />
+                        <script
+                                type="application/ld+json"
+                                nonce={nonce}
+                                dangerouslySetInnerHTML={{
+                                        __html: JSON.stringify({
+                                                '@context': 'https://schema.org',
+                                                '@type': 'SoftwareApplication',
+                                                name: 'الربط الذكي | Smart Menu',
+                                                description: 'منيو رقمي ذكي للمطاعم والمقاهي',
+                                                applicationCategory: 'BusinessApplication',
+                                                operatingSystem: 'Web',
+                                                offers: { '@type': 'Offer', price: '0', priceCurrency: 'LYD' },
+                                        }),
+                                }}
+                        />
                         {/* r96-W4a: توأم SmartBot — توهج الصفحة الشعاعي العلوي.
-                            الرمز --background-radial معرّف في :root (داكن: توهج
-                            برتقالي خافت فوق الشبكة) و.light (فاتح: هالة دافئة 3%)
-                            فيحل حسب الثيم الفعّال؛ نفس آلية SmartBot الحرفية
-                            (style inline يغلب أداة bg-background في كلا الوضعين). */}
-                        <body
-                                className="flex min-h-dvh flex-col overflow-x-clip bg-background antialiased"
+                            r119: كان على <body> عبر style inline — انتقل إلى طبقة ثابتة
+                            خلف المحتوى (نفس الأثر البصري، body لم يعد ملكنا من الجذر). */}
+                        <div
+                                aria-hidden="true"
+                                className="pointer-events-none fixed inset-0 -z-10"
                                 style={{ background: 'var(--background-radial), var(--background)' }}
+                        />
+                        <a
+                                href="#main-content"
+                                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
                         >
-                                <a
-                                        href="#main-content"
-                                        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
-                                >
-                                        تخطى إلى المحتوى الرئيسي
-                                </a>
-                                <div className="grain-overlay" />
+                                تخطى إلى المحتوى الرئيسي
+                        </a>
+                        <div className="grain-overlay" />
                                 {/* r95: داكن أولاً — توأمة SmartBot */}
                                 <ThemeProvider attribute="class" defaultTheme="dark" enableSystem nonce={nonce}>
                                         <GridPattern
@@ -188,7 +183,6 @@ export default async function RootLayout({
                                         />
                                         <Analytics />
                                 </ThemeProvider>
-                        </body>
-                </html>
+                </>
         );
 }

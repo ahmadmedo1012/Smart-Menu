@@ -50,6 +50,10 @@ export function PickupTypeSelector({
                                                 key={opt.value}
                                                 type="button"
                                                 onClick={() => onChange(opt.value)}
+                                                // r119-S5-P2: the selection was conveyed by COLOR
+                                                // only — aria-pressed makes the toggle state
+                                                // perceivable to screen readers (WCAG 1.4.1).
+                                                aria-pressed={value === opt.value}
                                                 className={cn(
                                                         'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-[transform,translate,scale,rotate,box-shadow,color,background-color,border-color] duration-300 border overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                         value === opt.value

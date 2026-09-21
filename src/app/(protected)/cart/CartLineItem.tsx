@@ -60,7 +60,7 @@ export function CartLineItem({
                                                 type="button"
                                                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
                                                 className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
-                                                aria-label="إنقاص الكمية"
+                                                aria-label={`إنقاص كمية ${item.name}`}
                                         >
                                                 <MotionMinus className="size-4" />
                                         </button>
@@ -71,7 +71,7 @@ export function CartLineItem({
                                                 type="button"
                                                 disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                                                 className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
-                                                aria-label="زيادة الكمية"
+                                                aria-label={`زيادة كمية ${item.name}`}
                                         >
                                                 <MotionPlus className="size-4" />
                                         </button>
@@ -79,7 +79,7 @@ export function CartLineItem({
                                                 type="button"
                                                 onClick={() => onRemove(item.id)}
                                                 className="size-11 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,translate,scale,rotate,background-color] ms-1 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
-                                                aria-label="حذف الصنف"
+                                                aria-label={`حذف الصنف ${item.name}`}
                                         >
                                                 <AnimatedTrash className="size-3" />
                                         </button>
