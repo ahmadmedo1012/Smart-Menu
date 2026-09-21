@@ -214,6 +214,11 @@ A6 P1/P2: owner menu CRUD is a web-redirect stub; admin section = static placeho
 
 ### ⚠️ DEPLOY STATUS (end of round)
 - 5 commits pushed (`78c4ce49..44ede0d7`); production still served `78c4ce49` after ~25min of polling — the r114/r116 BLOCKED pattern again (Vercel token invalid → cannot inspect; git-integration usually deploys in ~90s). **USER ACTION: Vercel dashboard → Deployments → unblock/redeploy `main`**. All local gates green + the r118 behavior is live-proven on a real production build locally (13/13 probes — see r118-local-verify.sh).
+- **RESOLVED (r119)**: root cause was NOT the token — all 6 r118 commits were authored with the invalid email `agent@smart-menu.dev`. See the r119 record below.
+
+## r119 — deploy-block ROOT CAUSE fixed: invalid commit-author email → r118 batch ships
+**Root cause (Vercel dashboard message, user-relayed, + git evidence):** every r118 commit (`3ba17891..379e19bb`) was authored `agent@smart-menu.dev <Super Z>` — an email associated with no GitHub account, so Vercel's git integration refused to identify the commit author and blocked each deployment. Proof by contrast: the last DEPLOYED commit `78c4ce49` was authored `ahmadmedo1012@users.noreply.github.com` (account-associated). The r114/r116 deploy blocks shared this same invalid-author pattern.
+**Fix:** repo identity corrected to `ahmadmedo1012@gmail.com` / `Ahmed Medo` (verified primary email, confirmed via GitHub API `/user/emails`). This r119 commit is the first validly-authored push since `78c4ce49` — it carries the ENTIRE r118 batch (B1–B5) to production for the first time. Follow-up: live-verify the r118 behaviors on production (never yet observed live).
 - ⚠️ GitHub Actions still billing-blocked (r117 finding, unchanged) — the new triage workflow will engage once billing is restored.
 
 ### Gates (local, CI parity)
@@ -231,7 +236,7 @@ tsc 0 · eslint 0 errors (10 legacy warnings) · **1991/1991** unit · next buil
 7. ~~Self-hosted QR render~~ **DONE (r106-N2)**.
 8. ~~Subscribe-page e2e spec for the rejected-payment retry path~~ **DONE (r110)**.
 9. Owner data hygiene (user actions, no code): replace the 3 dead unsplash images on al-aseel (exact URLs + working replacements in the r110 log entry), review/delete the duplicate restaurant `al-waha-cafeewewe`, purge the QA orders (r105-r113 logs; r113 added none — its E2E probe selectors failed before order submission).
-10. Vercel token was REJECTED in r110 (rotated) — git-integration still deploys fine; re-provision only if the stale-concurrency BLOCKER ever recurs.
+10. ~~Vercel token REJECTED in r110~~ **SUPERSEDED (r119)**: the real deploy blocker was the invalid commit-author email `agent@smart-menu.dev` (all r118 commits). Fixed — identity now the account's verified primary email. Git-integration deploys fine.
 
 ## r114 (in progress) — local release build from c800e7a7 + app↔site parity
 - APK built LOCALLY (EAS token unavailable in session): preview profile reproduced —
