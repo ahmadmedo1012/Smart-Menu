@@ -12,11 +12,11 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **`a25c3e99`** (2026-09-18 — r116: Telegram payment-approval «تمت معالجة هذا الطلب مسبقاً» root-caused & fixed: idempotent replays + conflict alerts + toast-first + panel keyboard sync; local gates 1936+12 smoke PASS — **Vercel deploy NOT observed landing within 30min of push, see r116 entry**) |
+| Last verified commit | **r118 batch (see r118 entry)** — production was healthy on `78c4ce49` (r117) at round start; r118 pushes deploy via git-integration and are live-verified in the r118 entry |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
-| Unit tests | 1936/1936 collected in r116 env (2 files env-gated locally, green in CI; +18 new r116 cases: 12 webhook semantics + 6 sync) |
+| Unit tests | **1991/1991** (r118 env: 137→142 files; +41 r118 cases across 5 new files — modifier contract 9, delete guard 4, public-menu route 7, config masking + caps 6, plus updated contracts) |
 | CI | 3 jobs: `lint-build-test` (blocking), `mobile` (blocking, added r103-D6), `prod-qa` (advisory artifacts on main pushes) |
 
 ## Architecture (stable reference)
@@ -100,7 +100,7 @@
 4. ~~4 react-navigation warnings~~ **RESOLVED as a non-issue (r104 follow-up)**: the 'lowercase component' warnings were an artifact of the dev-bundle swap used for symbolication (expo's dev static-export renames local bindings — `PricingScreen` becomes local `v`); the actual source registers properly-named components, and release builds strip dev warnings entirely. No code change needed.
 5. **Mobile: no real-device test** — r104 upgraded verification to a real Android system (API 24 emulator: install → launch → render → deep-link → error-state), but a physical modern device pass (browse → item w/ modifiers → order → WhatsApp → owner flows) remains the final vehicle.
 6. `idempotencyKey` shares a GLOBAL namespace (theoretical squat) — no client sent one before r103-N4; the mobile app does now (random 14-char). Web `/cart` still doesn't send one (double-click guard is client-side only). **Next step**: web checkout idempotencyKey + namespacing decision.
-7. Web QR page still renders via `api.qrserver.com` (third-party) — self-host option documented since r102-W6; changing it without visual-preview ability was judged riskier than the benefit. Mobile already renders QR locally (`react-native-qrcode-svg`).
+7. ~~Web QR via `api.qrserver.com`~~ **RETIRED (r109/N2 — see the fixed-forever list above)**: the shared `<SelfHostedQR>` renders data-URL QRs locally; the old ledger line above this one was stale and contradicted the r109 record.
 8. Remaining mobile advisories: `image-size` (2 high, metro build-time, **no patched version exists** — unfixable until metro bumps), `uuid` 7.0.3 (moderate, iOS xcode build-time only; overriding broadly risks breaking metro consumers).
 9. Mobile full menu CRUD / branches / reviews management / loyalty detail / admin screens remain web-first by design (documented parity gap, not a defect).
 10. `text-[10px]` micro-typography (×92 sites) + container-token polish — unclaimed.
@@ -193,6 +193,27 @@
 - **Live baseline (pre-deploy)**: routes 13/13 correct (incl. `/menu/al-waha-cafe-demo` 200; `/menu/demo` 404 is expected — never a real slug), security headers intact, negatives all 401/403/404 incl. webhook fail-closed secret gate.
 - **⚠️ DEPLOY**: `a25c3e99` pushed 04:52Z; production still served `dbc3ed97` after ~30min of polling — the r114-style stale-concurrency queue is suspected (Vercel token rotated → cannot inspect from here). **USER ACTION: check the Vercel dashboard for a queued/failed/stuck deployment and re-deploy `a25c3e99`** — all local gates are green; the commit itself builds (no new deps/migrations).
 - Evidence: `audit/r116/` (live-sweep.txt, smoke output in worklog), scripts `r116-smoke.mjs` / `r116-ci-watch.sh` / `r116-live-sweep.sh`.
+
+## r118 — the deepest audit round: 9-agent parallel fleet + batched fixes (P1 money-path, security, races, CI self-cancel)
+**Baseline `78c4ce49` (= production, db connected) · 9 parallel read-only audit agents (A1 Telegram · A2 API-core · A3 customer-API · A4 security · A5 web · A6 mobile · A7 data · A8 tests/CI · A9 perf/org) → 5 fix batches, every batch gated + committed.**
+
+### Fleet yield (evidence in /home/z/my-project/audit/r118/A{1..9}-findings.md)
+- P1×6 · P2×19 · P3×44 · P4×74 raw; dozens CHECKED-CLEAN with evidence (incl. full 66-route IDOR matrix — zero IDOR; auth/session/rate-limiting architecture verified sound).
+- **A4-P1 (USER ACTION — URGENT)**: a real Neon `DATABASE_URL` (neondb_owner + password) is permanently embedded in **git history** (`.env.local` 863806ed→dafcbb37, Jun 29–Jul 3; `docker-compose.yml` d7fb1749, Jun 19). Working tree is CLEAN (r117 baseline re-verified). **Rotate the Neon password now** (fully neutralizes history); optional `git filter-repo` only if the repo may ever go public. `check-secrets.mjs` scanned the working tree only — history blind spot now documented.
+
+### Fixes (B1 security+money-path · B2 functional · B3 polish web+mobile · B4 tests · B5 hygiene)
+- **B1**: server-side modifier-group contract on order POST (required/minSelect/maxSelect over serviceable groups, dedupe, raw cap 100, negative-total rejection — A3-P1/A7-P2); discountedPrice=0 nullish (100%-free items charged full price); inactive-category items un-orderable (3 surfaces); OrderItem.modifiersJson now an order-time SNAPSHOT (names+deltas — historical orders survive group edits); owner invoice lines include modifier deltas (lines now reconcile with the charged total); cancel-race loser no longer broadcasts a FALSE rejection (reuses the friendly already-processed shape — A1-F2); the last 5 raw Telegram fetches → 10s-bounded never-throwing transport (login/register await path included); admin UI actually SAVES a newly typed bot token (frozen botTokenMasked — A1-F3); approver POST/DELETE EDIT_SETTINGS→MANAGE_SUBSCRIPTIONS + audit rows + webhook self-approval guard (A2-P2); webhook secret trimmed at registration; safeRedirect `\` network-path bypass rejected; /api/health in-memory 30/min/IP throttle (was the cheapest unauth Neon-compute DoS vector; DB-backed limiter deliberately avoided — would fail-closed and mask true DB status); **CI triage job** (always-run secrets scan + .env guard + docs/code classification) + heavy jobs skipped on docs-only pushes + job-level concurrency — the recurring r112/r113 self-cancel incident is structurally impossible now (~90 billed minutes saved per incident).
+- **B2**: cart undo lifecycle (restaurant guard + clearCart resets lastRemoved + undo banner reachable from the empty state); checkout notes budget (address 360, per-item 500, composed-length guard — the 629>500 guaranteed-422 dead-end); restaurant DELETE has-orders guard (409 for owner/admin, super_admin full trust) + audit rows on both paths (was the only unaudited destructive family); users/[id] PATCH super_admin-target guard.
+- **B3 (web)**: shared AudioContext for the chime (the ~6-context Chromium cap permanently killed the new-order chime); admin/qr three honest states + retry; /menu loading.tsx (cold-start dead-nav); owner item form maxLengths + Arabic toast; **terms/privacy moved (protected)→(public) + revalidate 3600** (were no-store ~0.4s TTFB on every visit); **public menu API heavy payload in the Next 16 Data Cache** (60s + per-restaurant tag purged by revalidateMenu on every owner mutation — mobile paid the full DB round-trip per menu open; restaurant lookup + limiter stay outside the cache so 404s never negative-cache).
+- **B3 (mobile, B3-mobile agent)**: global ErrorBoundary (P1 — one bad payload crashed the whole app); subscribe-success navigation fixed (was a silent no-op — users stranded post-payment); SubscribePlan error state + retry; react-query retry; search Arabic-normalization parity (byte-identical); owner orders pagination + poll-merge.
+- **B4**: 7 tests for the mobile PRIMARY data path (was zero); config token-masking tests; public free-text boundary batch; promo-poster 404 guard.
+- **B5**: 64 lines verified-dead CSS removed; public/video/ + stale robots.txt deleted; zustand cart persist versioned + migrate.
+
+### Mobile feature-parity ROADMAP (documented, NOT regress — deliberate scope)
+A6 P1/P2: owner menu CRUD is a web-redirect stub; admin section = static placeholders; no signup funnel; no reviews UI; loyalty/referral post-order missing; first-launch RTL needs restart. Robustness is fixed; these are feature builds for a future round.
+
+### Gates (local, CI parity)
+tsc 0 · eslint 0 errors (10 legacy warnings) · **1991/1991** unit · next build OK (85/85 pages, terms/privacy now `○ (1h)`) · mobile tsc 0 + lint 0.
 
 ## Next recommended engineering actions
 
