@@ -212,6 +212,10 @@
 ### Mobile feature-parity ROADMAP (documented, NOT regress — deliberate scope)
 A6 P1/P2: owner menu CRUD is a web-redirect stub; admin section = static placeholders; no signup funnel; no reviews UI; loyalty/referral post-order missing; first-launch RTL needs restart. Robustness is fixed; these are feature builds for a future round.
 
+### ⚠️ DEPLOY STATUS (end of round)
+- 5 commits pushed (`78c4ce49..44ede0d7`); production still served `78c4ce49` after ~25min of polling — the r114/r116 BLOCKED pattern again (Vercel token invalid → cannot inspect; git-integration usually deploys in ~90s). **USER ACTION: Vercel dashboard → Deployments → unblock/redeploy `main`**. All local gates green + the r118 behavior is live-proven on a real production build locally (13/13 probes — see r118-local-verify.sh).
+- ⚠️ GitHub Actions still billing-blocked (r117 finding, unchanged) — the new triage workflow will engage once billing is restored.
+
 ### Gates (local, CI parity)
 tsc 0 · eslint 0 errors (10 legacy warnings) · **1991/1991** unit · next build OK (85/85 pages, terms/privacy now `○ (1h)`) · mobile tsc 0 + lint 0.
 
