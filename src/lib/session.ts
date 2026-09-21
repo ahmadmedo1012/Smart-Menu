@@ -109,6 +109,27 @@ export async function destroySession() {
         });
 }
 
+/**
+ * r119-B6 (B2-M discovery): mobile clients authenticate with
+ * `Authorization: Bearer <token>` (SecureStore) — the cookie-based
+ * destroySession never covered them, so a mobile logout left the session
+ * row alive and the Bearer valid for its full 7-day lifetime. Revokes a
+ * session by its RAW token with the same retry-once posture.
+ */
+export async function destroySessionByToken(rawToken: string) {
+        if (!/^[0-9a-f-]{36}$/i.test(rawToken)) return;
+        const tokenHash = hashToken(rawToken);
+        try {
+                await prisma.session.deleteMany({ where: { token: tokenHash } });
+        } catch (e) {
+                logError('session.destroyByToken failed (retrying)', { error: String(e) });
+                await new Promise((r) => setTimeout(r, 300));
+                await prisma.session
+                        .deleteMany({ where: { token: tokenHash } })
+                        .catch((e2) => logError('session.destroyByToken failed twice', { error: String(e2) }));
+        }
+}
+
 export async function validateSession(): Promise<{
         valid: boolean;
         userId: number | null;

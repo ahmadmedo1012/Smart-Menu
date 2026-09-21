@@ -942,3 +942,42 @@ describe('POST /api/telegram/webhook — catch-all (message path)', () => {
                 );
         });
 });
+
+// ── r119-B6: self-approval guard true-path (r118-A2-P2) ───────────────────
+// Every pre-existing suite mocked isPaymentSelfApproval to `false` — the
+// escalation block itself never executed in any test. This pins the TRUE
+// path: an approver whose Telegram id equals the payer's linked chat is
+// blocked with an alert toast and the payment is NEVER resolved.
+describe('POST /api/telegram/webhook — r118-B1 self-approval guard (true path)', () => {
+        beforeEach(() => {
+                vi.stubEnv('TELEGRAM_ADMIN_IDS', String(ADMIN_ID));
+        });
+
+        it('approver == payer → blocked with alert toast, resolveSubscriptionPayment NEVER called', async () => {
+                const subDecisions = await import('@/lib/subscription-decisions');
+                vi.mocked(subDecisions.isPaymentSelfApproval).mockResolvedValueOnce(true);
+
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(await res.text()).toBe('OK');
+                // the escalation attempt is blocked BEFORE any resolution
+                expect(mockResolveSubscriptionPayment).not.toHaveBeenCalled();
+                // alert toast with the self-approval explanation
+                expect(mockAnswerCq).toHaveBeenCalledWith(
+                        BOT_TOKEN,
+                        'cq-1',
+                        'لا يمكنك البت في طلب دفع خاص بحسابك.',
+                        true,
+                );
+                // keyboard intact (no edit) — the payment stays actionable by others
+                expect(mockEditReplyMarkup).not.toHaveBeenCalled();
+        });
+
+        it('approver != payer (default false) → normal resolution proceeds', async () => {
+                const res = await post(callbackUpdate({ data: 'sub_app:55' }));
+
+                expect(res.status).toBe(200);
+                expect(mockResolveSubscriptionPayment).toHaveBeenCalledWith(55, 'verified');
+        });
+});
