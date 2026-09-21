@@ -158,6 +158,25 @@ export default function CartPage() {
 
                 // 1. Save order to DB first
                 let orderNo = '';
+                // r119-S2-P1: the server's re-priced echo is the money truth — the
+                // localStorage cart can hold stale prices (owner raised a price
+                // between add-to-cart and checkout) and previously produced a
+                // WhatsApp invoice that diverged from the charged DB total.
+                let serverEcho: {
+                        orderNo?: string;
+                        total?: number | string;
+                        notes?: string;
+                        customerName?: string;
+                        customerPhone?: string | null;
+                        pickupType?: string;
+                        items?: {
+                                quantity: number;
+                                price: number | string;
+                                notes?: string | null;
+                                modifiersJson?: string | null;
+                                item?: { name?: string; nameAr?: string | null } | null;
+                        }[];
+                } | undefined;
                 try {
                         // round88-C4 — carry the referral code ReferralHandler stored on the
                         // ?ref= visit (progressive enhancement: absent/invalid → the server
@@ -230,6 +249,7 @@ export default function CartPage() {
                         }
                         const json = await res.json();
                         orderNo = json.data?.orderNo ?? '';
+                        serverEcho = json.data;
                         // r106-N1: confirmed success (fresh 201 OR the inert already:true
                         // replay) — retire the key so the next checkout mints a new one.
                         checkoutKeyRef.current = '';
@@ -243,26 +263,67 @@ export default function CartPage() {
                 }
 
                 // 2. Send WhatsApp receipt to restaurant on success
-                const receipt = buildReceiptMessage({
-                        restaurantName: restaurantName || 'المطعم',
-                        orderNo: orderNo || undefined,
-                        items: items.map((i) => ({
-                                name: i.name,
-                                qty: i.quantity,
-                                price: i.price,
-                                // w3-f1: modifier choices ride the existing notes line
-                                // (receipt format untouched — summary then free notes).
-                                notes: [i.modifiersSummary, i.notes || undefined].filter(Boolean).join('\n') || undefined,
-                        })),
-                        totalPrice: subtotal,
-                        notes:
-                                pickupType === 'delivery'
-                                        ? `${notes || ''}\nالعنوان: ${deliveryAddress}`.trim()
-                                        : notes || undefined,
-                        customerName: customerName.trim() || undefined,
-                        customerPhone: customerPhone.trim() || undefined,
-                        pickupType,
-                });
+                // r119-S2-P1: prefer the SERVER's re-priced echo (names, per-line
+                // prices incl. discountedPrice + modifier snapshot deltas, and the
+                // stored notes — which already embed the delivery address line from
+                // composedNotes). Falls back to the cart ONLY for the inert idempotent
+                // replay ({orderNo, already:true}) whose echo carries no itemization.
+                const serverItems = serverEcho?.items ?? [];
+                const receipt = serverItems.length
+                        ? buildReceiptMessage({
+                                  restaurantName: restaurantName || 'المطعم',
+                                  orderNo: orderNo || undefined,
+                                  items: serverItems.map((i) => {
+                                          let modifierNames: string[] = [];
+                                          try {
+                                                  const mods = JSON.parse(i.modifiersJson || '[]');
+                                                  if (Array.isArray(mods)) {
+                                                          modifierNames = mods
+                                                                  .map((m) =>
+                                                                          typeof m === 'object' && m !== null
+                                                                                  ? m.nameAr || m.name || ''
+                                                                                  : ''
+                                                                  )
+                                                                  .filter(Boolean);
+                                                  }
+                                          } catch {
+                                                  /* corrupt snapshot — receipt keeps the bare item line */
+                                          }
+                                          return {
+                                                  name: i.item?.nameAr || i.item?.name || '',
+                                                  qty: i.quantity,
+                                                  price: Number(i.price),
+                                                  // w3-f1 pattern preserved: modifier choices ride the notes line
+                                                  notes:
+                                                          [...modifierNames, i.notes || undefined]
+                                                                  .filter(Boolean)
+                                                                  .join('\n') || undefined,
+                                          };
+                                  }),
+                                  totalPrice: Number(serverEcho?.total ?? 0),
+                                  notes: serverEcho?.notes || undefined,
+                                  customerName: serverEcho?.customerName?.trim() || undefined,
+                                  customerPhone: serverEcho?.customerPhone?.trim() || undefined,
+                                  pickupType: serverEcho?.pickupType || pickupType,
+                          })
+                        : buildReceiptMessage({
+                                  restaurantName: restaurantName || 'المطعم',
+                                  orderNo: orderNo || undefined,
+                                  items: items.map((i) => ({
+                                          name: i.name,
+                                          qty: i.quantity,
+                                          price: i.price,
+                                          notes: [i.modifiersSummary, i.notes || undefined].filter(Boolean).join('\n') || undefined,
+                                  })),
+                                  totalPrice: subtotal,
+                                  notes:
+                                          pickupType === 'delivery'
+                                                  ? `${notes || ''}\nالعنوان: ${deliveryAddress}`.trim()
+                                                  : notes || undefined,
+                                  customerName: customerName.trim() || undefined,
+                                  customerPhone: customerPhone.trim() || undefined,
+                                  pickupType,
+                          });
                 // r109-F10: stash the FULL receipt (items/totals/address) keyed by
                 // orderNo — the order-confirmed fallback button re-sends the itemized
                 // invoice instead of the old bare thank-you note. sessionStorage is

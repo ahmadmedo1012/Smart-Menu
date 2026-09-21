@@ -5,6 +5,7 @@ import { hashPassword } from '@/lib/hash';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
+import { runAfterResponse } from '@/lib/bg-task'; // r119-S3-P2-4
 import { createSession } from '@/lib/session';
 import { usernameField, passwordField, nameField } from '@/lib/validation';
 import { getClientIp } from '@/lib/client-ip';
@@ -96,10 +97,9 @@ export async function POST(request: Request) {
                         targetId: user.id,
                         ip,
                 });
-                await notifyEvent(
-                        'user_registered',
-                        { username: user.username, name: user.name },
-                        { adminOnly: true }
+                // r119-S3-P2-4: same as login — broadcast moves off the critical path.
+                runAfterResponse(() =>
+                        notifyEvent('user_registered', { username: user.username, name: user.name }, { adminOnly: true })
                 );
 
                 return success(

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbHealth } from "@/lib/db";
+import { getClientIp } from "@/lib/client-ip";
 
 export const dynamic = "force-dynamic";
 
@@ -35,10 +36,10 @@ function allow(ip: string): boolean {
 export async function GET(request?: Request) {
   // r118-A4-P3: throttle before the DB ping; 429 carries no DB signal by
   // design (the client is abusing the endpoint, not probing health).
-  const ip =
-    request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request?.headers.get("x-real-ip") ||
-    "unknown";
+  // r119-S4-P3-2: unified extraction — the raw x-forwarded-for read was
+  // spoofable off-Vercel (standalone/e2e), the exact class client-ip.ts
+  // documents; getClientIp resolves the platform-trusted header.
+  const ip = request ? getClientIp(request) : "unknown";
   if (!allow(ip)) {
     return NextResponse.json(
       { status: "rate-limited" },

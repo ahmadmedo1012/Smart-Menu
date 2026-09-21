@@ -424,10 +424,11 @@ describe('resolveSubscriptionPayment — verified, UPGRADE branch', () => {
       data: { status: 'verified' },
     });
 
-    // plan caps looked up for the upgrade
+    // plan caps looked up for the upgrade (r119-S2-P2-2: +periodDays — the
+    // paid plan's term now drives planEnd instead of a hardcoded 30d)
     expect(txMock.subscriptionPlan.findUnique).toHaveBeenCalledWith({
       where: { id: 2 },
-      select: { id: true, nameAr: true, maxItems: true, maxOrders: true },
+      select: { id: true, nameAr: true, maxItems: true, maxOrders: true, periodDays: true },
     });
 
     // the EXISTING restaurant is re-planned, never a new one

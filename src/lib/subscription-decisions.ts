@@ -141,15 +141,18 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
 
         const plan = await tx.subscriptionPlan.findUnique({
           where: { id: existing.planId },
-          select: { id: true, nameAr: true, maxItems: true, maxOrders: true },
+          select: { id: true, nameAr: true, maxItems: true, maxOrders: true, periodDays: true },
         });
+        // r119-S2-P2-2: honor the PAID plan's periodDays — the hardcoded 30d
+        // truncated annual plans to 1/12 of their paid term.
+        const planDays = plan?.periodDays ?? 30;
 
         const restaurant = await tx.restaurant.update({
           where: { id: meta.upgradeRestaurantId },
           data: {
             planId: existing.planId,
             planStart: new Date(),
-            planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            planEnd: new Date(Date.now() + planDays * 24 * 60 * 60 * 1000),
             maxItems: plan?.maxItems ?? undefined,
             maxOrders: plan?.maxOrders ?? undefined,
           },
@@ -242,7 +245,7 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
       if (existing.userId) {
         const plan = await tx.subscriptionPlan.findUnique({
           where: { id: existing.planId },
-          select: { maxItems: true, maxOrders: true, maxMenus: true },
+          select: { maxItems: true, maxOrders: true, maxMenus: true, periodDays: true },
         });
 
         // round91-F-B (D2-#1 — plan-cap bypass): كان هذا المسار ينشئ كل منيو
@@ -271,7 +274,7 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
               phone: existing.phone,
               planId: existing.planId,
               planStart: new Date(),
-              planEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              planEnd: new Date(Date.now() + (plan?.periodDays ?? 30) * 24 * 60 * 60 * 1000),
               maxItems: plan?.maxItems ?? undefined,
               maxOrders: plan?.maxOrders ?? undefined,
               isActive: true,

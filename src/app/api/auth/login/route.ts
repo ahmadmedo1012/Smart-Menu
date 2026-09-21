@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
+import { runAfterResponse } from '@/lib/bg-task'; // r119-S3-P2-4
 import { createSession } from '@/lib/session';
 import { verifyHash, needsRehash, hashPassword } from '@/lib/hash';
 import { usernamePresence, passwordPresence } from '@/lib/validation';
@@ -160,10 +161,14 @@ export async function POST(request: Request) {
                         targetId: user.id,
                         ip,
                 });
-                await notifyEvent(
-                        'user_login',
-                        { username: user.username, name: user.name, role: user.role },
-                        { adminOnly: true }
+                // r119-S3-P2-4: the admin broadcast is observability, not part of the
+                // auth contract — awaiting it put up to ~10s of Telegram-transport
+                // latency (and 504 risk) inside the login critical path. after()
+                // runs it post-response on Vercel; notifyEvent is already
+                // never-throwing + 10s-bounded (r118), so the response can't be
+                // delayed or failed by it anymore.
+                runAfterResponse(() =>
+                        notifyEvent('user_login', { username: user.username, name: user.name, role: user.role }, { adminOnly: true })
                 );
 
                 // Create server-side session

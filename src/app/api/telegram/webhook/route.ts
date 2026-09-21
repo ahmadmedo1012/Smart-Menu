@@ -19,7 +19,10 @@ import { getClientIp } from '@/lib/client-ip';
 
 // Telegram can deliver bursts (callback storms); 120/min with a 30s window
 // tolerates the security test's 20-request burst while still capping abuse.
-const webhookDbLimiter = createDbRateLimiter({ windowMs: 30_000, max: 120 });
+// r119-S3-P2-1: failOpen — this surface is secret_token-gated (only Telegram
+// can reach it); a DB blip must 200, not 429, or Telegram re-delivers and the
+// recovery burst re-trips the cap → dropped updates (the r116 incident class).
+const webhookDbLimiter = createDbRateLimiter({ windowMs: 30_000, max: 120, failOpen: true });
 
 interface TelegramUpdate {
         message?: {

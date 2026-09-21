@@ -340,6 +340,23 @@ test.describe('404 handling', () => {
                 await page.waitForLoadState('networkidle');
                 await expect(page.locator('body')).toBeVisible();
         });
+
+        // r119-S1-P2 regression: r118-B3 re-added (public)/menu/loading.tsx,
+        // which 35924222 had deleted to preserve real 404s — the loading
+        // boundary flushed a 200 shell before notFound() could set the status,
+        // so unknown menus were ISR-cached soft-404s (SEO spam + wasted
+        // renders). The boundary is deleted again; this pins the contract.
+        test('Unknown menu slug returns REAL 404 (no loading-boundary soft-404)', async ({ page }) => {
+                const res = await page.goto('/menu/definitely-not-a-real-menu-xyz987', { waitUntil: 'commit' });
+                expect(res?.status()).toBe(404);
+        });
+
+        test('/menu root redirects (no streamed 200)', async ({ page }) => {
+                const res = await page.goto('/menu', { waitUntil: 'commit' });
+                // pre-r118 this was a 307 to the demo menu; the streaming shell
+                // briefly made it 200. Both acceptable shapes, but never a hard error.
+                expect([200, 307, 308]).toContain(res?.status());
+        });
 });
 
 // ── 10. Browser interaction tests ───────────────────────────────────────────

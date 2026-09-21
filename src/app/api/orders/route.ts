@@ -17,6 +17,13 @@ import {
 } from '@/lib/order-modifiers';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
+// r119-S4-P3-3: rotation-proof backstop — the per-IP limiter alone is
+// defeated by IPv6/proxy rotation (unbounded garbage orders → Order+OrderItem
+// writes, Telegram fan-out, owner dashboard spam). A per-RESTAURANT ceiling
+// (150/min ≈ 5× the busiest real QR menu) caps the blast radius regardless
+// of how many IPs the flooder mints. Checked post-parse so garbage bodies
+// never cost a limiter write.
+const orderRestDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 150 });
 
 // round91-F-B (F9/D1 — unthrottled heavy GET): GET /api/orders runs the
 // platform's heaviest authenticated query (full list + grouped counts, 15s
@@ -199,6 +206,10 @@ export async function POST(request: NextRequest) {
                 const parsedInput = createSchema.safeParse(await request.json());
                 if (!parsedInput.success) return apiError(parsedInput.error.issues[0].message, 422);
                 const body = parsedInput.data;
+
+                // r119-S4-P3-3: per-restaurant ceiling (see limiter definition)
+                const { success: restAllowed } = await orderRestDbLimiter.check(`order-rest:${body.restaurantId}`);
+                if (!restAllowed) return apiError('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 // Recalc totals server-side to prevent price tampering
                 // round86-A4: items must belong to the order's restaurant and be

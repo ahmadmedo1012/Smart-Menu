@@ -8,6 +8,12 @@ interface RateLimiterConfig {
   max: number;
   /** Keep the real budget even under RATE_LIMIT_RELAX (e.g. account lockout limiters asserted by e2e). */
   exemptFromRelax?: boolean;
+  /** r119-S3-P2-1: fail-OPEN mode for secret-gated callers (telegram webhook).
+   * Default stays fail-closed (public abuse surfaces). With failOpen, a DB
+   * outage counts as 0 instead of max+1 — otherwise every Neon blip 429s
+   * verified webhook updates, Telegram re-delivers non-2xx, and the recovery
+   * burst itself re-trips the cap → updates permanently dropped. */
+  failOpen?: boolean;
 }
 
 // round90-F4 (red-team r90-D2): probabilistic TABLE-level sweep tuning.
@@ -32,7 +38,7 @@ interface RateLimiter {
 }
 
 export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
-  const { windowMs, max, exemptFromRelax } = config;
+  const { windowMs, max, exemptFromRelax, failOpen = false } = config;
   // Dev-only relief: local e2e suites share one origin (127.0.0.1) across
   // many projects and exhaust the per-IP bucket within a minute. Production
   // (Vercel sets NODE_ENV=production) keeps the real limits.
@@ -105,8 +111,9 @@ export function createDbRateLimiter(config: RateLimiterConfig): RateLimiter {
       }
 
       if (count === null) {
-        // fail closed on DB error (both upsert and read failed)
-        count = max + 1;
+        // DB error (both upsert and read failed): fail closed by default —
+        // r119 adds failOpen for the telegram webhook limiter (see config).
+        count = failOpen ? 0 : max + 1;
       }
 
       // round90-F4 (red-team r90-D2): probabilistic TABLE-level sweep (~1/32
