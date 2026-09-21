@@ -86,11 +86,14 @@ describe('premiumToast — toast.custom call', () => {
 });
 
 describe('premiumToast — rendered element contract', () => {
-        it('root is an alert container: role=alert, aria-live=polite, dismiss-on-click', () => {
+        it('root is an alert container: role=alert (assertive by default), no contradicting aria-live, dismiss-on-click', () => {
                 const root = renderToast('error', 'فشل الحفظ', 'حاول مرة أخرى');
                 expect(root.type).toBe('div');
                 expect(root.props.role).toBe('alert');
-                expect(root.props['aria-live']).toBe('polite');
+                // r119-S5-P2: the explicit aria-live="polite" was REMOVED — it
+                // contradicted role=alert (assertive). The unambiguous contract
+                // is role=alert alone.
+                expect(root.props['aria-live']).toBeUndefined();
 
                 // clicking the toast body dismisses it (the t id from the callback)
                 (root.props.onClick as () => void)();

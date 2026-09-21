@@ -13,12 +13,23 @@ on:
 # destroyed per incident, and the same overspend that triggered the billing block).
 # New model:
 #   1. `triage` runs on EVERY push/PR (fast: checkout + secrets scan + .env guard).
-#   2. It outputs `code` = did anything outside docs/*.md change?
+#   2. It outputs `code` = did anything outside docs/*.md change? and `mobile` =
+#      did anything under mobile/ (or this workflow file) change?
 #   3. The three heavy jobs need triage and are skipped for docs-only pushes —
 #      SKIPPED jobs never enter a concurrency group, so a docs push can no longer
-#      cancel an in-flight code run.
-#   4. cancel-in-progress survives at JOB level, per job+ref, so a genuinely
+#      cancel an in-flight code run. (r119-B5-D: the `mobile` and `prod-qa` jobs
+#      gained this gate 1 round late — until r119 only lint-build-test had it, so
+#      every docs-only push still burned ~18 runner-minutes on them. The header
+#      claim below is finally TRUE for all three.)
+#   4. The `mobile` job additionally requires `mobile == 'true'` (path-split,
+#      S10 §2.2-2): web-only pushes skip the full RN install + Metro export
+#      (~8-12 min each; ~80% of fleet code pushes are web-only).
+#   5. cancel-in-progress survives at JOB level, per job+ref, so a genuinely
 #      superseded CODE run is still cancelled (the original round86-D6 intent).
+# Minutes math (S10 §2.1, Sep cadence 8.1 pushes/day, 22% docs-only):
+#   docs-only push: ~19 min → 1 min (triage only) · web-only code push: −10 min
+#   (mobile skipped). Keep the ≤1,800 min/month target in mind for any change
+#   here — see keep_alive.yml's budget header for the full policy.
 
 # r97-X4: the Node version is now pinned by .nvmrc (major "24"), read via
 # node-version-file on every setup-node step. actions/setup-node v4.1+
@@ -38,6 +49,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      mobile: ${{ steps.mobile.outputs.mobile }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
@@ -70,6 +82,74 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           node scripts/ci-triage.mjs
+
+      # r119-B5-D (S10-P1 path-split): emit `mobile=true|false` for the mobile
+      # job's `if`. Mirrors scripts/ci-triage.mjs EXACTLY — same compare API,
+      # same base resolution, same FAIL-OPEN semantics (skip must be provable:
+      # dispatch / unusable base / API failure / truncated diff → run mobile).
+      # A change counts as mobile when a file lives under mobile/ OR this
+      # workflow file itself changed (so a broken mobile-job edit is caught on
+      # the next ci.yml push instead of hiding until the next mobile/ change).
+      # Docs-only pushes short-circuit: `code=false` already skips every heavy
+      # job, so no second compare is spent.
+      - name: Detect mobile changes
+        id: mobile
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CODE: ${{ steps.filter.outputs.code }}
+        run: |
+          if [ "$CODE" != "true" ]; then
+            echo "mobile=false" >> "$GITHUB_OUTPUT"
+            echo "triage: mobile=false (docs-only push — heavy jobs already skipped)"
+            exit 0
+          fi
+          node --input-type=module <<'EOF'
+          import { appendFileSync } from "node:fs";
+          const emit = (mobile) => {
+            const out = process.env.GITHUB_OUTPUT;
+            if (out) appendFileSync(out, `mobile=${mobile ? "true" : "false"}\n`);
+            console.log(`triage: mobile=${mobile ? "true" : "false"}`);
+          };
+          const token = process.env.GH_TOKEN;
+          const base = (process.env.BASE || "").trim();
+          const repo = process.env.GITHUB_REPOSITORY;
+          const head = process.env.GITHUB_SHA;
+          const event = process.env.GITHUB_EVENT_NAME;
+          if (event === "workflow_dispatch" || !base || /^0+$/.test(base)) {
+            console.log("triage: no usable base — running mobile");
+            emit(true); process.exit(0);
+          }
+          if (!token || !repo || !head) {
+            console.log("triage: missing env — running mobile");
+            emit(true); process.exit(0);
+          }
+          const res = await fetch(
+            `https://api.github.com/repos/${repo}/compare/${base}...${head}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+              },
+            },
+          ).catch(() => null);
+          if (!res || !res.ok) {
+            console.log(`triage: compare failed — running mobile`);
+            emit(true); process.exit(0);
+          }
+          const data = await res.json();
+          const files = Array.isArray(data.files) ? data.files : [];
+          if (data.total_commits > 250 || files.length >= 300) {
+            console.log("triage: large diff — running mobile");
+            emit(true); process.exit(0);
+          }
+          const touched = files.some(
+            (f) => f.filename.startsWith("mobile/") || f.filename === ".github/workflows/ci.yml",
+          );
+          if (touched) console.log(`triage: mobile files changed, e.g. ${files.filter((f) => f.filename.startsWith("mobile/")).slice(0, 3).map((f) => f.filename).join(", ")}`);
+          emit(touched);
+          EOF
 
   # TODO(r98): lint-build-test is a 20+ step monolith (gates → build → e2e in
   # one job). Splitting it (lint/typecheck/unit | build+e2e, sharing a build
@@ -377,6 +457,18 @@ jobs:
   # verification exactly (typecheck + eslint + Metro/Hermes export); doctor
   # stays advisory (registry-dependent, flaky as a gate).
   mobile:
+    # r119-B5-D (S10-P1): gated like lint-build-test — this job used to run on
+    # EVERY push (docs-only included, ~8-12 wasted min each) because it lacked
+    # `needs: triage`. Additionally path-split: it only runs when something
+    # under mobile/ (or this workflow file) actually changed.
+    needs: triage
+    if: needs.triage.outputs.code == 'true' && needs.triage.outputs.mobile == 'true'
+    # r119-B5-D (S10-P3-1): job-level group mirroring lint-build-test — a
+    # skipped job never joins the group, and a superseded mobile run is
+    # cancelled instead of burning its full 20-minute budget.
+    concurrency:
+      group: ci-mobile-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -422,9 +514,18 @@ jobs:
   # continue-on-error inside the blocking job, and the report upload (if:
   # failure()) ran BEFORE it, so prod-QA failures left zero artifacts.
   prod-qa:
+    # r119-B5-D (S10-P1): gated like lint-build-test — this job used to run on
+    # EVERY main push (docs-only included, ~6-10 wasted min each). The original
+    # push+main condition is kept verbatim; the triage gate is prepended.
+    needs: triage
+    if: needs.triage.outputs.code == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # r119-B5-D (S10-P3-1): job-level group mirroring lint-build-test (a docs
+    # push can no longer queue a superseded prod-qa leg behind a code run).
+    concurrency:
+      group: ci-prod-qa-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0

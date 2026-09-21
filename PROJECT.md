@@ -1,6 +1,6 @@
 # Smart Menu — Project Reference
 
-> آخر تحديث: الجولة 97 (r97-X5: مزامنة الأرقام المقيسة — عتبات التغطية، React، إحصاءات الملفات — + إضافة قائمة السكربتات الحية أدناه؛ سابقًا 9 سبتمبر 2026 جولة 96 — W5: سجل الجولات + تنظيم المستودع؛ سابقًا جولة 92 — الوكيل 4-a: بنية وتوثيق)
+> آخر تحديث: الجولة 119 (B5-D: تحديث شامل بعد 22 جولة — إضافة تطبيق الجوال mobile/، نموذجا UserRestaurant + SubscriptionPlan، السكربتات 27، مسارات API 66، اختبارات 140 ملف/1995 حالة، سلسلة verify، CI رباعي المهام؛ سابقًا الجولة 97 — r97-X5: مزامنة الأرقام المقيسة + قائمة السكربتات الحية؛ سابقًا 9 سبتمبر 2026 جولة 96 — W5: سجل الجولات + تنظيم المستودع؛ سابقًا جولة 92 — الوكيل 4-a: بنية وتوثيق)
 
 ---
 
@@ -83,6 +83,8 @@ pnpm dev
 
 Multi-tenant restaurant SaaS. QR-scannable digital menus, WhatsApp ordering, modifiers system, loyalty program, Telegram ChatOps for payment approvals, owner dashboard with advanced analytics, super-admin panel.
 
+**تطبيق الجوال (mobile/)** — Expo SDK 53 · React Native 0.79.6 · React 19 · Hermes · NativeWind: منيو عام (نفس API الويب)، سلة→طلب→واتساب، لوحة مالك (طلبات لحظية 5s + QR + haptics)، دخول Bearer عبر SecureStore. **عربي فقط RTL من أول إطار** (with-force-rtl prebuild + I18nManager.forceRTL). التوازي الكامل مع الويب مثبَت r114 على محاكي API 25 ضد الإنتاج (طلب حقيقي + فاتورة واتساب). البوابات: `pnpm verify:mobile` من الجذر. التفاصيل: `mobile/README.md`.
+
 ### Core Domains
 
 | المجال | المسار | الوصف |
@@ -102,6 +104,7 @@ Multi-tenant restaurant SaaS. QR-scannable digital menus, WhatsApp ordering, mod
 
 ### Core
 - `User` — مستخدم المنصة (admin/owner) مع صلاحيات RBAC (`Permission[]`)
+- `UserRestaurant` — رابط مستخدم↔مطعم متعدد (multi-menu؛ r118: عزل المستأجر عبر `requireRestaurant` وروابط المالك متعدد المنيوهات)
 - `Session` — جلسات المصادقة (httpOnly cookie 24h)
 - `Restaurant` — بيانات المطعم (اسم، slug، واتساب، شعار، خطة)
 
@@ -124,6 +127,7 @@ Multi-tenant restaurant SaaS. QR-scannable digital menus, WhatsApp ordering, mod
 ### System
 - `AuditLog` — سجل التدقيق
 - `SystemEvent` — أحداث النظام (severity: info/warning/error/critical)
+- `SubscriptionPlan` — كتالوج الباقات (Free/Basic/Premium/Pro/Enterprise) — أساس محرك الاشتراكات وحدود الخطة
 - `SubscriptionPayment` — مدفوعات الاشتراك
 - `TelegramConfig`, `TelegramApprover`, `TelegramBroadcastTarget`
 - `RateLimitEntry`, `SystemConfig`, `Setting`, `WhatsappTemplate`
@@ -137,24 +141,17 @@ Multi-tenant restaurant SaaS. QR-scannable digital menus, WhatsApp ordering, mod
 ```
 src/
 ├── app/
+│   ├── layout.tsx           ← الجذر الموحد (r119-B3: أصلح قوقع 404 العارية لـ Next16 — lang=ar dir=rtl + globals.css)
 │   ├── (public)/layout.tsx    ← Public layout: self-hosted fonts (/fonts/fonts.css +
 │   │                            preload links — NOT next/font), ThemeProvider, Toaster
-│   ├── (protected)/layout.tsx ← Authenticated-area layout (owner/admin)
+│   ├── (protected)/layout.tsx ← Authenticated-area layout (owner/admin؛ fragments بعد r119-B3)
 │   ├── (public)/page.tsx      ← Landing: server wrapper (ISR 60s) → HomePage component
 │   ├── globals.css            ← tokens, utilities, keyframes, glass, animations
 │   ├── proxy.ts            ← Next16 middleware: cookie gate + CSP nonce + security headers + CSRF origin (round85: matcher يستثني الأصول الثابتة)
 │   ├── instrumentation.ts
 │   │
-│   ├── (public pages)
-│   │   ├── pricing/        ← 5 باقات مع ميزات وCTA
-│   │   ├── login/          ← تسجيل دخول + إعادة توجيه حسب الدور
-│   │   ├── subscribe/      ← اختيار باقة + نموذج تسجيل (اسم، slug، واتساب، يوزر)
-│   │   ├── terms/          ← شروط الاستخدام
-│   │   ├── privacy/        ← سياسة الخصوصية
-│   │   ├── menu/[slug]/    ← المنيو العام مع تصنيفات، فرز، بحث، إضافة إلى السلة
-│   │   ├── cart/           ← سلة التسوق (نوع الطلب، بيانات العميل، إرسال واتساب)
-│   │   └── order-confirmed/ ← تأكيد الطلب مع تفاصيل
-│   │
+│   ├── (public)/            ← الصفحات العامة: menu/[slug]، pricing، terms، privacy، landing، [...not-found]
+│   ├── (protected)/         ← login، subscribe، cart، order-confirmed + owner/ + admin/
 │   ├── owner/              ← لوحة المالك (10 صفحات)
 │   │   ├── page.tsx        ← Dashboard: KPI grid متحرك، Orders list، Analytics tab متقدم
 │   │   ├── OwnerCharts.tsx ← رسم بياني للإيرادات 7 أيام، أعلى الأصناف، توزيع ساعي
@@ -179,18 +176,19 @@ src/
 │   │   ├── audit-logs/     ← سجل التدقيق
 │   │   └── settings/       ← الإعدادات العامة
 │   │
-│   └── api/                ← 65 API route (RESTful) — حراسة check-api-auth.mjs تفحص تفويض كل مسار
+│   └── api/                ← 66 API route (RESTful) — حراسة check-api-auth.mjs تفحص تفويض كل معالج؛ الفهرس: docs/API.md
 │       ├── auth/           ← login, logout, me, register
-│       ├── restaurants/    ← CRUD مطاعم
+│       ├── restaurants/    ← CRUD مطاعم (+ owner/ نسخة المالك متعدد المنيوهات)
 │       ├── categories/     ← CRUD تصنيفات
 │       ├── items/          ← CRUD عناصر + تقييمات
-│       ├── orders/         ← طلبات + modifiers
+│       ├── orders/         ← طلبات + modifiers + count (polling)
 │       ├── subscriptions/  ← باقات، ترقية، تحقق، حالة
 │       ├── loyalty/        ← ولاء + إحالة + إحصائيات
-│       ├── admin/          ← أدمن (stats, system-events, Telegram, config)
-│       ├── owner/          ← مالك (reviews, stats)
-│       ├── user/           ← المستخدم + أحداث (polling)
-│       └── whatsapp/       ← رابط واتساب المباشر
+│       ├── admin/          ← أدمن (stats, system-events, telegram, config, users)
+│       ├── telegram/       ← webhook + بث + تشخيص
+│       ├── cron/           ← cleanup + subscription-expiry (CRON_SECRET)
+│       ├── public/         ← menu/[slug], featured, stats (للجوال + الويب)
+│       └── … (health, plans, upload, whatsapp, user, referrals, seed, config)
 │
 ├── components/
 │   ├── landing/            ← HomePage + 8 sections (Showcase, Features, Stats, FAQ, Clients, CTA...)
@@ -203,7 +201,7 @@ src/
 │   ├── loyalty/            ← LoyaltyWidget, LoyaltySettings, ReferralCard, ShareAfterOrder
 │   └── ui/                 ← shadcn/ui base-nova: button, card, dialog, sheet, select, table...
 │
-├── lib/                    ← 58 ملف مكتبة (قياس r97: `ls src/lib | wc -l` — يشمل modifier-schema الجديد؛ round85: +menu-cache، +secure-compare، +get-error-message، +dietary)
+├── lib/                    ← 61 ملف مكتبة (قياس r119؛ يشمل run-after-response (r119-B1)، menu-cache، modifier-schema، secure-compare، dietary)
 │   ├── auth.ts             ← requireAuth, requireAdmin, requirePermission
 │   ├── session.ts          ← التحقق من الجلسة
 │   ├── db.ts               ← Prisma client + Decimal toNumber + withRetry (SQLSTATE codes)
@@ -233,10 +231,27 @@ src/
 ├── prisma/
 │   └── schema.prisma       ← 25 models مع indexes + relations
 │
-└── tests/                  ← 131 unit (1908 حالة — قياس r97) + 42 e2e/security (team1-11 · 484 فحصًا)
+└── tests/                  ← 140 unit (1995 حالة — قياس r119) + 43 e2e/security (فرق team1-11 · 484+ فحصًا)
     ├── unit/               ← auth, core, csrf, rate-limit, loyalty-subscription, receipt-whatsapp-format (round85)...
-    ├── e2e/                ← 7 journey matrix + referral-claim (round85: مربوط بمشروع api بعد أن كان يتيمًا)
-    └── security/           ← webhook-security
+    ├── e2e/                ← رحلات matrix + referral-claim + teams/team11-modifiers
+    └── security/           ← webhook-security, rbac-negative
+```
+
+### mobile/ (تطبيق الجوال — مستقل بنائياً)
+
+```
+mobile/
+├── app.json               ← Expo: plugins (with-force-rtl, expo-build-properties minSdk 25، صلاحيات VIBRATE فقط)، App Links
+├── eas.json               ← ملفات EAS: development / preview (APK) / production
+├── plugins/with-force-rtl.js ← RTL وقت البناء (r119-B2M: manifest layoutDirection + iOS localizations)
+├── src/
+│   ├── app/               ← نقطة الدخول + تنقل React Navigation 7
+│   ├── screens/           ← عام (منيو، سلة، تأكيد) + مالك (طلبات، QR، إعدادات) + دخول
+│   ├── services/api/      ← عميل API (EXPO_PUBLIC_API_BASE_URL) + React Query
+│   ├── store/             ← Zustand: سلة + مصادقة (SecureStore Bearer)
+│   └── lib/               ← checkout-idempotency (r119-B2M)، عربية، ثوابت
+├── package.json           ← pnpm@10.34.5 (الجذر pnpm@11.9.0 — تعمّد، يتبدل تلقائيًا داخل mobile/)
+└── pnpm-lock.yaml         ← قفل مستقل + node-linker=hoisted (autolinking)
 ```
 
 ---
@@ -342,21 +357,30 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | `next-themes` | الوضع المظلم/الفاتح |
 | `lucide-react` | الأيقونات |
 | `tailwindcss@4` | CSS utility-first |
-| `sharp@0.35.3` | تحسين الصور |
+| `sharp@0.35.4` | تحسين الصور |
 | `zod@4.3.6` | التحقق من الإدخال |
 
-## Tests (1908 unit + e2e متعددة المشاريع في CI)
+## Tests (1995 unit + e2e متعددة المشاريع في CI)
 
 ```
-✓ unit/ (131 ملف، 1908 حالة — قياس r97) — auth, core, csrf, rate-limit, loyalty-subscription,
-                              receipt-whatsapp-format, regression (محوّلة لاستيراد الإنتاج الحقيقي r92),
-                              r92-* (register/claim/webhook/categories/owner/admins/reviews/cleanup)
+✓ unit/ (140 ملف، 1995 حالة — قياس r119؛ ⚠ حالتان تفشلان بعد دفعة r119-B3:
+                              premium-toast aria-live + r93-w2a تعليق التخطيط — مُعلَّمتان للدفعة القادمة)
 ✓ e2e (CI: 4 projects)     — security + api(+referral-claim) + ui + auth-verify
 ✓ qa-teams (production)    — prod-qa (team1/2/5/6/9) تعمل ضد الإنتاج (continue-on-error)
 ✓ coverage gate            — ratchet (round92-D-ratchet): 80/74/75/83 — تُرفع فقط ولا تُخفض
 ```
 
-## Live Scripts (أدوات `scripts/` الحية — 23 ملفًا، قياس r97-X5)
+### سلسلة البوابات المحلية (r119-B5-D — package.json)
+
+```
+pnpm verify         # lint → typecheck → test → build (كاملة؛ build يلمس قاعدة التطوير عبر migrate-deploy)
+pnpm verify:fast    # lint → typecheck → unit المتأثرة فقط (vitest --changed HEAD) — بوابة الدفعات اليومية
+pnpm verify:mobile  # cd mobile → tsc --noEmit + eslint
+```
+
+> GitHub Actions محجوب الفوترة منذ 19 سبتمبر — هذه السلسلة هي البوابة الفعلية (ENGINEERING_STATE r117-r119).
+
+## Live Scripts (أدوات `scripts/` الحية — 27 ملفًا، قياس r119)
 
 > سكربتات الجولات لمرة واحدة تُنقل إلى `scripts/archive/` بعد إغلاق الجولة (قاعدة W5)؛
 > ما يلي هو المخزون الحي فقط (الأغراض مأخوذة من تعليقات رأس كل سكربت):
@@ -364,6 +388,8 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 | السكربت | الغرض (سطر واحد) | موصول عبر |
 |---------|------------------|-----------|
 | `ci-seed.mjs` | بذر CI/المحلي: admin + الخطط الافتراضية (idempotent، بلا حلقة مصادقة) | CI + `pnpm db:seed` |
+| `ci-triage.mjs` | مصنّف دفعات CI: code مقابل docs-only عبر GitHub compare API (fail-open) | CI (triage job، r118-A8) |
+| `migrate-deploy.mjs` | نشر هجرات الإنتاج بأمان قبل البناء (r98) | `pnpm build` |
 | `round83-seed.mjs` | بذر التحقق المحلي: مطعم al-waha-cafe + 9 أصناف بصور حقيقية + featured | CI + docs |
 | `qa-seed.mjs` | بذر QA للرحلات العميقة محليًا (testmulti1568 + مطاعم IDOR) | CI |
 | `r93-sim-seed.mjs` | بذرة تكميلية لرحلات محاكاة الجولة 93 (r93_sim_root/sa...) | CI |
@@ -422,6 +448,19 @@ requirePermission('xxx')   ← super_admin يتجاوز، sub_admin يتحقق �
 ---
 
 ## سجل الجولات (موجز — أحدث أولًا)
+
+### الجولة 119 (2026-09-21) — أسطول 12 وكيلًا: جذر انحشار النشر + دفعات إصلاح + توثيق
+- **جذر انحشار Vercel (r119)**: كل ودفعات r118 كانت بتأليف بريد غير مرتبط بحساب GitHub (`agent@smart-menu.dev`) → الـintegration يرفض التعرّف على المؤلف ويحجب النشر. أُصلحت الهوية إلى بريد الحساب الأساسي — دفعة r118 كاملة وصلت الإنتاج أول مرة (`92611477`). **القاعدة: بريد تأليف الـcommit = بريد حساب GitHub دائمًا.**
+- **دفعات r119**: B1 (انحدار soft-404 للمنيو + فاتورة واتساب بحقيقة الخادم + fail-open لحد معدل الويبهوك + سقف طلبات لكل مطعم)، B2-M (RTL وقت البناء + minSdk 25 + صلاحيات + idempotency)، B3 (root layout للـ404 + a11y)، B5-D (هذا التحديث: بوابات triage للـCI + سلسلة verify + الأرشيف docs/rounds/audits/).
+- **CI محجوب الفوترة** منذ 19 سبتمبر — سياسة دقائق ≤1800/شهر موثقة في keep_alive.yml (S10: إرجاع الفوترة بلا ضوابط = إعادة الحجب خلال 6-9 أيام).
+
+### الجولة 118 (2026-09-20) — أعمق جولات التدقيق: أسطول 9 وكلاء + 5 دفعات
+- P1×6 · P2×19 · P3×44 · P4×74 خام + عشرات الفحوص النظيفة (مصفوفة IDOR لـ66 مسارًا = صفر ثغرات).
+- **B1**: عقد مجموعات الإضافات على الخادم + snapshot للـmodifiersJson + تصنيف triage للـCI. **B2**: دورة حياة تراجع السلة + حرس حذف مطعم له طلبات (409). **B3**: Data Cache لحمولة المنيو العام (60s + تنقية بالوسوم) + terms/privacy → ISR. **B4**: اختبارات مسار بيانات الجوال. **B5**: كنس CSS ميت.
+- عزل المستأجر متعدد المنيوهات عبر `UserRestaurant` (requireRestaurant).
+
+### r100-r117 (موجز — التفاصيل في docs/ENGINEERING_STATE.md)
+- **r114**: إثبات التوازي الكامل للجوال على محاكي API 25 ضد الإنتاج + حد TLS (24 يفشل → minSdk 25 لاحقًا r119). **r116**: حادثة موافقات الدفع التلقية (idempotent replays + تعارضات). **r117**: خفض keep-alive 96→19/يوم + قياسات الأداء الحية. **r110-r113**: EAS APK + أرقام أداء حقيقية + مصفوفة تفويض 66 مسارًا. **r104**: انهيار إقلاع الجوال على Android (Intl.PluralRules غير مدعوم في Hermes) — مُصلح بمصنّف CLDR خالص. **r100-r103**: جوال EAS-ready + API المنيو العام + تدقيق clone نظيف.
 
 ### الجولة 96 (2026-09-09) — منيو عرض واقعي + التوأمة الكاملة + تنظيم المستودع
 - **منيو الديمو الواقعي**: هجرة بيانات idempotent `20260909_round96_demo_menu` (فئات/أصناف عربية واقعية + مجموعات خيارات + featured) + 28 صورة عرض webp في `public/demo/` (سكربتات `scripts/r96-*`)

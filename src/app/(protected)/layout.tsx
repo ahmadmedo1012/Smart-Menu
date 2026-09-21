@@ -81,6 +81,12 @@ export default async function RootLayout({
         // 2×2 duplication. React forces crossorigin=anonymous for as:"font".
         preload('/fonts/cairo-arabic.woff2', { as: 'font', type: 'font/woff2' });
         preload('/fonts/readex-pro.woff2', { as: 'font', type: 'font/woff2' });
+        // r93-W2a (U1): خط العناوين — المصدر الواحد للحقيقة هو تعريف @theme inline
+        // في globals.css (Readex Pro أولًا) وسطر :root مرآة مطابقة له؛ هذا الـ
+        // preload يطابق الجذر العام ويمنع وميض تبديل خط العناوين هنا.
+        // (تعليق r88-A2 القديم ادّعى أن Readex Pro «فعّال في الوضع الفاتح» —
+        // غير دقيق؛ وُحّد في r93-W2a.) — نُقل إلى هنا مع تحويل التخطيط إلى
+        // fragment في r119 (الجذر يملك <html>/<body> الآن).
         const nonce = (await headers()).get('x-nonce') ?? '';
         // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout
         // (see src/app/layout.tsx) — the links/metas below hoist into <head> via

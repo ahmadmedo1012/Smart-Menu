@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         items: { select: { id: true, quantity: true, price: true, notes: true, modifiersJson: true, item: { select: { id: true, name: true, nameAr: true } } } },
       },
     });
-    if (!order) return notFound("Order");
+    if (!order) return notFound('الطلب');
 
     // Owners can only generate for their own restaurant (multi-menu aware)
     if (auth.role === "owner") {

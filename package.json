@@ -18,7 +18,10 @@
     "postbuild": "cp -r .next/static .next/standalone/.next/ 2>/dev/null || true; cp -r public .next/standalone/public 2>/dev/null || true",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "node scripts/ci-seed.mjs",
-    "knip": "knip"
+    "knip": "knip",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "verify:fast": "pnpm lint && pnpm typecheck && env -u DATABASE_URL pnpm exec vitest run --changed HEAD --passWithNoTests",
+    "verify:mobile": "cd mobile && pnpm exec tsc --noEmit && pnpm run lint"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

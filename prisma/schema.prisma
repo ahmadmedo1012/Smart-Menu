@@ -174,6 +174,7 @@ model MenuItem {
   reviews         Review[]
 
   @@index([categoryId])
+  @@index([categoryId, sortOrder]) // r119-S7: staff list + public menu order by sortOrder — external sort at 100k items
   @@index([status])
   // round86-B13: featured showcase query (isFeatured=true + category join)
   @@index([isFeatured, categoryId])
@@ -194,7 +195,7 @@ model Order {
   updatedAt          DateTime            @updatedAt
   pickupType         PickupType          @default(inside)
   status             OrderStatus         @default(new)
-  restaurant         Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant         Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Restrict) // r119-S7: financial history — cascade silently wiped orders on restaurant delete; API guard (r118-B2) + P2003 mapping now enforce the 409 stance at DB level too
   items              OrderItem[]
   referrals          Referral[]
   rewardTransactions RewardTransaction[]
@@ -425,6 +426,7 @@ model AuditLog {
 
   @@index([actorId])
   @@index([action])
+  @@index([action, createdAt]) // r119-S7: admin audit list filters by action + sorts by createdAt — 566x measured on 200k rows
   @@index([targetType, targetId])
   @@index([createdAt])
 }

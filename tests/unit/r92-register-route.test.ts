@@ -166,46 +166,46 @@ describe('POST /api/auth/register — rate limit gate (before body parsing)', ()
         });
 });
 
-// ── Gate 2: zod validation (first-issue Arabic messages, 400) ───────────
+// ── Gate 2: zod validation (first-issue Arabic messages; r119-S8: 422 unified) ──
 
-describe('POST /api/auth/register — schema validation (400 envelope)', () => {
-        it('short password → 400 «كلمة المرور يجب أن تكون 8 أحرف على الأقل»', async () => {
+describe('POST /api/auth/register — schema validation (422 envelope — r119-S8 unified)', () => {
+        it('short password → 422 «كلمة المرور يجب أن تكون 8 أحرف على الأقل»', async () => {
                 const res = await callRegister({ ...VALID, password: '1234567' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.success).toBe(false);
                 expect(json.error).toBe('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
         });
 
-        it('short username → 400 «اسم المستخدم يجب أن يكون 3 أحرف على الأقل»', async () => {
+        it('short username → 422 «اسم المستخدم يجب أن يكون 3 أحرف على الأقل»', async () => {
                 const res = await callRegister({ ...VALID, username: 'ab' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
         });
 
-        it('31-char username → 400 «اسم المستخدم يجب ألا يتجاوز 30 حرفًا»', async () => {
+        it('31-char username → 422 «اسم المستخدم يجب ألا يتجاوز 30 حرفًا»', async () => {
                 const res = await callRegister({ ...VALID, username: 'a'.repeat(31) });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('اسم المستخدم يجب ألا يتجاوز 30 حرفًا');
         });
 
-        it('empty name → 400 «الاسم مطلوب»', async () => {
+        it('empty name → 422 «الاسم مطلوب»', async () => {
                 const res = await callRegister({ ...VALID, name: '' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('الاسم مطلوب');
         });
 
-        it('invalid email → 400 «البريد الإلكتروني غير صحيح»', async () => {
+        it('invalid email → 422 «البريد الإلكتروني غير صحيح»', async () => {
                 const res = await callRegister({ ...VALID, email: 'not-an-email' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('البريد الإلكتروني غير صحيح');
         });
@@ -216,7 +216,7 @@ describe('POST /api/auth/register — schema validation (400 envelope)', () => {
                 expect(res.status).toBe(201);
         });
 
-        it('non-JSON body → 400 «بيانات غير صالحة — خطأ في صيغة JSON» via handleError', async () => {
+        it('non-JSON body → 422 «بيانات غير صالحة — خطأ في صيغة JSON» via handleError', async () => {
                 const res = await callRegister('this is not json at all', {}, true);
 
                 expect(res.status).toBe(400);
@@ -263,12 +263,12 @@ describe('POST /api/auth/register — uniqueness (409)', () => {
                 expect(mockUserFindFirst).toHaveBeenCalledWith({ where: { email: 'owner@example.com' } });
         });
 
-        it('zod 4 rejects a single-char TLD («a@b.c») at the schema gate → 400, lookup never runs', async () => {
+        it('zod 4 rejects a single-char TLD («a@b.c») at the schema gate → 422, lookup never runs', async () => {
                 // read from the real schema (not assumed): zod 4's email format check
                 // requires a 2+ char TLD — the route's regex is zod's, not a custom one
                 const res = await callRegister({ ...VALID, email: 'a@b.c' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('البريد الإلكتروني غير صحيح');
                 expect(mockUserFindFirst).not.toHaveBeenCalled();
@@ -324,7 +324,7 @@ describe('POST /api/auth/register — HTML strip (stored-XSS defense)', () => {
                 expect(mockUserFindUnique).toHaveBeenCalledWith({ where: { username: 'newuser1' } });
         });
 
-        it('round92-wave3-5: strip runs BEFORE zod — «a<b>b</b>» (9 raw chars) sanitizes to the 2-char «ab» which FAILS min-3 → 400, nothing written', async () => {
+        it('round92-wave3-5: strip runs BEFORE zod — «a<b>b</b>» (9 raw chars) sanitizes to the 2-char «ab» which FAILS min-3 → 422, nothing written', async () => {
                 // The order is now body → strip → zod: the length policy judges the
                 // sanitized value that will actually be stored. Previously the strip
                 // ran after validation, so a tag-laden raw username passed the floor
@@ -332,19 +332,19 @@ describe('POST /api/auth/register — HTML strip (stored-XSS defense)', () => {
                 // old test pinned the buggy behavior — flipped deliberately.
                 const res = await callRegister({ ...VALID, username: 'a<b>b</b>' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
                 expect(mockUserCreate).not.toHaveBeenCalled();
                 expect(mockUserFindUnique).not.toHaveBeenCalled(); // rejected at the schema gate, before the lookup
         });
 
-        it('round92-wave3-5: a name that sanitizes to EMPTY fails min-1 → 400 «الاسم مطلوب» (raw non-empty no longer suffices)', async () => {
+        it('round92-wave3-5: a name that sanitizes to EMPTY fails min-1 → 422 «الاسم مطلوب» (raw non-empty no longer suffices)', async () => {
                 // «<b></b>» is non-empty raw (would pass the old post-zod world) —
                 // after the strip it is «», and zod must reject it.
                 const res = await callRegister({ ...VALID, name: '<b></b>' });
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('الاسم مطلوب');
                 expect(mockUserCreate).not.toHaveBeenCalled();

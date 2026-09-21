@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (!auth.authorized) return error(auth.error, auth.status);
 
     const parsed = verifySchema.safeParse(await request.json());
-    if (!parsed.success) return error("token و chatId مطلوبان", 400);
+    if (!parsed.success) return error("token و chatId مطلوبان", 422);
     const { token, chatId, username } = parsed.data;
 
     let hmacKey: Buffer;

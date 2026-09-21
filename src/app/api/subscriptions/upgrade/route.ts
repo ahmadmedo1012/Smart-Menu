@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
                 if (!allowed) return error('محاولات كثيرة جداً. حاول لاحقاً.', 429);
 
                 const parsed = upgradeSchema.safeParse(await request.json());
-                if (!parsed.success) return error(parsed.error.issues[0].message, 400);
+                if (!parsed.success) return error(parsed.error.issues[0].message, 422);
                 const {
                         planId,
                         phone,

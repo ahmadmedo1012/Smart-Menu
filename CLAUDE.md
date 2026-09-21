@@ -4,7 +4,34 @@
 
 - App Router | RTL-first Arabic | Tailwind CSS 4 | shadcn/ui base-nova
 - Prisma + PostgreSQL | Session cookies (hashed, httpOnly) | PWA + polling order updates (SSE removed)
+- **Mobile app in `mobile/`** — Expo SDK 53 · React Native 0.79.6 · React 19 · Hermes (own pnpm/lockfile; see `mobile/README.md`)
 - See `PROJECT.md` for full structure, architecture, API reference, conventions, and env vars
+
+---
+
+# Session Resume Protocol (r119 — read this before any work)
+
+1. **Read `docs/ENGINEERING_STATE.md` FIRST** — current snapshot, honest ledger,
+   deploy state, and next recommended actions. It is the cross-session source of
+   truth; `PROJECT.md` is the architecture reference (web + mobile).
+2. **Gates** (GitHub Actions is billing-blocked since Sep 19 — local gates are
+   the ONLY gate): `pnpm verify:fast` (lint + typecheck + affected unit tests —
+   the per-batch gate) · `pnpm verify` (adds full test + build; build runs
+   `migrate-deploy` against the DEV database) · `pnpm verify:mobile`
+   (mobile tsc + eslint). CI parity is preserved — ci.yml runs the same checks.
+3. **Deploy rule (r119, cost: days of blocked deploys)**: commit author email
+   MUST be the GitHub account's verified email — Vercel's git integration
+   refuses to identify `agent@smart-menu.dev` (not associated with any account)
+   and silently blocks every deployment authored by it. Verify with
+   `git config user.email` before committing.
+4. **Session artifacts are container-volatile**: `/home/z/my-project/`
+   (worklog.md, audit/, ad-hoc scripts) dies with the container — r115-r118
+   fleet evidence was lost this way. Commit round evidence INTO the repo at
+   close: findings → `docs/rounds/audits/r{N}/`, narratives →
+   `docs/rounds/closures/` (policy: `docs/README.md` rule #5). Text only.
+5. Tool inventories in this file are container-specific — verify PATH/filesystem
+   before relying on any tool named below; do not trust absence claims from old
+   rounds.
 
 ---
 

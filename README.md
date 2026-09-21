@@ -151,3 +151,9 @@ scripts/             # أدوات CI الحية + archive/ لسكربتات ال
 
 ## 📜 التراخيص والملكية
 مشروع خاص — جميع الحقوق محفوظة لصاحب الحساب `ahmadmedo1012` (المستودع خاص).
+
+### الخطوط
+خطوط الويب (`public/fonts/` — Cairo · Readex Pro · Noto Naskh Arabic · Noto Sans Arabic)
+وخطوط تطبيق الجوال (`mobile/assets/fonts/` — Cairo · Readex Pro) مُعاد توزيعها بموجب
+**رخصة SIL Open Font License 1.1** — الإسناد الكامل وحقوق النشر لكل عائلة في
+[`public/fonts/OFL-LICENSES.md`](public/fonts/OFL-LICENSES.md).

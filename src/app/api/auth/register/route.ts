@@ -46,7 +46,7 @@ export async function POST(request: Request) {
                                 : raw;
                 const parsed = registerSchema.safeParse(sanitizeInput(body));
                 if (!parsed.success) {
-                        return error(parsed.error.issues[0].message, 400);
+                        return error(parsed.error.issues[0].message, 422);
                 }
                 const { username, password, name, email } = parsed.data;
 

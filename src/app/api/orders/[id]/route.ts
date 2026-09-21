@@ -34,7 +34,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                                 restaurant: { select: { id: true, name: true, slug: true } },
                         },
                 });
-                if (!data) return notFound('Order');
+                if (!data) return notFound('الطلب');
 
                 // Only the owner (own restaurant) or platform roles may view an order
                 if (auth.role === 'owner') {
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 const body = updateSchema.parse(await request.json());
 
                 const existing = await prisma.order.findUnique({ where: { id: oid } });
-                if (!existing) return notFound('Order');
+                if (!existing) return notFound('الطلب');
 
                 // Owner can only modify their own restaurant's orders; regular users can't modify any
                 if (auth.role === 'owner') {

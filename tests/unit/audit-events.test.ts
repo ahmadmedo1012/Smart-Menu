@@ -32,6 +32,14 @@ const mockPrisma = vi.hoisted(() => ({
                 update: mockUserUpdate,
                 delete: mockUserDelete,
         },
+        // r119-S7: users DELETE now checks last-ownership before deleting —
+        // default mock: the target owns no restaurant links (guard passes).
+        userRestaurant: {
+                findMany: vi.fn().mockResolvedValue([]),
+        },
+        restaurant: {
+                findMany: vi.fn().mockResolvedValue([]),
+        },
         systemEvent: { create: mockSystemEventCreate },
 }));
 
@@ -274,5 +282,38 @@ describe('B7 — DELETE /api/users/[id] audit', () => {
                 expect(res.status).toBe(403);
                 expect(mockUserDelete).not.toHaveBeenCalled();
                 expect(mockLogAudit).not.toHaveBeenCalled();
+        });
+
+        // r119-S7: deleting a user who is the LAST owner of a restaurant would
+        // orphan it (UserRestaurant cascade removes the link; the restaurant
+        // keeps serving publicly with nobody able to manage it). The guard
+        // blocks the delete with 409 + the restaurant names.
+        it('r119: last-owner of a restaurant → 409 with the restaurant name, nothing deleted', async () => {
+                mockUserFindUnique.mockResolvedValue({ username: 'solo-owner', role: 'owner' });
+                mockPrisma.userRestaurant.findMany
+                        .mockResolvedValueOnce([{ restaurantId: 5 }]) // target's links
+                        .mockResolvedValueOnce([]); // nobody else owns #5
+                mockPrisma.restaurant.findMany.mockResolvedValueOnce([{ name: 'مقهى الواحة' }]);
+
+                const res = await deleteUser();
+
+                expect(res.status).toBe(409);
+                const json = await res.json();
+                expect(json.error).toContain('مقهى الواحة');
+                expect(json.error).toContain('المالك الوحيد');
+                expect(mockUserDelete).not.toHaveBeenCalled();
+                expect(mockLogAudit).not.toHaveBeenCalled();
+        });
+
+        it('r119: user who CO-OWNS (another owner exists) deletes normally', async () => {
+                mockUserFindUnique.mockResolvedValue({ username: 'co-owner', role: 'owner' });
+                mockPrisma.userRestaurant.findMany
+                        .mockResolvedValueOnce([{ restaurantId: 5 }])
+                        .mockResolvedValueOnce([{ restaurantId: 5 }]); // someone else owns #5 too
+
+                const res = await deleteUser();
+
+                expect(res.status).toBe(200);
+                expect(mockUserDelete).toHaveBeenCalledWith({ where: { id: 9 } });
         });
 });

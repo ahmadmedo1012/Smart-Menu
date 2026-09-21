@@ -286,12 +286,26 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                 // داخل نفس المعاملة (بنمط مسار المالك owner/restaurants/[id]).
                 // بقية السلاسل (تصنيفات/أصناف/طلبات/بنودها/بطاقات الولاء) تتكفل بها
                 // cascade الموجودة — مثبت بالقياس على قاعدة الجولة (لا يتيمة بعدها).
-                await prisma.$transaction(async (tx) => {
-                        await tx.review.deleteMany({
-                                where: { menuItem: { category: { restaurantId: rId } } },
+                // r119-S7: Order_restaurantId_fkey صار RESTRICT — قاعدة البيانات نفسها
+                // ترفض الآن حذف مطعم لديه طلبات (كان الـcascade يمحو التاريخ المالي
+                // بصمت). super_admin يحصل على نفس 409 الودية (الثقة الكاملة لا تشمل
+                // محو السجلات المحاسبية).
+                try {
+                        await prisma.$transaction(async (tx) => {
+                                await tx.review.deleteMany({
+                                        where: { menuItem: { category: { restaurantId: rId } } },
+                                });
+                                await tx.restaurant.delete({ where: { id: rId } });
                         });
-                        await tx.restaurant.delete({ where: { id: rId } });
-                });
+                } catch (e) {
+                        // r119-S7: Order FK restrict only — P2003 from any OTHER constraint
+                        // (e.g. the r93-N1 review FK) keeps its legacy handleError path.
+                        if ((e as { code?: string; meta?: { field_name?: string } })?.code === 'P2003' &&
+                            String((e as { meta?: { field_name?: string } })?.meta?.field_name ?? '').includes('Order_restaurantId_fkey')) {
+                                return apiError('لا يمكن حذف مطعم لديه طلبات مسجلة — يُحتفظ بسجل الطلبات لأغراض المحاسبة', 409);
+                        }
+                        throw e;
+                }
 
                 // round88-A2 cache-gap fix: PUT purged the ISR menu page but DELETE
                 // didn't — a deleted restaurant's cached /menu/<slug> kept serving

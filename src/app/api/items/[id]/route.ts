@@ -47,7 +47,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                                 },
                         },
                 });
-                if (!item) return notFound('MenuItem');
+                if (!item) return notFound('الصنف');
 
                 // round87-A8: hidden/unavailable items are staff-only — an
                 // unauthenticated (or USER) caller must not read draft rows by id.
@@ -59,12 +59,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
                         const staff =
                                 auth.authorized &&
                                 ['owner', 'admin', 'super_admin', 'sub_admin'].includes(auth.role);
-                        if (!staff) return notFound('MenuItem');
+                        if (!staff) return notFound('الصنف');
                         if (auth.role === 'owner' && auth.restaurantId !== item.category.restaurantId) {
                                 const link = await prisma.userRestaurant.findUnique({
                                         where: { userId_restaurantId: { userId: auth.userId!, restaurantId: item.category.restaurantId } },
                                 });
-                                if (!link) return notFound('MenuItem');
+                                if (!link) return notFound('الصنف');
                         }
                 }
 
@@ -131,7 +131,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         where: { id: itemId },
                         include: { category: { select: { restaurantId: true } } },
                 });
-                if (!existing) return notFound('Item');
+                if (!existing) return notFound('الصنف');
 
                 // Owners can only update items of restaurants they manage — multi-menu aware
                 // via UserRestaurant links (same check as settings/route.ts & categories)
@@ -259,7 +259,7 @@ export async function DELETE(
                         where: { id: delId },
                         include: { category: { select: { restaurantId: true } } },
                 });
-                if (!existing) return notFound('Item');
+                if (!existing) return notFound('الصنف');
 
                 // Owners can only delete items of restaurants they manage — multi-menu aware
                 // via UserRestaurant links (same check as settings/route.ts & categories)

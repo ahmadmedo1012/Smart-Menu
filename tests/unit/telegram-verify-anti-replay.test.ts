@@ -164,7 +164,7 @@ describe('POST /api/admin/telegram/verify — anti-replay (B-6)', () => {
                 expect(mockUserUpdate).not.toHaveBeenCalled();
         });
 
-        it('missing token/chatId → 400 before any HMAC work', async () => {
+        it('missing token/chatId → 422 before any HMAC work (r119-S8)', async () => {
                 const res = await POST(
                         new NextRequest('http://localhost/api/admin/telegram/verify', {
                                 method: 'POST',
@@ -173,7 +173,7 @@ describe('POST /api/admin/telegram/verify — anti-replay (B-6)', () => {
                         })
                 );
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 expect(mockRateLimitEntryCreate).not.toHaveBeenCalled();
         });
 

@@ -1,5 +1,19 @@
 name: Keep Website Alive
 
+# ── MINUTES BUDGET POLICY (r119-B5-D / S10 §2) — read before touching any workflow ──
+# Target: ≤ 1,800 Actions minutes/month (10% headroom under the 2,000 Free allotment).
+# Reality at the Sep cadence (8.1 pushes/day, 22% docs-only): ~340 min/day ≈ 10,200/mo
+# → restoring billing WITHOUT the ci.yml triage gates + this policy in place re-triggers
+# the spending block in ~6 days (Free) / ~9 days (Pro). The two FIXED workflows alone —
+# this one (~578/mo at 19 runs/day) + nightly-flake (~900/mo) — burn 74% of the Free
+# quota before a single CI run.
+# USER ACTION BEFORE restoring billing: set an explicit Actions spending limit
+# (e.g. $10) + enable 75%/90% usage emails, so a cadence spike can never re-block the
+# account. This workflow's schedule is a deliberate USER decision (r117-F3: 96→19
+# runs/day) — do NOT change it in passing rounds; see docs/rounds/audits/r119/
+# S10-findings.md §5 for the external-monitor alternative (~30/mo).
+# ─────────────────────────────────────────────────────────────────────────────────
+
 on:
   schedule:
     # r117-F3: كان `*/15` (96 تشغيلًا/يوم ≈ 2880 دقيقة/شهر) واستهلك وحده

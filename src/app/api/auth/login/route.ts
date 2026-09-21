@@ -64,7 +64,7 @@ const accountBackstopLimiter = createDbRateLimiter({ windowMs: 15 * 60_000, max:
 export async function POST(request: Request) {
         try {
                 const parsed = loginSchema.safeParse(await request.json());
-                if (!parsed.success) return error('يرجى إدخال اسم المستخدم وكلمة المرور', 400);
+                if (!parsed.success) return error('يرجى إدخال اسم المستخدم وكلمة المرور', 422);
                 const { username, password } = parsed.data;
                 const ip = getClientIp(request); // round91-D1: unified extraction
                 const lockKey = `${ip}:${username}`;

@@ -165,12 +165,12 @@ describe('POST /api/whatsapp/generate — سلم الأدوار عبر المس�
                 expect(mockOrderUpdate).not.toHaveBeenCalled();
         });
 
-        it('طلب غير موجود → 404 «Order غير موجود»', async () => {
+        it('طلب غير موجود → 404 «الطلب غير موجود» (r119-S8 عربنة)', async () => {
                 mockOrderFindUnique.mockResolvedValue(null);
                 const res = await generateRoute.POST(postRequest({ orderId: 999 }));
                 expect(res.status).toBe(404);
                 const json = await res.json();
-                expect(json.error).toBe('Order غير موجود');
+                expect(json.error).toBe('الطلب غير موجود');
         });
 
         it('body بلا orderId → 422 مغلّف بتفاصيل zod', async () => {

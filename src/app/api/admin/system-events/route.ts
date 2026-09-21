@@ -98,7 +98,7 @@ export async function PUT(request: NextRequest) {
     const body = updateEventSchema.parse(await request.json());
 
     const existing = await prisma.systemEvent.findUnique({ where: { id: body.id } });
-    if (!existing) return notFound("SystemEvent");
+    if (!existing) return notFound('الحدث');
 
     const { id, ...data } = body;
     const event = await prisma.systemEvent.update({
@@ -130,7 +130,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) return error("id query param is required", 400);
 
     const existing = await prisma.systemEvent.findUnique({ where: { id } });
-    if (!existing) return notFound("SystemEvent");
+    if (!existing) return notFound('الحدث');
 
     await prisma.systemEvent.delete({ where: { id } });
     return success({ deleted: true });

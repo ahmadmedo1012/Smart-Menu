@@ -354,12 +354,12 @@ describe('POST /api/subscriptions/upgrade — guards', () => {
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
         });
 
-        it('bank provider without senderAccountName → 400 schema refine message', async () => {
+        it('bank provider without senderAccountName → 422 schema refine message', async () => {
                 const res = await callPost(
                         upgradeBody({ provider: 'bank', senderAccountNumber: '123' })
                 );
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('اسم صاحب الحساب ورقم الحساب إجباريان للتحويل البنكي');
                 expect(mockPaymentCreate).not.toHaveBeenCalled();

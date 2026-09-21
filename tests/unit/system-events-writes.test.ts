@@ -199,12 +199,12 @@ describe('PUT /api/admin/system-events', () => {
                 expect(mockUpdate).not.toHaveBeenCalled();
         });
 
-        it('معرف غير موجود → 404 «SystemEvent غير موجود» بلا update', async () => {
+        it('معرف غير موجود → 404 «الحدث غير موجود» (r119-S8 عربنة) بلا update', async () => {
                 mockFindUnique.mockResolvedValue(null);
                 const res = await eventsRoute.PUT(jsonRequest('PUT', { id: 999, read: true }));
                 expect(res.status).toBe(404);
                 const json = await res.json();
-                expect(json.error).toBe('SystemEvent غير موجود');
+                expect(json.error).toBe('الحدث غير موجود');
                 expect(mockUpdate).not.toHaveBeenCalled();
         });
 

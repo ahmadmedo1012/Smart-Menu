@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     const result = await resolveSubscriptionPayment(id, status);
     if (!result.ok) {
-      if (result.reason === "الطلب غير موجود") return notFound("SubscriptionPayment");
+      if (result.reason === "الطلب غير موجود") return notFound('الدفع');
       // round91-F-B: the decision lib now carries the failure status (409 for
       // the plan-cap rejection / r116 already-processed conflict) — absent →
       // the legacy 400.

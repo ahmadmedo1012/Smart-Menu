@@ -197,7 +197,7 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
 
         // ── round91-F-B (D2-#2): receiptImageUrl length cap reaches the route 400 ──
 
-        it('2_001-char receiptImageUrl → 400 with the Arabic cap message (bank)', async () => {
+        it('2_001-char receiptImageUrl → 422 with the Arabic cap message (bank)', async () => {
                 const longReceipt = 'https://example.com/' + 'a'.repeat(2_100);
 
                 const res = await callSubscriptionsPost(
@@ -211,7 +211,7 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                         })
                 );
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('رابط الإيصال طويل جداً — الحد الأقصى 2000 حرف');
                 expect(mockPaymentCreate).not.toHaveBeenCalled();
@@ -364,7 +364,7 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                 // transform is unreachable for the input it was built for.
                 const res = await callSubscriptionsPost(subscribeBody({ phone: '٠٩١٢٣٤٥٦٧٨' }));
 
-                expect(res.status).toBe(400);
+                expect(res.status).toBe(422);
                 const json = await res.json();
                 expect(json.error).toBe('رقم الهاتف يجب أن يكون 10 أرقام ويبدأ بـ 09');
                 expect(mockPaymentCreate).not.toHaveBeenCalled();

@@ -25,7 +25,7 @@ export async function PATCH(
     if (Number.isNaN(uid)) return apiError("معرف غير صالح", 400);
     const body = await request.json();
     const parsed = updateUserSchema.safeParse(body);
-    if (!parsed.success) return apiError("بيانات غير صالحة", 400);
+    if (!parsed.success) return apiError("بيانات غير صالحة", 422);
 
     // Prevent privilege escalation: only super_admin can assign roles or
     // restaurantId (setting role: 'owner' + restaurantId would grant a user
@@ -129,6 +129,35 @@ export async function DELETE(
     });
     if (!target) return apiError("المستخدم غير موجود", 404);
     if (target.role === "super_admin") return apiError("لا يمكن حذف مدير عام", 403);
+
+    // r119-S7: حذف المستخدم كان ييتّم مطاعمه — علاقة UserRestaurant تُحذف
+    // cascade، فإذا كان هذا المستخدم المالك الوحيد لمطعم يبقى المطعم حيًا
+    // يخدم الطلبات بلا أي مالك يستطيع إدارته. الحذف يُمنح فقط بعد نقله
+    // أو حذف المطعم بشكل مقصود.
+    const links = await prisma.userRestaurant.findMany({
+      where: { userId: uid },
+      select: { restaurantId: true },
+    });
+    if (links.length > 0) {
+      const restaurantIds = links.map((l) => l.restaurantId);
+      const stillOwnedElsewhere = await prisma.userRestaurant.findMany({
+        where: { restaurantId: { in: restaurantIds }, userId: { not: uid } },
+        select: { restaurantId: true },
+        distinct: ["restaurantId"],
+      });
+      const ownedElsewhereSet = new Set(stillOwnedElsewhere.map((s) => s.restaurantId));
+      const orphanedIds = restaurantIds.filter((id) => !ownedElsewhereSet.has(id));
+      if (orphanedIds.length > 0) {
+        const orphans = await prisma.restaurant.findMany({
+          where: { id: { in: orphanedIds } },
+          select: { name: true },
+        });
+        return apiError(
+          `لا يمكن حذف المستخدم لأنه المالك الوحيد لـ: ${orphans.map((o) => o.name).join("، ")} — عيّن مالكًا آخر لهذه المطاعم أو احذفها أولًا`,
+          409
+        );
+      }
+    }
 
     await prisma.user.delete({ where: { id: uid } });
 
