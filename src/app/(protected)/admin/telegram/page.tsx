@@ -70,6 +70,9 @@ export default function AdminTelegramPage() {
         const [diagnose, setDiagnose] = useState<DiagnoseResult | null>(null);
         const [showToken, setShowToken] = useState(false);
         const [eventsInput, setEventsInput] = useState('');
+        // r118-A1-F3: whether the server has a stored bot token (masked load) —
+        // drives the save-side "keep stored token" semantics below.
+        const [hasStoredToken, setHasStoredToken] = useState(false);
         const [targets, setTargets] = useState<BroadcastTarget[]>([]);
         const [linkedAdmins, setLinkedAdmins] = useState(0);
         const [loadError, setLoadError] = useState<string | null>(null);
@@ -86,6 +89,7 @@ export default function AdminTelegramPage() {
                         .then((json) => {
                                 if (json.data) {
                                         const d = json.data;
+                                        setHasStoredToken(d.botTokenMasked === true);
                                         setConfig({
                                                 botToken: d.botTokenMasked ? '••••••••' : '',
                                                 botTokenMasked: d.botTokenMasked ?? false,
@@ -137,8 +141,13 @@ export default function AdminTelegramPage() {
                 // A masked load puts •••• in the field — sending it back would encrypt the
                 // dots over the real token and brick the bot. Only send a token the admin
                 // actually typed; otherwise omit it so the server keeps the stored one.
-                const isMasked = config.botTokenMasked === true;
-                if (!isMasked && !config.botToken.trim()) {
+                // r118-A1-F3: the old `isMasked` gate was frozen at load — a
+                // NEWLY typed token still read as "masked" and was replaced with
+                // undefined (server silently kept the old token). Typed value wins;
+                // an empty/untouched field keeps the stored token when one exists,
+                // and only blocks when NO token is stored at all.
+                const typedToken = config.botToken === '••••••••' ? '' : config.botToken.trim();
+                if (!hasStoredToken && !typedToken) {
                         premiumToast('error', 'يرجى إدخال رمز البوت ومعرف المحادثة');
                         return;
                 }
@@ -149,7 +158,7 @@ export default function AdminTelegramPage() {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                         ...config,
-                                        botToken: isMasked ? undefined : config.botToken.trim(),
+                                        botToken: typedToken ? typedToken : undefined,
                                         events: eventsInput
                                                 .split(',')
                                                 .map((e) => e.trim())

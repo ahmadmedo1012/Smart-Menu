@@ -54,7 +54,9 @@ function FloatingShapes() {
 }
 
 function safeRedirect(value: string | null) {
-        if (!value || !value.startsWith('/') || value.startsWith('//')) return null;
+        // r118-A4-P3: mirror of the page-level guard — WHATWG URL parsing
+        // treats '\' as '/' ('/\evil.com' → '//evil.com' network-path).
+        if (!value || !value.startsWith('/') || value.startsWith('//') || value[1] === '\\') return null;
         return value;
 }
 

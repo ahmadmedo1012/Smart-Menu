@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 // Helper: bigint → string for JSON-safe serialization
 function serializeApprover(a: { telegramId: bigint } & Record<string, unknown>) {
@@ -26,7 +27,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requirePermission("EDIT_SETTINGS");
+    // r118-A2-P2: adding an approver grants PAYMENT-VERIFY/CANCEL power (the
+    // webhook gates on TelegramApprover rows) — EDIT_SETTINGS was enough for a
+    // sub_admin to self-approve a paid plan. Escalation-sensitive mutations
+    // require MANAGE_SUBSCRIPTIONS and are now audited.
+    const auth = await requirePermission("MANAGE_SUBSCRIPTIONS");
     if (!auth.authorized) return error(auth.error, auth.status);
 
     const body = await request.json();
@@ -51,6 +56,16 @@ export async function POST(request: NextRequest) {
       },
       include: { addedBy: { select: { id: true, name: true, username: true } } },
     });
+
+    // r118-A2-P2: the sibling delete/create endpoints all audit; this
+    // authority grant was the silent one.
+    logAudit({
+      action: "create",
+      targetType: "telegram_approver",
+      targetId: Number(approver.id),
+      actorId: auth.userId ?? undefined,
+      metadata: { telegramId: rawId, label },
+    }).catch(() => {});
 
     return success(serializeApprover(approver));
   } catch (e) {

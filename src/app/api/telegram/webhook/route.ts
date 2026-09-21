@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { error as logError, warn as logWarn, info as logInfo } from '@/lib/logger';
 import { getAdminTelegramIds } from '@/lib/telegram-admin';
-import { resolveSubscriptionPayment } from '@/lib/subscription-decisions';
+import { isPaymentSelfApproval, resolveSubscriptionPayment } from '@/lib/subscription-decisions';
 import { getHmacKey } from '@/lib/keys';
 import { getDecryptedBotToken } from '@/lib/config';
 import { editMessageReplyMarkup, editMessageText, answerCallbackQuery, sendPlainMessage } from '@/lib/telegram-api';
@@ -77,6 +77,23 @@ async function handleCallbackQuery(
         const decision = resolveDecision(action);
         if (!decision) {
                 await answerCallbackQuery(botToken, cq.id, 'إجراء غير معروف', true);
+                return new Response('OK', { status: 200 });
+        }
+
+        // r118-A2-P2: self-approval guard — an approver whose Telegram id
+        // matches the payer's linked chat cannot resolve their own payment
+        // (closes the self-add-approver → self-approve escalation path).
+        if (await isPaymentSelfApproval(paymentId, cq.from.id)) {
+                logWarn('[webhook] self-approval attempt blocked', {
+                        fromId: cq.from.id,
+                        paymentId,
+                });
+                await answerCallbackQuery(
+                        botToken,
+                        cq.id,
+                        'لا يمكنك البت في طلب دفع خاص بحسابك.',
+                        true
+                );
                 return new Response('OK', { status: 200 });
         }
 
@@ -309,16 +326,12 @@ export async function POST(request: NextRequest) {
                 });
 
                 // Send confirmation to the user via Telegram
+                // r118-A1-F1: the LAST raw fetch in the webhook — the /start
+                // handler was hardened in r117-F2 but this verify_ confirmation
+                // path kept an unbounded fetch that could pin the whole webhook.
                 const botToken = await getBotToken();
                 if (botToken) {
-                        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                        chat_id: chatId,
-                                        text: 'تم ربط حسابك بنجاح ✅',
-                                }),
-                        });
+                        await sendPlainMessage(botToken, chatId, 'تم ربط حسابك بنجاح ✅');
                 }
 
                 return new Response('OK', { status: 200 });

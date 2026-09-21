@@ -3,7 +3,49 @@ import { dbHealth } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+// r118-A4-P3: /api/health was the cheapest unauthenticated DoS/cost vector —
+// every hit ran a real Neon SELECT 1 (compute-hours) with no throttle. A
+// DB-backed limiter is deliberately NOT used here: it would write to the very
+// database whose health is being measured (and fail closed on an outage,
+// hiding the true status). This is a lightweight IN-MEMORY per-IP bucket —
+// per-instance only, which is an acceptable bound for an endpoint whose only
+// job is honest status reporting (monitors + CI gates + keep-alive all stay
+// far below it; an abusive client is capped at 30 real pings/min/IP/instance).
+const WINDOW_MS = 60_000;
+const MAX_PER_WINDOW = 30;
+const hits = new Map<string, { count: number; resetAt: number }>();
+
+function allow(ip: string): boolean {
+  const now = Date.now();
+  const bucket = hits.get(ip);
+  if (!bucket || now >= bucket.resetAt) {
+    // opportunistic sweep — keeps the map bounded under ip-spoofing pressure
+    if (hits.size > 10_000) {
+      for (const [k, v] of hits) if (now >= v.resetAt) hits.delete(k);
+    }
+    hits.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return true;
+  }
+  bucket.count++;
+  return bucket.count <= MAX_PER_WINDOW;
+}
+
+// Optional param: Next always passes the Request; unit tests call GET() bare
+// (they exercise the "unknown" IP bucket).
+export async function GET(request?: Request) {
+  // r118-A4-P3: throttle before the DB ping; 429 carries no DB signal by
+  // design (the client is abusing the endpoint, not probing health).
+  const ip =
+    request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request?.headers.get("x-real-ip") ||
+    "unknown";
+  if (!allow(ip)) {
+    return NextResponse.json(
+      { status: "rate-limited" },
+      { status: 429, headers: { "retry-after": "10" } },
+    );
+  }
+
   const health = await dbHealth();
   const ok = health.ok;
 

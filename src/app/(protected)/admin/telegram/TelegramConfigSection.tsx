@@ -59,7 +59,14 @@ export function TelegramConfigSection({
             <Label htmlFor="tg-bot-token">رمز البوت (Bot Token)</Label>
             <div className="relative mt-1.5">
               <Input id="tg-bot-token" type={showToken ? "text" : "password"} value={config.botToken}
-                onChange={(e) => onConfigChange({ ...config, botToken: e.target.value })}
+                onChange={(e) =>
+                  // r118-A1-F3: typing marks the field as user-entered —
+                  // botTokenMasked used to stay frozen at its load-time value,
+                  // so a NEWLY typed token was silently replaced with undefined
+                  // at save (server kept the old token, UI toasted success —
+                  // rotation and typo-correction were impossible).
+                  onConfigChange({ ...config, botToken: e.target.value, botTokenMasked: false })
+                }
                 placeholder="123456789:ABCdefGHIjklmNOPqrstUVwxyz" className="h-11 rounded-xl text-left ps-10 pe-12" dir="ltr" />
               <button type="button" onClick={onToggleShowToken}
                 className="absolute end-3 top-1/2 -translate-y-1/2 size-11 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

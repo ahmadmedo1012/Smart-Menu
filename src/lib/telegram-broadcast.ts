@@ -1,3 +1,4 @@
+import { telegramApiCall } from './telegram-api';
 import { prisma } from '@/lib/db';
 import { error, warn } from '@/lib/logger';
 import { getDecryptedBotToken } from '@/lib/config';
@@ -23,13 +24,25 @@ export async function sendToChat(
 		text: message,
 	};
 	if (opts?.parseMode) body.parse_mode = opts.parseMode;
-	const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(body),
-	});
+	// r118-A1-F1: raw fetch (NO timeout) — login/register AWAIT the broadcast
+	// via notifyEvent, so a hung Telegram pinned user login until the function
+	// timeout. The hardened transport bounds every call at 10s and never throws
+	// on transport errors (synthetic non-ok Response instead).
+	const res = await telegramApiCall(botToken, 'sendMessage', body);
 	if (!res.ok) {
 		const err = await res.text();
+		// r118-A1-P3: surface Telegram's retry_after on 429 so the caller's
+		// logs carry the flood-wait instead of a bare status code.
+		if (res.status === 429) {
+			let retryAfter = '';
+			try {
+				const parsed = JSON.parse(err) as { parameters?: { retry_after?: number } };
+				if (parsed?.parameters?.retry_after) retryAfter = ` (retry_after=${parsed.parameters.retry_after}s)`;
+			} catch {
+				/* keep the bare message */
+			}
+			throw new Error(`Telegram 429 flood${retryAfter}: ${err.slice(0, 200)}`);
+		}
 		throw new Error(`Telegram API ${res.status}: ${err.slice(0, 300)}`);
 	}
 }

@@ -64,7 +64,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
                 select: { id: true, name: true, nameAr: true, sortOrder: true, isActive: true },
             }),
             prisma.menuItem.findMany({
-                where: { status: 'available', category: { is: { restaurantId: restaurant.id } } },
+                where: { status: 'available', category: { is: { restaurantId: restaurant.id, isActive: true } } },
                 orderBy: { sortOrder: 'asc' },
                 select: {
                     id: true,

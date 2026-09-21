@@ -146,7 +146,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 // guarded raw query below, so a schema-lagging DB degrades to "no
                 // showcase" instead of a broken menu page / failed build.
                 prisma.menuItem.findMany({
-                        where: { status: 'available', category: { is: { restaurantId: restaurant.id } } },
+                        where: { status: 'available', category: { is: { restaurantId: restaurant.id, isActive: true } } },
                         select: {
                                 // round86-B7: no per-item category embed (categories are sent
                                 // once and joined by categoryId client-side), no status (the

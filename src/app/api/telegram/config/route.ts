@@ -4,6 +4,7 @@ import { success, error, handleError } from '@/lib/api-helpers';
 import { requirePermission } from '@/lib/auth';
 import { decryptValue, encryptValue } from '@/lib/config';
 import { z } from 'zod';
+import { telegramApiCall } from '@/lib/telegram-api';
 
 const upsertSchema = z.object({
 	// Optional so a masked-load save (admin edits chatId only) can omit the
@@ -74,7 +75,10 @@ export async function POST(request: NextRequest) {
 		// Register the webhook so Telegram actually delivers updates to us.
 		// Without this the bot never receives messages (live: bot silent).
 		// On a masked save (no new token) reuse the stored token to re-register.
-		const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+		// r118-A1-P3: the webhook compares the TRIMMED env value
+		// (webhook/route.ts expectedSecret) — a padded env var here registered
+		// an untrimmed secret and every update 403'd. Trim at the source.
+		const secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
 		const domain = process.env.NEXT_PUBLIC_DOMAIN;
 		let webhookToken = body.botToken;
 		if (!webhookToken) {
@@ -87,14 +91,12 @@ export async function POST(request: NextRequest) {
 		if (secret && domain && body.isActive && webhookToken) {
 			try {
 				const webhookUrl = `${domain}/api/telegram/webhook`;
-				const res = await fetch(`https://api.telegram.org/bot${webhookToken}/setWebhook`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						url: webhookUrl,
-						secret_token: secret,
-						allowed_updates: ['message', 'callback_query'],
-					}),
+				// r118-A1-F1: hardened transport (10s bound, synthetic non-ok on
+				// transport failure) — was a raw fetch with no timeout.
+				const res = await telegramApiCall(webhookToken, 'setWebhook', {
+					url: webhookUrl,
+					secret_token: secret,
+					allowed_updates: ['message', 'callback_query'],
 				});
 				const json = (await res.json()) as { ok?: boolean; description?: string };
 				if (!json.ok) {

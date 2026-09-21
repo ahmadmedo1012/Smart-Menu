@@ -6,6 +6,7 @@ import { formatDate, formatPrice } from "@/lib/format";
 import { normalizeWaNumber } from "@/lib/whatsapp";
 import { requireAuth } from "@/lib/auth";
 import { createDbRateLimiter } from "@/lib/rate-limit";
+import { parseStoredModifiers, type StoredModifierOption } from "@/lib/order-modifiers";
 
 const generateSchema = z.object({
   orderId: z.number().int().positive(),
@@ -72,7 +73,9 @@ export async function POST(request: NextRequest) {
         createdAt: true,
         restaurantId: true,
         restaurant: { select: { name: true, whatsapp: true } },
-        items: { select: { id: true, quantity: true, price: true, notes: true, item: { select: { id: true, name: true, nameAr: true } } } },
+        // r118-A3-P2-1: the invoice lines omitted modifier deltas — line sums
+        // silently diverged from the charged total on every modified order.
+        items: { select: { id: true, quantity: true, price: true, notes: true, modifiersJson: true, item: { select: { id: true, name: true, nameAr: true } } } },
       },
     });
     if (!order) return notFound("Order");
@@ -91,6 +94,23 @@ export async function POST(request: NextRequest) {
     // super_admin passes (round86-A11) and admin/sub_admin with
     // APPROVE_ORDERS were already gated above — no other role reaches here.
 
+    // r118-A3-P2-1: legacy rows (bare id arrays) resolve best-effort against
+    // the CURRENT options — dangling ids after a group replacement are skipped
+    // (r118 create path stores the authoritative snapshot instead).
+    const parsedModifiers = new Map<number, { nameAr: string; name: string; priceDelta: number }[]>();
+    for (const oi of order.items) {
+      const mods = await parseStoredModifiers(oi.modifiersJson, async (ids) => {
+        const rows = await prisma.modifierOption.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, nameAr: true, name: true, priceDelta: true },
+        });
+        const m = new Map<number, StoredModifierOption>();
+        for (const r of rows) m.set(r.id, { id: r.id, nameAr: r.nameAr, name: r.name, priceDelta: Number(r.priceDelta) });
+        return m;
+      });
+      parsedModifiers.set(oi.id, mods);
+    }
+
     const lines: string[] = [];
     lines.push(`🧾 *${order.restaurant.name}*`);
     lines.push(`📋 طلب رقم: ${order.orderNo}`);
@@ -101,11 +121,25 @@ export async function POST(request: NextRequest) {
     lines.push("*الطلبات:*");
     for (const oi of order.items) {
       const itemName = oi.item.nameAr || oi.item.name;
+      const mods = parsedModifiers.get(oi.id) ?? [];
+      const deltaSum = mods.reduce((s, m) => s + m.priceDelta, 0);
       // round97-X3: prices render through the canonical formatPrice (raw
       // template interpolation before) — integers are byte-identical
       // ("10 د.ل"), non-half floats now round to the app-wide 1-decimal
       // convention instead of emitting 12.25.
-      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price))}`);
+      // r118-A3-P2-1: unit price now INCLUDES the modifier deltas so line
+      // sums reconcile with the charged total.
+      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price) + deltaSum)}`);
+      if (mods.length > 0) {
+        const modText = mods
+          .map((m) => {
+            const label = m.nameAr || m.name;
+            if (m.priceDelta === 0) return label;
+            return `${label} (${m.priceDelta > 0 ? "+" : ""}${formatPrice(m.priceDelta)})`;
+          })
+          .join("، ");
+        lines.push(`    الإضافات: ${modText}`);
+      }
       if (oi.notes) lines.push(`    ملاحظات: ${oi.notes}`);
     }
     lines.push("");

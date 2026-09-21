@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { sendTelegramNotification, notifyEvent } from "@/lib/telegram";
+import { sendPlainMessage } from "@/lib/telegram-api";
 import { error } from "@/lib/logger";
 import { logAudit } from "@/lib/audit";
 import { getDecryptedBotToken } from "@/lib/config";
@@ -31,15 +32,10 @@ async function notifyUserViaTelegram(chatId: string | null, text: string) {
   // Dynamic token — supports both env var and DB-configured token
   const token = process.env.TELEGRAM_BOT_TOKEN || await getDecryptedBotToken();
   if (!token) return;
-  try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
-    });
-  } catch (e) {
-    error("[telegram] notify user failed:", { error: e });
-  }
+  // r118-A1-F1: raw fetch (no timeout — a hung Telegram pinned the webhook /
+  // panel decision until the function timeout) → the hardened sendPlainMessage
+  // (10s AbortController, never throws; failures logWarn only).
+  await sendPlainMessage(token, chatId, text, { parseMode: "Markdown" });
 }
 
 // r117-F1 (TOCTOU race): فروع verified تستخدم update محميًا بـ
@@ -65,6 +61,22 @@ async function raceResolvedResult(paymentId: number): Promise<ResolveResult | nu
 // r117-F1: توصيف موحد لكشف P2025 (update المحمي على صف لم يعد pending).
 function isPrismaRecordNotFound(e: unknown): boolean {
   return (e as Record<string, unknown>)?.code === "P2025";
+}
+
+// r118-A2-P2: حارس الموافقة الذاتية — معتمدٌ في قائمة approvers تطابق
+// معرّف تليجرام الخاص به محادثة المستخدم الدافع (المحادثات الخاصة:
+// chatId == userId) لا يجوز له البت في دفعه (موافقة كانت أو رفضًا):
+// إغلاق مسار sub_admin يضيف معرّفه ثم يوافق على طلب اشتراكه المدفوع.
+export async function isPaymentSelfApproval(
+  paymentId: number,
+  approverTelegramId: number | string,
+): Promise<boolean> {
+  const p = await prisma.subscriptionPayment.findUnique({
+    where: { id: paymentId },
+    select: { user: { select: { telegramChatId: true } } },
+  });
+  const chatId = p?.user?.telegramChatId;
+  return Boolean(chatId) && String(chatId) === String(approverTelegramId);
 }
 
 export type Decision = "verified" | "cancelled";
@@ -382,13 +394,21 @@ async function handleVerified(existing: ExistingPayment): Promise<ResolveResult>
 }
 
 async function handleCancelled(existing: ExistingPayment): Promise<ResolveResult> {
+  // r118-A1-F2: كان الخاسر في سباق متزامن (لوحة + تليجرام / إعادة تسليم
+  // ويبهوك) يعيد ok:true ويبث «❌ تم رفض طلب الدفع» ويخبر العميل بأن
+  // تفعيله مرفوض — بينما القاعدة تقول verified (فاز المسار الآخر)، فقد
+  // يعيد العميل الدفع ويخسر مرتين. الآن: الإشعارات ونجاح الإلغاء مشروطان
+  // بأننا نحن من قلبنا الصف فعلاً؛ وإلا نعيد شكل already-processed الودي
+  // (نفس معالجة verified في r117-F1).
+  let flipped = false;
   try {
     await prisma.$transaction(async (tx) => {
       const result = await tx.subscriptionPayment.updateMany({
         where: { id: existing.id, status: "pending" },
         data: { status: "cancelled" },
       });
-      if (result.count === 0) return; // Already processed by another route
+      if (result.count === 0) return; // concurrent resolution won — NOT a successful cancel
+      flipped = true;
 
       if (existing.userId) {
         await tx.user.updateMany({
@@ -421,7 +441,16 @@ async function handleCancelled(existing: ExistingPayment): Promise<ResolveResult
       }
     });
 
-    // Post-transaction notifications
+    // r118-A1-F2: الخاسر المتزامن — لا بث رفض كاذب ولا إخبار العميل بشيء؛
+    // أعد قراءة الحالة المخزنة وأعد نفس شكل already-processed (reason + 409
+    // + alreadyStatus) الذي يفرّق به الويبهوك بين الإعادة الودية والتعارض.
+    if (!flipped) {
+      const raced = await raceResolvedResult(existing.id);
+      if (raced) return raced;
+      return { ok: false, reason: "حدث خطأ أثناء رفض الطلب" };
+    }
+
+    // Post-transaction notifications (only when WE flipped the row)
     // r93-W1a (MED-2): الهاتف والخطة يُرمّزان هنا أيضًا (اتساقًا مع بقية
     // الرسائل — المبلغ رقم ولا يحمل محارف Markdown أصلًا).
     const msg = `❌ *تم رفض طلب الدفع*\n• الهاتف: ${escMarkdown(existing.phone)}\n• المبلغ: ${existing.amount} د.ل\n• الخطة: ${escMarkdown(existing.planName)}`;

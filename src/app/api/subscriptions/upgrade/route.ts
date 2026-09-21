@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
                                                 `• المستخدم: #${auth.userId}`,
                                                 `• المطعم: #${upgradeRestaurantId}`,
                                                 `• الباقة: ${plan.nameAr}`,
-                                                `• الهاتف: ${String(phone)}`,
+                                                `• الهاتف: ${phone != null ? String(phone) : 'غير محدد'}`,
                                                 `• المبلغ: ${String(amount)} د.ل`,
                                         ].join('\n');
                                         const telegramMessages: { chatId: number; messageId: number }[] = [];

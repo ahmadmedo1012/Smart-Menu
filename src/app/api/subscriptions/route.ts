@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
                                         // الموافق يضغط «🟢» أعمى عن عدد المنيوهات التي ستُنشأ.
                                         const restaurantsCount =
                                                 tempRestaurants && tempRestaurants.length > 0 ? tempRestaurants.length : 1;
-                                        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${String(phone)}\n• المبلغ: ${String(amount)} د.ل\n• عدد المطاعم: ${restaurantsCount}`;
+                                        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${phone != null ? String(phone) : 'غير محدد'}\n• المبلغ: ${String(amount)} د.ل\n• عدد المطاعم: ${restaurantsCount}`;
                                         const telegramMessages: { chatId: number; messageId: number }[] = [];
                                         // round89-C2 (dx-2 ب-1): these sends used to be SEQUENTIAL
                                         // inside the user's payment request (response time = N ×

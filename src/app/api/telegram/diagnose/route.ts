@@ -4,6 +4,7 @@ import { success, error, handleError } from "@/lib/api-helpers";
 import { requirePermission } from "@/lib/auth";
 import { getDecryptedBotToken } from "@/lib/config";
 import { toStringArray } from "@/lib/telegram";
+import { telegramApiCall } from "@/lib/telegram-api";
 
 async function testChatId(
   botToken: string,
@@ -11,18 +12,14 @@ async function testChatId(
 ): Promise<{ ok: boolean; error: string | null }> {
   try {
     const parsed = chatId.match(/^-?\d+$/) ? Number(chatId) : chatId;
-    const res = await fetch(
-      `https://api.telegram.org/bot${botToken}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: parsed,
-          text: "🔍 Diagnostic Test — if you see this, the target works.",
-          parse_mode: "Markdown",
-        }),
-      },
-    );
+    // r118-A1-F1: hardened transport (10s bound, never throws on transport
+    // errors — synthetic non-ok Response flows through the existing !res.ok
+    // branch). Was a raw fetch with no timeout pinning the admin request.
+    const res = await telegramApiCall(botToken, "sendMessage", {
+      chat_id: parsed,
+      text: "🔍 Diagnostic Test — if you see this, the target works.",
+      parse_mode: "Markdown",
+    });
     if (res.ok) return { ok: true, error: null };
     const err = await res.text();
     return { ok: false, error: err.slice(0, 300) };

@@ -46,6 +46,22 @@ async function apiCall(
         }
 }
 
+/**
+ * r118-A1-F1: the hardened transport (10s AbortController, never throws on
+ * network errors — returns a synthetic non-ok Response instead) exposed for
+ * the remaining call sites that previously used raw fetch(): broadcast
+ * sendToChat (awaited by login/register via notifyEvent), config setWebhook,
+ * diagnose testChatId. Response semantics are unchanged so each caller keeps
+ * its own error mapping.
+ */
+export async function telegramApiCall(
+        botToken: string,
+        method: string,
+        body: Record<string, unknown>
+): Promise<Response> {
+        return apiCall(botToken, method, body);
+}
+
 /** Coerce numeric-looking strings to numbers (Telegram API expects numeric IDs) */
 function normalizeChatId(chatId: number | string): number | string {
         return typeof chatId === 'string' && /^-?\d+$/.test(chatId) ? Number(chatId) : chatId;
@@ -143,19 +159,19 @@ export async function answerCallbackQuery(
  * لا ترمي أبدًا؛ الفشل يُسجَّل logWarn فقط.
  */
 export async function sendPlainMessage(
-	botToken: string,
-	chatId: number | string,
-	text: string,
-	opts?: { parseMode?: 'Markdown' | 'HTML' }
+        botToken: string,
+        chatId: number | string,
+        text: string,
+        opts?: { parseMode?: 'Markdown' | 'HTML' }
 ): Promise<void> {
-	const payload: Record<string, unknown> = {
-		chat_id: normalizeChatId(chatId),
-		text,
-	};
-	if (opts?.parseMode) payload.parse_mode = opts.parseMode;
-	const res = await apiCall(botToken, 'sendMessage', payload);
-	if (!res.ok) {
-		const err = await res.text();
-		logWarn('sendPlainMessage failed', { chatId, status: res.status, error: err.slice(0, 200) });
-	}
+        const payload: Record<string, unknown> = {
+                chat_id: normalizeChatId(chatId),
+                text,
+        };
+        if (opts?.parseMode) payload.parse_mode = opts.parseMode;
+        const res = await apiCall(botToken, 'sendMessage', payload);
+        if (!res.ok) {
+                const err = await res.text();
+                logWarn('sendPlainMessage failed', { chatId, status: res.status, error: err.slice(0, 200) });
+        }
 }

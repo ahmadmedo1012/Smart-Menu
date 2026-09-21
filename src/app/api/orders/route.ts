@@ -9,6 +9,12 @@ import { orderItemCountByOrder } from '@/lib/list-counts';
 import { attachReferralPhoneToOrder, REFERRAL_CODE_RE } from '@/lib/referral-conversion';
 import { PlanLimitError } from '@/lib/plan-limit-error';
 import { MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY_MESSAGE } from '@/lib/constants';
+import {
+        fetchServiceableModifierGroups,
+        validateItemModifierSelection,
+        buildModifierSnapshot,
+        MAX_MODIFIER_OPTIONS_PER_ITEM,
+} from '@/lib/order-modifiers';
 
 const orderDbLimiter = createDbRateLimiter({ windowMs: 60_000, max: 30 });
 
@@ -30,7 +36,13 @@ const orderItemSchema = z.object({
         // its own DB rows (eff = discountedPrice ?? price, line 235) and the old
         // required field forced every client to send a fake value that was then
         // ignored. Unknown keys are stripped by zod, so existing senders keep working.
-        modifierOptionIds: z.array(z.number().int().positive()).optional(),
+        // r118-A3-P1: bounded + server-side group-contract validation (see
+        // lib/order-modifiers.ts). Raw cap is a DoS bound for the IN() lists;
+        // dedupe + per-group maxSelect below bound the real selection.
+        modifierOptionIds: z
+                .array(z.number().int().positive())
+                .max(MAX_MODIFIER_OPTIONS_PER_ITEM, 'عدد الخيارات المختارة كبير جداً')
+                .optional(),
 });
 
 const createSchema = z.object({
@@ -196,15 +208,50 @@ export async function POST(request: NextRequest) {
                         where: {
                                 id: { in: body.items.map((i) => i.itemId) },
                                 status: 'available',
-                                category: { is: { restaurantId: body.restaurantId } },
+                                // r118-A3-P2: الفئة غير النشطة تُخفى من القائمة (الفئات
+                                // تُجلب بـ isActive:true) لكن أصنافها كانت تظل قابلة
+                                // للطلب مباشرة — نفس الفلتر في الصفحة وواجهة الموبايل.
+                                category: { is: { restaurantId: body.restaurantId, isActive: true } },
                         },
                         select: { id: true, price: true, discountedPrice: true },
                 });
                 const priceMap = new Map(dbItems.map((i) => [i.id, i]));
 
+                // r118-A3-P1: dedupe option ids per item BEFORE pricing — duplicated
+                // ids stacked the same priceDelta N times (a −1 option ×15 made the
+                // line negative). Every downstream consumer (pricing, group counts,
+                // snapshot) works on the deduped list.
+                for (const item of body.items) {
+                        if (item.modifierOptionIds) {
+                                item.modifierOptionIds = [...new Set(item.modifierOptionIds)];
+                        }
+                }
+
+                // r118-A3-P1/A7-P2: fetch the SERVICEABLE groups (≥1 available
+                // option — exactly what the public menu serializers render) so the
+                // required/minSelect/maxSelect contract is enforced server-side,
+                // mirroring what the customer was actually offered.
+                const serviceableGroups = await fetchServiceableModifierGroups(
+                        body.items.map((i) => i.itemId)
+                );
+                for (const item of body.items) {
+                        const violation = validateItemModifierSelection(
+                                serviceableGroups.get(item.itemId) ?? [],
+                                item.modifierOptionIds ?? []
+                        );
+                        if (violation) return apiError(violation, 400);
+                }
+
                 // Fetch modifier prices for any selected options and verify ownership
                 const allModIds = body.items.flatMap((i) => i.modifierOptionIds ?? []);
                 const modOptionMap = new Map<number, number>();
+                // r118-A7-P3: id→option snapshot map — populated alongside the
+                // ownership check below, consumed by the create path to persist
+                // names+deltas (order-time snapshot) instead of bare ids.
+                const optionsById = new Map<
+                        number,
+                        { id: number; nameAr: string; name: string; priceDelta: number }
+                >();
                 if (allModIds.length > 0) {
                         // w3-f1 security note (coordinator fix): isAvailable:true —
                         // the public menu never offers unavailable options, so an
@@ -212,14 +259,24 @@ export async function POST(request: NextRequest) {
                         // to price a hidden option. Reject at the source.
                         const modOptions = await prisma.modifierOption.findMany({
                                 where: { id: { in: allModIds }, isAvailable: true },
-                                select: { id: true, priceDelta: true, group: { select: { menuItemId: true } } },
+                                // r118-A7-P3: nameAr/name join the select — the create path
+                                // snapshots them into modifiersJson so historical orders
+                                // survive later group edits (bare ids dangled before).
+                                select: { id: true, nameAr: true, name: true, priceDelta: true, group: { select: { menuItemId: true } } },
                         });
-                        // Build set of valid (itemId → optionId) pairs
+                        // Build set of valid (itemId → optionId) pairs (+ populate the
+                        // pricing + snapshot maps).
                         const validForItem = new Map<number, Set<number>>();
                         for (const mo of modOptions) {
                                 const g = validForItem.get(mo.group.menuItemId) ?? new Set();
                                 g.add(mo.id);
                                 validForItem.set(mo.group.menuItemId, g);
+                                optionsById.set(mo.id, {
+                                        id: mo.id,
+                                        nameAr: mo.nameAr,
+                                        name: mo.name,
+                                        priceDelta: Number(mo.priceDelta),
+                                });
                                 modOptionMap.set(mo.id, Number(mo.priceDelta));
                         }
                         for (const item of body.items) {
@@ -243,12 +300,23 @@ export async function POST(request: NextRequest) {
                                 // customer sees an actionable message, not a DB id.
                                 return apiError('أحد الأصناف في سلتك لم يعد متوفراً — حدّث السلة وحاول مجدداً', 400);
                         }
-                        const eff = db.discountedPrice ? Number(db.discountedPrice) : Number(db.price);
+                        // r118-A3-P2-3: nullish (not truthy) — discountedPrice = 0 is a
+                        // stored 100%-free price and used to silently fall back to the
+                        // FULL price, charging a free item.
+                        const eff = db.discountedPrice != null ? Number(db.discountedPrice) : Number(db.price);
                         const modTotal = (item.modifierOptionIds ?? []).reduce(
                                 (s, mid) => s + (modOptionMap.get(mid) ?? 0),
                                 0
                         );
+                        // r118-A3-P1: a negative unit price is never legitimate (stacked
+                        // negative deltas) — reject before any write.
+                        if (eff + modTotal < 0) {
+                                return apiError('تعذّر احتساب سعر الطلب — حدّث السلة وحاول مجدداً', 400);
+                        }
                         recalcSubtotal += (eff + modTotal) * item.quantity;
+                }
+                if (recalcSubtotal < 0) {
+                        return apiError('تعذّر احتساب سعر الطلب — حدّث السلة وحاول مجدداً', 400);
                 }
 
                 const orderNo = body.idempotencyKey
@@ -333,8 +401,19 @@ export async function POST(request: NextRequest) {
                                                                 itemId: i.itemId,
                                                                 quantity: i.quantity,
                                                                 notes: i.notes ?? '',
-                                                                price: db.discountedPrice ? Number(db.discountedPrice) : Number(db.price),
-                                                                modifiersJson: JSON.stringify(i.modifierOptionIds ?? []),
+                                                                // r118-A3-P2-3: nullish — discountedPrice 0 = 100% free
+                                                                // item (the truthy check charged the FULL price).
+                                                                price:
+                                                                        db.discountedPrice != null
+                                                                                ? Number(db.discountedPrice)
+                                                                                : Number(db.price),
+                                                                // r118-A7-P3: order-time snapshot (names + deltas) instead
+                                                                // of bare ids — a later group edit (items PUT
+                                                                // full-replaces groups) used to leave historical
+                                                                // orders unreconstructable.
+                                                                modifiersJson: JSON.stringify(
+                                                                        buildModifierSnapshot(i.modifierOptionIds ?? [], optionsById)
+                                                                ),
                                                         };
                                                 }),
                                         },
