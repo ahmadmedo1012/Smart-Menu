@@ -281,12 +281,12 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                 : 'text-accent-foreground'
                                                 )}
                                         >
-                                                {formatPrice(currentPrice, { decimals: 1, suffix: '' })}
+                                                {formatPrice(currentPrice, { suffix: '' })}
                                         </span>
                                         <span className="text-xs text-muted-foreground">د.ل</span>
                                         {hasDiscount && (
-                                                <span className="text-xs text-muted-foreground/60 line-through decoration-2">
-                                                        {formatPrice(item.price, { decimals: 1 })}
+                                                <span className="text-xs text-muted-foreground line-through decoration-2">
+                                                        {formatPrice(item.price)}
                                                 </span>
                                         )}
                                         {/* w3-f1: a light «خيارات متاحة» pill signals choices exist without

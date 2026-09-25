@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 export const dynamic = 'force-dynamic';
+import QRCode from 'qrcode';
 import { prisma } from '@/lib/db';
 import { formatPrice, toArabicNumber } from '@/lib/format';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
@@ -59,6 +60,15 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
         });
 
         const totalItems = categories.reduce((a, c) => a + c.items.length, 0);
+
+        /* r120 (U12-P2-3): منتج «منيو QR» بلا كود QR على الورقة المطبوعة — الكود
+         * يعيد العميل من الورقة إلى المنيو الرقمي والطلب المباشر على واتساب. */
+        const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://menu.smart-link.ly'}/menu/${slug}`;
+        const qrDataUrl = await QRCode.toDataURL(menuUrl, {
+                width: 224,
+                margin: 1,
+                color: { dark: '#1a1a1a', light: '#ffffff' },
+        });
 
         return (
                 <div className="print-sheet">
@@ -163,17 +173,19 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                                                                 <div className="item">
                                                                         <span className="nm">{item.nameAr || item.name}</span>
                                                                         <span className="pr">
+                                                                                {/* r120 (U12-P2-2): العملة كانت تتكرر مرتين — formatPrice
+                                                                                   يضيف «د.ل» والوسم الحرفي تحته أضاف ثانية («5.0 د.ل د.ل»
+                                                                                   على كل صنف مطبوع). المنسّق الذكي الآن يعرض «5 د.ل» مرة واحدة. */}
                                                                                 {item.discountedPrice ? (
                                                                                         <>
                                                                                                 <span className="old">
-                                                                                                        {formatPrice(Number(item.price), { decimals: 1 })}
+                                                                                                        {formatPrice(Number(item.price))}
                                                                                                 </span>{' '}
-                                                                                                {formatPrice(Number(item.discountedPrice), { decimals: 1 })}
+                                                                                                {formatPrice(Number(item.discountedPrice))}
                                                                                         </>
                                                                                 ) : (
-                                                                                        formatPrice(Number(item.price), { decimals: 1 })
-                                                                                )}{' '}
-                                                                                د.ل
+                                                                                        formatPrice(Number(item.price))
+                                                                                )}
                                                                         </span>
                                                                 </div>
                                                                 {(item.descriptionAr || item.description) && (
@@ -184,6 +196,21 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                                         )}
                                 </div>
                         ))}
+
+                        {/* r120 (U12-P2-3): كود QR في ذيل الورقة — امسح واطلب. */}
+                        <div style={{ textAlign: 'center', marginTop: '2.5rem', pageBreakInside: 'avoid' }}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                        src={qrDataUrl}
+                                        alt={`رمز الاستجابة السريعة لمنيو ${restaurant.name}`}
+                                        width={112}
+                                        height={112}
+                                        style={{ display: 'block', margin: '0 auto' }}
+                                />
+                                <p style={{ fontSize: '0.8rem', color: 'var(--print-footer)', marginTop: '0.5rem' }}>
+                                        امسح الكود للطلب من المنيو الرقمي مباشرة
+                                </p>
+                        </div>
 
                         <div className="footer">
                                 <p>

@@ -82,7 +82,9 @@ export function MenuClientSection(props: {
         <>
             {mounted && <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />}
 
-            <div className="max-w-4xl mx-auto px-4 relative z-10">
+            {/* r120 (U9-P3): الحاوية كانت تُغلق عند 4xl (864px) من 1024 حتى 1920+
+                مع شبكة 3 أعمدة فقط — هوامش ميتة 288-562px على الشاشات الكبيرة. */}
+            <div className="max-w-4xl xl:max-w-6xl mx-auto px-4 relative z-10">
                 {/* r97-W6c: زال حدّ الـSuspense — لم يعد شيء يعلّق: useSearchParams
                     أزيلت (W6b) وdynamic(ssr:true) صار استيرادًا ثابتًا. الحد البثي
                     هو نفسه كان مصدر سباق النسختين في CI. loading.tsx للمسار

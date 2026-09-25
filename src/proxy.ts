@@ -39,11 +39,20 @@ export function proxy(request: NextRequest) {
         // so responses stay cacheable (set-cookie would bust CDN/ISR caching).
         // Everything else (API, subscribe, cart, login, owner, admin) still gets
         // the CSRF cookie + Origin check.
+        // r120-W1: /terms + /privacy are ISR(3600) pages since r118-A9 — they MUST
+        // stay in this whitelist. Without it they take the per-request nonce +
+        // 'strict-dynamic' CSP branch while their cached HTML carries no nonce →
+        // every script blocked → infinite loading skeleton (live-proven by
+        // r120 U1/U2/U5 against b5cfa07c).
         const isCacheablePage =
                 pathname === '/' ||
                 pathname.startsWith('/menu/') ||
                 pathname === '/pricing' ||
                 pathname === '/pricing/' ||
+                pathname === '/terms' ||
+                pathname === '/terms/' ||
+                pathname === '/privacy' ||
+                pathname === '/privacy/' ||
                 pathname.startsWith('/landing');
 
         // Double-submit CSRF: mint the token cookie on first visit so the client can

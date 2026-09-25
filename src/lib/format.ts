@@ -67,9 +67,17 @@ function formatDateShort(date: Date): string {
  */
 export function formatPrice(n: number | string | null | undefined, opts?: { decimals?: number; suffix?: string }): string {
   const num = Number(n ?? 0) || 0;
-  const dec = opts?.decimals ?? (Number.isInteger(num) ? 0 : 1);
   const suffix = opts?.suffix ?? ' د.ل';
-  return `${toArabicNumber(num.toFixed(dec))}${suffix}`;
+  // r120 (U1-P2-2 + U5-F-13): التقليم الذكي هو الافتراضي — لا ".0" عارية أبدًا
+  // (12 → "12" لا "12.0")، والكسور الحقيقية تبقى (12.75 → "12.75" بدل تدويرها
+  // إلى "12.8")، بحد أقصى منزلتان. أما decimals الصريح فيبقى حاكمًا — المستندات
+  // (الفواتير/نص المشاركة) تثبّت دقتها باختبارات، ومواقع العرض صارت تتخلى عنه.
+  if (opts?.decimals != null) {
+    return `${toArabicNumber(num.toFixed(opts.decimals))}${suffix}`;
+  }
+  const fixed = num.toFixed(2);
+  const trimmed = fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed;
+  return `${toArabicNumber(trimmed)}${suffix}`;
 }
 
 export { toArabicNumber, formatDate, formatDateShort };

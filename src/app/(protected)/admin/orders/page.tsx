@@ -369,7 +369,7 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
                   <div className="text-end shrink-0">
-                    <p className="font-bold text-lg tabular-nums">{formatPrice(order.total, { decimals: 1, suffix: '' })}</p>
+                    <p className="font-bold text-lg tabular-nums">{formatPrice(order.total, { suffix: '' })}</p>
                     <p className="text-xs text-muted-foreground">د.ل</p>
                   </div>
                 </div>

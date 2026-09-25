@@ -104,7 +104,10 @@ export function CartSlideOver() {
                                         'flex flex-col gap-0 p-0 w-[85vw] data-[side=left]:w-[85vw] data-[side=right]:w-[85vw] sm:max-w-sm sm:data-[side=right]:w-3/4',
                                         /* r97-X1: border-border/10 بدل border-white/5 — حدود الزجاج
                                            الأبيض كانت تختفي في الثيم الفاتح */
-                                        'bg-background/95 backdrop-blur-2xl border-s border-border/10'
+                                        /* r120 (U2-P2-2): backdrop-blur-2xl (40px) على كامل شبكة
+                                           المنيو خلف الورقة كان يجمّد الإغلاق ~1.2 ثانية (249+334+650ms
+                                           إطارات تحرير نقي). md كافية بصريًا — الخلفية 95% معتمة أصلًا. */
+                                        'bg-background/95 backdrop-blur-md border-s border-border/10'
                                 )}
                         >
                                 {/* Glass-strong header */}
@@ -153,7 +156,7 @@ export function CartSlideOver() {
                                                                         </p>
                                                                 )}
                                                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                                                        {formatPrice(item.price, { decimals: 1 })}
+                                                                        {formatPrice(item.price)}
                                                                 </p>
                                                                 <div className="flex items-center gap-2 mt-2">
                                                                         <div className="flex items-center rounded-md overflow-hidden border border-white/10 bg-background/30">
@@ -180,7 +183,7 @@ export function CartSlideOver() {
                                                                                 </button>
                                                                         </div>
                                                                         <span className="text-xs font-semibold tabular-nums ms-auto">
-                                                                                {formatPrice(item.price * item.quantity, { decimals: 1 })}
+                                                                                {formatPrice(item.price * item.quantity)}
                                                                         </span>
                                                                         {/* a11y(F-D/round91): trash icon was muted-foreground/30 ≈1.6:1 —
                                                                             below WCAG 1.4.11 3:1 minimum for a sole remove affordance
@@ -205,7 +208,7 @@ export function CartSlideOver() {
                                         <div className="flex items-center justify-between text-sm">
                                                 <span className="text-muted-foreground">الإجمالي</span>
                                                 <span className="font-bold tabular-nums text-base">
-                                                        {formatPrice(subtotal, { decimals: 1 })}
+                                                        {formatPrice(subtotal)}
                                                 </span>
                                         </div>
                                         <Link

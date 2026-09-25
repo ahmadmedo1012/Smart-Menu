@@ -127,11 +127,12 @@
         --text-5xl: 3rem;      /* 48px */
 
         /* ── Font weights ── */
-        --font-light: 300;
-        --font-regular: 400;
-        --font-medium: 500;
-        --font-semibold: 600;
-        --font-bold: 700;
+        /* r120 (U1-P1b): the custom --font-light/regular/medium/semibold/bold
+         * tokens were REMOVED — in Tailwind 4 the --font-* namespace is
+         * FONT-FAMILY, so these shadowed the built-in --font-weight-* utilities
+         * and emitted broken CSS (.font-bold { font-family: 700 }) — every bold/
+         * semibold/medium on the site rendered as 400 (524 usages, live-proven).
+         * Tailwind's defaults now provide the weight utilities again. */
 
         /* ── Line heights ── */
         --leading-none: 1;
@@ -1060,6 +1061,14 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 .animate-scale-in { animation: scale-in 0.5s var(--ease-out-quart) both; }
 .animate-fade-in { animation: fade-in 0.5s var(--ease-out-quart) both; }
+
+/* r120 (U2-P1-2): above-fold visibility must never gate on the animation clock —
+ * under main-thread load the fill-mode 'both' held hero CTAs at opacity:0 for
+ * 3.5–4.7s (and forever in headless runs). rise-in animates transform ONLY:
+ * elements are visible from the first paint (offset 18px) and settle up once
+ * the thread frees. */
+@keyframes rise-in { from { transform: translateY(18px); } to { transform: translateY(0); } }
+.animate-rise-in { animation: rise-in 0.5s var(--ease-out-quart) both; }
 .animate-slide-up { animation: slide-up 0.6s var(--ease-out-quart) both; }
 .animate-page-enter { animation: fade-in 0.4s var(--ease-out-quart) both; }
 .animate-slide-down { animation: fade-in 0.5s var(--ease-out-quart) both; }

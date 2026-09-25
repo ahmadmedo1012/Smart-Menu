@@ -31,9 +31,9 @@ const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: s
         },
         Basic: {
                 icon: Star,
-                // r95: نص الشارة طُوّر مع شارة zap — «الأكثر طلباً» (فقط إن انزلقت
-                // البطاقة عن موقع الشعبية بتغيّر الخطط النشطة).
-                badge: 'الأكثر طلباً',
+                /* r120 (U11-P2-4): توحيد الشارة مع /subscribe — «الأكثر شعبية» في
+                   كل مكان؛ «الأكثر طلباً» تعبير غير دقيق للخطط. */
+                badge: 'الأكثر شعبية',
                 badgeColor: 'bg-orange text-orange-foreground',
         },
         Premium: {
@@ -86,12 +86,13 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
                                                 aria-hidden="true"
                                                 className="pointer-events-none absolute -top-20 -end-20 size-48 rounded-full bg-accent-foreground/10 blur-3xl"
                                         />
-                                        {/* r95: شارة zap SmartBot — «الأكثر طلباً» (كانت «الأكثر شعبية»).
+                                        {/* r95 → r120 (U11-P2-4): شارة zap — «الأكثر شعبية»
+                                               (موحّدة مع /subscribe؛ كانت «الأكثر طلباً» غير الدقيقة).
                                                3xs عند SmartBot = 10px — لا توكن 3xs بالمشروع
                                                فتُستخدم text-[0.625rem] (تكبر مع high-contrast). */}
                                         <span className="absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold text-primary-foreground">
                                                 <Zap className="size-2.5 fill-current" aria-hidden="true" />
-                                                الأكثر طلباً
+                                                الأكثر شعبية
                                         </span>
                                 </>
                         )}

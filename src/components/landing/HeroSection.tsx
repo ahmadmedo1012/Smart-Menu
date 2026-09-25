@@ -19,7 +19,7 @@ import { springDefault } from "@/lib/motion"
 // entrance is now pure CSS so it starts at FIRST PAINT with no hydration
 // gate, and the h1 keyframe starts VISIBLE (translate-only, opacity never
 // leaves 1) so the LCP text is never hidden. The stagger feel is kept via
-// the existing `.animate-fade-in` utility + per-element animation-delay —
+// the existing `.animate-rise-in` utility + per-element animation-delay —
 // same final look. (Floating ticket/growth cards stay framer-driven: they
 // are decorative, appear at 0.55s+ by design, and are never the LCP.)
 
@@ -98,7 +98,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                         {/* Start column — editorial text stack (r92 LCP-safe markup) */}
                                         <div className="text-center lg:text-start">
                                                 {/* Eyebrow — Naskh editorial voice, above the fold */}
-                                                <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
+                                                <div className="animate-rise-in" style={{ animationDelay: "0.1s" }}>
                                                 <Eyebrow>منيو رقمي، طلب مباشر على واتساب</Eyebrow>
                                                 </div>
                                                 {/* round92-A7: plain h1 + CSS settle — visible in the SSR HTML
@@ -114,10 +114,10 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                                 <span className="text-gradient-orange">الطلبات تصل</span> على واتساب
                                                         </span>
                                                 </h1>
-                                                <p className="animate-fade-in text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 text-muted-foreground text-balance mb-8" style={{ animationDelay: "0.27s" }}>
+                                                <p className="animate-rise-in text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 text-muted-foreground text-balance mb-8" style={{ animationDelay: "0.27s" }}>
                                                         أنشئ منيو واضحاً، استقبل الطلبات على واتساب، وتابع أداء مطعمك من لوحة واحدة.
                                                 </p>
-                                                <div className="animate-fade-in flex gap-3 sm:gap-4 justify-center lg:justify-start flex-wrap" style={{ animationDelay: "0.39s" }}>
+                                                <div className="animate-rise-in flex gap-3 sm:gap-4 justify-center lg:justify-start flex-wrap" style={{ animationDelay: "0.39s" }}>
                                                         <Link href="/subscribe">
                                                                 <Button variant="flame" size="lg" className="text-sm sm:text-base">
                                                                         ابدأ مجاناً <MotionArrowRight className="size-4 sm:size-5 rtl:rotate-180" />
@@ -131,12 +131,12 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                 </div>
                                                 {/* Trust badge — shows real count, loading skeleton, or hidden when unavailable */}
                                                 {isLoading ? (
-                                                        <div className="animate-fade-in inline-flex items-center gap-1.5 rounded-full border border-accent-foreground/20 bg-accent-foreground/5 px-3 py-1 mt-6" style={{ animationDelay: "0.51s" }}>
+                                                        <div className="animate-rise-in inline-flex items-center gap-1.5 rounded-full border border-accent-foreground/20 bg-accent-foreground/5 px-3 py-1 mt-6" style={{ animationDelay: "0.51s" }}>
                                                                 <span className="size-1.5 rounded-full bg-accent-foreground/40 animate-pulse" />
                                                                 <span className="h-3 w-24 rounded bg-accent-foreground/20 animate-pulse" />
                                                         </div>
                                                 ) : showTrustBadge ? (
-                                                        <div className="animate-fade-in inline-flex items-center gap-1.5 rounded-full border border-accent-foreground/25 bg-accent-foreground/8 px-3.5 py-1.5 text-[11px] font-medium text-ember dark:text-saffron mt-6 shadow-sm" style={{ animationDelay: "0.51s" }}>
+                                                        <div className="animate-rise-in inline-flex items-center gap-1.5 rounded-full border border-accent-foreground/25 bg-accent-foreground/8 px-3.5 py-1.5 text-[11px] font-medium text-ember dark:text-saffron mt-6 shadow-sm" style={{ animationDelay: "0.51s" }}>
                                                                 {/* a11y(round84): text-orange measured 4.47:1 on the cream hero bg (axe serious
                                                                  * violation — 0.03 short of AA). ember = oklch(0.44 0.17 52) ≈ 7:1 light,
                                                                  * saffron ≈ 8:1 on dark. Same brand hue family, world-class contrast. */}

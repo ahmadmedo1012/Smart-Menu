@@ -29,7 +29,12 @@ describe('formatPrice', () => {
                 expect(formatPrice('abc')).toBe('0 د.ل');
         });
         it('numeric string passes through Number()', () => {
-                expect(formatPrice('7.25')).toBe('7.3 د.ل');
+                /* r120 (U1-P2-2 + U5-F-13): القيمة القديمة «7.3» كانت تدويرًا ماليًا
+                   خاطئًا (منزلة واحدة إجبارية) — الافتراضي الذكي يعرض الكسر الحقيقي
+                   بمنزلتين كحد أقصى بلا أصفار زائدة. */
+                expect(formatPrice('7.25')).toBe('7.25 د.ل');
+                expect(formatPrice('7.2')).toBe('7.2 د.ل');
+                expect(formatPrice(12)).toBe('12 د.ل');
         });
         it('negative floats keep the sign', () => {
                 expect(formatPrice(-4.5)).toBe('-4.5 د.ل');

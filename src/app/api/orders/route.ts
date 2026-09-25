@@ -414,10 +414,19 @@ export async function POST(request: NextRequest) {
                                                                 notes: i.notes ?? '',
                                                                 // r118-A3-P2-3: nullish — discountedPrice 0 = 100% free
                                                                 // item (the truthy check charged the FULL price).
+                                                                // r120 (U5-F-2): store the EFFECTIVE unit price — base +
+                                                                // modifier deltas — so receipt lines (price × qty) sum
+                                                                // exactly to the stored subtotal/total. The old base-only
+                                                                // storage made WhatsApp invoices contradict themselves
+                                                                // (lines 18+5=23 while الإجمالي said 32).
                                                                 price:
-                                                                        db.discountedPrice != null
+                                                                        (db.discountedPrice != null
                                                                                 ? Number(db.discountedPrice)
-                                                                                : Number(db.price),
+                                                                                : Number(db.price)) +
+                                                                        (i.modifierOptionIds ?? []).reduce(
+                                                                                (s, mid) => s + (modOptionMap.get(mid) ?? 0),
+                                                                                0
+                                                                        ),
                                                                 // r118-A7-P3: order-time snapshot (names + deltas) instead
                                                                 // of bare ids — a later group edit (items PUT
                                                                 // full-replaces groups) used to leave historical

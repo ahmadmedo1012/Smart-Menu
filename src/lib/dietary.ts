@@ -45,6 +45,13 @@ export const DIETARY_LABELS: Record<string, string> = {
         organic: 'عضوي',
         spicy: 'حار',
         sugarconscious: 'سكر معتدل',
+        /* r120 (U11-P1-3): بيانات قائمة — بذور غير قياسية في صفوف قديمة (منيو
+           العرض التجريبي) كانت تُعرض حرفيًا بالإنجليزية («high-protein»، «milk»،
+           «nuts») بجوار شرائح عربية. المفاتيح البديلة تُعرّب العرض دون أي
+           هجرة بيانات؛ المحرّر نفسه لا يعرض سوى المفاتيح القياسية أعلاه. */
+        'high-protein': 'عالي البروتين',
+        high_protein: 'عالي البروتين',
+        protein: 'عالي البروتين',
 };
 
 export const ALLERGEN_LABELS: Record<string, string> = {
@@ -57,4 +64,7 @@ export const ALLERGEN_LABELS: Record<string, string> = {
         peanuts: 'فول سوداني',
         soy: 'صويا',
         sesame: 'سمسم',
+        /* r120 (U11-P1-3): بدائل قديمة — نفس معالجة خريطة الحميات أعلاه. */
+        milk: 'ألبان',
+        nuts: 'مكسرات',
 };

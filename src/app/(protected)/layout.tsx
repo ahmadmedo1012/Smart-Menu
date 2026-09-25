@@ -152,6 +152,7 @@ export default async function RootLayout({
                                                 position="top-center"
                                                 richColors
                                                 closeButton
+                                                dir="rtl"
                                                 toastOptions={{
                                                         style: {
                                                                 animation: 'slide-up 0.35s cubic-bezier(0.16, 1, 0.2, 1)',

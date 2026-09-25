@@ -248,7 +248,7 @@ export default function AdminMenuPage() {
                         </div>
                         <div className="text-end shrink-0 tabular-nums whitespace-nowrap">
                           <span className={cn("font-bold text-sm tabular-nums", item.discountedPrice ? "text-destructive" : "")}>
-                            {formatPrice(item.discountedPrice ?? item.price, { decimals: 1, suffix: "" })}
+                            {formatPrice(item.discountedPrice ?? item.price, { suffix: "" })}
                           </span>
                           <span className="text-xs text-muted-foreground ms-1">د.ل</span>
                         </div>

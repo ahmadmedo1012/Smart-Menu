@@ -136,7 +136,7 @@ export function ReviewDialog({
                                                                         )}
                                                                 </div>
                                                                 <span className="tabular-nums shrink-0 font-medium">
-                                                                        {formatPrice(item.price * item.quantity, { decimals: 1 })}
+                                                                        {formatPrice(item.price * item.quantity)}
                                                                 </span>
                                                         </div>
                                                 ))}
@@ -145,7 +145,7 @@ export function ReviewDialog({
                                         <div className="flex justify-between font-bold text-lg">
                                                 <span>الإجمالي</span>
                                                 <span className="tabular-nums text-primary">
-                                                        {formatPrice(total, { decimals: 1 })}
+                                                        {formatPrice(total)}
                                                 </span>
                                         </div>
                                         {notes && (

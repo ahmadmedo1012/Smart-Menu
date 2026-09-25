@@ -191,6 +191,10 @@ export function MenuToolbar({
                                                            the server/client style mismatch (round80 §7.1 debt). */
                                                         suppressHydrationWarning
                                                         placeholder="ابحث في القائمة..."
+                                                        /* r120 (U8-F-4): الحقل كان بلا اسم متاح — القارئ يقرأ
+                                                           placeholder فقط. r120 (U8-F-3): placeholder بم
+                                                           muted/50 كان 2.14:1 فقط. */
+                                                        aria-label="ابحث في القائمة"
                                                         value={inputValue}
                                                         onChange={(e) => {
                                                                 setInputValue(e.target.value);
@@ -207,7 +211,7 @@ export function MenuToolbar({
                                                         aria-activedescendant={
                                                                 dropdownVisible && activeIdx >= 0 ? `${listboxId}-opt-${activeIdx}` : undefined
                                                         }
-                                                        className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground/50"
+                                                        className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground"
                                                 />
                                                 {search && (
                                                         <button
@@ -274,7 +278,7 @@ export function MenuToolbar({
                                                                         )}
                                                                         <span className="flex-1 min-w-0 truncate">{s.nameAr || s.name}</span>
                                                                         <span className="text-xs font-semibold tabular-nums text-muted-foreground shrink-0">
-                                                                                {formatPrice(s.price, { decimals: 1 })}
+                                                                                {formatPrice(s.price)}
                                                                         </span>
                                                                 </button>
                                                         </li>

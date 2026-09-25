@@ -280,20 +280,20 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                 </p>
                                                         )}
                                                         <div className="mt-4 flex items-baseline justify-center gap-2">
-                                                                {/* r97-X1: formatPrice (decimals:1) — نفس تكوين بطاقات الشبكة
-                                                                   (كان toArabicNumber بلا كسور: «٣ د.ل» بدل «٣.٠ د.ل»). */}
+                                                                {/* r97-X1 → r120: formatPrice الذكي — أعداد صحيحة بلا «.0»
+                                                                   وكسور حقيقية بمنزلتين، مطابق لتكوين بطاقات الشبكة. */}
                                                                 {discounted != null ? (
                                                                         <>
                                                                                 <span className="text-2xl font-bold text-success tabular-nums md:text-3xl">
-                                                                                        {formatPrice(discounted, { decimals: 1 })}
+                                                                                        {formatPrice(discounted)}
                                                                                 </span>
                                                                                 <span className="text-sm text-foreground/60 line-through tabular-nums md:text-base">
-                                                                                        {formatPrice(current.price, { decimals: 1 })}
+                                                                                        {formatPrice(current.price)}
                                                                                 </span>
                                                                         </>
                                                                 ) : (
                                                                         <span className="text-2xl font-bold text-[var(--scene-accent)] tabular-nums md:text-3xl">
-                                                                                {formatPrice(current.price, { decimals: 1 })}
+                                                                                {formatPrice(current.price)}
                                                                         </span>
                                                                 )}
                                                         </div>

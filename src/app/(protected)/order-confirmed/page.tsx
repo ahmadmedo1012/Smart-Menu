@@ -32,6 +32,7 @@ function OrderContent() {
         const [cleared, setCleared] = useState(false);
         const [showShare, setShowShare] = useState(false);
         const [showConfetti, setShowConfetti] = useState(false);
+        const [copiedOrderNo, setCopiedOrderNo] = useState(false);
         const isSubscription = type === 'subscription';
 
         useEffect(() => {
@@ -50,6 +51,18 @@ function OrderContent() {
                         return () => clearTimeout(timer);
                 }
         }, [cleared, orderNo, isSubscription]);
+
+        // r120 (U5-F-14): نسخ رقم الطلب بضغطة — كان العميل يضطر لتصوير الشاشة
+        // أو نسخه يدويًا من النص.
+        const handleCopyOrderNo = async () => {
+                try {
+                        await navigator.clipboard.writeText(displayOrderNo ?? '');
+                        setCopiedOrderNo(true);
+                        setTimeout(() => setCopiedOrderNo(false), 2000);
+                } catch {
+                        /* clipboard unavailable (insecure context) — silently skip */
+                }
+        };
 
         const handleWhatsApp = () => {
                 // r109-F10: prefer the FULL itemized receipt stashed by the checkout
@@ -129,10 +142,19 @@ function OrderContent() {
                                                 <p className="text-3xl font-bold text-orange tabular-nums">
                                                         <bdi dir="ltr">{displayOrderNo ?? '---'}</bdi>
                                                 </p>
+                                                <button
+                                                        type="button"
+                                                        onClick={handleCopyOrderNo}
+                                                        className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+                                                >
+                                                        {copiedOrderNo ? 'تم النسخ ✓' : 'نسخ رقم الطلب'}
+                                                </button>
                                         </div>
 
                                         <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
-                                                سيتم تجهيز طلبك وإرسال إشعار عند الاستلام.
+                                                {/* r120 (U5-F-14): النص القديم وعد بإشعار لا يصل للزوار —
+                                                    الوعود الصادقة تبني الثقة. */}
+                                                أرسل الطلب عبر واتساب ليبدأ المطعم بالتجهيز، واحتفظ برقم الطلب عند الاستلام.
                                         </p>
 
                                         <div className="flex flex-col gap-3 w-full max-w-xs">
@@ -140,7 +162,9 @@ function OrderContent() {
                                                         <AnimatedMessageCircle className="ms-2 size-4" />
                                                         إرسال عبر واتساب
                                                 </Button>
-                                                <Link href="/menu">
+                                                {/* r120 (U5-F-7): العودة إلى منيو المطعم الذي طُلب منه
+                                                    (slug يصل عبر الرابط) — ليس إلى أول مطعم في قاعدة البيانات. */}
+                                                <Link href={referralRestaurantSlug ? `/menu/${referralRestaurantSlug}` : '/menu'}>
                                                         <Button variant="outline" className="w-full">
                                                                 <MotionArrowLeft className="ms-2 size-4" />
                                                                 العودة إلى القائمة

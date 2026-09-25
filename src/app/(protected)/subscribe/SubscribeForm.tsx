@@ -208,13 +208,20 @@ export function SubscribeForm({
         };
 
         if (!currentPlan) {
-                // Plans failed to load (deep-link ?plan=N) — offer retry instead of infinite skeleton
+                // Plans failed to load (deep-link ?plan=N) — offer retry AND an escape to the
+                // plan picker. r120 (U10 P2-1): retry alone looped forever when the param itself
+                // was unresolvable (stale/renamed plan deep-link) — the user could never leave.
                 return (
                         <div className="animate-fade-in max-w-lg mx-auto py-10 text-center">
                                 <p className="text-muted-foreground mb-4">تعذر تحميل الخطة المحددة</p>
-                                <Button type="button" variant="outline" onClick={onRetryPlans}>
-                                        إعادة المحاولة
-                                </Button>
+                                <div className="flex items-center justify-center gap-3">
+                                        <Button type="button" variant="outline" onClick={onRetryPlans}>
+                                                إعادة المحاولة
+                                        </Button>
+                                        <Button type="button" variant="flame" onClick={() => onStepChange('plan')}>
+                                                تصفح جميع الباقات
+                                        </Button>
+                                </div>
                         </div>
                 );
         }

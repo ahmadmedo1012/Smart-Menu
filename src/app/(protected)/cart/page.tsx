@@ -151,6 +151,9 @@ export default function CartPage() {
                 // the customer got a call-back hunt. Block at the source with an
                 // Arabic toast + focus the field.
                 if (pickupType === 'delivery' && !deliveryAddress.trim()) {
+                        /* r120 (U5-F-4): الحوار كان يبقى مفتوحًا فوق حقل العنوان الخامل —
+                           التنبيه يظهر خلفه والتركيز لا يعمل. أغلق الحوار أولًا. */
+                        setShowPreview(false);
                         premiumToast('error', 'يُرجى إدخال عنوان التوصيل قبل إتمام الطلب');
                         document.getElementById('delivery-address')?.focus();
                         setIsSubmitting(false);

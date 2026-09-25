@@ -47,11 +47,11 @@ export default function NotFound() {
                                 hydration, so nothing Arabic is ever announced before this runs). */}
                         <ErrorShellLangFix />
                         {/* Brand fonts for the 404 — the error shell doesn't apply the group
-                                layouts' fonts.css link; a hydrated <link> still loads (unlike scripts). */}
-                        {/* eslint-disable-next-line @next/next/no-css-tags — deliberate: the
-                                __next_error__ shell bypasses every group layout, this is the only
-                                way this boundary gets the brand fonts (same escape hatch the
-                                group layouts use for fonts.css). */}
+                                layouts' fonts.css link; a hydrated <link> still loads (unlike scripts).
+                                r120: التعليق التوضيحي كان داخل توجيه eslint نفسه فقرأه المحرك
+                                كاسم قاعدة غير موجودة ("Definition for rule … was not found") —
+                                الفصل بين التوجيه والشرح يعيد البوابة إلى الصفر. */}
+                        {/* eslint-disable-next-line @next/next/no-css-tags */}
                         <link rel="stylesheet" href="/fonts/fonts.css" />
                         <main
                         dir="rtl"

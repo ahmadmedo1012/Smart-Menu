@@ -291,8 +291,20 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                 </div>
                                         )}
 
+                                        {/* r120 (U11-P2-10): صفحة الدخول كانت بلا أي مسار إلى
+                                                التسجيل — اكتشاف إنشاء حساب جديد مستحيل من هنا. */}
+                                        <p className="mt-4 text-center text-sm text-muted-foreground">
+                                                ليس لديك حساب؟{' '}
+                                                <Link
+                                                        href="/subscribe"
+                                                        className="font-semibold text-accent-foreground hover:underline underline-offset-4"
+                                                >
+                                                        أنشئ منيوك الآن
+                                                </Link>
+                                        </p>
+
                                         {/* Footer */}
-                                        <p className="mt-6 text-center text-xs text-muted-foreground/60 font-arabic">
+                                        <p className="mt-6 text-center text-xs text-muted-foreground font-arabic">
                                                 نظام إدارة المطاعم · الربط الذكي
                                         </p>
                                 </CardContent>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {Store} from 'lucide-react';
 import { MotionMinus } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
@@ -67,6 +68,7 @@ export function OrderDialog({
         const [confirmed, setConfirmed] = useState(false);
         const cartPickupType = useCart((s) => s.pickupType);
         const whatsappTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+        const router = useRouter();
 
         // Clear the whatsapp-redirect timer on unmount so a late navigation can't fire
         useEffect(() => () => {
@@ -173,10 +175,11 @@ export function OrderDialog({
                 if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
                 whatsappTimerRef.current = setTimeout(() => {
                         onOpenChange(false);
-                        // Redirect to unified cart page where user reviews + sends WhatsApp
-                        // r97: تحميل كامل عمدًا — صفحة السلة تبدأ بحالة نظيفة بعد الطلب.
-                        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-                        window.location.href = '/cart';
+                        // Redirect to the unified cart page where the user reviews + sends WhatsApp.
+                        // r120 (U3-P2-2): router.push بدل window.location — التحميل الكامل كان
+                        // يبيّض الشاشة ويعيد جلب كل شيء (أسوأ قياس 6.0s على 3G). السلة تُقرأ
+                        // من متجر Zustand عند التركيب — التنقل الداخلي يعطي نفس الحالة النظيفة.
+                        router.push('/cart');
                 }, 800);
         }, [
                 item,
@@ -190,6 +193,7 @@ export function OrderDialog({
                 modSelection,
                 restaurantId,
                 onOpenChange,
+                router,
         ]);
 
         const toggleQuickNote = (note: string) => {
@@ -258,8 +262,11 @@ export function OrderDialog({
                                         <div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-lg shadow-orange/30">
                                                 <MotionCheck className="size-10 text-orange-foreground" />
                                         </div>
-                                        <h3 className="text-xl font-bold mb-1">تم إرسال الطلب!</h3>
-                                        <p className="text-sm text-muted-foreground">جاري تحويلك إلى واتساب...</p>
+                                        <h3 className="text-xl font-bold mb-1">تمت الإضافة إلى السلة!</h3>
+                                        {/* r120 (U5-F-3): الكذبة القديمة «تم إرسال الطلب! جاري تحويلك
+                                            إلى واتساب...» كانت توحي بإتمام الطلب بينما الحقيقة إضافة
+                                            للسلة → مراجعة → إرسال. الصدق يمنع مغادرة العميل مبكرًا. */}
+                                        <p className="text-sm text-muted-foreground">جاري فتح السلة لمراجعة الطلب وإرساله عبر واتساب...</p>
                                 </div>
                         ) : (
                                 <div className={cn('p-5 space-y-4', !item.image && 'pt-8')}>
@@ -421,7 +428,7 @@ export function OrderDialog({
                                                                 {/* r95: حبر السعر — أسعار الأصناف بعائلة accent-foreground (#df5a00)
                                                                    5.42:1 — كان text-primary (#bc4700) 3.9:1 بلا AA على الزجاج الداكن. */}
                                                                 <span className="font-bold text-xl text-accent-foreground tabular-nums">
-                                                                        {formatPrice(unitPrice, { decimals: 1, suffix: '' })}
+                                                                        {formatPrice(unitPrice, { suffix: '' })}
                                                                 </span>
                                                                 <span className="text-xs text-muted-foreground">د.ل</span>
                                                         </div>
@@ -498,7 +505,7 @@ export function OrderDialog({
                                                                                 : 'text-muted-foreground hover:text-foreground'
                                                                 )}
                                                         >
-                                                                {type === 'delivery' ? 'توصيل' : type === 'inside' ? 'داخلي' : 'استلام'}
+                                                                {type === 'delivery' ? 'توصيل' : type === 'inside' ? 'داخل المكان' : 'سفري'}
                                                         </button>
                                                 ))}
                                         </div>
@@ -535,6 +542,7 @@ export function OrderDialog({
                                                 onChange={(e) => setNotes(e.target.value)}
                                                 placeholder="ملاحظات إضافية للطلب..."
                                                 rows={2}
+                                                maxLength={500}
                                                 aria-label="ملاحظات إضافية"
                                                 className={cn(glassPillInput, 'h-auto py-3 resize-none')}
                                         />
@@ -550,24 +558,27 @@ export function OrderDialog({
                                                         <span className="font-bold text-sm">المجموع</span>
                                                         {/* r95: المجموع — accent-foreground الأسطع (#df5a00) 5.42:1 */}
                                                         <span className="font-bold text-2xl text-accent-foreground tabular-nums">
-                                                                {formatPrice(totalPrice, { decimals: 1, suffix: '' })}{' '}
+                                                                {formatPrice(totalPrice, { suffix: '' })}{' '}
                                                                 <span className="text-sm font-normal text-muted-foreground">د.ل</span>
                                                         </span>
                                                 </div>
+                                                {/* r120 (U5-F-3 + U8-F-2): الزر يضيف للسلة (لا يرسل واتساب
+                                                    مباشرة) — النص الصادق «أضف إلى السلة». والنص الأبيض على
+                                                    أخضر واتساب كان 1.98:1 فقط؛ الأخضر الداكن يعطي 6.15:1. */}
                                                 <button
                                                         type="button"
-                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-white flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-[#0b3d2e] flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         onClick={handleConfirm}
                                                         disabled={submitting || !restaurantWhatsapp}
                                                 >
                                                         {submitting ? (
                                                                 <span className="flex items-center gap-2">
-                                                                        <span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                                                        <span className="size-4 rounded-full border-2 border-[#0b3d2e]/40 border-t-[#0b3d2e] animate-spin" />
                                                                         جاري...
                                                                 </span>
                                                         ) : (
                                                                 <>
-                                                                        <AnimatedMessageCircle className="size-5 text-white" /> أرسل الطلب عبر واتساب
+                                                                        <AnimatedMessageCircle className="size-5 text-[#0b3d2e]" /> أضف إلى السلة
                                                                 </>
                                                         )}
                                                 </button>
@@ -576,8 +587,8 @@ export function OrderDialog({
                                                                 لم يتم إعداد واتساب بعد للمطعم. يُرجى التواصل مع المطعم مباشرة.
                                                         </p>
                                                 )}
-                                                <p className="text-[11px] text-center text-muted-foreground/60">
-                                                        سيتم فتح واتساب مع رسالة الطلب لإرسالها مباشرة
+                                                <p className="text-[11px] text-center text-muted-foreground">
+                                                        سيتم فتح السلة لمراجعة الطلب وإرساله عبر واتساب
                                                 </p>
                                         </div>
                                 </div>

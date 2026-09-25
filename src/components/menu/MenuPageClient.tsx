@@ -407,7 +407,7 @@ export function MenuPageClient({
                                                 <span className="size-2 rounded-full bg-orange animate-pulse" aria-hidden="true" />
                                                 <h2 className="text-sm font-semibold text-foreground">الأكثر طلباً</h2>
                                         </div>
-                                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                                 {popularVisible.map((item, index) => (
                                                         <div
                                                                 key={item.id}
@@ -457,7 +457,9 @@ export function MenuPageClient({
                                         />
                                 </div>
                         ) : (
-                                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                        {/* r120 (U9-P3): عمود رابع للشاشات الكبيرة (كانت 3 أعمدة
+                                                ثابتة من 1024 حتى 1920+ بهوامش ميتة). */}
                                         {normalItems.map((item, index) => (
                                                 <div
                                                         key={item.id}
