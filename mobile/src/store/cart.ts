@@ -117,7 +117,10 @@ export const useCart = create<CartStore>()(
       name: "cart-storage",
       storage: createJSONStorage(asyncStorageAdapter),
       partialize: (s) => ({
-        items: s.items, lastRemoved: s.lastRemoved,
+        /* r120 (U6-#3 + U5-F-10 web twin): lastRemoved لم يعد يُخزَّن —
+         * راية «تراجع» لصنف حُذف في جلسة سابقة لا معنى لها بعد إعادة فتح
+         * التطبيق. */
+        items: s.items,
         customerName: s.customerName, customerPhone: s.customerPhone, notes: s.notes,
         pickupType: s.pickupType, restaurantId: s.restaurantId,
         restaurantWhatsapp: s.restaurantWhatsapp, restaurantName: s.restaurantName,

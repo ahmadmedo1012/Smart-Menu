@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, ScrollView, RefreshControl, TextInput, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { Search, ShoppingCart, Plus, Minus, X, ShoppingBag, AlertCircle } from "lucide-react-native";
+import { Search, ShoppingCart, Plus, Minus, X, ShoppingBag, AlertCircle, Trash2 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
 
@@ -349,13 +349,19 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
     onClose();
   };
 
+  // r120 (U6-#2): زر الرجوع كان يطفئ شاشة المنيو تحت الورقة — الآن يغلق الورقة أولًا.
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => { onClose(); return true; });
+    return () => sub.remove();
+  }, [onClose]);
+
   return (
     <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.7)", zIndex: 100 }}>
       <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="إغلاق تفاصيل الصنف" />
       <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#070503", borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "88%", padding: 16, borderWidth: 1, borderColor: "#1f1813" }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", flex: 1 }} numberOfLines={1}>{item.nameAr || item.name}</Text>
-          <Pressable onPress={onClose} hitSlop={8} accessibilityLabel="إغلاق"><X size={20} color="#9c948a" /></Pressable>
+          <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="إغلاق"><X size={20} color="#9c948a" /></Pressable>
         </View>
         <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
           {item.description ? (
@@ -388,6 +394,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
                         disabled={disabled}
                         accessibilityLabel={`${o.nameAr || o.name}${o.priceDelta > 0 ? ` بإضافة ${formatPrice(o.priceDelta)}` : ""}`}
                         accessibilityState={{ selected, disabled }}
+                        hitSlop={6}
                         style={{
                           paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10,
                           backgroundColor: selected ? "#bc4700" : "#010000",
@@ -467,10 +474,20 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
   const notes = useCart((s) => s.notes);
   const pickupType = useCart((s) => s.pickupType);
   const [submitting, setSubmitting] = useState(false);
+  const lastRemoved = useCart((s) => s.lastRemoved);
+  /* r120 (U6-#1 — P1): طلبات التوصيل كانت تُرسل بلا عنوان إطلاقًا (الشيت لا يملك
+   * الحقل) فتصل المطعم فاتورة توصيل مستحيلة التنفيذ. mirror الويب: عنوان إلزامي
+   * لتوصيل + ملاحظات عامة (setOrderNotes كانت بلا مستدعٍ واحد). */
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const subtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
 
   const onCheckout = async () => {
     if (items.length === 0) return;
+    /* r120 (U6-#1): نفس بوابة الويب — توصيل بلا عنوان مرفوض قبل أي طلب شبكة. */
+    if (pickupType === "delivery" && !deliveryAddress.trim()) {
+      toast.error("يُرجى إدخال عنوان التوصيل قبل إتمام الطلب");
+      return;
+    }
     setSubmitting(true);
     try {
       const refCode = (await AsyncStorage.getItem("smartmenu_referral")) || undefined;
@@ -481,9 +498,15 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
       // key and create a duplicate order. Retired only on confirmed success
       // (see retireCheckoutIdempotencyKey below); every failure keeps it.
       const idempotencyKey = getOrCreateCheckoutIdempotencyKey();
+      /* r120 (U6-#1): العنوان يُركّب في الملاحظات — نفس عقد الويب
+       * («العنوان: …») الذي يفهمه أصحاب المطاعم في فاتورة واتساب. */
+      const composedNotes = [
+        pickupType === "delivery" ? `العنوان: ${deliveryAddress.trim()}` : null,
+        notes.trim() || null,
+      ].filter(Boolean).join("\n");
       const res = await api.post<OrderEcho>("/api/orders", {
         items: items.map((i) => ({ itemId: i.itemId, quantity: i.quantity, notes: i.notes, modifierOptionIds: i.modifierOptionIds })),
-        restaurantId: restaurant.id, customerName, customerPhone, notes, pickupType, referralCode: refCode, idempotencyKey,
+        restaurantId: restaurant.id, customerName, customerPhone, notes: composedNotes, pickupType, referralCode: refCode, idempotencyKey,
       }, { mobileClient: true });
       // Confirmed success (fresh 201 OR the inert already:true replay) — retire
       // the key so the NEXT order in this app session mints a fresh one.
@@ -529,7 +552,7 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
         : buildReceiptMessage({
             restaurantName: restaurant.name, orderNo: res.orderNo,
             items: items.map((i) => ({ name: i.modifiersSummary ? `${i.name} (${i.modifiersSummary})` : i.name, qty: i.quantity, price: i.price, notes: i.notes })),
-            totalPrice: subtotal, customerName, customerPhone, notes, pickupType,
+            totalPrice: subtotal, customerName, customerPhone, notes: composedNotes, pickupType,
           });
       const waUrl = buildWhatsAppShareUrl(receipt, normalizeWaNumber(restaurant.whatsapp || restaurant.phone));
       // r103-N4: the order IS placed at this point — a WhatsApp-open failure
@@ -555,14 +578,30 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
 
   const pickupLabels: Record<typeof pickupType, string> = { inside: "داخل المطعم", takeaway: "سفري", delivery: "توصيل" };
 
+  // r120 (U6-#2): زر الرجوع يغلق السلة بدل إطفاء شاشة المنيو تحتها.
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => { onClose(); return true; });
+    return () => sub.remove();
+  }, [onClose]);
+
   return (
     <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.7)", zIndex: 100 }}>
       <Pressable style={{ flex: 1 }} onPress={onClose} />
       <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#070503", borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "85%", padding: 16, borderWidth: 1, borderColor: "#1f1813" }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2" }}>السلة</Text>
-          <Pressable onPress={onClose} hitSlop={8}><X size={20} color="#9c948a" /></Pressable>
+          <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="إغلاق السلة"><X size={20} color="#9c948a" /></Pressable>
         </View>
+        {/* r120 (U6-#3): راية التراجع — المخزن كان يملك removeItem/undoRemove
+            بلا أي واجهة؛ الحذف كان بالإنقاص حتى الصفر بصمت وبلا استرجاع. */}
+        {lastRemoved ? (
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#1f1813", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 8 }}>
+            <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a", flex: 1 }} numberOfLines={1}>تم حذف «{lastRemoved.name}»</Text>
+            <Pressable onPress={cart.undoRemove} hitSlop={8} accessibilityLabel="تراجع عن الحذف">
+              <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "700", color: "#df5a00" }}>تراجع</Text>
+            </Pressable>
+          </View>
+        ) : null}
         <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
           {items.length === 0 ? (
             <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", textAlign: "center", paddingVertical: 24 }}>السلة فارغة</Text>
@@ -575,10 +614,15 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
                     {i.modifiersSummary ? <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }} numberOfLines={2}>{i.modifiersSummary}</Text> : null}
                     <Text style={{ fontFamily: "ReadexPro", fontSize: 12, color: "#bc4700", marginTop: 4 }}>{formatPrice(i.price)}</Text>
                   </View>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#1f1813", alignItems: "center", justifyContent: "center" }}><Minus size={12} color="#ebe7e2" /></Pressable>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    {/* r120 (U6-#4): 24×24 تحت حد اللمس — 36 مرئي + hitSlop 8 = ≥44 فعليًا. */}
+                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} hitSlop={8} accessibilityLabel={`إنقاص كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#1f1813", alignItems: "center", justifyContent: "center" }}><Minus size={16} color="#ebe7e2" /></Pressable>
                     <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2", minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
-                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={12} color="#fff" /></Pressable>
+                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} hitSlop={8} accessibilityLabel={`زيادة كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={16} color="#fff" /></Pressable>
+                    {/* r120 (U6-#3): حذف مباشر + تراجع (كان الإنقاص حتى الصفر الطريق الوحيد). */}
+                    <Pressable onPress={() => cart.removeItem(i.id)} hitSlop={10} accessibilityLabel={`حذف ${i.name} من السلة`} style={{ padding: 6 }}>
+                      <Trash2 size={16} color="#9c948a" />
+                    </Pressable>
                   </View>
                 </View>
               </View>
@@ -591,11 +635,30 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
             <TextInput placeholder="رقم الهاتف" placeholderTextColor="#9c948a" value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" style={{ height: 40, borderRadius: 8, borderWidth: 1, borderColor: "#1f1813", backgroundColor: "#010000", paddingHorizontal: 12, color: "#ebe7e2", fontFamily: "Cairo", fontSize: 13 }} />
             <View style={{ flexDirection: "row", gap: 8 }}>
               {(["inside", "takeaway", "delivery"] as const).map((t) => (
-                <Pressable key={t} onPress={() => cart.setPickupType(t)} style={{ flex: 1, paddingVertical: 8, borderRadius: 8, backgroundColor: pickupType === t ? "#bc4700" : "#1f1813", alignItems: "center" }}>
+                <Pressable key={t} onPress={() => cart.setPickupType(t)} hitSlop={4} accessibilityLabel={pickupLabels[t]} accessibilityState={{ selected: pickupType === t }} style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: pickupType === t ? "#bc4700" : "#1f1813", alignItems: "center" }}>
                   <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "600", color: pickupType === t ? "#fff" : "#9c948a" }}>{pickupLabels[t]}</Text>
                 </Pressable>
               ))}
             </View>
+            {/* r120 (U6-#1): عنوان إلزامي لتوصيل (بوابة الإرسال أعلاه ترفض الفراغ)
+                + ملاحظات عامة على الطلب — تكافئ صفحة السلة في الويب. */}
+            {pickupType === "delivery" ? (
+              <TextInput
+                placeholder="عنوان التوصيل (إلزامي)"
+                placeholderTextColor="#df5a00"
+                value={deliveryAddress}
+                onChangeText={setDeliveryAddress}
+                style={{ height: 40, borderRadius: 8, borderWidth: 1, borderColor: "#bc4700", backgroundColor: "#010000", paddingHorizontal: 12, color: "#ebe7e2", fontFamily: "Cairo", fontSize: 13 }}
+              />
+            ) : null}
+            <TextInput
+              placeholder="ملاحظات على الطلب (اختياري)"
+              placeholderTextColor="#9c948a"
+              value={notes}
+              onChangeText={cart.setOrderNotes}
+              multiline
+              style={{ minHeight: 40, borderRadius: 8, borderWidth: 1, borderColor: "#1f1813", backgroundColor: "#010000", paddingHorizontal: 12, paddingVertical: 10, color: "#ebe7e2", fontFamily: "Cairo", fontSize: 13 }}
+            />
           </View>
         ) : null}
         {items.length > 0 ? (
