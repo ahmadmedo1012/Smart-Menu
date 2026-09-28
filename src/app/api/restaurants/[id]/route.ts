@@ -15,6 +15,9 @@ import {
         isSlugHeldByPendingPayment,
         normalizeSlug,
 } from '@/lib/validation';
+// r121-A-10: the orders-guard + P2003→409 mapping moved to the shared lib
+// (same rules as the owner path, one unified 409 copy).
+import { ORDERS_PRESENT_MESSAGE, countRestaurantOrders, isOrdersPresentP2003 } from '@/lib/restaurant-delete-guard';
 // round86-A3: deleteBlob below is scoped to the deleted restaurant's tenant
 
 // r93-N7 (F6/MED-3 من تفتيش 1-b): GET عام غير مصادق (صفحات المنيو/السلة
@@ -276,12 +279,12 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                         select: { logo: true, gallery: true, slug: true, name: true },
                 });
 
-                // r118-A7-P3: orders are financial records — hard-deleting a tenant
-                // that ever took orders is irreversible data loss. super_admin keeps
-                // full trust (still audited below).
-                const orderCount = await prisma.order.count({ where: { restaurantId: rId } });
+                // r118-A7-P3 (shared guard — see lib/restaurant-delete-guard.ts):
+                // orders are financial records; super_admin keeps full trust
+                // (still audited below).
+                const orderCount = await countRestaurantOrders(rId);
                 if (orderCount > 0 && auth.role !== 'super_admin') {
-                        return apiError('لا يمكن حذف مطعم لديه طلبات مسجلة — يُحتفظ بسجل الطلبات لأغراض المحاسبة', 409);
+                        return apiError(ORDERS_PRESENT_MESSAGE, 409);
                 }
 
                 // r93-N1 (F2/H-1): حذف التقييمات صراحة داخل معاملة قبل restaurant.delete
@@ -303,11 +306,12 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
                                 await tx.restaurant.delete({ where: { id: rId } });
                         });
                 } catch (e) {
-                        // r119-S7: Order FK restrict only — P2003 from any OTHER constraint
-                        // (e.g. the r93-N1 review FK) keeps its legacy handleError path.
-                        if ((e as { code?: string; meta?: { field_name?: string } })?.code === 'P2003' &&
-                            String((e as { meta?: { field_name?: string } })?.meta?.field_name ?? '').includes('Order_restaurantId_fkey')) {
-                                return apiError('لا يمكن حذف مطعم لديه طلبات مسجلة — يُحتفظ بسجل الطلبات لأغراض المحاسبة', 409);
+                        // r119-S7 (shared mapping — lib/restaurant-delete-guard.ts):
+                        // the orders-FK race loser gets the same 409 the pre-check gives;
+                        // P2003 from any OTHER constraint (e.g. the r93-N1 review FK)
+                        // keeps its legacy handleError path.
+                        if (isOrdersPresentP2003(e)) {
+                                return apiError(ORDERS_PRESENT_MESSAGE, 409);
                         }
                         throw e;
                 }

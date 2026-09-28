@@ -8,6 +8,8 @@
 
 <!-- r93-W2a (U4): حُذف useScrollProgress و KineticText (كود ميت بلا مستورد واحد —
      تأكيد knip وفحص rg) فأُزيلت قسماهما من هذا الدليل. -->
+<!-- r121-F-2: حُذف StaggeredReveal كذلك (صفر مواضع استخدام؛ الفحص المزدوج
+     للجولتين 93 و121) — نمط التتابع لكل طفل يُكتب اليوم داخل مستهلكه. -->
 
 ### 1. `ScrollReveal`
 Reveal animation يعمل مرة واحدة عند دخول العنصر للـ viewport.
@@ -20,18 +22,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal"
 </ScrollReveal>
 ```
 
-### 2. `StaggeredReveal`
-Staggered reveal للأطفال.
-
-```tsx
-import { StaggeredReveal } from "@/components/ui/scroll-reveal"
-
-<StaggeredReveal stagger={60}>
-  {items.map(item => <Card key={item.id} />)}
-</StaggeredReveal>
-```
-
-### 3. `ScrollParallax`
+### 2. `ScrollParallax`
 تأثير عمق بطبقات متحركة بسرعات مختلفة.
 
 ```tsx
@@ -46,7 +37,7 @@ import { ScrollParallax } from "@/components/ui/scroll-parallax"
 - `maxTravel` = الحد الأقصى للحركة بالبكسل (افتراضي: 80)
 - معطل تلقائياً على الموبايل و prefers-reduced-motion
 
-### 4. `ClipPathReveal`
+### 3. `ClipPathReveal`
 Wipe effect بـ clip-path (up, down, left, right, iris).
 
 ```tsx
@@ -76,7 +67,7 @@ import { ClipPathReveal } from "@/components/ui/clip-path-reveal"
 | scroll-craft device | المكون المُدمج |
 |---|---|
 | `data-sc-in` (fire-once reveal) | `<ScrollReveal>` |
-| `data-sc-stagger` | `<StaggeredReveal>` |
+| `data-sc-stagger` | (محذوف r121 — يُكتب داخل المستهلك) |
 | `data-sc-parallax` | `<ScrollParallax>` |
 | `data-sc-reveal` | `<ClipPathReveal>` |
 | `data-sc-cue` | مدمج في `ScrollReveal` |

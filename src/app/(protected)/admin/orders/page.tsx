@@ -8,10 +8,15 @@ import { usePollWhenVisible } from "@/hooks/usePollWhenVisible"
 import { Badge } from "@/components/ui/badge"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import { ClipboardList, Store, Clock, ChefHat, CheckCircle, XCircle, Activity } from 'lucide-react';
+import { ClipboardList, Store, Activity } from 'lucide-react';
 import AnimatedBarChart3 from '@/components/ui/chart-bar-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatPrice } from "@/lib/format"
+// r121-A-3/I-1: the local orange STATUS_CONFIG map is deleted — this page now
+// speaks the lib's semantic tokens (warning/info/success/destructive), the
+// same language the owner orders surface has used since round85. TABS labels
+// derive from the lib so the copy can't fork either.
+import { ORDER_STATUS_META, getOrderStatusMeta } from '@/lib/order-status';
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
@@ -23,21 +28,9 @@ interface Order {
   createdAt: string
 }
 
-const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
-  new: { label: "جديد", icon: Clock, color: "text-orange", bg: "bg-orange-muted" },
-  preparing: { label: "قيد التحضير", icon: ChefHat, color: "text-orange", bg: "bg-orange-muted" },
-  ready: { label: "جاهز", icon: CheckCircle, color: "text-success", bg: "bg-success/10" },
-  completed: { label: "مكتمل", icon: CheckCircle, color: "text-muted-foreground", bg: "bg-muted" },
-  cancelled: { label: "ملغي", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
-}
-
 const TABS = [
   { value: "", label: "الكل" },
-  { value: "new", label: "جديد" },
-  { value: "preparing", label: "قيد التحضير" },
-  { value: "ready", label: "جاهز" },
-  { value: "completed", label: "مكتمل" },
-  { value: "cancelled", label: "ملغي" },
+  ...Object.entries(ORDER_STATUS_META).map(([value, meta]) => ({ value, label: meta.label })),
 ]
 
 export default function AdminOrdersPage() {
@@ -186,10 +179,6 @@ export default function AdminOrdersPage() {
     }
   }
 
-  const nextStatus: Record<string, string> = {
-    new: "preparing", preparing: "ready", ready: "completed",
-  }
-
   const filtered = orders.filter(o => {
     if (!search) return true
     const q = search.toLowerCase()
@@ -242,13 +231,13 @@ export default function AdminOrdersPage() {
           <p className="text-xs text-muted-foreground">إجمالي</p>
           <p className="text-2xl font-bold mt-1">{toArabicNumber(orders.length)}</p>
         </div>
-        <div className="rounded-xl bg-orange-muted border border-orange/30 p-4 shadow-sm">
-          <p className="text-xs text-orange">جديد</p>
-          <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(totalNew)}</p>
+        <div className="rounded-xl bg-warning/15 border border-warning/25 p-4 shadow-sm">
+          <p className="text-xs text-warning">جديد</p>
+          <p className="text-2xl font-bold mt-1 text-warning">{toArabicNumber(totalNew)}</p>
         </div>
-        <div className="rounded-xl bg-orange-muted border border-orange/30 p-4 shadow-sm">
-          <p className="text-xs text-orange">قيد التحضير</p>
-          <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(totalPreparing)}</p>
+        <div className="rounded-xl bg-info/15 border border-info/25 p-4 shadow-sm">
+          <p className="text-xs text-info">قيد التحضير</p>
+          <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(totalPreparing)}</p>
         </div>
         <div className="rounded-xl bg-success/10 border border-success/20 p-4 shadow-sm">
           <p className="text-xs text-success">جاهز</p>
@@ -332,8 +321,8 @@ export default function AdminOrdersPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map(order => {
-            const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new
-            const next = nextStatus[order.status]
+            const config = getOrderStatusMeta(order.status)
+            const next = config.next
             return (
               <div key={order.id} role="link" tabIndex={0} className="rounded-md border border-border/30 bg-card/50 p-5 hover:border-orange/30 hover:shadow-md transition-[border-color,box-shadow] cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 onClick={() => router.push(`/admin/orders/${order.id}`)}
@@ -345,14 +334,14 @@ export default function AdminOrdersPage() {
                 }}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className={cn("size-11 rounded-xl flex items-center justify-center shrink-0", config.bg)}>
-                      <config.icon className={cn("size-5", config.color)} />
+                    <div className={cn("size-11 rounded-xl flex items-center justify-center shrink-0", config.toneClassName)}>
+                      <config.icon className="size-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         {/* round94 (D §5): bdi بنمط صفحة التفاصيل — عزل اتجاه رقم الطلب اللاتيني داخل RTL */}
                         <p className="font-bold"><bdi dir="ltr">{order.orderNo}</bdi></p>
-                        <Badge className={cn("text-xs", config.bg, config.color)}>
+                        <Badge className={cn("text-xs", config.badgeClassName)}>
                           <config.icon className="size-3" aria-hidden="true" />
                           {config.label}
                         </Badge>
@@ -377,11 +366,14 @@ export default function AdminOrdersPage() {
                   <div className="flex gap-2 mt-3 pt-3 border-t border-border/20">
                     <button type="button" onClick={e => { e.stopPropagation(); updateStatus(order.id, next) }}
                       className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-colors border",
-                        next === "preparing" && "border-orange/30 text-orange hover:bg-orange-muted",
-                        next === "ready" && "border-success/25 text-success hover:bg-success/15",
-                        next === "completed" && "border-orange/30 text-orange hover:bg-orange-muted",
+                        // r121-A-3/I-1: same advance-button language as the owner
+                        // table (OrdersTable) — info for "قيد التحضير", success for
+                        // the terminal steps; was orange for preparing+completed.
+                        next === "preparing" && "border-info/30 text-info hover:bg-info/10",
+                        next === "ready" && "border-success/25 text-success hover:bg-success/10",
+                        next === "completed" && "border-success/25 text-success hover:bg-success/10",
                       )}>
-                      ← {STATUS_CONFIG[next]?.label}
+                      ← {getOrderStatusMeta(next).label}
                     </button>
                   </div>
                 )}

@@ -167,14 +167,16 @@ const FILE_ALLOWLIST = [
     // round96-W3: local migration harness (PGlite on 5434) — same dev-only
     // embedded-postgres default as round89/round90 plans. Found by the
     // scanner's untracked-file sweep; allowlisted by W5 to keep CI green.
-    file: 'scripts/r96-test-migration.mjs',
+    // r121-R-1: path updated after the git mv to scripts/archive/.
+    file: 'scripts/archive/r96-test-migration.mjs',
     id: 'pg',
     reason: 'local migration-test harness default (postgres:postgres@127.0.0.1:5434) — dev-only, same pattern as round89/round90 plans',
   },
   {
     // round96-W3b: production-scenario simulation for the r96 demo-menu
     // migration — same dev-only embedded-postgres default on 127.0.0.1:5434.
-    file: 'scripts/r96-test-migration-prod-sim.mjs',
+    // r121-R-1: path updated after the git mv to scripts/archive/.
+    file: 'scripts/archive/r96-test-migration-prod-sim.mjs',
     id: 'pg',
     reason: 'local prod-sim migration test default (postgres:postgres@127.0.0.1:5434) — dev-only, same pattern as round89/round90 plans',
   },

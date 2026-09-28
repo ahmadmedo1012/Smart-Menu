@@ -2,6 +2,8 @@
 
 import { Loader2 } from 'lucide-react';
 import { toArabicNumber, formatPrice } from '@/lib/format';
+// r121-O-1: canonical pickup labels (the local 3-entry map is deleted)
+import { getPickupTypeMeta } from '@/lib/order-status';
 import { Button } from '@/components/ui/button';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import {
@@ -12,12 +14,6 @@ import {
         DialogDescription,
 } from '@/components/ui/dialog';
 import type { CartItem } from '@/store/cart';
-
-const PICKUP_LABELS: Record<string, string> = {
-        inside: 'داخل المكان',
-        takeaway: 'سفري',
-        delivery: 'توصيل',
-};
 
 interface ReviewDialogProps {
         open: boolean;
@@ -100,7 +96,7 @@ export function ReviewDialog({
                                                                         <circle cx="18.5" cy="18.5" r="2.5" />
                                                                 </svg>
                                                         )}
-                                                        {PICKUP_LABELS[pickupType]}
+                                                        {getPickupTypeMeta(pickupType).label}
                                                 </span>
                                         </div>
                                         <div className="divide-y divide-border/50">

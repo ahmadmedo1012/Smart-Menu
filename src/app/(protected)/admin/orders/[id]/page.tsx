@@ -15,11 +15,14 @@ import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate, formatPrice } from '@/lib/format';
+// r121-A-3/I-1 + O-1: status + pickup metadata now come from the lib SSOT
+// (lib/order-status.ts) — this page previously rode the bespoke saffron/teal
+// STATUS_CONFIG from useOrderDetail (same status, third palette).
+import { getOrderStatusMeta, getPickupTypeMeta } from '@/lib/order-status';
 import {
         useOrderDetail,
         updateOrderStatus,
         copyOrderShareText,
-        STATUS_CONFIG,
         STATUS_FLOW,
 } from '@/components/orders/useOrderDetail';
 import Link from 'next/link';
@@ -41,7 +44,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                 try {
                         const updated = await updateOrderStatus(id, status);
                         setOrder(updated);
-                        premiumToast('success', 'تم تغيير الحالة', STATUS_CONFIG[status]?.label);
+                        premiumToast('success', 'تم تغيير الحالة', getOrderStatusMeta(status).label);
                 } catch (e) {
                         // round89-E6: csrfJson throws the server's Arabic message — surface it
                         premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة'));
@@ -80,7 +83,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                         </div>
                 );
 
-        const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.new;
+        const config = getOrderStatusMeta(order.status);
         const isCancelled = order.status === 'cancelled';
         const currentIdx = isCancelled
                 ? -1
@@ -102,7 +105,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                 <p className="text-xs text-muted-foreground">{formatDate(new Date(order.createdAt))}</p>
                                         </div>
                                 </div>
-                                <Badge className={cn('text-sm px-4 py-1.5 rounded-full', config.bg, config.color)}>
+                                <Badge className={cn('text-sm px-4 py-1.5 rounded-full', config.badgeClassName)}>
                                         {config.label}
                                 </Badge>
                         </div>
@@ -128,7 +131,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                 <h2 className="text-sm font-semibold text-muted-foreground mb-4">حالة الطلب</h2>
                                 <div className="flex items-center">
                                         {STATUS_FLOW.map((s, idx) => {
-                                                const StepIcon = STATUS_CONFIG[s].icon;
+                                                const StepIcon = getOrderStatusMeta(s).icon;
                                                 const isActive = idx <= currentIdx;
                                                 const isCurrent = idx === currentIdx;
                                                 return (
@@ -158,7 +161,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                                                                 : 'text-muted-foreground/40'
                                                                         )}
                                                                 >
-                                                                        {STATUS_CONFIG[s].label}
+                                                                        {getOrderStatusMeta(s).label}
                                                                 </span>
                                                                 {idx < STATUS_FLOW.length - 1 && (
                                                                         <div
@@ -185,7 +188,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                                         onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
                                                                         className="flex-1 rounded-md h-11"
                                                                 >
-                                                                        ← {STATUS_CONFIG[STATUS_FLOW[currentIdx + 1]]?.label}
+                                                                        ← {getOrderStatusMeta(STATUS_FLOW[currentIdx + 1]).label}
                                                                 </Button>
                                                         )}
                                                         <Button
@@ -228,11 +231,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                         <p className="text-xs text-muted-foreground">نوع الاستلام</p>
                                                         <p className="font-medium flex items-center gap-1">
                                                                 <AnimatedMapPin className="size-3.5 text-muted-foreground" />
-                                                                {order.pickupType === 'delivery'
-                                                                        ? 'توصيل'
-                                                                        : order.pickupType === 'takeaway'
-                                                                                ? 'سفري'
-                                                                                : 'داخل المكان'}
+                                                                {getPickupTypeMeta(order.pickupType).label}
                                                         </p>
                                                 </div>
                                                 {order.notes && (

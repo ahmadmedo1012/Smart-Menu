@@ -56,11 +56,9 @@
         --color-info: var(--info);
         --color-info-foreground: var(--info-foreground);
         --color-destructive-foreground: var(--destructive-foreground);
-        /* r96-W4a (فجوة A2): توأم SmartBot — soft tints للحالة (bg-success-soft مع text-success) */
-        --color-success-soft: var(--success-soft);
-        --color-warning-soft: var(--warning-soft);
-        --color-info-soft: var(--info-soft);
-        --color-destructive-soft: var(--destructive-soft);
+        /* r121-I-6: the r96-W4a --color-*-soft tint twins were deleted — zero
+           adoption in 25 rounds (surfaces use the ad-hoc bg-success/15 opacity
+           utilities instead); values removed from :root/.light below too. */
 
         /* External brand + semantic extensions */
         --color-whatsapp: var(--whatsapp);
@@ -105,15 +103,10 @@
         --radius-lg: 18px;
         --radius-xl: 28px;
 
-        /* ── Spacing scale (8pt) ── */
-        --space-xs: 0.25rem;   /* 4px */
-        --space-sm: 0.5rem;    /* 8px */
-        --space-md: 1rem;      /* 16px */
-        --space-lg: 1.5rem;    /* 24px */
-        --space-xl: 2rem;      /* 32px */
-        --space-2xl: 3rem;     /* 48px */
-        --space-3xl: 4rem;     /* 64px */
-        --space-4xl: 6rem;     /* 96px */
+        /* r121-I-6: the "8pt spacing scale" (--space-xs…4xl) was deleted — wrong
+           namespace for Tailwind 4 (named spacing needs --spacing-*), zero
+           p-xs/gap-md-style usages ever existed; numeric spacing is
+           calc(var(--spacing) * n) as usual. */
 
         /* ── Type scale ── */
         --text-xs: 0.75rem;    /* 12px */
@@ -172,14 +165,9 @@
            وحّدنا على Readex Pro أولًا (قرار r88-A2 + تعليق الجذر العام) — نفس قيمة ‎@theme حرفيًا. */
         --font-heading: "Readex Pro", var(--font-cairo, "Cairo"), "Noto Sans Arabic", system-ui, sans-serif;
 
-        /* ── Z-index scale ── */
-        --z-dropdown: 10;
-        --z-sticky: 20;
-        --z-nav: 30;
-        --z-modal-backdrop: 40;
-        --z-modal: 50;
-        --z-toast: 60;
-        --z-tooltip: 70;
+        /* r121-I-6: the --z-* token layer was deleted (zero references — layers
+           are followed by convention per the Z-INDEX LAYER REGISTRY at the top
+           of this file, which stays as the policy doc). */
 
         /* ── Motion tokens ── */
         --scroll-offset: 6rem;
@@ -187,9 +175,8 @@
         --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
         --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
         --ease-smooth: cubic-bezier(0.16, 1, 0.2, 1);
-        --duration-fast: 0.2s;
-        --duration-base: 0.4s;
-        --duration-slow: 0.7s;
+        /* r121-I-6: --duration-fast/base/slow deleted — zero references
+           (motion code uses literal duration classes/values). */
 
         /* ── Dark theme (default) — deeper, richer (r95: SmartBot literal hex — #010000/#070503) ── */
         --background: #010000;
@@ -233,12 +220,7 @@
                 --info: #348dcf;      /* lighter in dark for AA text on dark surfaces (r95: SmartBot literal) */
         --info-foreground: oklch(0.98 0 0);
 
-        /* r96-W4a: SmartBot soft tints (spec §1) — soft wash خلف نص الحالة الصلب
-           (bg-success-soft …)؛ ألفا 0x24 ≈ 14% مطابقة لقيم SmartBot الحرفية */
-        --success-soft: #23a13624;
-        --warning-soft: #ce920024;
-        --info-soft: #348dcf24;
-        --destructive-soft: #e62b3424;
+        /* r96-W4a: SmartBot soft tints (spec §1) — DELETED r121-I-6 (zero adoption; see @theme note). */
 
         /* Orange palette — use darkened primary for AA */
         --orange: #bc4700;
@@ -332,12 +314,11 @@
         --glass-shadow: 0 10px 40px rgba(0,0,0,0.478), inset 0 1px 0 rgba(255,255,255,0.059);
         --glass-shadow-lg: 0 16px 56px rgba(0,0,0,0.522), inset 0 1px 0 rgba(255,255,255,0.078);
 
-        /* 4-tier shadow system — dark, cross-browser */
-        --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.22);
-        --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.25);
-        --shadow-lg: 0 12px 40px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3);
-        --shadow-xl: 0 24px 60px rgba(0,0,0,0.45), 0 8px 16px rgba(0,0,0,0.35);
-        --shadow-glow: 0 8px 24px #bc470024;
+        /* r121-I-2: the 4-tier shadow var system was deleted — it compiled to
+           nothing (0 var(--shadow-*) consumers besides .card-premium, which
+           now inlines its values; the 197 shadow-* UTILITY usages render
+           Tailwind's default scale). The var indirection misled readers into
+           thinking the tuned values applied anywhere. */
 }
 
 /* ── Light theme ── */
@@ -378,11 +359,7 @@
         --info: oklch(0.48 0.13 245);      /* darker in light for AA text on white (dual-lightness like --primary) */
         --info-foreground: oklch(0.98 0 0);
 
-        /* r96-W4a: SmartBot soft tints — ألفا 0.12 من نظائرها الفاتحة (خلفية wash أخف للأسطح الورقية) */
-        --success-soft: oklch(0.48 0.15 150 / 0.12);
-        --warning-soft: oklch(0.52 0.13 60 / 0.12);
-        --info-soft: oklch(0.48 0.13 245 / 0.12);
-        --destructive-soft: oklch(0.58 0.2 25 / 0.12);
+        /* r96-W4a: SmartBot soft tints — DELETED r121-I-6 (zero adoption; see @theme note). */
 
         /* Grid pattern colors — light */
         --grid-line: oklch(0.55 0.19 45 / 0.08);
@@ -455,13 +432,8 @@
         --glass-shadow: 0 8px 36px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.72);
         --glass-shadow-lg: 0 16px 56px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.86);
 
-        /* 4-tier shadow system — light, cross-browser (raised slightly for
-   visible card elevation on near-white page — round101) */
-        --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-        --shadow-md: 0 4px 16px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.05);
-        --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
-        --shadow-xl: 0 24px 60px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.08);
-        --shadow-glow: 0 8px 24px oklch(0.55 0.19 45 / 0.10);
+        /* r121-I-2: the light 4-tier shadow twins were deleted with the dark
+           set (see the :root note); .card-premium inlines its light values. */
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -517,103 +489,12 @@ html.high-contrast :focus-visible {
         font-family: var(--font-arabic);
 }
 
-/* ── Spotlight border: illuminate on hover ── */
-@utility spotlight-border {
-        position: relative;
-}
-
-/* ── Ambient glow pulse ── */
-@utility ambient-glow {
-        animation: ambient-glow-pulse 4s ease-in-out infinite;
-}
-
-/* ── Shimmer sweep (click/press feedback) ── */
-@utility shimmer-press {
-        position: relative;
-        overflow: hidden;
-}
-
-/* ── Premium shimmer (slow ambient) ── */
-@utility shimmer-ambient {
-        position: relative;
-        overflow: hidden;
-}
-
-/* Pseudo-element rules for the @utility classes above. Tailwind 4 forbids
-   `@utility name::before { ... }`; we use plain CSS selectors instead. */
-.spotlight-border::before {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        border-radius: inherit;
-        background: conic-gradient(
-                from 0deg,
-                transparent 0deg,
-                #bc4700 30deg,
-                transparent 50deg
-        );
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        padding: 1px;
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        pointer-events: none;
-}
-.spotlight-border-active::before,
-.spotlight-border:hover::before {
-        opacity: 1;
-}
-
-.shimmer-press::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(105deg, transparent 30%, oklch(1 0 0 / 0.12) 50%, transparent 70%);
-        transform: translateX(-100%);
-        transition: transform 0.5s ease;
-        pointer-events: none;
-}
-.shimmer-press:active::after {
-        transform: translateX(100%);
-}
-
-.shimmer-ambient::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-                105deg,
-                transparent 0%,
-                oklch(1 0 0 / 0.04) 40%,
-                oklch(1 0 0 / 0.08) 50%,
-                oklch(1 0 0 / 0.04) 60%,
-                transparent 100%
-        );
-        background-size: 200% 100%;
-        animation: shimmer-slow 3s ease-in-out infinite;
-        pointer-events: none;
-        border-radius: inherit;
-}
-@keyframes shimmer-slow {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-}
-@keyframes ambient-glow-pulse {
-        0%, 100% { opacity: 0.6; transform: scale(1); }
-        50%      { opacity: 1;   transform: scale(1.05); }
-}
-
-@utility animate-shimmer {
-        background: linear-gradient(90deg, transparent 0%, oklch(1 0 0/0.05) 50%, transparent 100%);
-        background-size: 200% 100%;
-        animation: shimmer-sweep 2s infinite linear;
-}
-
-@utility animate-breathe {
-        animation: breathe 3s ease-in-out infinite;
-}
+/* r121-I-6: four dead @utility shims (spotlight-border / ambient-glow /
+   shimmer-press / shimmer-ambient) + their pseudo-element rules and exclusive
+   keyframes (shimmer-slow, ambient-glow-pulse) were deleted here — zero
+   render sites; Card's `spotlight` prop (card.tsx) superseded the first.
+   The dead @utility twins animate-shimmer + animate-breathe (and keyframes
+   shimmer-sweep) died with them. */
 
 @utility text-gradient-orange {
         background: linear-gradient(135deg, oklch(0.58 0.19 45), oklch(0.65 0.18 50));
@@ -641,30 +522,12 @@ html.high-contrast :focus-visible {
         background-clip: text;
 }
 
-@utility card-3d {
-        transform-style: preserve-3d;
-        perspective: 1000px;
-}
-
-@utility animate-tilt-in {
-        animation: tilt-in 0.6s cubic-bezier(0.16,1,0.3,1) both;
-}
+/* r121-I-6: card-3d (and its low-end-device guard), animate-tilt-in,
+   animate-scale-glow, and shimmer-advanced (+ .light twin) were deleted
+   here — zero render sites, nothing sets [data-3d-tilt] either. */
 
 @utility animate-float-slow {
         animation: float-slow 6s ease-in-out infinite;
-}
-
-@utility animate-scale-glow {
-        animation: scale-glow 2.5s ease-in-out infinite;
-}
-
-@utility shimmer-advanced {
-        background: linear-gradient(90deg, transparent 0%, oklch(1 0 0/0.06) 50%, transparent 100%);
-        background-size: 200% 100%;
-        animation: shimmer-advanced 2s infinite linear;
-}
-.light .shimmer-advanced {
-        background: linear-gradient(90deg, transparent 0%, oklch(0 0 0/0.06) 50%, transparent 100%);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -729,14 +592,9 @@ html.high-contrast :focus-visible {
                 }
         }
 
-        /* Performance: Disable 3D tilt on low-end devices */
-        @media (max-width: 768px) and (max-height: 768px) {
-                .card-3d,
-                [data-3d-tilt] {
-                        transform: none !important;
-                        perspective: none !important;
-                }
-        }
+        /* Performance: Disable 3D tilt on low-end devices — r121-I-6: the
+           card-3d / [data-3d-tilt] guard was deleted with the dead utility
+           (nothing sets either hook). */
 
         /* ponytail: disabled — conflicts with framer-motion AnimatePresence */
         /* @view-transition { navigation: auto; } */
@@ -928,49 +786,8 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         box-shadow: var(--glass-shadow-lg);
 }
 
-/* Magic UI — glowing border (conic sweep, hover-activated) */
-.glow-border {
-        position: relative;
-        isolation: isolate;
-}
-.glow-border::before {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        border-radius: inherit;
-        padding: 1px;
-        background: conic-gradient(
-                from var(--glow-angle, 0deg),
-                transparent 0%,
-                #bc470000 20%,
-                oklch(0.78 0.14 70 / 0.85) 38%,
-                #bc4700f2 50%,
-                oklch(0.78 0.14 70 / 0.85) 62%,
-                transparent 80%
-        );
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        opacity: 0;
-        transition: opacity 0.45s var(--ease-smooth);
-        pointer-events: none;
-        z-index: 1;
-}
-.glow-border:hover::before,
-.glow-border:focus-visible::before,
-.glow-border[data-active="true"]::before {
-        opacity: 1;
-        animation: glow-spin 3.6s linear infinite;
-}
-@keyframes glow-spin {
-        to { --glow-angle: 360deg; }
-}
-@property --glow-angle {
-        syntax: "<angle>";
-        initial-value: 0deg;
-        inherits: false;
-}
+/* r121-I-6: .glow-border (43 lines incl. @keyframes glow-spin +
+   @property --glow-angle) was deleted here — zero render sites. */
 
 /* Aceternity — aurora wash behind hero / CTA bands */
 .aurora-wash {
@@ -996,12 +813,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         50% { transform: translate3d(2%, -3%, 0) scale(1.04); }
 }
 
-/* Soft mesh behind elevated surfaces */
-.mesh-surface {
-        background-image:
-                radial-gradient(at 12% 8%, #bc470014, transparent 42%),
-                radial-gradient(at 88% 92%, oklch(0.78 0.14 70 / 0.06), transparent 46%);
-}
+/* r121-I-6: .mesh-surface was deleted here — zero render sites. */
 
 
 /* ══════════════════════════════════════════════════════════════
@@ -1013,11 +825,10 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes scale-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes shimmer-sweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-@keyframes shimmer-advanced { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+/* r121-I-6: keyframes shimmer-sweep / shimmer-advanced / breathe died with
+   their dead utilities (animate-shimmer, shimmer-advanced, animate-breathe). */
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes breath { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.3; } }
-@keyframes breathe { 0%,100% { transform: scale(1); opacity:0.5; } 50% { transform: scale(1.05); opacity:0.8; } }
 @keyframes hero-glow-pulse {
         0%, 100% { opacity: 0.6; transform: scale(1); }
         50%      { opacity: 1;   transform: scale(1.05); }
@@ -1046,14 +857,13 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
         100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
-@keyframes tilt-in { 0% { opacity:0; transform: rotateX(-10deg) translateY(30px) scale(0.95); } 100% { opacity:1; transform: rotateX(0) translateY(0) scale(1); } }
 @keyframes float-slow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+/* r121-I-6: keyframes tilt-in + scale-glow died with animate-tilt-in / animate-scale-glow. */
 @keyframes ticket-drop {
         0%   { opacity: 0; transform: translateY(-14px) scaleY(0.96); }
         60%  { opacity: 1; transform: translateY(3px) scaleY(1); }
         100% { opacity: 1; transform: translateY(0) scaleY(1); }
 }
-@keyframes scale-glow { 0%,100% { box-shadow:0 0 20px #bc470033; } 50% { box-shadow:0 0 50px #bc470066; } }
 
 /* ══════════════════════════════════════════════════════════════
    Animation classes
@@ -1103,8 +913,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 
 /* r95 — أدوات حركة توأم SmartBot (لأقسام 95-B/95-C).
    حذر: ‎.animate-breath أعلاه هو نبض الشفافية القديم (1.5s) الذي تستخدمه ~19 هيكل تحميل —
-   لا يعاد استهدافه؛ مكافئ breath البطيء لـ SmartBot هو الأداة الموجودة ‎animate-breathe
-   (keyframes breathe = نفس دلالات scale+opacity بمدى 1.05). */
+   لا يعاد استهدافه. (r121-I-6: الأداة animate-breathe حُذفت — صفر استخدام.) */
 .animate-price-swap-in {
         animation: price-swap-in 0.35s var(--ease-out-quart) both;
 }
@@ -1124,7 +933,9 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         background: var(--card);
         border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
         border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-sm);
+        /* r121-I-2: the tuned shadow values now live HERE (inlined per theme)
+           — they were the only consumers of the deleted --shadow-* vars. */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.22);
         transform: translateZ(0);
         transition:
                 background-color 0.3s var(--ease-out-quart),
@@ -1135,8 +946,15 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
 }
 .card-premium:hover {
         transform: translateY(-3px);
-        box-shadow: var(--shadow-lg), var(--shadow-glow);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3), 0 8px 24px #bc470024;
         border-color: color-mix(in oklab, var(--orange) 40%, var(--border));
+}
+/* r121-I-2: light-mode twins of the inlined card-premium shadows */
+.light .card-premium {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+.light .card-premium:hover {
+        box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06), 0 8px 24px oklch(0.55 0.19 45 / 0.10);
 }
 
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
@@ -1196,9 +1014,7 @@ html.light::-webkit-scrollbar-thumb { background: oklch(0.75 0.005 0); }
         }
         .card-premium { transition: none !important; }
         .card-premium:hover { transform: none !important; }
-        .glow-border:hover::before,
-        .glow-border:focus-visible::before,
-        .glow-border[data-active="true"]::before { animation: none; }
+        /* r121-I-6: the .glow-border reduced-motion opt-out died with the utility. */
         .aurora-wash::after { animation: none; }
         .grain-overlay::before { animation: none; }
 }

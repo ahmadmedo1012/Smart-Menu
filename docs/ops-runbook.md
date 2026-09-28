@@ -12,7 +12,7 @@
 | Database | Neon Postgres (pooler endpoint in `DATABASE_URL`) | single logical DB `smartmenu` |
 | Assets | Vercel Blob (`BLOB_READ_WRITE_TOKEN`, account-scoped) | tenant-marked paths `restaurants/{id}/…` since round86 |
 | Domain | menu.smart-link.ly | HSTS + CSP live |
-| Uptime | GitHub Actions `keep_alive.yml` (every 12 min) | warnings surface in the Actions page summary |
+| Uptime | GitHub Actions `keep_alive.yml` — **19 runs/day since r117-F3** (hourly 07:00-23:00 UTC + canaries; was every-12-min until r117). ⚠️ **Actions billing-blocked since Sep 19** — see §6 deploy-block playbook | warnings surface in the Actions page summary |
 
 ## 2. Backups & restore
 
@@ -53,7 +53,7 @@ Migrations are forward-only; `prisma migrate deploy` runs in the build chain.
 DATABASE_URL=… npx prisma migrate status    # applied vs pending
 DATABASE_URL=… npx prisma migrate diff \
   --from-migrations prisma/migrations \
-  --to-schema-datamodel prisma/schema.prisma --shadow-database-url … # drift check
+  --to-schema prisma/schema.prisma --shadow-database-url … # drift check (r121-N2: Prisma 7 flag — the old --to-schema-datamodel is Prisma 4)
 ```
 
 ## 4. Incident tools
@@ -93,3 +93,43 @@ added without a key). To activate:
   to a scheduled job when volumes grow.
 - Seeding is guarded: `ci-seed.mjs` + `round83-seed.mjs` both refuse when
   `NODE_ENV=production` unless `ALLOW_SEED=true` (round86-D9).
+
+## 8. Deploy-block playbook (r121 — the r118/r119 lessons, codified)
+
+**Symptom**: commits pushed to `main` but production keeps serving the old SHA
+(`/api/health` → `commitSha`), or the Vercel dashboard shows "Deployment was blocked".
+
+**Cause 1 — commit author email not account-associated (the r118/r119 incident):**
+Vercel's git integration refuses to identify commits authored by an email that belongs
+to no GitHub account and silently blocks each deployment. Valid identities for this
+repo: `ahmadmedo1012@gmail.com` and `ahmadmedo1012@users.noreply.github.com`.
+Prevention: `node scripts/check-git-author.mjs` before any push (wired into the
+CLAUDE.md session-resume protocol). Fix: `git config user.email ahmadmedo1012@gmail.com`
++ `git commit --amend --reset-author` for the blocked commits, then push.
+
+**Cause 2 — account-level usage/spend limit (r114):** fix in the Vercel dashboard
+(Billing → Spending limit), then redeploy `main` from Deployments.
+
+**Cause 3 — stale concurrency entry (r102):** create a fresh deployment via the
+Vercel API, then cancel the stale one.
+
+**While GitHub Actions is billing-blocked** (since Sep 19): local gates are the ONLY
+gate — `pnpm verify:fast` per batch, `pnpm verify` (+ build) before push, plus
+`pnpm verify:mobile` for mobile changes. CI parity is preserved: `ci.yml` runs the
+same checks and will re-engage when billing is restored.
+
+## 9. Vercel cron jobs (vercel.json — platform-run, independent of GitHub Actions)
+
+- `0 3 * * 0` → `/api/cron/cleanup` (weekly maintenance, maxDuration 60s)
+- `0 1 * * *` → `/api/cron/subscription-expiry` (daily EXPIRED flips, maxDuration 60s)
+
+Both are fail-closed on `CRON_SECRET`. These run on Vercel's scheduler — the GitHub
+Actions billing block does NOT affect them.
+
+## 10. Migration naming (r121 note)
+
+`zz_round121_*` migrations sort lexicographically BEFORE `zz_round90/91/93_*`.
+Harmless today (Prisma applies only pending migrations; order among pending is what
+matters, and the r121 set is self-consistent — verified applied cleanly on a fresh
+local DB). Future hand-written migrations should use a prefix that sorts after all
+existing ones (e.g. `zzz_round122_…`) to keep the "name order == apply order" intuition.

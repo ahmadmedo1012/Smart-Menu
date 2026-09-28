@@ -152,6 +152,28 @@ describe('proxy() — security headers on the three CSP layers (B-2)', () => {
         });
 });
 
+// ── Part 2c: cacheable-page Cache-Control ownership (r121-B-1/N-6, X3 V9) ─
+
+describe('proxy() — cacheable-page Cache-Control (proxy.ts owns browser caching)', () => {
+        it('/terms + /privacy → the hourly legal-text policy: max-age=3600 + SWR (r119-B3 intent, restored)', () => {
+                for (const p of ['/terms', '/terms/', '/privacy', '/privacy/']) {
+                        const res = call('GET', p);
+                        expect(res.headers.get('cache-control')).toBe(
+                                'public, max-age=3600, stale-while-revalidate=86400'
+                        );
+                }
+        });
+
+        it('the other cacheable pages keep the 60s ISR-aligned policy', () => {
+                for (const p of ['/', '/pricing', '/menu/al-waha-cafe-demo']) {
+                        const res = call('GET', p);
+                        expect(res.headers.get('cache-control')).toBe(
+                                'public, max-age=60, s-maxage=60, stale-while-revalidate=86400'
+                        );
+                }
+        });
+});
+
 // ── Part 2b: CSRF Origin gate still enforced by the proxy ───────────────
 
 describe('proxy() — Origin gate (regression after B-5 timing-safe switch)', () => {

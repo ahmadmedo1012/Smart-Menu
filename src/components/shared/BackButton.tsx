@@ -1,33 +1,23 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import {} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 
+// r121-O-5: the empty `import {} from 'lucide-react'` (an icon-swap leftover)
+// and the no-href router.back() branch were deleted — all 3 callers pass an
+// explicit href, so the prop is required now.
 interface BackButtonProps {
-  href?: string
+  href: string
 }
 
 export function BackButton({ href }: BackButtonProps) {
-  const router = useRouter()
-
-  if (href) {
-    return (
-      <Link href={href}>
-        <Button variant="ghost" size="sm">
-          <MotionArrowRight className="ms-1 size-4" />
-          العودة
-        </Button>
-      </Link>
-    )
-  }
-
   return (
-    <Button variant="ghost" size="sm" onClick={() => router.back()}>
-      <MotionArrowRight className="ms-1 size-4" />
-      العودة
-    </Button>
+    <Link href={href}>
+      <Button variant="ghost" size="sm">
+        <MotionArrowRight className="ms-1 size-4" />
+        العودة
+      </Button>
+    </Link>
   )
 }

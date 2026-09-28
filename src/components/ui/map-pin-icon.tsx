@@ -1,13 +1,12 @@
 "use client";
-import { forwardRef, useImperativeHandle, useCallback, useRef } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+// r121-O-3: plain component — the forwardRef/useImperativeHandle imperative
+// handle had zero external consumers (only shopping-cart-icon keeps one, for
+// the cart-toast bounce in premium-toast). Hover animations are self-contained.
+import { useCallback, useRef } from "react";
+import type { AnimatedIconProps } from "./types";
 import { m, useAnimate } from "motion/react";
 
-const MapPinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  (
-    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
-    ref,
-  ) => {
+function MapPinIcon({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }: AnimatedIconProps) {
     const [scope, animate] = useAnimate();
     const isAnimatingRef = useRef(false);
 
@@ -30,11 +29,6 @@ const MapPinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
       isAnimatingRef.current = false;
       animate(".pin-dot", { opacity: 1 }, { duration: 0.3 });
     }, [animate]);
-
-    useImperativeHandle(ref, () => ({
-      startAnimation: start,
-      stopAnimation: stop,
-    }));
 
     return (
       <m.svg
@@ -60,8 +54,6 @@ const MapPinIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <m.circle className="pin-dot" cx="12" cy="10" r="3" />
       </m.svg>
     );
-  },
-);
+}
 
-MapPinIcon.displayName = "MapPinIcon";
 export default MapPinIcon;

@@ -1,14 +1,12 @@
 "use client";
-import { forwardRef, useImperativeHandle } from "react";
+// r121-O-3: plain component — the forwardRef/useImperativeHandle imperative
+// handle had zero external consumers (only shopping-cart-icon keeps one, for
+// the cart-toast bounce in premium-toast). Hover animations are self-contained.
 
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+import type { AnimatedIconProps } from "./types";
 import { m, useAnimate } from "motion/react";
 
-const ClockIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  (
-    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
-    ref,
-  ) => {
+function ClockIcon({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }: AnimatedIconProps) {
     const [scope, animate] = useAnimate();
 
     const start = async () => {
@@ -36,13 +34,6 @@ const ClockIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         },
       );
     };
-
-    useImperativeHandle(ref, () => {
-      return {
-        startAnimation: start,
-        stopAnimation: stop,
-      };
-    });
 
     const handleHoverStart = () => {
       start();
@@ -76,9 +67,6 @@ const ClockIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         <m.path d="M12 7v5l3 3" className="clock-hands" />
       </m.svg>
     );
-  },
-);
-
-ClockIcon.displayName = "ClockIcon";
+}
 
 export default ClockIcon;

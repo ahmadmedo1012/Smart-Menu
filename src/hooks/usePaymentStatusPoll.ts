@@ -14,15 +14,17 @@ import { premiumToast } from '@/lib/premium-toast';
  *   - 3 consecutive failures → ONE warn toast, then keeps polling silently
  *   - verified → onApproved(); cancelled → onRejected(server message)
  *   - first check happens after one interval (the payment was just created)
+ *
+ * r121-O-9: the `intervalMs` option was deleted — its single caller
+ * (PaymentDialog) never passed it; 5s is the contract, not a knob.
  */
 export function usePaymentStatusPoll(opts: {
         active: boolean;
         paymentId: number | null;
         onApproved: () => void;
         onRejected: (message?: string) => void;
-        intervalMs?: number;
 }): void {
-        const { active, paymentId, onApproved, onRejected, intervalMs = 5000 } = opts;
+        const { active, paymentId, onApproved, onRejected } = opts;
         const failuresRef = useRef(0);
         const warnedRef = useRef(false);
         // Callbacks through a ref so the poll body never restarts on their identity
@@ -51,7 +53,7 @@ export function usePaymentStatusPoll(opts: {
                                 }
                         }
                 },
-                intervalMs,
+                5_000,
                 [active, paymentId],
                 { enabled: active && paymentId != null, immediate: false, inFlightGuard: true }
         );

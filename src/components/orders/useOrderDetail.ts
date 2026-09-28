@@ -10,9 +10,15 @@
  * now share this single logic spine.
  */
 import { useEffect, useState } from 'react';
-import { Clock, ChefHat, PackageCheck, CheckCircle, XCircle, type LucideIcon } from 'lucide-react';
 import { csrfJson } from '@/lib/csrf-client';
 import { buildOrderShareText } from '@/lib/receipt';
+// r121-A-3/I-1: the bespoke saffron/teal status map that used to live here (a
+// third parallel palette besides lib/order-status's semantic tokens and the
+// admin list's orange map) is deleted — this shared owner+admin detail spine
+// now speaks the lib's tokens, so both dashboards render the same status in
+// the same color. STATUS_FLOW is derived from the lib's `.next` chain instead
+// of being re-declared by hand.
+import { ORDER_STATUS_META } from '@/lib/order-status';
 
 export interface OrderDetailData {
         id: number;
@@ -34,45 +40,15 @@ export interface OrderDetailData {
         restaurant: { id: number; name: string; slug: string } | null;
 }
 
-export const STATUS_FLOW = ['new', 'preparing', 'ready', 'completed'] as const;
-
-export const STATUS_CONFIG: Record<
-        string,
-        { label: string; icon: LucideIcon; color: string; bg: string }
-> = {
-        new: {
-                label: 'جديد',
-                icon: Clock,
-                color: 'text-orange dark:text-orange',
-                bg: 'bg-orange-muted dark:bg-orange-muted',
-        },
-        preparing: {
-                label: 'قيد التحضير',
-                icon: ChefHat,
-                // round94 (D/A1): amber نصي عبر الحبر المزدوج --c-saffron-ink — كان
-                // text-saffron غير المحروس (2.05:1 على بطاقة فاتحة).
-                color: 'text-saffron-ink',
-                bg: 'bg-saffron-muted dark:bg-saffron-muted',
-        },
-        ready: {
-                label: 'جاهز',
-                icon: PackageCheck,
-                color: 'text-teal dark:text-teal',
-                bg: 'bg-teal-muted dark:bg-teal-muted',
-        },
-        completed: {
-                label: 'مكتمل',
-                icon: CheckCircle,
-                color: 'text-success dark:text-success',
-                bg: 'bg-success-muted dark:bg-success-muted',
-        },
-        cancelled: {
-                label: 'ملغي',
-                icon: XCircle,
-                color: 'text-destructive',
-                bg: 'bg-destructive/15',
-        },
-};
+export const STATUS_FLOW: string[] = (() => {
+        const flow: string[] = [];
+        let cur: string | null = 'new';
+        while (cur) {
+                flow.push(cur);
+                cur = ORDER_STATUS_META[cur]?.next ?? null;
+        }
+        return flow;
+})();
 
 /** Fetch an order by id — owner-grade error handling (404 → friendly message). */
 export function useOrderDetail(id: string) {

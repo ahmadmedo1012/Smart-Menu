@@ -27,12 +27,14 @@ import { CartUndoBanner } from './CartUndoBanner';
 import { LoyaltyCard } from './LoyaltyCard';
 import { CartPageHeader } from './CartPageHeader';
 import { DeliveryAddressField } from './DeliveryAddressField';
+// r121-O-1: labels derive from the canonical pickup map (value/icon stay local)
+import { PICKUP_TYPE_META } from '@/lib/order-status';
 
-const PICKUP_OPTIONS = [
-        { value: 'inside', label: 'داخل المكان', icon: 'inside' },
-        { value: 'takeaway', label: 'سفري', icon: 'takeaway' },
-        { value: 'delivery', label: 'توصيل', icon: 'delivery' },
-] as const;
+const PICKUP_OPTIONS = (['inside', 'takeaway', 'delivery'] as const).map((k) => ({
+        value: k,
+        label: PICKUP_TYPE_META[k].label,
+        icon: k,
+}));
 
 export default function CartPage() {
         const router = useRouter();

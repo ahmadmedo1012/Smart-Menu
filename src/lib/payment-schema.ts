@@ -12,7 +12,7 @@
  * is byte-identical to the one that lived in the route since round8x.
  */
 import { z } from 'zod';
-import { usernameOptional } from '@/lib/validation';
+import { usernameOptional, slugField } from '@/lib/validation';
 
 /** Normalize Arabic-Indic digits (٠-٩) to Western (0-9) before validation. */
 export function normalizeDigits(s: string): string {
@@ -40,11 +40,11 @@ export const createPaymentSchema = z
                         .array(
                                 z.object({
                                         name: z.string().min(1, 'اسم المطعم مطلوب').max(200, 'اسم المطعم يجب ألا يتجاوز 200 حرف'),
-                                        slug: z
-                                                .string()
-                                                .min(3, 'الرابط يجب أن يكون 3 أحرف على الأقل')
-                                                .max(100, 'الرابط يجب ألا يتجاوز 100 حرف')
-                                                .regex(/^[a-z0-9-]+$/, 'الرابط يجب أن يحتوي على أحرف إنكليزية وأرقام فقط'),
+                                        // r121-O-7: the slug was the one field validation.ts's
+                                        // round97-X3 unification missed — byte-identical bounds/regex/
+                                        // messages, now literally the canonical slugField (which
+                                        // additionally trims surrounding whitespace).
+                                        slug: slugField,
                                 })
                         )
                         // Hard sanity bound for the payload/metadata. The AUTHORITATIVE

@@ -22,9 +22,14 @@ const nextConfig: NextConfig = {
         // users waited for the full HTML buffer on dynamic pages just so bots
         // could get resolved metadata. Next's default regex still gives crawlers
         // (the SEO surface) metadata-resolved, non-streamed HTML — and the
-        // /menu/[slug] route keeps REAL 404s for bots because it deliberately
-        // has no loading boundary (nothing flushes before the existence gate
-        // resolves), which was the original reason for the override.
+        // /menu/[slug] route keeps REAL 404s for bots because no loading.tsx
+        // may sit ABOVE `[slug]/layout` (the existence gate: notFound()
+        // resolves there before anything flushes). The `[slug]/loading.tsx`
+        // INSIDE the gate is safe and covers cold-nav transitions — do NOT
+        // delete it again, and do NOT re-add a parent (public)/menu/loading.tsx
+        // (that parent is what caused the r119 soft-404s). 404 contract pinned
+        // by tests/e2e/full-sweep.test.ts. (r121-B-6: comment corrected — it
+        // used to claim the route has no loading boundary at all.)
         images: {
                 remotePatterns: [
                         { protocol: 'https', hostname: 'vercel.app' },
@@ -179,6 +184,29 @@ const nextConfig: NextConfig = {
                         // SWR a day), not immutable, so an in-place swap reaches visitors.
                         {
                                 source: '/brand-icon.png',
+                                headers: [
+                                        { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+                                ],
+                        },
+                        // r121-G-3: /demo/* (28 webp demo-restaurant assets, ~1.4MB total)
+                        // had NO rule — every direct fetch revalidated (live-probed:
+                        // max-age=0, must-revalidate). They are demo-stable but
+                        // regenerable IN PLACE (r96-generate-demo-images.sh writes the
+                        // same filenames), so they get the "stable but regenerable"
+                        // week + SWR-a-day policy (hero-phone / icon-512 family), NOT
+                        // main21's immutable — that precedent requires the version in
+                        // the filename, and a regenerated demo/<name>.webp must reach
+                        // visitors within the week. NOTE: this rule must live HERE,
+                        // not proxy.ts — the proxy matcher deliberately skips image
+                        // extensions (round89-B1), so a proxy rule can never see
+                        // /demo/*.webp; static-asset caching has always been this
+                        // file's domain (cache-page ownership per r121-B-1/N-6 stays
+                        // with proxy.ts). The /_next/image derivatives were live-probed:
+                        // Vercel already edge-caches them (x-vercel-cache: HIT, age
+                        // grows) behind the optimizer's own Cache-Control — the
+                        // optimizer's headers stay untouched (platform-owned).
+                        {
+                                source: '/demo/:path*',
                                 headers: [
                                         { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
                                 ],

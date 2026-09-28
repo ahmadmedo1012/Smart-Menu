@@ -5,12 +5,10 @@ import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
 import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
 import { deleteBlob } from '@/lib/blob';
+// r121-A-10: the orders-guard + P2003→409 mapping moved to the shared lib
+// (same rules as the admin path, one unified 409 copy).
+import { OrdersPresentError, ORDERS_PRESENT_MESSAGE, countRestaurantOrders, isOrdersPresentP2003 } from '@/lib/restaurant-delete-guard';
 import { z } from 'zod';
-
-// r119-S7: مواضّح لحالة P2003 من Order_restaurantId_fkey (RESTRICT الآن) —
-// حذف مطعم لديه طلبات مرفوض على مستوى قاعدة البيانات نفسها؛ هذا النوع
-// يحوّل الخطأ إلى نفس 409 الودية التي يعطيها الفحص المسبق.
-class OrdersPresentError extends Error {}
 
 const patchSchema = z.object({
         isPrimary: z.boolean().optional(),
@@ -114,12 +112,11 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
                         if (link.isPrimary) return error('لا يمكن حذف المنيو الأساسي. عيّن منيو آخر كأساسي أولاً.', 400);
                 }
 
-                // r118-A7-P3: orders are financial records — a restaurant that ever took
-                // an order is NOT hard-deletable by owners/admins (one click erased the
-                // whole tenant irreversibly). super_admin keeps full trust (still audited).
-                const orderCount = await prisma.order.count({ where: { restaurantId } });
+                // r118-A7-P3 (shared guard — see lib/restaurant-delete-guard.ts):
+                // orders are financial records; super_admin keeps full trust.
+                const orderCount = await countRestaurantOrders(restaurantId);
                 if (orderCount > 0 && auth.role !== 'super_admin') {
-                        return error('لا يمكن حذف مطعم لديه طلبات مسجلة — تواصل مع الدعم للاحتفاظ بسجل الطلبات', 409);
+                        return error(ORDERS_PRESENT_MESSAGE, 409);
                 }
 
                 // r118-A2-P3: tenant deletion was the only unaudited destructive family
@@ -156,12 +153,11 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
                         });
                         await tx.restaurant.delete({ where: { id: restaurantId } });
                 }).catch((e: { code?: string; meta?: { field_name?: string } }) => {
-                        // r119-S7: Order_restaurantId_fkey صار RESTRICT — قاعدة البيانات ترفض
-                        // حذف مطعم لديه طلبات (كان الـcascade يمحو التاريخ المالي بصمت).
-                        // P2003 لا يحدد القيد بنفسه — نفحص field_name: قيد الطلبات فقط
-                        // يتحول إلى 409 الودية؛ أي قيد آخر (مثل تقييمات r93-N1) يبقى على
-                        // مسار handleError القديم.
-                        if (e?.code === 'P2003' && String(e?.meta?.field_name ?? '').includes('Order_restaurantId_fkey')) {
+                        // r119-S7 (shared mapping — lib/restaurant-delete-guard.ts):
+                        // the DB RESTRICTs Order_restaurantId_fkey; the race-loser P2003
+                        // becomes the same 409 the pre-check gives. Any OTHER constraint
+                        // (e.g. r93-N1 reviews) keeps the legacy handleError path.
+                        if (isOrdersPresentP2003(e)) {
                                 throw new OrdersPresentError();
                         }
                         throw e;
@@ -188,7 +184,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
                 return success({ deleted: true });
         } catch (e) {
                 if (e instanceof OrdersPresentError) {
-                        return error('لا يمكن حذف مطعم لديه طلبات مسجلة — تواصل مع الدعم للاحتفاظ بسجل الطلبات', 409);
+                        return error(ORDERS_PRESENT_MESSAGE, 409);
                 }
                 return handleError(e);
         }

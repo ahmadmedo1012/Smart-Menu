@@ -14,6 +14,7 @@ import AnimatedMapPin from '@/components/ui/map-pin-icon';
 import AnimatedClock from '@/components/ui/clock-icon';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { HeroDecor } from './HeroDecor';
+import { OrbField } from './OrbField';
 import { ShareButtonIsland, GalleryIsland } from './MenuIslands';
 
 export type MenuHeroRestaurant = {
@@ -43,11 +44,12 @@ export function MenuHero({
         <>
             <header className="relative min-h-[80vh] md:min-h-[70vh] overflow-hidden bg-gradient-to-b from-orange/25 via-background to-background before:pointer-events-none before:absolute before:inset-0 before:bg-[var(--menu-glow-strong)]">
                 {/* ── Ambient floating orbs — 2 max: blur layers are expensive on mobile
-                     GPUs; reduced-motion users get them fully disabled via globals.css ── */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none motion-reduce:hidden">
-                    <div className="absolute top-1/4 left-1/6 w-72 h-72 rounded-full bg-orange/6 blur-[120px] animate-orb-float" />
-                    <div className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full bg-orange/4 blur-[140px] animate-orb-float-delayed" />
-                </div>
+                     GPUs; reduced-motion users get them fully disabled via globals.css.
+                     r121-G-6: the orbs moved into the OrbField client island so their
+                     infinite animation pauses (animation-play-state) once the hero
+                     leaves the viewport — offscreen GPU raster no longer runs during
+                     menu scroll. Markup/classes unchanged. ── */}
+                <OrbField />
 
                 {/* ── Decorative corner art (round85-B1: pure SVG — was 2 Lotties + runtime ≈ 360KB) ── */}
                 <HeroDecor />

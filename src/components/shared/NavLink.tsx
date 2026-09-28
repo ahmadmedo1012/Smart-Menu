@@ -12,14 +12,14 @@ interface NavLinkProps {
   label: string
   icon: LucideIcon
   onClick?: () => void
-  exact?: boolean
 }
 
-export function NavLink({ href, label, icon: Icon, onClick, exact }: NavLinkProps) {
+// r121-O-9: the `exact` prop was deleted — zero of the 3 consumers ever
+// passed it (the prefix-match branch below is the only matching mode).
+export function NavLink({ href, label, icon: Icon, onClick }: NavLinkProps) {
   const pathname = usePathname()
-  const isActive = exact
-    ? pathname === href
-    : pathname === href || (href !== "/" && href !== "/owner" && pathname.startsWith(href + "/"))
+  const isActive =
+    pathname === href || (href !== "/" && href !== "/owner" && pathname.startsWith(href + "/"))
 
   return (
     <Link

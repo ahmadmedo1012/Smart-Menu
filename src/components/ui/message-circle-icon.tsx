@@ -1,13 +1,11 @@
 "use client";
-import { forwardRef, useImperativeHandle } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+// r121-O-3: plain component — the forwardRef/useImperativeHandle imperative
+// handle had zero external consumers (only shopping-cart-icon keeps one, for
+// the cart-toast bounce in premium-toast). Hover animations are self-contained.
+import type { AnimatedIconProps } from "./types";
 import { m, useAnimate } from "motion/react";
 
-const MessageCircleIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  (
-    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
-    ref,
-  ) => {
+function MessageCircleIcon({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }: AnimatedIconProps) {
     const [scope, animate] = useAnimate();
 
     const start = async () => {
@@ -34,11 +32,6 @@ const MessageCircleIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         { duration: 0.2 },
       );
     };
-
-    useImperativeHandle(ref, () => ({
-      startAnimation: start,
-      stopAnimation: stop,
-    }));
 
     const handleHoverStart = () => {
       start();
@@ -73,9 +66,6 @@ const MessageCircleIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         />
       </m.svg>
     );
-  },
-);
-
-MessageCircleIcon.displayName = "MessageCircleIcon";
+}
 
 export default MessageCircleIcon;

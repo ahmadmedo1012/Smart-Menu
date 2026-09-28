@@ -251,6 +251,20 @@ describe('POST /api/upload — اسم الـblob يحمل مسار المستأ�
                 expect(json.data.size).toBe(JPEG.length);
         });
 
+        it('r121-G-3: put() يحمل cacheControlMaxAge سنة (31536000) — أسماء الملفات فريدة بالبناء، فالتخزين الدائم آمن', async () => {
+                const res = await uploadRoute.POST(uploadRequest(new File([JPEG], 'a.jpg', { type: 'image/jpeg' })));
+                expect(res.status).toBe(201);
+                const [, , opts] = mockPut.mock.calls[0] as [string, Buffer, Record<string, unknown>];
+                // @vercel/blob v2 spells it cacheControlMaxAge (seconds) — the v1
+                // `cacheControl` string option no longer exists in the installed SDK.
+                // Without it Blob defaults to no browser caching → a 304 round-trip
+                // per menu image on every repeat QR scan (G-3's measured impact).
+                expect(opts.cacheControlMaxAge).toBe(31536000);
+                // the unique-filename contract that makes immutability safe
+                const filename = mockPut.mock.calls[0][0] as string;
+                expect(filename).toMatch(/\d{12,}-[0-9a-f]{8}$/);
+        });
+
         it('مستخدم بلا مطعم → المجلد staff/', async () => {
                 setSession(STAFF);
                 const res = await uploadRoute.POST(uploadRequest(new File([PNG], 'a.png', { type: 'image/png' })));

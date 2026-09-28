@@ -12,8 +12,13 @@ import { MenuPageClient } from './MenuPageClient';
 // BAILOUT_TO_CLIENT_SIDE_RENDERING التي تتركها next/dynamic بجوار محتوى
 // المنيو المُخبز أصبحت المشتبه الرئيسي المتبقي في سباق النسخة المخفية
 // ببطء CI. حارس التركيب (mounted) يعطي نفس السلوك العميلي-فقط بلا أي
-// قوالب انسحاب أو حدود بث — والرأس اللاصق مطلوب فورًا أصلًا فلا معنى
-// لكسل تحميله.
+// قوالب انسحاب أو حدود بث.
+// r121-G-7: الحارس ضاق إلى LoyaltyWidget فقط — رأس المنيو اللاصق نفسه
+// (StickyMenuHeader) حالته الابتدائية حتمية (scrolled=false وmobileOpen=false
+// في الطرفين؛ useScroll/useMotionValueEvent اشتراكات أثر-لا-عرض) فيُرندر في
+// SSR الآن: كان الرأس غائبًا عن أول رسم طوال نافذة الإيدراج (2.6s تحت
+// الخنق — r120 مؤجل). LoyaltyWidget يقرأ حالة ولاء/localStorage فيبقى
+// خلف الحارس.
 import { StickyMenuHeader } from './StickyMenuHeader';
 import { LoyaltyWidget } from '../loyalty/LoyaltyWidget';
 // w3-f1: the public menu payload now carries modifier groups (available options
@@ -73,14 +78,16 @@ export function MenuClientSection(props: {
 }) {
     const { restaurant, categories, serializedItems } = props;
 
-    /* r97-W6d: العميل فقط للرأس اللاصق وودجت الولاء (كانا dynamic ssr:false) —
-            نفس دلالات «لا SSR» لكن عبر حارس تركيب واحد بلا قوالب BAILOUT. */
+    /* r97-W6d + r121-G-7: العميل فقط لودجت الولاء (كان dynamic ssr:false مع
+            الرأس) — الرأس اللاصق صار يُرندر في SSR (حالة ابتدائية حتمية)،
+            وودجت الولاء يقرأ localStorage فيبقى خلف حارس التركيب. */
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
 
     return (
         <>
-            {mounted && <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />}
+            {/* r121-G-7: بلا حارس — الرأس يظهر في أول رسم (SSR-safe) */}
+            <StickyMenuHeader name={restaurant.name} logo={restaurant.logo} />
 
             {/* r120 (U9-P3): الحاوية كانت تُغلق عند 4xl (864px) من 1024 حتى 1920+
                 مع شبكة 3 أعمدة فقط — هوامش ميتة 288-562px على الشاشات الكبيرة. */}

@@ -2,17 +2,15 @@
 
 import { type ReactNode } from "react";
 import { m } from "motion/react";
-import { cn } from "@/lib/utils";
 import { springGentle, springSnappy } from "@/lib/motion";
-import { Eyebrow } from "./Eyebrow";
 
+// r121-O-4: reduced to the API the 7 landing callers actually use (title +
+// subtitle only). The speculative eyebrow/icon/align/className props and the
+// never-taken non-centered branch were deleted — eyebrow styling still exists
+// via the standalone <Eyebrow> component (HeroSection uses it directly).
 type SectionHeaderProps = {
-  eyebrow?: ReactNode;
   title?: string;
   subtitle?: ReactNode;
-  className?: string;
-  icon?: ReactNode;
-  align?: "center" | "start";
 };
 
 const fadeUpSpring = {
@@ -25,8 +23,7 @@ const fadeUpSnappy = {
   visible: { opacity: 1, y: 0, transition: springSnappy },
 };
 
-export function SectionHeader({ eyebrow, title, subtitle, className, icon, align = "center" }: SectionHeaderProps) {
-  const centered = align === "center";
+export function SectionHeader({ title, subtitle }: SectionHeaderProps) {
   return (
     <m.div
       initial="hidden"
@@ -35,26 +32,12 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
       variants={{
         visible: { transition: { staggerChildren: 0.08 } },
       }}
-      className={cn(
-        "mb-14 sm:mb-20",
-        centered ? "text-center" : "text-start",
-        className
-      )}
+      className="mb-14 sm:mb-20 text-center"
     >
-      {eyebrow && (
-        <m.div variants={fadeUpSnappy}>
-          <Eyebrow className={centered ? "justify-center" : "justify-start"}>
-            {icon}{icon && " "}{eyebrow}
-          </Eyebrow>
-        </m.div>
-      )}
       {title && (
         <m.h2
           variants={fadeUpSpring}
-          className={cn(
-            "text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.25] tracking-tight text-balance",
-            centered ? "mx-auto" : "max-w-2xl"
-          )}
+          className="text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.25] tracking-tight text-balance mx-auto"
         >
           {title}
         </m.h2>
@@ -62,10 +45,7 @@ export function SectionHeader({ eyebrow, title, subtitle, className, icon, align
       {subtitle && (
         <m.p
           variants={fadeUpSnappy}
-          className={cn(
-            "text-base text-muted-foreground/90 mt-4 max-w-[48ch] leading-relaxed",
-            centered ? "mx-auto" : ""
-          )}
+          className="text-base text-muted-foreground/90 mt-4 max-w-[48ch] leading-relaxed mx-auto"
         >
           {subtitle}
         </m.p>

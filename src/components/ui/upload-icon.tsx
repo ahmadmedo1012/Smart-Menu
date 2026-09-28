@@ -1,13 +1,12 @@
 "use client";
-import { forwardRef, useImperativeHandle, useCallback, useRef } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+// r121-O-3: plain component — the forwardRef/useImperativeHandle imperative
+// handle had zero external consumers (only shopping-cart-icon keeps one, for
+// the cart-toast bounce in premium-toast). Hover animations are self-contained.
+import { useCallback, useRef } from "react";
+import type { AnimatedIconProps } from "./types";
 import { m, useAnimate } from "motion/react";
 
-const UploadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  (
-    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
-    ref,
-  ) => {
+function UploadIcon({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }: AnimatedIconProps) {
     const [scope, animate] = useAnimate();
     const isAnimatingRef = useRef(false);
 
@@ -51,11 +50,6 @@ const UploadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
       );
     }, [animate]);
 
-    useImperativeHandle(ref, () => ({
-      startAnimation: start,
-      stopAnimation: stop,
-    }));
-
     return (
       <m.svg
         ref={scope}
@@ -83,8 +77,6 @@ const UploadIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         </m.g>
       </m.svg>
     );
-  },
-);
+}
 
-UploadIcon.displayName = "UploadIcon";
 export default UploadIcon;

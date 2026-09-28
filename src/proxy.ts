@@ -146,16 +146,34 @@ export function proxy(request: NextRequest) {
                 resp.headers.set('Content-Security-Policy', csp);
                 // Cacheable pages: no CSRF cookie is minted above (no set-cookie), so
                 // the response can be cached by CDN/ISR.
-                // round92-A2 (header precedence, live-verified): on Vercel this header
-                // does NOT control the final caching of a DYNAMICALLY rendered page —
-                // the platform answers with private,no-cache,no-store for those (1-a
-                // saw exactly that on /menu/* despite this rule). For prerendered/ISR
-                // pages it aligns with the route's own s-maxage=60. Self-hosted note:
-                // Next's sendRenderResult refuses to override an already-set
-                // Cache-Control (server/send-payload.js), so this value sticks there.
+                // r121-B-1/N-6 (X3 V9 — cache ownership): proxy.ts owns browser
+                // caching for cacheable pages. It is the only header layer that
+                // applies on every platform — the three layers are (1) this
+                // middleware (wins on Vercel for anything it sets), (2)
+                // next.config.ts headers() (assets + the Vercel-only fallback),
+                // (3) vercel.json headers (Vercel-only; its /terms+/privacy copy
+                // silently LOST to this middleware since r120-W1 and was deleted
+                // at r121). /terms + /privacy are hourly-ISR legal text (routes
+                // revalidate=3600, r119-B3 intent restored) → 3600, not the 60s
+                // the other cacheable pages keep.
+                // round92-A2 (header precedence, live-verified): on Vercel this
+                // header does NOT control the final caching of a DYNAMICALLY
+                // rendered page — the platform answers with private,no-cache,
+                // no-store for those. For prerendered/ISR pages it aligns with
+                // the route's own s-maxage. Self-hosted note: Next's
+                // sendRenderResult refuses to override an already-set
+                // Cache-Control (server/send-payload.js), so this value sticks
+                // there.
+                const isLegalTextPage =
+                        pathname === '/terms' ||
+                        pathname === '/terms/' ||
+                        pathname === '/privacy' ||
+                        pathname === '/privacy/';
                 resp.headers.set(
                         'Cache-Control',
-                        'public, max-age=60, s-maxage=60, stale-while-revalidate=86400'
+                        isLegalTextPage
+                                ? 'public, max-age=3600, stale-while-revalidate=86400'
+                                : 'public, max-age=60, s-maxage=60, stale-while-revalidate=86400'
                 );
         } else {
                 // Official Next.js 16 nonce flow (docs: content-security-policy guide):

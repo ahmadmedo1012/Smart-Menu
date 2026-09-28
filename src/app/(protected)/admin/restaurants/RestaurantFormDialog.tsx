@@ -164,7 +164,9 @@ export function RestaurantFormDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={handleOpen}>
-			<DialogContent className="max-w-lg rounded-md max-h-[85vh] overflow-y-auto">
+			{/* r121-J-7: 85vh → 85dvh (توحيد مع max-h-[90dvh] للحوار
+			    الأساسي — فخ شريط عنوان iOS على الحوارات الطويلة) */}
+			<DialogContent className="max-w-lg rounded-md max-h-[85dvh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>{editing ? 'تعديل مطعم' : 'إضافة مطعم'}</DialogTitle>
 				</DialogHeader>

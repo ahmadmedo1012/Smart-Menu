@@ -24,6 +24,8 @@ import {
         buildModifierPayload,
 } from './menu-types';
 import { formatPrice, toArabicNumber } from '@/lib/format';
+// r121-O-1: canonical pickup labels for the order-type segmented control
+import { getPickupTypeMeta } from '@/lib/order-status';
 import { cn } from '@/lib/utils';
 import { premiumToast } from '@/lib/premium-toast';
 import { MAX_ITEM_QUANTITY } from '@/lib/constants';
@@ -512,7 +514,7 @@ export function OrderDialog({
                                                                                 : 'text-muted-foreground hover:text-foreground'
                                                                 )}
                                                         >
-                                                                {type === 'delivery' ? 'توصيل' : type === 'inside' ? 'داخل المكان' : 'سفري'}
+                                                                {getPickupTypeMeta(type).label}
                                                         </button>
                                                 ))}
                                         </div>

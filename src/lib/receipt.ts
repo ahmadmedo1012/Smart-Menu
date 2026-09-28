@@ -6,6 +6,10 @@
 // line now renders through format.ts's formatDate. Its " | " separator is
 // preserved via the timeSeparator option so the receipt OUTPUT is unchanged.
 import { formatPrice, toArabicNumber, formatDate } from "@/lib/format";
+// r121-O-1: the pickup label map is now the canonical lib one — this is the
+// money-adjacent WhatsApp surface, so the raw-value fallback below is
+// preserved byte-for-byte (pinned by receipt-whatsapp-format's 'vip' case).
+import { getPickupTypeMeta, PICKUP_TYPE_META } from "@/lib/order-status";
 
 const SEP = "━━━━━━━━━━━━━━━━━━━━━━";
 const SEP_L = "──────────────────────";
@@ -24,7 +28,6 @@ export function buildReceiptMessage(opts: {
   menuUrl?: string;
 }): string {
   const lines: string[] = [];
-  const labels: Record<string, string> = { inside: "داخل المكان", takeaway: "سفري", delivery: "توصيل" };
 
   // ── Header ──
   lines.push("╔══════════════════════════╗");
@@ -36,7 +39,7 @@ export function buildReceiptMessage(opts: {
   // ── Order info ──
   if (opts.orderNo) lines.push(`🆔 *رقم الطلب*       ${opts.orderNo}`);
   lines.push(`🕐 *التاريخ*         ${formatDate(new Date(), { timeSeparator: " | " })}`);
-  if (opts.pickupType) lines.push(`📍 *نوع الطلب*       ${labels[opts.pickupType] || opts.pickupType}`);
+  if (opts.pickupType) lines.push(`📍 *نوع الطلب*       ${PICKUP_TYPE_META[opts.pickupType]?.label || opts.pickupType}`);
   lines.push("");
 
   // ── Customer info ──
@@ -111,8 +114,8 @@ export function buildOrderShareText(o: {
         `• ${oi.item.nameAr || oi.item.name} ×${toArabicNumber(oi.quantity)} = ${formatPrice(oi.price * oi.quantity, { decimals: 2 })}`
     )
     .join("\n");
-  const type =
-    o.pickupType === "delivery" ? "توصيل" : o.pickupType === "takeaway" ? "سفري" : "داخل المكان";
+  // r121-O-1: canonical label (same inside-fallback the old ternary hardcoded)
+  const type = getPickupTypeMeta(o.pickupType).label;
   return `📋 طلب ${toArabicNumber(o.orderNo)}
 ━━━━━━━━━━━━━
 👤 ${o.customerName} | ${o.customerPhone ?? ""}

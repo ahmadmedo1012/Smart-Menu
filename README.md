@@ -52,7 +52,7 @@
 |---|---|---|
 | TypeScript (tsc --noEmit) | صفر أخطاء | ✅ |
 | ESLint (`npm run lint` = eslint src/ tests/) | 0 أخطاء · 10 تحذيرات (6 no-explicit-any + 4 no-unused-vars) في مواصفات e2e فقط — src/ نظيف تمامًا 0/0 (قياس r97) | ✅ |
-| Vitest | **1991 اختبارات** في 142 ملفًا (قياس r97: +5 suite حقيقي لـhash KDF) — جزر التغطية + إصلاحات الأمن/البيانات/الواجهة r94/95 + درع سلسلة التوريد) | ✅ |
+| Vitest | **2176 اختبارات** في 150 ملفًا (قياس r121: كان 1991/142 — دفعة r121 أضافت +170 اختبار ارتداد عبر 9 ملفات جديدة: أمن متعدد المستأجرين، صحة الفواتير، عقود الاشتراك SSR، قشرة لوحة التحكم) | ✅ |
 | Playwright E2E + أمن | 42 ملف سيناريو (40 e2e + 2 أمن) · 484 فحصًا (قياس r97 بـ`playwright test --list` — +5 رحلة استبدال الولاء — رحلات كاملة، مصفوفة 375/768/1440 × light/dark × مزودو الدفع، referral مُصلَح جولة 85) | ✅ |
 | axe-core WCAG 2.x | أساس صفري على صفحات المنيو | ✅ |
 | سلسلة الهجرات | **قابلة لإعادة التشغيل من الصفر + مطابقة schema.prisma حرفيًا** (فرق فارغ) | ✅ |
@@ -121,7 +121,7 @@ npx playwright test --project=qa-teams      # رحلات الفرق (team1-11)
 
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
-- **Database**: PostgreSQL + Prisma 7 (24 هجرة، قابلة لإعادة التشغيل — آخرها `20260909_round96_demo_menu`)
+- **Database**: PostgreSQL + Prisma 7 (30 هجرة، قابلة لإعادة التشغيل — آخرها عائلة `zz_round121_*`: backfill الأسعار الفعلية + NOT NULL + قيود CHECK — انظر ملاحظة الترتيب في `docs/ops-runbook.md` §10)
 - **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon

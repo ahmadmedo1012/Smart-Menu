@@ -78,6 +78,14 @@ export async function POST(request: NextRequest) {
                 const { url } = await put(filename, buffer, {
                         access: "public",
                         contentType: file.type,
+                        // r121-G-3: unique filenames (${Date.now()}-${random8}) mean a
+                        // replacement image is always a NEW URL — immutable caching is
+                        // safe by construction. @vercel/blob v2 spells this as
+                        // cacheControlMaxAge (seconds; the v1 `cacheControl` string
+                        // option no longer exists in the installed SDK's types) —
+                        // 1 year, replacing the SDK's default no-browser-cache policy
+                        // that cost a 304 round-trip per menu image on repeat QR scans.
+                        cacheControlMaxAge: 31536000,
                 });
 
                 return success({ url, size: buffer.length }, 201);

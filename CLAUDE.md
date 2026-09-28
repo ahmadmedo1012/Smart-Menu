@@ -22,8 +22,11 @@
 3. **Deploy rule (r119, cost: days of blocked deploys)**: commit author email
    MUST be the GitHub account's verified email — Vercel's git integration
    refuses to identify `agent@smart-menu.dev` (not associated with any account)
-   and silently blocks every deployment authored by it. Verify with
-   `git config user.email` before committing.
+   and silently blocks every deployment authored by it. Run the tripwire
+   BEFORE the first commit of every session (the repo-local git config fix is
+   NOT versioned — fresh clones/sandboxes lose it silently):
+   `node scripts/check-git-author.mjs` (exits 1 with the fix command on a
+   bad/unset email; r121-N-1).
 4. **Session artifacts are container-volatile**: `/home/z/my-project/`
    (worklog.md, audit/, ad-hoc scripts) dies with the container — r115-r118
    fleet evidence was lost this way. Commit round evidence INTO the repo at

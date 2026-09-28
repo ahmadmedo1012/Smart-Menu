@@ -44,10 +44,14 @@ interface Payment {
         metadata?: Record<string, unknown> | null;
 }
 
+// r121-A-3/I-1: payment statuses are a different domain from ORDER_STATUS_META
+// (the lib models order lifecycle only), so this map stays — but its colors now
+// speak the lib's semantic language: pending = warning (amber "needs
+// attention"), not brand-orange doubling as a status color.
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
         pending: {
                 label: 'قيد الانتظار',
-                color: 'bg-orange-muted text-orange/80 dark:bg-orange-muted dark:text-orange',
+                color: 'bg-warning/15 text-warning border-warning/25',
         },
         verified: {
                 label: 'تم التحقق',
@@ -186,9 +190,11 @@ export default function AdminSubscriptionsPage() {
                                         <p className="text-xs text-muted-foreground">الإجمالي</p>
                                         <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
                                 </div>
-                                <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
-                                        <p className="text-xs text-orange">قيد الانتظار</p>
-                                        <p className="text-2xl font-bold mt-1 text-orange">
+                                {/* r121-A-3/I-1: pending tile re-mapped to the warning family
+                                        (was brand-orange) to match the semantic status language */}
+                                <div className="rounded-xl bg-warning/15 border border-warning/25 p-4">
+                                        <p className="text-xs text-warning">قيد الانتظار</p>
+                                        <p className="text-2xl font-bold mt-1 text-warning">
                                                 {toArabicNumber(payments.filter((p) => p.status === 'pending').length)}
                                         </p>
                                 </div>

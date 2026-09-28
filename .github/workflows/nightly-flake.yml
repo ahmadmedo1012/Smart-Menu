@@ -42,8 +42,8 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  NODE_VERSION: "24.x"
+# r121-N4: NODE_VERSION env removed — .nvmrc is the single source of truth
+# (r97-X4 migrated ci.yml; this file was missed). node-version-file below.
 
 jobs:
   flake-detection:
@@ -77,7 +77,7 @@ jobs:
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Cache Playwright browsers

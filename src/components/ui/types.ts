@@ -1,9 +1,6 @@
 import type { SVGProps } from "react";
 
-/** Standard stroke width for 24×24 outline icons */
-export const DEFAULT_STROKE_WIDTH = 2;
-
-/** Scale stroke to match DEFAULT_STROKE_WIDTH on non-24 viewBoxes */
+/** Scale stroke to a 24×24-visual weight on non-24 viewBoxes */
 export function scaledStrokeWidth(
   strokeWidth: number,
   viewBoxSize: number,
@@ -11,18 +8,9 @@ export function scaledStrokeWidth(
   return strokeWidth * (viewBoxSize / 24);
 }
 
-export type IconEasing =
-  | "linear"
-  | "easeIn"
-  | "easeOut"
-  | "easeInOut"
-  | "circIn"
-  | "circOut"
-  | "circInOut"
-  | "backIn"
-  | "backOut"
-  | "backInOut"
-  | "anticipate";
+// r121-O-3: IconEasing (an 11-member easing union nothing ever annotated) and
+// DEFAULT_STROKE_WIDTH (zero users — every icon hardcodes its own default of 2)
+// were deleted after grep-verified zero references across src/tests/scripts.
 
 export interface AnimatedIconProps extends Omit<
   SVGProps<SVGSVGElement>,
@@ -50,6 +38,14 @@ export interface AnimatedIconProps extends Omit<
   className?: string;
 }
 
+/**
+ * r121-O-3: the imperative handle now has exactly ONE sanctioned
+ * consumer-producer pair — shopping-cart-icon.tsx exposes it and
+ * premium-toast.tsx's AnimatedCartToastIcon calls startAnimation() for the
+ * add-to-cart bounce. Every other icon became a plain component; do NOT
+ * reintroduce forwardRef here for new icons (hover animations are
+ * self-contained via useAnimate).
+ */
 export interface AnimatedIconHandle {
   startAnimation: () => void;
   stopAnimation: () => void;

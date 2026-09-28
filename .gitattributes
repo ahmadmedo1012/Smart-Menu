@@ -1,0 +1,6 @@
+# r121-R4: cross-platform line-ending policy.
+# Bash scripts MUST stay LF — a Windows clone with autocrlf=true would CRLF-break
+# every script in scripts/ otherwise (.editorconfig binds editors only, not git).
+*.sh text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf

@@ -350,13 +350,21 @@ export function PaymentDialog({
                                                                                         حوّل على الحساب البنكي التالي
                                                                                 </p>
                                                                                 {[
-                                                                                        { label: 'المصرف', value: BANK_NAME },
-                                                                                        { label: 'رقم الحساب', value: BANK_ACCOUNT },
-                                                                                        { label: 'IBAN', value: BANK_IBAN },
+                                                                                        { label: 'المصرف', value: BANK_NAME, numeric: false },
+                                                                                        { label: 'رقم الحساب', value: BANK_ACCOUNT, numeric: true },
+                                                                                        { label: 'IBAN', value: BANK_IBAN, numeric: true },
                                                                                 ].map((row) => (
                                                                                         <div key={row.label} className="flex items-center justify-between gap-2">
                                                                                                 <span className="text-xs text-muted-foreground shrink-0">{row.label}</span>
-                                                                                                <span className="font-mono text-sm font-bold text-left truncate" dir="ltr">
+                                                                                                {/* r121-J-4: only the NUMERIC rows (account no./IBAN) keep the
+                                                                                                    dir="ltr" + font-mono isolation — the bank NAME is an Arabic
+                                                                                                    config value (bank_transfer_bank_name) that was forced through
+                                                                                                    the LTR template: left-aligned, reordered, mono-set inside an
+                                                                                                    RTL card. Name row: dir="auto" + start alignment. */}
+                                                                                                <span
+                                                                                                        className={`text-sm font-bold truncate ${row.numeric ? 'font-mono text-left' : 'text-start'}`}
+                                                                                                        dir={row.numeric ? 'ltr' : 'auto'}
+                                                                                                >
                                                                                                         {row.value}
                                                                                                 </span>
                                                                                                 <button

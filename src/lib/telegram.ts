@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
-import { broadcastToAll } from "@/lib/telegram-broadcast";
+// r121-O-8: BroadcastResult was defined twice (identical private copies in
+// both files) — the canonical shape now lives with broadcastToAll.
+import { broadcastToAll, type BroadcastResult } from "@/lib/telegram-broadcast";
 
 /**
  * round97-X3: TelegramConfig.events is a JSON column — an unchecked
@@ -10,8 +12,6 @@ import { broadcastToAll } from "@/lib/telegram-broadcast";
 export function toStringArray(v: unknown): string[] {
   return Array.isArray(v) && v.every((x) => typeof x === "string") ? v : [];
 }
-
-type BroadcastResult = { sent: number; failed: { chatId: string; reason: string }[] };
 
 export async function sendTelegramNotification(
   message: string,

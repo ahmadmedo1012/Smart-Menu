@@ -37,10 +37,6 @@ export function log(level: LogLevel, message: string, meta?: Record<string, unkn
   }
 }
 
-export function debug(message: string, meta?: Record<string, unknown>): void {
-  log("debug", message, meta);
-}
-
 export function info(message: string, meta?: Record<string, unknown>): void {
   log("info", message, meta);
 }

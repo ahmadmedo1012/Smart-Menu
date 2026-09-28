@@ -19,25 +19,5 @@
     "src/app/api/telegram/webhook/route.ts": {
       "maxDuration": 15
     }
-  },
-  "headers": [
-    {
-      "source": "/terms",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, stale-while-revalidate=86400"
-        }
-      ]
-    },
-    {
-      "source": "/privacy",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, stale-while-revalidate=86400"
-        }
-      ]
-    }
-  ]
+  }
 }

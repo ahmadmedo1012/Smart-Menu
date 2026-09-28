@@ -3,9 +3,9 @@ import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
 import { requireAuth } from '@/lib/auth';
 import { createDbRateLimiter } from '@/lib/rate-limit';
-import { getAdminTelegramIds } from '@/lib/telegram-admin';
-import { getDecryptedBotToken } from '@/lib/config';
-import { sendMessageWithKeyboard } from '@/lib/telegram-api';
+// r121-A-1: the 85-line approver-keyboard block moved to the shared helper
+// (audience = approvers ONLY — see the ⚠ gatherTargets note there).
+import { broadcastPaymentKeyboard } from '@/lib/telegram-broadcast';
 import { error as logError } from '@/lib/logger';
 // round88-A2: schema moved to lib (a non-handler route export breaks Webpack
 // route-type generation; importing the route from tests pulled its whole dep
@@ -125,88 +125,18 @@ export async function POST(request: NextRequest) {
 
                 // Send interactive keyboard to admins (same as existing pattern)
                 try {
-                        const botToken = await getDecryptedBotToken();
-                        if (botToken) {
-                                const adminIds = await getAdminTelegramIds();
-                                const chatIds = new Set<string>();
-                                for (const id of adminIds) chatIds.add(String(id));
-                                const broadcastTargets = await prisma.telegramBroadcastTarget.findMany({
-                                        where: { isActive: true },
-                                        select: { chatId: true },
-                                });
-                                for (const t of broadcastTargets) chatIds.add(t.chatId);
-                                if (chatIds.size === 0) {
-                                        const fallback = process.env.TELEGRAM_CHAT_ID;
-                                        if (fallback) chatIds.add(fallback);
-                                        const groupIds = (process.env.TELEGRAM_GROUP_IDS ?? '')
-                                                .split(',')
-                                                .map((s) => s.trim())
-                                                .filter(Boolean);
-                                        for (const gid of groupIds) chatIds.add(gid);
-                                }
-                                if (chatIds.size > 0) {
-                                        // round91-F-B (D2-#1): عدد المطاعم في رسالة الموافقة — كان
-                                        // الموافق يضغط «🟢» أعمى عن عدد المنيوهات التي ستُنشأ.
-                                        const restaurantsCount =
-                                                tempRestaurants && tempRestaurants.length > 0 ? tempRestaurants.length : 1;
-                                        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${phone != null ? String(phone) : 'غير محدد'}\n• المبلغ: ${String(amount)} د.ل\n• عدد المطاعم: ${restaurantsCount}`;
-                                        const telegramMessages: { chatId: number; messageId: number }[] = [];
-                                        // round89-C2 (dx-2 ب-1): these sends used to be SEQUENTIAL
-                                        // inside the user's payment request (response time = N ×
-                                        // Telegram RTT). Now chunked allSettled — the same shape as
-                                        // telegram-broadcast.ts:10/60ms — 10 concurrent sends per
-                                        // batch, 60ms pause BETWEEN batches only (no trailing delay),
-                                        // per-chat failure tolerated and never fails the request
-                                        // (behavior locked by tests/unit/subscriptions-family).
-                                        const ids = Array.from(chatIds);
-                                        for (let i = 0; i < ids.length; i += 10) {
-                                                if (i > 0) await new Promise((r) => setTimeout(r, 60));
-                                                const settled = await Promise.allSettled(
-                                                        ids.slice(i, i + 10).map((chatId) =>
-                                                                sendMessageWithKeyboard(
-                                                                        botToken,
-                                                                        chatId,
-                                                                        msg,
-                                                                        [
-                                                                                [{ text: '🟢 موافقة على التفعيل', callbackData: `sub_app:${payment.id}` }],
-                                                                                [{ text: '🔴 رفض الطلب', callbackData: `sub_rej:${payment.id}` }],
-                                                                        ],
-                                                                        { parseMode: 'Markdown' }
-                                                                )
-                                                        )
-                                                );
-                                                settled.forEach((result, j) => {
-                                                        const chatId = ids[i + j];
-                                                        if (result.status === 'fulfilled') {
-                                                                if (result.value)
-                                                                        telegramMessages.push({ chatId: Number(chatId), messageId: result.value.message_id });
-                                                        } else {
-                                                                logError('[subscriptions] send failed', {
-                                                                        chatId,
-                                                                        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
-                                                                });
-                                                        }
-                                                });
-                                        }
-                                        // Store message references so webhook cleanup can remove keyboards from all copies
-                                        if (telegramMessages.length > 0) {
-                                                const existingMeta =
-                                                        typeof payment.metadata === 'object' && payment.metadata
-                                                                ? (payment.metadata as Record<string, unknown>)
-                                                                : {};
-                                                await prisma.subscriptionPayment
-                                                        .update({
-                                                                where: { id: payment.id },
-                                                                data: { metadata: { ...existingMeta, telegramMessages } },
-                                                        })
-                                                        .catch((e: unknown) =>
-                                                                logError('[subscriptions] failed to store telegramMessages', {
-                                                                        error: e instanceof Error ? e.message : String(e),
-                                                                })
-                                                        );
-                                        }
-                                }
-                        }
+                        // round91-F-B (D2-#1): عدد المطاعم في رسالة الموافقة — كان
+                        // الموافق يضغط «🟢» أعمى عن عدد المنيوهات التي ستُنشأ.
+                        const restaurantsCount =
+                                tempRestaurants && tempRestaurants.length > 0 ? tempRestaurants.length : 1;
+                        const msg = `🔗 *طلب اشتراك جديد* #${payment.id}\n• المستخدم: #${auth.userId}\n• الباقة: ${plan?.nameAr ?? 'غير معروف'}\n• الهاتف: ${phone != null ? String(phone) : 'غير محدد'}\n• المبلغ: ${String(amount)} د.ل\n• عدد المطاعم: ${restaurantsCount}`;
+                        await broadcastPaymentKeyboard({
+                                paymentId: payment.id,
+                                paymentMetadata: payment.metadata,
+                                msg,
+                                approveLabel: '🟢 موافقة على التفعيل',
+                                logPrefix: '[subscriptions]',
+                        });
                 } catch (keyboardErr) {
                         logError('[subscriptions] keyboard error', {
                                 error: keyboardErr instanceof Error ? keyboardErr.message : String(keyboardErr),

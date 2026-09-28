@@ -1,13 +1,12 @@
 "use client";
-import { forwardRef, useImperativeHandle, useCallback } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+// r121-O-3: plain component — the forwardRef/useImperativeHandle imperative
+// handle had zero external consumers (only shopping-cart-icon keeps one, for
+// the cart-toast bounce in premium-toast). Hover animations are self-contained.
+import { useCallback } from "react";
+import type { AnimatedIconProps } from "./types";
 import { m, useAnimate } from "motion/react";
 
-const LogoutIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  (
-    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
-    ref,
-  ) => {
+function LogoutIcon({ size = 24, color = "currentColor", strokeWidth = 2, className = "" }: AnimatedIconProps) {
     const [scope, animate] = useAnimate();
 
     const start = useCallback(async () => {
@@ -41,11 +40,6 @@ const LogoutIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
       );
     }, [animate]);
 
-    useImperativeHandle(ref, () => ({
-      startAnimation: start,
-      stopAnimation: stop,
-    }));
-
     return (
       <m.div
         ref={scope}
@@ -76,8 +70,6 @@ const LogoutIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
         </svg>
       </m.div>
     );
-  },
-);
+}
 
-LogoutIcon.displayName = "LogoutIcon";
 export default LogoutIcon;

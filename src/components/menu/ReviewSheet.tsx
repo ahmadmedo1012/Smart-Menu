@@ -198,7 +198,11 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                 animate={{ y: 0 }}
                                                 exit={{ y: '100%' }}
                                                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                                                className="fixed bottom-0 inset-x-0 z-50 max-h-[85vh] rounded-t-2xl bg-card border border-border/30 shadow-2xl flex flex-col overflow-y-auto overflow-x-hidden"
+                                                /* r121-J-7: 85vh → 85dvh — الأوراق السفلية بوحدات vh
+                                                   (المنفذ الكبير على iOS) تدفع مقبضها/رأسها تحت
+                                                   شريط عنوان سفاري؛ النظام كله على dvh
+                                                   (OrderDialog 90dvh، ui/dialog 90dvh). */
+                                                className="fixed bottom-0 inset-x-0 z-50 max-h-[85dvh] rounded-t-2xl bg-card border border-border/30 shadow-2xl flex flex-col overflow-y-auto overflow-x-hidden"
                                                 dir="rtl"
                                                 role="dialog"
                                                 aria-modal="true"
