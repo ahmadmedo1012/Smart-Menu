@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { getUserSubscriptionState } from '@/lib/subscription-guard';
-import { OwnerShell } from './OwnerShell';
+import { OwnerShell, getPlanDaysRemaining } from './OwnerShell';
 
 /**
  * r121-B-2/A-2/E-4 (IMPL-3) — server-side auth gate for the whole /owner tree,
@@ -44,16 +44,19 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
                         select: { createdAt: true },
                 }),
         ]);
+        const planEndIso =
+                subscription.planEnd instanceof Date
+                        ? subscription.planEnd.toISOString()
+                        : subscription.planEnd
+                                ? String(subscription.planEnd)
+                                : null;
+        // r121-ADV1-2: days resolved ONCE on the server — the shell renders the
+        // same value at SSR and hydration (no new Date() clock mismatch).
+        const planDays = getPlanDaysRemaining(planEndIso);
 
         return (
                 <OwnerShell
-                        planEnd={
-                                subscription.planEnd instanceof Date
-                                        ? subscription.planEnd.toISOString()
-                                        : subscription.planEnd
-                                                ? String(subscription.planEnd)
-                                                : null
-                        }
+                        planDays={planDays}
                         pendingPaymentSince={pendingPayment?.createdAt.toISOString() ?? null}
                 >
                         {children}

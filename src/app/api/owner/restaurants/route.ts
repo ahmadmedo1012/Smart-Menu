@@ -8,13 +8,15 @@ import { categoryCountByRestaurant, orderCountByRestaurant } from '@/lib/list-co
 import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
 import { z } from 'zod';
-import { isSlugHeldByPendingPayment } from '@/lib/validation';
+import { isSlugHeldByPendingPayment, slugField } from '@/lib/validation';
 
 // round90-F1 (S-1 / dx-2 ب-3): نفس حدود المخطط الموازي restaurants:22-32 —
 // كانت الحقول بلا .max فتنهار متأخرة كضجيج Prisma 400 عام.
+// r121-ADV1-1: slug الآن من slugField القانوني (validation.ts) — كانت هذه
+// النسخة الثالثة تقبل روابط من حرفين بينما التسجيل العام يرفضها.
 const createSchema = z.object({
         name: z.string().min(1).max(200),
-        slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+        slug: slugField,
         description: z.string().max(1000).optional(),
         phone: z.string().max(30).optional(),
         whatsapp: z.string().max(30).optional(),

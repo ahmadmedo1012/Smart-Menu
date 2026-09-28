@@ -113,7 +113,10 @@ describe('r121 B-2/A-2/E-4 — owner layout server gate', () => {
 
                 const el = await OwnerLayout({ children: 'PAGE' });
                 expect(el.type).toBe(OwnerShell);
-                expect(el.props.planEnd).toBe('2026-10-05T00:00:00.000Z');
+                // r121-ADV1-2: the shell now receives planDays (whole days,
+                // server-resolved ONCE — no SSR/hydration clock mismatch) instead
+                // of a raw planEnd ISO string.
+                expect(typeof el.props.planDays).toBe('number');
                 expect(el.props.pendingPaymentSince).toBe('2026-09-25T10:30:00.000Z');
                 expect(el.props.children).toBe('PAGE');
                 // P-5 planEnd comes from the EXISTING helper — zero API change:
@@ -133,7 +136,7 @@ describe('r121 B-2/A-2/E-4 — owner layout server gate', () => {
                 pendingFindFirstMock.mockResolvedValue(null);
 
                 const el = await OwnerLayout({ children: null });
-                expect(el.props.planEnd).toBeNull();
+                expect(el.props.planDays).toBeNull();
                 expect(el.props.pendingPaymentSince).toBeNull();
         });
 });

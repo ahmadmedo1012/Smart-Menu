@@ -14,6 +14,7 @@ import {
         restaurantFieldSchema,
         isSlugHeldByPendingPayment,
         normalizeSlug,
+        slugOptional,
 } from '@/lib/validation';
 // r121-A-10: the orders-guard + P2003→409 mapping moved to the shared lib
 // (same rules as the owner path, one unified 409 copy).
@@ -34,16 +35,11 @@ const restaurantGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 // r121-C4: the field caps are now shared from src/lib/validation.ts
 // (restaurantFieldSchema) — the settings restaurant_* mirror writes and the
 // legacy POST form used to bypass them.
-const SLUG_RE = /^[a-z0-9-]+$/;
-
-const slugField = z
-        .string()
-        .min(1)
-        .max(100)
-        .regex(SLUG_RE, 'الرابط المختصر يجب أن يحتوي أحرفاً لاتينية صغيرة وأرقاماً وشرطات فقط');
-
+// r121-ADV1-1: slug validation is now the CANONICAL slugField from validation.ts
+// too — this local copy's .min(1) let 1-2-char slugs through on owner paths
+// while the public signup rejected them (policy drift).
 const updateSchema = restaurantFieldSchema.partial().extend({
-        slug: slugField.optional(),
+        slug: slugOptional,
         logo: z.string().max(2000).optional(),
         gallery: z.array(z.string().max(2000)).max(10).optional(),
 });

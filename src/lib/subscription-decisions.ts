@@ -71,11 +71,25 @@ export async function isPaymentSelfApproval(
   paymentId: number,
   approverTelegramId: number | string,
 ): Promise<boolean> {
-  const p = await prisma.subscriptionPayment.findUnique({
-    where: { id: paymentId },
-    select: { user: { select: { telegramChatId: true } } },
-  });
-  const chatId = p?.user?.telegramChatId;
+  // r121-ADV2-1: key on the USER IDENTITY, not the payer's linked chat. The old
+  // chat-only match let a payer whose account has no (or a different) linked
+  // chat resolve their own payment from the Telegram keyboard — the panel half
+  // (r121-E2) was already userId-keyed; this brings the webhook to parity.
+  const [p, approver] = await prisma.$transaction([
+    prisma.subscriptionPayment.findUnique({
+      where: { id: paymentId },
+      select: { userId: true, user: { select: { telegramChatId: true } } },
+    }),
+    prisma.user.findFirst({
+      where: { telegramChatId: String(approverTelegramId) },
+      select: { id: true },
+    }),
+  ]);
+  if (!p) return false;
+  // Same user account → self-approval, regardless of which chat it came from.
+  if (approver && approver.id === p.userId) return true;
+  // Fallback (approver telegram id not linked to any account): legacy chat-match.
+  const chatId = p.user?.telegramChatId;
   return Boolean(chatId) && String(chatId) === String(approverTelegramId);
 }
 

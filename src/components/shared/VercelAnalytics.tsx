@@ -15,10 +15,8 @@ import { Analytics } from '@vercel/analytics/react';
  *
  * This is a pure server component (no hooks) — when mounted from a server
  * layout the gate is evaluated at build/SSR time, so the script tag never
- * reaches non-Vercel HTML at all. Swapping the existing mounts is a 1-line
- * change per layout: `<Analytics />` → `<VercelAnalytics />`
- * (done in (public)/layout.tsx r121; (protected)/layout.tsx is IMPL-3's
- * file this round — same swap recommended there).
+ * reaches non-Vercel HTML at all. Both layouts mount it since r121
+ * ((public)/layout.tsx:189 + (protected)/layout.tsx:178).
  */
 export function VercelAnalytics() {
         if (!process.env.VERCEL && !process.env.NEXT_PUBLIC_VERCEL_ENV) return null;

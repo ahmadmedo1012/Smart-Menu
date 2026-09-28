@@ -556,12 +556,16 @@ export function OrderDialog({
                                                 className={cn(glassPillInput, 'h-auto py-3 resize-none')}
                                         />
 
-                                        {/* Total + WhatsApp */}
-                                        <div className="space-y-3 pt-1">
+                                        {/* Total + WhatsApp — r121-ADV4-1: sticky footer. The whole
+                                            sheet scrolls (max-h 94dvh) so a plain CTA sat 44px below
+                                            the visible fold at 375×667 (measured). Pinning the money
+                                            block to the sheet's bottom edge keeps «أضف إلى السلة»
+                                            always visible; -mx/px matches the body padding. */}
+                                        <div className="sticky bottom-0 z-10 space-y-3 -mx-4 sm:-mx-5 px-4 sm:px-5 pt-3 pb-1 glass-strong border-t border-glass-border">
                                                 {/* round88-E1 pattern: polite live region announces price changes
                                                         (modifier toggles + quantity) to screen readers */}
                                                 <div
-                                                        className="flex items-center justify-between border-t border-dashed border-glass-border pt-3"
+                                                        className="flex items-center justify-between pt-0"
                                                         aria-live="polite"
                                                 >
                                                         <span className="font-bold text-sm">المجموع</span>

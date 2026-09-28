@@ -84,9 +84,11 @@ export function daysLeftPhrase(days: number): string {
 /** Warn when the plan ends within (or before) 7 days — P-5's ≤7-day window. */
 const EXPIRY_WARN_DAYS = 7;
 
-function SubscriptionExpiryBanner({ planEnd }: { planEnd: string | null }) {
+function SubscriptionExpiryBanner({ days }: { days: number | null }) {
+        // r121-ADV1-2: `days` arrives as a server-resolved prop — computing it here
+        // with new Date() produced a React 19 text mismatch across the day
+        // boundary (server clock vs client clock at hydration).
         const [dismissed, setDismissed] = useState(false);
-        const days = getPlanDaysRemaining(planEnd);
         if (dismissed || days === null || days > EXPIRY_WARN_DAYS) return null;
         const expired = days <= 0;
         return (
@@ -207,12 +209,13 @@ function LogoutButton() {
 }
 
 export function OwnerShell({
-        planEnd,
+        planDays,
         pendingPaymentSince,
         children,
 }: {
-        /** r121-P-5: ISO date from getUserSubscriptionState() (server-resolved). */
-        planEnd: string | null;
+        /** r121-P-5/ADV1-2: whole days until planEnd, resolved ON THE SERVER
+         * (avoids SSR/hydration clock mismatch); null = no plan end date. */
+        planDays: number | null;
         /** r121-P-4: ISO date of the pending subscription payment, or null. */
         pendingPaymentSince: string | null;
         children: React.ReactNode;
@@ -260,7 +263,7 @@ export function OwnerShell({
                                                 className="flex-1 bg-background p-4 md:p-6 lg:p-8 focus:outline-none"
                                         >
                                                 <UserBannerNotifier />
-                                                <SubscriptionExpiryBanner planEnd={planEnd} />
+                                                <SubscriptionExpiryBanner days={planDays} />
                                                 <PageFade>{children}</PageFade>
                                         </div>
                                 </div>
