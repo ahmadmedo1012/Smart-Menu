@@ -1,4 +1,6 @@
 import pg from 'pg';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
 /**
  * round86-D1 hardening of the P1002 unstick script (still in the build chain:
@@ -144,7 +146,8 @@ async function main() {
       }
       for (const f of failedMigs) {
         let resolved = false;
-        for (let attempt = 1; attempt <= 3 && !resolved; attempt++) {
+        // Tier 1: direct UPDATE on this connection (fast when it works).
+        for (let attempt = 1; attempt <= 2 && !resolved; attempt++) {
           try {
             const res = await c.query(
               `UPDATE _prisma_migrations
@@ -153,18 +156,70 @@ async function main() {
                  AND finished_at IS NULL
                  AND rolled_back_at IS NULL`,
               [f.migration_name]);
-            if (res.rowCount === 1) {
-              console.log('RESOLVED (marked rolled-back): ' + f.migration_name + (attempt > 1 ? ' (attempt ' + attempt + ')' : ''));
+            if (res.rowCount >= 1) {
+              console.log('RESOLVED via direct SQL: ' + f.migration_name + (attempt > 1 ? ' (attempt ' + attempt + ')' : ''));
               resolved = true;
             } else {
-              console.log('RESOLVE_RACE (0 rows, already resolved by a concurrent build): ' + f.migration_name);
-              resolved = true; // record gone from the failed set either way
+              console.log('RESOLVE_RACE (0 rows, already resolved): ' + f.migration_name);
+              resolved = true;
             }
           } catch (e) {
-            console.log('RESOLVE_FAILED (attempt ' + attempt + '): ' + f.migration_name
+            console.log('RESOLVE_FAILED direct (attempt ' + attempt + '): ' + f.migration_name
               + ' — pg code ' + e.code + ': ' + (e.message || '').toString().slice(0, 200));
-            if (attempt < 3) await new Promise((r) => setTimeout(r, 2_000));
+            if (attempt < 2) await new Promise((r) => setTimeout(r, 1_000));
           }
+        }
+        // Tier 2: one-shot FRESH connection (a different pooled server conn —
+        // sidesteps any connection-local state blocking the tier-1 write).
+        if (!resolved) {
+          try {
+            const pg2 = pg;
+            const c2 = new pg2.Client({ connectionString: url, statement_timeout: 15000, connectionTimeoutMillis: 15000 });
+            await c2.connect();
+            try {
+              const res = await c2.query(
+                `UPDATE _prisma_migrations SET rolled_back_at = now()
+                 WHERE migration_name = $1 AND finished_at IS NULL AND rolled_back_at IS NULL`,
+                [f.migration_name]);
+              if (res.rowCount >= 1) {
+                console.log('RESOLVED via fresh connection: ' + f.migration_name);
+                resolved = true;
+              } else {
+                console.log('RESOLVE_RACE on fresh connection (0 rows): ' + f.migration_name);
+                resolved = true;
+              }
+            } finally { await c2.end().catch(() => {}); }
+          } catch (e) {
+            console.log('RESOLVE_FAILED fresh-connection: ' + f.migration_name
+              + ' — ' + (e.code || '') + ' ' + (e.message || '').toString().slice(0, 200));
+          }
+        }
+        // Tier 3: the official CLI in a subprocess (its own connection; this
+        // is the mechanism whose timing matched the one build that got past
+        // P3009 — 726db1ba).
+        if (!resolved) {
+          for (let attempt = 1; attempt <= 2 && !resolved; attempt++) {
+            try {
+              const out = execFileSync(
+                existsSync('node_modules/.bin/prisma') ? 'node_modules/.bin/prisma' : 'npx',
+                existsSync('node_modules/.bin/prisma')
+                  ? ['migrate', 'resolve', '--rolled-back', f.migration_name]
+                  : ['prisma', 'migrate', 'resolve', '--rolled-back', f.migration_name],
+                { cwd: process.cwd(), timeout: 120_000, encoding: 'utf8',
+                  stdio: ['ignore', 'pipe', 'pipe'], env: process.env });
+              console.log('RESOLVED via prisma CLI: ' + f.migration_name + ' | '
+                + (out || '').trim().split('\n').filter(Boolean).slice(-1).join('').slice(0, 120));
+              resolved = true;
+            } catch (e) {
+              console.log('RESOLVE_FAILED cli (attempt ' + attempt + '): ' + f.migration_name
+                + ' — ' + ((e.stderr || e.stdout || e.message) || '').toString().trim().slice(0, 250));
+              if (attempt < 2) await new Promise((r) => setTimeout(r, 1_000));
+            }
+          }
+        }
+        if (!resolved) {
+          console.log('UNRESOLVED after all 3 tiers: ' + f.migration_name
+            + ' — migrate deploy will stop with P3009 (see tiers above for the per-tier errors)');
         }
       }
       const { rows: stillFailed } = await c.query(`
