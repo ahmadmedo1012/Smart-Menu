@@ -124,6 +124,19 @@ async function main() {
     `);
     if (failedMigs.length === 0) {
       console.log('MIGRATION_STATE: no failed migrations — deploy chain clear');
+      // ---- marker B (§5 ran, found nothing to resolve; self-retiring) ----
+      // failure at ~50s with this path = the ledger was already clean and
+      // migrate deploy still fails — different root cause than a stuck record.
+      const { rows: r121pendingB } = await c.query(`
+        SELECT COUNT(*)::int AS n FROM _prisma_migrations
+        WHERE migration_name = ANY($1) AND finished_at IS NULL`,
+        [['zz_round121_check_constraints', 'zz_round121_not_null_alignment',
+          'zz_round122_orderitem_effective_price_backfill', 'zzz_round121_rewardtransaction_check_drop']]).catch(() => [{ n: 0 }]);
+      if (r121pendingB[0].n > 0) {
+        console.log('R122_DIAG: no failed records but r121/r122 unfinished (' + r121pendingB[0].n + ') — marker B (20s)');
+        await new Promise((r) => setTimeout(r, 20_000));
+        console.log('R122_DIAG: marker B elapsed (20s) — §5 ran clean; migrate deploy owns the outcome from here');
+      }
     } else {
       console.log('MIGRATION_STATE: ' + failedMigs.length + ' FAILED migration(s) blocking deploy (P3009):');
       for (const f of failedMigs) {
@@ -165,6 +178,27 @@ async function main() {
         ORDER BY migration_name`);
       if (pendingView.length > 0) {
         console.log('MIGRATION_LEDGER (unfinished records): ' + JSON.stringify(pendingView));
+      }
+      // ---- TEMPORARY r122 DEPLOY DIAGNOSTIC (self-retiring) ------------------
+      // The last 3 deployments all died ~30s after push — the same duration as
+      // the pre-fix P3009 fast-fail, i.e. indistinguishable. These sleeps make
+      // the unstick step's progress readable from the deployment TIMELINE
+      // alone (no log access needed):
+      //   failure at ~75s+  => §5 ran and resolved (migrate deploy still failing)
+      //   failure at ~50s   => §5 ran, found nothing to resolve (see marker B)
+      //   failure at ~30s   => §5 NEVER RAN (script crash before §5 / stale build)
+      //   success           => fixed — remove this block in the next round
+      // Sleeps fire only while r121/r122 migrations are unfinished, so a
+      // healthy chain never pays them.
+      const { rows: r121pending } = await c.query(`
+        SELECT COUNT(*)::int AS n FROM _prisma_migrations
+        WHERE migration_name = ANY($1) AND finished_at IS NULL`,
+        [['zz_round121_check_constraints', 'zz_round121_not_null_alignment',
+          'zz_round122_orderitem_effective_price_backfill', 'zzz_round121_rewardtransaction_check_drop']]).catch(() => [{ n: 0 }]);
+      if (r121pending[0].n > 0) {
+        console.log('R122_DIAG: r121/r122 chain unfinished (' + r121pending[0].n + ' record(s)) — engage timeline markers');
+        await new Promise((r) => setTimeout(r, 45_000));
+        console.log('R122_DIAG: marker A elapsed (45s) — §5 completed; migrate deploy owns the outcome from here');
       }
     }
   }
