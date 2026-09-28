@@ -12,7 +12,7 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **r122 `fix(deploy)` (see r122 entry)** — P3009 deploy-unblocker verified by a 23/23 simulation harness; production deploy re-triggered by the push (was stuck at `19fa136a` — r121 B–E + hotfix commits land with it) |
+| Last verified commit | **r122-b forensics at `a47fda38` (see r122-b entry)** — fix complete + 14/14-proven; production frozen at `19fa136a` by a production-specific `_prisma_migrations` write-block (all 3 resolution tiers fail instantly; app data-plane writes PROVEN healthy); **one user action unlocks: paste the failed build's log** |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
@@ -28,6 +28,15 @@
 - **Ops**: `docs/ops-runbook.md` (PITR/rollback/incidents).
 
 ## Round history (recent, newest first)
+
+- **r122-b (2026-09-28, ongoing) — DEPLOY-CHAIN FORENSICS (7 instrumented deployments; production still frozen at `19fa136a`; data plane PROVEN healthy).**
+  - **The fix is complete and locally proven**: NOT VALID check-constraints + per-row-guarded backfill rescue (`zz_round122_...`, double-charge ledger guard) + db-unstick §5 P3009 auto-resolve — 14/14 scenario matrix (prod-like stuck+malformed data / v1-fails-live-reproduction «invalid input syntax for type json» / no-double-charge / fresh) + a full Vercel-pipeline sim (`npm install --ignore-scripts` + the exact build command incl. `next build`) — ALL GREEN.
+  - **Deploy telemetry (timeline markers, readable via GitHub deployment API without logs)**: every push since 15:18 UTC failed in the migrate-deploy window. Decode: 33s (726db1ba, CLI-spawn §5) → 33s (8ec6a31a, direct-SQL §5) → 30s (fd5d5622, rescue migrations) → 70s (7a7fc0be, +45s marker A = §5 path ran, failed records present) → 86s (329537da, A2 = records STILL FAILED after 3 resolution attempts) → 102s (a47fda38, A2 + 3-tier cascade delays = ALL THREE mechanisms failed).
+  - **The 3-tier cascade** (direct UPDATE → one-shot fresh pg connection → `prisma migrate resolve --rolled-back` subprocess) ALL fail on production — while SELECTs on the same connections succeed.
+  - **Timing math across all 7 builds proves the failures are INSTANT** (permission-class errors), NOT lock timeouts (statement_timeout would add 20s/attempt).
+  - **Production data plane PROVEN HEALTHY**: a live probe order (`ORD-MULFZWQ4-CECBECE9`, demo menu, 702ms, via the public `/api/orders` mobile path) committed through the same Neon role — writes to Order/OrderItem work; the block is specific to `_prisma_migrations` writes. Suspects (undeterminable without the build log): table-level privilege anomaly (role/ownership drift — A4-P1 history), an RLS/policy surprise, or a Neon-pooler write-path quirk. **The per-tier error lines (pg code + message) are in every failed build's log — one paste resolves this.**
+  - **⨯ USER ACTION REQUIRED (the one unblock)**: open the Vercel dashboard → Deployments → latest failed (`a47fda38`) → view log; find the `RESOLVE_FAILED direct (attempt 1): … — pg code XXXX: <message>` line (and the `MIGRATION_STATE: N FAILED migration(s)` + `MIGRATION_LEDGER` lines) — paste them. Alternative: run the `npx vercel inspect dpl_… --logs` command shown on the failed deployment card. The build command in Project Settings should still read `node scripts/db-unstick.mjs && npx prisma migrate deploy && npx prisma generate && next build` (verify it wasn't changed).
+  - Everything else is ready to land the moment the ledger writes work: 11 commits (`6b043a02..a47fda38`) hold the full r121+r122 transformation (18-auditor round + hardening + this deploy fix).
 
 - **r122 (2026-09-28) — DEPLOY-UNBLOCKER ROUND (P3009 self-healing). 1 commit — all gates green, 23/23 simulation-verified.**
   - **Root cause (why the r121 hotfix didn't unblock deploys)**: `zz_round121_check_constraints` left a FAILED record (`finished_at IS NULL AND rolled_back_at IS NULL`, started 2026-09-28 12:49:32 UTC) in production `_prisma_migrations`. `migrate deploy` refuses to run while any failed record exists (P3009) — **editing the migration file cannot clear the record**, and on Vercel nobody can run `prisma migrate resolve` by hand. Every redeploy of the hotfix commit failed identically (user-pasted Vercel log, 14:39 UTC).
