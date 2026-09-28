@@ -54,13 +54,17 @@ const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: s
 };
 const DEFAULT_META = PLAN_META.Free;
 
-function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: boolean }) {
+/* r121-P1 (backlog #34): الدفع السنوي اختلاق غير قابل للشراء — الخادم يرفض
+   أي مبلغ ≠ plan.price (subscriptions/route.ts:88) والموافقة تمنح 30 يوماً
+   دائماً. مفتاح «سنوي · وفّر 17%» وسعر ×10 وحدهما عرضٌ لا يمكن دفعه، فأُزيل
+   كل شيء سنوي (X1 تحقق كاملاً). الخطط شهرية فقط، بأسعار صادقة. إن أُريد
+   سنوي حقيقي فهو ميزة منتج لاحقة (صف خطة periodDays=365 — r119-S2-P2-2
+   يدعمه) لا إصلاحًا يمتطي دفعة إصلاح. */
+function PlanCard({ plan, index }: { plan: Plan; index: number }) {
         const reduceMotion = useReducedMotion();
         const meta = PLAN_META[plan.name] ?? DEFAULT_META;
         const Icon = meta.icon;
-        const monthlyPrice = plan.price;
-        const displayPrice = yearly ? monthlyPrice * 10 : monthlyPrice;
-        const periodLabel = plan.periodDays === 0 ? '' : yearly ? '/السنة' : '/الشهر';
+        const periodLabel = plan.periodDays === 0 ? '' : '/الشهر';
         const isPopular = index === 1;
         const isFree = plan.price === 0;
 
@@ -132,23 +136,17 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
                                                 <div className="text-[2.75rem] font-bold leading-none tabular-nums">مجاني</div>
                                         ) : (
                                                 <div className="flex items-baseline gap-1">
-                                                        {/* r95: رقم السعر SmartBot §5.7 — key على span يعيد تشغيل
-                                                               أنيميشن price-swap-in (أداة 95-A في globals.css) عند التبديل */}
+                                                        {/* r95: رقم السعر SmartBot §5.7 — أنيميشن price-swap-in
+                                                               عند ظهور البطاقة في الشاشة (r121-P1: بلا مفتاح تبديل
+                                                               بعد إزالة السنوي — الدخول مرة واحدة يكفي) */}
                                                         <span
-                                                                key={yearly ? 'yearly' : 'monthly'}
                                                                 className="animate-price-swap-in text-[2.75rem] font-bold leading-none tabular-nums"
                                                         >
-                                                                {formatPrice(displayPrice, { suffix: '' })}
+                                                                {formatPrice(plan.price, { suffix: '' })}
                                                         </span>
                                                         <span className="text-sm sm:text-lg text-muted-foreground font-medium">د.ل</span>
                                                         <span className="text-xs sm:text-sm text-muted-foreground">{periodLabel}</span>
                                                 </div>
-                                        )}
-                                        {yearly && !isFree && (
-                                                /* r95: نص توفيري — accent-foreground الأسطع (#df5a00)
-                                                   5.42:1 على البطاقة الداكنة — text-orange (#bc4700)
-                                                   كان 3.9:1 دون AA للنص. */
-                                                <p className="text-xs text-accent-foreground mt-1">وفر شهرين عند الاشتراك السنوي</p>
                                         )}
                                 </div>
 
@@ -206,17 +204,12 @@ function PlanCard({ plan, index, yearly }: { plan: Plan; index: number; yearly: 
         );
 }
 
-// Yearly billing = 10× the monthly price (two months free) → fixed savings
-// anchor shown on the toggle. Derived from the same math as PlanCard.displayPrice.
-const YEARLY_SAVINGS_PCT = Math.round((1 - 10 / 12) * 100);
-
 export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null }) {
         // round86-B5: server-rendered initial plans (SEO-visible, no post-hydrate
         // waterfall); the client fetch is only a fallback when the server data was
         // missing (DB hiccup at revalidation time).
         const [plans, setPlans] = useState<Plan[]>(initialPlans ?? []);
         const [loading, setLoading] = useState(initialPlans === null);
-        const [yearly, setYearly] = useState(false);
         const [error, setError] = useState<string | null>(null);
 
         const loadPlans = useCallback(async () => {
@@ -256,31 +249,9 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
                                         </p>
 
-                                        {/* r95: مفتاح شهري/سنوي SmartBot §5.7 — كبسولة زجاجية rounded-full */}
-                                        <div className="mt-6 inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/60 p-1 backdrop-blur sm:mt-8">
-                                                <button
-                                                        type="button"
-                                                        onClick={() => setYearly(false)}
-                                                        aria-pressed={!yearly}
-                                                        className={cn(
-                                                                'rounded-full px-4 py-2 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:text-sm',
-                                                                yearly ? 'text-muted-foreground' : 'bg-primary text-primary-foreground'
-                                                        )}
-                                                >
-                                                        شهري
-                                                </button>
-                                                <button
-                                                        type="button"
-                                                        onClick={() => setYearly(true)}
-                                                        aria-pressed={yearly}
-                                                        className={cn(
-                                                                'rounded-full px-4 py-2 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:text-sm',
-                                                                yearly ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
-                                                        )}
-                                                >
-                                                        سنوي ·<span className={cn('ms-1 text-xs font-bold', yearly ? 'text-primary-foreground' : 'text-accent-foreground')}>وفّر {toArabicNumber(YEARLY_SAVINGS_PCT)}%</span>
-                                                </button>
-                                        </div>
+                                        {/* r121-P1: مفتاح شهري/سنوي أُزيل هنا — كان يعرض أسعار ×10
+                                           لا يمكن شراؤها (سلسلة X1: CTA بلا معامل فترة، الخادم يرفض
+                                           أي مبلغ ≠ الشهري، الموافقة تمنح 30 يوماً). كل الأسعار شهرية. */}
                                 </div>
                         </section>
 
@@ -339,7 +310,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                         ) : (
                                                 <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
                                                         {plans.map((plan, i) => (
-                                                                <PlanCard key={plan.id} plan={plan} index={i} yearly={yearly} />
+                                                                <PlanCard key={plan.id} plan={plan} index={i} />
                                                         ))}
                                                 </div>
                                         )}

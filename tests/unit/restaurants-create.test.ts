@@ -395,6 +395,86 @@ describe('POST /api/restaurants — التعارضات', () => {
         });
 });
 
+// ── r121-C5: حدود النموذج القديم (استكراء ما قبل التحليل) ───────────────
+
+describe('POST /api/restaurants — r121-C5 legacy single-form caps', () => {
+        // X2 §7: الحقول الفردية القديمة كانت z.string().optional() مجردة بينما
+        // شكل المصفوفة في نفس المخطط يحمل كل الحدود (وname القديم بلا حد أقصى
+        // إطلاقًا — الحقل الذي فاته C). الآن يُستكرئ الجسم القديم إلى المصفوفة
+        // قبل التحليل ويُفحص مرة واحدة عبر restaurantInputSchema.
+        it('وصف قديم 5000 حرف → 422 ولا معاملة (كان يُخزَّن عبر مسار عام 5/دقيقة)', async () => {
+                const res = await restaurantsRoute.POST(
+                        postRequest({ name: 'مطعم قديم النموذج', slug: 'legacy-desc-1', description: 'د'.repeat(5000) })
+                );
+                expect(res.status).toBe(422);
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('اسم قديم 201 حرف → 422 (الحقل الذي فاته تقرير C — لم يكن له حد)', async () => {
+                const res = await restaurantsRoute.POST(postRequest({ name: 'م'.repeat(201), slug: 'legacy-name-1' }));
+                expect(res.status).toBe(422);
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('بريد قديم ضخم → 422 (حدود المستوى الأعلى عبر المخطط المشترك)', async () => {
+                const res = await restaurantsRoute.POST(
+                        postRequest({ name: 'مطعم قديم النموذج', slug: 'legacy-mail-1', email: 'x'.repeat(300) })
+                );
+                expect(res.status).toBe(422);
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('جسم قديم سليم → يُستكرئ إلى شكل المصفوفة: create واحدة بالحقول نفسها', async () => {
+                const res = await restaurantsRoute.POST(
+                        postRequest({
+                                name: 'مطعم قديم النموذج',
+                                slug: 'legacy-1',
+                                description: 'قهوة مختصة',
+                                phone: '0910000000',
+                                whatsapp: '0910000000',
+                                email: 'old@example.com',
+                                address: 'طرابلس',
+                                workingHours: '8-12',
+                        })
+                );
+                expect(res.status).toBe(201);
+                expect(txRestaurantCreate).toHaveBeenCalledTimes(1);
+                expect(txRestaurantCreate).toHaveBeenCalledWith({
+                        data: {
+                                name: 'مطعم قديم النموذج',
+                                slug: 'legacy-1',
+                                description: 'قهوة مختصة',
+                                phone: '0910000000',
+                                whatsapp: '0910000000',
+                                email: 'old@example.com',
+                                address: 'طرابلس',
+                                workingHours: '8-12',
+                                planId: null,
+                        },
+                });
+        });
+
+        it('شكل المصفوفة دون تغيير: نفس بيانات create كما قبل الاستكراء', async () => {
+                const res = await restaurantsRoute.POST(
+                        postRequest({ restaurants: [{ name: 'مقهى الواحة', slug: 'al-waha-cafe', description: 'قهوة' }] })
+                );
+                expect(res.status).toBe(201);
+                expect(txRestaurantCreate).toHaveBeenCalledTimes(1);
+                expect(txRestaurantCreate.mock.calls[0][0].data).toMatchObject({
+                        name: 'مقهى الواحة',
+                        slug: 'al-waha-cafe',
+                        description: 'قهوة',
+                });
+        });
+
+        it('جسم بلا منيو ولا name/slug يحفظ رسالة refine المثبّتة', async () => {
+                const res = await restaurantsRoute.POST(postRequest({ phone: '0910' }));
+                expect(res.status).toBe(422);
+                const json = await res.json();
+                expect(json.details[0]).toContain('يجب توفير بيانات منيو واحد على الأقل');
+        });
+});
+
 // ── التسجيل الذاتي العام ───────────────────────────────────────────────
 
 describe('POST /api/restaurants — التسجيل الذاتي (username+password)', () => {

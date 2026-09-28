@@ -316,6 +316,9 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                 expect(res.status).toBe(409);
                 const json = await res.json();
                 expect(json.error).toBe('الرابط waha محجوز بطلب دفع معلق');
+                // r121-C3: the inline findFirst moved to the shared helper
+                // (isSlugHeldByPendingPayment, src/lib/validation.ts) — the probe
+                // now also selects {id} (behavior-identical reservation check).
                 expect(mockPaymentFindFirst).toHaveBeenCalledWith({
                         where: {
                                 status: 'pending',
@@ -324,6 +327,7 @@ describe('POST /api/subscriptions — happy path & money guards', () => {
                                         array_contains: [{ slug: 'waha' }],
                                 },
                         },
+                        select: { id: true },
                 });
         });
 

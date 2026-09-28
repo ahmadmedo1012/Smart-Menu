@@ -290,12 +290,13 @@ test.describe('API endpoints', () => {
                 expect(Array.isArray(json.data)).toBe(true);
         });
 
-        test('POST /api/auth/login empty body → 400', async ({ request }) => {
+        test('POST /api/auth/login empty body → 422', async ({ request }) => {
                 const res = await request.post('/api/auth/login', {
                         headers: { 'Content-Type': 'application/json', ...csrfHeadersFor(BASE, CSRF) },
                         data: {},
                 });
-                expect(res.status()).toBe(400);
+                // r121-M1: r119-B4 unified schema-validation failures to 422 — pin updated.
+                expect(res.status()).toBe(422);
                 const json = await res.json();
                 expect(json.success).toBe(false);
         });

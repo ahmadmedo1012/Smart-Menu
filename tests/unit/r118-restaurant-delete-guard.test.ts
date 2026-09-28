@@ -27,6 +27,7 @@ vi.mock('@/lib/subscription-guard', () => ({
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockOrderCount = vi.hoisted(() => vi.fn().mockResolvedValue(0));
 const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
+const mockMenuItemFindMany = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockLinkDelete = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const mockReviewDeleteMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }));
@@ -39,6 +40,9 @@ const mockPrisma = vi.hoisted(() => {
                         findUnique: mockRestaurantFindUnique,
                         delete: mockRestaurantDelete,
                 },
+                // r121-D6: the owner DELETE path now collects item images for the
+                // post-commit blob cleanup (admin-path parity) — none by default.
+                menuItem: { findMany: mockMenuItemFindMany },
                 review: { deleteMany: mockReviewDeleteMany },
                 order: { count: mockOrderCount },
                 $transaction: mockTransaction,

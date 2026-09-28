@@ -44,6 +44,9 @@ const mockPrisma = vi.hoisted(() => ({
         // captures the row for the audit entry before the cascade.
         order: { count: vi.fn().mockResolvedValue(0) },
         restaurant: { findUnique: vi.fn().mockResolvedValue({ id: 313, name: 'مقهى الواحة', slug: 'al-waha-cafe' }) },
+        // r121-D6: the DELETE path collects item images for the post-commit
+        // blob cleanup (admin-path parity) — none by default.
+        menuItem: { findMany: vi.fn().mockResolvedValue([]) },
         $transaction: mockTransaction,
 }));
 

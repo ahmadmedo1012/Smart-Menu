@@ -122,14 +122,18 @@ export async function POST(request: NextRequest) {
     for (const oi of order.items) {
       const itemName = oi.item.nameAr || oi.item.name;
       const mods = parsedModifiers.get(oi.id) ?? [];
-      const deltaSum = mods.reduce((s, m) => s + m.priceDelta, 0);
       // round97-X3: prices render through the canonical formatPrice (raw
       // template interpolation before) — integers are byte-identical
       // ("10 د.ل"), non-half floats now round to the app-wide 1-decimal
       // convention instead of emitting 12.25.
-      // r118-A3-P2-1: unit price now INCLUDES the modifier deltas so line
-      // sums reconcile with the charged total.
-      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price) + deltaSum)}`);
+      // r120 (4ba875a2): OrderItem.price now stores the EFFECTIVE unit price
+      // (base + modifier deltas) — render it AS-IS. r118-A3-P2-1's `+ deltaSum`
+      // double-counted deltas on every post-r120 modified row (line = base +
+      // 2×deltas while «المجموع» = base + deltas — the exact self-contradicting
+      // invoice r120 declared fixed). Pre-r120 base-only rows are backfilled by
+      // zz_round121_orderitem_effective_price_backfill; the «الإضافات» line
+      // below stays informational (names + deltas), never arithmetic.
+      lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price))}`);
       if (mods.length > 0) {
         const modText = mods
           .map((m) => {

@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { success, error, handleError } from '@/lib/api-helpers';
 import { isOwnerSubscriptionActive } from '@/lib/subscription-guard';
+import { deleteBlob } from '@/lib/blob';
 import { z } from 'zod';
 
 // r119-S7: مواضّح لحالة P2003 من Order_restaurantId_fkey (RESTRICT الآن) —
@@ -123,10 +124,19 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 
                 // r118-A2-P3: tenant deletion was the only unaudited destructive family
                 // (every sibling delete audits) — capture the row BEFORE the cascade.
-                const restRow = await prisma.restaurant.findUnique({
-                        where: { id: restaurantId },
-                        select: { name: true, slug: true },
-                });
+                // r121-D6: capture logo/gallery + item images too (admin-path parity —
+                // this owner path never cleaned Vercel Blob, so every owner-side
+                // delete leaked the tenant's blobs silently).
+                const [restRow, items] = await Promise.all([
+                        prisma.restaurant.findUnique({
+                                where: { id: restaurantId },
+                                select: { name: true, slug: true, logo: true, gallery: true },
+                        }),
+                        prisma.menuItem.findMany({
+                                where: { category: { is: { restaurantId } } },
+                                select: { image: true },
+                        }),
+                ]);
 
                 // Delete the link, then the restaurant (cascade removes categories/items/orders)
                 await prisma.$transaction(async (tx) => {
@@ -164,6 +174,16 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
                         targetId: restaurantId,
                         metadata: { name: restRow?.name, slug: restRow?.slug, source: 'owner-api', orderCount },
                 }).catch(() => {});
+
+                // r121-D6: blob cleanup strictly AFTER the DB tx succeeded (admin-path
+                // shape — round86-A3 tenant-scoped deletes, best-effort per URL).
+                for (const item of items) deleteBlob(item.image, { restaurantId });
+                if (restRow) {
+                        deleteBlob(restRow.logo, { restaurantId });
+                        if (Array.isArray(restRow.gallery)) {
+                                restRow.gallery.forEach((u: string) => deleteBlob(u, { restaurantId }));
+                        }
+                }
 
                 return success({ deleted: true });
         } catch (e) {

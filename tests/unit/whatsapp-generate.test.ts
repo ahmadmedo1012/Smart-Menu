@@ -184,6 +184,61 @@ describe('POST /api/whatsapp/generate — سلم الأدوار عبر المس�
         });
 });
 
+// ── r121-C2: بند معدَّل بعد r120 — السعر المخزَّن هو الفعلي ─────────────
+
+describe('POST /api/whatsapp/generate — r121-C2: سطر معدَّل يطبع السعر الفعلي مرة واحدة', () => {
+        // r120 (4ba875a2) غيّر دلالة OrderItem.price إلى السعر الفعلي (الأساس +
+        // فروق الإضافات)، وبقي هذا المسار يجمع deltaSum فوقه → السطر كان
+        // base + 2×deltas بينما «المجموع» base + deltas (تعارض الإيصال نفسه
+        // الذي أعلنت r120 إصلاحه). الصف r121-C2 يحذف الجمع؛ الصفوف القديمة
+        // تعالجها هجرة zz_round121_orderitem_effective_price_backfill.
+        const MOD_ORDER = {
+                ...ORDER,
+                total: 46, // (18 + 5) × 2
+                items: [
+                        {
+                                id: 2,
+                                quantity: 2,
+                                price: 23, // effective unit price (base 18 + delta 5)
+                                notes: '',
+                                // r118-B1 snapshot format — parsed without any lookup
+                                modifiersJson: JSON.stringify([
+                                        { id: 91, nameAr: 'شوكولاتة إضافية', name: 'Extra chocolate', priceDelta: 5 },
+                                ]),
+                                item: { id: 9, name: 'Latte', nameAr: 'لاتيه' },
+                        },
+                ],
+        };
+
+        it('السطر يطبع 23 د.ل (لا 28) وسطر الإضافات معلوماتي والمجموع يطابق مجموع الأسطر', async () => {
+                mockOrderFindUnique.mockResolvedValue(MOD_ORDER);
+                const res = await generateRoute.POST(postRequest({ orderId: 77 }));
+                expect(res.status).toBe(200);
+                const json = await res.json();
+
+                // the stored effective price renders exactly once
+                expect(json.data.message).toContain('2x لاتيه - 23 د.ل');
+                expect(json.data.message).not.toContain('28 د.ل');
+                // deltas stay informational (name + delta), never arithmetic
+                expect(json.data.message).toContain('شوكولاتة إضافية (+5 د.ل)');
+                // money-truth invariant: lines × qty == stored total
+                expect(json.data.message).toContain('المجموع: 46 د.ل');
+                expect(23 * 2).toBe(46);
+        });
+
+        it('بند بلا إضافات بعد r120 يبقى مطابقاً للسلوك المثبّت (لا انحدار)', async () => {
+                mockOrderFindUnique.mockResolvedValue({
+                        ...ORDER,
+                        items: [{ ...ORDER.items[0], modifiersJson: '[]' }],
+                });
+                const res = await generateRoute.POST(postRequest({ orderId: 77 }));
+                expect(res.status).toBe(200);
+                const json = await res.json();
+                expect(json.data.message).toContain('2x لاتيه - 10 د.ل');
+                expect(json.data.message).toContain('المجموع: 25 د.ل');
+        });
+});
+
 // ── النجاح: الرسالة + وسم whatsappSent ─────────────────────────────────
 
 describe('POST /api/whatsapp/generate — التوليد الناجح', () => {

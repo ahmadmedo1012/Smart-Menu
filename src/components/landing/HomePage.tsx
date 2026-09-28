@@ -9,7 +9,6 @@ import type { FeaturedRestaurant } from '@/lib/landing';
 import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './sections/FeaturesSection';
 import { HowItWorksSection } from './sections/HowItWorksSection';
-import { ClientsSection } from './sections/ClientsSection';
 import { ShowcaseSection } from './sections/ShowcaseSection';
 import { FaqSection } from './sections/FaqSection';
 import { FinalCTASection } from './sections/FinalCTASection';
@@ -103,7 +102,14 @@ export function HomePage({
                                 onRetry={featuredFailed ? retry : undefined}
                         />
                         <HowItWorksSection />
-                        <ClientsSection />
+                        {/* r121-P3 (backlog #35): قسم «تجارب المطاعم» حُذف كاملاً —
+                            كان يعرض شهادات مُختلقة بأسماء علامات حقيقية (Telepizza،
+                            SOHO، Kubaba…) بلا مصدر بيانات، وصف شريط ثقة يتضمن
+                            «ضمان استرداد» غير الموجود في أي سياسة (سياسة الصدق
+                            r82 + خطر قانوني). الإثبات الاجتماعي الصادق يحمله
+                            StatsSection (أرقام حية) و FeaturedRestaurantsSection
+                            (منيو مطاعم حقيقية من قاعدة البيانات) أعلاه مباشرة —
+                            فلا فراغ في الرحلة. */}
                         <FaqSection />
                         <FinalCTASection totalRestaurants={stats?.totalRestaurants} />
                         <Footer />

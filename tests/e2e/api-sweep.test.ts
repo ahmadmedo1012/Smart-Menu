@@ -64,54 +64,57 @@ test.describe('Auth — POST /api/auth/register', () => {
 		expect([403, 405]).toContain(res.status());
 	});
 
-	function expect400or429(status: number) {
-		expect([400, 429]).toContain(status);
+	// r121-M1: r119-B4 (c4bd21f9) unified schema-validation failures to 422
+	// on the register family — the pins (and the inner body-assert guards)
+	// still expected 400, so they were either red or silently skipping.
+	function expect422or429(status: number) {
+		expect([422, 429]).toContain(status);
 	}
 
-	test('empty body returns 400 (or 429 if rate-limited)', async ({ request }) => {
+	test('empty body returns 422 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
 			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: {},
 		});
-		expect400or429(res.status());
-		if (res.status() === 400) {
+		expect422or429(res.status());
+		if (res.status() === 422) {
 			const json = await res.json();
 			expect(json.success).toBe(false);
 			expect(typeof json.error).toBe('string');
 		}
 	});
 
-	test('username too short returns 400 (or 429 if rate-limited)', async ({ request }) => {
+	test('username too short returns 422 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
 			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { username: 'ab', password: '123456', name: 'Test' },
 		});
-		expect400or429(res.status());
-		if (res.status() === 400) {
+		expect422or429(res.status());
+		if (res.status() === 422) {
 			const json = await res.json();
 			expect(json.success).toBe(false);
 		}
 	});
 
-	test('password too short returns 400 (or 429 if rate-limited)', async ({ request }) => {
+	test('password too short returns 422 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
 			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { username: 'testuser_sweep', password: '12345', name: 'Test' },
 		});
-		expect400or429(res.status());
-		if (res.status() === 400) {
+		expect422or429(res.status());
+		if (res.status() === 422) {
 			const json = await res.json();
 			expect(json.success).toBe(false);
 		}
 	});
 
-	test('name missing returns 400 (or 429 if rate-limited)', async ({ request }) => {
+	test('name missing returns 422 (or 429 if rate-limited)', async ({ request }) => {
 		const res = await request.post(`${BASE}/api/auth/register`, {
 			headers: { ...csrfHeadersFor(BASE, CSRF), 'Content-Type': 'application/json' },
 			data: { username: 'testuser_sweep', password: '123456' },
 		});
-		expect400or429(res.status());
-		if (res.status() === 400) {
+		expect422or429(res.status());
+		if (res.status() === 422) {
 			const json = await res.json();
 			expect(json.success).toBe(false);
 		}

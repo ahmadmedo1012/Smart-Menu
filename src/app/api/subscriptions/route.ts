@@ -12,6 +12,7 @@ import { error as logError } from '@/lib/logger';
 // tree). Behavior identical — same object, same messages.
 import { createPaymentSchema } from '@/lib/payment-schema';
 import { getClientIp } from '@/lib/client-ip';
+import { isSlugHeldByPendingPayment } from '@/lib/validation';
 
 const subscriptionLimiter = createDbRateLimiter({ windowMs: 60_000, max: 5 });
 
@@ -63,13 +64,12 @@ export async function POST(request: NextRequest) {
                                         where: { slug: tr.slug },
                                 });
                                 if (existingSlug) return error(`الرابط ${tr.slug} محجوز مسبقاً`, 409);
-                                const slugPending = await prisma.subscriptionPayment.findFirst({
-                                        where: {
-                                                status: 'pending',
-                                                metadata: { path: ['tempRestaurants'], array_contains: [{ slug: tr.slug }] },
-                                        },
-                                });
-                                if (slugPending) return error(`الرابط ${tr.slug} محجوز بطلب دفع معلق`, 409);
+                                // r121-C3: the inline pending-reservation findFirst moved to
+                                // the shared helper (src/lib/validation.ts) now that the three
+                                // other slug-write paths enforce it too.
+                                if (await isSlugHeldByPendingPayment(tr.slug, prisma)) {
+                                        return error(`الرابط ${tr.slug} محجوز بطلب دفع معلق`, 409);
+                                }
                         }
                 }
 

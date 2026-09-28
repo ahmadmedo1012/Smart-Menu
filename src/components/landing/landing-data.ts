@@ -3,13 +3,14 @@ import { UserPlus, UtensilsCrossed, Share2, type LucideIcon } from "lucide-react
 // round92-D2 (1-d knip: 60 unused exports; these were dead): the exported
 // BENEFITS / PARTNERS / PRICING_PLANS / SHOWCASES / TESTIMONIALS consts and
 // the Benefit/Partner/Stat/PricingPlan/Showcase/Testimonial types had ZERO
-// importers — every section renders its own local data (e.g.
-// ClientsSection.tsx keeps local PARTNERS/TESTIMONIALS copies). Only STEPS
+// importers — every section renders its own local data. Only STEPS
 // (imported by HowItWorksSection) and the live fetchPublicStats/PublicStats
 // pair (used by HomePage + (public)/page.tsx) survived. Reference counts
 // verified by repo-wide grep before deletion: BENEFITS 0 · PARTNERS 0
-// (ClientsSection's is a separate local) · PRICING_PLANS 0 · SHOWCASES 0 ·
-// TESTIMONIALS 0 · STEPS 2 (definition + 1 importer).
+// · PRICING_PLANS 0 · SHOWCASES 0 · TESTIMONIALS 0 · STEPS 2 (definition
+// + 1 importer). (r121-P3: ClientsSection — which kept the last local
+// PARTNERS/TESTIMONIALS copies — was deleted entirely; fabricated
+// testimonials/partners, honesty policy r82.)
 type Step = { title: string; desc: string; icon: LucideIcon };
 
 export type PublicStats = {

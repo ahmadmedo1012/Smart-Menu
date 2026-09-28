@@ -8,6 +8,7 @@ import { categoryCountByRestaurant, orderCountByRestaurant } from '@/lib/list-co
 import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
 import { z } from 'zod';
+import { isSlugHeldByPendingPayment } from '@/lib/validation';
 
 // round90-F1 (S-1 / dx-2 ب-3): نفس حدود المخطط الموازي restaurants:22-32 —
 // كانت الحقول بلا .max فتنهار متأخرة كضجيج Prisma 400 عام.
@@ -110,6 +111,15 @@ export async function POST(request: NextRequest) {
                 // Check slug uniqueness
                 const slugTaken = await prisma.restaurant.findUnique({ where: { slug: body.slug } });
                 if (slugTaken) return error('الرابط محجوز مسبقاً', 409);
+
+                // r121-C3 (X2 §2): pending-payment slug reservation — this POST
+                // checked only the Restaurant table, so it could snipe a slug held
+                // by a PENDING paid payment and strand the payer (the r103-F4
+                // dead-end, closed here with the same shared guard + copy the
+                // subscribe path already uses).
+                if (await isSlugHeldByPendingPayment(body.slug, prisma)) {
+                        return error(`الرابط ${body.slug} محجوز بطلب دفع معلق`, 409);
+                }
 
                 const result = await prisma.$transaction(async (tx) => {
                         // round87-A3: the count+limit used to run BEFORE the transaction (TOCTOU —

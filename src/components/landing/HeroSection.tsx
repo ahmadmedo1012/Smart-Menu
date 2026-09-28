@@ -1,16 +1,22 @@
 "use client"
 
 import Link from "next/link"
-import { MessageCircle, TrendingUp } from "lucide-react"
+import { MessageCircle } from "lucide-react"
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { m } from "motion/react"
 import { Button } from "@/components/ui/button"
-import { QrCornerMark } from "@/components/ui/QrCornerMark"
+import { SelfHostedQR } from "@/components/shared/SelfHostedQR"
 import { Eyebrow } from "@/components/ui/Eyebrow"
 import { IPhoneMockup } from "@/components/ui/iphone-mockup"
 import { ScrollParallax } from "@/components/ui/scroll-parallax"
 import { toArabicNumber } from "@/lib/format"
 import { springDefault } from "@/lib/motion"
+
+/* r121 (backlog #36 — توقيع البطل): رابط المنيو التجريبي الحي الذي يرمّزه QR
+   البطل. المجال من NEXT_PUBLIC_DOMAIN بنمط المنصة (menu/[slug] و sitemap) —
+   مضمّن وقت البناء، وفي الإنتاج = https://menu.smart-link.ly. الرمز حقيقي
+   قابل للمسح: أي صاحب مطعم يمسحه من صفحة الهبوط يهبط في منيو فعلي يعمل. */
+const DEMO_MENU_URL = `${process.env.NEXT_PUBLIC_DOMAIN || 'https://menu.smart-link.ly'}/menu/al-waha-cafe-demo`
 
 // round92-A7 (live audit A7): the hero text stack entered via framer-motion
 // `hidden` variants (opacity: 0 + translateY) — SSR rendered the h1 INVISIBLE
@@ -156,10 +162,6 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                 {/* r95: بطاقة السياق بعرض الهاتف — البطاقات العائمة والـ QR
                                                     تحتضن الهاتف (نمط SmartBot) بدل حواف العمود الكاملة. */}
                                                 <div className="relative w-full max-w-[240px] sm:max-w-[280px] md:max-w-[300px] lg:max-w-[320px]">
-                                                        {/* QR-corner signature — the scan → WhatsApp moment anchors the hero */}
-                                                        <div aria-hidden="true" className="absolute -top-4 end-[4%] sm:end-[12%] md:end-[16%] -z-10 opacity-90">
-                                                                <QrCornerMark label="" size={84} className="opacity-25 blur-[1px]" />
-                                                        </div>
                                                         {/* scroll-craft parallax: phone recedes slightly, foreground cards float */}
                                                         <ScrollParallax
                                                                 rate={-0.1}
@@ -204,25 +206,44 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                                         </div>
                                                                 </div>
                                                         </m.div>
-                                                        {/* Monthly growth — retail numerals, LTR */}
+                                                        {/* r121 (backlog #36 + P-7): توقيع البطل — QR حقيقي قابل للمسح
+                                                            يفتح المنيو التجريبي الحي. حلّ محل بطاقة «+32% نمو الطلبات
+                                                            الشهرية» (رقم مختلق بلا مصدر — سياسة الصدق r82) في نفس موضعها
+                                                            قطرياً: تذكرة الطلب أعلى اليمين، والرمز أسفل اليسار — لحظتا
+                                                            منتج حقيقيتان فقط. يُعرض ثابتاً بلا طفو بعد الدخول: استقرار
+                                                            المسح مقدم على الزخرفة. الإطار المتدرج (ember→saffron) نمط
+                                                            شارات الخطة المعتمد، والحشوة البيضاء تضيف منطقة صامتة فوق
+                                                            هامش الـ 4 وحدات الذي يولّده lib/QR — والنص داخل التكة
+                                                            (espresso على أبيض ≈ 19:1) وليس على خلفية البطل. */}
                                                         <m.div
                                                                 initial={{ opacity: 0, y: 14, scale: 0.95 }}
                                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                                 transition={{ delay: 0.75, ...springDefault }}
-                                                                className="absolute bottom-24 -end-2 sm:-end-5 md:-end-8 z-10"
+                                                                className="absolute bottom-14 sm:bottom-20 -end-2 sm:-end-5 md:-end-8 z-20"
                                                         >
-                                                                <div className="animate-float-slow [animation-delay:1.5s]">
-                                                                        <div className="glass-strong rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-xl">
-                                                                                <div className="size-9 rounded-full bg-accent-foreground/15 flex items-center justify-center shrink-0">
-                                                                                        {/* r95: text-orange → text-accent-foreground (النصي الأسطع) */}
-                                                                                        <TrendingUp className="size-4 text-accent-foreground" />
+                                                                <Link
+                                                                        href="/menu/al-waha-cafe-demo"
+                                                                        data-testid="hero-demo-qr"
+                                                                        aria-label="جرّب المنيو مباشرة: امسح الرمز لفتح منيو تجريبي حي"
+                                                                        className="block rounded-2xl bg-gradient-to-br from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] p-[3px] shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 motion-reduce:transition-none"
+                                                                >
+                                                                        <div className="rounded-[calc(1rem-1.5px)] bg-white p-2">
+                                                                                {/* size-28 = 112px ≥ الحد الأدنى للمسح (96px)؛
+                                                                                    يُولّد 240px لحدة 2x على شاشات retina */}
+                                                                                <div className="size-28 sm:size-[7.5rem]">
+                                                                                        <SelfHostedQR
+                                                                                                value={DEMO_MENU_URL}
+                                                                                                size={240}
+                                                                                                alt="رمز QR يفتح المنيو التجريبي مباشرة"
+                                                                                                className="size-full"
+                                                                                                style={{ width: "100%", height: "100%" }}
+                                                                                        />
                                                                                 </div>
-                                                                                <div className="text-start">
-                                                                                        <p dir="ltr" className="text-sm font-bold text-foreground leading-none">+32%</p>
-                                                                                        <p className="text-[10px] text-muted-foreground mt-1 whitespace-nowrap">نمو الطلبات الشهرية</p>
-                                                                                </div>
+                                                                                <p className="pt-1.5 text-center text-xs font-semibold leading-tight text-espresso">
+                                                                                        جرّب المنيو مباشرة · امسح الرمز
+                                                                                </p>
                                                                         </div>
-                                                                </div>
+                                                                </Link>
                                                         </m.div>
                                                 </div>
                                         </div>

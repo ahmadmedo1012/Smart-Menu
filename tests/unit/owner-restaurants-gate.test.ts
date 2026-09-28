@@ -58,6 +58,9 @@ const txMock = vi.hoisted(() => ({
 const prismaMock = vi.hoisted(() => ({
         user: { findUnique: mockUserFindUnique },
         restaurant: { findUnique: mockSlugFindUnique },
+        // r121-C3: POST now checks the pending-payment slug reservation via the
+        // shared helper (src/lib/validation.ts) — no reservation by default.
+        subscriptionPayment: { findFirst: vi.fn(async () => null) },
         $transaction: mockTransaction,
 }));
 

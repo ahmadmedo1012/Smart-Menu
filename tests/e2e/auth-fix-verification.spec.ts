@@ -31,14 +31,15 @@ async function csrfHeadersFor(page: import("@playwright/test").Page): Promise<Re
 
 test.describe("Auth Fix Verification", () => {
   // ── 1. Register min-length 8: short password fails ─────────────────────
-  test("1. Register with password < 8 chars returns 400", async ({ page }) => {
+  test("1. Register with password < 8 chars returns 422", async ({ page }) => {
     await page.goto("/login");
     const headers = await csrfHeadersFor(page);
     const res = await page.request.post(`${BASE}/api/auth/register`, {
       data: { username: uid("short"), password: "123456", name: "Short PW Test" },
       headers,
     });
-    expect(res.status()).toBe(400);
+    // r121-M1: r119-B4 unified schema-validation failures to 422 — pin updated.
+    expect(res.status()).toBe(422);
     const body = await res.json();
     expect(body.success).toBe(false);
     expect(typeof body.error).toBe("string");

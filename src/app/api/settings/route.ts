@@ -6,6 +6,11 @@ import { requireAuth, requirePermission } from '@/lib/auth';
 import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { revalidateMenu } from '@/lib/menu-cache';
 import { categoryCountByRestaurant, orderCountByRestaurant } from '@/lib/list-counts';
+import {
+        restaurantFieldSchema,
+        isSlugHeldByPendingPayment,
+        normalizeSlug,
+} from '@/lib/validation';
 
 const singleSchema = z.object({
         key: z.string().min(1).max(100),
@@ -19,6 +24,14 @@ const batchSchema = z.array(singleSchema);
 
 // round85-A5: same slug format rule as the restaurants create/update routes
 const SLUG_RE = /^[a-z0-9-]+$/;
+
+// r121-C4/H4 (X2 §3): the restaurant_* mirror fields validated against the
+// canonical Restaurant column caps — same shared pieces restaurants/[id] PUT
+// uses (src/lib/validation.ts restaurantFieldSchema). Before this, any value
+// up to the 20k settings envelope was storable on name/description/phone/
+// whatsapp/email/address/workingHours/themeColor — most of which ship in the
+// PUBLIC menu payload. slug/logo/gallery keep their dedicated paths below.
+const MIRROR_FIELD_PARSERS: Partial<Record<string, z.ZodType>> = restaurantFieldSchema.shape;
 
 const RESTAURANT_FIELDS = [
         'name',
@@ -159,13 +172,45 @@ export async function PUT(request: NextRequest) {
                                 for (const f of restaurantFields) {
                                         const fieldName = f.key.replace('restaurant_', '');
                                         if (RESTAURANT_FIELDS.includes(fieldName)) {
-                                                // round85-A5: malformed slugs would break the public /menu/[slug]
-                                                // route (SEO + QR codes already printed) — enforce the same
-                                                // format as restaurant create/update
-                                                if (fieldName === 'slug' && !SLUG_RE.test(f.value)) {
-                                                        return apiError('صيغة الرابط غير صالحة — أحرف صغيرة وأرقام وشرطات فقط', 422);
+                                                if (fieldName === 'slug') {
+                                                        // round85-A5: malformed slugs would break the public /menu/[slug]
+                                                        // route (SEO + QR codes already printed) — enforce the same
+                                                        // format as restaurant create/update.
+                                                        const normalized = normalizeSlug(f.value);
+                                                        if (!SLUG_RE.test(normalized)) {
+                                                                return apiError('صيغة الرابط غير صالحة — أحرف صغيرة وأرقام وشرطات فقط', 422);
+                                                        }
+                                                        // r121-C3 (X2 §2/§7): this branch previously had NO
+                                                        // uniqueness pre-check at all — a real collision died as
+                                                        // P2002 → the generic name-conflict 409 («هذا الاسم موجود
+                                                        // مسبقاً») — and no pending-payment reservation check, so a
+                                                        // slug snipe could strand a payer (same dead-end r103-F4
+                                                        // closed). Honest, disambiguated copy for both conflicts;
+                                                        // the DB unique index stays the race backstop. The
+                                                        // current restaurant's own slug is exempt (no-op saves).
+                                                        const clash = await prisma.restaurant.findUnique({
+                                                                where: { slug: normalized },
+                                                                select: { id: true },
+                                                        });
+                                                        if (clash && clash.id !== restaurantId) {
+                                                                return apiError(`الرابط ${normalized} محجوز مسبقاً`, 409);
+                                                        }
+                                                        if (await isSlugHeldByPendingPayment(normalized, prisma)) {
+                                                                return apiError(`الرابط ${normalized} محجوز بطلب دفع معلق`, 409);
+                                                        }
+                                                        updateData.slug = normalized;
+                                                } else {
+                                                        // r121-C4: canonical bound for every other mirror field
+                                                        // (logo/gallery keep the 20k envelope + media checks below)
+                                                        const parser = MIRROR_FIELD_PARSERS[fieldName];
+                                                        if (parser) {
+                                                                const r = parser.safeParse(f.value);
+                                                                if (!r.success) {
+                                                                        return apiError(r.error?.issues[0]?.message ?? 'قيمة غير صالحة', 422);
+                                                                }
+                                                        }
+                                                        updateData[fieldName] = fieldName === 'gallery' ? safeJsonParse(f.value, []) : f.value;
                                                 }
-                                                updateData[fieldName] = fieldName === 'gallery' ? safeJsonParse(f.value, []) : f.value;
                                                 // round86-A3: media values must be valid URLs, and blob URLs
                                                 // marked for another tenant are rejected
                                                 if (fieldName === 'logo' || fieldName === 'gallery') {

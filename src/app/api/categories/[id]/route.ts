@@ -90,7 +90,26 @@ export async function DELETE(
       if (!perm.authorized) return error(perm.error, perm.status);
     }
 
-    await prisma.menuCategory.delete({ where: { id: catId } });
+    // r121-D7: the cascade into MenuItem dies on the r119-S7 RESTRICT FKs
+    // (OrderItem_itemId_fkey / Review_menuItemId_fkey — financial-history
+    // stance) whenever the category holds an ever-ordered or reviewed item.
+    // That P2003 used to fall to handleError's generic 400 («بيانات مرتبطة لا
+    // يمكن حذفها») with no hint of the blocker or the remedy — map it to the
+    // same honest 409 family the restaurant DELETE paths use. Any P2003 from
+    // this delete IS the history case (MenuCategory's only RESTRICT children
+    // are the item's order/review links), so no field_name disambiguation is
+    // needed; the DB constraint stays the backstop.
+    try {
+      await prisma.menuCategory.delete({ where: { id: catId } });
+    } catch (e) {
+      if ((e as { code?: string })?.code === "P2003") {
+        return error(
+          "لا يمكن حذف قسم يحتوي أصنافاً لها طلبات أو تقييمات مسجلة — انقل الأصناف إلى قسم آخر أولاً",
+          409
+        );
+      }
+      throw e;
+    }
     logAudit({
       action: "delete",
       actorId: auth.userId,

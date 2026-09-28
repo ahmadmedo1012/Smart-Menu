@@ -39,12 +39,14 @@ test.describe("API Smoke Tests — Public Endpoints", () => {
 });
 
 test.describe("API Smoke Tests — Auth Login", () => {
-  test("POST /api/auth/login with empty body returns 400", async ({ request }) => {
+  test("POST /api/auth/login with empty body returns 422", async ({ request }) => {
     const res = await request.post(`${BASE}/api/auth/login`, {
       headers: { "Content-Type": "application/json", ...csrfHeadersFor(BASE, CSRF) },
       data: {},
     });
-    expect(res.status()).toBe(400);
+    // r121-M1: r119-B4 (c4bd21f9) unified schema-validation failures to 422 —
+    // the pin was never updated (CI is billing-blocked, so the drift went unseen).
+    expect(res.status()).toBe(422);
   });
 
   test("POST /api/auth/login with empty body returns error message", async ({ request }) => {

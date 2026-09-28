@@ -53,6 +53,9 @@ const prismaMock = vi.hoisted(() => ({
         menuCategory: { findUnique: mockCategoryFindUnique },
         user: { findUnique: mockUserFindUnique },
         restaurant: { findUnique: mockSlugFindUnique },
+        // r121-C3: POST /api/owner/restaurants now checks the pending-payment
+        // slug reservation via the shared helper — no reservation by default.
+        subscriptionPayment: { findFirst: vi.fn(async () => null) },
         $transaction: mockTransaction,
 }));
 

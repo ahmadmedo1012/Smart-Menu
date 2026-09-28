@@ -22,6 +22,10 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { compressImage } from '@/lib/image-compress';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
+// r121-H4: the server caps (shared restaurantFieldSchema) as the single source
+// for the client maxLength shadow — the form previously had no caps at all, so
+// a paste failed only at the server with a generic message after upload work.
+import { RESTAURANT_FIELD_LIMITS } from '@/lib/validation';
 
 interface RestaurantData {
 	id: number;
@@ -437,6 +441,7 @@ export default function OwnerSettingsPage() {
 						<Label htmlFor="restaurant-name" className="text-xs">اسم المطعم</Label>
 						<Input
 							id="restaurant-name"
+							maxLength={RESTAURANT_FIELD_LIMITS.name}
 							value={form.name}
 							onChange={(e) => {
 								setForm({ ...form, name: e.target.value });
@@ -456,17 +461,22 @@ export default function OwnerSettingsPage() {
 						<Label htmlFor="restaurant-description" className="text-xs">الوصف</Label>
 						<Textarea
 							id="restaurant-description"
+							maxLength={RESTAURANT_FIELD_LIMITS.description}
 							value={form.description}
 							onChange={(e) => setForm({ ...form, description: e.target.value })}
 							className="mt-1 rounded-xl text-sm"
 							rows={2}
 						/>
+						<p className="text-[11px] text-muted-foreground mt-1">
+							حتى {toArabicNumber(RESTAURANT_FIELD_LIMITS.description)} حرف — يظهر أعلى قائمة المنيو
+						</p>
 					</div>
 					<div className="grid grid-cols-2 gap-3">
 						<div>
 							<Label htmlFor="restaurant-phone" className="text-xs">الهاتف</Label>
 							<Input
 								id="restaurant-phone"
+								maxLength={RESTAURANT_FIELD_LIMITS.phone}
 								dir="ltr"
 								value={form.phone}
 								onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -477,6 +487,7 @@ export default function OwnerSettingsPage() {
 							<Label htmlFor="restaurant-whatsapp" className="text-xs">واتساب</Label>
 							<Input
 								id="restaurant-whatsapp"
+								maxLength={RESTAURANT_FIELD_LIMITS.whatsapp}
 								dir="ltr"
 								value={form.whatsapp}
 								onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
@@ -488,6 +499,7 @@ export default function OwnerSettingsPage() {
 						<Label htmlFor="restaurant-email" className="text-xs">البريد</Label>
 						<Input
 							id="restaurant-email"
+							maxLength={RESTAURANT_FIELD_LIMITS.email}
 							type="email"
 							dir="ltr"
 							value={form.email}
@@ -500,6 +512,7 @@ export default function OwnerSettingsPage() {
 							<Label htmlFor="restaurant-address" className="text-xs">العنوان</Label>
 							<Input
 								id="restaurant-address"
+								maxLength={RESTAURANT_FIELD_LIMITS.address}
 								value={form.address}
 								onChange={(e) => setForm({ ...form, address: e.target.value })}
 								className="h-10 rounded-xl mt-1 text-sm"
@@ -509,6 +522,7 @@ export default function OwnerSettingsPage() {
 							<Label htmlFor="restaurant-hours" className="text-xs">ساعات العمل</Label>
 							<Input
 								id="restaurant-hours"
+								maxLength={RESTAURANT_FIELD_LIMITS.workingHours}
 								value={form.workingHours}
 								onChange={(e) => setForm({ ...form, workingHours: e.target.value })}
 								placeholder="8:00 صباحاً - 12:00 منتصف الليل"

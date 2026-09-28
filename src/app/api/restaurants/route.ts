@@ -6,7 +6,13 @@ import { logAudit } from '@/lib/audit';
 import { notifyEvent } from '@/lib/telegram';
 import { z } from 'zod';
 import { createDbRateLimiter } from '@/lib/rate-limit';
-import { usernameOptional, passwordOptional, slugField, slugOptional } from '@/lib/validation';
+import {
+        usernameOptional,
+        passwordOptional,
+        slugField,
+        restaurantFieldSchema,
+        isSlugHeldByPendingPayment,
+} from '@/lib/validation';
 import { orderCountByRestaurant, categoryCountByRestaurant } from '@/lib/list-counts';
 import { getClientIp } from '@/lib/client-ip';
 
@@ -30,25 +36,27 @@ const restaurantInputSchema = z.object({
         whatsapp: z.string().max(30).optional(),
 });
 
+// r121-C5 (X2 §7): legacy single-menu bodies are coerced into the array form
+// PRE-PARSE (in POST below) and validated once through restaurantInputSchema —
+// the legacy top-level fields were bare `z.string().optional()` while the array
+// form carried every cap (and legacy `name` had no max at all, on a PUBLIC
+// 5/min/IP route). The top-level fields that the array form applies to EVERY
+// menu (email/address/workingHours — see the create data in the tx) stay
+// top-level but are now bounded by the shared canonical caps (r121-C4).
+// `city` is dropped from the schema: it was accepted but never stored (dead
+// field) — zod strips it exactly as silently as before.
 const createSchema = z.object({
-        // Support MULTIPLE menus: either legacy single-fields OR array form
-        name: z.string().min(1).optional(),
-        // round97-X3: shared slug policy (see restaurantInputSchema above).
-        slug: slugOptional,
-        description: z.string().optional(),
-        phone: z.string().optional(),
-        whatsapp: z.string().optional(),
+        // Support MULTIPLE menus: array form (legacy single-fields are coerced in)
         restaurants: z.array(restaurantInputSchema).optional(),
-        email: z.string().optional(),
-        address: z.string().optional(),
-        workingHours: z.string().optional(),
+        email: restaurantFieldSchema.shape.email.optional(),
+        address: restaurantFieldSchema.shape.address.optional(),
+        workingHours: restaurantFieldSchema.shape.workingHours.optional(),
         planId: z.number().int().optional(),
         username: usernameOptional,
         password: passwordOptional,
-        city: z.string().optional(),
         showOnLanding: z.boolean().optional(),
         featuredRank: z.number().int().optional(),
-}).refine((d) => d.restaurants?.length || (d.name && d.slug), {
+}).refine((d) => (d.restaurants?.length ?? 0) > 0, {
         message: 'يجب توفير بيانات منيو واحد على الأقل',
 });
 
@@ -127,7 +135,29 @@ export async function POST(request: NextRequest) {
                 const { success: allowed } = await registrationLimiter.check(`register:${ip}`);
                 if (!allowed) return error('طلبات كثيرة جدًا، حاول بعد 60 ثانية', 429);
 
-                const body = createSchema.parse(await request.json());
+                // r121-C5 (X2 §7): coerce a legacy single-menu body (name/slug/
+                // description/phone/whatsapp at the top level) into the array form
+                // and validate ONCE through restaurantInputSchema — the legacy
+                // fields were unbounded while the array form carried every cap.
+                // email/address/workingHours stay top-level (the array form applies
+                // them to every menu) and are bounded by createSchema itself.
+                const raw: unknown = await request.json();
+                if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+                        const r = raw as Record<string, unknown>;
+                        if ((!Array.isArray(r.restaurants) || (r.restaurants as unknown[]).length === 0) &&
+                            (r.name !== undefined || r.slug !== undefined)) {
+                                r.restaurants = [
+                                        {
+                                                name: r.name,
+                                                slug: r.slug,
+                                                description: r.description,
+                                                phone: r.phone,
+                                                whatsapp: r.whatsapp,
+                                        },
+                                ];
+                        }
+                }
+                const body = createSchema.parse(raw);
                 // Allow public registration when username/password provided (new account)
                 let actorId: number | undefined;
                 let isPublicRegistration = false;
@@ -184,19 +214,13 @@ export async function POST(request: NextRequest) {
                 // table). The payer's later approval then failed on SLUG_TAKEN while their
                 // payment stayed pending forever: no rejection event, no retry possible
                 // ("لديك طلب دفع معلق"). Free registration must honor the same reservation.
+                // r121-C3: the inline findFirst moved to the shared helper
+                // (isSlugHeldByPendingPayment, src/lib/validation.ts).
                 if (isPublicRegistration) {
-                        const menuSlugs = (body.restaurants?.length ? body.restaurants : [{ slug: body.slug! }]).map(
-                                (m) => m.slug
-                        );
-                        for (const slug of menuSlugs) {
-                                const slugPending = await prisma.subscriptionPayment.findFirst({
-                                        where: {
-                                                status: 'pending',
-                                                metadata: { path: ['tempRestaurants'], array_contains: [{ slug }] },
-                                        },
-                                        select: { id: true },
-                                });
-                                if (slugPending) return error(`الرابط ${slug} محجوز بطلب دفع معلق`, 409);
+                        for (const m of body.restaurants!) {
+                                if (await isSlugHeldByPendingPayment(m.slug, prisma)) {
+                                        return error(`الرابط ${m.slug} محجوز بطلب دفع معلق`, 409);
+                                }
                         }
                 }
 
@@ -216,18 +240,10 @@ export async function POST(request: NextRequest) {
                                 if (freePlan) freeCaps = { maxItems: freePlan.maxItems, maxOrders: freePlan.maxOrders };
                         }
 
-                        // Normalize: array form (new) or legacy single-fields form
-                        const menus = body.restaurants?.length
-                                ? body.restaurants
-                                : [
-                                        {
-                                                        name: body.name!,
-                                                        slug: body.slug!,
-                                                        description: body.description,
-                                                        phone: body.phone,
-                                                        whatsapp: body.whatsapp,
-                                                },
-                                        ];
+                        // r121-C5: legacy single-menu bodies were coerced into the
+                        // array form pre-parse — the array is the only shape here now
+                        // (createSchema's refine guarantees ≥1 menu).
+                        const menus = body.restaurants!;
 
                         // Check ALL slugs unique inside transaction
                         for (const m of menus) {

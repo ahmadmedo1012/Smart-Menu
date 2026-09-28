@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { success, error, handleError } from "@/lib/api-helpers";
 import { createDbRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
-import { usernameOptional, slugOptional, slugField } from "@/lib/validation";
+import { usernameOptional, slugOptional, slugField, isSlugHeldByPendingPayment } from "@/lib/validation";
 import { getClientIp } from "@/lib/client-ip";
 import { requireAuth } from "@/lib/auth";
 
@@ -52,10 +52,12 @@ export async function POST(request: NextRequest) {
     for (const s of slugList) {
       const existingRestaurant = await prisma.restaurant.findUnique({ where: { slug: s } });
       if (existingRestaurant) { errors.slug = `الرابط ${s} محجوز مسبقاً`; break; }
-      const slugPending = await prisma.subscriptionPayment.findFirst({
-        where: { status: "pending", metadata: { path: ["tempRestaurants"], array_contains: [{ slug: s }] } },
-      });
-      if (slugPending) { errors.slug = `الرابط ${s} محجوز بطلب دفع معلق`; break; }
+      // r121-C3: the inline pending-reservation findFirst moved to the shared
+      // helper (src/lib/validation.ts) now that every slug-write path enforces it.
+      if (await isSlugHeldByPendingPayment(s, prisma)) {
+        errors.slug = `الرابط ${s} محجوز بطلب دفع معلق`;
+        break;
+      }
     }
 
     if (Object.keys(errors).length > 0) {

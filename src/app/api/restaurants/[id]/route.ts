@@ -10,6 +10,11 @@ import { deleteBlob, mediaUrlError } from '@/lib/blob';
 import { categoryCountByRestaurant, orderCountByRestaurant, itemCountByCategory } from '@/lib/list-counts';
 import { createDbRateLimiter } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/client-ip';
+import {
+        restaurantFieldSchema,
+        isSlugHeldByPendingPayment,
+        normalizeSlug,
+} from '@/lib/validation';
 // round86-A3: deleteBlob below is scoped to the deleted restaurant's tenant
 
 // r93-N7 (F6/MED-3 من تفتيش 1-b): GET عام غير مصادق (صفحات المنيو/السلة
@@ -23,6 +28,9 @@ const restaurantGetLimiter = createDbRateLimiter({ windowMs: 60_000, max: 60 });
 // round87-A2: the PUT path previously had NO bounds at all (round86-A7 only
 // bounded POST) — no .max on any string, no slug format check, and logo/gallery
 // were persisted unvalidated. Bounds mirror the POST schema.
+// r121-C4: the field caps are now shared from src/lib/validation.ts
+// (restaurantFieldSchema) — the settings restaurant_* mirror writes and the
+// legacy POST form used to bypass them.
 const SLUG_RE = /^[a-z0-9-]+$/;
 
 const slugField = z
@@ -31,30 +39,13 @@ const slugField = z
         .max(100)
         .regex(SLUG_RE, 'الرابط المختصر يجب أن يحتوي أحرفاً لاتينية صغيرة وأرقاماً وشرطات فقط');
 
-const updateSchema = z.object({
-        name: z.string().min(1).max(200).optional(),
+const updateSchema = restaurantFieldSchema.partial().extend({
         slug: slugField.optional(),
-        description: z.string().max(1000).optional(),
-        phone: z.string().max(30).optional(),
-        whatsapp: z.string().max(30).optional(),
-        email: z.string().max(254).email().optional(),
-        address: z.string().max(300).optional(),
-        workingHours: z.string().max(500).optional(),
         logo: z.string().max(2000).optional(),
         gallery: z.array(z.string().max(2000)).max(10).optional(),
 });
 
-const adminUpdateSchema = z.object({
-        name: z.string().min(1).max(200).optional(),
-        slug: slugField.optional(),
-        description: z.string().max(1000).optional(),
-        phone: z.string().max(30).optional(),
-        whatsapp: z.string().max(30).optional(),
-        email: z.string().max(254).email().optional(),
-        address: z.string().max(300).optional(),
-        workingHours: z.string().max(500).optional(),
-        logo: z.string().max(2000).optional(),
-        gallery: z.array(z.string().max(2000)).max(10).optional(),
+const adminUpdateSchema = updateSchema.extend({
         planId: z.number().int().optional(),
         planStart: z.string().datetime().optional(),
         planEnd: z.string().datetime().optional(),
@@ -189,6 +180,20 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 if (Number.isNaN(rId)) return apiError('معرف غير صالح', 400);
 
                 const body = await request.json();
+
+                // r121-C3 (X2 §2): pending-payment slug reservation — this PUT
+                // validated slug FORMAT only, so an owner could snipe a slug held
+                // by a PENDING paid payment; approval then hit SLUG_TAKEN inside
+                // the tx BEFORE the payment update and the payer stayed pending
+                // forever (r103-F4 closed the same snipe on the public POST path).
+                // Same guard, same copy, now shared (src/lib/validation.ts).
+                // Checked pre-branch so every role path is covered before any
+                // restaurant.update.
+                const incomingSlug =
+                        typeof body?.slug === 'string' ? normalizeSlug(body.slug) : '';
+                if (incomingSlug && (await isSlugHeldByPendingPayment(incomingSlug, prisma))) {
+                        return apiError(`الرابط ${incomingSlug} محجوز بطلب دفع معلق`, 409);
+                }
 
                 let data;
                 if (auth.role === 'owner') {
