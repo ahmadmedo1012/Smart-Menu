@@ -1,47 +1,30 @@
--- r121-D4: zero CHECK constraints in the database — every business bound
--- (price >= 0, quantity 1..99, rating 1..5, points >= 0) was zod-only.
+-- r121-D4 (r121-E hotfix, ADV2-4): DB-level enforcement of the zod contracts.
 --
--- The pg_constraint dump at audit time was 53 constraints, contype ∈ {p,f,u}
--- only. All CURRENT write paths are zod-gated, but nothing stopped a future
--- script, admin bulk edit, or manual Neon SQL from persisting a negative price
--- or a 0-quantity line — a single bad row would silently poison revenue sums
--- and receipts. These named CHECKs push the app-level contracts to the
--- database (Ponytail: DB constraint over app code — defense-in-depth, not a
--- replacement for the zod gates).
+-- ⚠ r121-E DEPLOY HOTFIX — this migration BLOCKED the production deploy chain:
+-- ADD CONSTRAINT ... CHECK validates EXISTING rows, and production carries
+-- legacy pre-validation-era data (e.g. the r105 qty-cap-era order lines that
+-- predate the 99 cap, and historical rating/points edge rows). The original
+-- version of this file failed migrate-deploy on that data, freezing
+-- production at 19fa136a until edited.
 --
--- Contract sources (each bound mirrors the zod contract exactly):
---   MenuItem.price    >= 0        items POST `z.number().min(0)` (0 = free item)
---   OrderItem.price   >= 0        orders POST rejects a negative effective unit
---                                 price pre-write (r118-A3-P1: eff + Σdeltas < 0)
---   OrderItem.quantity BETWEEN 1 AND 99   orders POST `.int().min(1)
---                                 .max(MAX_ITEM_QUANTITY=99)` (src/lib/constants)
---   Review.rating     BETWEEN 1 AND 5     reviews POST `z.number().int().min(1).max(5)`
---   LoyaltyCard.points    >= 0    redeem is a guarded updateMany that can never
---                                 take points negative (r119 verified)
---   RewardTransaction.points >= 0 earn/claim are additive-only
+-- Every constraint below is therefore added NOT VALID: new/updated rows are
+-- enforced immediately (the DB backstop D-4 was designed for), legacy rows
+-- are not re-scanned. After the legacy data is cleaned (see the pending USER
+-- ACTION in ENGINEERING_STATE: purge the QA/edge orders), run
+--   ALTER TABLE ... VALIDATE CONSTRAINT <name>;
+-- per constraint to make them fully checked. Postgres keeps NOT VALID
+-- constraints fully functional for writes — VALIDATE is an optimization +
+-- integrity audit, not a requirement.
 --
--- Constraint names carry the zz_round121_ prefix so a future drop/replace is a
--- one-line, unambiguous operation (never confused with an ORM-managed name).
---
--- Idempotency: prisma migrate deploy runs each migration exactly once; the
--- DROP IF EXISTS + ADD pattern additionally makes the file safe to re-apply by
--- hand (self-healing). Pre-flight on the round DB: 0 violating rows in all six
--- columns (verified read-only before deploy — Neon needs the same check).
+-- The RewardTransaction points check is GONE from this file on purpose: the
+-- ledger legitimately stores NEGATIVE redemption debits (redeem route writes
+-- points: -REWARD_COST — r121 e2e caught the 500 live). Local databases that
+-- applied the original version had it removed by
+-- zzz_round121_rewardtransaction_check_drop; on a fresh database it simply
+-- never exists. Both paths converge on the same final state.
 
-ALTER TABLE "MenuItem" DROP CONSTRAINT IF EXISTS "zz_round121_menuitem_price_check";
-ALTER TABLE "MenuItem" ADD CONSTRAINT "zz_round121_menuitem_price_check" CHECK ("price" >= 0);
-
-ALTER TABLE "OrderItem" DROP CONSTRAINT IF EXISTS "zz_round121_orderitem_price_check";
-ALTER TABLE "OrderItem" ADD CONSTRAINT "zz_round121_orderitem_price_check" CHECK ("price" >= 0);
-
-ALTER TABLE "OrderItem" DROP CONSTRAINT IF EXISTS "zz_round121_orderitem_quantity_check";
-ALTER TABLE "OrderItem" ADD CONSTRAINT "zz_round121_orderitem_quantity_check" CHECK ("quantity" BETWEEN 1 AND 99);
-
-ALTER TABLE "Review" DROP CONSTRAINT IF EXISTS "zz_round121_review_rating_check";
-ALTER TABLE "Review" ADD CONSTRAINT "zz_round121_review_rating_check" CHECK ("rating" BETWEEN 1 AND 5);
-
-ALTER TABLE "LoyaltyCard" DROP CONSTRAINT IF EXISTS "zz_round121_loyaltycard_points_check";
-ALTER TABLE "LoyaltyCard" ADD CONSTRAINT "zz_round121_loyaltycard_points_check" CHECK ("points" >= 0);
-
-ALTER TABLE "RewardTransaction" DROP CONSTRAINT IF EXISTS "zz_round121_rewardtransaction_points_check";
-ALTER TABLE "RewardTransaction" ADD CONSTRAINT "zz_round121_rewardtransaction_points_check" CHECK ("points" >= 0);
+ALTER TABLE "MenuItem" ADD CONSTRAINT "zz_round121_menuitem_price_check" CHECK ("price" >= 0) NOT VALID;
+ALTER TABLE "OrderItem" ADD CONSTRAINT "zz_round121_orderitem_price_check" CHECK ("price" >= 0) NOT VALID;
+ALTER TABLE "OrderItem" ADD CONSTRAINT "zz_round121_orderitem_quantity_check" CHECK ("quantity" >= 1 AND "quantity" <= 99) NOT VALID;
+ALTER TABLE "Review" ADD CONSTRAINT "zz_round121_review_rating_check" CHECK ("rating" >= 1 AND "rating" <= 5) NOT VALID;
+ALTER TABLE "LoyaltyCard" ADD CONSTRAINT "zz_round121_loyaltycard_points_check" CHECK ("points" >= 0) NOT VALID;
