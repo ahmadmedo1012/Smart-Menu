@@ -191,7 +191,7 @@ describe('POST /api/whatsapp/generate — r121-C2: سطر معدَّل يطبع 
         // فروق الإضافات)، وبقي هذا المسار يجمع deltaSum فوقه → السطر كان
         // base + 2×deltas بينما «المجموع» base + deltas (تعارض الإيصال نفسه
         // الذي أعلنت r120 إصلاحه). الصف r121-C2 يحذف الجمع؛ الصفوف القديمة
-        // تعالجها هجرة zz_round121_orderitem_effective_price_backfill.
+        // تعالجها هجرة zz_round122_orderitem_effective_price_backfill.
         const MOD_ORDER = {
                 ...ORDER,
                 total: 46, // (18 + 5) × 2

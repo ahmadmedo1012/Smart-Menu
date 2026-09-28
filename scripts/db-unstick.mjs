@@ -169,28 +169,35 @@ async function main() {
     }
   }
 
-  // 6) r121 pre-flight evidence (read-only): the effective-price backfill's own
-  //    migration file (zz_round121_orderitem_effective_price_backfill)
-  //    documents that Neon needs the candidate-count check before deploy —
-  //    nobody can query Neon directly, so the count rides the build log.
-  //    Prints 0 on every build AFTER the r121 deploy lands (the cutoff clause
-  //    is the idempotency guard), so this line is self-retiring evidence.
-  const { rows: hasOI } = await c.query(
-    `SELECT to_regclass('"OrderItem"') AS t`);
-  if (hasOI[0].t) {
-    const { rows: bfCount } = await c.query(`
-      SELECT COUNT(*)::int AS rows_to_update
-      FROM "OrderItem" AS oi
-      JOIN "Order" AS o ON o."id" = oi."orderId"
-      WHERE o."createdAt" < TIMESTAMP '2026-09-25 17:37:05'
-        AND oi."modifiersJson" LIKE '[%'
-        AND EXISTS (
-          SELECT 1 FROM jsonb_array_elements(oi."modifiersJson"::jsonb) AS m
-          WHERE jsonb_typeof(m) = 'object'
-            AND m ->> 'priceDelta' ~ '^-?[0-9]+(\\.[0-9]+)?$'
-        )`);
-    console.log('R121_BACKFILL_PREFLIGHT: ' + bfCount[0].rows_to_update
-      + ' legacy row(s) match the guarded UPDATE (0 expected after the r121 deploy applies)');
+  // 6) r121 pre-flight evidence (read-only): the effective-price backfill
+  //    (r122 rescue: zz_round122_orderitem_effective_price_backfill) documents
+  //    that Neon needs the candidate-count check before deploy — nobody can
+  //    query Neon directly, so the count rides the build log. Self-retiring:
+  //    prints 0 on every build AFTER the deploy lands (the cutoff clause is
+  //    the idempotency guard). Own try/catch: on production this flat count
+  //    can itself hit the malformed-JSON legacy row — in that case the error
+  //    IS the diagnostic (the v2 backfill's per-row guard handles such rows).
+  try {
+    const { rows: hasOI } = await c.query(
+      `SELECT to_regclass('"OrderItem"') AS t`);
+    if (hasOI[0].t) {
+      const { rows: bfCount } = await c.query(`
+        SELECT COUNT(*)::int AS rows_to_update
+        FROM "OrderItem" AS oi
+        JOIN "Order" AS o ON o."id" = oi."orderId"
+        WHERE o."createdAt" < TIMESTAMP '2026-09-25 17:37:05'
+          AND oi."modifiersJson" LIKE '[%'
+          AND EXISTS (
+            SELECT 1 FROM jsonb_array_elements(oi."modifiersJson"::jsonb) AS m
+            WHERE jsonb_typeof(m) = 'object'
+              AND m ->> 'priceDelta' ~ '^-?[0-9]+(\\.[0-9]+)?$'
+          )`);
+      console.log('R121_BACKFILL_PREFLIGHT: ' + bfCount[0].rows_to_update
+        + ' legacy row(s) match the guarded UPDATE (0 expected after the r121 deploy applies)');
+    }
+  } catch (e) {
+    console.log('R121_BACKFILL_PREFLIGHT: count unavailable — ' + (e.message || e).toString().slice(0, 160)
+      + ' (indicates a malformed legacy modifiersJson row; the r122 backfill skips such rows per-row)');
   }
 }
 

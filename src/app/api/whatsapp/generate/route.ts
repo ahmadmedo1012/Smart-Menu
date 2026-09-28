@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       // double-counted deltas on every post-r120 modified row (line = base +
       // 2×deltas while «المجموع» = base + deltas — the exact self-contradicting
       // invoice r120 declared fixed). Pre-r120 base-only rows are backfilled by
-      // zz_round121_orderitem_effective_price_backfill; the «الإضافات» line
+      // zz_round122_orderitem_effective_price_backfill; the «الإضافات» line
       // below stays informational (names + deltas), never arithmetic.
       lines.push(`  ${oi.quantity}x ${itemName} - ${formatPrice(Number(oi.price))}`);
       if (mods.length > 0) {
