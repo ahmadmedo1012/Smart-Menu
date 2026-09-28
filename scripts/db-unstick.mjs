@@ -1,6 +1,4 @@
 import pg from 'pg';
-import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 
 /**
  * round86-D1 hardening of the P1002 unstick script (still in the build chain:
@@ -9,15 +7,13 @@ import { existsSync } from 'node:fs';
  * r122 (deploy-unblocker, P3009): a FAILED migration record (finished_at IS
  * NULL AND rolled_back_at IS NULL) freezes the whole deploy chain — editing
  * the migration file does NOT clear the record, and on Vercel nobody can run
- * `prisma migrate resolve` by hand. Section 5 below does it automatically
- * BEFORE `migrate deploy` runs. Safety argument: Neon is PostgreSQL and
- * Prisma wraps every migration in ONE transaction (transactional DDL) → a
- * failed migration left ZERO partial state → marking it rolled-back and
- * letting deploy re-apply is always sound. Worst case (still-broken SQL):
- * deploy fails again with the REAL error instead of a frozen P3009 — strictly
- * better diagnostics, identical blast radius. The state mutation goes through
- * the official CLI (`prisma migrate resolve --rolled-back`), never raw SQL
- * against Prisma's internal table.
+ * `prisma migrate resolve` by hand. Section 5 below clears it automatically
+ * BEFORE `migrate deploy` runs, via a single direct-SQL UPDATE that is
+ * byte-equivalent to the official CLI (state-captured on Prisma 7.10: the
+ * CLI's only effect is `SET rolled_back_at = now()` on the failed record).
+ * Direct SQL over the already-connected client deliberately avoids spawning
+ * the Prisma CLI in the build image (engine binaries / install-scripts
+ * allowlist / npx prompts are all failure modes a build box may hit).
  *
  * What changed:
  *  - FULL try/catch: a transient DB blip (Neon cold start, network hiccup)
@@ -102,6 +98,20 @@ async function main() {
 
   // 5) r122: resolve FAILED migration records (the P3009 deploy freeze).
   //    Runs only when a failed record actually exists — zero cost otherwise.
+  //
+  //    Direct SQL, byte-equivalent to `prisma migrate resolve --rolled-back`:
+  //    the CLI's ONLY effect on a failed record is `SET rolled_back_at = now()`
+  //    (record kept, finished_at/logs/steps untouched — state-captured and
+  //    verified on Prisma 7.10 in the r122 harness). Doing it over the
+  //    already-connected pg client removes every subprocess dependency the
+  //    Vercel build image may not satisfy (CLI spawn, engine binaries,
+  //    install-scripts allowlist). `migrate deploy` then treats rolled-back
+  //    records as not-applied and re-runs the CURRENT migration file.
+  //
+  //    Safety: Neon is PostgreSQL and Prisma wraps every migration in ONE
+  //    transaction (transactional DDL) → a failed migration left ZERO partial
+  //    state → re-apply is always sound. Worst case (still-broken SQL): deploy
+  //    fails again with the REAL error instead of a frozen P3009.
   const { rows: migTable } = await c.query(
     `SELECT to_regclass('_prisma_migrations') AS t`);
   if (!migTable[0].t) {
@@ -119,34 +129,22 @@ async function main() {
       for (const f of failedMigs) {
         console.log('  ✗ ' + f.migration_name + ' (started ' + f.started + ')');
       }
-      const prismaBin = existsSync('node_modules/.bin/prisma') ? 'node_modules/.bin/prisma' : null;
       for (const f of failedMigs) {
-        const name = f.migration_name;
-        // the name comes from Prisma's own table, but never pass unvalidated
-        // data to a subprocess command line.
-        if (!/^[A-Za-z0-9_.-]+$/.test(name)) {
-          console.log('RESOLVE_SKIPPED (unexpected name format): ' + name);
-          continue;
-        }
         try {
-          const out = execFileSync(
-            prismaBin ?? 'npx',
-            prismaBin
-              ? ['migrate', 'resolve', '--rolled-back', name]
-              : ['prisma', 'migrate', 'resolve', '--rolled-back', name],
-            {
-              cwd: process.cwd(),
-              timeout: 90_000,
-              encoding: 'utf8',
-              stdio: ['ignore', 'pipe', 'pipe'],
-              env: process.env,
-            },
-          );
-          const tail = (out || '').trim().split('\n').filter(Boolean).slice(-2).join(' / ');
-          console.log('RESOLVED (marked rolled-back): ' + name + (tail ? ' | ' + tail : ''));
+          const res = await c.query(
+            `UPDATE _prisma_migrations
+             SET rolled_back_at = now()
+             WHERE migration_name = $1
+               AND finished_at IS NULL
+               AND rolled_back_at IS NULL`,
+            [f.migration_name]);
+          if (res.rowCount === 1) {
+            console.log('RESOLVED (marked rolled-back): ' + f.migration_name);
+          } else {
+            console.log('RESOLVE_RACE (0 rows, already resolved by a concurrent build): ' + f.migration_name);
+          }
         } catch (e) {
-          const detail = ((e && (e.stderr || e.stdout)) || e?.message || '').toString().trim().slice(0, 300);
-          console.log('RESOLVE_FAILED: ' + name + ' — ' + detail);
+          console.log('RESOLVE_FAILED: ' + f.migration_name + ' — pg code ' + e.code + ': ' + (e.message || '').slice(0, 200));
         }
       }
       const { rows: stillFailed } = await c.query(`
@@ -156,6 +154,18 @@ async function main() {
         ? 'MIGRATION_STATE: all failed records resolved — migrate deploy will re-apply them'
         : 'MIGRATION_STATE: ' + stillFailed.length + ' record(s) STILL FAILED — migrate deploy will stop (fix the real error): '
           + stillFailed.map((r) => r.migration_name).join(', '));
+      // evidence dump for the build log: the ledger state of every
+      // not-yet-finished migration after resolution
+      const { rows: pendingView } = await c.query(`
+        SELECT migration_name,
+               finished_at IS NOT NULL AS applied,
+               rolled_back_at IS NOT NULL AS rolled_back
+        FROM _prisma_migrations
+        WHERE finished_at IS NULL
+        ORDER BY migration_name`);
+      if (pendingView.length > 0) {
+        console.log('MIGRATION_LEDGER (unfinished records): ' + JSON.stringify(pendingView));
+      }
     }
   }
 
