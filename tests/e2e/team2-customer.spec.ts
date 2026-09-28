@@ -123,7 +123,9 @@ test("order: complete flow to confirmation", async ({ page }) => {
     // Fill phone (optional field) then confirm via WhatsApp
     const phone = dlg.getByPlaceholder("رقم الهاتف (اختياري)").first();
     if (await phone.count()) await phone.fill("0910000099");
-    const wa = dlg.locator('button:has-text("أرسل الطلب عبر واتساب")').first();
+    // r120-U3: the dialog CTA is now the honest «أضف إلى السلة» (was «أرسل الطلب عبر واتساب»);
+    // try the current label first, keep the old one as a tolerant fallback.
+    const wa = dlg.locator('button:has-text("أضف إلى السلة"), button:has-text("أرسل الطلب عبر واتساب")').first();
     if (await wa.count()) {
       await wa.click({ timeout: 8000 });
       // round92-C6: settle → conditional wait — WhatsApp-confirm adds the

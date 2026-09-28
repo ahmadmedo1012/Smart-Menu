@@ -89,19 +89,27 @@ export default function AdminDashboard() {
         }, []);
 
         useEffect(() => {
+                // r121: a denied viewer never fetches — previously the stats poll
+                // fired (and 403'd) before the access check rendered AccessDenied,
+                // showing the misleading «فشل تحميل البيانات» to a zero-permission
+                // sub_admin whose real state is «غير مصرح».
+                if (access === 'denied') return;
                 load();
-        }, [load]);
+        }, [load, access]);
 
         // Poll every 30s (paused while tab is hidden)
         // round86-C3: shared visibility-aware poll loop (was a copy-pasted skeleton)
         usePollWhenVisible(
                 () => {
-                        if (error) return;
+                        if (error || access === 'denied') return;
                         void load();
                 },
                 30000,
-                [load, error]
+                [load, error, access]
         );
+
+        // ---------- Access denied (r121: FIRST — no point loading/denying twice) ----------
+        if (access === 'denied') return <AccessDenied />;
 
         // ---------- Loading skeleton ----------
         if (loading) {
@@ -172,8 +180,6 @@ export default function AdminDashboard() {
                         </div>
                 );
         }
-
-                if (access === 'denied') return <AccessDenied />
 
         return (
                 <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">

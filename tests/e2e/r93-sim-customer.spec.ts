@@ -160,7 +160,8 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect(dialog.locator('fieldset[aria-label="إضافات"]')).toBeVisible();
 
     // بوابة r93-W1a/w3-f1: الإرسال قبل اختيار الحجم يُردّ برسالة عربية واضحة
-    await dialog.getByRole("button", { name: "أرسل الطلب عبر واتساب" }).click();
+    // r120-U3 renamed the OrderDialog CTA to the honest «أضف إلى السلة» (was «أرسل الطلب عبر واتساب») — pin updated r121.
+    await dialog.getByRole("button", { name: "أضف إلى السلة" }).click();
     await expect(dialog.getByRole("alert").first()).toHaveText(/اختر على الأقل 1 من الحجم/);
 
     // اختيار الحجم «وسط» (+1.5) وإضافة «شوفان» (+1)
@@ -171,10 +172,10 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect(dialog.getByText("المجموع")).toBeVisible();
     await expect(dialog.getByText("14.5", { exact: true })).toBeVisible();
 
-    // زيادة الكمية إلى 2 داخل الحوار → المجموع 29.0 (مطابقة جزئية: الخلية
-    // تحمل «د.ل» داخل عنصر فرعي فالمطابقة التامة على النص الكامل لن تلتقطها)
+    // زيادة الكمية إلى 2 داخل الحوار → المجموع 29 (r120 formatPrice الذكي
+    // يعرض 29.0 كـ«29» — pin القديم كان decimals:1؛ حُدّث r121)
     await dialog.getByLabel("زيادة الكمية").click();
-    await expect(dialog.getByText("29.0")).toBeVisible();
+    await expect(dialog.getByText("29")).toBeVisible();
 
     // بيانات الزبون داخل الحوار (تصعد مع السلة إلى صفحة الدفع)
     await dialog.getByPlaceholder("الاسم (اختياري)").fill(CUSTOMER_NAME);
@@ -186,9 +187,11 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
   /* ── 5. إرسال الحوار → السلة الموحدة بالسطر المُهيَّأ ── */
   test("إضافة للسلة: تأكيد الحوار ثم الانتقال إلى السلة", async () => {
     const dialog = page.locator('[role="dialog"]').first();
-    await dialog.getByRole("button", { name: "أرسل الطلب عبر واتساب" }).click();
-    // حالة التأكيد داخل الحوار قبل التحويل
-    await expect(dialog.getByText("تم إرسال الطلب!")).toBeVisible({ timeout: 8000 });
+    // r120-U3 renamed the OrderDialog CTA to the honest «أضف إلى السلة» (was «أرسل الطلب عبر واتساب») — pin updated r121.
+    await dialog.getByRole("button", { name: "أضف إلى السلة" }).click();
+    // حالة التأكيد داخل الحوار قبل التحويل (r120-U5: الصدق — «تمت الإضافة
+    // إلى السلة!» بدل الكذبة «تم إرسال الطلب!»؛ pin حُدّث r121)
+    await expect(dialog.getByText("تمت الإضافة إلى السلة!")).toBeVisible({ timeout: 8000 });
     await page.screenshot({ path: `${SHOTS}/sim-customer-05-order-dialog-sent.png` });
 
     // التحويل التلقائي إلى صفحة السلة الموحدة
@@ -200,14 +203,16 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     await expect(page.getByText("لاتيه كراميل").first()).toBeVisible();
     // المجموع الإجمالي للسطر المُهيَّأ: (12 + 1.5 + 1) × 2 = 29.0
     await expect(page.getByText("المجموع الإجمالي")).toBeVisible();
-    await expect(page.locator('[dir="ltr"], .tabular-nums').getByText("29.0").first()).toBeVisible();
+    await expect(page.locator('[dir="ltr"], .tabular-nums').getByText("29").first()).toBeVisible();
 
     await page.screenshot({ path: `${SHOTS}/sim-customer-06-cart.png` });
   });
 
   /* ── 6. تعديل الكمية في السلة: +1 → المجموع يتحدث فورًا ── */
   test("تعديل الكمية في السلة: 3 × 14.5 = 43.5", async () => {
-    await page.getByLabel("زيادة الكمية").first().click();
+    // r119-B3: بطاقة السلة صارت بتسميات مصغّرة على مستوى الصنف (a11y أفضل)
+    // — «زيادة كمية لاتيه كراميل» بدل التسمية العامة؛ pin حُدّث r121
+    await page.getByLabel("زيادة كمية لاتيه كراميل").first().click();
     // الرقم داخل شريط السطر (أرقام غربية — سياسة المنصة)
     await expect(page.getByText("المجموع الإجمالي")).toBeVisible();
     await expect(page.locator('[dir="ltr"], .tabular-nums').getByText("43.5").first()).toBeVisible({
@@ -271,7 +276,9 @@ test.describe.serial("r93 محاكاة زبون كامل — رحلة سعيدة
     });
     const orderNo = new URL(page.url()).searchParams.get("orderNo") ?? "";
     expect(orderNo).toMatch(/^ORD-/);
-    await expect(page.getByText("رقم الطلب")).toBeVisible();
+    // r120 أضافت زر «نسخ رقم الطلب» — المطابقة التامة لتفادي strict-mode
+    // (ثلاثة عناصر تحمل النص جزئيًا الآن)
+    await expect(page.getByText("رقم الطلب", { exact: true })).toBeVisible();
     await expect(page.locator("bdi").filter({ hasText: orderNo })).toBeVisible();
     await page.screenshot({ path: `${SHOTS}/sim-customer-09-order-confirmed.png` });
   });

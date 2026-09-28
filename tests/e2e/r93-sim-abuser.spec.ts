@@ -23,13 +23,25 @@ const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASS || "admin123456";
 
 let restaurantId = 0;
 let itemId = 0;
+// r121 fix (r118-B1 contract): the chosen item carries a REQUIRED modifier
+// group («الحجم») since the r93-sim seed — the server-side group contract
+// (r118-B1/r109-F9) correctly 400s orders that skip it. These specs predate
+// that contract and CI has been billing-dead since r117 (one round BEFORE it
+// shipped), so the breakage went unnoticed. The fix honors the contract:
+// select an available option from a required group, like a real customer.
+let modifierOptionId = 0;
 
 test.beforeAll(async () => {
   const pg = (await import("pg")).default;
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
   const r = await client.query(
-    `SELECT r.id AS rid, m.id AS iid FROM "Restaurant" r
+    `SELECT r.id AS rid, m.id AS iid,
+       (SELECT o.id FROM "ModifierGroup" g
+         JOIN "ModifierOption" o ON o."groupId" = g.id
+        WHERE g."menuItemId" = m.id AND g."minSelect" > 0 AND o."isAvailable" = true
+        ORDER BY o."sortOrder" ASC LIMIT 1) AS oid
+     FROM "Restaurant" r
      JOIN "MenuCategory" c ON c."restaurantId" = r.id
      JOIN "MenuItem" m ON m."categoryId" = c.id
      WHERE r.slug = 'al-waha-cafe' LIMIT 1`,
@@ -37,6 +49,7 @@ test.beforeAll(async () => {
   if (!r.rows[0]) throw new Error("al-waha-cafe غير موجود — شغّل بذور الجولة");
   restaurantId = r.rows[0].rid;
   itemId = r.rows[0].iid;
+  modifierOptionId = r.rows[0].oid ?? 0;
   await client.end();
 });
 
@@ -125,13 +138,13 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
     // زرع الطلب بالاسم الخطير (zod يفرض subtotal/total موجبين واسمًا ≤ 50)
     const payload = "<script>alert(1)</script>سالم المخرب";
     const placed = await page.evaluate(
-      async ({ rid, iid, token: t, name }) => {
+      async ({ rid, iid, mid, token: t, name }) => {
         const r = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-csrf-token": t },
           credentials: "same-origin",
           body: JSON.stringify({
-            items: [{ itemId: iid, quantity: 1, price: 5 }],
+            items: [{ itemId: iid, quantity: 1, price: 5, ...(mid ? { modifierOptionIds: [mid] } : {}) }],
             customerName: name,
             pickupType: "takeaway",
             subtotal: 5,
@@ -141,7 +154,7 @@ test.describe.serial("r93 محاكاة مخرب — دفاعات حية بميز
         });
         return { status: r.status, body: await r.json() };
       },
-      { rid: restaurantId, iid: itemId, token, name: payload },
+      { rid: restaurantId, iid: itemId, mid: modifierOptionId, token, name: payload },
     );
     expect(placed.status).toBe(201);
 

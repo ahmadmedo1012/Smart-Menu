@@ -161,7 +161,14 @@ test.describe.serial("r93 محاكاة أدمن المنصة — من لوحة �
     subCtx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     subPage = await subCtx.newPage();
     await loginAdmin(subPage, SUB_ZERO, SUB_PASS);
-    await expect(subPage.getByRole("heading", { name: "لوحة التحكم" })).toBeVisible({
+    // r121: the dashboard requires VIEW_ANALYTICS (sub_zero has none) — the
+    // honest render is AccessDenied «غير مصرح», NOT the dashboard heading.
+    // (Historically this test passed only by matching LayoutHeader's duplicate
+    // h1 «لوحة التحكم» — an a11y defect fixed in r121-K-6; the page-level h1
+    // was unreachable for zero-permission viewers all along: stats 403 → error
+    // state. r121 also fixed the render order so denied short-circuits BEFORE
+    // the misleading «فشل تحميل البيانات» error state.)
+    await expect(subPage.getByRole("heading", { name: "غير مصرح" })).toBeVisible({
       timeout: 20000,
     });
     await subPage.screenshot({ path: `${SHOTS}/sim-admin-05-subadmin-dashboard.png` });

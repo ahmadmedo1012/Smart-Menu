@@ -32,6 +32,11 @@ let ownerCtx: BrowserContext;
 let ownerPage: Page;
 let restaurantId = 0;
 let itemId = 0;
+// r121 fix (r118-B1 contract): the item's «الحجم» group is REQUIRED (min 1) —
+// the server-side group contract correctly 400s orders that skip it. This spec
+// predates the contract; CI was billing-dead since r117 (one round before it
+// shipped) so the breakage went unnoticed. Fix: select the option, like the UI does.
+let modifierOptionId = 0;
 let orderNoAccepted = "";
 let orderNoCancelled = "";
 
@@ -169,12 +174,22 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
       const i = await fetch(`/api/items?categoryId=${cat.id}`);
       const ij = await i.json();
       const item = (ij.data ?? []).find((x: { name: string }) => x.name === "قهوة المحاكاة");
-      return { restaurantId: rest.id, slug: rest.slug, itemId: item?.id };
+      // r121: capture an available option id from a required group (minSelect > 0)
+      // so the order payload satisfies the r118-B1 server-side modifier contract.
+      const reqGroup = (item?.modifierGroups ?? []).find(
+        (g: { minSelect: number; options?: { id: number; isAvailable: boolean }[] }) =>
+          g.minSelect > 0 && (g.options ?? []).some((o) => o.isAvailable),
+      );
+      const optId = reqGroup
+        ? (reqGroup.options ?? []).find((o: { isAvailable: boolean }) => o.isAvailable)?.id
+        : undefined;
+      return { restaurantId: rest.id, slug: rest.slug, itemId: item?.id, modifierOptionId: optId ?? 0 };
     });
     expect(ids.restaurantId).toBeGreaterThan(0);
     expect(ids.itemId).toBeGreaterThan(0);
     restaurantId = ids.restaurantId;
     itemId = ids.itemId;
+    modifierOptionId = ids.modifierOptionId;
 
     await ownerPage.goto(`/menu/${SLUG}`, { waitUntil: "domcontentloaded", timeout: 45000 });
     await expect(ownerPage.getByRole("heading", { level: 1 }).first()).toHaveText(/مقهى محاكاة r93/);
@@ -194,7 +209,7 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
       // دخول صفحة المنيو كزبون مجهول (يكسب كوكي CSRF من البروكسي — نمط round79)
       await custPage.goto(`/menu/${SLUG}`, { waitUntil: "domcontentloaded", timeout: 45000 });
       const placeOrder = () =>
-        custPage.evaluate(async ({ rid, iid }) => {
+        custPage.evaluate(async ({ rid, iid, mid }) => {
           // صفحات المنيو قابلة للكاش فلا تُسك كوكي CSRF عليها (تصميم proxy) —
           // زيارة GET لمسار غير قابل للكاش تسك الكوكي أولًا (كما يفعل الزبون
           // الحقيقي بمروره على /cart) ثم نقرأها (r93 تشخيص)
@@ -208,7 +223,7 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
             headers: { "Content-Type": "application/json", "x-csrf-token": token },
             credentials: "same-origin",
             body: JSON.stringify({
-              items: [{ itemId: iid, quantity: 1, price: 18 }],
+              items: [{ itemId: iid, quantity: 1, price: 18, ...(mid ? { modifierOptionIds: [mid] } : {}) }],
               customerName: "زبون محاكاة r93",
               customerPhone: "0913999777",
               pickupType: "takeaway",
@@ -218,7 +233,7 @@ test.describe.serial("r93 محاكاة مالك من الصفر — رحلة س�
             }),
           });
           return { status: r.status, body: await r.json() };
-        }, { rid: restaurantId, iid: itemId });
+        }, { rid: restaurantId, iid: itemId, mid: modifierOptionId });
 
       const o1 = await placeOrder();
       expect(o1.status, `POST /api/orders #1 → ${o1.status}: ${JSON.stringify(o1.body).slice(0, 200)}`).toBe(201);
