@@ -143,21 +143,28 @@ async function main() {
         console.log('  ✗ ' + f.migration_name + ' (started ' + f.started + ')');
       }
       for (const f of failedMigs) {
-        try {
-          const res = await c.query(
-            `UPDATE _prisma_migrations
-             SET rolled_back_at = now()
-             WHERE migration_name = $1
-               AND finished_at IS NULL
-               AND rolled_back_at IS NULL`,
-            [f.migration_name]);
-          if (res.rowCount === 1) {
-            console.log('RESOLVED (marked rolled-back): ' + f.migration_name);
-          } else {
-            console.log('RESOLVE_RACE (0 rows, already resolved by a concurrent build): ' + f.migration_name);
+        let resolved = false;
+        for (let attempt = 1; attempt <= 3 && !resolved; attempt++) {
+          try {
+            const res = await c.query(
+              `UPDATE _prisma_migrations
+               SET rolled_back_at = now()
+               WHERE migration_name = $1
+                 AND finished_at IS NULL
+                 AND rolled_back_at IS NULL`,
+              [f.migration_name]);
+            if (res.rowCount === 1) {
+              console.log('RESOLVED (marked rolled-back): ' + f.migration_name + (attempt > 1 ? ' (attempt ' + attempt + ')' : ''));
+              resolved = true;
+            } else {
+              console.log('RESOLVE_RACE (0 rows, already resolved by a concurrent build): ' + f.migration_name);
+              resolved = true; // record gone from the failed set either way
+            }
+          } catch (e) {
+            console.log('RESOLVE_FAILED (attempt ' + attempt + '): ' + f.migration_name
+              + ' — pg code ' + e.code + ': ' + (e.message || '').toString().slice(0, 200));
+            if (attempt < 3) await new Promise((r) => setTimeout(r, 2_000));
           }
-        } catch (e) {
-          console.log('RESOLVE_FAILED: ' + f.migration_name + ' — pg code ' + e.code + ': ' + (e.message || '').slice(0, 200));
         }
       }
       const { rows: stillFailed } = await c.query(`
@@ -180,25 +187,29 @@ async function main() {
         console.log('MIGRATION_LEDGER (unfinished records): ' + JSON.stringify(pendingView));
       }
       // ---- TEMPORARY r122 DEPLOY DIAGNOSTIC (self-retiring) ------------------
-      // The last 3 deployments all died ~30s after push — the same duration as
-      // the pre-fix P3009 fast-fail, i.e. indistinguishable. These sleeps make
-      // the unstick step's progress readable from the deployment TIMELINE
-      // alone (no log access needed):
-      //   failure at ~75s+  => §5 ran and resolved (migrate deploy still failing)
-      //   failure at ~50s   => §5 ran, found nothing to resolve (see marker B)
-      //   failure at ~30s   => §5 NEVER RAN (script crash before §5 / stale build)
-      //   success           => fixed — remove this block in the next round
-      // Sleeps fire only while r121/r122 migrations are unfinished, so a
-      // healthy chain never pays them.
+      // The last 4 deployments all died in the migrate-deploy window despite a
+      // locally-proven chain. These sleeps make the outcome readable from the
+      // deployment TIMELINE alone (no log access needed):
+      //   failure at ~130s = marker A2: resolution DID NOT clear the records
+      //                       (RESOLVE_FAILED / STILL FAILED) -> migrate P3009s
+      //   failure at ~75s  = marker A1: resolution OK; migrate deploy fails at
+      //                       its own boot/apply (checksum/P1002/other)
+      //   failure at ~30s  = the script never reached §5
+      //   success          = fixed — markers auto-retire (gated on unfinished
+      //                       r121/r122 records only)
       const { rows: r121pending } = await c.query(`
         SELECT COUNT(*)::int AS n FROM _prisma_migrations
         WHERE migration_name = ANY($1) AND finished_at IS NULL`,
         [['zz_round121_check_constraints', 'zz_round121_not_null_alignment',
           'zz_round122_orderitem_effective_price_backfill', 'zzz_round121_rewardtransaction_check_drop']]).catch(() => [{ n: 0 }]);
-      if (r121pending[0].n > 0) {
-        console.log('R122_DIAG: r121/r122 chain unfinished (' + r121pending[0].n + ' record(s)) — engage timeline markers');
+      if (stillFailed.length > 0) {
+        console.log('R122_DIAG: marker A2 — records STILL FAILED after resolution; migrate deploy will P3009 (+60s)');
+        await new Promise((r) => setTimeout(r, 60_000));
+        console.log('R122_DIAG: marker A2 elapsed');
+      } else if (r121pending[0].n > 0) {
+        console.log('R122_DIAG: r121/r122 chain unfinished (' + r121pending[0].n + ' record(s)) — marker A1 (45s)');
         await new Promise((r) => setTimeout(r, 45_000));
-        console.log('R122_DIAG: marker A elapsed (45s) — §5 completed; migrate deploy owns the outcome from here');
+        console.log('R122_DIAG: marker A1 elapsed (45s) — §5 resolved cleanly; migrate deploy owns the outcome from here');
       }
     }
   }
