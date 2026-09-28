@@ -251,13 +251,14 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                         <div className="space-y-3">
                                                 <div className="flex justify-between text-sm">
                                                         <span className="text-muted-foreground">المجموع الفرعي</span>
-                                                        <span className="tabular-nums">{formatPrice(order.subtotal, { decimals: 1 })}</span>
+                                                        {/* r121-H-1: smart formatPrice default — was decimals:1 («12.0») */}
+                                                        <span className="tabular-nums">{formatPrice(order.subtotal)}</span>
                                                 </div>
                                                 <hr className="border-border/30" />
                                                 <div className="flex justify-between font-bold text-lg">
                                                         <span>الإجمالي</span>
                                                         <span className="tabular-nums text-primary">
-                                                                {formatPrice(order.total, { decimals: 1 })}
+                                                                {formatPrice(order.total)}
                                                         </span>
                                                 </div>
                                         </div>
@@ -289,7 +290,8 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                                 <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>
                                                         </div>
                                                         <span className="font-semibold tabular-nums">
-                                                                {formatPrice(oi.price * oi.quantity, { decimals: 1 })}
+                                                                {/* r121-H-1: smart formatPrice default — was decimals:1 */}
+                                                                {formatPrice(oi.price * oi.quantity)}
                                                         </span>
                                                 </div>
                                         ))}

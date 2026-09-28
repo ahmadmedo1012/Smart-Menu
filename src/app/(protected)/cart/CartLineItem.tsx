@@ -51,7 +51,9 @@ export function CartLineItem({
                                                         </p>
                                                 )}
                                                 <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
-                                                        {formatPrice(item.price, { decimals: 1 })} / للواحد
+                                                        {/* r121 (H-1): decimals:1 كان يعرض «8.0 / للواحد» ويقرّب
+                                                            7.25 إلى «7.3» — الافتراضي الذكي (r120). */}
+                                                        {formatPrice(item.price)} / للواحد
                                                 </p>
                                         </div>
                                 </div>

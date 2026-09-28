@@ -12,7 +12,7 @@ import { InstallPrompt } from '@/components/shared/InstallPrompt';
 import { CartHydrator } from '@/components/shared/CartHydrator';
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp';
 import { ConnectivityBanner } from '@/components/shared/ConnectivityBanner';
-import { Analytics } from '@vercel/analytics/react';
+import { VercelAnalytics } from '@/components/shared/VercelAnalytics';
 
 import { GridPattern } from '@/components/ui/grid-pattern';
 import { MotionProvider } from '@/components/shared/MotionProvider';
@@ -55,7 +55,13 @@ export const metadata: Metadata = {
                 images: ['/og-default.png'],
         },
         robots: {
-                index: true,
+                // r121-L-1: the protected tree is auth-gated by design — the safe
+                // default is noindex. The four page-level robots overrides
+                // (login/subscribe/cart/order-confirmed layouts) keep winning;
+                // this closes the latent gap where any future owner/admin route
+                // would inherit `index,follow` (live mitigated by the proxy 307
+                // + robots.ts disallow, but the default should be safe, not opt-in).
+                index: false,
                 follow: true,
         },
 };
@@ -139,7 +145,14 @@ export default async function RootLayout({
                                                 {/* a11y(round84): fixed floating controls (scroll-to-top + WhatsApp)
                                                  * must live INSIDE a landmark (axe region rule). position:fixed is
                                                  * unaffected by DOM order — MotionProvider applies no transform. */}
-                                                <main id="main-content">
+                                                {/* r121-K-3: the skip-link TARGET no longer lives here — the group
+                                                 * main's first tabbable children were each page's nav (Header /
+                                                 * dashboard sidebar), so the skip "bypass" landed right back in
+                                                 * the navigation. Each sub-layout now stamps
+                                                 * id="main-content" on its real first content element (past the
+                                                 * nav): the owner/admin shells, order-confirmed's content root,
+                                                 * and the login/subscribe/cart layout wrappers. */}
+                                                <main>
                                                         <ScrollToTop />
                                                         {/* round88-E4: connectivity banner (offline warning + auto-hide
                                                                 on reconnect) — same strip as the public tree. */}
@@ -162,7 +175,7 @@ export default async function RootLayout({
                                                         className: 'border border-border/30 shadow-xl backdrop-blur-xl',
                                                 }}
                                         />
-                                        <Analytics />
+                                        <VercelAnalytics />
                                 </ThemeProvider>
                 </>
         );

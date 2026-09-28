@@ -121,12 +121,15 @@ export function buildModifierSummary(
                         const opt = g.options.find((o) => o.id === optionId);
                         if (!opt) continue;
                         const name = opt.nameAr || opt.name;
+                        /* r121 (H-1): decimals:1 كان يخبز «(+2.0 د.ل)» في ملخص الإضافات
+                           (سلة الطلب + فاتورة واتساب العميل) — الافتراضي الذكي (r120):
+                           «12 → 12» و«7.25 → 7.25». */
                         if (opt.priceDelta === 0) {
                                 parts.push(name);
                         } else if (opt.priceDelta > 0) {
-                                parts.push(`${name} (+${formatPrice(opt.priceDelta, { decimals: 1 })})`);
+                                parts.push(`${name} (+${formatPrice(opt.priceDelta)})`);
                         } else {
-                                parts.push(`${name} (${formatPrice(opt.priceDelta, { decimals: 1 })})`);
+                                parts.push(`${name} (${formatPrice(opt.priceDelta)})`);
                         }
                 }
         }

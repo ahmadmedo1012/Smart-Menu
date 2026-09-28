@@ -23,7 +23,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         const restaurant = await getRestaurantBySlug(slug);
         /* r112: كان العنوان «… — المنيو | للطباعة | المنيو الذكي» (أنبوبان
          * من قالب العنوان الأب) — تبسيط إلى صيغة بلا تكرار. */
-        return { title: restaurant ? `${restaurant.name} — نسخة للطباعة` : 'طباعة المنيو' };
+        /* r121-L-2 (B-3): noindex + canonical للمسار الأصلي — كانت الصفحة ترث
+         * index,follow بلا canonical بينما يمنع robots.txt مسارات الطباعة من
+         * الزحف (وصفة «مفهرس رغم الحجب»). الإشارة الصحيحة: noindex قابل للزحف
+         * + canonical للمصدر (وقد رُفع سطر مسارات الطباعة من robots.ts بنفس الجولة). */
+        return {
+                title: restaurant ? `${restaurant.name} — نسخة للطباعة` : 'طباعة المنيو',
+                robots: { index: false, follow: false },
+                alternates: { canonical: restaurant ? `/menu/${restaurant.slug}` : `/menu/${slug}` },
+        };
 }
 
 export default async function PrintMenuPage({ params }: { params: Promise<{ slug: string }> }) {

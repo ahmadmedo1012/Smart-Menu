@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MotionMinus } from '@/components/ui/motion-icons';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import AnimatedTrash from '@/components/ui/trash-icon';
 import AnimatedCart from '@/components/ui/shopping-cart-icon';
@@ -64,7 +64,10 @@ export function CartSlideOver() {
                                 initial={{ y: 50, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                                className="fixed bottom-[calc(env(safe-area-inset-bottom)+9.5rem)] end-4 sm:end-6 z-[63]"
+                                /* r121 (J-1): كانت z-[63] فوق نطاق النوافذ المنبثقة (z-40/50)
+                                   فتطفو الزر فوق الورقة المفتوحة نفسها وتحتها. z-33 تحت
+                                   النوافذ وفوق بقية العناصر العائمة (z-30/31). */
+                                className="fixed bottom-[calc(env(safe-area-inset-bottom)+9.5rem)] end-4 sm:end-6 z-33"
                         >
                                 <button
                                         type="button"
@@ -119,7 +122,10 @@ export function CartSlideOver() {
                                                         className="size-11 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                         aria-label="إغلاق"
                                                 >
-                                                        <MotionArrowLeft className="size-4" />
+                                                        {/* r121 (J-2): سهم إغلاق الورقة كان MotionArrowLeft —
+                                                            في RTL سهم الإغلاق/العودة يشير يميناً (اتفاقية
+                                                            print/page.tsx + BackButton). */}
+                                                        <MotionArrowRight className="size-4" />
                                                 </button>
                                                 <SheetTitle className="text-base">سلة الطلبات</SheetTitle>
                                         </div>

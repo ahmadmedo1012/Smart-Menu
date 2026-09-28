@@ -8,8 +8,10 @@
  *       (the /admin/menu console contract — round87-B9); owners/USER/anonymous
  *       still require an explicit scope.
  *   F5a POST reviews: rating is .int() — 4.5 is a clean 422, not Prisma noise.
- *   F5b DELETE reviews: owner-scoped moderation; cross-item reviewId → 404;
- *       counters recomputed exactly (set-based SQL) + menu revalidated.
+ *   F5b DELETE reviews: owner-scoped moderation; the destroy is a scoped
+ *       deleteMany({ id, menuItemId }) (r121-C1 — the old delete-then-check
+ *       committed cross-item destruction); counters recomputed exactly
+ *       (set-based SQL) + menu revalidated.
  *   F3  /api/subscriptions/validate: the AUTHENTICATED user's own username is
  *       valid (paid-plan retry after rejection is the designed path).
  *   F4  POST /api/restaurants public self-registration: a slug held by a
@@ -39,7 +41,11 @@ vi.mock('@/lib/auth', () => ({
 const mockMenuItemFindMany = vi.hoisted(() => vi.fn());
 const mockMenuItemCount = vi.hoisted(() => vi.fn());
 const mockMenuItemFindUnique = vi.hoisted(() => vi.fn());
-const mockReviewDelete = vi.hoisted(() => vi.fn());
+// r121-C1: F5b's pinned surface moved from tx.review.delete to the scoped
+// tx.review.deleteMany({ where: { id, menuItemId } }) — the old mock made
+// commit/rollback semantics invisible (M-4); the new call shape makes the
+// scoping itself assertable.
+const mockReviewDeleteMany = vi.hoisted(() => vi.fn());
 const mockExecuteRaw = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindFirst = vi.hoisted(() => vi.fn());
@@ -49,7 +55,7 @@ const mockRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 
 const txMock = vi.hoisted(() => ({
-        review: { delete: mockReviewDelete },
+        review: { deleteMany: mockReviewDeleteMany },
         $executeRaw: mockExecuteRaw,
 }));
 
@@ -250,7 +256,7 @@ describe('r103-F5a POST reviews — rating .int()', () => {
                         { params: Promise.resolve({ id: '50' }) }
                 );
                 expect(res.status).toBe(422);
-                expect(mockReviewDelete).not.toHaveBeenCalled();
+                expect(mockReviewDeleteMany).not.toHaveBeenCalled();
         });
 
         it('rating 5 → passes validation', async () => {
@@ -268,7 +274,7 @@ describe('r103-F5a POST reviews — rating .int()', () => {
 describe('r103-F5b DELETE reviews — owner moderation ladder', () => {
         it('owner of the item\'s restaurant → deletes, recomputes counters, revalidates', async () => {
                 resetAuth('owner', { restaurantId: 7 });
-                mockReviewDelete.mockResolvedValue({ id: 9, menuItemId: 50, rating: 1 });
+                mockReviewDeleteMany.mockResolvedValue({ count: 1 });
                 mockTransaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock));
 
                 const res = await reviewsDELETE(
@@ -277,25 +283,37 @@ describe('r103-F5b DELETE reviews — owner moderation ladder', () => {
                 );
 
                 expect(res.status).toBe(200);
-                expect(mockReviewDelete).toHaveBeenCalledWith({
-                        where: { id: 9 },
-                        select: { id: true, menuItemId: true, rating: true },
+                // r121-C1: the destroy is one SCOPED statement — reviewId AND the
+                // URL itemId travel together in the WHERE clause.
+                expect(mockReviewDeleteMany).toHaveBeenCalledWith({
+                        where: { id: 9, menuItemId: 50 },
                 });
                 expect(mockExecuteRaw).toHaveBeenCalledTimes(1); // set-based recompute
                 const json = await res.json();
                 expect(json.data.deleted).toBe(true);
         });
 
-        it('review belonging to ANOTHER item → 404, transaction rolled back to null', async () => {
+        it('r121-C1 regression: review of ANOTHER item (foreign tenant included) → 404, ZERO writes — the scoped statement deletes nothing and no recompute runs', async () => {
                 resetAuth('owner', { restaurantId: 7 });
-                mockReviewDelete.mockResolvedValue({ id: 9, menuItemId: 77, rating: 1 }); // different item
+                // owner A of restaurant 7 is authorized for HIS item 50; reviewId 9
+                // actually belongs to item 77 (restaurant 8, a different tenant).
+                // The scoped deleteMany matches no row → { count: 0 }.
+                mockReviewDeleteMany.mockResolvedValue({ count: 0 });
                 mockTransaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock));
 
                 const res = await reviewsDELETE(
                         req('http://localhost:3000/api/items/50/reviews?reviewId=9', { method: 'DELETE' }),
                         { params: Promise.resolve({ id: '50' }) }
                 );
+
                 expect(res.status).toBe(404);
+                // row survival: the only destroy statement was scoped to the URL
+                // item — the victim review (item 77) cannot be removed by it
+                expect(mockReviewDeleteMany).toHaveBeenCalledWith({
+                        where: { id: 9, menuItemId: 50 },
+                });
+                // victim counters intact: no recompute SQL ran at all
+                expect(mockExecuteRaw).not.toHaveBeenCalled();
         });
 
         it('owner of a DIFFERENT restaurant (no UserRestaurant link) → 403', async () => {
@@ -307,7 +325,7 @@ describe('r103-F5b DELETE reviews — owner moderation ladder', () => {
                         { params: Promise.resolve({ id: '50' }) }
                 );
                 expect(res.status).toBe(403);
-                expect(mockReviewDelete).not.toHaveBeenCalled();
+                expect(mockReviewDeleteMany).not.toHaveBeenCalled();
         });
 
         it('sub_admin WITHOUT MANAGE_RESTAURANTS and without ownership link → 403', async () => {
@@ -321,7 +339,7 @@ describe('r103-F5b DELETE reviews — owner moderation ladder', () => {
 
         it('sub_admin WITH MANAGE_RESTAURANTS → allowed', async () => {
                 resetAuth('sub_admin', { permissions: ['MANAGE_RESTAURANTS'] });
-                mockReviewDelete.mockResolvedValue({ id: 9, menuItemId: 50, rating: 1 });
+                mockReviewDeleteMany.mockResolvedValue({ count: 1 });
                 mockTransaction.mockImplementation(async (fn: (tx: typeof txMock) => unknown) => fn(txMock));
 
                 const res = await reviewsDELETE(

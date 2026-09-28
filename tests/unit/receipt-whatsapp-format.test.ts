@@ -198,11 +198,13 @@ describe('buildOrderShareText', () => {
                 expect(out).not.toContain('Margherita');
         });
 
-        it('line totals and grand total with 1 decimal', () => {
+        it('line totals and grand total match the receipt document precision (decimals 2 — r121 H-1)', () => {
                 const out = buildOrderShareText(order);
-                expect(out).toContain('×2 = 40.0 د.ل');
-                expect(out).toContain('×1 = 17.5 د.ل');
-                expect(out).toContain('💰 الإجمالي: 57.5 د.ل');
+                expect(out).toContain('×2 = 40.00 د.ل');
+                expect(out).toContain('×1 = 17.50 د.ل');
+                expect(out).toContain('💰 الإجمالي: 57.50 د.ل');
+                // the old «.0»-forcing must not come back
+                expect(out).not.toContain('40.0 د.ل');
         });
 
         it('pickup labels: delivery → توصيل, takeaway → سفري, else داخل المكان', () => {

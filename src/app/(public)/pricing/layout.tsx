@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-        title: "الباقات والأسعار | Smart Menu",
+        // r121-L-4: brand suffix stripped — the root template already appends
+        // «| المنيو الذكي» (was «الباقات والأسعار | Smart Menu | المنيو الذكي»).
+        title: "الباقات والأسعار",
         description:
                 "باقات مرنة للمطاعم والمقاهي — ابدأ مجاناً، ورقّ لاحقاً. منيو رقمي + طلبات واتساب + ولاء.",
         // round93 (W2-b / تقرير 1-a §3): canonical بنفس نمط menu/[slug] —
@@ -11,7 +13,10 @@ export const metadata: Metadata = {
         // canonical الصفحة /pricing — محركات التقاسم تقرأ og:url. openGraph
         // يُستبدل كاملاً (دمج ضحل) لذا تُكرر حقول الجذر مع تغيير url فقط.
         openGraph: {
-                title: "الباقات والأسعار | Smart Menu",
+                // r121-L-4: og:title suffix unified to the og:site_name token
+                // «الربط الذكي» (terms/privacy already use it — pricing was the
+                // odd one out with the Latin brand).
+                title: "الباقات والأسعار | الربط الذكي",
                 description:
                         "باقات مرنة للمطاعم والمقاهي — ابدأ مجاناً، ورقّ لاحقاً. منيو رقمي + طلبات واتساب + ولاء.",
                 url: "/pricing",

@@ -249,6 +249,12 @@ export default function AdminDashboard() {
                                                                 value: Number(d.revenue),
                                                         }))}
                                                         height={220}
+                                                        /* r121-K-5: data-bearing SR name (was the generic «مخطط مساحي») */
+                                                        ariaLabel={`اتجاه الإيرادات آخر 30 يومًا: من ${formatPrice(
+                                                                Number(stats.revenueTrend[0]?.revenue ?? 0)
+                                                        )} إلى ${formatPrice(
+                                                                Number(stats.revenueTrend[stats.revenueTrend.length - 1]?.revenue ?? 0)
+                                                        )}`}
                                                 />
                                         ) : (
                                                 <div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">
@@ -272,6 +278,12 @@ export default function AdminDashboard() {
                                                         height={220}
                                                         color="oklch(0.62 0.18 145)"
                                                         gradientId="order-gradient"
+                                                        /* r121-K-5: data-bearing SR name (was the generic «مخطط مساحي») */
+                                                        ariaLabel={`حجم الطلبات آخر 30 يومًا: من ${toArabicNumber(
+                                                                stats.orderVolumeTrend[0]?.count ?? 0
+                                                        )} إلى ${toArabicNumber(
+                                                                stats.orderVolumeTrend[stats.orderVolumeTrend.length - 1]?.count ?? 0
+                                                        )} طلب`}
                                                 />
                                         ) : (
                                                 <div className="flex flex-col items-center justify-center h-[220px] gap-2 text-muted-foreground/50">

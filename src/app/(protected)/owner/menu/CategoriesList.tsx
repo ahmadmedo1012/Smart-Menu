@@ -156,7 +156,11 @@ export function CategoriesList({
                                                                                                 key={item.id}
                                                                                                 className="flex items-center gap-3 px-5 py-3 hover:bg-muted/10 transition-colors group"
                                                                                         >
-                                                                                                <GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100" />
+                                                                                                {/* r121-J-3: hidden below md — HTML5 drag is a pointer
+                                                                                                    affordance (never worked on touch); frees 16px+
+                                                                                                    gutter for the name column at ≤390px, where the
+                                                                                                    row's fixed children ate ~381-391px of 358px. */}
+                                                                                                <GripVertical className="size-4 text-muted-foreground/30 shrink-0 cursor-grab opacity-0 group-hover:opacity-100 hidden md:block" />
                                                                                                 {item.image ? (
                                                                                                         <OptimizedImage
                                                                                                                 src={item.image}
@@ -208,12 +212,15 @@ export function CategoriesList({
                                                                                                                         item.discountedPrice && 'text-destructive'
                                                                                                                 )}
                                                                                                         >
-                                                                                                                {formatPrice(item.discountedPrice ?? item.price, { decimals: 1, suffix: '' })}
+                                                                                                                {/* r121-H-1: smart formatPrice default (r120 contract) —
+                                                                                                                    was forced decimals:1 («12.0»); suffix '' keeps the
+                                                                                                                    separate د.ل span. */}
+                                                                                                                {formatPrice(item.discountedPrice ?? item.price, { suffix: '' })}
                                                                                                         </span>
                                                                                                         <span className="text-xs text-muted-foreground ms-0.5">د.ل</span>
                                                                                                         {item.discountedPrice && (
                                                                                                                 <span className="text-xs text-muted-foreground/50 line-through block tabular-nums">
-                                                                                                                        {formatPrice(item.price, { decimals: 1, suffix: '' })}
+                                                                                                                        {formatPrice(item.price, { suffix: '' })}
                                                                                                                 </span>
                                                                                                         )}
                                                                                                 </div>
@@ -227,7 +234,10 @@ export function CategoriesList({
                                                                                                         />
                                                                                                         <span
                                                                                                                 className={cn(
-                                                                                                                        'text-xs w-14',
+                                                                                                                        // r121-J-3: hidden below sm — the Switch + its
+                                                                                                                        // aria-label already carry the availability state;
+                                                                                                                        // the w-14 word was eating 56px of the ≤390px row.
+                                                                                                                        'text-xs w-14 hidden sm:inline',
                                                                                                                         item.status === 'available' ? 'text-success' : 'text-destructive'
                                                                                                                 )}
                                                                                                         >

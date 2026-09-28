@@ -16,10 +16,10 @@ test("admin: owner cannot access admin pages", async ({ page }) => {
   // Try admin pages → should NOT render admin dashboard
   for (const p of ["/admin", "/admin/users", "/admin/settings"]) {
     await page.goto(p, { waitUntil: "domcontentloaded" });
-    // The admin layout re-validates via /api/auth/me and bounces non-admin
-    // roles to /owner — keep polling until the redirect lands (goto resolves
-    // before the client-side router.push commits, so a single waitForURL
-    // races it; box the page into one URL string per tick instead).
+    // r121-B-2: the admin layout is a SERVER gate now (requireAuth + role-aware
+    // redirect) — the document request itself lands on /owner, so the URL has
+    // usually settled before goto resolves. The polling loop stays as a
+    // bounded safety net for slow backends.
     let settled = false;
     for (let i = 0; i < 10 && !settled; i++) {
       await page.waitForTimeout(500);

@@ -105,7 +105,10 @@ export function buildOrderShareText(o: {
   const items = o.items
     .map(
       (oi) =>
-        `• ${oi.item.nameAr || oi.item.name} ×${toArabicNumber(oi.quantity)} = ${formatPrice(oi.price * oi.quantity, { decimals: 1 })}`
+        // r121 (H-1/X3): الحصة موحّدة مع فاتورة واتساب نفس الطلب
+        // (buildReceiptMessage أعلاه: decimals 2) — كان المالك يشارك
+        // «23.0» بينما فاتورة العميل تقول «23.00»، و«7.25» تُقرّب إلى «7.3».
+        `• ${oi.item.nameAr || oi.item.name} ×${toArabicNumber(oi.quantity)} = ${formatPrice(oi.price * oi.quantity, { decimals: 2 })}`
     )
     .join("\n");
   const type =
@@ -117,5 +120,5 @@ export function buildOrderShareText(o: {
 ━━━━━━━━━━━━━
 ${items}
 ━━━━━━━━━━━━━
-💰 الإجمالي: ${formatPrice(Number(o.total), { decimals: 1 })}`;
+💰 الإجمالي: ${formatPrice(Number(o.total), { decimals: 2 })}`;
 }

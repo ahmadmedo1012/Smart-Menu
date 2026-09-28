@@ -26,7 +26,10 @@ export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
                                                         </span>
                                                 </span>
                                                 <span className="font-medium tabular-nums shrink-0">
-                                                        {formatPrice(item.price * item.quantity, { decimals: 1 })}
+                                                        {/* r121 (H-1): decimals:1 كان يجبر «.0» على الأسعار الصحيحة
+                                                           ويقرّب 7.25 إلى «7.3» — الافتراضي الذكي (r120) هو
+                                                           عيار العرض الموحد لبقية رحلة الطلب. */}
+                                                        {formatPrice(item.price * item.quantity)}
                                                 </span>
                                         </div>
                                 ))}
@@ -38,7 +41,8 @@ export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
                                         <span className="text-2xl font-bold text-primary tabular-nums">
                                                 {/* round97-X3: shared formatPrice (suffix '' — the د.ل
                                                     span below stays separate for the baseline layout). */}
-                                                {formatPrice(total, { decimals: 1, suffix: '' })}
+                                                {/* r121 (H-1): إسقاط decimals:1 — نفس عيار العرض الذكي. */}
+                                                {formatPrice(total, { suffix: '' })}
                                         </span>
                                         <span className="text-sm text-muted-foreground">د.ل</span>
                                 </div>

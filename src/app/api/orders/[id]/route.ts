@@ -102,6 +102,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         if (!perm.authorized) return apiError(perm.error, perm.status);
                 }
 
+                // r121-D2: cancelled is TERMINAL. A cancelled order must never
+                // transition to another status — cancelled→completed used to
+                // fall into the accrual block below and MINT loyalty points +
+                // convert referrals on cancelled revenue; cancelled→new/preparing/
+                // ready re-opens a voided order. Deliberately NOT a forward-only
+                // map (X2 narrowing): backward transitions among the four live
+                // statuses stay allowed (web timeline dots; pinned by
+                // order-lifecycle :300/:314) and same-status PUTs stay allowed
+                // (idempotent re-ack). Non-status edits (notes/whatsappSent) on
+                // a cancelled row are untouched. One guard here covers both the
+                // accrual block below AND the plain update at the bottom.
+                if (existing.status === 'cancelled' && body.status !== undefined && body.status !== 'cancelled') {
+                        return apiError('لا يمكن تغيير حالة طلب ملغي — الطلب الملغي نهائي', 409);
+                }
+
                 // Accrue loyalty points when order completed. Two layers of protection
                 // against double-grants:
                 //   1) application: only enter this block if the request claims a transition

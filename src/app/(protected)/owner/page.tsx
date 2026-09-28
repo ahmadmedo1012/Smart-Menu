@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {Store, ClipboardList, AlertCircle, Package, Award, Gift, Users, CheckCircle, BarChart3, Settings, Activity, ShoppingCart, QrCode} from 'lucide-react';
+import {Store, ClipboardList, AlertCircle, Package, Award, Gift, Users, CheckCircle, BarChart3, Settings, Activity, ShoppingCart, QrCode, Clock} from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import PlugConnectedIcon from '@/components/ui/plug-connected-icon';
 import { MotionArrowLeft } from '@/components/ui/motion-icons';
@@ -12,11 +12,14 @@ import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import AnimatedExternalLink from '@/components/ui/external-link-icon';
 import AnimatedCopy from '@/components/ui/copy-icon';
 import { cn } from '@/lib/utils';
-import { toArabicNumber } from '@/lib/format';
+import { toArabicNumber, formatDate } from '@/lib/format';
 import Link from 'next/link';
 import { premiumToast } from '@/lib/premium-toast';
 import { useOrderNotifier } from '@/components/layout/OrderNotifier';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
+// r121-P-4: حالة ما قبل التفعيل — تاريخ طلب الدفع المعلّق يصل من التخطيط
+// الخادمي (owner/layout.tsx) عبر سياق الجلسة، بلا أي استعلام إضافي.
+import { useOwnerSession } from './OwnerShell';
 // round86-C4: active-restaurant resolution via the shared hook (this page
 // previously hand-rolled it WITHOUT the switch event subscription — a
 // restaurant switch left stale data until reload)
@@ -82,6 +85,8 @@ interface AdvancedStats {
 export default function OwnerDashboard() {
         const router = useRouter();
         const { activeId, loaded: activeLoaded } = useActiveRestaurant();
+        // r121-P-4: { pendingPaymentSince } — مُغذّى من owner/layout.tsx (الخادم)
+        const ownerSession = useOwnerSession();
         const [restaurant, setRestaurant] = useState<RestaurantData | null>(null);
         const [stats, setStats] = useState<(StatsData & { advancedStats?: AdvancedStats }) | null>(null);
         const [loyaltyStats, setLoyaltyStats] = useState<LoyaltyStats>({});
@@ -128,8 +133,10 @@ export default function OwnerDashboard() {
         useEffect(() => {
                 if (!activeLoaded) return;
                 if (!activeId) {
-                        // no restaurant linked — subscription not activated yet
-                        setError('لم يتم تفعيل حسابك بعد. يرجى الانتظار حتى يتم تأكيد الدفع من الإدارة.');
+                        /* r121-P-4: حالة ما قبل التفعيل لم تعد «خطأ» عامًا — انظر بطاقة
+                           الانتظار الصادقة أسفل فرع التحميل. قبل هذا كان المصدر يضبط
+                           رسالة خطأ عامة وزر «إعادة المحاولة» لا يفعل شيئًا
+                           (activeId لا وجود له أصلًا). */
                         setLoading(false);
                         return;
                 }
@@ -175,6 +182,38 @@ export default function OwnerDashboard() {
                                         <div className="h-3 w-20 rounded-full bg-muted/70" />
                                 </div>
                         </div>
+                );
+
+        if (!activeId && activeLoaded)
+                // r121-P-4: بطاقة الانتظار الصادقة — كان المالك العائد (أغلق التبويب وذهب
+                // للبنك) يصل إلى رسالة خطأ عامة وزر إعادة محاولة لا يفعل شيئًا. الآن:
+                // طلب معلّق ⇒ تاريخه + شرح منع الإرسال المزدوج + وعد إشعار صادق (لافتة
+                // subscription_approved في UserBannerNotifier)؛ لا طلب ⇒ مسار إكمال الدفع.
+                return (
+                        <EmptyState
+                                icon={ownerSession?.pendingPaymentSince ? Clock : AlertCircle}
+                                title={
+                                        ownerSession?.pendingPaymentSince
+                                                ? 'طلب الدفع قيد المراجعة'
+                                                : 'لم يتم تفعيل حسابك بعد'
+                                }
+                                description={
+                                        ownerSession?.pendingPaymentSince
+                                                ? `أرسلت طلب الدفع في ${formatDate(new Date(ownerSession.pendingPaymentSince))}. تتحقق الإدارة من التحويل وتفعّل حسابك — ستظهر لافتة «تم تفعيل اشتراكك» هنا فور الموافقة. لا يمكن إرسال طلب دفع جديد قبل البتّ في الطلب الحالي.`
+                                                : 'أكمل خطوة الدفع من صفحة الاشتراك لتفعيل منيوك — عند الموافقة ستظهر لافتة التفعيل هنا.'
+                                }
+                                action={
+                                        ownerSession?.pendingPaymentSince ? (
+                                                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                                                        تحديث الحالة
+                                                </Button>
+                                        ) : (
+                                                <Button variant="orange" size="sm" onClick={() => router.push('/subscribe')}>
+                                                        إكمال الدفع
+                                                </Button>
+                                        )
+                                }
+                        />
                 );
 
         if (error)

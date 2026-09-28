@@ -16,8 +16,9 @@ test("guard: /admin and /owner secret pages redirect owner to /owner, never rend
   await login(page, OWNER, PASS);
   for (const path of ["/admin", "/admin/users", "/admin/restaurants", "/admin/settings", "/admin/telegram"]) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
-    // The admin layout re-validates via /api/auth/me then router.push('/owner');
-    // wait until the URL actually settles instead of a fixed 2500ms sleep.
+    // r121-B-2: server-side gate in the admin layout — the redirect to /owner
+    // arrives with the document response itself; the bounded wait stays as a
+    // safety net for slow backends.
     let settled = false;
     for (let i = 0; i < 12 && !settled; i++) {
       await page.waitForTimeout(500);

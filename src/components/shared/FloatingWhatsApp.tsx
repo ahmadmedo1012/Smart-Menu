@@ -23,7 +23,10 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={cn(
-                                "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-[60]",
+                                /* r121 (J-1): كانت z-[60] فوق نطاق النوافذ المنبثقة (z-40/50)
+                                   فتطفو فوق كل حوار مفتوح وتخطف نقرات أزرار الطلب.
+                                   z-30 يبقيها فوق المحتوى العادي وتحت النوافذ. */
+                                "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-30",
                                 "size-14 rounded-full bg-orange text-white",
                                 "flex items-center justify-center",
                                 "shadow-xl shadow-orange/30",

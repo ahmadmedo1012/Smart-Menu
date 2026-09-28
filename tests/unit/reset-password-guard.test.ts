@@ -14,6 +14,12 @@
  *   - sub_admin (MANAGE_USERS) → target owner = 200 (the original support path)
  *   - unknown target → 404 before any write
  *
+ * r121-E3 extension: the guard now covers ALL staff targets — sub_admin
+ * (MANAGE_USERS) → target admin (legacy full-trust role) = 403, sub_admin →
+ * target sub_admin (peer) = 403; super_admin keeps full power (200 paths).
+ * Staff password support routes through super_admin (same policy as
+ * admins/[id]); MANAGE_USERS keeps its documented purpose: owner/USER support.
+ *
  * Mock pattern: rbac-matrix.test.ts (mocked auth ladder + prisma + audit),
  * no real DB, real PBKDF2 swapped for an instant stub.
  */
@@ -192,5 +198,60 @@ describe('POST /api/admin/reset-password — S-2 super_admin target guard', () =
                 expect(res.status).toBe(403);
                 expect(mockUserFindUnique).not.toHaveBeenCalled();
                 expect(mockUserUpdate).not.toHaveBeenCalled();
+        });
+});
+
+// ── r121-E3 — staff targets (admin / sub_admin) ──────────────────────
+
+describe('POST /api/admin/reset-password — r121-E3 staff-target guard', () => {
+        it('sub_admin (MANAGE_USERS) → target admin (legacy full-trust) = 403 — the platform-takeover path is closed', async () => {
+                authHolder.value = { ...SUB_ADMIN_MANAGE_USERS };
+                mockUserFindUnique.mockResolvedValue(targetRow('admin'));
+
+                const res = await callReset(RESET_BODY);
+
+                expect(res.status).toBe(403);
+                const json = await res.json();
+                expect(json.success).toBe(false);
+                expect(json.error).toBe('لا يمكن تعديل كلمة مرور حساب إداري');
+                // password never rewritten, sessions never revoked, nothing audited
+                expect(mockUserUpdate).not.toHaveBeenCalled();
+                expect(mockSessionDeleteMany).not.toHaveBeenCalled();
+                expect(mockLogAudit).not.toHaveBeenCalled();
+        });
+
+        it('sub_admin (MANAGE_USERS) → target sub_admin (peer) = 403 — resetting a peer inherits their permission set', async () => {
+                authHolder.value = { ...SUB_ADMIN_MANAGE_USERS };
+                mockUserFindUnique.mockResolvedValue(targetRow('sub_admin'));
+
+                const res = await callReset(RESET_BODY);
+
+                expect(res.status).toBe(403);
+                expect(mockUserUpdate).not.toHaveBeenCalled();
+                expect(mockSessionDeleteMany).not.toHaveBeenCalled();
+        });
+
+        it('super_admin → target admin = 200 (staff password support routes through super_admin)', async () => {
+                authHolder.value = { ...SUPER_ADMIN_ACTOR };
+                mockUserFindUnique.mockResolvedValue(targetRow('admin'));
+
+                const res = await callReset(RESET_BODY);
+
+                expect(res.status).toBe(200);
+                expect(mockUserUpdate).toHaveBeenCalledWith({
+                        where: { id: 9 },
+                        data: { password: 'NEWHASH' },
+                });
+                expect(mockSessionDeleteMany).toHaveBeenCalledWith({ where: { userId: 9 } });
+        });
+
+        it('super_admin → target sub_admin = 200 (full power unchanged)', async () => {
+                authHolder.value = { ...SUPER_ADMIN_ACTOR };
+                mockUserFindUnique.mockResolvedValue(targetRow('sub_admin'));
+
+                const res = await callReset(RESET_BODY);
+
+                expect(res.status).toBe(200);
+                expect(mockUserUpdate).toHaveBeenCalled();
         });
 });

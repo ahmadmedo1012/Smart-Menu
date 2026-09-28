@@ -10,7 +10,9 @@ import { InstallPrompt } from '@/components/shared/InstallPrompt';
 import { CartHydrator } from '@/components/shared/CartHydrator';
 import { FloatingWhatsApp } from '@/components/shared/FloatingWhatsApp';
 import { ConnectivityBanner } from '@/components/shared/ConnectivityBanner';
-import { Analytics } from '@vercel/analytics/react';
+/* r121 (Q-1): بوابة Vercel لسكربت التحليلات — يحمّل فقط فوق منصة Vercel
+   (خارجها كان يطلب /_vercel/insights/script.js ويرجع 404 على كل صفحة). */
+import { VercelAnalytics } from '@/components/shared/VercelAnalytics';
 
 import { GridPattern } from '@/components/ui/grid-pattern';
 import { MotionProvider } from '@/components/shared/MotionProvider';
@@ -52,10 +54,12 @@ export const metadata: Metadata = {
                 description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب',
                 images: ['/og-default.png'],
         },
-        robots: {
-                index: true,
-                follow: true,
-        },
+        // r121-L-5: the explicit default-index robots field is REMOVED — it
+        // duplicated the crawler default (no meta emitted = index, follow) on
+        // every public page and CONFLICTED with the hoisted noindex on 404s
+        // (both meta tags rendered; most-restrictive won, but the dual emission
+        // was fragile). Absence is byte-identical behavior for every live
+        // public page; 404s now emit exactly one robots meta.
 };
 
 export const viewport: Viewport = {
@@ -182,7 +186,7 @@ export default async function RootLayout({
                                                         className: 'border border-border/30 shadow-xl backdrop-blur-xl',
                                                 }}
                                         />
-                                        <Analytics />
+                                        <VercelAnalytics />
                                 </ThemeProvider>
                 </>
         );

@@ -209,7 +209,9 @@ describe("selectedCount + modifierGroupHint (counter + labels)", () => {
 describe("buildModifierSummary (receipt line)", () => {
         it("formats positive deltas with +, negatives bare, zeros without a price", () => {
                 const out = buildModifierSummary([size, extras], { 1: [12], 2: [21, 23] });
-                expect(out).toBe("كبير (+2.0 د.ل)، كريمة (+1.5 د.ل)، ثلج");
+                // r121 (H-1): smart-default display — «+2.0» → «+2» (integer prices
+                // lose the bare .0; real fractions like 1.5 are kept verbatim).
+                expect(out).toBe("كبير (+2 د.ل)، كريمة (+1.5 د.ل)، ثلج");
         });
 
         it("returns an empty string for an empty selection", () => {
@@ -221,7 +223,7 @@ describe("buildModifierPayload (POST /api/orders item shape)", () => {
         it("flattens ids in selection order and pairs them with the human summary", () => {
                 const p = buildModifierPayload([size, extras], { 1: [12], 2: [23, 21] });
                 expect(p.modifierOptionIds).toEqual([12, 23, 21]);
-                expect(p.modifiersSummary).toBe("كبير (+2.0 د.ل)، ثلج، كريمة (+1.5 د.ل)");
+                expect(p.modifiersSummary).toBe("كبير (+2 د.ل)، ثلج، كريمة (+1.5 د.ل)");
         });
 
         it("is an empty ids array for a plain item (zod-optional field stays unset)", () => {

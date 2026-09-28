@@ -292,7 +292,9 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
                 description: restaurant.description,
                 url: `${origin}/menu/${slug}`,
                 telephone: restaurant.phone || restaurant.whatsapp || undefined,
-                servesCuisine: 'Libyan',
+                // r121-L-3: حقل المطبخ الثابت («ليبي» لكل مطعم — حتى بيتزا روما
+                // «الإيطالية») حُذف: لا يوجد حقل مطبخ في قاعدة البيانات أصلًا،
+                // وحذف الحقل الاختياري أفضل من اختلاق قيمة.
                 ...(effectivePrices.length > 0 ? {
                         priceRange: `${Math.min(...effectivePrices)}-${Math.max(...effectivePrices)} د.ل`,
                 } : {}),

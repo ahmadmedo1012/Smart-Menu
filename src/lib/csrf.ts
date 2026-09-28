@@ -2,9 +2,13 @@
 // Edge middleware validates Origin for mutating methods.
 // Route handlers can additionally verify x-csrf-token for elevated operations.
 import { timingSafeEqualStrings } from '@/lib/secure-compare';
+// r121 (G-1): الثوابت انتقلت إلى csrf-shared.ts (ورقة بلا استيرادات) — كانت
+// هنا، و «use client» csrf-client.ts يستوردها من هذا الملف فيصل الرسم البياني
+// للعميل إلى node:crypto (عبر secure-compare) فيسحب ~127KB-gz من polyfills
+// إلى 28 مساراً. إعادة التصدير تُبقي كل مستهلك خادمي (proxy/api/tests) كما هو.
+export { CSRF_COOKIE, CSRF_HEADER } from '@/lib/csrf-shared';
+import { CSRF_COOKIE, CSRF_HEADER } from '@/lib/csrf-shared';
 
-export const CSRF_COOKIE = 'csrf-token';
-export const CSRF_HEADER = 'x-csrf-token';
 export const CSRF_EXEMPT = new Set([
         '/api/telegram/webhook',
         '/api/health',

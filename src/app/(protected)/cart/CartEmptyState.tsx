@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedCart from '@/components/ui/shopping-cart-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 
@@ -28,7 +28,10 @@ export function CartEmptyState({ restaurantId, restaurantSlug, restaurantName }:
                                     الدليل عندما لا يُعرف المطعم. */}
                                 <Link href={restaurantSlug ? `/menu/${restaurantSlug}` : '/menu'}>
                                         <Button size="lg" className="px-8 gap-2">
-                                                <MotionArrowLeft className="size-4" />
+                                                {/* r121 (J-2): سهم «العودة إلى القائمة» كان
+                                                    MotionArrowLeft — في RTL سهم العودة يشير
+                                                    يميناً (اتفاقية print/page.tsx:150). */}
+                                                <MotionArrowRight className="size-4" />
                                                 العودة إلى القائمة
                                         </Button>
                                 </Link>

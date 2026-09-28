@@ -68,6 +68,23 @@ export async function POST(request: NextRequest) {
 
     const { id, status } = verifySchema.parse(await request.json());
 
+    // r121-E2: panel-side twin of the webhook's isPaymentSelfApproval guard
+    // (telegram/webhook/route.ts, r118-A2-P2): an approver who IS the payer
+    // cannot resolve their own payment — verify or cancel, ROLE-BLIND, same
+    // semantics as the webhook. Without this, any MANAGE_SUBSCRIPTIONS holder
+    // who also owns/manages a restaurant could file their own pending upgrade
+    // (subscriptions/upgrade is requireAuth-only and pins userId) and then
+    // approve it from this panel: paid plan activated, no money moved.
+    // A null payment (or null userId — new-user pending payments) falls
+    // through to resolveSubscriptionPayment's own 404 handling.
+    const selfPayment = await prisma.subscriptionPayment.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (selfPayment?.userId != null && selfPayment.userId === auth.userId) {
+      return error("لا يمكنك البت في طلب دفع خاص بحسابك", 403);
+    }
+
     const result = await resolveSubscriptionPayment(id, status);
     if (!result.ok) {
       if (result.reason === "الطلب غير موجود") return notFound('الدفع');

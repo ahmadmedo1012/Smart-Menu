@@ -26,16 +26,25 @@ export async function POST(request: NextRequest) {
 
     // round90-F1 (S-2 — privilege escalation): حارس الهدف — sub_admin يحمل
     // MANAGE_USERS كان يعيد كلمة مرور super_admin ويسحب جلساته = استيلاء كامل.
-    // نفس نص حراسة admins/[id]:29 («لا يمكن تعديل مدير عام»)؛ التحديث نفسه
-    // يظل متاحًا لsuper_admin (سند الاختبار المفروض) ولإعادة تعيين بقية
-    // المستخدمين لمن يحمل MANAGE_USERS (وظيفة الدعم الأصلية للمسار).
+    // r121-E3: الحارس امتد لكل الحسابات الإدارية (super_admin/admin/sub_admin)
+    // وليس super_admin فقط — حساب admin القديم يمرر كل الأذونات عدا
+    // MANAGE_USERS (auth.ts) فإعادة تعيين كلمته تعني استيلاء فعلي على
+    // المنصة، وإعادة تعيين sub_admin نظير يورّث أذوناته. دعم كلمات مرور
+    // الطاقم يمر عبر super_admin (نفس سياسة admins/[id])؛ MANAGE_USERS يحتفظ
+    // بوظيفته الموثقة: دعم owner/USER.
     const target = await prisma.user.findUnique({
       where: { id: body.userId },
       select: { role: true },
     });
     if (!target) return error("المستخدم غير موجود", 404);
-    if (target.role === "super_admin" && auth.role !== "super_admin") {
-      return error("لا يمكن تعديل مدير عام", 403);
+    if (
+      (target.role === "super_admin" || target.role === "admin" || target.role === "sub_admin") &&
+      auth.role !== "super_admin"
+    ) {
+      return error(
+        target.role === "super_admin" ? "لا يمكن تعديل مدير عام" : "لا يمكن تعديل كلمة مرور حساب إداري",
+        403
+      );
     }
 
     await prisma.user.update({

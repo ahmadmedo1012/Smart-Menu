@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { MAX_ITEM_QUANTITY } from '@/lib/constants';
@@ -258,3 +259,30 @@ export const useCart = create<CartStore>()(
                 }
         )
 );
+
+/**
+ * r121 (H-3): /cart is SSR'd from the EMPTY initial store (skipHydration —
+ * CartHydrator rehydrates post-paint), so the server HTML itself contained
+ * «السلة فارغة» and a refresh mid-checkout flashed a false "cart deleted"
+ * state for 0.4s (unthrottled) up to ~2.3s (6× CPU throttle; Q-visual r121
+ * browser measurement). The cart page gates its empty-state branch on this
+ * hook and holds its loading skeleton until the persisted cart has finished
+ * rehydrating. /cart is noindex — zero SEO cost.
+ *
+ * - Initial value is read lazily: once hydrated, the store stays hydrated for
+ *   the tab's lifetime, so remounts (route revisits) don't re-flash.
+ * - Server and first client render both read false (rehydrate() only runs in
+ *   CartHydrator's effect) → no hydration mismatch.
+ */
+export function useCartHydrated(): boolean {
+        const [hydrated, setHydrated] = useState(() => useCart.persist.hasHydrated());
+        useEffect(() => {
+                // race cover: hydration may finish between the lazy read and the subscribe
+                if (useCart.persist.hasHydrated()) {
+                        setHydrated(true);
+                        return;
+                }
+                return useCart.persist.onFinishHydration(() => setHydrated(true));
+        }, []);
+        return hydrated;
+}

@@ -465,3 +465,92 @@ describe('PUT /api/orders/[id] — input & limiter guards', () => {
                 expect(mockOrderFindUnique).not.toHaveBeenCalled();
         });
 });
+
+// ── r121-D2: cancelled is terminal ─────────────────────────────────────
+// One guard ONLY (X2 narrowing): reject any status CHANGE on a cancelled
+// order. Backward transitions among the four live statuses stay allowed
+// (pinned at :300/:314 above — the guard must NOT grow into a forward-only
+// map) and same-status PUTs stay allowed (idempotent re-ack, current
+// behavior preserved).
+
+describe('PUT /api/orders/[id] — r121-D2: cancelled is terminal', () => {
+        it('cancelled → completed → 409, NO loyalty mint (no accrual tx, no plain update, no referral conversion)', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
+
+                const res = await callPut({ status: 'completed' });
+
+                expect(res.status).toBe(409);
+                const json = await res.json();
+                expect(json.success).toBe(false);
+                expect(json.error).toBe('لا يمكن تغيير حالة طلب ملغي — الطلب الملغي نهائي');
+                // zero writes of any kind: neither the loyalty $transaction nor
+                // the plain prisma.order.update nor the round88-C4 conversion
+                expect(mockTransaction).not.toHaveBeenCalled();
+                expect(mockOrderUpdate).not.toHaveBeenCalled();
+        });
+
+        it('cancelled → new (re-open) → 409 — the guard is not completed-specific', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
+
+                const res = await callPut({ status: 'new' });
+
+                expect(res.status).toBe(409);
+                expect(mockOrderUpdate).not.toHaveBeenCalled();
+        });
+
+        it('cancelled → cancelled (same-status PUT) → 200 idempotent re-ack — current behavior preserved', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
+                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, status: 'cancelled' });
+
+                const res = await callPut({ status: 'cancelled' });
+
+                expect(res.status).toBe(200);
+                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1 }, data: { status: 'cancelled' } })
+                );
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('new → cancelled (legit cancel) → 200, then re-opening the cancelled order (cancelled → new) → 409', async () => {
+                // leg 1: a live order can still be cancelled (plain update, no accrual)
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'new' });
+                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, status: 'cancelled' });
+
+                const leg1 = await callPut({ status: 'cancelled' });
+
+                expect(leg1.status).toBe(200);
+                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1 }, data: { status: 'cancelled' } })
+                );
+
+                // leg 2: the cancelled order is terminal — re-opening is rejected
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
+                const leg2 = await callPut({ status: 'new' });
+
+                expect(leg2.status).toBe(409);
+        });
+
+        it('non-status edit on a cancelled order (whatsappSent toggle) → 200 — only status TRANSITIONS are rejected', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
+                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, status: 'cancelled' });
+
+                const res = await callPut({ whatsappSent: true });
+
+                expect(res.status).toBe(200);
+                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1 }, data: { whatsappSent: true } })
+                );
+        });
+
+        it('completed → ready (non-cancelled backward transition) stays allowed — the D-2 guard is not a forward-only map', async () => {
+                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'completed' });
+                mockOrderUpdate.mockResolvedValue({ ...ORDER, status: 'ready' });
+
+                const res = await callPut({ status: 'ready' });
+
+                expect(res.status).toBe(200);
+                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1 }, data: { status: 'ready' } })
+                );
+        });
+});

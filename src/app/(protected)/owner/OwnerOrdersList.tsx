@@ -46,7 +46,8 @@ const OrderRow = memo(function OrderRow({ order }: { order: StatsData["recentOrd
         </div>
       </div>
       <div className="flex items-center gap-2.5">
-        <span className="text-sm font-semibold tabular-nums">{formatPrice(order.total, { decimals: 1 })}</span>
+        {/* r121-H-1: smart formatPrice default — was forced decimals:1 («12.0») */}
+        <span className="text-sm font-semibold tabular-nums">{formatPrice(order.total)}</span>
         <span className={cn("text-[11px] font-medium px-2 py-0.5 rounded-full", config.bg, config.color)}>
           {config.label}
         </span>

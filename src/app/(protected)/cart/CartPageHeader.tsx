@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { toArabicNumber } from '@/lib/format';
 
 interface CartPageHeaderProps {
@@ -18,7 +18,10 @@ export function CartPageHeader({ count }: CartPageHeaderProps) {
                                 className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                 aria-label="العودة إلى القائمة"
                         >
-                                <MotionArrowLeft className="size-5" />
+                                {/* r121 (J-2): سهم «العودة إلى القائمة» كان MotionArrowLeft —
+                                    في RTL سهم العودة يشير يميناً (اتفاقية print/page.tsx:150
+                                    و BackButton.tsx). */}
+                                <MotionArrowRight className="size-5" />
                         </Link>
                         <h1 className="text-2xl font-bold">سلة الطلب</h1>
                         <div className="relative">

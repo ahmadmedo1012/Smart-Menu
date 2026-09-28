@@ -196,13 +196,26 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
                 if (!allowed) return error('غير مصرح', 403);
 
                 const deleted = await prisma.$transaction(async (tx) => {
-                        const review = await tx.review.delete({
-                                where: { id: reviewId },
-                                select: { id: true, menuItemId: true, rating: true },
-                        }).catch(() => null);
-                        // P2025 (not found) OR a review belonging to another item →
-                        // both mean the id is invalid for THIS item's scope.
-                        if (!review || review.menuItemId !== itemId) return null;
+                        // r121-C1: the delete itself is scoped to the URL item —
+                        // deleteMany({ id, menuItemId }) fuses the scope check and
+                        // the destroy into ONE statement. The old shape
+                        // (tx.review.delete keyed by reviewId only, scope checked
+                        // AFTER) committed the cross-item destroy and then answered
+                        // 404: a resolved callback (even null) COMMITS in a Prisma
+                        // interactive transaction, so any caller authorized for
+                        // item X could destroy a review of item Y (any tenant)
+                        // while the victim's ratingCount/avgRating kept counting
+                        // the deleted row (and the victim's ISR cache was never
+                        // purged). deleteMany returns { count: 0 } for a foreign
+                        // id without throwing, so no rollback is needed either.
+                        const res = await tx.review.deleteMany({
+                                where: { id: reviewId, menuItemId: itemId },
+                        });
+                        // count === 0 → P2025-equivalent OR a review belonging to
+                        // another item: both mean the id is invalid for THIS
+                        // item's scope — nothing was written, the tx commits a
+                        // no-op, and the caller gets the same 404 as before.
+                        if (res.count === 0) return null;
                         // Exact recompute from remaining rows — mirrors the POST's
                         // incremental formula (round-76) but cannot drift.
                         await tx.$executeRaw`
@@ -214,7 +227,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
                                         FROM "Review" WHERE "menuItemId" = ${itemId}
                                 ) s
                                 WHERE m.id = ${itemId}`;
-                        return review;
+                        return res;
                 });
                 if (!deleted) return error('التقييم غير موجود', 404);
 

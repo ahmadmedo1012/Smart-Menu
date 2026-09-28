@@ -224,7 +224,11 @@ export function OrderDialog({
                         <DialogTitle className="sr-only">{displayName}</DialogTitle>
                         {/* Image header with gradient overlay */}
                         {item.image && (
-                                <div className="relative h-44 sm:h-52 overflow-hidden">
+                                /* r121 (Q-3): على الجوال (الورقة السفلية <sm) كان الرأس h-44 (176px)
+                                   يدفع زر «أضف إلى السلة» 50.7px تحت الحافة المرئية عند 375×667
+                                   (قياس Q) فيلزم تمرير داخل الورقة قبل رؤية زر المال. تقليص
+                                   الرأس للجوال فقط — سطح المكتب (sm:h-52) كما هو. */
+                                <div className="relative h-28 sm:h-52 overflow-hidden">
                                         <OptimizedImage
                                                 src={item.image}
                                                 alt={displayName}
@@ -269,7 +273,7 @@ export function OrderDialog({
                                         <p className="text-sm text-muted-foreground">جاري فتح السلة لمراجعة الطلب وإرساله عبر واتساب...</p>
                                 </div>
                         ) : (
-                                <div className={cn('p-5 space-y-4', !item.image && 'pt-8')}>
+                                <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4', !item.image && 'pt-8')}>
                                         {!item.image && (
                                                 <div className="text-center pb-2">
                                                         <h3 className="text-xl font-bold mb-1">{displayName}</h3>
@@ -366,6 +370,8 @@ export function OrderDialog({
                                                                                                                 )}
                                                                                                         >
                                                                                                                 {o.nameAr || o.name}
+                                                                                                                {/* r121 (H-1): سحب decimals:1 من فروق الخيارات — «+2.0» صارت
+                                                                                                                    «+2» و«0.25» تبقى «0.25» بدل تدويرها إلى «0.3». */}
                                                                                                                 {o.priceDelta !== 0 && (
                                                                                                                         <span
                                                                                                                                 className={cn(
@@ -374,8 +380,8 @@ export function OrderDialog({
                                                                                                                                 )}
                                                                                                                         >
                                                                                                                                 {o.priceDelta > 0
-                                                                                                                                        ? `+${formatPrice(o.priceDelta, { decimals: 1, suffix: '' })}`
-                                                                                                                                        : formatPrice(o.priceDelta, { decimals: 1, suffix: '' })}
+                                                                                                                                        ? `+${formatPrice(o.priceDelta, { suffix: '' })}`
+                                                                                                                                        : formatPrice(o.priceDelta, { suffix: '' })}
                                                                                                                         </span>
                                                                                                                 )}
                                                                                                         </button>
@@ -435,7 +441,8 @@ export function OrderDialog({
                                                         {modDelta !== 0 && (
                                                                 <p className="text-[10px] text-muted-foreground mt-0.5">
                                                                         شامل الخيارات {modDelta > 0 ? '+' : ''}
-                                                                        {formatPrice(modDelta, { decimals: 1, suffix: '' })} د.ل
+                                                                        {/* r121 (H-1): عيار العرض الذكي بدل decimals:1. */}
+                                                                        {formatPrice(modDelta, { suffix: '' })} د.ل
                                                                 </p>
                                                         )}
                                                 </div>
@@ -607,7 +614,9 @@ export function OrderDialog({
                 <Sheet {...sharedProps}>
                         <SheetContent
                                 side="bottom"
-                                className="gap-0 p-0 max-h-[90dvh] overflow-y-auto rounded-t-2xl glass-strong"
+                                /* r121 (Q-3): 94dvh بدل 90dvh — يرفع الحافة المرئية ~27px
+                                   على 667px فلا يختفي زر «أضف إلى السلة» عند الفتح الأول. */
+                                className="gap-0 p-0 max-h-[94dvh] overflow-y-auto rounded-t-2xl glass-strong"
                                 showCloseButton={!item?.image}
                         >
                                 {innerContent}

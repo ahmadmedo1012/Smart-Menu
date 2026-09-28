@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react";
 import Link from "next/link"
 import {LayoutDashboard, UtensilsCrossed, ScrollText, Settings, QrCode, Store, Users, Activity, DollarSign, MessageCircle, Shield} from 'lucide-react';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
@@ -54,26 +53,16 @@ function LogoutButton() {
   )
 }
 
-export function AdminSidebar() {
-  const [role, setRole] = useState<string | null>(null);
-  const [permissions, setPermissions] = useState<string[]>([]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/auth/me", { signal: controller.signal })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) {
-          setRole(d.data.role);
-          setPermissions(d.data.permissions ?? []);
-        }
-      })
-      .catch((error) => {
-        if (error instanceof DOMException && error.name === "AbortError") return;
-      });
-    return () => controller.abort();
-  }, []);
-
+export function AdminSidebar({
+  role,
+  permissions,
+}: {
+  /** r121-B-2/A-2: fed by the server admin layout (requireAuth) via AdminShell —
+   * kills this component's independent /me probe (one of 2-3
+   * duplicate session calls on every admin cold load). */
+  role: string | null;
+  permissions: string[];
+}) {
   const visible = role === "super_admin" || role === "admin"
     ? allNavItems
     : allNavItems.filter((item) => hasItemPermission(item, role, permissions));

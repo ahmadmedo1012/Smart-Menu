@@ -63,7 +63,21 @@ const accountBackstopLimiter = createDbRateLimiter({ windowMs: 15 * 60_000, max:
 
 export async function POST(request: Request) {
         try {
-                const parsed = loginSchema.safeParse(await request.json());
+                // r121-M3: a malformed/empty body used to throw out of
+                // request.json() into the outer catch → 500. safeParse guards
+                // SCHEMA failures, not the JSON parse itself. Inline guard with
+                // the house JSON-parse copy (handleError's branch) — this route's
+                // custom catch deliberately bypasses handleError for no-leak
+                // reasons, but a parse failure leaks nothing and costs no KDF/DB
+                // work, so the 400 is both safe and the A4 contract. The generic
+                // 500 stays for everything else.
+                let rawBody: unknown;
+                try {
+                        rawBody = await request.json();
+                } catch {
+                        return error('بيانات غير صالحة — خطأ في صيغة JSON', 400);
+                }
+                const parsed = loginSchema.safeParse(rawBody);
                 if (!parsed.success) return error('يرجى إدخال اسم المستخدم وكلمة المرور', 422);
                 const { username, password } = parsed.data;
                 const ip = getClientIp(request); // round91-D1: unified extraction

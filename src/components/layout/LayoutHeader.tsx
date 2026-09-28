@@ -28,7 +28,11 @@ export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, rol
           >
             <MotionMenu className="size-5" aria-hidden="true" />
           </button>
-          <h1 className="hidden text-sm font-semibold text-muted-foreground sm:block">{title}</h1>
+          {/* r121-K-1 (K-audit §12 note): this was a heading element — a static
+              "لوحة التحكم" that duplicated every page's real (sr-only) h1 on
+              desktop; a span keeps the visual chrome without breaking the
+              one-h1-per-page rule. */}
+          <span className="hidden text-sm font-semibold text-muted-foreground sm:block">{title}</span>
         </div>
         <ActionSearchBar role={role} className="max-w-sm flex-1" />
         <ThemeToggle />

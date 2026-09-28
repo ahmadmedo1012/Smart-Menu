@@ -72,32 +72,70 @@ export function GalleryCarousel({
         const closeRef = useRef<HTMLButtonElement>(null);
         const lightboxPrevRef = useRef<HTMLButtonElement>(null);
         const lightboxNextRef = useRef<HTMLButtonElement>(null);
+        // r121-K-4 (IMPL-3): the lightbox hand-rolled trap only knew three refs
+        // (close/prev/next) — Tab from a dot button escaped the aria-modal dialog
+        // into the obscured page behind the overlay, and closeLightbox never
+        // returned focus to the opener (focus fell to <body>). ReviewSheet is the
+        // in-repo model: trap built from the live DOM + opener capture + return.
+        const dialogRef = useRef<HTMLDivElement>(null);
+        const openerRef = useRef<HTMLElement | null>(null);
 
         const closeLightbox = () => {
                 setLightbox(false);
                 setPaused(false);
+                // r121-K-4: focus return (WCAG 2.4.3) — unmounting the dialog used to
+                // strand keyboard focus on <body> (document start).
+                openerRef.current?.focus();
         };
 
-        const trapFocus = useCallback((e: KeyboardEvent) => {
-                if (e.key === 'Escape') {
-                        closeLightbox();
-                        return;
-                }
-                if (e.key !== 'Tab') return;
-                const focusable = [closeRef.current, lightboxPrevRef.current, lightboxNextRef.current].filter(
-                        Boolean
-                ) as HTMLElement[];
-                if (focusable.length < 2) return;
-                const first = focusable[0];
-                const last = focusable[focusable.length - 1];
-                if (e.shiftKey && document.activeElement === first) {
-                        e.preventDefault();
-                        last.focus();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                        e.preventDefault();
-                        first.focus();
-                }
-        }, []);
+        const trapFocus = useCallback(
+                (e: KeyboardEvent) => {
+                        if (e.key === 'Escape') {
+                                closeLightbox();
+                                return;
+                        }
+                        // r121-K-4: arrow-key slide navigation (RTL: LEFT advances — the same
+                        // convention as OrderDialog's radiogroup).
+                        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                                if (images.length < 2) return;
+                                e.preventDefault();
+                                const delta = e.key === 'ArrowLeft' ? 1 : -1;
+                                setLightboxIdx((prev) => (prev + delta + images.length) % images.length);
+                                return;
+                        }
+                        if (e.key !== 'Tab') return;
+                        const dialog = dialogRef.current;
+                        if (!dialog) return;
+                        // Trap from the LIVE DOM so every button inside the dialog
+                        // (incl. the pagination dots) participates — the old fixed
+                        // [close, prev, next] ref list skipped them.
+                        const focusable = Array.from(
+                                dialog.querySelectorAll<HTMLElement>('button:not([disabled])')
+                        );
+                        if (focusable.length === 0) {
+                                e.preventDefault();
+                                return;
+                        }
+                        const first = focusable[0];
+                        const last = focusable[focusable.length - 1];
+                        const active = document.activeElement;
+                        // Re-entry guard (ReviewSheet pattern): a click on a non-focusable
+                        // margin throws focus to body — pull it back inside.
+                        if (!dialog.contains(active)) {
+                                e.preventDefault();
+                                (e.shiftKey ? last : first).focus();
+                                return;
+                        }
+                        if (e.shiftKey && active === first) {
+                                e.preventDefault();
+                                last.focus();
+                        } else if (!e.shiftKey && active === last) {
+                                e.preventDefault();
+                                first.focus();
+                        }
+                },
+                [images.length]
+        );
 
         useEffect(() => {
                 if (lightbox) closeRef.current?.focus();
@@ -106,6 +144,9 @@ export function GalleryCarousel({
         if (!images.length) return null;
 
         const openLightbox = (idx: number) => {
+                // r121-K-4: remember the opener so closeLightbox can return focus to it.
+                openerRef.current =
+                        document.activeElement instanceof HTMLElement ? document.activeElement : null;
                 setLightboxIdx(idx);
                 setLightbox(true);
                 setPaused(true);
@@ -248,6 +289,7 @@ export function GalleryCarousel({
                         {/* Lightbox */}
                         {lightbox && (
                                 <div
+                                        ref={dialogRef}
                                         role="dialog"
                                         aria-modal="true"
                                         aria-label={restaurantName ? `معرض صور ${restaurantName}` : 'معرض الصور'}

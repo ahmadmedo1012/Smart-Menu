@@ -148,6 +148,32 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         if (!perm.authorized) return error(perm.error, perm.status);
                 }
 
+                // r121-E1: destination-category tenant guard — the updateSchema
+                // accepts categoryId and the spread loop below copies it verbatim,
+                // but the ownership ladder above only validated the item's CURRENT
+                // restaurant. Any owner could PUT their item with a foreign
+                // categoryId (small sequential ids, exposed by the public menu
+                // payload) and inject it into ANOTHER tenant's menu — served on
+                // their public page, orderable by their customers, counted into
+                // their plan cap. Mirrors the POST ladder (items/route.ts): the
+                // destination must ALSO belong to the caller (owner: primary or
+                // UserRestaurant link; staff already passed MANAGE_RESTAURANTS
+                // above, which is platform-wide by design). Same-category PUTs
+                // (ItemDialog resends the current categoryId) skip the extra read.
+                if (body.categoryId !== undefined && body.categoryId !== existing.categoryId) {
+                        const destCategory = await prisma.menuCategory.findUnique({
+                                where: { id: body.categoryId },
+                                select: { restaurantId: true },
+                        });
+                        if (!destCategory) return notFound('التصنيف');
+                        if (auth.role === 'owner' && auth.restaurantId !== destCategory.restaurantId) {
+                                const link = await prisma.userRestaurant.findUnique({
+                                        where: { userId_restaurantId: { userId: auth.userId!, restaurantId: destCategory.restaurantId } },
+                                });
+                                if (!link) return error('غير مصرح', 403);
+                        }
+                }
+
                 // Spread only the keys actually present — undefined fields in the payload
                 // must not overwrite stored values (e.g. a status-only toggle).
                 const updateData: Record<string, unknown> = {};

@@ -1,6 +1,10 @@
 "use client";
 // ponytail: reads csrf-token cookie, adds X-CSRF-Token header to mutating fetches
-import { CSRF_COOKIE, CSRF_HEADER } from "./csrf";
+import { CSRF_COOKIE, CSRF_HEADER } from "./csrf-shared";
+/* r121 (G-1): كانت من "./csrf" — ذلك الملف يستورد secure-compare (node:crypto)
+   للتحقق من جهة الخادم، فيدخل تجميع polyfills التشفير في رسم العميل ويشحن
+   ~127KB-gz ميتة على كل مسار يستخدم csrfFetch. الورقة المشتركة تحمل الثابتين
+   فقط — سلوك الشبكة/الأمان بلا أي تغيير. */
 
 function getToken(): string {
   return (

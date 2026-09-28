@@ -18,6 +18,7 @@ import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 import { ItemDialog } from '@/components/owner/ItemDialog';
 import { premiumToast } from '@/lib/premium-toast';
+import { getErrorMessage } from '@/lib/get-error-message';
 import { type Category, type Item, CATEGORY_ICONS } from './types';
 import { CategoriesList } from './CategoriesList';
 import { CategoryDialog } from './CategoryDialog';
@@ -127,8 +128,12 @@ export default function OwnerMenuPage() {
                         setCatDialog(false);
                         fetchCats();
                         setUsageKey((k) => k + 1);
-                } catch {
-                        premiumToast('error', 'فشل الحفظ');
+                } catch (e) {
+                        /* r121-P-5 (M-ErrSurface): csrfJson يرمي رسالة الخادم العربية
+                           (مثل 403 «اشتراكك منتهي. جدّد اشتراكك للمتابعة.» وسقف الباقة)
+                           — كان المصدر يبتلعها خلف «فشل الحفظ» العامة، على نفس الصفحة
+                           التي يعرض فيها use-item-save الرسالة الصريحة. */
+                        premiumToast('error', getErrorMessage(e, 'فشل الحفظ'));
                 }
         };
 

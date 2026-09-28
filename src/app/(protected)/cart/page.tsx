@@ -8,11 +8,12 @@ import { normalizeWaNumber, buildWhatsAppShareUrl } from "@/lib/whatsapp";
 import { useRouter } from 'next/navigation';
 import { premiumToast } from '@/lib/premium-toast';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
-import { useCart } from '@/store/cart';
+import { useCart, useCartHydrated } from '@/store/cart';
 import { useRef } from 'react';
 import { buildReceiptMessage } from '@/lib/receipt';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/Header';
+import { DefaultLoading } from '@/components/shared/DefaultLoading';
 import { useCartTotals } from './use-cart-totals';
 import { CartLineItem } from './CartLineItem';
 import { ReviewDialog } from './ReviewDialog';
@@ -57,6 +58,11 @@ export default function CartPage() {
 
         const [showPreview, setShowPreview] = useState(false);
         const [isSubmitting, setIsSubmitting] = useState(false);
+        // r121 (H-3): بوابة ترطيب السلة — ترتفع فقط بعد انتهاء rehydrate()
+        // (CartHydrator في جذر التخطيط). تمنع ومضة «السلة فارغة» الكاذبة
+        // عند التحديث الصلب لـ /cart بينما السلة المحفوظة لم تُحمّل بعد
+        // (قياس Q: حتى ~2.3 ث تحت خنق المعالج).
+        const cartHydrated = useCartHydrated();
 
         // Empty-cart shortcut: return to THIS restaurant's menu, never a hardcoded
         // one (the old '/menu/al-waha-cafe' link sent every other restaurant's
@@ -166,6 +172,30 @@ export default function CartPage() {
                         setIsSubmitting(false);
                         return;
                 }
+                // r118-A5-F2: defensive budget guard — the composed notes
+                // (ملاحظات + العنوان) must stay within the server's 500-char
+                // cap. The inputs are capped to fit (120 + 360), but a stale
+                // persisted cart/address (older localStorage shape) could still
+                // exceed it — block with an actionable message instead of a
+                // doomed 422 that names no field.
+                // r121 (H-2): كان هذا الفحص داخل الـ try بعد إغلاق قفل الإرسال
+                // (submittingRef/isSubmitting) فيعود دون تحريره — يبقى زر
+                // الحوار معطلاً بـ «جاري...» نهائياً حتى إعادة تحميل الصفحة.
+                // نُقل الفحص قبل القفل كسابقة PaymentDialog (r120): فشل التحقق
+                // يجب أن يترك الزر صالحاً لإعادة المحاولة بعد اختصار النص.
+                const composedNotes = [notes, pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '']
+                        .filter(Boolean)
+                        .join('\n');
+                if (composedNotes.length > 500) {
+                        /* r121 (H-2): نفس نمط حارس العنوان (r120 U5-F-4) — أغلق الحوار
+                           أولاً حتى يظهر التنبيه ويصل التركيز للحقل المخالف. */
+                        setShowPreview(false);
+                        premiumToast('error', 'الملاحظات أو عنوان التوصيل طويل جداً — اختصر قليلاً ثم أعد المحاولة');
+                        document
+                                .getElementById(pickupType === 'delivery' ? 'delivery-address' : 'cart-notes')
+                                ?.focus();
+                        return;
+                }
                 submittingRef.current = true;
                 setIsSubmitting(true);
 
@@ -205,19 +235,6 @@ export default function CartPage() {
                                 checkoutKeyRef.current = `W${Date.now().toString(36)}${Math.random()
                                         .toString(36)
                                         .slice(2, 8)}`.toUpperCase();
-                        }
-                        // r118-A5-F2: defensive budget guard — the composed notes
-                        // (ملاحظات + العنوان) must stay within the server's 500-char
-                        // cap. The inputs are capped to fit (120 + 360), but a stale
-                        // persisted cart/address (older localStorage shape) could still
-                        // exceed it — block with an actionable message instead of a
-                        // doomed 422 that names no field.
-                        const composedNotes = [notes, pickupType === 'delivery' ? `العنوان: ${deliveryAddress}` : '']
-                                .filter(Boolean)
-                                .join('\n');
-                        if (composedNotes.length > 500) {
-                                premiumToast('error', 'الملاحظات أو عنوان التوصيل طويل جداً — اختصر قليلاً ثم أعد المحاولة');
-                                return;
                         }
                         const res = await csrfFetch('/api/orders', {
                                 method: 'POST',
@@ -369,6 +386,20 @@ export default function CartPage() {
         };
 
         if (items.length === 0 && !confirmed) {
+                /* r121 (H-3): قبل اكتمال ترطيب السلة المحفوظة كان هذا الفرع
+                   يُرسَل من الخادم نفسه («السلة فارغة») لأن المتجر يبدأ فارغاً
+                   مع skipHydration. نرسم هيكل التحميل حتى انتهاء الترطيب —
+                   السلة الفارغة فعلاً تُعرض بعدها مباشرة، والسلة الممتلئة لا
+                   تومض أبداً. الصفحة noindex (cart/layout.tsx) — لا كلفة SEO،
+                   وحارس beforeunload يقرأ المتجر مباشرة فلا يتأثر. */
+                if (!cartHydrated) {
+                        return (
+                                <>
+                                        <Header />
+                                        <DefaultLoading />
+                                </>
+                        );
+                }
                 return (
                         <>
                                 <Header />

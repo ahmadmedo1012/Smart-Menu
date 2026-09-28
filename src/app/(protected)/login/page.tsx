@@ -27,7 +27,9 @@ import { LoginForm } from './LoginForm';
  */
 
 export const metadata = {
-        title: 'تسجيل الدخول | الربط الذكي',
+        // r121-L-4: the hardcoded brand suffix is stripped — the root template
+        // appends «| المنيو الذكي» (the page title used to double the brand).
+        title: 'تسجيل الدخول',
         description: 'سجّل دخولك إلى لوحة تحكم مطعمك على منصة الربط الذكي',
 };
 

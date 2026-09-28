@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {CheckCircle} from 'lucide-react';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
-import { MotionArrowLeft } from '@/components/ui/motion-icons';
+import { MotionArrowRight } from '@/components/ui/motion-icons';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/store/cart';
@@ -92,7 +92,14 @@ function OrderContent() {
                 return (
                         <>
                                 <Header />
-                                <main className="min-h-screen bg-background flex flex-col">
+                                {/* r121-K-1: this was a SECOND main landmark nested inside
+                                        the (protected) group main (two per page); r121-K-3: the skip
+                                        link targets this content root — past the Header nav. */}
+                                <div
+                                        id="main-content"
+                                        tabIndex={-1}
+                                        className="min-h-screen bg-background flex flex-col focus:outline-none"
+                                >
                                         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
                                                 <div className="size-20 rounded-full bg-orange-muted flex items-center justify-center animate-scale-in">
                                                         <CheckCircle className="size-10 text-orange" />
@@ -103,8 +110,13 @@ function OrderContent() {
                                                                 شكراً لاشتراكك في <strong>الربط الذكي</strong>.
                                                                 <br />
                                                                 <br />
-                                                                تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من الدفع وتفعيل حسابك خلال 24
-                                                                ساعة. سيتم إشعارك عند اكتمال التفعيل.
+                                                                {/* r121-P-4: كان الوعد زمنيًا محددًا بالساعات — لا توجد آلية
+                                                                    تُلزم الإدارة به. الوعد الصادق: سريعاً خلال أوقات
+                                                                    الدوام (الإشعار يصل الآن عبر لوحة التحكم بعد فرع
+                                                                    الموافقة في UserBannerNotifier). */}
+                                                                تم استلام طلب الدفع الخاص بك. ستقوم الإدارة بالتحقق من
+                                                                الدفع وتفعيل حسابك سريعاً خلال أوقات الدوام. سيتم إشعارك
+                                                                عند اكتمال التفعيل.
                                                         </p>
                                                 </div>
                                                 <div className="flex flex-col gap-3 w-full max-w-xs">
@@ -113,13 +125,14 @@ function OrderContent() {
                                                         </Link>
                                                         <Link href="/">
                                                                 <Button variant="outline" className="w-full">
-                                                                        <MotionArrowLeft className="ms-2 size-4" />
+                                                                        {/* r121-J-2: سهم العودة في RTL يشير يميناً */}
+                                                                        <MotionArrowRight className="ms-2 size-4" />
                                                                         العودة للرئيسية
                                                                 </Button>
                                                         </Link>
                                                 </div>
                                         </div>
-                                </main>
+                                </div>
                         </>
                 );
         }
@@ -130,7 +143,7 @@ function OrderContent() {
                         <Suspense fallback={null}>
                                 <Confetti active={showConfetti} />
                         </Suspense>
-                        <main className="min-h-screen bg-background flex flex-col">
+                        <div id="main-content" tabIndex={-1} className="min-h-screen bg-background flex flex-col focus:outline-none">
                                 <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
                                         <div className="size-20 rounded-full bg-success/10 flex items-center justify-center animate-scale-in">
                                                 <CheckCircle className="size-10 text-success" />
@@ -164,9 +177,10 @@ function OrderContent() {
                                                 </Button>
                                                 {/* r120 (U5-F-7): العودة إلى منيو المطعم الذي طُلب منه
                                                     (slug يصل عبر الرابط) — ليس إلى أول مطعم في قاعدة البيانات. */}
+                                                {/* r121-J-2: سهم العودة في RTL يشير يميناً */}
                                                 <Link href={referralRestaurantSlug ? `/menu/${referralRestaurantSlug}` : '/menu'}>
                                                         <Button variant="outline" className="w-full">
-                                                                <MotionArrowLeft className="ms-2 size-4" />
+                                                                <MotionArrowRight className="ms-2 size-4" />
                                                                 العودة إلى القائمة
                                                         </Button>
                                                 </Link>
@@ -180,7 +194,7 @@ function OrderContent() {
                                         restaurantId={referralRestaurantId}
                                         restaurantSlug={referralRestaurantSlug}
                                 />
-                        </main>
+                        </div>
                 </>
         );
 }

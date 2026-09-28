@@ -188,8 +188,9 @@ function OrderCard({
                                 <div className="text-end shrink-0">
                                         <p className="font-bold text-lg tabular-nums">
                                                 {/* round97-X3: shared formatPrice (suffix '' — the د.ل
-                                                    line below stays separate for the compact layout). */}
-                                                {formatPrice(order.total, { decimals: 1, suffix: '' })}
+                                                    line below stays separate for the compact layout).
+                                                    r121-H-1: smart default — was forced decimals:1 («12.0»). */}
+                                                {formatPrice(order.total, { suffix: '' })}
                                         </p>
                                         <p className="text-xs text-muted-foreground">د.ل</p>
                                 </div>

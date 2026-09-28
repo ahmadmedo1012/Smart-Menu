@@ -24,6 +24,25 @@ export function acceptedOrdersPhrase(count: number): string {
         return count < 3 ? noun : `${toArabicNumber(count)} ${noun}`;
 }
 
+// r121-K-6 (IMPL-3): عبارة إعلان وصول طلبات جديدة لقارئ الشاشة — استُخرجت
+// مُصدَّرة ليبثها الاختبار (نفس سابقة acceptedOrdersPhrase أعلاه). قبل هذا
+// كان وصول طلب جديد على شاشة الطلبات يُعلن فقط عبر النغمة الصوتية (الشريط
+// نفسه role=region بلا aria-live، والاعلان الوحيد OrderNotifier لا يعمل إلا
+// في لوحة التحكم الرئيسية) — بينما الاعلان «العرضي» القديم كان يأتي من
+// aria-live على <main> كاملة (K-2) الذي أزلناه لأنه يعيد إعلان الصفحة كلها
+// مع كل دورة استطلاع 5-15 ثانية.
+export function newOrdersArrivalPhrase(count: number): string {
+        if (count === 1) return 'وصل طلب جديد';
+        if (count === 2) return 'وصل طلبان جديدان';
+        const noun = getArabicPlural(count, 'طلب', {
+                few: 'طلبات',
+                many: 'طلبًا',
+        });
+        return count % 100 >= 3 && count % 100 <= 10
+                ? `وصلت ${toArabicNumber(count)} ${noun} جديدة`
+                : `وصل ${toArabicNumber(count)} ${noun} جديدًا`;
+}
+
 interface NewOrdersBarProps {
         /** Callback to refresh the full orders list after bulk advance. */
         onOrdersRefresh: () => void;
@@ -47,6 +66,10 @@ export function NewOrdersBar({
         // owner can now close it for the current batch; a GENUINELY new batch
         // (count grew) re-opens it, so new arrivals are never silently hidden.
         const [dismissed, setDismissed] = useState(false);
+        // r121-K-6: نص إعلان وصول دفعة جديدة لقارئ الشاشة (region مخفي يُعلن
+        // عند نمو العدد — نفس شرط إعادة فتح الشريط أدناه؛ يشمل الدفعة الأولى
+        // بعد فتح الصفحة، مطابقًا لسلوك النغمة الصوتية).
+        const [arrivalAnnouncement, setArrivalAnnouncement] = useState('');
         const hasPlayedSound = useRef(false);
         const prevCountRef = useRef(0);
 
@@ -61,7 +84,12 @@ export function NewOrdersBar({
         // Re-open on new arrivals only (a shrinking count — the user accepted
         // via the cards — must NOT resurrect a dismissed bar).
         useEffect(() => {
-                if (newCount > prevCountRef.current) setDismissed(false);
+                if (newCount > prevCountRef.current) {
+                        setDismissed(false);
+                        // r121-K-6: الإعلان المتعمّد يحل محل الإعلان العرضي من aria-live
+                        // على <main> (K-2). نص جديد ⇒ إعلان مهذّب واحد لقارئ الشاشة.
+                        setArrivalAnnouncement(newOrdersArrivalPhrase(newCount));
+                }
                 prevCountRef.current = newCount;
         }, [newCount]);
 
@@ -92,10 +120,20 @@ export function NewOrdersBar({
                 }
         }, [accepting, newOrderIds, updateStatus, onOrdersRefresh]);
 
-        if (!visible) return null;
+        if (!visible)
+                // r121-K-6: الـ region المخفي يبقى في DOM دائمًا — مناطق الاعلان يجب
+                // أن توجد قبل تغيّر محتواها وإلا ابتلع المتصفح أول إعلان.
+                return (
+                        <span role="status" aria-live="polite" className="sr-only">
+                                {arrivalAnnouncement}
+                        </span>
+                );
 
         return (
                 <>
+                        <span role="status" aria-live="polite" className="sr-only">
+                                {arrivalAnnouncement}
+                        </span>
                         {/* round90-F4 (M3): reserve the layout space the fixed bar occupies
                             (at the scroll bottom) so the last order card / the load-more
                             button are never permanently hidden behind it. */}
