@@ -49,53 +49,53 @@ export function OwnerDashboardScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor="#bc4700" />}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 22, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor="#E9B44C" />}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>
           أهلًا، {user?.name || user?.username || "صاحب المطعم"}
         </Text>
         {error ? <ErrorState message={error} onRetry={load} /> : stats ? (
           <>
             <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
-              <Kpi label="إجمالي الطلبات" value={toArabicNumber(stats.totalOrders)} icon={<ClipboardList size={18} color="#bc4700" />} />
-              <Kpi label="طلبات اليوم" value={toArabicNumber(stats.todayOrders)} icon={<TrendingUp size={18} color="#bc4700" />} />
+              <Kpi label="إجمالي الطلبات" value={toArabicNumber(stats.totalOrders)} icon={<ClipboardList size={18} color="#E9B44C" />} />
+              <Kpi label="طلبات اليوم" value={toArabicNumber(stats.todayOrders)} icon={<TrendingUp size={18} color="#E9B44C" />} />
             </View>
-            <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color="#bc4700" />} full />
-            <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#ebe7e2", marginVertical: 16 }}>إجراءات سريعة</Text>
+            <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color="#E9B44C" />} full />
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6", marginVertical: 16 }}>إجراءات سريعة</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              <QuickAction icon={<ClipboardList size={20} color="#ebe7e2" />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
-              <QuickAction icon={<Package size={20} color="#ebe7e2" />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
-              <QuickAction icon={<QrCode size={20} color="#ebe7e2" />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
-              <QuickAction icon={<Star size={20} color="#ebe7e2" />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
-              <QuickAction icon={<Award size={20} color="#ebe7e2" />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
-              <QuickAction icon={<Settings size={20} color="#ebe7e2" />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
+              <QuickAction icon={<ClipboardList size={20} color="#F2EFE6" />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
+              <QuickAction icon={<Package size={20} color="#F2EFE6" />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
+              <QuickAction icon={<QrCode size={20} color="#F2EFE6" />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
+              <QuickAction icon={<Star size={20} color="#F2EFE6" />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
+              <QuickAction icon={<Award size={20} color="#F2EFE6" />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
+              <QuickAction icon={<Settings size={20} color="#F2EFE6" />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
             </View>
-            <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#ebe7e2", marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6", marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
             {stats.recentOrders.length === 0 ? (
-              <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
             ) : (
               stats.recentOrders.slice(0, 5).map((o) => (
-                <Pressable key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#070503", borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
+                <Pressable key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0D1428", borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
                   <View>
-                    <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2" }}>{o.orderNo}</Text>
-                    <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6" }}>{o.orderNo}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontFamily: "ReadexPro", fontSize: 13, fontWeight: "700", color: "#bc4700" }}>{formatPrice(o.total)}</Text>
-                    <Text style={{ fontFamily: "Cairo", fontSize: 10, color: "#9c948a", marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(o.total)}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 10, color: "#8E97B8", marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
                   </View>
                 </Pressable>
               ))
             )}
             <Pressable onPress={logout} style={{ marginTop: 24, padding: 12, alignItems: "center" }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#e62b34", fontWeight: "600" }}>تسجيل الخروج</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#F0938F", fontWeight: "600" }}>تسجيل الخروج</Text>
             </Pressable>
           </>
         ) : null}
@@ -106,19 +106,19 @@ export function OwnerDashboardScreen() {
 
 function Kpi({ label, value, icon, full }: { label: string; value: string; icon: React.ReactNode; full?: boolean }) {
   return (
-    <View style={{ flex: full ? 1 : 0.5, backgroundColor: "#070503", borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#1f1813", marginBottom: 8 }}>
+    <View style={{ flex: full ? 1 : 0.5, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#1B2444", marginBottom: 8 }}>
       <View style={{ marginBottom: 6 }}>{icon}</View>
-      <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2" }}>{value}</Text>
-      <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 2 }}>{label}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }}>{label}</Text>
     </View>
   );
 }
 
 function QuickAction({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ width: "31%", aspectRatio: 1, backgroundColor: "#070503", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
+    <Pressable onPress={onPress} style={({ pressed }) => ({ width: "31%", aspectRatio: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
       {icon}
-      <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", textAlign: "center" }}>{label}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", textAlign: "center" }}>{label}</Text>
     </Pressable>
   );
 }
@@ -256,8 +256,8 @@ export function OwnerOrdersScreen() {
         <Pressable
           onPress={() => { void loadMore(); }}
           accessibilityLabel="تحميل المزيد من الطلبات"
-          style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: "#070503", borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#bc4700" }}>تحميل المزيد</Text>
+          style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: "#0D1428", borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#E9B44C" }}>تحميل المزيد</Text>
         </Pressable>
       );
     }
@@ -265,7 +265,7 @@ export function OwnerOrdersScreen() {
     // was ever loadable); a short single-page list needs no "no more" noise.
     if (orders.length > ORDERS_PAGE_SIZE) {
       return (
-        <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a", textAlign: "center", paddingVertical: 16 }}>لا مزيد من الطلبات</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", textAlign: "center", paddingVertical: 16 }}>لا مزيد من الطلبات</Text>
       );
     }
     return null;
@@ -273,41 +273,41 @@ export function OwnerOrdersScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <ErrorState message={error} onRetry={load} />
       </SafeAreaView>
     );
   }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <FlatList
         data={orders}
         keyExtractor={(o) => String(o.id)}
         renderItem={({ item: o }) => (
-          <Pressable onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1f1813", opacity: pressed ? 0.8 : 1 })}>
+          <Pressable onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#ebe7e2" }}>{o.orderNo}</Text>
-              <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#bc4700", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6" }}>{o.orderNo}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#E9B44C", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
             </View>
-            <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
-              <Text style={{ fontFamily: "ReadexPro", fontSize: 14, fontWeight: "700", color: "#bc4700" }}>{formatPrice(o.total)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(o.total)}</Text>
             </View>
           </Pressable>
         )}
         onEndReached={() => { void loadMore(); }}
         onEndReachedThreshold={0.4}
         contentContainerStyle={{ padding: 16, paddingBottom: 32, flexGrow: 1 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#bc4700" />}
-        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#9c948a" />} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E9B44C" />}
+        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#8E97B8" />} />}
         ListFooterComponent={renderFooter}
       />
     </SafeAreaView>
@@ -337,7 +337,7 @@ export function OwnerOrderDetailScreen() {
 
   if (loading && !order) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
@@ -345,7 +345,7 @@ export function OwnerOrderDetailScreen() {
 
   if (error && !order) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <ErrorState message={error} onRetry={load} />
       </SafeAreaView>
     );
@@ -366,33 +366,33 @@ export function OwnerOrderDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", marginBottom: 4 }}>{order.orderNo}</Text>
-        <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
-        <View style={{ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: "#1f1813" }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2", marginBottom: 4 }}>بيانات الزبون</Text>
-          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>الاسم: {order.customerName || "—"}</Text>
-          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>الهاتف: {order.customerPhone || "—"}</Text>
-          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
-          {order.notes ? <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a" }}>ملاحظات: {order.notes}</Text> : null}
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", marginBottom: 4 }}>{order.orderNo}</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
+        <View style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: "#1B2444" }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6", marginBottom: 4 }}>بيانات الزبون</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>الاسم: {order.customerName || "—"}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>الهاتف: {order.customerPhone || "—"}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
+          {order.notes ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>ملاحظات: {order.notes}</Text> : null}
         </View>
-        <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#ebe7e2", marginBottom: 8 }}>الأصناف</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6", marginBottom: 8 }}>الأصناف</Text>
         {order.items.map((i) => (
-          <View key={i.id} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1f1813" }}>
-            <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#ebe7e2" }}>{i.quantity}× {i.name}</Text>
-            <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#bc4700" }}>{formatPrice(i.price * i.quantity)}</Text>
+          <View key={i.id} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1B2444" }}>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#F2EFE6" }}>{i.quantity}× {i.name}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#E9B44C" }}>{formatPrice(i.price * i.quantity)}</Text>
           </View>
         ))}
         <View style={{ flexDirection: "row", justifyContent: "space-between", paddingTop: 12, marginTop: 4 }}>
-          <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#ebe7e2" }}>المجموع</Text>
-          <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#bc4700" }}>{formatPrice(order.total)}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }}>المجموع</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(order.total)}</Text>
         </View>
-        <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#ebe7e2", marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6", marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {["new", "preparing", "ready", "completed", "cancelled"].map((s) => (
-            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#bc4700" : "#1f1813" }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "600", color: order.status === s ? "#fff" : "#9c948a" }}>{getOrderStatusMeta(s).label}</Text>
+            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#E9B44C" : "#121A36" }}>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? "#05070F" : "#8E97B8" }}>{getOrderStatusMeta(s).label}</Text>
             </Pressable>
           ))}
         </View>
@@ -403,10 +403,10 @@ export function OwnerOrderDetailScreen() {
 
 export function OwnerMenuScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2" }}>إدارة المنيو</Text>
-        <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", marginTop: 8, lineHeight: 20 }}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>إدارة المنيو</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginTop: 8, lineHeight: 20 }}>
           يمكن إدارة الأصناف والفئات عبر تطبيق الويب حاليًا. سيتم إضافة المحرر الكامل للهاتف في التحديث القادم.
         </Text>
       </View>
@@ -416,10 +416,10 @@ export function OwnerMenuScreen() {
 
 export function OwnerRestaurantsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2" }}>فروعي</Text>
-        <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", marginTop: 8, lineHeight: 20 }}>إدارة فروع متعددة قريبًا</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>فروعي</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginTop: 8, lineHeight: 20 }}>إدارة فروع متعددة قريبًا</Text>
       </View>
     </SafeAreaView>
   );
@@ -464,40 +464,40 @@ export function OwnerQrScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>رمز QR لمنيوك</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>رمز QR لمنيوك</Text>
         {error ? (
           <ErrorState message={error} onRetry={() => { void load(); }} />
         ) : restaurants && restaurants.length > 0 ? (
           restaurants.map((r) => {
             const url = `${domain}/menu/${r.slug}`;
             return (
-              <View key={r.id} style={{ backgroundColor: "#070503", borderRadius: 12, borderWidth: 1, borderColor: "#1f1813", padding: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
-                <Text style={{ fontFamily: "Cairo", fontSize: 15, fontWeight: "700", color: "#ebe7e2", marginBottom: 12 }}>{r.name}</Text>
+              <View key={r.id} style={{ backgroundColor: "#0D1428", borderRadius: 12, borderWidth: 1, borderColor: "#1B2444", padding: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 15, fontWeight: "700", color: "#F2EFE6", marginBottom: 12 }}>{r.name}</Text>
                 <View style={{ backgroundColor: "#fff", padding: 12, borderRadius: 12 }}>
-                  <QRCode value={url} size={200} backgroundColor="#ffffff" color="#010000" />
+                  <QRCode value={url} size={200} backgroundColor="#ffffff" color="#070B16" />
                 </View>
                 <Pressable
                   onPress={() => { void Share.share({ message: url }).catch(() => {}); }}
                   accessibilityLabel={`مشاركة رابط منيو ${r.name}`}
-                  style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: "#bc4700", opacity: pressed ? 0.9 : 1 })}>
-                  <Share2 size={16} color="#fff" />
-                  <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "700", color: "#fff" }}>مشاركة الرابط</Text>
+                  style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: "#E9B44C", opacity: pressed ? 0.9 : 1 })}>
+                  <Share2 size={16} color="#05070F" />
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#05070F" }}>مشاركة الرابط</Text>
                 </Pressable>
-                <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
               </View>
             );
           })
         ) : (
-          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={32} color="#9c948a" />} />
+          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={32} color="#8E97B8" />} />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -506,10 +506,10 @@ export function OwnerQrScreen() {
 
 export function OwnerReviewsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2" }}>تقييمات العملاء</Text>
-        <EmptyState title="لا توجد تقييمات بعد" icon={<Star size={32} color="#9c948a" />} />
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>تقييمات العملاء</Text>
+        <EmptyState title="لا توجد تقييمات بعد" icon={<Star size={32} color="#8E97B8" />} />
       </View>
     </SafeAreaView>
   );
@@ -517,10 +517,10 @@ export function OwnerReviewsScreen() {
 
 export function OwnerLoyaltyScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2" }}>برنامج الولاء</Text>
-        <EmptyState title="لا توجد بيانات ولاء بعد" icon={<Award size={32} color="#9c948a" />} />
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>برنامج الولاء</Text>
+        <EmptyState title="لا توجد بيانات ولاء بعد" icon={<Award size={32} color="#8E97B8" />} />
       </View>
     </SafeAreaView>
   );
@@ -529,11 +529,11 @@ export function OwnerLoyaltyScreen() {
 export function OwnerSettingsScreen() {
   const logout = useAuth((s) => s.logout);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 18, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>الإعدادات</Text>
-        <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: "#1f1813", borderRadius: 8 }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#e62b34", fontWeight: "700" }}>تسجيل الخروج</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>الإعدادات</Text>
+        <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: "#121A36", borderRadius: 8 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: "#F0938F", fontWeight: "700" }}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

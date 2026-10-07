@@ -41,7 +41,7 @@ export function SubscribePlanScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
@@ -49,30 +49,30 @@ export function SubscribePlanScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <ErrorState message={error} onRetry={load} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>اختر باقتك</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>اختر باقتك</Text>
         {plans.map((p) => (
-          <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ backgroundColor: "#070503", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? "#bc4700" : "#1f1813" }}>
+          <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? "#E9B44C" : "#1B2444" }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <View>
-                <Text style={{ fontFamily: "ReadexPro", fontSize: 16, fontWeight: "700", color: "#ebe7e2" }}>{p.nameAr || p.name}</Text>
-                <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#bc4700", marginTop: 4 }}>{formatPrice(p.price)}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }}>{p.nameAr || p.name}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#E9B44C", marginTop: 4 }}>{formatPrice(p.price)}</Text>
               </View>
               {selectedId === p.id ? (
-                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}>
-                  <Check size={14} color="#fff" />
+                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
+                  <Check size={14} color="#05070F" />
                 </View>
               ) : null}
             </View>
-            <Text style={{ fontFamily: "Cairo", fontSize: 11, color: "#9c948a", marginTop: 4 }}>لمدة {p.periodDays} يوم</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 4 }}>لمدة {p.periodDays} يوم</Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -109,9 +109,9 @@ export function SubscribeMenuScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>بيانات مطعمك</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>بيانات مطعمك</Text>
         <LabelAndInput label="اسم المطعم" value={name} onChange={setName} placeholder="مطعم البرج" />
         <LabelAndInput label="الرابط (slug)" value={slug} onChange={(v) => setSlug(v.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="al-borg" />
         <LabelAndInput label="رقم الهاتف" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
@@ -164,22 +164,22 @@ export function SubscribePaymentScreen() {
 
   if (submitted) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: "#070503", borderWidth: 1, borderColor: "#1f1813", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#bc4700", alignItems: "center", justifyContent: "center" }}>
-              <Check size={20} color="#fff" />
+          <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: "#0D1428", borderWidth: 1, borderColor: "#1B2444", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
+              <Check size={20} color="#05070F" />
             </View>
           </View>
-          <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", textAlign: "center" }}>تم إرسال طلب الدفع</Text>
-          <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", textAlign: "center", marginTop: 8, lineHeight: 20 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", textAlign: "center" }}>تم إرسال طلب الدفع</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", marginTop: 8, lineHeight: 20 }}>
             سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام. عند الموافقة تُفتح لوحة التحكم تلقائيًا عند إعادة فتح التطبيق.
           </Text>
           <Pressable
             onPress={() => navigation.dispatch(StackActions.popToTop())}
             accessibilityLabel="العودة للبداية"
-            style={({ pressed }) => ({ marginTop: 28, backgroundColor: "#bc4700", borderRadius: 10, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1 })}>
-            <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#fff" }}>العودة للبداية</Text>
+            style={({ pressed }) => ({ marginTop: 28, backgroundColor: "#E9B44C", borderRadius: 10, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1 })}>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#05070F" }}>العودة للبداية</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -187,20 +187,20 @@ export function SubscribePaymentScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", marginBottom: 16 }}>طريقة الدفع</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>طريقة الدفع</Text>
         <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
           {(["libyana", "madar", "bank"] as const).map((p) => (
-            <Pressable key={p} onPress={() => setProvider(p)} style={{ flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: provider === p ? "#bc4700" : "#1f1813", alignItems: "center" }}>
-              <Text style={{ fontFamily: "Cairo", fontSize: 12, fontWeight: "600", color: provider === p ? "#fff" : "#9c948a" }}>{p === "libyana" ? "ليبيانا" : p === "madar" ? "مدار" : "بنك"}</Text>
+            <Pressable key={p} onPress={() => setProvider(p)} style={{ flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: provider === p ? "#E9B44C" : "#121A36", alignItems: "center" }}>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: provider === p ? "#05070F" : "#8E97B8" }}>{p === "libyana" ? "ليبيانا" : p === "madar" ? "مدار" : "بنك"}</Text>
             </Pressable>
           ))}
         </View>
         <LabelAndInput label="رقم المرسل" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
         <LabelAndInput label="المبلغ" value={amount} onChange={setAmount} placeholder="50" keyboardType="numeric" />
-        <View style={{ backgroundColor: "#070503", borderRadius: 12, padding: 12, marginTop: 16, borderWidth: 1, borderColor: "#1f1813" }}>
-          <Text style={{ fontFamily: "Cairo", fontSize: 12, color: "#9c948a", lineHeight: 18 }}>
+        <View style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginTop: 16, borderWidth: 1, borderColor: "#1B2444" }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", lineHeight: 18 }}>
             بعد إتمام التحويل، ارفع صورة الإيصال من شاشة الإعدادات لاحقًا. سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام.
           </Text>
         </View>
@@ -215,8 +215,8 @@ export function SubscribePaymentScreen() {
 function LabelAndInput({ label, value, onChange, placeholder, keyboardType }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; keyboardType?: "default" | "phone-pad" | "numeric" }) {
   return (
     <View style={{ marginBottom: 12 }}>
-      <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#ebe7e2", marginBottom: 4 }}>{label}</Text>
-      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#9c948a" keyboardType={keyboardType || "default"} style={{ height: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1f1813", backgroundColor: "#010000", paddingHorizontal: 12, color: "#ebe7e2", fontFamily: "Cairo", fontSize: 14 }} />
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6", marginBottom: 4 }}>{label}</Text>
+      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#8E97B8" keyboardType={keyboardType || "default"} style={{ height: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14 }} />
     </View>
   );
 }

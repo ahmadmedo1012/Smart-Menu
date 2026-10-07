@@ -5,40 +5,58 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // r102-M8: semantic tokens aligned 1:1 with the web design system
-        // (src/app/globals.css — r95 SmartBot AA-tuned dark palette). The web
-        // values are the single source of truth for cross-platform parity.
-        // `input` intentionally keeps the mobile value: web uses --input as a
-        // border tint while mobile composes it as the field FILL (#241c16).
+        // Madarek design system — night (dark) theme. Token names kept from the
+        // r102-M8 semantic map, values flipped 1:1 to the Madarek bridge in the
+        // web app (src/app/globals.css) — the single source of truth for
+        // cross-platform parity. Canonical digest:
+        // download/madarek-reference-digest.md (night #070B16 · sand #F2EFE6 ·
+        // gold #E9B44C). `input` intentionally keeps the mobile composition:
+        // web uses --input as a border tint (#263052) while mobile composes it
+        // as the field FILL (surface-2 #121A36 on top of card #0D1428).
         brand: {
-          DEFAULT: "#bc4700",
-          50: "#fdf5ec", 100: "#fbe5cd", 200: "#f6c896", 300: "#f0a646",
-          400: "#ed8c30", 500: "#bc4700", 600: "#a33e00", 700: "#7d2f00",
-          800: "#521f00", 900: "#291000",
+          // gold accent ramp anchored on canonical values:
+          // 200 = accent-hover/pale #F5D48A · 500 = accent #E9B44C ·
+          // 600 = accent-strong #C9962F (was the flame #bc4700 ramp)
+          DEFAULT: "#E9B44C",
+          50: "#FCF3DE", 100: "#F8E5BC", 200: "#F5D48A", 300: "#EFC46B",
+          400: "#EABF5D", 500: "#E9B44C", 600: "#C9962F", 700: "#AB7C28",
+          800: "#8A6420", 900: "#6A4B18",
         },
-        background: "#010000",
-        foreground: "#ebe7e2",
-        card: "#070503",
-        muted: "#0c0806",
-        "muted-foreground": "#8c857d",
-        border: "#211c18",
-        input: "#241c16",
-        ring: "#bc4700",
-        flame: "#bc4700",
-        ember: "#863800",
-        saffron: "#f0a646",
-        whatsapp: "#25D366",
-        success: "#23a136",
-        warning: "#ce9200",
-        info: "#348dcf",
-        destructive: "#e62b34",
+        background: "#070B16",        // night page ground
+        foreground: "#F2EFE6",        // warm sand ink
+        card: "#0D1428",             // surface-1 (raised card)
+        muted: "#121A36",             // surface-2 (soft bg / secondary control)
+        "muted-foreground": "#8E97B8", // muted text
+        border: "#1B2444",            // hairline
+        input: "#121A36",             // field fill (mobile composition)
+        ring: "#E9B44C",              // gold focus ring
+        flame: "#E9B44C",             // legacy alias → Madarek gold accent
+        ember: "#C9962F",             // legacy alias → accent-strong
+        saffron: "#F5D48A",           // legacy alias → accent-hover (pale gold)
+        "on-accent": "#05070F",       // void ink on gold (accent-fg)
+        whatsapp: "#25D366",          // WhatsApp brand green (sanctioned non-Madarek)
+        success: "#7FD39A",           // mint ink
+        warning: "#ECC97D",           // yellow ink
+        info: "#8FBBF2",              // sky ink
+        destructive: "#F0938F",       // rose ink
       },
       fontFamily: {
-        sans: ["Cairo", "System"],
-        heading: ["ReadexPro", "Cairo", "System"],
-        mono: ["Cairo", "System"],
+        // Madarek ships IBM Plex Sans Arabic 400/500/600/700 (no 800) — the
+        // same face the web app self-hosts. Loaded in App.tsx via
+        // @expo-google-fonts/ibm-plex-sans-arabic + expo-font.
+        sans: ["IBM Plex Sans Arabic", "System"],
+        heading: ["IBM Plex Sans Arabic", "System"],
+        mono: ["IBM Plex Sans Arabic", "System"],
       },
-      borderRadius: { sm: 8, md: 12, lg: 18, xl: 28 },
+      // Madarek radius ladder: 6/8/10/12/16/20/28 (+ full 9999 via default)
+      borderRadius: { xs: 6, sm: 8, md: 10, lg: 12, xl: 16, "2xl": 20, "3xl": 28 },
+      // Madarek motion ladder: 80/160/240/380/520/720ms + canonical easings
+      transitionDuration: { 80: "80ms", 160: "160ms", 240: "240ms", 380: "380ms", 520: "520ms", 720: "720ms" },
+      transitionTimingFunction: {
+        DEFAULT: "cubic-bezier(0.4, 0, 0.2, 1)",
+        out: "cubic-bezier(0.16, 1, 0.3, 1)",
+        soft: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
       spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, "2xl": 48, "3xl": 64, "4xl": 96 },
     },
   },

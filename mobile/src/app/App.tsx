@@ -10,13 +10,18 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
+import {
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold,
+} from "@expo-google-fonts/ibm-plex-sans-arabic";
 import { I18nManager, LogBox } from "react-native";
 
-import CairoRegular from "../../assets/fonts/Cairo-Regular.ttf";
-import CairoBold from "../../assets/fonts/Cairo-Bold.ttf";
-import CairoSemiBold from "../../assets/fonts/Cairo-SemiBold.ttf";
-import ReadexProRegular from "../../assets/fonts/ReadexPro-Regular.ttf";
-import ReadexProBold from "../../assets/fonts/ReadexPro-Bold.ttf";
+// Madarek design system: IBM Plex Sans Arabic 400/500/600/700 (no 800) — the
+// same brand face the web app self-hosts. Replaces the retired Cairo +
+// Readex Pro pair; weights register under the "IBM Plex Sans Arabic*"
+// families that every screen references.
 
 import { AppProviders } from "@/app/providers";
 import { RootNavigator } from "@/navigation/RootNavigator";
@@ -46,8 +51,10 @@ export default function App() {
     let cancelled = false;
     (async () => {
       await Font.loadAsync({
-        Cairo: CairoRegular, "Cairo-Bold": CairoBold, "Cairo-SemiBold": CairoSemiBold,
-        ReadexPro: ReadexProRegular, "ReadexPro-Bold": ReadexProBold,
+        "IBM Plex Sans Arabic": IBMPlexSansArabic_400Regular,
+        "IBM Plex Sans Arabic-Medium": IBMPlexSansArabic_500Medium,
+        "IBM Plex Sans Arabic-SemiBold": IBMPlexSansArabic_600SemiBold,
+        "IBM Plex Sans Arabic-Bold": IBMPlexSansArabic_700Bold,
       });
       if (!cancelled) setFontsReady(true);
     })();

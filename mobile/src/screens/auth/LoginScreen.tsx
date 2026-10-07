@@ -46,34 +46,34 @@ export function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top", "bottom"]}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: "center" }} keyboardShouldPersistTaps="handled">
           <View className="items-center mb-8">
-            <View className="w-16 h-16 rounded-xl items-center justify-center mb-3" style={{ backgroundColor: "#bc4700" }}>
-              <LogIn size={28} color="#fff" />
+            <View className="w-16 h-16 rounded-xl items-center justify-center mb-3" style={{ backgroundColor: "#E9B44C" }}>
+              <LogIn size={28} color="#05070F" />
             </View>
-            <Text style={{ fontFamily: "ReadexPro", fontSize: 24, fontWeight: "700", color: "#ebe7e2" }}>الربط الذكي</Text>
-            <Text style={{ fontFamily: "Cairo", fontSize: 14, color: "#9c948a", marginTop: 4 }}>منيو رقمي للمطاعم والمقاهي</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: "#F2EFE6" }}>الربط الذكي</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: "#8E97B8", marginTop: 4 }}>منيو رقمي للمطاعم والمقاهي</Text>
           </View>
 
           <View className="mb-6">
             <Label>اسم المستخدم</Label>
             <Input value={username} onChangeText={setUsername} placeholder="اسم المستخدم" autoCapitalize="none" autoCorrect={false} returnKeyType="next" error={Boolean(errors.username)} />
-            {errors.username ? <Text style={{ color: "#e62b34", fontFamily: "Cairo", fontSize: 12, marginTop: 4 }}>{errors.username}</Text> : null}
+            {errors.username ? <Text style={{ color: "#F0938F", fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 4 }}>{errors.username}</Text> : null}
           </View>
 
           <View className="mb-6">
             <Label>كلمة المرور</Label>
             <PasswordInput value={password} onChangeText={setPassword} placeholder="كلمة المرور" returnKeyType="done" onSubmitEditing={onSubmit} error={Boolean(errors.password)} />
-            {errors.password ? <Text style={{ color: "#e62b34", fontFamily: "Cairo", fontSize: 12, marginTop: 4 }}>{errors.password}</Text> : null}
+            {errors.password ? <Text style={{ color: "#F0938F", fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 4 }}>{errors.password}</Text> : null}
           </View>
 
           <Button title={submitting ? "جارٍ الدخول..." : "تسجيل الدخول"} loading={submitting} onPress={onSubmit} className="w-full" />
 
           <Pressable onPress={openSupport} className="mt-6 flex-row items-center justify-center gap-2">
             <MessageCircle size={16} color="#25d366" />
-            <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a" }}>نسيت كلمة المرور؟ تواصل مع الدعم</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8" }}>نسيت كلمة المرور؟ تواصل مع الدعم</Text>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>

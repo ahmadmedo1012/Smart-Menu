@@ -22,11 +22,11 @@ function OwnerTabs() {
   return (
     <Tab.Navigator screenOptions={{
       headerShown: true,
-      headerStyle: { backgroundColor: "#010000" }, headerTintColor: "#ebe7e2",
-      headerTitleStyle: { fontFamily: "Cairo", fontWeight: "600" }, headerShadowVisible: false,
-      tabBarStyle: { backgroundColor: "#070503", borderTopColor: "#1f1813", height: 64, paddingBottom: 8, paddingTop: 4 },
-      tabBarActiveTintColor: "#bc4700", tabBarInactiveTintColor: "#9c948a",
-      tabBarLabelStyle: { fontFamily: "Cairo", fontSize: 11, fontWeight: "600" },
+      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
+      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" }, headerShadowVisible: false,
+      tabBarStyle: { backgroundColor: "#0D1428", borderTopColor: "#1B2444", height: 64, paddingBottom: 8, paddingTop: 4 },
+      tabBarActiveTintColor: "#E9B44C", tabBarInactiveTintColor: "#8E97B8",
+      tabBarLabelStyle: { fontFamily: "IBM Plex Sans Arabic", fontSize: 11, fontWeight: "600" },
     }}>
       <Tab.Screen name="OwnerDashboard" component={OwnerDashboardScreen} options={{ title: "الرئيسية", tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }} />
       <Tab.Screen name="OwnerOrders" component={OwnerOrdersScreen} options={{ title: "الطلبات", tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} /> }} />
@@ -40,9 +40,9 @@ function OwnerTabs() {
 export function OwnerStack() {
   return (
     <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#010000" }, headerTintColor: "#ebe7e2",
-      headerTitleStyle: { fontFamily: "Cairo", fontWeight: "600" },
-      headerShadowVisible: false, contentStyle: { backgroundColor: "#010000" },
+      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
+      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" },
+      headerShadowVisible: false, contentStyle: { backgroundColor: "#070B16" },
     }}>
       <Stack.Screen name="OwnerTabs" component={OwnerTabs} options={{ headerShown: false }} />
       <Stack.Screen name="OwnerOrderDetail" component={OwnerOrderDetailScreen} options={{ title: "تفاصيل الطلب" }} />

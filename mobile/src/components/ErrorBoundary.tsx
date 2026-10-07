@@ -19,8 +19,8 @@ interface ErrorBoundaryState {
  * (function components cannot catch render errors) mounted once around the
  * root navigator in App.tsx.
  *
- * Brand styling follows the app-wide inline token set (bg #010000, card
- * #070503, border #1f1813, accent #bc4700, text #ebe7e2 / muted #9c948a) —
+ * Brand styling follows the app-wide inline token set (bg #070B16, card
+ * #0D1428, border #1B2444, accent #E9B44C, text #F2EFE6 / muted #8E97B8) —
  * there is no shared color-constants module; every screen inlines these.
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -54,37 +54,37 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // screen. «إعادة المحاولة» is the same operation under its own label so
     // users can act on whichever promise they read first.
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
           <View
             style={{
-              width: 72, height: 72, borderRadius: 36, backgroundColor: "#070503",
-              borderWidth: 1, borderColor: "#1f1813", alignItems: "center",
+              width: 72, height: 72, borderRadius: 36, backgroundColor: "#0D1428",
+              borderWidth: 1, borderColor: "#1B2444", alignItems: "center",
               justifyContent: "center", marginBottom: 24,
             }}>
-            <AlertTriangle size={30} color="#bc4700" />
+            <AlertTriangle size={30} color="#E9B44C" />
           </View>
-          <Text style={{ fontFamily: "ReadexPro", fontSize: 20, fontWeight: "700", color: "#ebe7e2", textAlign: "center" }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", textAlign: "center" }}>
             حدث خطأ غير متوقع
           </Text>
-          <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", textAlign: "center", marginTop: 8, lineHeight: 20 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", marginTop: 8, lineHeight: 20 }}>
             نعتذر عن ذلك، يمكنك إعادة المحاولة
           </Text>
           <Pressable
             onPress={this.reset}
             accessibilityLabel="إعادة المحاولة"
             style={({ pressed }) => ({
-              marginTop: 28, backgroundColor: "#bc4700", borderRadius: 10,
+              marginTop: 28, backgroundColor: "#E9B44C", borderRadius: 10,
               paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1,
             })}>
-            <Text style={{ fontFamily: "Cairo", fontSize: 14, fontWeight: "700", color: "#fff" }}>إعادة المحاولة</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#05070F" }}>إعادة المحاولة</Text>
           </Pressable>
           <Pressable
             onPress={this.reset}
             accessibilityLabel="العودة للقائمة"
             hitSlop={8}
             style={({ pressed }) => ({ marginTop: 4, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.7 : 1 })}>
-            <Text style={{ fontFamily: "Cairo", fontSize: 13, fontWeight: "600", color: "#9c948a" }}>العودة للقائمة</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#8E97B8" }}>العودة للقائمة</Text>
           </Pressable>
         </View>
       </SafeAreaView>

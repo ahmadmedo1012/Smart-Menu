@@ -14,9 +14,9 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 export function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#010000" }, headerTintColor: "#ebe7e2",
-      headerTitleStyle: { fontFamily: "Cairo", fontWeight: "600" },
-      headerShadowVisible: false, contentStyle: { backgroundColor: "#010000" },
+      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
+      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" },
+      headerShadowVisible: false, contentStyle: { backgroundColor: "#070B16" },
     }}>
       <Stack.Screen name="SubscribePlan" component={SubscribePlanScreen} options={{ title: "اختر الباقة" }} />
       <Stack.Screen name="SubscribeMenu" component={SubscribeMenuScreen} options={{ title: "بيانات المطعم" }} />

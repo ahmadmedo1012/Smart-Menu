@@ -20,22 +20,22 @@ const queryClient = new QueryClient({
 });
 
 const renderToast = ({ type, text1, text2 }: { type: "success" | "error" | "info"; text1?: string; text2?: string }) => {
-  // r103-N6: web palette tokens (globals.css) — success #23a136, destructive
-  // #e62b34, info #348dcf (were #5b8c5a/#c0392b/#3a8eb5 — the drift the M8
-  // alignment missed: the toasts M3/M9 added rendered in the OLD palette).
-  const accentColor = type === "success" ? "#23a136" : type === "error" ? "#e62b34" : "#348dcf";
+  // Madarek dark status tokens (1:1 with web globals.css): success mint
+  // #7FD39A, danger rose #F0938F, info sky #8FBBF2. Toast surface rides the
+  // Madarek card #0D1428 with the accent on the RTL start edge.
+  const accentColor = type === "success" ? "#7FD39A" : type === "error" ? "#F0938F" : "#8FBBF2";
   return (
     <View style={{
       // RTL: the accent rides the START edge — right side in this forced-RTL app
-      backgroundColor: "#070503", borderRightWidth: 4, borderRightColor: accentColor,
+      backgroundColor: "#0D1428", borderRightWidth: 4, borderRightColor: accentColor,
       borderRadius: 12, padding: 12, marginHorizontal: 16, marginVertical: 8,
-      shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
+      shadowColor: "#02040C", shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
       width: "92%", maxWidth: 460, alignSelf: "center",
     }}>
-      <Text style={{ color: "#ebe7e2", fontFamily: "Cairo", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
+      <Text style={{ color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
       {text2 ? (
-        <Text style={{ color: "#9c948a", fontFamily: "Cairo", fontSize: 12, marginTop: 2 }}>{text2}</Text>
+        <Text style={{ color: "#8E97B8", fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 2 }}>{text2}</Text>
       ) : null}
     </View>
   );

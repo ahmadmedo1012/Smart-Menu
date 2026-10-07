@@ -32,7 +32,7 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 export function Spinner({ size = "large" }: { size?: "small" | "large" }) {
-  return <ActivityIndicator size={size} color="#bc4700" />;
+  return <ActivityIndicator size={size} color="#E9B44C" />;
 }
 
 export function EmptyState({ title, description, icon }: { title: string; description?: string; icon?: ReactNode }) {
@@ -51,7 +51,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <Text className="text-lg font-semibold text-destructive text-center font-sans">{message}</Text>
       {onRetry ? (
         <Pressable onPress={onRetry} className="mt-4 h-10 rounded-md bg-brand-500 px-4 items-center justify-center">
-          <Text className="text-white font-sans font-semibold">إعادة المحاولة</Text>
+          <Text className="text-on-accent font-sans font-semibold">إعادة المحاولة</Text>
         </Pressable>
       ) : null}
     </View>

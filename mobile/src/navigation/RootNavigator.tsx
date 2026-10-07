@@ -17,8 +17,8 @@ const NAV_THEME = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    primary: "#bc4700", background: "#010000", card: "#070503",
-    text: "#ebe7e2", border: "#1f1813", notification: "#e62b34",
+    primary: "#E9B44C", background: "#070B16", card: "#0D1428",
+    text: "#F2EFE6", border: "#1B2444", notification: "#F0938F",
   },
 };
 
@@ -106,10 +106,10 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
         hitSlop={8}
         style={{
           position: "absolute", top: 54, left: 16, width: 40, height: 40, borderRadius: 20,
-          backgroundColor: "rgba(31,24,19,0.92)", alignItems: "center", justifyContent: "center",
-          borderWidth: 1, borderColor: "#1f1813",
+          backgroundColor: "rgba(18,26,54,0.92)", alignItems: "center", justifyContent: "center",
+          borderWidth: 1, borderColor: "#1B2444",
         }}>
-        <X size={20} color="#ebe7e2" />
+        <X size={20} color="#F2EFE6" />
       </Pressable>
     </View>
   );
@@ -153,8 +153,8 @@ export function RootNavigator() {
 
   if (status === "loading" || status === "idle") {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#010000" }}>
-        <ActivityIndicator size="large" color="#bc4700" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#070B16" }}>
+        <ActivityIndicator size="large" color="#E9B44C" />
       </View>
     );
   }

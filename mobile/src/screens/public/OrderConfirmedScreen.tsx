@@ -34,17 +34,17 @@ export function OrderConfirmedScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#010000" }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top", "bottom"]}>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-        {/* r103-N6: #23a136 — the web globals.css success token (was #5b8c5a) */}
-        <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: "#23a136", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-          <CheckCircle size={48} color="#fff" />
+        {/* Madarek dark status pair: success soft bg #0F241C + success ink #7FD39A */}
+        <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: "#0F241C", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+          <CheckCircle size={48} color="#7FD39A" />
         </View>
-        <Text style={{ fontFamily: "ReadexPro", fontSize: 22, fontWeight: "700", color: "#ebe7e2", marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
-        <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#9c948a", textAlign: "center", lineHeight: 20, marginBottom: 4 }}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: "#F2EFE6", marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", lineHeight: 20, marginBottom: 4 }}>
           {waUrl ? "سُجّل طلبك — أرسله للمطعم عبر واتساب من الزر أدناه" : "تم إرسال طلبك عبر واتساب إلى المطعم"}
         </Text>
-        {displayId ? <Text style={{ fontFamily: "Cairo", fontSize: 13, color: "#bc4700", fontWeight: "600", marginBottom: 32 }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
+        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#E9B44C", fontWeight: "600", marginBottom: 32 }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
         <View style={{ gap: 12, width: "100%" }}>
           {waUrl ? (
             <Button title="إرسال الطلب عبر واتساب" onPress={onSendWhatsApp} size="lg" className="w-full" />

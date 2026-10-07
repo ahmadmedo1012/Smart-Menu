@@ -26,7 +26,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#010000"
+        "backgroundColor": "#070B16"
       },
       "package": "ly.smartlink.smartmenu",
       "permissions": ["VIBRATE"],
@@ -63,11 +63,10 @@
         "expo-font",
         {
           "fonts": [
-            "./assets/fonts/Cairo-Regular.ttf",
-            "./assets/fonts/Cairo-Bold.ttf",
-            "./assets/fonts/Cairo-SemiBold.ttf",
-            "./assets/fonts/ReadexPro-Regular.ttf",
-            "./assets/fonts/ReadexPro-Bold.ttf"
+            "./node_modules/@expo-google-fonts/ibm-plex-sans-arabic/400Regular/IBMPlexSansArabic_400Regular.ttf",
+            "./node_modules/@expo-google-fonts/ibm-plex-sans-arabic/500Medium/IBMPlexSansArabic_500Medium.ttf",
+            "./node_modules/@expo-google-fonts/ibm-plex-sans-arabic/600SemiBold/IBMPlexSansArabic_600SemiBold.ttf",
+            "./node_modules/@expo-google-fonts/ibm-plex-sans-arabic/700Bold/IBMPlexSansArabic_700Bold.ttf"
           ]
         }
       ],
@@ -93,7 +92,7 @@
           "image": "./assets/images/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#010000"
+          "backgroundColor": "#070B16"
         }
       ]
     ],

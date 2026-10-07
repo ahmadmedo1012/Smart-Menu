@@ -22,8 +22,10 @@ const buttonVariants = cva(
 const buttonTextVariants = cva("font-semibold text-center font-sans", {
   variants: {
     variant: {
-      orange: "text-white", flame: "text-white", outline: "text-foreground",
-      ghost: "text-foreground", destructive: "text-white", secondary: "text-foreground",
+      // Madarek: void ink #05070F rides the gold accent and the rose danger
+      // base (dark --accent-fg / --danger-fg) — never white-on-accent.
+      orange: "text-on-accent", flame: "text-on-accent", outline: "text-foreground",
+      ghost: "text-foreground", destructive: "text-on-accent", secondary: "text-foreground",
     },
     size: { sm: "text-sm", default: "text-base", lg: "text-lg", icon: "text-base" },
   },

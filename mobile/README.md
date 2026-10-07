@@ -61,8 +61,22 @@ Arabic-only product: the UI renders RTL from the **first frame** —
 `android:layoutDirection="rtl"` on the application/activity manifest and strips
 English from iOS `CFBundleLocalizations` at PREBUILD time, so there is no
 LTR→RTL flash or restart requirement (the runtime `I18nManager.forceRTL()` in
-`App.tsx` is kept as a safety net). Fonts: Cairo + Readex Pro TTFs via
-`expo-font` (same brand faces as the web app).
+`App.tsx` is kept as a safety net). Fonts: **IBM Plex Sans Arabic** 400/500/600/700
+via `@expo-google-fonts/ibm-plex-sans-arabic` + `expo-font` (the same brand face
+the web app self-hosts).
+
+## Design system (Madarek)
+
+The app renders the **Madarek** design system — dark (night) set, 1:1 with the
+web app's `globals.css` bridge: page ground `#070B16`, surface `#0D1428`,
+surface-2 `#121A36`, warm-sand ink `#F2EFE6`, muted `#8E97B8`, gold accent
+`#E9B44C` (hover `#F5D48A` / strong `#C9962F`) with void ink `#05070F` on
+accent, hairline `#1B2444` / strong `#263052`, and the canonical status pairs
+(success `#7FD39A` on `#0F241C`, warning `#ECC97D` on `#2C2410`, danger
+`#F0938F` on `#2C1620`, info `#8FBBF2` on `#14213A`). Radius ladder
+6/8/10/12/16/20/28, motion 80–720ms on the canonical easings. WhatsApp brand
+green (`#25D366`) is the one sanctioned non-Madarek color. The retired
+flame-orange (#bc4700) palette is gone — do not reintroduce it.
 
 ## Building
 

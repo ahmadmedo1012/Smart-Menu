@@ -14,7 +14,7 @@ export function Input({ className, error, ...props }: InputProps) {
         "font-sans placeholder:text-muted-foreground focus:border-ring",
         error && "border-destructive", className,
       )}
-      placeholderTextColor="#9c948a" {...props}
+      placeholderTextColor="#8E97B8" {...props}
     />
   );
 }
@@ -29,10 +29,10 @@ export function PasswordInput({ className, error, ...props }: InputProps) {
           "font-sans placeholder:text-muted-foreground focus:border-ring",
           error && "border-destructive", className,
         )}
-        placeholderTextColor="#9c948a" secureTextEntry={!show} {...props}
+        placeholderTextColor="#8E97B8" secureTextEntry={!show} {...props}
       />
       <Pressable onPress={() => setShow((v) => !v)} className="absolute end-2 top-0 bottom-0 w-10 items-center justify-center" accessibilityLabel={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}>
-        {show ? <EyeOff size={20} color="#9c948a" /> : <Eye size={20} color="#9c948a" />}
+        {show ? <EyeOff size={20} color="#8E97B8" /> : <Eye size={20} color="#8E97B8" />}
       </Pressable>
     </View>
   );
@@ -46,7 +46,7 @@ export function Textarea({ className, error, ...props }: InputProps) {
         "font-sans placeholder:text-muted-foreground focus:border-ring",
         error && "border-destructive", className,
       )}
-      placeholderTextColor="#9c948a" multiline textAlignVertical="top" {...props}
+      placeholderTextColor="#8E97B8" multiline textAlignVertical="top" {...props}
     />
   );
 }

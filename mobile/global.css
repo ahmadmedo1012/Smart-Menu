@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --background: #010000;
-  --foreground: #ebe7e2;
-  --card: #070503;
-  --orange: #bc4700;
+  /* Madarek design system — night (dark) values, 1:1 with the web app's
+     globals.css bridge (canonical source: madarek tokens.css). */
+  --background: #070b16; /* night page ground */
+  --foreground: #f2efe6; /* warm sand ink */
+  --card: #0d1428;       /* surface-1 */
+  --accent: #e9b44c;     /* gold accent (was flame orange) */
 }

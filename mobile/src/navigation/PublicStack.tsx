@@ -21,9 +21,9 @@ const Stack = createNativeStackNavigator<PublicStackParamList>();
 export function PublicStack() {
   return (
     <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#010000" }, headerTintColor: "#ebe7e2",
-      headerTitleStyle: { fontFamily: "Cairo", fontWeight: "600" },
-      headerShadowVisible: false, contentStyle: { backgroundColor: "#010000" },
+      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
+      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" },
+      headerShadowVisible: false, contentStyle: { backgroundColor: "#070B16" },
     }}>
       <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Menu" component={MenuScreen} options={{ title: "المنيو" }} />

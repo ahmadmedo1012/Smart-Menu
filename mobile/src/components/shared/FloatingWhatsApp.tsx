@@ -23,7 +23,7 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
       <Pressable onPress={open} accessibilityLabel="تواصل مع الدعم عبر واتساب" style={({ pressed }) => ({
         width: 56, height: 56, borderRadius: 28, backgroundColor: "#25d366",
         alignItems: "center", justifyContent: "center", opacity: pressed ? 0.9 : 1,
-        shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
+        shadowColor: "#02040C", shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
       })}>
         <MessageCircle size={28} color="#fff" />
