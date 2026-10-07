@@ -19,5 +19,6 @@
     "src/app/api/telegram/webhook/route.ts": {
       "maxDuration": 15
     }
-  }
+  },
+  "buildCommand": "node scripts/db-unstick.mjs && node scripts/migrate-deploy.mjs && prisma generate && next build"
 }

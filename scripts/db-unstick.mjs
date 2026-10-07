@@ -308,4 +308,20 @@ main()
     // broken DB will fail in `prisma migrate deploy` with a proper error.
     console.log('UNSTICK SKIPPED (non-fatal): ' + (e?.message || e));
     return c.end().catch(() => {});
+  })
+  // §7 (r124): the deploy self-healing cascade. Runs AFTER the diagnostics
+  // connection closed. Fail-open on internal errors (a bug here must never
+  // break a healthy deploy); only FatalHealError (schema provably
+  // un-ensurable) exits non-zero, with the actionable banner.
+  .then(async () => {
+    const { heal, FatalHealError } = await import('./deploy-heal.mjs');
+    try {
+      await heal(process.env.DATABASE_URL);
+    } catch (e) {
+      if (e instanceof FatalHealError) {
+        console.error(String(e.message || e));
+        process.exit(1);
+      }
+      console.log('[DEPLOY-FIX] INTERNAL ERROR (fail-open): ' + (e?.stack || e));
+    }
   });
