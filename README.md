@@ -122,7 +122,7 @@ npx playwright test --project=qa-teams      # رحلات الفرق (team1-11)
 ## 🛠 التقنيات
 - **Framework**: Next.js 16 (App Router, proxy middleware, ISR)
 - **Database**: PostgreSQL + Prisma 7 (30 هجرة، قابلة لإعادة التشغيل — آخرها عائلة `zz_round121_*`: backfill الأسعار الفعلية + NOT NULL + قيود CHECK — انظر ملاحظة الترتيب في `docs/ops-runbook.md` §10)
-- **Styling**: Tailwind CSS 4 + shadcn/ui + Motion
+- **Styling**: Tailwind CSS 4 + shadcn/ui + Motion — نظام تصميم **مدارك** (Madarek): ليلي night/gold ‎`#070B16`/`#E9B44C`‎، نهاري cream/copper ‎`#FBFAF9`/`#B57438`‎، خط IBM Plex Sans Arabic (القوانين الكاملة في `DESIGN.md`)
 - **State**: Zustand
 - **Infra**: Vercel (Cron، Blob، Analytics) + Neon
 - **Testing**: Vitest + Playwright + axe-core
@@ -153,7 +153,9 @@ scripts/             # أدوات CI الحية + archive/ لسكربتات ال
 مشروع خاص — جميع الحقوق محفوظة لصاحب الحساب `ahmadmedo1012` (المستودع خاص).
 
 ### الخطوط
-خطوط الويب (`public/fonts/` — Cairo · Readex Pro · Noto Naskh Arabic · Noto Sans Arabic)
-وخطوط تطبيق الجوال (`mobile/assets/fonts/` — Cairo · Readex Pro) مُعاد توزيعها بموجب
-**رخصة SIL Open Font License 1.1** — الإسناد الكامل وحقوق النشر لكل عائلة في
-[`public/fonts/OFL-LICENSES.md`](public/fonts/OFL-LICENSES.md).
+العلامة الأساسية **IBM Plex Sans Arabic** 400–700 (subsets عربية + لاتينية،
+self-hosted — تكافؤ مدارك الحرفي)، مع IBM Plex Mono وIBM Plex Serif (لاتيني)
+واحتياطات Cairo · Readex Pro · Noto Naskh Arabic في الويب، وحزمة
+`@expo-google-fonts/ibm-plex-sans-arabic` (400–700) في تطبيق الجوال —
+الجميع بموجب **رخصة SIL Open Font License 1.1**؛ الإسناد الكامل وحقوق النشر
+لكل عائلة في [`public/fonts/OFL-LICENSES.md`](public/fonts/OFL-LICENSES.md).
