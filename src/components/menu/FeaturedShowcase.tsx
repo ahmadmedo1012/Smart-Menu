@@ -146,7 +146,9 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
         return (
                 <section
                         aria-labelledby="featured-showcase-heading"
-                        className="relative mb-6"
+                        /* r125 (11-b): دخول القسم — rise-in (تحويل فقط، مرئي من أول رسم
+                           وفق عقيدة r120) يسبق دخول البطاقات المتدرّج تحته. */
+                        className="relative mb-6 animate-rise-in"
                         onKeyDown={onKeyDown}
                 >
                         <div className="flex items-center justify-center gap-2 mb-3">

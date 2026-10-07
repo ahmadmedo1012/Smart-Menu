@@ -1,7 +1,8 @@
-import { DefaultLoading } from "@/components/shared/DefaultLoading"
+import { MenuSkeleton } from "@/components/menu/MenuSkeleton"
 
-/* r97-X1: المسار كان يملك error.tsx بلا حدّ تحميل — نفس نمط السطر الواحد
-   المستخدم في 40+ loading.tsx أخرى (مثل pricing/loading.tsx). */
+/* r125 (11-b): هيكل تحميل على شكل المنيو بدل الغزل المجرّد — المسار هو صفحة
+   المال (QR → منيو)؛ انظر تعليق MenuSkeleton.tsx للالتزام بمدارك. بقية
+   المسارات الأربعين+ تبقى على DefaultLoading المشترك. */
 export default function MenuSlugLoading() {
-        return <DefaultLoading />
+        return <MenuSkeleton />
 }

@@ -1250,7 +1250,10 @@ html.high-contrast :focus-visible {
 .animate-slide-up { animation: slide-up 0.6s var(--ease-out-quart) both; }
 .animate-page-enter { animation: fade-in 0.4s var(--ease-out-quart) both; }
 .animate-slide-down { animation: fade-in 0.5s var(--ease-out-quart) both; }
-.animate-reveal { animation: scale-in 0.5s var(--ease-out-quart) both; }
+/* r125 (11-b): المدة تستهلك الطبقة الدلالية لمدارك — ‎--motion-duration-reveal
+ * (360ms، و80ms تحت الحركة المخفّضة) بدل الحرفي 0.5s (قانون §4.5: الكود الجديد
+ * يستهلك الأسماء الدلالية). البطاقات المتدرّجة في المنيو تحافظ على نفس المنحنى. */
+.animate-reveal { animation: scale-in var(--motion-duration-reveal, 360ms) var(--ease-out-quart) both; }
 
 .animate-float { animation: float 3s var(--ease-smooth) infinite; }
 .animate-float-delayed { animation: float 3.5s var(--ease-smooth) infinite 1s; }

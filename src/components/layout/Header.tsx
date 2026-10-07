@@ -203,7 +203,7 @@ export function Header({ className }: HeaderProps) {
             {/* r113-F118: النص يختفي تحت 420px (شعار فقط) — بعد تثبيت الهمبرغر 44px
                لا تتسع الصفوف (144px على 320px) للعلامة الكاملة (137px)؛ الشعار وحده
                يحفظ الهوية ويتيح مساحة تنفس للزرين. */}
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group min-h-11">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto shrink-0" priority />
               <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-accent-foreground transition-colors duration-200 max-[420px]:hidden" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
             </Link>

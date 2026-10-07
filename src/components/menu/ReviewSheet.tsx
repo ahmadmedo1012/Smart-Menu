@@ -235,7 +235,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                         </div>
                                                         <button
                                                                 onClick={() => onOpenChange(false)}
-                                                                className="size-10 rounded-full flex items-center justify-center hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="size-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                                 aria-label="إغلاق"
                                                         >
                                                                 <AnimatedX className="size-4" />

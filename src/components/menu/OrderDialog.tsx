@@ -249,7 +249,7 @@ export function OrderDialog({
                                         <button
                                                 type="button"
                                                 onClick={() => onOpenChange(false)}
-                                                className="absolute top-3 start-3 size-10 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="absolute top-3 start-3 size-11 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
                                                 aria-label="إغلاق"
                                         >
                                                 <AnimatedX className="size-4" />
@@ -362,7 +362,7 @@ export function OrderDialog({
                                                                                                                         );
                                                                                                                 }}
                                                                                                                 className={cn(
-                                                                                                                        'px-3.5 py-2 rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                                                                         selected
                                                                                                                                 /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA 5.42:1) */
                                                                         ? 'bg-orange/10 border-orange/40 text-accent-foreground'
@@ -508,7 +508,7 @@ export function OrderDialog({
                                                                 tabIndex={orderType === type ? 0 : -1}
                                                                 onClick={() => setOrderType(type)}
                                                                 className={cn(
-                                                                        'flex-1 py-2.5 rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                         orderType === type
                                                                                 ? 'bg-orange text-orange-foreground shadow-md'
                                                                                 : 'text-muted-foreground hover:text-foreground'
@@ -530,7 +530,7 @@ export function OrderDialog({
                                                                         aria-pressed={notes.includes(note)}
                                                                         onClick={() => toggleQuickNote(note)}
                                                                         className={cn(
-                                                                                'px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
                                                                                 notes.includes(note)
                                                                                         /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
                                                                                 ? 'bg-orange/10 border-orange/30 text-accent-foreground'

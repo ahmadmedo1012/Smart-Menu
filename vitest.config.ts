@@ -3,7 +3,9 @@ import path from "path";
 
 export default defineConfig({
   test: {
-    include: ["tests/unit/**/*.test.ts"],
+    // r125 (Task 11-a): tests/design/ hosts the Madarek parity snapshot —
+    // same vitest run as the unit army, one CI gate.
+    include: ["tests/unit/**/*.test.ts", "tests/design/**/*.test.ts"],
     exclude: ["node_modules", ".next"],
     coverage: {
       provider: "v8",
