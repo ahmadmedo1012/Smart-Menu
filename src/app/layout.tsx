@@ -1,3 +1,4 @@
+import type { Viewport } from 'next';
 import './globals.css';
 
 /**
@@ -6,13 +7,15 @@ import './globals.css';
  * and Smart-Link/r14 so the header, bottom CTA bars and any footer padding
  * resolve env(safe-area-inset-*) to real values on every iPhone with a notch /
  * Dynamic Island.
+ *
+ * r123 (Next 16 correctness): `viewport` inside `export const metadata` is
+ * INVALID — Next 15+ requires it as a separate `export const viewport`
+ * (a metadata.viewport key is silently dropped at build time).
  */
-export const metadata = {
-        viewport: {
-                width: 'device-width',
-                initialScale: 1,
-                viewportFit: 'cover',
-        },
+export const viewport: Viewport = {
+        width: 'device-width',
+        initialScale: 1,
+        viewportFit: 'cover',
 };
 
 /**

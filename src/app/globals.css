@@ -545,10 +545,18 @@
         --state-focus-ring-color: var(--accent-strong);
 
         /* ── Semantic status + text-safe inks (§1.6) ── */
-        --success:      var(--c-mint-ink);
+        /* r123-a11y: base = text-safe deep (72 text-success consumers + white-on-fill
+           badges; c-mint-ink #4FA66D measured 3.0:1 with white / as text on cream) */
+        --success:      var(--c-mint-deep);
         --success-soft: var(--c-mint-bg);
         --success-ink:  var(--c-mint-deep);
-        --warning:      var(--c-yellow-ink);
+        /* r123-a11y (axe round79-c ratchet): family consumers use the BASE token
+           as badge/status TEXT (12 text-warning sites). #D6A330 (c-yellow-ink,
+           Madarek's FILL gold) on the cream chip wash measured 2.13:1 — the
+           Madarek ruling (reference §0 commandment 6) is that status TEXT
+           carries the -ink/-deep variant: #6B4C0B = 7.56:1. Solid bg-warning
+           consumers pair with --warning-foreground #FFFFFF (8.4:1). */
+        --warning:      var(--c-yellow-deep);
         --warning-soft: var(--c-yellow-bg);
         --warning-ink:  var(--c-yellow-deep);
         --danger:       var(--c-rose-ink);
@@ -607,12 +615,21 @@
         --input: #D9D6D0;                      /* divider-strong */
         --ring: #5C3416;                       /* accent-strong focus ring — 10.29:1 */
 
-        /* Status — Madarek light fills; white text on the darkened AA twins */
-        --success: #4FA66D;
+        /* Status — r123-a11y: family consumers use the BASE token as badge/status
+           TEXT (12 text-warning sites + axe round79-c ratchet baseline 0). The
+           #D6A330 fill gold measured 2.13:1 on the cream chip wash — Madarek's
+           ruling (reference §0/§1.6) is status TEXT carries the ink/deep variant.
+           #6B4C0B = 7.56:1 as text; with --warning-foreground #FFFFFF on solid
+           fills = 8.4:1. Same treatment as the -ink twins below. */
+        /* r123-a11y: Madarek .btn.success ruling (reference §5): white-on-status
+           badges carry the -ink/deep fill, not the pastel mid — #4FA66D+white
+           = 3.0:1, #5C8FCE+white = 3.35:1 (axe round79-c ratchet failures).
+           #1F4F30+white = 9.46:1, #1F3D63+white = 11.0:1. */
+        --success: #1F4F30;
         --success-foreground: #FFFFFF;
-        --warning: #D6A330;
+        --warning: #6B4C0B;
         --warning-foreground: #FFFFFF;
-        --info: #5C8FCE;
+        --info: #1F3D63;
         --info-foreground: #FFFFFF;
 
         /* Orange twin — flips to copper */

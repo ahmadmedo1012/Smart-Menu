@@ -136,21 +136,26 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       // round89 coordinator fix: scope to the price span — the quantity stepper
       // also uses text-xl tabular-nums (strict-mode 2-match).
       // r95: الحبر السعري أصبح text-accent-foreground (توأمة SmartBot) بدل text-primary.
-      await expect(sheet.locator("span.text-xl.text-accent-foreground.tabular-nums")).toContainText("27.0");
-      await expect(sheet.locator("span.text-2xl.tabular-nums")).toContainText("27.0");
-      await expect(sheet.getByText("شامل الخيارات +2.0 د.ل")).toBeVisible();
+      // r123: r120-B1's formatPrice smart-trim contract — never a bare ".0"
+      // (27.0 renders "27"; +2.0 renders "+2"). The deep suite hadn't run in CI
+      // since 2026-09-17, so these pins kept the pre-r120 shape.
+      await expect(sheet.locator("span.text-xl.text-accent-foreground.tabular-nums")).toContainText("27");
+      await expect(sheet.locator("span.text-2xl.tabular-nums")).toContainText("27");
+      await expect(sheet.getByText("شامل الخيارات +2 د.ل")).toBeVisible();
 
       // ── 4. Confirm → cart carries the configured line ──
-      await sheet.getByRole("button", { name: "أرسل الطلب عبر واتساب" }).click();
+      // r123: r120 (U5-F-3) renamed the CTA to the honest «أضف إلى السلة» (it adds
+      // to the cart; it never sent WhatsApp directly).
+      await sheet.getByRole("button", { name: "أضف إلى السلة" }).click();
       await page.waitForURL("**/cart", { timeout: 20_000 });
-      await expect(page.getByText("كبير (+2.0 د.ل)")).toBeVisible({ timeout: 10_000 });
-      await expect(page.locator("span.text-2xl.tabular-nums").first()).toContainText("27.0");
+      await expect(page.getByText("كبير (+2 د.ل)")).toBeVisible({ timeout: 10_000 });
+      await expect(page.locator("span.text-2xl.tabular-nums").first()).toContainText("27");
 
       // ── 5. Checkout → confirmation page with the order number ──
       await page.getByRole("button", { name: "مراجعة الطلب وإرساله" }).click();
       const preview = page.getByRole("dialog");
       await expect(preview.getByText("مراجعة الطلب")).toBeVisible({ timeout: 10_000 });
-      await expect(preview.getByText("كبير (+2.0 د.ل)")).toBeVisible();
+      await expect(preview.getByText("كبير (+2 د.ل)")).toBeVisible(); // r123: r120-B1 smart-trim
       await preview.getByRole("button", { name: "تأكيد وإرسال" }).click();
       await page.waitForURL("**/order-confirmed**", { timeout: 30_000 });
       const orderNo = new URL(page.url()).searchParams.get("orderNo") ?? "";
@@ -193,11 +198,17 @@ test.describe("team11: modifiers editor → public menu → priced order", () =>
       expect(Number(detJson.data.subtotal)).toBe(EXPECTED_TOTAL);
       const line = detJson.data.items[0];
       expect(line.itemId).toBe(burger.id); // Waha Burger — المعرف الحي (r96: الترقيم الذاتي زاح)
-      expect(Number(line.price)).toBe(25); // stored base price (modifiers ride separately)
-      const storedIds: number[] = JSON.parse(line.modifiersJson ?? "[]");
-      expect(storedIds).toHaveLength(1);
-      // the stored id is exactly the «كبير» option of the group we authored
-      expect(storedIds[0]).toBe(big.id);
+      // r123: r120-B1 cutover (2026-09-25, commit 4ba875a2) — OrderItem.price
+      // stores the EFFECTIVE price (base 25 + كبير 2 = 27); pre-cutover rows
+      // kept the base. The r122 backfill migration documents the same contract.
+      expect(Number(line.price)).toBe(27); // stored EFFECTIVE price (r120 cutover)
+      // r123: modifiersJson carries the r118-B1 SNAPSHOT format
+      // ([{id,name,nameAr,priceDelta}]) — bare-id arrays were the pre-r118 shape.
+      const storedMods: Array<{ id: number; nameAr: string; priceDelta: number }> = JSON.parse(line.modifiersJson ?? "[]");
+      expect(storedMods).toHaveLength(1);
+      expect(storedMods[0].id).toBe(big.id); // exactly the «كبير» option we authored
+      expect(storedMods[0].nameAr).toBe("كبير");
+      expect(storedMods[0].priceDelta).toBe(2);
     }
   );
 });

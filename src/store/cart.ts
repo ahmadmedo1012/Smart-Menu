@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { MAX_ITEM_QUANTITY } from '@/lib/constants';
@@ -269,20 +269,23 @@ export const useCart = create<CartStore>()(
  * hook and holds its loading skeleton until the persisted cart has finished
  * rehydrating. /cart is noindex — zero SEO cost.
  *
- * - Initial value is read lazily: once hydrated, the store stays hydrated for
- *   the tab's lifetime, so remounts (route revisits) don't re-flash.
- * - Server and first client render both read false (rehydrate() only runs in
- *   CartHydrator's effect) → no hydration mismatch.
+ * r123 (React #418 fix — hydration race): the old lazy
+ * `useState(() => useCart.persist.hasHydrated())` read the LIVE flag during
+ * the hydration render. With React 19 streaming + the cart page behind a
+ * Suspense boundary, the (protected) layout's CartHydrator effect could run
+ * rehydrate() (synchronous localStorage ⇒ microtask-fast) BEFORE the cart
+ * subtree hydrated — the first client render then saw hasHydrated() === true
+ * while the server HTML held the DefaultLoading skeleton ⇒ React error #418
+ * and a full client re-render of the page. useSyncExternalStore removes the
+ * race BY CONSTRUCTION: during hydration React uses the SERVER snapshot
+ * (always false ⇒ guaranteed match), then reconciles against the live
+ * snapshot after mount; pure client re-mounts read the live value on the
+ * first render (no skeleton re-flash — the r121 remount contract holds).
  */
 export function useCartHydrated(): boolean {
-        const [hydrated, setHydrated] = useState(() => useCart.persist.hasHydrated());
-        useEffect(() => {
-                // race cover: hydration may finish between the lazy read and the subscribe
-                if (useCart.persist.hasHydrated()) {
-                        setHydrated(true);
-                        return;
-                }
-                return useCart.persist.onFinishHydration(() => setHydrated(true));
-        }, []);
-        return hydrated;
+        return useSyncExternalStore(
+                (onStoreChange) => useCart.persist.onFinishHydration(onStoreChange),
+                () => useCart.persist.hasHydrated(),
+                () => false,
+        );
 }

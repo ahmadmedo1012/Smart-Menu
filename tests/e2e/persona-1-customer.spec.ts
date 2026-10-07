@@ -53,6 +53,11 @@ test("P1: real customer order journey", async ({ page }) => {
   // set pickup type
   const pickup = page.locator('button:has-text("توصيل")').first();
   if (await pickup.count()) await pickup.click();
+  // r123: r119-S5-P1-2 made the delivery address REQUIRED before review/submit
+  // (empty-address orders were silently sent to the restaurant). The journey
+  // must fill it — the field focuses itself when missed, blocking the POST.
+  const address = page.getByPlaceholder("أدخل عنوان التوصيل بالتفصيل").first();
+  if (await address.count()) await address.fill("طرق السكان، شارع النخلة 12");
 
   // ── 4. Fill customer info + submit ──
   // name field removed per UX decision (order goes straight to WhatsApp)
