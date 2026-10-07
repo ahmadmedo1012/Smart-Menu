@@ -2,7 +2,10 @@ import { redirect } from 'next/navigation';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { getUserSubscriptionState } from '@/lib/subscription-guard';
-import { OwnerShell, getPlanDaysRemaining } from './OwnerShell';
+// r123: getPlanDaysRemaining moved to the server-safe lib — importing it from
+// the 'use client' OwnerShell was an RSC boundary violation that 500'd /owner.
+import { OwnerShell } from './OwnerShell';
+import { getPlanDaysRemaining } from '@/lib/plan-expiry';
 
 /**
  * r121-B-2/A-2/E-4 (IMPL-3) — server-side auth gate for the whole /owner tree,

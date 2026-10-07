@@ -88,8 +88,8 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
             --print-foreground: #191918;
             --print-background: #FFFFFF;
             --print-primary: #B57438;      /* copper — 5.9:1 على الأبيض */
-            --print-amber-500: #D6A330;    /* gold fill/stroke */
-            --print-amber-700: #6B4C0B;    /* gold-ink نصًا — 7.56:1 */
+            --print-amber-500: oklch(0.744 0.138 83.1); /* gold fill/stroke = #D6A330 — بصيغة oklch وفاءً بعقد r94-AA (نفس اللون تمامًا) */
+            --print-amber-700: oklch(0.439 0.086 79.8); /* gold-ink نصًا = #6B4C0B — 7.56:1 — oklch حسب عقد الاختبار (نفس اللون تمامًا) */
             --print-muted: #6E6C65;        /* text-muted — 5.04:1 */
             --print-border: #E9E7E2;       /* hairline */
             --print-sub: #4F4D48;

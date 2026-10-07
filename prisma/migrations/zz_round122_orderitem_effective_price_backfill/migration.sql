@@ -41,14 +41,29 @@ DECLARE
     skipped  INT := 0;
 BEGIN
     -- Double-charge guard: v1 already finished on this database?
-    IF EXISTS (
-        SELECT 1 FROM "_prisma_migrations"
-        WHERE migration_name = 'zz_round121_orderitem_effective_price_backfill'
-          AND finished_at IS NOT NULL
-    ) THEN
-        RAISE NOTICE 'v1 backfill already finished here — skipping (double-charge guard)';
-        RETURN;
-    END IF;
+    -- r123 (shadow-replay safety): the ledger query is wrapped in a scoped
+    -- undefined_table handler. `prisma migrate diff --from-migrations` (the
+    -- CI migration-parity gate and Prisma's own shadow operations) replays
+    -- migration SQL on a ledger-less database where "_prisma_migrations"
+    -- does not exist — the bare EXISTS died there with P3006 (`relation
+    -- "_prisma_migrations" does not exist`, PL/pgSQL line-at-IF). A missing
+    -- ledger equals the documented fresh-DB contract ("no record at all —
+    -- this migration runs"): swallow ONLY that error and fall through.
+    -- Real deployment targets keep full guard semantics:
+    --   * production (ledger exists, v1 only ever FAILED) → check runs → backfill applies
+    --   * local/round DBs where v1 FINISHED → check runs → skip (double-charge guard)
+    BEGIN
+        IF EXISTS (
+            SELECT 1 FROM "_prisma_migrations"
+            WHERE migration_name = 'zz_round121_orderitem_effective_price_backfill'
+              AND finished_at IS NOT NULL
+        ) THEN
+            RAISE NOTICE 'v1 backfill already finished here — skipping (double-charge guard)';
+            RETURN;
+        END IF;
+    EXCEPTION WHEN undefined_table THEN
+        RAISE NOTICE 'ledger-less replay (shadow/fresh DB) — v1 record impossible, backfill proceeds';
+    END;
 
     FOR r IN
         SELECT oi.id, oi."price", oi."modifiersJson"

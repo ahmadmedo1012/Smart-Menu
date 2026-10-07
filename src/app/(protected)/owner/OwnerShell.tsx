@@ -29,8 +29,6 @@ import { PageFade } from '@/components/shared/PageFade';
 import { UserBannerNotifier } from '@/components/owner/UserBannerNotifier';
 import { RestaurantSwitcher } from '@/components/owner/RestaurantSwitcher';
 import { Button } from '@/components/ui/button';
-import { getArabicPlural } from '@/lib/arabic-plural';
-import { toArabicNumber } from '@/lib/format';
 
 const navItems = [
         { href: '/owner', label: 'لوحة التحكم', icon: LayoutDashboard },
@@ -57,29 +55,12 @@ export function useOwnerSession(): OwnerSession | null {
         return useContext(OwnerSessionContext);
 }
 
-/* ── r121-P-5: expiry banner helpers (exported for unit tests) ─────────────── */
-
-const DAY_MS = 86_400_000;
-
-/** Whole days (rounded up) until planEnd; <= 0 means already past. Null when
- * the owner has no plan end date (free/legacy rows — nothing to warn about).
- * (`|| 0` normalizes Math.ceil's -0 for the just-expired second.) */
-export function getPlanDaysRemaining(planEnd: string | null, now: Date = new Date()): number | null {
-        if (!planEnd) return null;
-        const end = new Date(planEnd);
-        if (Number.isNaN(end.getTime())) return null;
-        return Math.ceil((end.getTime() - now.getTime()) / DAY_MS) || 0;
-}
-
-/** «يوم واحد / يومين / 5 أيام / 11 يومًا» — r93-W2a plural discipline. */
-export function daysLeftPhrase(days: number): string {
-        if (days === 1) return 'يوم واحد';
-        if (days === 2) return 'يومين';
-        return `${toArabicNumber(days)} ${getArabicPlural(days, 'يوم', {
-                few: 'أيام',
-                many: 'يومًا',
-        })}`;
-}
+/* ── r121-P-5: expiry banner helpers → r123: moved to the server-safe
+   src/lib/plan-expiry.ts (the server layout called them across the RSC
+   boundary and every /owner render 500'd). Re-exported here so the unit
+   suite's existing imports keep working. ──────────────────────────────── */
+export { getPlanDaysRemaining, daysLeftPhrase } from '@/lib/plan-expiry';
+import { daysLeftPhrase } from '@/lib/plan-expiry';
 
 /** Warn when the plan ends within (or before) 7 days — P-5's ≤7-day window. */
 const EXPIRY_WARN_DAYS = 7;
