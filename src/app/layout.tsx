@@ -1,6 +1,21 @@
 import './globals.css';
 
 /**
+ * r14-M7: viewport-fit cover for iOS safe-area resolution — paired with
+ * .safe-area-pb/.safe-area-pt utilities in globals.css. Mirrors Smart-Bot/v17-E-F2
+ * and Smart-Link/r14 so the header, bottom CTA bars and any footer padding
+ * resolve env(safe-area-inset-*) to real values on every iPhone with a notch /
+ * Dynamic Island.
+ */
+export const metadata = {
+        viewport: {
+                width: 'device-width',
+                initialScale: 1,
+                viewportFit: 'cover',
+        },
+};
+
+/**
  * r119-S5-P1-3: the app previously used the "multiple root layouts" pattern
  * ((public)/(protected) each rendered their own <html>) with NO root layout —
  * the exact pattern the Next.js docs warn about: the ROOT not-found boundary
