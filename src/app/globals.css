@@ -544,19 +544,21 @@
         --accent-ink:       #5C3416;   /* 10.29:1 on cream — accent as TEXT */
         --state-focus-ring-color: var(--accent-strong);
 
-        /* ── Semantic status + text-safe inks (§1.6) ── */
-        /* r123-a11y: base = text-safe deep (72 text-success consumers + white-on-fill
-           badges; c-mint-ink #4FA66D measured 3.0:1 with white / as text on cream) */
-        --success:      var(--c-mint-deep);
+        /* ── Semantic status + text-safe inks (§1.6) — canonical Madarek light
+           split (r8-a dedup): ONE set, byte-matching tokens.css light block.
+           base = the family INK for fills/strokes (mint #4FA66D · yellow
+           #D6A330 · rose #DD6E78 · sky #5C8FCE) · -soft = the pastel bg tint
+           · -ink = the family DEEP for TEXT (mint-deep #1F4F30 = 9.08:1 ·
+           yellow-deep #6B4C0B = 7.56:1 · rose-deep #6B2128 = 10.75:1 ·
+           sky-deep #1F3D63 = 10.57:1 on cream #FBFAF9) — text consumers use
+           the -ink twins. The former r123-a11y deep-collapsed base set
+           (declared here AND a second conflicting time in the family block
+           below — --info was #5C8FCE then #1F3D63) was removed: one split,
+           documented once. */
+        --success:      var(--c-mint-ink);
         --success-soft: var(--c-mint-bg);
         --success-ink:  var(--c-mint-deep);
-        /* r123-a11y (axe round79-c ratchet): family consumers use the BASE token
-           as badge/status TEXT (12 text-warning sites). #D6A330 (c-yellow-ink,
-           Madarek's FILL gold) on the cream chip wash measured 2.13:1 — the
-           Madarek ruling (reference §0 commandment 6) is that status TEXT
-           carries the -ink/-deep variant: #6B4C0B = 7.56:1. Solid bg-warning
-           consumers pair with --warning-foreground #FFFFFF (8.4:1). */
-        --warning:      var(--c-yellow-deep);
+        --warning:      var(--c-yellow-ink);
         --warning-soft: var(--c-yellow-bg);
         --warning-ink:  var(--c-yellow-deep);
         --danger:       var(--c-rose-ink);
@@ -615,22 +617,16 @@
         --input: #D9D6D0;                      /* divider-strong */
         --ring: #5C3416;                       /* accent-strong focus ring — 10.29:1 */
 
-        /* Status — r123-a11y: family consumers use the BASE token as badge/status
-           TEXT (12 text-warning sites + axe round79-c ratchet baseline 0). The
-           #D6A330 fill gold measured 2.13:1 on the cream chip wash — Madarek's
-           ruling (reference §0/§1.6) is status TEXT carries the ink/deep variant.
-           #6B4C0B = 7.56:1 as text; with --warning-foreground #FFFFFF on solid
-           fills = 8.4:1. Same treatment as the -ink twins below. */
-        /* r123-a11y: Madarek .btn.success ruling (reference §5): white-on-status
-           badges carry the -ink/deep fill, not the pastel mid — #4FA66D+white
-           = 3.0:1, #5C8FCE+white = 3.35:1 (axe round79-c ratchet failures).
-           #1F4F30+white = 9.46:1, #1F3D63+white = 11.0:1. */
-        --success: #1F4F30;
-        --success-foreground: #FFFFFF;
-        --warning: #6B4C0B;
-        --warning-foreground: #FFFFFF;
-        --info: #1F3D63;
-        --info-foreground: #FFFFFF;
+        /* Status fill foregrounds (r8-a): warm dark ink on the canonical pastel
+           mids — the Madarek --danger-fg pattern (their light #191918-on-fill
+           ruling), mirroring this file's dark block (#191918 on the luminous
+           night fills) and the --destructive-foreground / --danger-fg pair
+           above. Measured: #191918 on mint #4FA66D = 5.9:1 · yellow #D6A330
+           = 7.7:1 · sky #5C8FCE = 5.3:1 — all AA. (The former white-on-deep
+           pairs retired with the duplicate base declarations above.) */
+        --success-foreground: #191918;
+        --warning-foreground: #191918;
+        --info-foreground: #191918;
 
         /* Orange twin — flips to copper */
         --orange: #B57438;
@@ -757,6 +753,56 @@ html.high-contrast :focus-visible {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   prefers-contrast: more — OS increased-contrast support (r8-a)
+   ══════════════════════════════════════════════════════════════
+   Ported from Madarek tokens.css (§prefers-contrast, L964-1005):
+   elevation shadows collapse to SOLID RINGS (blur-dependent shadows
+   read as smudge under increased contrast), borders strengthen, and
+   glass goes SOLID (opaque surface + strong hairline, no translucent
+   blur). Complements the manual html.high-contrast layer above —
+   users with the OS setting flipped get this automatically; the
+   class stays the explicit opt-in. Same WCAG 1.4.11 non-text goal:
+   every edge ≥3:1 without the shadow haze. */
+@media (prefers-contrast: more) {
+        :root {
+                /* night theme — luminous solid rings */
+                --elev-1: 0 0 0 1px rgba(255,255,255,0.36);
+                --elev-2: 0 0 0 1.5px rgba(255,255,255,0.44);
+                --elev-3: 0 0 0 2px rgba(255,255,255,0.52);
+                --elev-4: 0 0 0 2.5px rgba(255,255,255,0.60);
+                --elev-5: 0 0 0 3px rgba(255,255,255,0.68);
+                --glass-bg: var(--surface);
+                --glass-bg-strong: var(--surface);
+                --glass-border: rgba(255,255,255,0.36);
+                --glass-border-strong: rgba(255,255,255,0.64);
+                --surface-border: rgba(255,255,255,0.36);
+                --surface-divider: rgba(255,255,255,0.24);
+                --border: rgba(255,255,255,0.48);
+                --border-strong: rgba(255,255,255,0.64);
+                --input: rgba(255,255,255,0.48);
+                --rule: rgba(255,255,255,0.48);
+        }
+        html.light {
+                /* cream theme — ink solid rings */
+                --elev-1: 0 0 0 1px rgba(0,0,0,0.32);
+                --elev-2: 0 0 0 1.5px rgba(0,0,0,0.40);
+                --elev-3: 0 0 0 2px rgba(0,0,0,0.48);
+                --elev-4: 0 0 0 2.5px rgba(0,0,0,0.56);
+                --elev-5: 0 0 0 3px rgba(0,0,0,0.64);
+                --glass-bg: var(--surface);
+                --glass-bg-strong: var(--surface);
+                --glass-border: rgba(0,0,0,0.32);
+                --glass-border-strong: rgba(0,0,0,0.60);
+                --surface-border: rgba(0,0,0,0.32);
+                --surface-divider: rgba(0,0,0,0.20);
+                --border: rgba(0,0,0,0.42);
+                --border-strong: rgba(0,0,0,0.60);
+                --input: rgba(0,0,0,0.42);
+                --rule: rgba(0,0,0,0.42);
+        }
+}
+
+/* ══════════════════════════════════════════════════════════════
    @utility — Tailwind utility directives
    ══════════════════════════════════════════════════════════════ */
 
@@ -772,15 +818,16 @@ html.high-contrast :focus-visible {
    shimmer-sweep) died with them. */
 
 @utility text-gradient-orange {
-        /* Madarek night: gold gradient (accent → accent-strong) */
-        background: linear-gradient(135deg, #E9B44C, #C9962F);
+        /* Madarek night: gold gradient (accent → accent-strong) at the
+           canonical 145° metal angle (unified-smart-parity --btn-primary-bg). */
+        background: linear-gradient(145deg, #E9B44C, #C9962F);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
 }
 .light .text-gradient-orange {
-        /* Madarek light: copper gradient (accent → accent-hover) */
-        background: linear-gradient(135deg, #B57438, #9A5F25);
+        /* Madarek light: copper gradient (accent → accent-hover) @145° */
+        background: linear-gradient(145deg, #B57438, #9A5F25);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -1000,8 +1047,10 @@ html.high-contrast :focus-visible {
         align-items: center;
         justify-content: center;
         border-radius: 22%;
-        /* ember→saffron = gold ramp (night) / copper→amber ramp (light) */
-        background: linear-gradient(135deg, var(--c-ember), var(--c-saffron));
+        /* r8-a: canonical Madarek gold metal (unified-smart-parity
+           --btn-primary-bg): #E9B44C → #C9962F @145° — the brand-mark
+           pair, both themes (glyph stays --c-espresso void/dark ink). */
+        background: linear-gradient(145deg, #E9B44C, #C9962F);
         box-shadow: 0 8px 28px color-mix(in srgb, var(--orange) 32%, transparent), inset 0 1px 0 oklch(1 0 0 / 0.12);
         overflow: hidden;
         color: var(--c-espresso);

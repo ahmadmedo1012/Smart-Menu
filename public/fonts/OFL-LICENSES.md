@@ -14,7 +14,6 @@ Full license text: <https://openfontlicense.org/open-font-license-official-text/
 | **Cairo** | `cairo-arabic.woff2` · `cairo-latin.woff2` · `cairo-latin-ext.woff2` (web) + `mobile/assets/fonts/Cairo-{Regular,SemiBold,Bold}.ttf` | Copyright 2016 The Cairo Project Authors — <https://github.com/googlefonts/cairo> | SIL OFL 1.1 |
 | **Readex Pro** | `readex-pro.woff2` · `readex-pro-latin.woff2` (web) + `mobile/assets/fonts/ReadexPro-{Regular,Bold}.ttf` | Copyright 2021 The Readex Pro Project Authors — <https://github.com/ThomasJockin/ReadexPro> | SIL OFL 1.1 |
 | **Noto Naskh Arabic** | `noto-naskh-arabic.woff2` · `noto-naskh-arabic-latin.woff2` | Copyright 2015-2021 The Noto Project Authors — <https://github.com/notofonts/arabic> | SIL OFL 1.1 |
-| **Noto Sans Arabic** | `noto-sans-arabic.woff2` · `noto-sans-arabic-latin.woff2` | Copyright 2015-2021 The Noto Project Authors — <https://github.com/notofonts/arabic> | SIL OFL 1.1 |
 
 The font **names** are reserved per OFL §1 (Reserved Font Name): modified
 subsets served here keep their original family names because no glyph/behavior

@@ -3,40 +3,63 @@
 <head>
 <meta charset="utf-8">
 <style>
-  @font-face { font-family: 'Readex Pro'; src: url('/fonts/readex-pro.woff2') format('woff2'); font-weight: 300 700; font-display: block; }
-  @font-face { font-family: 'Readex Pro Latin'; src: url('/fonts/readex-pro-latin.woff2') format('woff2'); font-weight: 300 700; font-display: block; }
+  /* ─────────────────────────────────────────────────────────────────
+     OG brand card — Madarek identity (r8-a rewrite)
+     Night ground #070B16 · sand ink #F2EFE6 · gold metal #E9B44C→#C9962F
+     at the canonical 145° (unified-smart-parity --btn-primary-bg family).
+     IBM Plex Sans Arabic 400-700 self-hosted from ../public/fonts/ (the
+     app's own Plex faces — no Google Fonts, no Readex Pro). Flat night
+     ground per the Madarek doctrine: no glows, no radial washes.
+     ─────────────────────────────────────────────────────────────────
+     Rendered by scripts/render-og.mjs (node, fonts inlined as data URIs)
+     or directly via file:// + playwright (needs Chromium's
+     --allow-file-access-from-files for the ../public/fonts lookups). */
+  @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('../public/fonts/plex-sans-arabic-400-normal-arabic.woff2') format('woff2'); font-weight: 400; font-display: block;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+  @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('../public/fonts/plex-sans-arabic-500-normal-arabic.woff2') format('woff2'); font-weight: 500; font-display: block;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+  @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('../public/fonts/plex-sans-arabic-600-normal-arabic.woff2') format('woff2'); font-weight: 600; font-display: block;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+  @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('../public/fonts/plex-sans-arabic-700-normal-arabic.woff2') format('woff2'); font-weight: 700; font-display: block;
+    unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+  @font-face { font-family: 'IBM Plex Sans Arabic'; src: url('../public/fonts/plex-sans-arabic-500-normal-latin.woff2') format('woff2'); font-weight: 500; font-display: block;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1200px; height: 630px; overflow: hidden; }
   body {
-    font-family: 'Readex Pro', sans-serif;
-    background:
-      radial-gradient(ellipse 900px 520px at 82% -12%, oklch(0.55 0.19 45 / 0.28), transparent 65%),
-      radial-gradient(ellipse 700px 400px at 8% 110%, oklch(0.55 0.19 45 / 0.18), transparent 60%),
-      #070503;
-    color: #ebe7e2;
+    font-family: 'IBM Plex Sans Arabic', 'Cairo', system-ui, sans-serif;
+    /* Madarek night — flat ground, no glow washes */
+    background: #070B16;
+    color: #F2EFE6; /* sand ink */
     display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
     padding: 72px 88px;
     position: relative;
   }
-  .grain { position: absolute; inset: 0; opacity: 0.5; background-image: radial-gradient(oklch(0.93 0.008 70 / 0.045) 1px, transparent 1px); background-size: 5px 5px; }
+  .grain { position: absolute; inset: 0; opacity: 0.4; background-image: radial-gradient(rgba(242,239,230,0.05) 1px, transparent 1px); background-size: 5px 5px; }
   .brand-row { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; position: relative; }
-  .mark { width: 84px; height: 84px; border-radius: 22px; background: linear-gradient(135deg, oklch(0.55 0.19 45), oklch(0.42 0.17 48));
-    display: flex; align-items: center; justify-content: center; box-shadow: 0 18px 44px oklch(0.55 0.19 45 / 0.35); }
+  /* Brand mark — Madarek gold metal (deep→luminous) + void-ink glyph
+     (--primary/--primary-foreground pairing) on a Madarek night shadow */
+  .mark { width: 84px; height: 84px; border-radius: 20px;
+    background: linear-gradient(145deg, #C9962F, #E9B44C);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 18px 44px rgba(2,4,12,0.55), inset 0 1px 0 rgba(255,255,255,0.08); }
   .mark svg { width: 46px; height: 46px; }
-  .brand-name { font-size: 46px; font-weight: 600; letter-spacing: -0.5px; color: #f5f2ee; }
-  h1 { font-size: 88px; font-weight: 700; line-height: 1.08; margin-bottom: 18px; position: relative;
-       background: linear-gradient(120deg, #f8f6f3 30%, oklch(0.78 0.14 70)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .tagline { font-size: 34px; font-weight: 300; color: oklch(0.72 0.012 70); margin-bottom: 46px; position: relative; }
+  /* Arabic law: no letter-spacing on Arabic, ever */
+  .brand-name { font-size: 46px; font-weight: 600; color: #F2EFE6; }
+  h1 { font-size: 84px; font-weight: 700; line-height: 1.2; margin-bottom: 18px; position: relative;
+       color: #F2EFE6; /* flat sand ink — no gradient text on the brand card */ }
+  .tagline { font-size: 34px; font-weight: 400; line-height: 1.5; color: #C3C8DC; margin-bottom: 40px; position: relative; }
   .pills { display: flex; gap: 14px; position: relative; }
-  .pill { font-size: 24px; font-weight: 500; color: oklch(0.78 0.14 70); border: 1.5px solid oklch(0.55 0.19 45 / 0.45);
-    background: oklch(0.55 0.19 45 / 0.10); border-radius: 999px; padding: 10px 26px; }
-  .url { position: absolute; bottom: 54px; left: 88px; font-family: 'Readex Pro Latin', sans-serif; direction: ltr;
-    font-size: 26px; font-weight: 500; color: oklch(0.62 0.012 70); letter-spacing: 0.2px; }
+  /* gold-wash chips (bg-accent/10 + text-accent + accent border) */
+  .pill { font-size: 24px; line-height: 1; font-weight: 500; color: #E9B44C; border: 1.5px solid rgba(233,180,76,0.45);
+    background: rgba(233,180,76,0.10); border-radius: 999px; padding: 10px 26px; }
+  .url { position: absolute; bottom: 54px; left: 88px; direction: ltr;
+    font-size: 26px; font-weight: 500; color: #8E97B8; letter-spacing: 0.2px; }
   .qr { position: absolute; bottom: 48px; right: 88px; width: 118px; height: 118px; opacity: 0.35;
     background:
-      linear-gradient(0deg, transparent 75%, oklch(0.55 0.19 45) 75%) 0 0/24px 24px,
-      linear-gradient(90deg, transparent 75%, oklch(0.55 0.19 45) 75%) 0 0/24px 24px,
-      oklch(0.93 0.008 70 / 0.5);
+      linear-gradient(0deg, transparent 75%, #E9B44C 75%) 0 0/24px 24px,
+      linear-gradient(90deg, transparent 75%, #E9B44C 75%) 0 0/24px 24px,
+      rgba(233,180,76,0.08);
     border-radius: 8px;
     -webkit-mask-image: radial-gradient(circle at center, black 72%, transparent 73%);
     mask-image: radial-gradient(circle at center, black 72%, transparent 73%);
@@ -47,9 +70,9 @@
   <div class="grain"></div>
   <div class="brand-row">
     <div class="mark">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#f8f6f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#05070F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 8h16"/><path d="M4 12h16"/><path d="M4 16h10"/>
-        <circle cx="19.5" cy="16" r="1.6" fill="#f8f6f3" stroke="none"/>
+        <circle cx="19.5" cy="16" r="1.6" fill="#05070F" stroke="none"/>
       </svg>
     </div>
     <div class="brand-name">الربط الذكي</div>

@@ -9,11 +9,14 @@
 
      :root { --font-cairo: "IBM Plex Sans Arabic"; }
 
-   Cairo / Noto Naskh Arabic / Noto Sans Arabic / Readex Pro faces stay
-   registered as fallbacks (network resilience + .font-naskh editorial).
-   font-display: swap on every face. Weights reality: Sans Arabic ships
-   400/500/600/700 only — 800 never existed, so font-weight: 800 matches
-   the real 700 cut (Madarek --fw-black resolves to 700).
+   Cairo / Noto Naskh Arabic / Readex Pro faces stay registered as fallbacks
+   (network resilience + .font-naskh editorial). "Noto Sans Arabic" survives
+   ONLY as a CSS font-stack NAME (system fallback in globals.css); its two
+   woff2 files were never @font-face'd and were removed as dead weight
+   (~197 KB, r8-a). font-display: swap on every face. Weights reality:
+   Sans Arabic ships 400/500/600/700 only — 800 never existed, so
+   font-weight: 800 matches the real 700 cut (Madarek --fw-black
+   resolves to 700).
    First paint needs only the two preloaded arabic subsets (~86 KB).
    ──────────────────────────────────────────────────────────────────── */
 
