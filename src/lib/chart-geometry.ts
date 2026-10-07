@@ -108,10 +108,11 @@ export function tickIndices(length: number, maxTicks: number): number[] {
 }
 
 export const SERIES_PALETTE = [
-	'oklch(0.55 0.19 45)',
-	'oklch(0.66 0.16 250)',
-	'oklch(0.62 0.12 180)',
-	'oklch(0.58 0.16 300)',
-	'oklch(0.72 0.14 75)',
+	/* Madarek chart-1..5 (night): gold, mint, sky, rose, lavender */
+	'#E9B44C',
+	'#7FD39A',
+	'#8FBBF2',
+	'#F0938F',
+	'#B7A0F4',
 	'oklch(0.52 0.04 70)',
 ] as const;

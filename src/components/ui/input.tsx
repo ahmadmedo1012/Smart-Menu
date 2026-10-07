@@ -48,7 +48,7 @@ function Input({
 				dir="auto"
 				className={cn(
 					// h-12 already equals 48px — single source of truth.
-					"h-12 w-full min-w-0 rounded-lg border bg-transparent py-3 text-base shadow-xs transition-[color,background-color,border-color,box-shadow] duration-200 outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:shadow-[0_0_0_4px_oklch(0.55_0.19_45_/_0.12)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground/60 md:text-sm dark:bg-input/30 dark:disabled:bg-muted dark:disabled:text-muted-foreground/50",
+					"h-12 w-full min-w-0 rounded-lg border bg-transparent py-3 text-base shadow-xs transition-[color,background-color,border-color,box-shadow] duration-200 outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:shadow-[0_0_0_4px_var(--orange-muted)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground/60 md:text-sm dark:bg-input/30 dark:disabled:bg-muted dark:disabled:text-muted-foreground/50",
 					// Logical inline-end padding reserves space for the icon.
 					hasTrailingIcon ? "px-12" : "px-4",
 					stateStyles[state],

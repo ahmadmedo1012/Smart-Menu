@@ -75,7 +75,7 @@ function TrashIcon({ shakeOnClick = false, dangerHover = false, keepOpenOnDelete
 
       await animate(
         ".trash-icon",
-        { stroke: resolveTokenColor("--destructive", "oklch(0.6 0.22 25)") },
+        { stroke: resolveTokenColor("--destructive", "#F0938F") },
         { duration: 0.2, delay: 0.1, ease: "easeInOut" },
       );
     }, [animate, dangerHover]);

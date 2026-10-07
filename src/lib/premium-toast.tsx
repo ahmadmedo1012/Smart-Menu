@@ -17,18 +17,18 @@ import { cn } from "@/lib/utils";
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 
 const iconConfig = {
-  success: { icon: CheckCircle, bg: "bg-success/12", color: "var(--success, oklch(0.62 0.18 145))" },
-  error: { icon: AlertCircle, bg: "bg-destructive/12", color: "var(--destructive, oklch(0.6 0.22 25))" },
-  info: { icon: Info, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
-  cart: { icon: ShoppingCart, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
-  login: { icon: LogIn, bg: "bg-success/12", color: "var(--success, oklch(0.62 0.18 145))" },
+  success: { icon: CheckCircle, bg: "bg-success/12", color: "var(--success, #7FD39A)" },
+  error: { icon: AlertCircle, bg: "bg-destructive/12", color: "var(--destructive, #F0938F)" },
+  info: { icon: Info, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
+  cart: { icon: ShoppingCart, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
+  login: { icon: LogIn, bg: "bg-success/12", color: "var(--success, #7FD39A)" },
   logout: { icon: LogOut, bg: "bg-muted", color: "var(--muted-foreground)" },
-  star: { icon: Star, bg: "bg-warning/12", color: "var(--warning, oklch(0.7 0.16 80))" },
-  gift: { icon: Gift, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
-  refresh: { icon: RefreshCw, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
-  save: { icon: Save, bg: "bg-success/12", color: "var(--success, oklch(0.62 0.18 145))" },
-  trash: { icon: Trash2, bg: "bg-destructive/12", color: "var(--destructive, oklch(0.6 0.22 25))" },
-  copy: { icon: Copy, bg: "bg-orange-muted", color: "var(--orange, oklch(0.55 0.19 45))" },
+  star: { icon: Star, bg: "bg-warning/12", color: "var(--warning, #ECC97D)" },
+  gift: { icon: Gift, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
+  refresh: { icon: RefreshCw, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
+  save: { icon: Save, bg: "bg-success/12", color: "var(--success, #7FD39A)" },
+  trash: { icon: Trash2, bg: "bg-destructive/12", color: "var(--destructive, #F0938F)" },
+  copy: { icon: Copy, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
 } as const;
 
 function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
@@ -58,7 +58,7 @@ function AnimatedCartToastIcon() {
       <ShoppingCartIcon
         ref={ref}
         size={22}
-        className="text-[var(--orange, oklch(0.55 0.19 45))]"
+        className="text-[var(--orange, #E9B44C)]"
       />
     </div>
   );

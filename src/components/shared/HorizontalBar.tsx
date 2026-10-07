@@ -53,7 +53,7 @@ export function HorizontalBar({
                 <m.div
                   className="h-full rounded-full"
                   /* ponytail: CSS var not usable in JS `background` style prop in framer-motion. Inline oklch matches DESIGN.md gold accent. */
-                  style={{ background: item.color || "oklch(0.72 0.14 75)" }}
+                  style={{ background: item.color || "#E9B44C" }}
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }}

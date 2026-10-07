@@ -25,20 +25,32 @@ const gone = (p: string) => !existsSync(join(process.cwd(), p));
 
 // ── U1: توحيد خط العناوين ────────────────────────────────────────────────
 
-describe('U1 — --font-heading موحد على Readex Pro (المصدر الواحد للحقيقة)', () => {
+describe('U1 — --font-heading موحد على IBM Plex Sans Arabic (المصدر الواحد للحقيقة)', () => {
     const css = src('src/app/globals.css');
 
-    it('تعريفا @theme و:root متطابقان حرفيًا وReadex Pro أولًا في كليهما', () => {
+    it('تعريفا @theme و:root متطابقان حرفيًا وIBM Plex Sans Arabic أولًا في كليهما', () => {
         const decls = [...css.matchAll(/--font-heading:\s*([^;]+);/g)].map((m) => m[1].trim());
         expect(decls.length).toBe(2); // واحد في @theme inline وواحد في :root — لا ثالث
         expect(decls[0]).toBe(decls[1]);
-        expect(decls[0].startsWith('"Readex Pro"')).toBe(true);
+        // مدارك: IBM Plex Sans Arabic هي عائلة العناوين والنص معًا (--font-display لديهم)
+        expect(decls[0].startsWith('"IBM Plex Sans Arabic"')).toBe(true);
         // القيمة القديمة الكاذبة (Cairo أولًا في :root) زالت
         expect(decls.some((d) => d.startsWith('var(--font-cairo'))).toBe(false);
     });
 
     it('h1-h5 تقرأ var(--font-heading) — نفس العائلة التي تحملها أداة font-heading', () => {
         expect(css).toMatch(/h1, h2 \{\s*font-family: var\(--font-heading\)/);
+    });
+
+    it('خطوط IBM Plex الـ 12 مسجلة في fonts.css وملفات woff2 موجودة فعلًا', () => {
+        const fontsCss = src('public/fonts/fonts.css');
+        const faces = [...fontsCss.matchAll(/src:\s*url\(['"](\/fonts\/plex-[^'")]+)['"]\)/g)].map((m) => m[1]);
+        expect(faces.length).toBe(12);
+        for (const f of faces) {
+            expect(existsSync(join(process.cwd(), 'public', f.replace(/^\//, '')))).toBe(true);
+        }
+        // الـ shim ما زال موجودًا (غيابه أفجر الإنتاج إلى Times New Roman ذات مرة)
+        expect(fontsCss).toContain(':root { --font-cairo: "IBM Plex Sans Arabic"; }');
     });
 
     it('شرح r88-A2 في الجذر المحمي صُحح (كان يدّعي Readex «في الوضع الفاتح» فقط)', () => {

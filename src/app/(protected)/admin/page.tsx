@@ -282,7 +282,7 @@ export default function AdminDashboard() {
                                                 <AreaChart
                                                         data={stats.orderVolumeTrend.map((d) => ({ label: d.date.slice(5), value: d.count }))}
                                                         height={220}
-                                                        color="oklch(0.62 0.18 145)"
+                                                        color="#7FD39A"
                                                         gradientId="order-gradient"
                                                         /* r121-K-5: data-bearing SR name (was the generic «مخطط مساحي») */
                                                         ariaLabel={`حجم الطلبات آخر 30 يومًا: من ${toArabicNumber(

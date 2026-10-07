@@ -34,14 +34,14 @@ export function MiniSparkline({
 
   const isUp = data[data.length - 1] >= data[0]
   const trendColor = isUp
-    ? "var(--success, oklch(0.62 0.18 145))"
-    : "var(--destructive, oklch(0.6 0.22 25))"
+    ? "var(--success, #7FD39A)"
+    : "var(--destructive, #F0938F)"
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={cn("shrink-0", className)} role="img" aria-label={isUp ? "Trending up" : "Trending down"}>
       <defs>
         <linearGradient id={`spark-${width}-${isUp ? "up" : "dn"}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.72 0.14 75)" stopOpacity={0.25} />
+          <stop offset="0%" stopColor="#F5D48A" stopOpacity={0.25} />
           <stop offset="100%" stopColor={trendColor} stopOpacity={0} />
         </linearGradient>
       </defs>

@@ -24,7 +24,7 @@ interface SelfHostedQRProps {
  * (privacy leak + external dependency for a core feature + no offline/self-
  * hosted story). Renders via the already-installed `qrcode` npm package as a
  * PNG data URL: zero network calls, same brand colors as the old params
- * (bgcolor=ffffff / color=a86b1f), spec quiet-zone margin (4 modules).
+ * (bgcolor=ffffff / color=5C3416 — Madarek copper-deep: on-brand + darker than the old amber for scan reliability), spec quiet-zone margin (4 modules).
  *
  * `data-testid="qr-code"` is the stable e2e hook (the old specs matched
  * img[src*="qrserver"], which no longer exists).
@@ -43,7 +43,7 @@ export function SelfHostedQR({ value, size, alt, className, style }: SelfHostedQ
                                 mod.toDataURL(value, {
                                         width: size,
                                         errorCorrectionLevel: 'M',
-                                        color: { dark: '#a86b1f', light: '#ffffff' },
+                                        color: { dark: '#5C3416', light: '#ffffff' },
                                 }),
                         )
                         .then((url) => {
@@ -93,6 +93,6 @@ export async function qrPngDataUrl(value: string, size: number): Promise<string>
         return mod.toDataURL(value, {
                 width: size,
                 errorCorrectionLevel: 'M',
-                color: { dark: '#a86b1f', light: '#ffffff' },
+                color: { dark: '#5C3416', light: '#ffffff' },
         });
 }

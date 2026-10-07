@@ -4,7 +4,11 @@
  * (HTML <meta name="theme-color"> content attribute, JSON manifests).
  *
  * Keep in sync with `public/manifest.json` and `public/offline.html`.
- * Source of truth for the PWA chrome tint — r95: SmartBot flame #bc4700
- * (was unified brand amber #d97706).
+ *
+ * MADAREK PARITY — the browser/PWA chrome tint follows Madarek's own
+ * runtime theme-color sync exactly (madarek/frontend/index.html wave 2-a):
+ * dark → #191918, light → #FBFAF9 (cream). The old flame #bc4700 tint
+ * is retired with the flame palette.
  */
-export const BRAND_THEME_COLOR = "#bc4700" as const;
+export const BRAND_THEME_COLOR = "#191918" as const;
+export const BRAND_THEME_COLOR_LIGHT = "#FBFAF9" as const;

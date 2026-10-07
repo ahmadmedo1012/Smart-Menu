@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { preload } from 'react-dom';
-import { BRAND_THEME_COLOR } from '@/lib/brand';
+import { BRAND_THEME_COLOR, BRAND_THEME_COLOR_LIGHT } from '@/lib/brand';
 import { HIGH_CONTRAST_BOOT_SCRIPT } from '@/lib/high-contrast';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
@@ -81,8 +81,11 @@ export default async function RootLayout({
         // the RSC dispatcher) with no in-place copy — same LCP win, half the
         // tags. React forces crossorigin=anonymous for as:"font" (matches the
         // CSS-initiated font fetch, same as the old crossOrigin="anonymous").
-        preload('/fonts/cairo-arabic.woff2', { as: 'font', type: 'font/woff2' });
-        preload('/fonts/readex-pro.woff2', { as: 'font', type: 'font/woff2' });
+        /* MADAREK PARITY — first paint preloads only the two arabic subsets
+           (~86 KB): IBM Plex Sans Arabic 400 + 700 (font-display: swap on the
+           rest; Cairo/Readex stay registered as fallbacks via /fonts/fonts.css). */
+        preload('/fonts/plex-sans-arabic-400-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
+        preload('/fonts/plex-sans-arabic-700-normal-arabic.woff2', { as: 'font', type: 'font/woff2' });
         const nonce = '';
         // r119-S5-P1-3: <html>/<head>/<body> now come from the ROOT layout —
         // the multiple-root-layouts pattern left every 404 rendering in Next's
@@ -98,7 +101,7 @@ export default async function RootLayout({
                         {/* round84: apple-touch-icon.png now generated (180x180, lanczos3) — iOS home-screen shows the brand mark */}
                         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
                         {/* ponytail: theme-color unified to brand amber (manifest + offline.html + both layouts) — via lib/brand.ts constant */}
-                        <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR} />
+                        <meta name="theme-color" media="(prefers-color-scheme: light)" content={BRAND_THEME_COLOR_LIGHT} />
                         <meta name="theme-color" media="(prefers-color-scheme: dark)" content={BRAND_THEME_COLOR} />
                         <meta name="mobile-web-app-capable" content="yes" />
                         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

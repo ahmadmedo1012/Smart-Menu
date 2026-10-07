@@ -56,7 +56,7 @@ function Card({
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
           style={{
-            background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, oklch(0.55 0.19 45 / 0.6) 30deg, transparent 50deg)",
+            background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, color-mix(in srgb, var(--orange) 60%, transparent) 30deg, transparent 50deg)",
             mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             maskComposite: "exclude",
             WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",

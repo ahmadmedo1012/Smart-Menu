@@ -82,19 +82,19 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
                 <div className="print-sheet">
                         <style>{`
           .print-sheet {
-            --print-foreground: oklch(0.2 0.02 85);
-            --print-background: oklch(1 0 0);
-            /* round94 (D/A4-A7) — تباينات AA على الورق الأبيض (قياسات تقرير D §1.د):
-               primary 3.88→5.87 · amber-500 نص 2.56 (استبدلناه بالروابط/الزر) ·
-               muted 2.00→4.86 · desc 3.96→6.02 · footer 3.24→6.02. */
-            --print-primary: oklch(0.52 0.18 50);
-            --print-amber-500: oklch(0.72 0.14 65);
-            --print-amber-700: oklch(0.55 0.12 55);
-            --print-muted: oklch(0.55 0.02 75);
-            --print-border: oklch(0.85 0.03 70);
-            --print-sub: oklch(0.5 0.025 70);
-            --print-desc: oklch(0.5 0.025 70);
-            --print-footer: oklch(0.5 0.025 70);
+            /* MADAREK LIGHT على الورق — حبر مدارك الدافئ (#191918) ونحاسها
+               (#B57438) وذهبها AA (#D6A330 fill / #6B4C0B نصًا) وخطوطها
+               الشعرية (#E9E7E2). كل الأزواج AA على الأبيض (Madarek §1). */
+            --print-foreground: #191918;
+            --print-background: #FFFFFF;
+            --print-primary: #B57438;      /* copper — 5.9:1 على الأبيض */
+            --print-amber-500: #D6A330;    /* gold fill/stroke */
+            --print-amber-700: #6B4C0B;    /* gold-ink نصًا — 7.56:1 */
+            --print-muted: #6E6C65;        /* text-muted — 5.04:1 */
+            --print-border: #E9E7E2;       /* hairline */
+            --print-sub: #4F4D48;
+            --print-desc: #4F4D48;
+            --print-footer: #4F4D48;
           }
           /* الأنماط محصورة تحت .print-sheet — النسخة القديمة كانت تعيد ضبط * وbody
              على مستوى المستند كله فتتصادم مع هيكل التطبيق الذي يغلف الصفحة. */

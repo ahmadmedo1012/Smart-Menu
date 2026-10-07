@@ -33,7 +33,7 @@ interface TooltipState {
 export function AreaChart({
         data,
         height = 200,
-        color = 'oklch(0.55 0.19 45)', // orange stroke
+        color = '#E9B44C', // Madarek gold accent stroke (default; callers may override)
         gradientId = 'area-gradient',
         className,
         showAxis = true,
@@ -72,8 +72,8 @@ export function AreaChart({
                         >
                                 <defs>
                                         <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
-                                                <stop offset="0%" stopColor="oklch(0.72 0.14 75)" stopOpacity={0.35} />
-                                                <stop offset="100%" stopColor="oklch(0.55 0.19 45)" stopOpacity={0.05} />
+                                                <stop offset="0%" stopColor="#F5D48A" stopOpacity={0.35} />
+                                                <stop offset="100%" stopColor="#E9B44C" stopOpacity={0.05} />
                                         </linearGradient>
                                 </defs>
 
