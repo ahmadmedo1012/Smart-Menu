@@ -207,7 +207,6 @@ export default async function PrintMenuPage({ params }: { params: Promise<{ slug
 
                         {/* r120 (U12-P2-3): كود QR في ذيل الورقة — امسح واطلب. */}
                         <div style={{ textAlign: 'center', marginTop: '2.5rem', pageBreakInside: 'avoid' }}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                         src={qrDataUrl}
                                         alt={`رمز الاستجابة السريعة لمنيو ${restaurant.name}`}

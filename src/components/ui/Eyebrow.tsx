@@ -10,7 +10,11 @@ export function Eyebrow({ children, className }: { children: React.ReactNode; cl
       /* r120 (U4-P3-1): font-naskh أُسقطت — خط النسخ (114KB) كان يُحمَّل لكامل
          الصفحة الرئيسية لأجل تسمية 11px واحدة فقط. القيمة الآن ترث خط
          القاهرة (Cairo) الأساسي — توفير ~17% من حجم الصفحة. */
-      "inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-accent-foreground/90 mb-5",
+      /* r125 (10-a): tracking-[0.18em] حُذفت — قانون مدارك §6.4/§6.5:
+         دور Label (11px) letter-spacing: 0 في كلا الاتجاهين؛ الفاصل
+         كان يعطّله حارس RTL أصلًا (أثر صفري عربيًا) وبقي مخاطرة انجراف
+         للاتيني. */
+      "inline-flex items-center gap-2 text-[11px] font-medium uppercase text-accent-foreground/90 mb-5",
       className
     )}>
       {/* Animated pulsing dot — subtle premium indicator */}

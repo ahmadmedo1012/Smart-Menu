@@ -151,7 +151,9 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                 >
                         <div className="flex items-center justify-center gap-2 mb-3">
                                 <SparklesIcon className="size-4 text-ember dark:text-saffron" aria-hidden="true" />
-                                <h2 id="featured-showcase-heading" className="text-sm font-bold text-ember dark:text-saffron tracking-wide">
+                                <h2 id="featured-showcase-heading" className="text-sm font-bold text-ember dark:text-saffron">
+                                        {/* r125 (10-a): tracking-wide حُذفت — قانون مدارك للعناوين العربية
+                                            (letter-spacing 0؛ الحارس كان يعطّلها عربيًا أصلًا). */}
                                         أصنافنا المميزة
                                 </h2>
                         </div>
