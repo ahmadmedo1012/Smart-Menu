@@ -12,7 +12,7 @@
 
 | Field | Value |
 |---|---|
-| Last verified commit | **r122-b forensics at `a47fda38` (see r122-b entry)** — fix complete + 14/14-proven; production frozen at `19fa136a` by a production-specific `_prisma_migrations` write-block (all 3 resolution tiers fail instantly; app data-plane writes PROVEN healthy); **one user action unlocks: paste the failed build's log** |
+| Last verified commit | **r123 Madarek parity + security gates at `e93a5b6`+fix (see r123 entry)** — design system flipped to Madarek (night/gold dark + cream/copper light, IBM Plex Sans Arabic self-hosted), audit gate green (0 vulns); production still frozen at `19fa136a` by the PRE-EXISTING `_prisma_migrations` write-block (r122-b) — user action still required |
 | Production | https://menu.smart-link.ly (Vercel, git-integration; `/api/health` reports `commitSha`) |
 | Web/API status | PRODUCTION READY (live, CI-gated since r102) |
 | Mobile status | **r114: FULL WEB PARITY PROVEN END-TO-END** — local release APK from `c800e7a7` (= production) verified on an API 25 emulator against live production: exact menu data, item→cart→order journey, real order `ORD-MMU5XJCV6AWC8AK`, full Arabic WhatsApp invoice, confirmation screen. Android 7.0 (API 24) confirmed TLS-blocked (ledger #2 boundary: works on 7.1.1+). |
@@ -28,6 +28,11 @@
 - **Ops**: `docs/ops-runbook.md` (PITR/rollback/incidents).
 
 ## Round history (recent, newest first)
+
+- **r123 (2026-10-07) — MADAREK DESIGN-SYSTEM PARITY + CI AUDIT-CHAIN REPAIR.**
+  - **Design parity (commit `e93a5b6`, pushed)**: globals.css 26,581 → 1,393 lines. Deleted the two appended Madarek mega-layers (~25.2k dead lines — education-LMS sheets with zero TSX consumers) INCLUDING the stale un-layered `#bc4700` draft `:root` that hijacked ~40 variables in both themes; kept the QR print sheet. Family token NAMES preserved (zero TSX churn), VALUES flipped to the real Madarek system: dark (default) = night `#070B16` / sand `#F2EFE6` / gold `#E9B44C`; light = cream `#FBFAF9` / ink `#191918` / copper `#B57438`; Madarek radii 6–28 + elev-1..5 + shadow-card/pop/modal; motion ladder 80–720ms + press scale(.97) + hover gated to fine pointers; dark mode structurally repaired (dead `[data-theme]` blocks removed, class mechanism kept). Fonts: 12 IBM Plex woff2 self-hosted (md5-identical to madarek repo), `--font-cairo` shim repointed (Times-New-Roman regression guarded), 400/700 arabic preloads. Non-CSS flame literals updated (brand.ts, manifest, offline.html, chart fallbacks). Verified: tsc 0 · build 85/85 · vitest 2183/2183 · runtime smoke both themes + Plex + zero 404s + zero console errors.
+  - **CI audit-gate repair**: `lint-build-test` was RED on every push since the advisories published (also failed on `81e4a56`, pre-r123). Fixes: `next` 16.3.4 → **16.3.8** (CVE patched ≥16.3.6) + workspace overrides `sharp` 0.35.5 (CVE-2026-96889), `undici` 6.28.1, `source-map-js` ^1.2.2, `fast-uri` ^3.1.8. Verified locally: `pnpm audit --prod` = **No known vulnerabilities** (exit 0) · tsc 0 · build 85/85 · vitest 2183/2183.
+  - **Deployment**: NOT unfrozen by r123 — the r122-b production `_prisma_migrations` write-block still stands (needs the Vercel build-log paste / Neon role fix; see r122-b entry). Once unfrozen, the Madarek skin lands with the next successful deploy.
 
 - **r122-b (2026-09-28, ongoing) — DEPLOY-CHAIN FORENSICS (7 instrumented deployments; production still frozen at `19fa136a`; data plane PROVEN healthy).**
   - **The fix is complete and locally proven**: NOT VALID check-constraints + per-row-guarded backfill rescue (`zz_round122_...`, double-charge ledger guard) + db-unstick §5 P3009 auto-resolve — 14/14 scenario matrix (prod-like stuck+malformed data / v1-fails-live-reproduction «invalid input syntax for type json» / no-double-charge / fresh) + a full Vercel-pipeline sim (`npm install --ignore-scripts` + the exact build command incl. `next build`) — ALL GREEN.

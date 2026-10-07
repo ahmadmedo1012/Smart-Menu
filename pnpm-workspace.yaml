@@ -29,12 +29,14 @@ overrides:
   nanoid: ^3.3.18
   hono: ^4.13.7
   '@hono/node-server': ^1.19.17
-  fast-uri: ^3.1.6  # round86-D7: >=3.1.6 fixes SSRF/host-confusion advisories
+  fast-uri: ^3.1.8  # round86-D7 + r123: >=3.1.8 fixes SSRF/host-confusion + normalization advisories
   browserslist: ^4.28.7  # round86-D7: fixes OOM + prototype-write advisories (via next/babel chain)
   mysql2: ^3.23.1  # round86-D7: fixes auth-downgrade + zlib advisories (via prisma)
   deepmerge-ts: ^8.0.1
   valibot: ^1.4.2
-  sharp: 0.35.4
+  sharp: 0.35.5  # r123: CVE-2026-96889 (>=0.35.5)
+  undici: 6.28.1  # r123: WebSocket subprotocol + permessage-deflate advisories (>=6.28.1, via @vercel/blob)
+  source-map-js: ^1.2.2  # r123: indexed source-map section offsets advisory (>=1.2.2, via prisma)
   # round88-B8: patch-level fixes for the 5 high advisories in the eslint
   # dev chain (dev-tooling only, zero production-runtime exposure; semver-
   # compatible — same major):
