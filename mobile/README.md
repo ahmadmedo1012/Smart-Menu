@@ -2,7 +2,8 @@
 
 Native companion app for the Smart-Menu platform (Libya): customers browse a
 restaurant's public menu, build a cart with modifiers, and send the order
-through WhatsApp; owners log in to watch live orders (5s polling), print/show
+through WhatsApp; owners log in to watch live orders (15s polling,
+background-paused), print/show
 QR codes, and manage the menu. Talks to the same production API as the web app
 (<https://menu.smart-link.ly>) — **Arabic-only, RTL-first UI**.
 
@@ -13,8 +14,8 @@ Mobile engineering history: `docs/ENGINEERING_STATE.md` (r100-r119) and
 ## Stack
 
 - **Expo SDK 53** · React Native **0.79.6** · React 19 · **Hermes** engine · new architecture (Fabric/bridgeless)
-- NativeWind 4 (Tailwind for RN) · React Query · Zustand (cart/auth stores) · React Navigation 7
-- `expo-secure-store` (session Bearer token) · `expo-image` / `expo-image-picker` · FlashList
+- NativeWind 4 (Tailwind for RN) · React Query (server state: menu/plans/orders/landing queries, 15s orders poll) · Zustand (cart/auth stores) · React Navigation 7 · @gorhom/bottom-sheet (cart + item sheets) · Reanimated 3 (press/sheet/fade motion, reduce-motion aware)
+- `expo-secure-store` (session Bearer token) · `expo-image` · FlashList
 - TypeScript (~5.8) · ESLint (`eslint-config-expo`, legacy eslintrc mode)
 
 ## Setup
@@ -68,13 +69,13 @@ the web app self-hosts).
 ## Design system (Madarek)
 
 The app renders the **Madarek** design system — dark (night) set, 1:1 with the
-web app's `globals.css` bridge: page ground `#070B16`, surface `#0D1428`,
-surface-2 `#121A36`, warm-sand ink `#F2EFE6`, muted `#8E97B8`, gold accent
-`#E9B44C` (hover `#F5D48A` / strong `#C9962F`) with void ink `#05070F` on
-accent, hairline `#1B2444` / strong `#263052`, and the canonical status pairs
-(success `#7FD39A` on `#0F241C`, warning `#ECC97D` on `#2C2410`, danger
-`#F0938F` on `#2C1620`, info `#8FBBF2` on `#14213A`). Radius ladder
-6/8/10/12/16/20/28, motion 80–720ms on the canonical easings. WhatsApp brand
+web app's `globals.css` bridge. Single source of truth for inline styles:
+`src/theme/colors.ts` (night/surface/hairline/sand/muted/gold/void + status
+inks + the documented light-theme/pastel follow-up data); the NativeWind map
+in `tailwind.config.js` mirrors it. Radius ladder
+6/8/10/12/16/20/28 (+9999 circles), motion 80–720ms on the canonical easings
+(press 80/160, content fade 160, sheets 380 — all reduce-motion aware via
+`src/components/motion`). WhatsApp brand
 green (`#25D366`) is the one sanctioned non-Madarek color. The retired
 flame-orange (#bc4700) palette is gone — do not reintroduce it.
 

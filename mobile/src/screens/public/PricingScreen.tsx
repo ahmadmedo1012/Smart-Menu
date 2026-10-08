@@ -92,7 +92,7 @@ export function PricingScreen() {
                 <Limit label="صنف" value={plan.maxItems} />
                 <Limit label="طلب" value={plan.maxOrders} />
               </View>
-              <Button title="اشترك الآن" onPress={() => navigation.navigate("Login")} variant={isPopular ? "orange" : "outline"} size="lg" className="w-full mt-4" />
+              <Button title="اشترك الآن" onPress={() => navigation.navigate("Login")} variant={isPopular ? "primary" : "outline"} size="lg" className="w-full mt-4" />
             </View>
           );
         })}

@@ -56,7 +56,7 @@ export function OrderConfirmedScreen() {
               the customer ordered from. From the checkout flow (Menu →
               OrderConfirmed) goBack returns to that menu; a cold deep-link
               entry has no stack below — fall back to Landing. */}
-          <Button title="العودة للمنيو" onPress={() => { if (navigation.canGoBack()) navigation.goBack(); else navigation.navigate("Landing"); }} size="lg" variant={waUrl ? "outline" : "orange"} className="w-full" />
+          <Button title="العودة للمنيو" onPress={() => { if (navigation.canGoBack()) navigation.goBack(); else navigation.navigate("Landing"); }} size="lg" variant={waUrl ? "outline" : "primary"} className="w-full" />
           <Button title="مشاركة Smart Menu" variant="outline" onPress={onShare} size="lg" className="w-full" />
         </View>
       </View>

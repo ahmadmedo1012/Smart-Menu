@@ -14,14 +14,17 @@ import { Text } from "@/components/ui/Text";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { colors } from "@/theme/colors";
 
+// r126-M9: dead variants dropped (flame/ghost/destructive/secondary had zero
+// call sites — flame even rode the deleted bg-flame alias); `orange` renamed
+// to `primary` (values were always the Madarek gold, the name was a leftover
+// from the retired flame palette).
 const buttonVariants = cva(
   "flex items-center justify-center gap-2 rounded-md disabled:opacity-50",
   {
     variants: {
       variant: {
-        orange: "bg-brand-500", flame: "bg-flame",
-        outline: "border border-border bg-transparent", ghost: "bg-transparent",
-        destructive: "bg-destructive", secondary: "bg-muted",
+        primary: "bg-brand-500",
+        outline: "border border-border bg-transparent",
       },
       size: {
         // r126-M6: fixed heights clipped labels at system fontScale ≥1.3 —
@@ -30,21 +33,21 @@ const buttonVariants = cva(
         icon: "min-h-11 min-w-11",
       },
     },
-    defaultVariants: { variant: "orange", size: "default" },
+    defaultVariants: { variant: "primary", size: "default" },
   },
 );
 
 const buttonTextVariants = cva("font-semibold text-center font-sans", {
   variants: {
     variant: {
-      // Madarek: void ink #05070F rides the gold accent and the rose danger
-      // base (dark --accent-fg / --danger-fg) — never white-on-accent.
-      orange: "text-on-accent", flame: "text-on-accent", outline: "text-foreground",
-      ghost: "text-foreground", destructive: "text-on-accent", secondary: "text-foreground",
+      // Madarek: void ink #05070F rides the gold accent (dark --accent-fg) —
+      // never white-on-accent.
+      primary: "text-on-accent",
+      outline: "text-foreground",
     },
     size: { sm: "text-sm", default: "text-base", lg: "text-lg", icon: "text-base" },
   },
-  defaultVariants: { variant: "orange", size: "default" },
+  defaultVariants: { variant: "primary", size: "default" },
 });
 
 export interface ButtonProps extends PressableProps, VariantProps<typeof buttonVariants> {
@@ -95,10 +98,7 @@ export function Button({ variant, size, title, loading, children, className, dis
         // r126 (A6 P2-5): a literal "…" carried no activity indication —
         // a real spinner rides the (still visible) label.
         <>
-          <ActivityIndicator
-            size="small"
-            color={variant === "outline" || variant === "ghost" || variant === "secondary" ? colors.gold : colors.void}
-          />
+          <ActivityIndicator size="small" color={variant === "outline" ? colors.gold : colors.void} />
           <Text className={buttonTextVariants({ variant, size })} maxFontSizeMultiplier={1.4}>{title}</Text>
         </>
       ) : children ?? (

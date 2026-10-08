@@ -43,19 +43,6 @@ export function PasswordInput({ className, error, ...props }: InputProps) {
   );
 }
 
-export function Textarea({ className, error, ...props }: InputProps) {
-  return (
-    <TextInput
-      className={cn(
-        "min-h-[88px] rounded-md border border-border bg-input px-4 py-3 text-base text-foreground",
-        "font-sans placeholder:text-muted-foreground focus:border-ring",
-        error && "border-destructive", className,
-      )}
-      placeholderTextColor={colors.muted} multiline textAlignVertical="top" {...props}
-    />
-  );
-}
-
 export function Label({ children, className }: { children: React.ReactNode; className?: string }) {
   return <Text className={cn("text-sm font-medium text-foreground mb-2 font-sans", className)}>{children}</Text>;
 }

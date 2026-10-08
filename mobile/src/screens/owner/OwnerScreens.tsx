@@ -4,10 +4,10 @@ import { View, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
-import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2 } from "lucide-react-native";
+import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Share2, UtensilsCrossed, Store } from "lucide-react-native";
 
 import { api } from "@/services/api/client";
-import { Spinner, EmptyState, ErrorState } from "@/components/ui";
+import { Spinner, EmptyState, ErrorState, ComingSoon } from "@/components/ui";
 import { useAuth } from "@/store/auth";
 import { PressableScale } from "@/components/motion/PressableScale";
 import { useEnterFade } from "@/components/motion/useEnterFade";
@@ -416,12 +416,9 @@ export function OwnerOrderDetailScreen() {
 export function OwnerMenuScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>إدارة المنيو</Text>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginTop: 8, lineHeight: 20 }}>
-          يمكن إدارة الأصناف والفئات عبر تطبيق الويب حاليًا. سيتم إضافة المحرر الكامل للهاتف في التحديث القادم.
-        </Text>
-      </View>
+      {/* r126-M10: honest coming-soon state — the previous copy was honest
+          but unpolished; unified with the shared ComingSoon surface. */}
+      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -429,10 +426,7 @@ export function OwnerMenuScreen() {
 export function OwnerRestaurantsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>فروعي</Text>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginTop: 8, lineHeight: 20 }}>إدارة فروع متعددة قريبًا</Text>
-      </View>
+      <ComingSoon title="إدارة الفروع" icon={<Store size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -519,10 +513,9 @@ export function OwnerQrScreen() {
 export function OwnerReviewsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>تقييمات العملاء</Text>
-        <EmptyState title="لا توجد تقييمات بعد" icon={<Star size={32} color={colors.muted} />} />
-      </View>
+      {/* r126-M10: was a static EmptyState «لا توجد تقييمات بعد» — reads as
+          fetched-but-empty data; no fetch exists. Honest state instead. */}
+      <ComingSoon title="تقييمات العملاء" icon={<Star size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -530,10 +523,9 @@ export function OwnerReviewsScreen() {
 export function OwnerLoyaltyScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>برنامج الولاء</Text>
-        <EmptyState title="لا توجد بيانات ولاء بعد" icon={<Award size={32} color={colors.muted} />} />
-      </View>
+      {/* r126-M10: same honesty fix — «لا توجد بيانات ولاء بعد» implied a
+          fetch that never happens. */}
+      <ComingSoon title="برنامج الولاء" icon={<Award size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }

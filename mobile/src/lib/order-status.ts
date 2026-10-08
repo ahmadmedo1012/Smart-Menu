@@ -1,14 +1,14 @@
 /**
  * Single source of truth for order presentation across owner + admin pages:
- * status metadata (semantic phase-2 token classes), pickup-type metadata,
- * and Arabic relative time ("قبل 5 دقائق").
+ * status metadata (label + icon), pickup-type metadata, and Arabic relative
+ * time ("قبل 5 دقائق").
  *
- * Badge classes intentionally ride on the @theme tokens (--color-warning,
- * --color-info, --color-success, --color-destructive) instead of hand-picked
- * hexes, so they follow the theme in both light and dark modes. Text colors
- * pair each token with a darker/lighter scale shade to hold WCAG AA contrast
- * on the translucent token backgrounds (same pattern as the badge "gold"
- * variant: token surface + scale-shade text).
+ * r126-M9: the badgeClassName/toneClassName NativeWind token system had zero
+ * consumers (owner rows hand-roll status text) — deleted rather than kept
+ * as dead API surface. The old doc comment claimed the badges "follow the
+ * theme in both light and dark modes" — the app is night-only by design
+ * (userInterfaceStyle: "dark", no switcher), so that claim was misleading
+ * and is gone with the dead tokens.
  */
 import {
         Clock,
@@ -28,10 +28,6 @@ export interface OrderStatusMeta {
         /** Arabic label shown in badges, toasts, and the detail timeline. */
         label: string;
         icon: LucideIcon;
-        /** Semantic token classes for <Badge> (surface + AA-safe text shades). */
-        badgeClassName: string;
-        /** Same palette for the leading status square behind the icon. */
-        toneClassName: string;
         /** Next lifecycle step, or null once terminal (completed/cancelled). */
         next: string | null;
 }
@@ -40,36 +36,26 @@ export const ORDER_STATUS_META: Record<string, OrderStatusMeta> = {
         new: {
                 label: 'جديد',
                 icon: Clock,
-                badgeClassName: 'bg-warning/15 text-warning border-warning/25',
-                toneClassName: 'bg-warning/15 text-warning',
                 next: 'preparing',
         },
         preparing: {
                 label: 'قيد التحضير',
                 icon: ChefHat,
-                badgeClassName: 'bg-info/15 text-info border-info/25',
-                toneClassName: 'bg-info/15 text-info',
                 next: 'ready',
         },
         ready: {
                 label: 'جاهز',
                 icon: PackageCheck,
-                badgeClassName: 'bg-success/15 text-success border-success/20',
-                toneClassName: 'bg-success/15 text-success',
                 next: 'completed',
         },
         completed: {
                 label: 'مكتمل',
                 icon: CheckCircle,
-                badgeClassName: 'bg-success/15 text-success border-success/20',
-                toneClassName: 'bg-success/15 text-success',
                 next: null,
         },
         cancelled: {
                 label: 'ملغي',
                 icon: XCircle,
-                badgeClassName: 'bg-destructive/10 text-destructive border-destructive/20',
-                toneClassName: 'bg-destructive/10 text-destructive',
                 next: null,
         },
 };

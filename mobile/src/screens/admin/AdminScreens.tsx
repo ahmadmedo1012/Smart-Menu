@@ -2,12 +2,20 @@ import { View, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Users, Store, CreditCard, Settings, Bell, FileText, Send } from "lucide-react-native";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, ComingSoon } from "@/components/ui";
 import { Text } from "@/components/ui/Text";
 import { PressableScale } from "@/components/motion/PressableScale";
 import { useAuth } from "@/store/auth";
-import type { RootNavigation } from "@/navigation/types";
 import { colors } from "@/theme/colors";
+import type { RootNavigation } from "@/navigation/types";
+
+/**
+ * r126-M10 (A6 P1-3): the 10 admin management screens are honest coming-soon
+ * states now (ComingSoon) — they previously rendered EmptyStates titled like
+ * real data surfaces («إدارة المستخدمين»), which reads as fetched-but-empty.
+ * The dashboard nav hub + settings/logout are real and stay as they were.
+ * Full admin tooling remains a documented follow-up (web parity work).
+ */
 
 export function AdminDashboardScreen() {
   const user = useAuth((s) => s.user);
@@ -26,8 +34,8 @@ export function AdminDashboardScreen() {
           <AdminAction icon={<Send size={20} color={colors.sand} />} label="تيليجرام" onPress={() => navigation.navigate("AdminTelegram")} />
           <AdminAction icon={<Settings size={20} color={colors.sand} />} label="الإعدادات" onPress={() => navigation.navigate("AdminSettings")} />
         </View>
-        <Pressable onPress={logout} style={{ marginTop: 32, padding: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }}>تسجيل الخروج</Text>
+        <Pressable onPress={logout} accessibilityRole="button" accessibilityLabel="تسجيل الخروج" style={{ marginTop: 32, padding: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -46,10 +54,7 @@ function AdminAction({ icon, label, onPress }: { icon: React.ReactNode; label: s
 export function AdminRestaurantsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>المطاعم</Text>
-        <EmptyState title="إدارة المطاعم" icon={<Store size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="إدارة المطاعم" icon={<Store size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -57,10 +62,7 @@ export function AdminRestaurantsScreen() {
 export function AdminUsersScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>المستخدمون</Text>
-        <EmptyState title="إدارة المستخدمين" icon={<Users size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="إدارة المستخدمين" icon={<Users size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -68,10 +70,7 @@ export function AdminUsersScreen() {
 export function AdminAdminsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>المدراء</Text>
-        <EmptyState title="إدارة المدراء الفرعيين" icon={<Users size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="إدارة المدراء الفرعيين" icon={<Users size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -79,10 +78,7 @@ export function AdminAdminsScreen() {
 export function AdminOrdersScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>الطلبات</Text>
-        <EmptyState title="جميع الطلبات" icon={<CreditCard size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="جميع الطلبات" icon={<CreditCard size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -90,9 +86,7 @@ export function AdminOrdersScreen() {
 export function AdminOrderDetailScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>تفاصيل الطلب</Text>
-      </View>
+      <ComingSoon title="تفاصيل الطلب" icon={<CreditCard size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -100,10 +94,7 @@ export function AdminOrderDetailScreen() {
 export function AdminSubscriptionsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>الاشتراكات</Text>
-        <EmptyState title="موافقات الاشتراكات" icon={<CreditCard size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="موافقات الاشتراكات" icon={<CreditCard size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -111,10 +102,7 @@ export function AdminSubscriptionsScreen() {
 export function AdminSystemEventsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>أحداث النظام</Text>
-        <EmptyState title="أحدث الأحداث" icon={<Bell size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="أحدث أحداث النظام" icon={<Bell size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -122,10 +110,7 @@ export function AdminSystemEventsScreen() {
 export function AdminAuditLogsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>سجل التدقيق</Text>
-        <EmptyState title="سجل التدقيق" icon={<FileText size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="سجل التدقيق" icon={<FileText size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -133,10 +118,7 @@ export function AdminAuditLogsScreen() {
 export function AdminTelegramScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>إعدادات تيليجرام</Text>
-        <EmptyState title="تكامل تيليجرام" icon={<Send size={32} color={colors.muted} />} />
-      </View>
+      <ComingSoon title="تكامل تيليجرام" icon={<Send size={30} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -147,8 +129,8 @@ export function AdminSettingsScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>الإعدادات</Text>
-        <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }}>تسجيل الخروج</Text>
+        <Pressable onPress={logout} accessibilityRole="button" accessibilityLabel="تسجيل الخروج" style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

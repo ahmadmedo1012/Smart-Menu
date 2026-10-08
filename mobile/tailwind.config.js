@@ -5,14 +5,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Madarek design system — night (dark) theme. Token names kept from the
-        // r102-M8 semantic map, values flipped 1:1 to the Madarek bridge in the
-        // web app (src/app/globals.css) — the single source of truth for
-        // cross-platform parity. Canonical digest:
-        // download/madarek-reference-digest.md (night #070B16 · sand #F2EFE6 ·
-        // gold #E9B44C). `input` intentionally keeps the mobile composition:
-        // web uses --input as a border tint (#263052) while mobile composes it
-        // as the field FILL (surface-2 #121A36 on top of card #0D1428).
+        // Madarek design system — night (dark) theme. SSOT for INLINE styles is
+        // src/theme/colors.ts (r126-M7); this NativeWind map mirrors the same
+        // values (a JS config cannot require the TS module — keep them in
+        // sync). Token names kept from the r102-M8 semantic map, values
+        // flipped 1:1 to the Madarek bridge in the web app
+        // (src/app/globals.css). `input` intentionally keeps the mobile
+        // composition: web uses --input as a border tint (#263052) while
+        // mobile composes it as the field FILL (surface-2 #121A36 on top of
+        // card #0D1428).
+        // r126-M9: legacy flame/ember/saffron aliases deleted (zero class
+        // consumers — only Button's dead `flame` variant referenced them).
         brand: {
           // gold accent ramp anchored on canonical values:
           // 200 = accent-hover/pale #F5D48A · 500 = accent #E9B44C ·
@@ -30,9 +33,6 @@ module.exports = {
         border: "#1B2444",            // hairline
         input: "#121A36",             // field fill (mobile composition)
         ring: "#E9B44C",              // gold focus ring
-        flame: "#E9B44C",             // legacy alias → Madarek gold accent
-        ember: "#C9962F",             // legacy alias → accent-strong
-        saffron: "#F5D48A",           // legacy alias → accent-hover (pale gold)
         "on-accent": "#05070F",       // void ink on gold (accent-fg)
         whatsapp: "#25D366",          // WhatsApp brand green (sanctioned non-Madarek)
         success: "#7FD39A",           // mint ink
