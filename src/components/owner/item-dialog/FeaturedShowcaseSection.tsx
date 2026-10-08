@@ -119,7 +119,7 @@ export function FeaturedShowcaseSection({
                                                                                         type="button"
                                                                                         aria-label={`إزالة الشارة ${tag}`}
                                                                                         onClick={() => onRemoveBadge(tag)}
-                                                                                        className="inline-flex items-center gap-1.5 rounded-full border border-basil/40 bg-basil/15 px-3 py-1 text-[11px] font-medium text-basil transition-colors hover:bg-basil/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-basil/60"
+                                                                                        className="inline-flex items-center gap-1.5 rounded-full border border-basil/40 bg-basil/15 px-3 py-1 text-2xs font-medium text-basil transition-colors hover:bg-basil/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-basil/60"
                                                                                 >
                                                                                         {tag}
                                                                                         <AlertTriangle className="size-3 rotate-12" aria-hidden="true" />

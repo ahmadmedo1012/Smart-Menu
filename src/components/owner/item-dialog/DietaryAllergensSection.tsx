@@ -47,7 +47,7 @@ export function DietaryAllergensSection({
                                                                 type="button"
                                                                 onClick={() => onToggleDietary(t)}
                                                                 className={cn(
-                                                                        'text-[11px] px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                        'text-2xs px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                         active
                                                                                 ? 'bg-basil/15 border-basil/40 text-basil'
                                                                                 : 'border-border/30 hover:border-basil/40 text-muted-foreground'
@@ -74,7 +74,7 @@ export function DietaryAllergensSection({
                                                                 type="button"
                                                                 onClick={() => onToggleAllergen(t)}
                                                                 className={cn(
-                                                                        'text-[11px] px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                        'text-2xs px-2 py-1 rounded-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                         active
                                                                                 ? 'bg-warning/15 border-warning/40 text-warning'
                                                                                 : 'border-border/30 hover:border-warning/40 text-muted-foreground'

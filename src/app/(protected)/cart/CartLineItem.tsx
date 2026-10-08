@@ -46,7 +46,7 @@ export function CartLineItem({
                                                 <h3 className="font-semibold truncate">{item.name}</h3>
                                                 {/* w3-f1: chosen modifier summary for this line */}
                                                 {item.modifiersSummary && (
-                                                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+                                                        <p className="text-2xs text-muted-foreground mt-0.5 line-clamp-2">
                                                                 {item.modifiersSummary}
                                                         </p>
                                                 )}

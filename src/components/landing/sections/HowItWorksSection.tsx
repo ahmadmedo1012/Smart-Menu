@@ -47,7 +47,7 @@ export function HowItWorksSection() {
 
                   {/* Step badge — bg-primary صلب (§5.5) */}
                   <div className="absolute -top-2 -end-2 size-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md">
-                    <span className="text-[0.625rem] font-bold">
+                    <span className="text-3xs font-bold">
                       {/* r93-W2a policy: أرقام غربية متسقة عبر toArabicNumber */}
                       {toArabicNumber(i + 1)}
                     </span>

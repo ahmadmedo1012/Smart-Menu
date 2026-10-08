@@ -330,24 +330,24 @@ export default function AdminDashboard() {
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
                                                         <p className="text-xs text-muted-foreground">معدل الطلب</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{formatPrice(stats.avgOrderValue, { decimals: 2 })}</p>
-                                                        <p className="text-[11px] text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
+                                                        <p className="text-2xs text-muted-foreground mt-0.5">متوسط قيمة الطلب</p>
                                                 </div>
                                                 <div className="rounded-md bg-success/10 dark:bg-success/15 p-4">
                                                         <p className="text-xs text-success">مدفوع</p>
                                                         <p className="text-2xl font-bold mt-1 text-success tabular-nums">
                                                                 {toArabicNumber(stats.paidPlanCount)}
                                                         </p>
-                                                        <p className="text-[11px] text-muted-foreground mt-0.5">اشتراك مدفوع</p>
+                                                        <p className="text-2xs text-muted-foreground mt-0.5">اشتراك مدفوع</p>
                                                 </div>
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
                                                         <p className="text-xs text-accent-foreground">مرتبط</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.linkedRestaurants)}</p>
-                                                        <p className="text-[11px] text-muted-foreground mt-0.5">مطعم مرتبط</p>
+                                                        <p className="text-2xs text-muted-foreground mt-0.5">مطعم مرتبط</p>
                                                 </div>
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
                                                         <p className="text-xs text-accent-foreground">طلبات اليوم</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.ordersToday.count)}</p>
-                                                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                                                        <p className="text-2xs text-muted-foreground mt-0.5">
                                                                 {formatPrice(stats.ordersToday.revenue, { suffix: ' د.ل إيراد' })}
                                                         </p>
                                                 </div>

@@ -223,7 +223,7 @@ export default function OwnerRestaurantsPage() {
 									</div>
 								</div>
 								{r.isPrimary && (
-									<span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full shrink-0">
+									<span className="text-3xs bg-primary/10 text-primary px-2 py-0.5 rounded-full shrink-0">
 										الأساسي
 									</span>
 								)}

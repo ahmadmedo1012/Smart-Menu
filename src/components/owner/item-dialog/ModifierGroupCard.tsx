@@ -132,7 +132,7 @@ export function ModifierGroupCard({
                         <div className="space-y-2">
                                 <span className="text-xs font-medium text-muted-foreground block">الخيارات</span>
                                 {group.options.length === 0 && (
-                                        <p className="text-[11px] text-muted-foreground/70">
+                                        <p className="text-2xs text-muted-foreground/70">
                                                 لا توجد خيارات — أضف خيارًا واحدًا على الأقل ليظهر للزبائن
                                         </p>
                                 )}

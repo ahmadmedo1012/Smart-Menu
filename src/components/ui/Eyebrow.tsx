@@ -14,7 +14,7 @@ export function Eyebrow({ children, className }: { children: React.ReactNode; cl
          دور Label (11px) letter-spacing: 0 في كلا الاتجاهين؛ الفاصل
          كان يعطّله حارس RTL أصلًا (أثر صفري عربيًا) وبقي مخاطرة انجراف
          للاتيني. */
-      "inline-flex items-center gap-2 text-[11px] font-medium uppercase text-accent-foreground/90 mb-5",
+      "inline-flex items-center gap-2 text-2xs font-medium uppercase text-accent-foreground/90 mb-5",
       className
     )}>
       {/* Animated pulsing dot — subtle premium indicator */}

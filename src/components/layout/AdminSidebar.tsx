@@ -76,7 +76,7 @@ export function AdminSidebar({
         </div>
         <div>
           <p className="text-sm font-semibold leading-tight">الربط الذكي</p>
-          <p className="text-[11px] text-muted-foreground">لوحة التحكم</p>
+          <p className="text-2xs text-muted-foreground">لوحة التحكم</p>
         </div>
       </div>
 

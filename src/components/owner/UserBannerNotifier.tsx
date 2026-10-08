@@ -75,7 +75,7 @@ export function SubscriptionEventBanner({
                                         {message && (
                                                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{message}</p>
                                         )}
-                                        <p className="text-[11px] text-muted-foreground/60 mt-2">
+                                        <p className="text-2xs text-muted-foreground/60 mt-2">
                                                 {approved
                                                         ? 'حدّث الصفحة لتبدأ إدارة منيوك مباشرة.'
                                                         : 'يمكنك تعديل بيانات الدفع وإعادة المحاولة من صفحة الدفع'}

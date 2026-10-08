@@ -92,9 +92,9 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                         />
                                         {/* r95 → r120 (U11-P2-4): شارة zap — «الأكثر شعبية»
                                                (موحّدة مع /subscribe؛ كانت «الأكثر طلباً» غير الدقيقة).
-                                               3xs عند SmartBot = 10px — لا توكن 3xs بالمشروع
-                                               فتُستخدم text-[0.625rem] (تكبر مع high-contrast). */}
-                                        <span className="absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold text-primary-foreground">
+                                               r127-F4: توكن 3xs أصبح موجودًا الآن (--text-3xs
+                                               بـ globals.css) فحلّ text-3xs محل الكتابة اليدوية. */}
+                                        <span className="absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-3xs font-bold text-primary-foreground">
                                                 <Zap className="size-2.5 fill-current" aria-hidden="true" />
                                                 الأكثر شعبية
                                         </span>
@@ -104,7 +104,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                 /* r95: شارات الخطط غير الشعبية — نفس هندسة حبة الزاوية بألوانها الأصلية */
                                 <span
                                         className={cn(
-                                                'absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.625rem] font-bold',
+                                                'absolute top-4 end-4 z-10 flex items-center gap-1 rounded-full px-2.5 py-1 text-3xs font-bold',
                                                 meta.badgeColor
                                         )}
                                 >

@@ -59,7 +59,7 @@ function MobileNav({
                                 </div>
                                 <div>
                                         <span className="block text-base font-bold tracking-normal">الربط الذكي</span>
-                                        <span className="block text-[11px] text-muted-foreground">لوحة الأدمن</span>
+                                        <span className="block text-2xs text-muted-foreground">لوحة الأدمن</span>
                                 </div>
                         </div>
                         <nav aria-label="القائمة المتنقلة" className="flex-1 space-y-1 px-3 py-4">

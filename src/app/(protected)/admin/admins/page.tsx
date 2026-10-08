@@ -248,7 +248,7 @@ export default function AdminAdminsPage() {
                       <p className="text-xs text-muted-foreground">@{admin.username}</p>
                     </div>
                   </div>
-                  <Badge className="bg-info/15 text-info dark:bg-info/25 text-[10px]">
+                  <Badge className="bg-info/15 text-info dark:bg-info/25 text-3xs">
                     مدير عام
                   </Badge>
                 </div>
@@ -288,7 +288,7 @@ export default function AdminAdminsPage() {
                       </div>
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {PERMISSION_OPTIONS.filter(p => admin.permissions.includes(p.value)).map(p => (
-                          <Badge key={p.value} variant="outline" className="text-[10px] px-1.5 py-0 border-orange/20 text-accent-foreground/80">
+                          <Badge key={p.value} variant="outline" className="text-3xs px-1.5 py-0 border-orange/20 text-accent-foreground/80">
                             {p.label}
                           </Badge>
                         ))}
@@ -296,7 +296,7 @@ export default function AdminAdminsPage() {
                           <span className="text-xs text-muted-foreground">لا توجد صلاحيات</span>
                         )}
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-1">
+                      <p className="text-2xs text-muted-foreground mt-1">
                         أنشئ {formatDate(new Date(admin.createdAt))}
                         {admin.lastLoginAt && ` • آخر دخول ${formatDate(new Date(admin.lastLoginAt))}`}
                       </p>

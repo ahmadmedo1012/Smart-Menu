@@ -136,7 +136,7 @@ export function ConfigEditor() {
                                                 )}
                                         >
                                                 {CATEGORY_LABELS[cat] || cat}
-                                                <Badge variant="outline" className="ms-2 text-[10px] px-1.5">
+                                                <Badge variant="outline" className="ms-2 text-3xs px-1.5">
                                                         {configs.filter((c) => c.category === cat).length}
                                                 </Badge>
                                         </button>
@@ -160,7 +160,7 @@ export function ConfigEditor() {
                                                                                 {item.isSecret && (
                                                                                         <Badge
                                                                                                 variant="outline"
-                                                                                                className="text-[10px] px-1.5 text-accent-foreground border-orange/30"
+                                                                                                className="text-3xs px-1.5 text-accent-foreground border-orange/30"
                                                                                         >
                                                                                                 سري
                                                                                         </Badge>

@@ -168,7 +168,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         animate={{ scale: 1, opacity: 1 }}
                                                         transition={CARD_SPRING}
                                                         /* r95: شارة SmartBot — حبة zap بدل النجمة (نفس نمط بطاقات التسعير) */
-                                                        className="flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold text-primary-foreground"
+                                                        className="flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-3xs font-bold text-primary-foreground"
                                                 >
                                                         <Zap className="size-2.5 fill-current" aria-hidden="true" />
                                                         الأكثر طلباً
@@ -179,7 +179,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         initial={{ scale: 0, opacity: 0 }}
                                                         animate={{ scale: 1, opacity: 1 }}
                                                         transition={{ ...CARD_SPRING, delay: 0.1 }}
-                                                        className="rounded-md bg-success px-2 py-1 text-[10px] font-bold text-success-foreground"
+                                                        className="rounded-md bg-success px-2 py-1 text-3xs font-bold text-success-foreground"
                                                 >
                                                         <Sparkles className="size-2.5 fill-current" />
                                                 جديد
@@ -192,7 +192,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                  * FeaturedShowcase's discounted price). destructive stays reserved
                                  * for errors/unavailability. */}
                                 {hasDiscount && (
-                                        <div className="absolute top-3 end-3 z-10 rounded-md bg-success px-2 py-1 text-[10px] font-bold text-success-foreground">
+                                        <div className="absolute top-3 end-3 z-10 rounded-md bg-success px-2 py-1 text-3xs font-bold text-success-foreground">
                                                 -{toArabicNumber(Math.round((1 - item.discountedPrice! / item.price) * 100))}%
                                         </div>
                                 )}
@@ -241,7 +241,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 {item.dietaryTags?.map((tag) => (
                                                         <span
                                                                 key={tag}
-                                                                className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-[10px] text-basil"
+                                                                className="inline-flex items-center gap-1 rounded-full border border-basil/20 bg-basil/10 px-2 py-0.5 text-3xs text-basil"
                                                         >
                                                                 {/* r96-W4b: أيقونة lucide SVG بدل الإيموجي (قاعدة SmartBot
                                                                    «لا إيموجي كأيقونات») — مفتاح غير مخطط يسقط على Leaf
@@ -253,7 +253,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 {item.allergens?.map((tag) => (
                                                         <span
                                                                 key={tag}
-                                                                className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-[10px] text-warning"
+                                                                className="inline-flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-3xs text-warning"
                                                         >
                                                                 <AlertTriangle className="size-3 text-warning" /> {ALLERGEN_LABELS[tag] || tag}
                                                         </span>
@@ -292,7 +292,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                         {/* w3-f1: a light «خيارات متاحة» pill signals choices exist without
                                          * loading the card — muted border, no icon, hidden when none. */}
                                         {hasModifiers && (
-                                                <span className="inline-flex items-center rounded-full border border-accent-foreground/25 bg-accent-foreground/5 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+                                                <span className="inline-flex items-center rounded-full border border-accent-foreground/25 bg-accent-foreground/5 px-2 py-0.5 text-3xs font-medium text-accent-foreground">
                                                         خيارات متاحة
                                                 </span>
                                         )}

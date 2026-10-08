@@ -596,7 +596,7 @@ export default function OwnerLoyaltyPage() {
                                                 </div>
                                                 <Badge
                                                         variant="outline"
-                                                        className="text-[10px] tabular-nums border-border/50 bg-muted"
+                                                        className="text-3xs tabular-nums border-border/50 bg-muted"
                                                 >
                                                         {toArabicNumber(stats?.totalReferrals ?? 0)} إجمالي
                                                 </Badge>
@@ -624,7 +624,7 @@ export default function OwnerLoyaltyPage() {
                                         </div>
                                         <Badge
                                                 variant="outline"
-                                                className="text-[10px] tabular-nums border-border/50 bg-muted"
+                                                className="text-3xs tabular-nums border-border/50 bg-muted"
                                         >
                                                 {toArabicNumber(stats?.totalLoyaltyCards ?? 0)} إجمالي
                                         </Badge>

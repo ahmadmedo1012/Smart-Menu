@@ -192,7 +192,7 @@ function TabButton({
         {label}
         <span
           className={cn(
-            "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold transition-colors duration-fast",
+            "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-3xs sm:text-2xs font-bold transition-colors duration-fast",
             /* r95: عداد التبويب غير النشط — accent-foreground الأسطع (#df5a00)
                بدل text-orange (#bc4700) الذي كان 3.9:1 بلا AA على الداكن. */
             isActive

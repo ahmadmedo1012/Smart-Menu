@@ -81,7 +81,7 @@ export function PlanSelector({
                                                                 /* round94 (D/A8): via-saffron يجعل وسط الشارة saffron صرفاً
                                                                    (نص espresso الممركز 8.97:1 بدل منتصف المنحدر 4.58:1) —
                                                                    نمط هضبة زر flame نفسه. */
-                                                                <span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] px-2.5 py-0.5 text-[10px] font-bold text-espresso shadow-sm">
+                                                                <span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] px-2.5 py-0.5 text-3xs font-bold text-espresso shadow-sm">
                                                                         <Flame className="size-3" aria-hidden="true" />
                                                                         الأكثر شعبية
                                                                 </span>

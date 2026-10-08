@@ -193,7 +193,7 @@ export function CategoriesList({
                                                                                                                 {item.isFeatured && (
                                                                                                                         <span
                                                                                                                                 title="مميز — يظهر في القسم السينمائي"
-                                                                                                                                className="inline-flex items-center gap-0.5 text-[10px] font-bold text-ember dark:text-saffron bg-orange/10 border border-orange/25 rounded-full px-1.5 py-0.5"
+                                                                                                                                className="inline-flex items-center gap-0.5 text-3xs font-bold text-ember dark:text-saffron bg-orange/10 border border-orange/25 rounded-full px-1.5 py-0.5"
                                                                                                                         >
                                                                                                                                 <SparklesIcon className="size-2.5" aria-hidden="true" />
                                                                                                                         </span>

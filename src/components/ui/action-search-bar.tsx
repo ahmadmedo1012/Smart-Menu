@@ -247,7 +247,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                 <MotionSearch className="size-4 shrink-0 order-1" aria-hidden="true" />
                                 <span className="flex-1 text-start truncate order-2">بحث سريع...</span>
                                 {/* KBD anchored left */}
-                                <kbd className="order-3 hidden shrink-0 items-center gap-0.5 rounded border border-border/40 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
+                                <kbd className="order-3 hidden shrink-0 items-center gap-0.5 rounded border border-border/40 bg-muted/50 px-1.5 py-0.5 text-3xs font-medium text-muted-foreground/60 sm:flex">
                                         <span>⌘</span>K
                                 </kbd>
                         </button>
@@ -302,7 +302,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                                                                         : undefined
                                                                         }
                                                                         // RTL: padding on right for icon + text
-                                                                        className="h-12 w-full bg-transparent pe-12 ps-4 text-sm outline-none placeholder:text-muted-foreground/40"
+                                                                        className="h-12 w-full bg-transparent pe-12 ps-4 text-sm outline-none placeholder:text-muted-foreground/60"
                                                                 />
                                                                 {/* Icon pinned right inside input */}
                                                                 <MotionSearch
@@ -310,7 +310,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
                                                                         aria-hidden="true"
                                                                 />
                                                                 {/* ESC badge pinned left */}
-                                                                <kbd className="absolute end-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border/30 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex">
+                                                                <kbd className="absolute end-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded border border-border/30 bg-muted/50 px-1.5 py-0.5 text-3xs font-medium text-muted-foreground/60 sm:flex">
                                                                         ESC
                                                                 </kbd>
                                                         </div>
@@ -375,7 +375,7 @@ export function ActionSearchBar({ role = 'all', className }: ActionSearchBarProp
 
                                                                                                         {/* Active page badge */}
                                                                                                         {isActive && (
-                                                                                                                <span className="relative z-10 ms-auto text-[10px] text-muted-foreground/40">
+                                                                                                                <span className="relative z-10 ms-auto text-3xs text-muted-foreground/60">
                                                                                                                         الحالية
                                                                                                                 </span>
                                                                                                         )}

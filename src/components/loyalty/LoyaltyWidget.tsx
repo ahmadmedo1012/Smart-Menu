@@ -135,7 +135,7 @@ export function LoyaltyWidget({
                                                 <div>
                                                         <h2 className="text-sm font-bold flex items-center gap-2">
                                                                 برنامج الولاء
-                                                                <span className="bg-gradient-to-r from-orange to-orange/80 text-orange-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                                <span className="bg-gradient-to-r from-orange to-orange/80 text-orange-foreground text-3xs font-bold px-2 py-0.5 rounded-full">
                                                                         جديد
                                                                 </span>
                                                         </h2>
@@ -218,7 +218,7 @@ export function LoyaltyWidget({
                                                                                         <Stamp className="size-3.5 text-accent-foreground" />
                                                                                         بطاقة الطلبات
                                                                                 </span>
-                                                                                <span className="text-[11px] text-muted-foreground">
+                                                                                <span className="text-2xs text-muted-foreground">
                                                                                         {toArabicNumber(stamps)}/{toArabicNumber(STAMP_GOAL)} ← {REWARD_LABEL}
                                                                                 </span>
                                                                         </div>
@@ -244,7 +244,8 @@ export function LoyaltyWidget({
                                                                                                                 'size-9 rounded-lg flex items-center justify-center text-xs font-bold border transition-[background-color,border-color,box-shadow]',
                                                                                                                 isFilled
                                                                                                                         ? 'bg-orange text-orange-foreground border-orange shadow-sm shadow-orange/25'
-                                                                                                                        : 'bg-muted/30 text-muted-foreground/30 border-border/20'
+                                                                                                                        /* r127-F4: رقم خانة الختم نص مقروء — /30 → /60 (القشرة bg/border تظل زخرفية) */
+                                                                                                                        : 'bg-muted/30 text-muted-foreground/60 border-border/20'
                                                                                                         )}
                                                                                                 >
                                                                                                         {isFilled ? <Stamp className="size-4" /> : toArabicNumber(i + 1)}
@@ -274,7 +275,7 @@ export function LoyaltyWidget({
                                                                                                 <TIcon className="size-3.5 text-muted-foreground" />
                                                                                                 التقدم نحو المستوى {TIER_CONFIG[nextTier].labelAr}
                                                                                         </span>
-                                                                                        <span className="text-[11px] text-muted-foreground tabular-nums">
+                                                                                        <span className="text-2xs text-muted-foreground tabular-nums">
                                                                                                 {toArabicNumber(current)}/{toArabicNumber(next)}
                                                                                         </span>
                                                                                 </div>

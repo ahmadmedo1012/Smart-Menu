@@ -109,9 +109,9 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-bold text-lg">{r.name}</h2>
               {r.plan ? (
-                <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full text-orange-foreground bg-gradient-to-r", planGrad)}>{r.plan.nameAr}</span>
+                <span className={cn("text-3xs font-bold px-2.5 py-1 rounded-full text-orange-foreground bg-gradient-to-r", planGrad)}>{r.plan.nameAr}</span>
               ) : (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">بدون خطة</span>
+                <span className="text-3xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">بدون خطة</span>
               )}
             </div>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
@@ -121,7 +121,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
                 <AnimatedShoppingCart className="size-3" aria-hidden="true" />
                 {toArabicNumber(r._count.orders)} طلب
               </span>
-              <span className={cn("text-[11px] px-1.5 py-0.5 rounded", r.showOnLanding ? "text-accent-foreground bg-orange/10" : "text-muted-foreground/40")}>
+              <span className={cn("text-2xs px-1.5 py-0.5 rounded", r.showOnLanding ? "text-accent-foreground bg-orange/10" : "text-muted-foreground/60")}>
                 {r.city || (r.showOnLanding ? "مميز" : "")}
               </span>
             </div>
@@ -137,7 +137,8 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
             className={cn("size-11 rounded-xl border flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               r.showOnLanding
                 ? "border-orange/30 bg-orange/10 text-accent-foreground hover:bg-orange/20"
-                : "border-border/30 text-muted-foreground/40 hover:text-muted-foreground hover:bg-accent"
+                /* r127-F4: /40 → /60 — أيقونة زر التبديل التفاعلي تحت أرضية 3:1 للرسوم */
+                : "border-border/30 text-muted-foreground/60 hover:text-muted-foreground hover:bg-accent"
             )}
             title={r.showOnLanding ? "إخفاء من الرئيسية" : "عرض في الرئيسية"}
             aria-label={r.showOnLanding ? `إخفاء ${r.name} من الرئيسية` : `عرض ${r.name} في الرئيسية`}>

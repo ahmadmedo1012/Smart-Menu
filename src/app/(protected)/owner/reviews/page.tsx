@@ -215,7 +215,8 @@ export default function OwnerReviewsPage() {
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((s) => (
                         /* round94 (D/A3): نمط r84 نفسه — saffron غير المحروس كان 2.05:1 في الفاتح */
-                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-ember dark:text-saffron fill-ember dark:fill-saffron" : "text-muted-foreground/20")} />
+                        /* r127-F4: /20 → /60 — النجمة غير المعبأة تحت أرضية AA */
+                        <AnimatedStar key={s} className={cn("size-3.5", s <= review.rating ? "text-ember dark:text-saffron fill-ember dark:fill-saffron" : "text-muted-foreground/60")} />
                       ))}
                     </div>
                     <span className="text-xs text-muted-foreground">
@@ -230,7 +231,7 @@ export default function OwnerReviewsPage() {
                   )}
                 </div>
                 <div className="shrink-0 flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     {formatDateShort(new Date(review.createdAt))}
                   </span>
                   {/* r103-F5b: moderation — 44px touch target (size-11) per the

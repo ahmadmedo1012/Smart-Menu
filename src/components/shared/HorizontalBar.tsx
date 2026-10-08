@@ -34,7 +34,7 @@ export function HorizontalBar({
         return (
           <div key={i} className="flex items-center gap-3">
             <span className={cn(
-              "flex size-6 shrink-0 items-center justify-center rounded text-[11px] font-bold",
+              "flex size-6 shrink-0 items-center justify-center rounded text-2xs font-bold",
               i === 0 ? "bg-orange text-orange-foreground" :
               i < 3 ? "bg-orange-muted text-accent-foreground" :
               "bg-muted text-muted-foreground"
@@ -46,7 +46,7 @@ export function HorizontalBar({
                 <span className="text-sm font-medium truncate">{item.label}</span>
                 <span className="text-xs text-muted-foreground tabular-nums shrink-0 me-2">
                   {item.value}
-                  {item.subtitle && <span className="text-[10px] me-1">{item.subtitle}</span>}
+                  {item.subtitle && <span className="text-3xs me-1">{item.subtitle}</span>}
                 </span>
               </div>
               <div className="h-2 rounded-full bg-muted/50 overflow-hidden">

@@ -290,7 +290,9 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                            غير المحروس (كان 2.05:1 في الفاتح؛ hover /50 كان 1.42:1) */
                                                                                         s <= formRating
                                                                                                 ? 'text-ember dark:text-saffron'
-                                                                                                : 'text-muted-foreground/20 hover:text-ember dark:hover:text-saffron/50'
+                                                                                                /* r127-F4: /20 → /60 — نجوم غير المختارة كانت تحت أرضية AA
+                                                                                                   في عنصر تفاعلي (زر تقييم قابل للنقر) */
+                                                                                                : 'text-muted-foreground/60 hover:text-ember dark:hover:text-saffron/50'
                                                                                 )}
                                                                         >
                                                                                 <AnimatedStar className={cn('size-6', s <= formRating && 'fill-ember dark:fill-saffron')} />
@@ -306,7 +308,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 onChange={(e) => setFormComment(e.target.value)}
                                                                 rows={2}
                                                                 maxLength={500}
-                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus-visible:border-ring/50 transition-colors"
+                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/60 resize-none outline-none focus-visible:border-ring/50 transition-colors"
                                                         />
                                                         {/* Name */}
                                                         <input
@@ -316,7 +318,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 value={formName}
                                                                 onChange={(e) => setFormName(e.target.value)}
                                                                 maxLength={50}
-                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus-visible:border-ring/50 transition-colors"
+                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/60 outline-none focus-visible:border-ring/50 transition-colors"
                                                         />
                                                         {/* Error */}
                                                         {submitError && (
@@ -394,7 +396,8 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                                                         'size-3',
                                                                                                                         s <= review.rating
                                                                                                                                 ? 'text-ember dark:text-saffron fill-ember dark:fill-saffron'
-                                                                                                                                : 'text-muted-foreground/20'
+                                                                                                                                /* r127-F4: /20 → /60 — نجمة العرض غير المعبأة تحت أرضية AA */
+                                                                                                                                : 'text-muted-foreground/60'
                                                                                                                 )}
                                                                                                         />
                                                                                                 ))}

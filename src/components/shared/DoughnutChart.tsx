@@ -112,7 +112,7 @@ export function DoughnutChart({
 				>
 					{toArabicNumber(total)}
 				</text>
-				<text x={cx} y={cy + 14} textAnchor="middle" className="fill-muted-foreground text-[10px]">
+				<text x={cx} y={cy + 14} textAnchor="middle" className="fill-muted-foreground text-3xs">
 					{centerLabel ?? 'الإجمالي'}
 				</text>
 			</svg>

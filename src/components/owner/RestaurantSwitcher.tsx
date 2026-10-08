@@ -96,7 +96,7 @@ export function RestaurantSwitcher() {
 						>
 							<span className="flex-1 truncate">{r.name}</span>
 							{r.isPrimary && (
-								<span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0">
+								<span className="text-3xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0">
 									الأساسي
 								</span>
 							)}

@@ -188,7 +188,7 @@ export function SystemEventsClient() {
 									<span className={cn('size-2 rounded-full shrink-0 mt-1.5', st.dot)} aria-hidden="true" />
 									<span
 										className={cn(
-											'text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 inline-flex items-center gap-1',
+											'text-2xs font-medium px-2 py-0.5 rounded-full shrink-0 inline-flex items-center gap-1',
 											st.badge
 										)}
 									>

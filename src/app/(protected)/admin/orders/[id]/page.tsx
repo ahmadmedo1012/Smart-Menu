@@ -158,7 +158,8 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                                                         ? 'text-foreground'
                                                                                         : isActive
                                                                                                 ? 'text-success'
-                                                                                                : 'text-muted-foreground/40'
+                                                                                                /* r127-F4: /40 → /60 — وسم حالة الخط الزمني نص مقروء */
+                                                                                                : 'text-muted-foreground/60'
                                                                         )}
                                                                 >
                                                                         {getOrderStatusMeta(s).label}
