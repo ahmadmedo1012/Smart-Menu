@@ -1,17 +1,12 @@
-import { UserPlus, UtensilsCrossed, Share2, type LucideIcon } from "lucide-react";
-
 // round92-D2 (1-d knip: 60 unused exports; these were dead): the exported
 // BENEFITS / PARTNERS / PRICING_PLANS / SHOWCASES / TESTIMONIALS consts and
 // the Benefit/Partner/Stat/PricingPlan/Showcase/Testimonial types had ZERO
-// importers — every section renders its own local data. Only STEPS
-// (imported by HowItWorksSection) and the live fetchPublicStats/PublicStats
-// pair (used by HomePage + (public)/page.tsx) survived. Reference counts
-// verified by repo-wide grep before deletion: BENEFITS 0 · PARTNERS 0
-// · PRICING_PLANS 0 · SHOWCASES 0 · TESTIMONIALS 0 · STEPS 2 (definition
-// + 1 importer). (r121-P3: ClientsSection — which kept the last local
+// importers. (r121-P3: ClientsSection — which kept the last local
 // PARTNERS/TESTIMONIALS copies — was deleted entirely; fabricated
 // testimonials/partners, honesty policy r82.)
-type Step = { title: string; desc: string; icon: LucideIcon };
+// r128-F1b: STEPS + the Step type retired too — the old HowItWorksSection
+// (their only consumer) folded into the 5-station JourneySection; every
+// station traces to shipped copy in that component now.
 
 export type PublicStats = {
   totalRestaurants: number;
@@ -58,9 +53,3 @@ export async function fetchPublicStats(): Promise<PublicStats> {
     return { totalRestaurants: 0, totalUsers: 0 };
   }
 }
-
-export const STEPS: Step[] = [
-  { title: "أنشئ حسابك", desc: "أدخل بيانات مطعمك وأنشئ حساباً مجاناً بدون بطاقة ائتمان", icon: UserPlus },
-  { title: "صمم المنيو الخاص بك", desc: "أضف الأصناف والفئات والأسعار والصور بسهولة عبر لوحة التحكم", icon: UtensilsCrossed },
-  { title: "استقبل طلباتك", desc: "شارك رابط المنيو مع زبائنك واستقبل الطلبات مباشرة على واتساب", icon: Share2 },
-];

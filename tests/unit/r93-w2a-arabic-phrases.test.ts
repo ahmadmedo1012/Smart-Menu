@@ -8,7 +8,9 @@
  * (نمط cartCountPhrase من r92-A9) مبني على getArabicPlural — المساعدون
  * مُصدَّرون لتُبَث عباراتهم هنا (نفس سابقة CartSlideOver في r92).
  *
- * تفتيش 1-d (جدول #4): HeroSection:130 وFinalCTASection:36 استخدما
+ * تفتيش 1-d (جدول #4): HeroSection:130 وFinalCTASection:36 استخدما (طُويا
+ * داخل رحلة r128-F1b — عقد الأرقام الغربية يُثبَّت الآن على شريط الثقة
+ * الحية في HomePage وقصة التقدم).
  * toLocaleString("ar") — أرقام هندية (١٢٣) تخالف سياسة المنصة (أرقام غربية،
  * format.ts) وخطر mismatch ICU عند ≥1000 لأن العبارة تُصيَّر SSR ثم عميلًا.
  * الآن toArabicNumber (محدد تمامًا: n.toString()).
@@ -30,8 +32,7 @@ import { peakOrdersPhrase } from '@/app/(protected)/owner/OwnerCharts';
 import { foundItemsPhrase } from '@/components/menu/MenuPageClient';
 import { ordersBalancePhrase } from '@/app/api/loyalty/redeem/route';
 import { menusLimitPhrase } from '@/app/(protected)/subscribe/SubscribeForm';
-import { HeroSection } from '@/components/landing/HeroSection';
-import { FinalCTASection } from '@/components/landing/sections/FinalCTASection';
+import { HomePage } from '@/components/landing/HomePage';
 
 const src = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
@@ -121,36 +122,26 @@ describe('U2 — menusLimitPhrase (SubscribeForm: «خطتك تدعم حتى …
 
 // ── U3: أرقام غربية موحدة + صياغة SSR-stable ─────────────────────────────
 
-describe('U3 — HeroSection: شارة الثقة بأرقام غربية SSR', () => {
+describe('U3 — شريط الثقة في HomePage: الأرقام الحية بأرقام غربية SSR (r128-F1b)', () => {
     // React يفصل العقد النصية عن التعابير بعلامات <!-- --> — ننزعها لقراءة النص المصيّر
     const html = renderToString(
-        createElement(HeroSection, { totalRestaurants: 1234, isLoading: false })
+        createElement(HomePage, { initialStats: { totalRestaurants: 1234, totalUsers: 5678 } })
     ).replace(/<!-- -->/g, '');
 
-    it('«أكثر من 1234 مطعم» بأرقام غربية بلا فاصل آلاف (سياسة format.ts)', () => {
-        expect(html).toContain('أكثر من 1234 مطعم');
+    it('«+1234» و«+5678» بأرقام غربية بلا فاصل آلاف (سياسة format.ts)', () => {
+        expect(html).toContain('+1234');
+        expect(html).toContain('+5678');
         // لا أرقام هندية (كان toLocaleString("ar") يخرج ١٢٣٤)
         expect(html).not.toMatch(/[٠-٩]/);
         // لا فاصل آلاف ICU (خطر mismatch عند ≥1000)
         expect(html).not.toContain('1,234');
+        expect(html).not.toContain('5,678');
     });
 
-    it('حارس المصدر: لا استدعاء .toLocaleString( في البطل ولا في نداء الانضمام', () => {
+    it('حارس المصدر: لا استدعاء .toLocaleString( في أسطح أرقام الهبوط', () => {
         // نستهدف الاستدعاء البرمجي فقط (برنامج مسبوق بنقطة) — التعليقات التوثيقية
         // تذكر المنسّق القديم نصًا ولا تُعد كودًا
-        expect(src('src/components/landing/HeroSection.tsx')).not.toMatch(/\.toLocaleString\(/);
-        expect(src('src/components/landing/sections/FinalCTASection.tsx')).not.toMatch(/\.toLocaleString\(/);
-    });
-});
-
-describe('U3 — FinalCTASection: عدد المطاعم بأرقام غربية SSR', () => {
-    it('«أكثر من 1234 مطعم ومقهى» — متسق مع StatsSection في نفس الصفحة', () => {
-        const html = renderToString(createElement(FinalCTASection, { totalRestaurants: 1234 })).replace(
-            /<!-- -->/g,
-            ''
-        );
-        expect(html).toContain('أكثر من 1234 مطعم ومقهى');
-        expect(html).not.toMatch(/[٠-٩]/);
-        expect(html).not.toContain('1,234');
+        expect(src('src/components/landing/HomePage.tsx')).not.toMatch(/\.toLocaleString\(/);
+        expect(src('src/components/landing/ProgressSection.tsx')).not.toMatch(/\.toLocaleString\(/);
     });
 });
