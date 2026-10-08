@@ -3,6 +3,7 @@ import { MessageCircle } from "lucide-react-native";
 import * as Linking from "expo-linking";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { colors } from "@/theme/colors";
 
 const DEFAULT_NUMBER = (process.env.EXPO_PUBLIC_WHATSAPP_NUMBER as string | undefined) ?? "+218910089975";
 
@@ -24,9 +25,9 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
     <View pointerEvents="box-none" style={{ position: "absolute", end: 16, bottom: 96, zIndex: 60 }}>
       <Animated.View entering={reducedMotion ? undefined : FadeIn.duration(240)}>
         <Pressable onPress={open} accessibilityRole="button" accessibilityLabel="تواصل مع الدعم عبر واتساب" style={{
-          width: 56, height: 56, borderRadius: 9999, backgroundColor: "#25d366",
+          width: 56, height: 56, borderRadius: 9999, backgroundColor: colors.whatsapp,
           alignItems: "center", justifyContent: "center",
-          shadowColor: "#02040C", shadowOffset: { width: 0, height: 4 },
+          shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
         }}>
           <MessageCircle size={28} color="#fff" />

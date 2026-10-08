@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { NavigationContainer, type InitialState } from "@react-navigation/native";
 import { NavigationIndependentTree } from "@react-navigation/core";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Linking from "expo-linking";
 import { X } from "lucide-react-native";
 
@@ -13,6 +14,7 @@ import { OwnerStack } from "./OwnerStack";
 import { AdminStack } from "./AdminStack";
 import { linking } from "./linking";
 import { ADMIN_ROLES } from "@/lib/auth-types";
+import { colors } from "@/theme/colors";
 
 type PublicRoute =
   | { name: "Landing" }
@@ -73,6 +75,7 @@ function publicRouteForUrl(url: string): PublicRoute | null {
  * warm starts (url event) and cold starts (getInitialURL).
  */
 function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: () => void }) {
+  const insets = useSafeAreaInsets();
   const initialState: InitialState = {
     index: 0,
     routes: [
@@ -94,14 +97,18 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
       </NavigationIndependentTree>
       <Pressable
         onPress={onClose}
+        accessibilityRole="button"
         accessibilityLabel="إغلاق والعودة إلى لوحة التحكم"
         hitSlop={8}
         style={{
-          position: "absolute", top: 54, left: 16, width: 40, height: 40, borderRadius: 20,
-          backgroundColor: "rgba(18,26,54,0.92)", alignItems: "center", justifyContent: "center",
-          borderWidth: 1, borderColor: "#1B2444",
+          // r126 (A6 P2-14): was left:16/top:54 — physical LEFT in a forced-RTL
+          // app puts the close on the far edge from the reader, and 54 was a
+          // magic number. Start edge (right) + safe-area top inset.
+          position: "absolute", top: insets.top + 8, right: 16, width: 40, height: 40, borderRadius: 9999,
+          backgroundColor: colors.surface2Scrim, alignItems: "center", justifyContent: "center",
+          borderWidth: 1, borderColor: colors.hairline,
         }}>
-        <X size={20} color="#F2EFE6" />
+        <X size={20} color={colors.sand} />
       </Pressable>
     </View>
   );
@@ -145,8 +152,8 @@ export function RootNavigator() {
 
   if (status === "loading" || status === "idle") {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#070B16" }}>
-        <ActivityIndicator size="large" color="#E9B44C" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.night }}>
+        <ActivityIndicator size="large" color={colors.gold} />
       </View>
     );
   }

@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AlertTriangle } from "lucide-react-native";
 
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -21,9 +22,9 @@ interface ErrorBoundaryState {
  * (function components cannot catch render errors) mounted once around the
  * root navigator in App.tsx.
  *
- * Brand styling follows the app-wide inline token set (bg #070B16, card
- * #0D1428, border #1B2444, accent #E9B44C, text #F2EFE6 / muted #8E97B8) —
- * there is no shared color-constants module; every screen inlines these.
+ * r126-M7: brand styling now rides the shared Madarek palette
+ * (src/theme/colors.ts) like every other surface — the old comment about
+ * "no shared color-constants module" is obsolete.
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
@@ -56,37 +57,37 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // screen. «إعادة المحاولة» is the same operation under its own label so
     // users can act on whichever promise they read first.
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
           <View
             style={{
-              width: 72, height: 72, borderRadius: 9999, backgroundColor: "#0D1428",
-              borderWidth: 1, borderColor: "#1B2444", alignItems: "center",
+              width: 72, height: 72, borderRadius: 9999, backgroundColor: colors.surface,
+              borderWidth: 1, borderColor: colors.hairline, alignItems: "center",
               justifyContent: "center", marginBottom: 24,
             }}>
-            <AlertTriangle size={30} color="#E9B44C" />
+            <AlertTriangle size={30} color={colors.gold} />
           </View>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", textAlign: "center" }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, textAlign: "center" }}>
             حدث خطأ غير متوقع
           </Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", marginTop: 8, lineHeight: 20 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
             نعتذر عن ذلك، يمكنك إعادة المحاولة
           </Text>
           <Pressable
             onPress={this.reset}
             accessibilityLabel="إعادة المحاولة"
             style={({ pressed }) => ({
-              marginTop: 28, backgroundColor: "#E9B44C", borderRadius: 10,
+              marginTop: 28, backgroundColor: colors.gold, borderRadius: 10,
               paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1,
             })}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#05070F" }}>إعادة المحاولة</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.void }}>إعادة المحاولة</Text>
           </Pressable>
           <Pressable
             onPress={this.reset}
             accessibilityLabel="العودة للقائمة"
             hitSlop={8}
             style={({ pressed }) => ({ marginTop: 4, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.7 : 1 })}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#8E97B8" }}>العودة للقائمة</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.muted }}>العودة للقائمة</Text>
           </Pressable>
         </View>
       </SafeAreaView>

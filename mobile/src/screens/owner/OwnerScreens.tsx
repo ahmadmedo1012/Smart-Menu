@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-import { View, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration } from "react-native";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { View, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
@@ -11,7 +12,6 @@ import { useAuth } from "@/store/auth";
 import { PressableScale } from "@/components/motion/PressableScale";
 import { useEnterFade } from "@/components/motion/useEnterFade";
 import Animated from "react-native-reanimated";
-import { usePollWhenVisible } from "@/hooks/usePollWhenVisible";
 import { formatPrice, toArabicNumber } from "@/lib/format";
 import { formatRelativeTimeAr, getOrderStatusMeta, getPickupTypeMeta } from "@/lib/order-status";
 import { getErrorMessage } from "@/lib/get-error-message";
@@ -20,6 +20,7 @@ import { ORDERS_POLL_INTERVAL_MS } from "@/constants";
 import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 interface OwnerStats {
   totalOrders: number; todayOrders: number; todayRevenue: number; totalItems: number;
@@ -34,76 +35,64 @@ export function OwnerDashboardScreen() {
   const logout = useAuth((s) => s.logout);
   // r126-M4: content fade-in (160ms fast rung).
   const enterFade = useEnterFade();
-  const [stats, setStats] = useState<OwnerStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // r126-M5 (A6 P1-6): React Query owns the stats fetch — was hand-rolled
+  // useState+useEffect; refetch-on-focus now comes from the provider wiring.
+  const { data: stats, isPending, error, refetch, isRefetching } = useQuery({
+    queryKey: ["owner-stats"],
+    queryFn: () => api.get<OwnerStats>("/api/stats"),
+  });
+  const loadError = error ? getErrorMessage(error, "تعذّر تحميل الإحصائيات") : null;
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const s = await api.get<OwnerStats>("/api/stats");
-      setStats(s);
-    } catch (e: unknown) {
-      setError(getErrorMessage(e, "تعذّر تحميل الإحصائيات"));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => { void load(); }, [load]);
-
-  if (loading) {
+  if (isPending) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <Animated.View entering={enterFade} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor="#E9B44C" />}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.gold} />}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>
           أهلًا، {user?.name || user?.username || "صاحب المطعم"}
         </Text>
-        {error ? <ErrorState message={error} onRetry={load} /> : stats ? (
+        {loadError ? <ErrorState message={loadError} onRetry={() => { void refetch(); }} /> : stats ? (
           <>
             <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
-              <Kpi label="إجمالي الطلبات" value={toArabicNumber(stats.totalOrders)} icon={<ClipboardList size={18} color="#E9B44C" />} />
-              <Kpi label="طلبات اليوم" value={toArabicNumber(stats.todayOrders)} icon={<TrendingUp size={18} color="#E9B44C" />} />
+              <Kpi label="إجمالي الطلبات" value={toArabicNumber(stats.totalOrders)} icon={<ClipboardList size={18} color={colors.gold} />} />
+              <Kpi label="طلبات اليوم" value={toArabicNumber(stats.todayOrders)} icon={<TrendingUp size={18} color={colors.gold} />} />
             </View>
-            <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color="#E9B44C" />} full />
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6", marginVertical: 16 }}>إجراءات سريعة</Text>
+            <Kpi label="إيرادات اليوم" value={formatPrice(stats.todayRevenue)} icon={<Package size={18} color={colors.gold} />} full />
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, marginVertical: 16 }}>إجراءات سريعة</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              <QuickAction icon={<ClipboardList size={20} color="#F2EFE6" />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
-              <QuickAction icon={<Package size={20} color="#F2EFE6" />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
-              <QuickAction icon={<QrCode size={20} color="#F2EFE6" />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
-              <QuickAction icon={<Star size={20} color="#F2EFE6" />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
-              <QuickAction icon={<Award size={20} color="#F2EFE6" />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
-              <QuickAction icon={<Settings size={20} color="#F2EFE6" />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
+              <QuickAction icon={<ClipboardList size={20} color={colors.sand} />} label="الطلبات" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerOrders")} />
+              <QuickAction icon={<Package size={20} color={colors.sand} />} label="المنيو" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerMenu")} />
+              <QuickAction icon={<QrCode size={20} color={colors.sand} />} label="رمز QR" onPress={() => navigation.navigate("OwnerQr")} />
+              <QuickAction icon={<Star size={20} color={colors.sand} />} label="التقييمات" onPress={() => navigation.navigate("OwnerReviews")} />
+              <QuickAction icon={<Award size={20} color={colors.sand} />} label="الولاء" onPress={() => navigation.getParent<RootNavigation>()?.navigate("OwnerLoyalty")} />
+              <QuickAction icon={<Settings size={20} color={colors.sand} />} label="الإعدادات" onPress={() => navigation.navigate("OwnerSettings")} />
             </View>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6", marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, marginTop: 16, marginBottom: 8 }}>أحدث الطلبات</Text>
             {stats.recentOrders.length === 0 ? (
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
             ) : (
               stats.recentOrders.slice(0, 5).map((o) => (
-                <PressableScale key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0D1428", borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444" }}>
+                <PressableScale key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.surface, borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
                   <View>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6" }}>{o.orderNo}</Text>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand }}>{o.orderNo}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(o.total)}</Text>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 10, color: "#8E97B8", marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.gold }}>{formatPrice(o.total)}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 10, color: colors.muted, marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
                   </View>
                 </PressableScale>
               ))
             )}
             <Pressable onPress={logout} style={{ marginTop: 24, padding: 12, alignItems: "center" }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#F0938F", fontWeight: "600" }}>تسجيل الخروج</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.rose, fontWeight: "600" }}>تسجيل الخروج</Text>
             </Pressable>
           </>
         ) : null}
@@ -115,19 +104,19 @@ export function OwnerDashboardScreen() {
 
 function Kpi({ label, value, icon, full }: { label: string; value: string; icon: React.ReactNode; full?: boolean }) {
   return (
-    <View style={{ flex: full ? 1 : 0.5, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#1B2444", marginBottom: 8 }}>
+    <View style={{ flex: full ? 1 : 0.5, backgroundColor: colors.surface, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: colors.hairline, marginBottom: 8 }}>
       <View style={{ marginBottom: 6 }}>{icon}</View>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>{value}</Text>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }}>{label}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }}>{label}</Text>
     </View>
   );
 }
 
 function QuickAction({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <PressableScale onPress={onPress} style={{ width: "31%", aspectRatio: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1B2444" }}>
+    <PressableScale onPress={onPress} style={{ width: "31%", aspectRatio: 1, backgroundColor: colors.surface, borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: colors.hairline }}>
       {icon}
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", textAlign: "center" }} maxFontSizeMultiplier={1.4}>{label}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, textAlign: "center" }} maxFontSizeMultiplier={1.4}>{label}</Text>
     </PressableScale>
   );
 }
@@ -147,24 +136,37 @@ export function OwnerOrdersScreen() {
   const navigation = useNavigation<RootNavigation>();
   // r126-M4: content fade-in (160ms fast rung).
   const enterFade = useEnterFade();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // r118-B3 (A6 P3-1): pagination — the list previously fetched page 1 only
-  // (API pageSize=50) and silently dropped the rest of the history.
+
+  // r126-M5 (A6 P1-6): React Query owns page 1 + the 15s poll (was the
+  // hand-rolled load/poll/usePollWhenVisible trio, ~100 lines). The
+  // provider's focusManager wiring pauses the interval in background and
+  // refetches on foreground — the exact usePollWhenVisible semantics.
+  const {
+    data: firstPage,
+    isPending,
+    error,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["owner-orders"],
+    queryFn: () => api.getPaginated<Order>(`/api/orders?page=1&pageSize=${ORDERS_PAGE_SIZE}`),
+    refetchInterval: ORDERS_POLL_INTERVAL_MS,
+  });
+
+  // r118-B3 (A6 P3-1): pagination — pages 2+ are user-initiated history and
+  // stay in local state; the (fresh) query page-1 is merged on top so the
+  // 15s poll never yanks the owner out of older history.
+  const [olderPages, setOlderPages] = useState<Order[]>([]);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  // Refs mirror the page/hasMore state for synchronous guards — state lags a
-  // frame, so two rapid onEndReached calls could otherwise double-fetch.
+  // Refs mirror page/hasMore for synchronous guards — state lags a frame, so
+  // two rapid onEndReached calls could otherwise double-fetch.
   const pageRef = useRef(1);
   const hasMoreRef = useRef(true);
-  // r119-B2-M (S12 QW2): id bookkeeping for the new-order haptic. The poll
-  // merge knows which ids are fresh; this ref tells us which the user has
-  // ALREADY seen, so only POLL-discovered orders vibrate. Pull-to-refresh and
-  // load-more update the same ref silently (user-initiated loads are not
-  // news). Null until the first list lands — the first poll after an empty/
-  // failed load records ids without vibrating.
+  // r119-B2-M (S12 QW2): id bookkeeping for the new-order haptic — a short
+  // double-pulse says "new order" without sound or a notification
+  // permission. Null until the first list lands (initial loads are not
+  // news); load-more records older ids silently.
   const knownOrderIdsRef = useRef<Set<number> | null>(null);
 
   const setPagination = useCallback((page: number, more: boolean) => {
@@ -173,76 +175,49 @@ export function OwnerOrdersScreen() {
     setHasMore(more);
   }, []);
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const res = await api.getPaginated<Order>(`/api/orders?page=1&pageSize=${ORDERS_PAGE_SIZE}`);
-      setOrders(res.data ?? []);
-      knownOrderIdsRef.current = new Set((res.data ?? []).map((o) => o.id));
-      setPagination(1, res.meta ? res.meta.page < res.meta.totalPages : (res.data ?? []).length >= ORDERS_PAGE_SIZE);
-    } catch (e: unknown) {
-      setError(getErrorMessage(e, "تعذّر تحميل الطلبات"));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+  // Merge query page 1 with loaded older pages (dedupe by id — the poll
+  // prepends new orders, shifting page boundaries between loads: the classic
+  // offset-pagination skew).
+  const orders = useMemo(() => {
+    const rows = firstPage?.data;
+    if (!rows || rows.length === 0) return olderPages;
+    const rowIds = new Set(rows.map((o) => o.id));
+    return [...rows, ...olderPages.filter((o) => !rowIds.has(o.id))];
+  }, [firstPage, olderPages]);
+
+  // New-order haptic + hasMore bookkeeping ride ONE data effect.
+  useEffect(() => {
+    const rows = firstPage?.data;
+    if (!rows) return;
+    const known = knownOrderIdsRef.current;
+    if (known && rows.some((o) => !known.has(o.id))) {
+      Vibration.vibrate([0, 200, 100, 200]);
     }
-  }, [setPagination]);
-
-  useEffect(() => { void load(); }, [load]);
-
-  // r118-B3: the 15s poll refreshes page 1 only and MERGES it into the loaded
-  // history (prepend new orders, refresh the page-1 subset in place). The
-  // pre-pagination poll replaced the list wholesale — fine while there was a
-  // single page, but with several loaded pages it would yank the owner back
-  // to the newest 50 rows every 15 seconds while they are scrolled into
-  // older history.
-  const poll = useCallback(async () => {
-    try {
-      const res = await api.getPaginated<Order>(`/api/orders?page=1&pageSize=${ORDERS_PAGE_SIZE}`);
-      const rows = res.data ?? [];
-      setOrders((prev) => {
-        if (prev.length === 0) return rows;
-        const byId = new Map(rows.map((o) => [o.id, o] as const));
-        const existingIds = new Set(prev.map((o) => o.id));
-        return [...rows.filter((o) => !existingIds.has(o.id)), ...prev.map((o) => byId.get(o.id) ?? o)];
-      });
-      // r119-B2-M (S12 QW2): haptic new-order alert — the owner is often away
-      // from the screen; a short double-pulse (Android pattern; iOS vibrates
-      // once, pattern is Android-only) says "new order" without sound or a
-      // notification permission. Only POLL-discovered ids trigger it.
-      const known = knownOrderIdsRef.current;
-      if (known && rows.some((o) => !known.has(o.id))) {
-        Vibration.vibrate([0, 200, 100, 200]);
-      }
-      const nextKnown = known ?? new Set<number>();
-      for (const o of rows) nextKnown.add(o.id);
-      knownOrderIdsRef.current = nextKnown;
-      if (res.meta) setPagination(pageRef.current, res.meta.totalPages > pageRef.current);
-    } catch {
-      // Silent by design: a transient poll failure keeps the loaded history
-      // visible; pull-to-refresh and load-more still surface their errors.
+    const nextKnown = known ?? new Set<number>();
+    for (const o of rows) nextKnown.add(o.id);
+    knownOrderIdsRef.current = nextKnown;
+    if (firstPage?.meta) {
+      hasMoreRef.current = firstPage.meta.totalPages > 1;
+      setHasMore(hasMoreRef.current);
     }
-  }, [setPagination]);
+  }, [firstPage]);
 
-  usePollWhenVisible(poll, ORDERS_POLL_INTERVAL_MS, [], { inFlightGuard: true });
-
-  const onRefresh = useCallback(() => { setRefreshing(true); void load(); }, [load]);
+  const onRefresh = useCallback(() => { void refetch(); }, [refetch]);
 
   const loadMore = useCallback(async () => {
-    if (loading || loadingMore || error || !hasMoreRef.current) return;
+    if (isPending || loadingMore || error || !hasMoreRef.current) return;
     const next = pageRef.current + 1;
     setLoadingMore(true);
     try {
       const res = await api.getPaginated<Order>(`/api/orders?page=${next}&pageSize=${ORDERS_PAGE_SIZE}`);
       const rows = res.data ?? [];
-      setOrders((prev) => {
-        // Dedupe by id — the 15s poll prepends new orders, shifting page
-        // boundaries between loads (the classic offset-pagination skew).
-        const seen = new Set(prev.map((o) => o.id));
+      setOlderPages((prev) => {
+        // Dedupe by id against everything already shown.
+        const seen = new Set([...(firstPage?.data ?? []).map((o) => o.id), ...prev.map((o) => o.id)]);
         return [...prev, ...rows.filter((o) => !seen.has(o.id))];
       });
-      // Older pages are user-initiated history, not news — record ids silently
-      // so the poll's haptic never fires for them (S12 QW2).
+      // Older pages are user-initiated history, not news — record ids
+      // silently so the poll's haptic never fires for them (S12 QW2).
       const known = knownOrderIdsRef.current ?? new Set<number>();
       for (const o of rows) known.add(o.id);
       knownOrderIdsRef.current = known;
@@ -252,7 +227,7 @@ export function OwnerOrdersScreen() {
     } finally {
       setLoadingMore(false);
     }
-  }, [loading, loadingMore, error, setPagination]);
+  }, [isPending, loadingMore, error, firstPage, setPagination]);
 
   const renderFooter = useCallback(() => {
     if (loadingMore) {
@@ -268,8 +243,8 @@ export function OwnerOrdersScreen() {
           onPress={() => { void loadMore(); }}
           accessibilityLabel="تحميل المزيد من الطلبات"
           accessibilityRole="button"
-          style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: "#0D1428", borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#E9B44C" }} maxFontSizeMultiplier={1.4}>تحميل المزيد</Text>
+          style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.hairline, opacity: pressed ? 0.8 : 1 })}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.gold }} maxFontSizeMultiplier={1.4}>تحميل المزيد</Text>
         </Pressable>
       );
     }
@@ -277,50 +252,50 @@ export function OwnerOrdersScreen() {
     // was ever loadable); a short single-page list needs no "no more" noise.
     if (orders.length > ORDERS_PAGE_SIZE) {
       return (
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", textAlign: "center", paddingVertical: 16 }}>لا مزيد من الطلبات</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted, textAlign: "center", paddingVertical: 16 }}>لا مزيد من الطلبات</Text>
       );
     }
     return null;
   }, [loadingMore, hasMore, orders.length, loadMore]);
 
-  if (loading) {
+  if (isPending) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
-        <ErrorState message={error} onRetry={load} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+        <ErrorState message={getErrorMessage(error, "تعذّر تحميل الطلبات")} onRetry={() => { void refetch(); }} />
       </SafeAreaView>
     );
   }
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <Animated.View entering={enterFade} style={{ flex: 1 }}>
       <FlatList
         data={orders}
         keyExtractor={(o) => String(o.id)}
         renderItem={({ item: o }) => (
-          <PressableScale onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "زبون"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444" }}>
+          <PressableScale onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "زبون"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6" }}>{o.orderNo}</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#E9B44C", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand }}>{o.orderNo}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.gold, fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
             </View>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(o.total)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted }}>{formatRelativeTimeAr(o.createdAt)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold }}>{formatPrice(o.total)}</Text>
             </View>
           </PressableScale>
         )}
         onEndReached={() => { void loadMore(); }}
         onEndReachedThreshold={0.4}
         contentContainerStyle={{ padding: 16, paddingBottom: 32, flexGrow: 1 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E9B44C" />}
-        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#8E97B8" />} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.gold} />}
+        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color={colors.muted} />} />}
         ListFooterComponent={renderFooter}
       />
       </Animated.View>
@@ -330,37 +305,39 @@ export function OwnerOrdersScreen() {
 
 export function OwnerOrderDetailScreen() {
   const route = useRoute();
-  const { orderId } = (route.params || {}) as { orderId: number };
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // r126 (A6 P2-2): the param was an unsafe cast — undefined became
+  // GET /api/orders/undefined. Validate before it reaches the API.
+  const rawOrderId = Number((route.params as { orderId?: number } | undefined)?.orderId);
+  const orderId = Number.isInteger(rawOrderId) && rawOrderId > 0 ? rawOrderId : null;
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const o = await api.get<Order>(`/api/orders/${orderId}`);
-      setOrder(o);
-    } catch (e: unknown) {
-      setError(getErrorMessage(e, "تعذّر تحميل الطلب"));
-    } finally {
-      setLoading(false);
-    }
-  }, [orderId]);
+  // r126-M5: React Query owns fetch/loading/error + gives the detail screen
+  // pull-to-refresh it never had (A6 P2-2).
+  const { data: order, isPending, error, refetch, isRefetching } = useQuery({
+    queryKey: ["owner-order", orderId],
+    enabled: orderId !== null,
+    queryFn: () => api.get<Order>(`/api/orders/${orderId}`),
+  });
 
-  useEffect(() => { void load(); }, [load]);
-
-  if (loading && !order) {
+  if (orderId === null) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+        <ErrorState message="طلب غير صالح" />
+      </SafeAreaView>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
 
-  if (error && !order) {
+  if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
-        <ErrorState message={error} onRetry={load} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+        <ErrorState message={getErrorMessage(error, "تعذّر تحميل الطلب")} onRetry={() => { void refetch(); }} />
       </SafeAreaView>
     );
   }
@@ -368,45 +345,66 @@ export function OwnerOrderDetailScreen() {
   if (!order) return null;
 
   const updateStatus = async (status: string) => {
+    // r126 (A6 P2-2): cancelled is one-way (r121 product contract) and sat
+    // next to 4 other one-tap states — an accidental tap cancelled an order
+    // with no confirmation. Terminal transition now requires an explicit
+    // confirm; the live statuses stay one-tap.
+    if (status === "cancelled" && order.status !== "cancelled") {
+      Alert.alert(
+        "إلغاء الطلب؟",
+        "لا يمكن التراجع عن الإلغاء بعد التنفيذ.",
+        [
+          { text: "رجوع", style: "cancel" },
+          { text: "إلغاء الطلب", style: "destructive", onPress: () => { void performUpdate(status); } },
+        ],
+        { cancelable: true },
+      );
+      return;
+    }
+    void performUpdate(status);
+  };
+
+  const performUpdate = async (status: string) => {
     // r102-M9: الفشل كان يُبتلع بصمت (catch {}) — المالك يضغط زر الحالة ولا يرى
     // شيئًا إذا رفض الخادم التغيير. الوميض بالخطأ + إعادة التحميل عند النجاح فقط.
     try {
       await api.put(`/api/orders/${orderId}`, { status });
       toast.success(`تم تحديث الحالة إلى ${getOrderStatusMeta(status).label}`);
-      void load();
+      void refetch();
     } catch (e: unknown) {
       toast.error(getErrorMessage(e, "فشل تحديث الحالة"));
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", marginBottom: 4 }}>{order.orderNo}</Text>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
-        <View style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: "#1B2444" }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6", marginBottom: 4 }}>بيانات الزبون</Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>الاسم: {order.customerName || "—"}</Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>الهاتف: {order.customerPhone || "—"}</Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
-          {order.notes ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8" }}>ملاحظات: {order.notes}</Text> : null}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
+      {/* r126 (A6 P2-2): pull-to-refresh — the detail screen had none. */}
+      <ScrollView contentContainerStyle={{ padding: 16 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.gold} />}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 4 }}>{order.orderNo}</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
+        <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.hairline }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>بيانات الزبون</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>الاسم: {order.customerName || "—"}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>الهاتف: {order.customerPhone || "—"}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>النوع: {getPickupTypeMeta(order.pickupType).label}</Text>
+          {order.notes ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>ملاحظات: {order.notes}</Text> : null}
         </View>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6", marginBottom: 8 }}>الأصناف</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.sand, marginBottom: 8 }}>الأصناف</Text>
         {order.items.map((i) => (
-          <View key={i.id} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1B2444" }}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#F2EFE6" }}>{i.quantity}× {i.name}</Text>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#E9B44C" }}>{formatPrice(i.price * i.quantity)}</Text>
+          <View key={i.id} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.sand }}>{i.quantity}× {i.name}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold }}>{formatPrice(i.price * i.quantity)}</Text>
           </View>
         ))}
         <View style={{ flexDirection: "row", justifyContent: "space-between", paddingTop: 12, marginTop: 4 }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }}>المجموع</Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(order.total)}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }}>المجموع</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.gold }}>{formatPrice(order.total)}</Text>
         </View>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6", marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.sand, marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {["new", "preparing", "ready", "completed", "cancelled"].map((s) => (
-            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityRole="button" accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#E9B44C" : "#121A36" }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{getOrderStatusMeta(s).label}</Text>
+            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityRole="button" accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? colors.gold : colors.surface2 }}>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? colors.void : colors.muted }} maxFontSizeMultiplier={1.4}>{getOrderStatusMeta(s).label}</Text>
             </Pressable>
           ))}
         </View>
@@ -417,10 +415,10 @@ export function OwnerOrderDetailScreen() {
 
 export function OwnerMenuScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>إدارة المنيو</Text>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginTop: 8, lineHeight: 20 }}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>إدارة المنيو</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginTop: 8, lineHeight: 20 }}>
           يمكن إدارة الأصناف والفئات عبر تطبيق الويب حاليًا. سيتم إضافة المحرر الكامل للهاتف في التحديث القادم.
         </Text>
       </View>
@@ -430,10 +428,10 @@ export function OwnerMenuScreen() {
 
 export function OwnerRestaurantsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>فروعي</Text>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginTop: 8, lineHeight: 20 }}>إدارة فروع متعددة قريبًا</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>فروعي</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginTop: 8, lineHeight: 20 }}>إدارة فروع متعددة قريبًا</Text>
       </View>
     </SafeAreaView>
   );
@@ -478,40 +476,40 @@ export function OwnerQrScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}><Spinner /></View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16, alignItems: "center" }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>رمز QR لمنيوك</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>رمز QR لمنيوك</Text>
         {error ? (
           <ErrorState message={error} onRetry={() => { void load(); }} />
         ) : restaurants && restaurants.length > 0 ? (
           restaurants.map((r) => {
             const url = `${domain}/menu/${r.slug}`;
             return (
-              <View key={r.id} style={{ backgroundColor: "#0D1428", borderRadius: 12, borderWidth: 1, borderColor: "#1B2444", padding: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 15, fontWeight: "700", color: "#F2EFE6", marginBottom: 12 }}>{r.name}</Text>
+              <View key={r.id} style={{ backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.hairline, padding: 16, marginBottom: 16, alignItems: "center", width: "100%" }}>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 15, fontWeight: "700", color: colors.sand, marginBottom: 12 }}>{r.name}</Text>
                 <View style={{ backgroundColor: "#fff", padding: 12, borderRadius: 12 }}>
-                  <QRCode value={url} size={200} backgroundColor="#ffffff" color="#070B16" />
+                  <QRCode value={url} size={200} backgroundColor="#ffffff" color={colors.night} />
                 </View>
                 <PressableScale
                   onPress={() => { void Share.share({ message: url }).catch(() => {}); }}
                   accessibilityLabel={`مشاركة رابط منيو ${r.name}`}
-                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: "#E9B44C" }}>
-                  <Share2 size={16} color="#05070F" />
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#05070F" }} maxFontSizeMultiplier={1.4}>مشاركة الرابط</Text>
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: colors.gold }}>
+                  <Share2 size={16} color={colors.void} />
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.void }} maxFontSizeMultiplier={1.4}>مشاركة الرابط</Text>
                 </PressableScale>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
               </View>
             );
           })
         ) : (
-          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={32} color="#8E97B8" />} />
+          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={32} color={colors.muted} />} />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -520,10 +518,10 @@ export function OwnerQrScreen() {
 
 export function OwnerReviewsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>تقييمات العملاء</Text>
-        <EmptyState title="لا توجد تقييمات بعد" icon={<Star size={32} color="#8E97B8" />} />
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>تقييمات العملاء</Text>
+        <EmptyState title="لا توجد تقييمات بعد" icon={<Star size={32} color={colors.muted} />} />
       </View>
     </SafeAreaView>
   );
@@ -531,10 +529,10 @@ export function OwnerReviewsScreen() {
 
 export function OwnerLoyaltyScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <View style={{ flex: 1, padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>برنامج الولاء</Text>
-        <EmptyState title="لا توجد بيانات ولاء بعد" icon={<Award size={32} color="#8E97B8" />} />
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>برنامج الولاء</Text>
+        <EmptyState title="لا توجد بيانات ولاء بعد" icon={<Award size={32} color={colors.muted} />} />
       </View>
     </SafeAreaView>
   );
@@ -543,11 +541,11 @@ export function OwnerLoyaltyScreen() {
 export function OwnerSettingsScreen() {
   const logout = useAuth((s) => s.logout);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>الإعدادات</Text>
-        <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: "#121A36", borderRadius: 8 }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: "#F0938F", fontWeight: "700" }}>تسجيل الخروج</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>الإعدادات</Text>
+        <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }}>تسجيل الخروج</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

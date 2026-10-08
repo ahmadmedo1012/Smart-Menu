@@ -1,10 +1,12 @@
 import type { PropsWithChildren } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AppState, type AppStateStatus } from "react-native";
+import { QueryClient, QueryClientProvider, focusManager } from "@tanstack/react-query";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast, { type ToastConfig } from "react-native-toast-message";
 import { View } from "react-native";
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,23 +22,34 @@ const queryClient = new QueryClient({
   },
 });
 
+// r126-M5 (A6 P1-6): React Query is the app's data layer now — wire its
+// focus manager to AppState so refetchOnWindowFocus + refetchInterval (the
+// 15s orders poll) behave like the old usePollWhenVisible: no timers fire
+// while the app is backgrounded, everything refetches on foreground return.
+focusManager.setEventListener((setFocused) => {
+  const sub = AppState.addEventListener("change", (state: AppStateStatus) => {
+    setFocused(state === "active");
+  });
+  return () => sub.remove();
+});
+
 const renderToast = ({ type, text1, text2 }: { type: "success" | "error" | "info"; text1?: string; text2?: string }) => {
   // Madarek dark status tokens (1:1 with web globals.css): success mint
   // #7FD39A, danger rose #F0938F, info sky #8FBBF2. Toast surface rides the
   // Madarek card #0D1428 with the accent on the RTL start edge.
-  const accentColor = type === "success" ? "#7FD39A" : type === "error" ? "#F0938F" : "#8FBBF2";
+  const accentColor = type === "success" ? colors.mint : type === "error" ? colors.rose : colors.sky;
   return (
     <View style={{
       // RTL: the accent rides the START edge — right side in this forced-RTL app
-      backgroundColor: "#0D1428", borderRightWidth: 4, borderRightColor: accentColor,
+      backgroundColor: colors.surface, borderRightWidth: 4, borderRightColor: accentColor,
       borderRadius: 12, padding: 12, marginHorizontal: 16, marginVertical: 8,
-      shadowColor: "#02040C", shadowOffset: { width: 0, height: 4 },
+      shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
       width: "92%", maxWidth: 460, alignSelf: "center",
     }}>
-      <Text style={{ color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
+      <Text style={{ color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600" }}>{text1}</Text>
       {text2 ? (
-        <Text style={{ color: "#8E97B8", fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 2 }}>{text2}</Text>
+        <Text style={{ color: colors.muted, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, marginTop: 2 }}>{text2}</Text>
       ) : null}
     </View>
   );

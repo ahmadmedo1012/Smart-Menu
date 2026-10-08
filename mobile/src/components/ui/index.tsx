@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return <View className={cn("rounded-lg border border-border bg-card p-4", className)}>{children}</View>;
@@ -34,7 +35,7 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 export function Spinner({ size = "large" }: { size?: "small" | "large" }) {
-  return <ActivityIndicator size={size} color="#E9B44C" />;
+  return <ActivityIndicator size={size} color={colors.gold} />;
 }
 
 export function EmptyState({ title, description, icon }: { title: string; description?: string; icon?: ReactNode }) {

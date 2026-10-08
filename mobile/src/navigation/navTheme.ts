@@ -13,48 +13,49 @@ import type { NativeStackNavigationOptions } from "@react-navigation/native-stac
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 
 import { PLEX_SEMIBOLD } from "@/theme/typography";
+import { colors } from "@/theme/colors";
 
 /** Madarek night palette for the NavigationContainer (matches the app). */
 export const NAV_THEME: Theme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    primary: "#E9B44C",   // gold accent
-    background: "#070B16", // night page ground
-    card: "#0D1428",       // surface-1
-    text: "#F2EFE6",       // warm sand ink
-    border: "#1B2444",     // hairline
-    notification: "#F0938F", // rose ink
+    primary: colors.gold,   // gold accent
+    background: colors.night, // night page ground
+    card: colors.surface,       // surface-1
+    text: colors.sand,       // warm sand ink
+    border: colors.hairline,     // hairline
+    notification: colors.rose, // rose ink
   },
 };
 
 /** Native-stack chrome — header on night, sand ink, SemiBold Plex titles. */
 export const STACK_SCREEN_OPTIONS: NativeStackNavigationOptions = {
-  headerStyle: { backgroundColor: "#070B16" },
-  headerTintColor: "#F2EFE6",
+  headerStyle: { backgroundColor: colors.night },
+  headerTintColor: colors.sand,
   // r126-M1: the native header does not go through the <Text> resolver —
   // point straight at the 600 family instead of fontWeight on the 400 file.
   headerTitleStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 17 },
   headerShadowVisible: false,
-  contentStyle: { backgroundColor: "#070B16" },
+  contentStyle: { backgroundColor: colors.night },
 };
 
 /** Bottom-tab chrome — surface-1 bar, gold active tint, SemiBold labels. */
 export const TAB_SCREEN_OPTIONS: BottomTabNavigationOptions = {
   headerShown: true,
-  headerStyle: { backgroundColor: "#070B16" },
-  headerTintColor: "#F2EFE6",
+  headerStyle: { backgroundColor: colors.night },
+  headerTintColor: colors.sand,
   headerTitleStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 17 },
   headerShadowVisible: false,
   tabBarStyle: {
-    backgroundColor: "#0D1428",
-    borderTopColor: "#1B2444",
+    backgroundColor: colors.surface,
+    borderTopColor: colors.hairline,
     height: 64,
     paddingBottom: 8,
     paddingTop: 4,
   },
-  tabBarActiveTintColor: "#E9B44C",
-  tabBarInactiveTintColor: "#8E97B8",
+  tabBarActiveTintColor: colors.gold,
+  tabBarInactiveTintColor: colors.muted,
   // r126-M1: same fix as headers — tab labels are native chrome.
   tabBarLabelStyle: { fontFamily: PLEX_SEMIBOLD, fontSize: 11 },
 };

@@ -5,6 +5,7 @@ import { Pressable } from "react-native";
 import { cn } from "@/lib/utils";
 
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 export interface InputProps extends TextInputProps { error?: boolean; }
 
@@ -18,7 +19,7 @@ export function Input({ className, error, ...props }: InputProps) {
         "font-sans placeholder:text-muted-foreground focus:border-ring",
         error && "border-destructive", className,
       )}
-      placeholderTextColor="#8E97B8" {...props}
+      placeholderTextColor={colors.muted} {...props}
     />
   );
 }
@@ -33,10 +34,10 @@ export function PasswordInput({ className, error, ...props }: InputProps) {
           "font-sans placeholder:text-muted-foreground focus:border-ring",
           error && "border-destructive", className,
         )}
-        placeholderTextColor="#8E97B8" secureTextEntry={!show} {...props}
+        placeholderTextColor={colors.muted} secureTextEntry={!show} {...props}
       />
       <Pressable onPress={() => setShow((v) => !v)} className="absolute end-2 top-0 bottom-0 w-10 items-center justify-center" accessibilityLabel={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}>
-        {show ? <EyeOff size={20} color="#8E97B8" /> : <Eye size={20} color="#8E97B8" />}
+        {show ? <EyeOff size={20} color={colors.muted} /> : <Eye size={20} color={colors.muted} />}
       </Pressable>
     </View>
   );
@@ -50,7 +51,7 @@ export function Textarea({ className, error, ...props }: InputProps) {
         "font-sans placeholder:text-muted-foreground focus:border-ring",
         error && "border-destructive", className,
       )}
-      placeholderTextColor="#8E97B8" multiline textAlignVertical="top" {...props}
+      placeholderTextColor={colors.muted} multiline textAlignVertical="top" {...props}
     />
   );
 }

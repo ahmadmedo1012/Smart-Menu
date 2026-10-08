@@ -9,6 +9,7 @@ import { toArabicNumber } from "@/lib/format";
 import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 export function OrderConfirmedScreen() {
   const route = useRoute();
@@ -36,17 +37,17 @@ export function OrderConfirmedScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top", "bottom"]}>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
         {/* Madarek dark status pair: success soft bg #0F241C + success ink #7FD39A */}
-        <View style={{ width: 80, height: 80, borderRadius: 9999, backgroundColor: "#0F241C", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-          <CheckCircle size={48} color="#7FD39A" />
+        <View style={{ width: 80, height: 80, borderRadius: 9999, backgroundColor: colors.mintBg, alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+          <CheckCircle size={48} color={colors.mint} />
         </View>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: "#F2EFE6", marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", lineHeight: 20, marginBottom: 4 }}>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: colors.sand, marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", lineHeight: 20, marginBottom: 4 }}>
           {waUrl ? "سُجّل طلبك — أرسله للمطعم عبر واتساب من الزر أدناه" : "تم إرسال طلبك عبر واتساب إلى المطعم"}
         </Text>
-        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#E9B44C", fontWeight: "600", marginBottom: 32 }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
+        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold, fontWeight: "600", marginBottom: 32 }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
         <View style={{ gap: 12, width: "100%" }}>
           {waUrl ? (
             <Button title="إرسال الطلب عبر واتساب" onPress={onSendWhatsApp} size="lg" className="w-full" />

@@ -4,6 +4,7 @@ import NetInfo from "@react-native-community/netinfo";
 import { WifiOff } from "lucide-react-native";
 
 import { Text } from "@/components/ui/Text";
+import { colors } from "@/theme/colors";
 
 export function ConnectivityBanner() {
   const [online, setOnline] = useState(true);
@@ -15,9 +16,9 @@ export function ConnectivityBanner() {
   }, []);
   if (online) return null;
   return (
-    <View style={{ backgroundColor: "#F0938F", paddingVertical: 8, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 8, zIndex: 100 }}>
-      <WifiOff size={16} color="#05070F" />
-      <Text style={{ color: "#05070F", fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600" }}>
+    <View style={{ backgroundColor: colors.rose, paddingVertical: 8, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 8, zIndex: 100 }}>
+      <WifiOff size={16} color={colors.void} />
+      <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600" }}>
         لا يوجد اتصال بالإنترنت — تحقق من شبكتك
       </Text>
     </View>

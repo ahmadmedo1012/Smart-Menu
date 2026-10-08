@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 import { Text } from "@/components/ui/Text";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { colors } from "@/theme/colors";
 
 const buttonVariants = cva(
   "flex items-center justify-center gap-2 rounded-md disabled:opacity-50",
@@ -96,7 +97,7 @@ export function Button({ variant, size, title, loading, children, className, dis
         <>
           <ActivityIndicator
             size="small"
-            color={variant === "outline" || variant === "ghost" || variant === "secondary" ? "#E9B44C" : "#05070F"}
+            color={variant === "outline" || variant === "ghost" || variant === "secondary" ? colors.gold : colors.void}
           />
           <Text className={buttonTextVariants({ variant, size })} maxFontSizeMultiplier={1.4}>{title}</Text>
         </>

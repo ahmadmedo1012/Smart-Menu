@@ -37,6 +37,7 @@ import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { colors } from "@/theme/colors";
 
 export const SHEET_DURATION_MS = 380; // Madarek --t-slow (sheet enter/exit rung)
 const EASE_OUT = Easing.out(Easing.cubic);
@@ -98,13 +99,13 @@ export const AppBottomSheet = forwardRef<AppBottomSheetHandle, AppBottomSheetPro
         backdropComponent={renderBackdrop}
         animationConfigs={animationConfigs}
         backgroundStyle={{
-          backgroundColor: "#0D1428",
+          backgroundColor: colors.surface,
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           borderWidth: 1,
-          borderColor: "#1B2444",
+          borderColor: colors.hairline,
         }}
-        handleIndicatorStyle={{ backgroundColor: "#8E97B8", width: 44 }}
+        handleIndicatorStyle={{ backgroundColor: colors.muted, width: 44 }}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustResize"
@@ -127,8 +128,8 @@ export const AppBottomSheet = forwardRef<AppBottomSheetHandle, AppBottomSheetPro
                 // the hand-rolled sheet ignored the bottom inset entirely.
                 paddingBottom: Math.max(insets.bottom, 12),
                 borderTopWidth: 1,
-                borderColor: "#1B2444",
-                backgroundColor: "#0D1428",
+                borderColor: colors.hairline,
+                backgroundColor: colors.surface,
               }}
             >
               {footer}
