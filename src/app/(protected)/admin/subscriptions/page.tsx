@@ -258,7 +258,7 @@ export default function AdminSubscriptionsPage() {
                                                                                         <div className="min-w-0">
                                                                                                 <div className="flex items-center gap-2 flex-wrap">
                                                                                                         <p className="font-bold">{p.phone}</p>
-                                                                                                        <Badge className={cn('text-[10px]', st.color)}>{st.label}</Badge>
+                                                                                                        <Badge className={cn('text-3xs', st.color)}>{st.label}</Badge>
                                                                                                 </div>
                                                                                                 <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 flex-wrap">
                                                                                                         <span className="tabular-nums whitespace-nowrap">{p.amount} د.ل</span>

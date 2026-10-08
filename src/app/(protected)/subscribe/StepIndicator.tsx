@@ -80,7 +80,7 @@ export function StepIndicator({
                                                         </m.div>
                                                         <span
                                                                 className={cn(
-                                                                        'text-[11px] sm:text-xs font-medium transition-colors hidden sm:block',
+                                                                        'text-2xs sm:text-xs font-medium transition-colors hidden sm:block',
                                                                         /* r95: تسمية الخطوة الحالية — accent-foreground (AA) */
                                                                         isActive ? 'text-accent-foreground font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/50'
                                                                 )}

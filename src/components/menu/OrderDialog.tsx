@@ -332,14 +332,14 @@ export function OrderDialog({
                                                                                 <div className="flex items-center justify-between gap-2 mb-2.5">
                                                                                         <div className="min-w-0">
                                                                                                 <span className="text-sm font-bold">{groupName}</span>
-                                                                                                <span className="text-[11px] text-muted-foreground ms-1.5">
+                                                                                                <span className="text-2xs text-muted-foreground ms-1.5">
                                                                                                         {modifierGroupHint(g)}
                                                                                                 </span>
                                                                                         </div>
                                                                                         {/* «المحدد ١/٢» counter — Western digits per app convention */}
                                                                                         {(g.maxSelect > 1 || g.minSelect > 0) && (
                                                                                                 <span
-                                                                                                        className="shrink-0 text-[11px] font-medium tabular-nums text-muted-foreground bg-glass-bg/60 border border-glass-border rounded-full px-2 py-0.5"
+                                                                                                        className="shrink-0 text-2xs font-medium tabular-nums text-muted-foreground bg-glass-bg/60 border border-glass-border rounded-full px-2 py-0.5"
                                                                                                 >
                                                                                                         المحدد {toArabicNumber(count)}/{toArabicNumber(g.maxSelect)}
                                                                                                 </span>
@@ -392,7 +392,7 @@ export function OrderDialog({
                                                                                 </div>
                                                                                 {/* F1-6: required-group blocker — role=alert so SR users hear it */}
                                                                                 {groupError && (
-                                                                                        <p role="alert" className="text-[11px] font-medium text-destructive mt-2.5">
+                                                                                        <p role="alert" className="text-2xs font-medium text-destructive mt-2.5">
                                                                                                 {groupError}
                                                                                         </p>
                                                                                 )}
@@ -441,7 +441,7 @@ export function OrderDialog({
                                                                 <span className="text-xs text-muted-foreground">د.ل</span>
                                                         </div>
                                                         {modDelta !== 0 && (
-                                                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                                                <p className="text-3xs text-muted-foreground mt-0.5">
                                                                         شامل الخيارات {modDelta > 0 ? '+' : ''}
                                                                         {/* r121 (H-1): عيار العرض الذكي بدل decimals:1. */}
                                                                         {formatPrice(modDelta, { suffix: '' })} د.ل
@@ -596,11 +596,11 @@ export function OrderDialog({
                                                         )}
                                                 </button>
                                                 {!restaurantWhatsapp && (
-                                                        <p className="text-[11px] text-center text-destructive">
+                                                        <p className="text-2xs text-center text-destructive">
                                                                 لم يتم إعداد واتساب بعد للمطعم. يُرجى التواصل مع المطعم مباشرة.
                                                         </p>
                                                 )}
-                                                <p className="text-[11px] text-center text-muted-foreground">
+                                                <p className="text-2xs text-center text-muted-foreground">
                                                         سيتم فتح السلة لمراجعة الطلب وإرساله عبر واتساب
                                                 </p>
                                         </div>

@@ -12,7 +12,7 @@ export function LoyaltyCard() {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                         <p className="text-xs font-bold">اكسب نقاط ولاء مع هذا الطلب!</p>
-                                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                                        <p className="text-2xs text-muted-foreground mt-0.5">
                                                 كل طلب يمنحك نقاطاً يمكن استبدالها بمكافآت
                                         </p>
                                 </div>

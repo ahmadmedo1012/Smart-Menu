@@ -48,7 +48,7 @@ export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }:
                                                 onChange={(e) => onPhoneChange(e.target.value)}
                                                 className="w-full h-11 rounded-sm border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60 text-left"
                                         />
-                                        <p className="text-[11px] text-muted-foreground mt-1">
+                                        <p className="text-2xs text-muted-foreground mt-1">
                                                 ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب
                                         </p>
                                 </div>

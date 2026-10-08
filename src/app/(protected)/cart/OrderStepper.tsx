@@ -15,13 +15,13 @@ export function OrderStepper() {
                         ].map((step, i) => (
                                 <div key={step.n} className="flex items-center gap-1.5 flex-1">
                                         <div className={cn(
-                                                'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold transition-[color,background-color,border-color] duration-base',
+                                                'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-3xs font-bold transition-[color,background-color,border-color] duration-base',
                                                 i === 0
                                                         ? 'bg-orange/15 text-accent-foreground border border-orange/30'
                                                         : 'bg-muted/40 text-muted-foreground/60 border border-border/30'
                                         )}>
                                                 <span className={cn(
-                                                        'size-4 rounded-full flex items-center justify-center text-[9px]',
+                                                        'size-4 rounded-full flex items-center justify-center text-3xs',
                                                         i === 0 ? 'bg-orange text-orange-foreground' : 'bg-muted text-muted-foreground/60'
                                                 )}>{toArabicNumber(step.n)}</span>
                                                 {step.label}

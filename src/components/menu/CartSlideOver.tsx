@@ -88,7 +88,7 @@ export function CartSlideOver() {
                                                 <span
                                                         className={cn(
                                                                 'absolute -top-2.5 -end-2.5 min-w-[18px] h-[18px] rounded-full',
-                                                                'bg-orange-foreground text-saffron text-[10px] font-bold',
+                                                                'bg-orange-foreground text-saffron text-3xs font-bold',
                                                                 'flex items-center justify-center px-1',
                                                                 'transition-transform duration-base',
                                                                 bounce && 'scale-125'
@@ -157,7 +157,7 @@ export function CartSlideOver() {
                                                                 <p className="text-sm font-medium truncate">{item.name}</p>
                                                                 {/* w3-f1: chosen modifier summary for this line */}
                                                                 {item.modifiersSummary && (
-                                                                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                                                                        <p className="text-2xs text-muted-foreground mt-0.5 line-clamp-1">
                                                                                 {item.modifiersSummary}
                                                                         </p>
                                                                 )}

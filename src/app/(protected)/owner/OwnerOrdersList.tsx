@@ -48,7 +48,7 @@ const OrderRow = memo(function OrderRow({ order }: { order: StatsData["recentOrd
       <div className="flex items-center gap-2.5">
         {/* r121-H-1: smart formatPrice default — was forced decimals:1 («12.0») */}
         <span className="text-sm font-semibold tabular-nums">{formatPrice(order.total)}</span>
-        <span className={cn("text-[11px] font-medium px-2 py-0.5 rounded-full", config.bg, config.color)}>
+        <span className={cn("text-2xs font-medium px-2 py-0.5 rounded-full", config.bg, config.color)}>
           {config.label}
         </span>
       </div>
@@ -113,14 +113,14 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
             <div key={item.itemId} className="flex items-center justify-between py-1.5 px-1">
               <div className="flex items-center gap-2">
                 <span className={cn(
-                  "flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold",
+                  "flex size-5 shrink-0 items-center justify-center rounded text-3xs font-bold",
                   idx === 0 ? "bg-orange text-orange-foreground" :
                   idx < 3 ? "bg-orange-muted text-accent-foreground" :
                   "bg-muted text-muted-foreground"
                 )}>{toArabicNumber(idx + 1)}</span>
                 <span className="text-sm">{item.name}</span>
               </div>
-              <span className="text-[11px] text-muted-foreground">{ordersWithCount(item.totalSold)}</span>
+              <span className="text-2xs text-muted-foreground">{ordersWithCount(item.totalSold)}</span>
             </div>
           ))}
         </div>

@@ -260,7 +260,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                                 animate={reduceMotion ? undefined : { y: [0, i % 2 === 0 ? -6 : 5, 0] }}
                                                                                 transition={{ duration: 4 + i, repeat: Infinity, ease: 'easeInOut', delay: i * 0.7 }}
                                                                                 className={cn(
-                                                                                        'absolute z-20 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold backdrop-blur-sm',
+                                                                                        'absolute z-20 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-2xs font-bold backdrop-blur-sm',
                                                                                         'border-[color-mix(in_oklab,var(--scene-accent)_50%,transparent)] bg-[color-mix(in_oklab,var(--scene-wash)_88%,transparent)] text-[var(--scene-accent)]',
                                                                                         i === 0 && 'top-[-6%] start-[-4%] md:start-[-12%]',
                                                                                         i === 1 && 'top-[42%] start-[-8%] md:start-[-24%]',

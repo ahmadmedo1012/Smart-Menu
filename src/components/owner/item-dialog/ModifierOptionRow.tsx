@@ -34,7 +34,7 @@ export function ModifierOptionRow({
         return (
                 <div className="flex flex-wrap items-end gap-2 rounded-md border border-border/30 bg-background/60 p-2">
                         <div className="flex-1 min-w-[140px]">
-                                <Label htmlFor={`${fId}-oname-${option.key}`} className="text-[11px]">
+                                <Label htmlFor={`${fId}-oname-${option.key}`} className="text-2xs">
                                         الخيار {toArabicNumber(index + 1)}
                                 </Label>
                                 <Input
@@ -47,7 +47,7 @@ export function ModifierOptionRow({
                                 />
                         </div>
                         <div className="w-28">
-                                <Label htmlFor={`${fId}-oprice-${option.key}`} className="text-[11px]">
+                                <Label htmlFor={`${fId}-oprice-${option.key}`} className="text-2xs">
                                         السعر ± (د.ل)
                                 </Label>
                                 <Input
@@ -67,7 +67,7 @@ export function ModifierOptionRow({
                                         onCheckedChange={(v) => onUpdateOption(groupKey, option.key, { isAvailable: v })}
                                         aria-label={`توفر الخيار رقم ${toArabicNumber(index + 1)}`}
                                 />
-                                <Label htmlFor={`${fId}-oavail-${option.key}`} className="text-[11px] mb-0">
+                                <Label htmlFor={`${fId}-oavail-${option.key}`} className="text-2xs mb-0">
                                         متاح
                                 </Label>
                         </div>

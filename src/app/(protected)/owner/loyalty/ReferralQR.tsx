@@ -32,7 +32,7 @@ export function ReferralQR({ url }: { url: string }) {
 				width={180}
 				height={180}
 			/>
-			<p className="text-[10px] text-muted-foreground">امسح للمشاركة</p>
+			<p className="text-3xs text-muted-foreground">امسح للمشاركة</p>
 		</div>
 	);
 }

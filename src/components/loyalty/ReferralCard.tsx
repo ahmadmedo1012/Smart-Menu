@@ -128,7 +128,7 @@ export function ReferralCard({
                                                                 {referralCode}
                                                         </span>
                                                 </button>
-                                                <p className="text-[10px] text-accent-foreground/60 text-center mt-1.5">
+                                                <p className="text-3xs text-accent-foreground/60 text-center mt-1.5">
                                                         {copied ? (
                                                                 <span className="inline-flex items-center gap-1 text-success">
                                                                         <MotionCheck className="size-3" /> تم النسخ!
@@ -146,14 +146,14 @@ export function ReferralCard({
                                                         <p className="text-lg font-bold text-accent-foreground tabular-nums">
                                                                 {timesShared}
                                                         </p>
-                                                        <p className="text-[10px] text-accent-foreground/60">تم المشاركة</p>
+                                                        <p className="text-3xs text-accent-foreground/60">تم المشاركة</p>
                                                 </div>
                                                 <div className="rounded-xl bg-white/60 dark:bg-orange-muted/40 border border-orange/30 p-3 text-center">
                                                         <TrendingUp className="size-4 mx-auto mb-1 text-accent-foreground" />
                                                         <p className="text-lg font-bold text-accent-foreground tabular-nums">
                                                                 {timesUsed}
                                                         </p>
-                                                        <p className="text-[10px] text-accent-foreground/60">تم الاستخدام</p>
+                                                        <p className="text-3xs text-accent-foreground/60">تم الاستخدام</p>
                                                 </div>
                                         </div>
 
@@ -195,7 +195,7 @@ export function ReferralCard({
                                         {/* ===== Full referral link (copy fallback) ===== */}
                                         <div className="flex items-center gap-2">
                                                 <div
-                                                        className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-orange-muted/50 border border-orange/30 flex items-center px-3 text-[11px] text-accent-foreground/70 truncate font-mono"
+                                                        className="flex-1 h-9 rounded-lg bg-white/70 dark:bg-orange-muted/50 border border-orange/30 flex items-center px-3 text-2xs text-accent-foreground/70 truncate font-mono"
                                                         dir="ltr"
                                                 >
                                                         {referralUrl}
@@ -211,7 +211,7 @@ export function ReferralCard({
                                         </div>
 
                                         {/* ===== Footer ===== */}
-                                        <p className="text-center text-[10px] text-accent-foreground/50 flex items-center justify-center gap-1">
+                                        <p className="text-center text-3xs text-accent-foreground/50 flex items-center justify-center gap-1">
                                                 <AnimatedSparkles className="size-3" />
                                                 شارك الرابط مع أصدقائك واحصل على نقاط مكافأة
                                                 <AnimatedSparkles className="size-3" />

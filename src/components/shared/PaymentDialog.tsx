@@ -333,7 +333,7 @@ export function PaymentDialog({
                                                                                         className="h-11 rounded-xl mt-1.5 text-left font-mono"
                                                                                         dir="ltr"
                                                                                 />
-                                                                                <p className="text-[11px] text-muted-foreground mt-1">
+                                                                                <p className="text-2xs text-muted-foreground mt-1">
                                                                                         10 أرقام تبدأ بـ 09 — حتى نتمكن من التأكد من استلام التحويل
                                                                                 </p>
                                                                         </div>
@@ -477,7 +477,7 @@ export function PaymentDialog({
                                                                         <span className="absolute inset-0 rounded-full bg-orange animate-ping opacity-75" />
                                                                         <span className="relative rounded-full size-2 bg-orange" />
                                                                 </span>
-                                                                <span className="text-[11px] text-muted-foreground">
+                                                                <span className="text-2xs text-muted-foreground">
                                                                         {provider === 'libyana' ? 'بانتظار تأكيد التحويل' : 'بانتظار موافقة الإدارة'}
                                                                 </span>
                                                         </div>

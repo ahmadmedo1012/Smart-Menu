@@ -54,7 +54,7 @@
  * scripts/parity_matrix.py (download/madarek-parity-matrix.md) — 144/144
  * tokens green at the time of authoring.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 // ── token file → theme scopes ────────────────────────────────────────────────
@@ -396,6 +396,29 @@ describe('r126 parity — @theme bridges (what Tailwind utilities resolve to)', 
   });
 });
 
+// ── r127: micro-typography tokens (r127-F4 — a11y root cause r121-I-5) ───────
+
+const THEME_TYPE_SCALE: Record<string, string> = {
+  // r127-F4: text-3xs/text-2xs replace the 101 hardcoded text-[9|10|11px] +
+  // text-[0.625rem] micro-typography sites — rem-based, so they scale with
+  // the user's font-size preferences where px utilities could not. The
+  // --line-height companions follow the Tailwind v4 --text-*--line-height
+  // convention (a 1.4 companion for 10/11px body-adjacent micro text).
+  '--text-3xs': '0.625rem',
+  '--text-3xs--line-height': '1.4',
+  '--text-2xs': '0.6875rem',
+  '--text-2xs--line-height': '1.4',
+  '--text-xs': '0.75rem',
+};
+
+describe('r127 parity — @theme micro-typography tokens (text-2xs/text-3xs)', () => {
+  it('type scale: 3xs 10px / 2xs 11px / xs 12px — rem-based + 1.4 line-height companions', () => {
+    for (const [token, value] of Object.entries(THEME_TYPE_SCALE)) {
+      pin(theme, 'theme', token, value);
+    }
+  });
+});
+
 // ── r126: focus-ring contract (audit D1/D5 — the ONE focus language) ────────
 
 describe('r126 parity — focus-ring contract (§1.9, both themes)', () => {
@@ -680,5 +703,31 @@ describe('r126 consumption gates — pinned tokens must have ≥1 real consumer'
     expect(ok(), 'consumption gate FAILED — the pinned token(s) have zero consumers').toBe(
       true
     );
+  });
+});
+
+// ── r127-F4 consumption floor: the px→token sweep must stay landed ──────────
+// A mass revert to text-[10px]/[11px] would silently reopen the px-doesn't-
+// scale a11y hole (r121-I-5). 4 sites remain deferred in the a11y-agent's
+// files (owner/page.tsx ×3, OwnerCharts.tsx ×1 — merge-swept later), so the
+// floor sits just below the 48/48 consumers this sweep landed.
+
+function walkSrc(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const p = `${dir}/${entry}`;
+    if (statSync(p).isDirectory()) out.push(...walkSrc(p));
+    else if (/\.(tsx|ts)$/.test(entry)) out.push(p);
+  }
+  return out;
+}
+const srcTextR127 = walkSrc('src').map(raw).join('\n');
+
+describe('r127 consumption gates — micro-typography tokens are actually consumed', () => {
+  it('text-2xs ≥40 TSX consumers across src/ (48 at r127-F4)', () => {
+    expect((srcTextR127.match(/\btext-2xs\b/g) ?? []).length).toBeGreaterThanOrEqual(40);
+  });
+  it('text-3xs ≥40 TSX consumers across src/ (48 at r127-F4)', () => {
+    expect((srcTextR127.match(/\btext-3xs\b/g) ?? []).length).toBeGreaterThanOrEqual(40);
   });
 });

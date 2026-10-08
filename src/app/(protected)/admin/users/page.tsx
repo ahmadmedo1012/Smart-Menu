@@ -224,7 +224,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-2">
                         <p className="font-bold">{user.name}</p>
                         <Badge className={cn(
-                          "text-[10px]",
+                          "text-3xs",
                           user.role === "admin" ? "bg-info/15 text-info dark:bg-info/25" : "bg-orange-muted text-accent-foreground/80 dark:bg-orange-muted dark:text-accent-foreground"
                         )}>
                           {user.role === "admin" ? "مدير" : "مالك"}

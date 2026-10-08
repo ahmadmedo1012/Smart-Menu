@@ -69,7 +69,7 @@ export function FeaturesSection() {
                                                                         <div aria-hidden="true" className="absolute -top-20 -end-20 size-48 rounded-full bg-accent-foreground/10 blur-3xl" />
                                                                         {/* r95 → r120 (U11-P2-4): «الأكثر شعبية» — موحّدة مع صفحتي
                                                                             الخطط؛ «الأكثر طلباً» غير دقيقة لميزة. */}
-                                                                        <div className="absolute top-4 end-4 text-[0.625rem] font-bold px-2.5 py-1 rounded-full bg-primary text-primary-foreground flex items-center gap-1">
+                                                                        <div className="absolute top-4 end-4 text-3xs font-bold px-2.5 py-1 rounded-full bg-primary text-primary-foreground flex items-center gap-1">
                                                                                 <Zap className="size-2.5 fill-current" aria-hidden="true" />
                                                                                 الأكثر شعبية
                                                                         </div>
@@ -114,7 +114,7 @@ export function FeaturesSection() {
                                                                                         {HERO_FEATURE_STATS.map((stat) => (
                                                                                                 <div key={stat.label}>
                                                                                                         <div className="text-sm font-bold text-accent-foreground leading-tight">{stat.value}</div>
-                                                                                                        <div className="text-[0.625rem] text-muted-foreground mt-0.5">{stat.label}</div>
+                                                                                                        <div className="text-3xs text-muted-foreground mt-0.5">{stat.label}</div>
                                                                                                 </div>
                                                                                         ))}
                                                                                 </div>

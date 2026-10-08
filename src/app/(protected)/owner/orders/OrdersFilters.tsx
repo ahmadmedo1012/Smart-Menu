@@ -152,7 +152,7 @@ export function OrdersFilters({
                                         {tab.label}
                                         <span
                                                 className={cn(
-                                                        'inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold',
+                                                        'inline-flex items-center justify-center size-5 rounded-full text-2xs font-bold',
                                                         filter === tab.value
                                                                 ? 'bg-orange-foreground/15 text-orange-foreground'
                                                                 : 'bg-muted text-muted-foreground'

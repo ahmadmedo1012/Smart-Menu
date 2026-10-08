@@ -234,7 +234,7 @@ export default function OwnerSettingsPage() {
                                                                 <Crown className="size-6 text-orange-foreground" />
                                                         </div>
                                                         <div>
-                                                                <p className="text-[11px] text-muted-foreground">الخطة الحالية</p>
+                                                                <p className="text-2xs text-muted-foreground">الخطة الحالية</p>
                                                                 <p className="text-lg font-bold">{currentPlan?.nameAr || 'مجاني'}</p>
                                                                 {currentPlan?.price ? (
                                                                         <p className="text-xs text-muted-foreground">{currentPlan.price} د.ل/شهر</p>
@@ -338,7 +338,7 @@ export default function OwnerSettingsPage() {
                                                         <ImageIcon />
                                                 </div>
                                                 <p className="text-xs text-muted-foreground">لم يتم إضافة صور بعد</p>
-                                                <p className="text-[11px] text-muted-foreground/60 mt-0.5">
+                                                <p className="text-2xs text-muted-foreground/60 mt-0.5">
                                                         أضف صوراً للمطعم لتظهر في صفحة المنيو
                                                 </p>
                                         </div>
@@ -470,7 +470,7 @@ export default function OwnerSettingsPage() {
                                                         className="mt-1 rounded-xl text-sm"
                                                         rows={2}
                                                 />
-                                                <p className="text-[11px] text-muted-foreground mt-1">
+                                                <p className="text-2xs text-muted-foreground mt-1">
                                                         حتى {toArabicNumber(RESTAURANT_FIELD_LIMITS.description)} حرف — يظهر أعلى قائمة المنيو
                                                 </p>
                                         </div>
@@ -542,14 +542,14 @@ export default function OwnerSettingsPage() {
                                         <div className="rounded-md bg-card/40 border border-border/20 p-4">
                                                 <div className="flex items-center gap-2 mb-1.5">
                                                         <AnimatedShoppingCart className="size-3.5 text-primary" />
-                                                        <span className="text-[11px] text-muted-foreground">إجمالي الطلبات</span>
+                                                        <span className="text-2xs text-muted-foreground">إجمالي الطلبات</span>
                                                 </div>
                                                 <p className="text-xl font-bold">{toArabicNumber(restaurant._count?.orders ?? 0)}</p>
                                         </div>
                                         <div className="rounded-md bg-card/40 border border-border/20 p-4">
                                                 <div className="flex items-center gap-2 mb-1.5">
                                                         <Package className="size-3.5 text-orange" />
-                                                        <span className="text-[11px] text-muted-foreground">الأقسام</span>
+                                                        <span className="text-2xs text-muted-foreground">الأقسام</span>
                                                 </div>
                                                 <p className="text-xl font-bold">
                                                         {toArabicNumber(restaurant._count?.categories ?? 0)}
