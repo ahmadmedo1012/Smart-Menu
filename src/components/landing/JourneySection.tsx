@@ -52,7 +52,10 @@ const STATIONS: Array<{
 ]
 
 export function JourneySection() {
-  /* --sp on this section scrubs the light path (and the chapter wash). */
+  /* --sp on this section scrubs the light path (JourneyLightPath's lit
+     thread). r129: the old comment also claimed a "chapter wash" — no
+     such rule ships in this port (kit §7 bans the gradient wash), so
+     the stale claim is removed. */
   const ref = useSectionProgress<HTMLElement>()
 
   return (

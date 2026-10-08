@@ -19,7 +19,8 @@ import { Menu, X, ChevronDown, ArrowLeft, UtensilsCrossed, Route, BarChart3, Sto
      trust/categories/journey/progress/restaurants/roles, same commit);
    · megamenu with tone-coded icon wells (Escape + onBlur close, focus
      return to the trigger);
-   · burger + mobile drawer ≤1024px.
+   · burger + mobile drawer ≤1080px (r129: canonical breakpoint — the
+     1025–1080 band showed the burger where Madarek shows full nav).
    The product Header keeps serving every non-landing surface. */
 
 const SPY_SECTIONS = "#trust, #categories, #journey, #progress, #restaurants, #roles"
@@ -142,7 +143,9 @@ export function LandingHeader() {
                 ref={megamenuTriggerRef}
                 onClick={() => setMegamenuOpen((v) => !v)}
               >
-                الرحلة
+                {/* r129 P2: «المنصّة» — distinct labels (the flat «الرحلة»
+                    link below was a duplicate of this trigger). */}
+                المنصّة
                 <ChevronDown size={14} aria-hidden="true" />
               </button>
               <div className="landing-megamenu" onClick={closeMegamenu}>

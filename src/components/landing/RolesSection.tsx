@@ -50,13 +50,15 @@ export function RolesSection() {
               <span className="ln-role-name">{r.name}</span>
               <span className="ln-role-index ln-mono">{r.index}</span>
             </span>
-            <div>
-              <p className="ln-role-desc">{r.desc}</p>
-              <blockquote className="ln-role-quote">
-                <span className="ln-role-quote-mark" aria-hidden="true">”</span>
-                {r.quote}
-              </blockquote>
-            </div>
+            {/* r129 P2: canonical auto-placement — THREE direct children
+                (key / desc / quote) on the 2-col grid so the quote lands
+                row-2/col-1 under the key, exactly like Madarek's ledger
+                (the old desc+quote wrapper stacked both under the desc). */}
+            <p className="ln-role-desc">{r.desc}</p>
+            <blockquote className="ln-role-quote">
+              <span className="ln-role-quote-mark" aria-hidden="true">”</span>
+              {r.quote}
+            </blockquote>
           </RevealCssClass>
         ))}
       </ul>

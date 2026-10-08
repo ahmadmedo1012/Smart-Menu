@@ -11,7 +11,7 @@ import { Check, Languages, Smartphone } from 'lucide-react';
 import '../../app/landing.css';
 import { LandingHeader } from './LandingHeader';
 import { HeroDepthLayer } from './HeroDepthLayer';
-import { HeroOrbits } from './HeroOrbits';
+import { OrbitScene } from './OrbitScene';
 import { MagneticGoldLink } from './MagneticGoldLink';
 import { LandingMarquee } from './LandingMarquee';
 import { CategoriesSection } from './CategoriesSection';
@@ -66,6 +66,30 @@ export function HomePage({
         // the retry affordances under the trust band / restaurants plate.
         const [statsFailed, setStatsFailed] = useState(false);
         const [featuredFailed, setFeaturedFailed] = useState(false);
+
+        /* r129 (A3 B11, alongside the OrbitScene port): returning-visitor
+            calm — first session visit plays the full 380ms canvas entrance;
+            later visits this session set data-intro-seen on .landing and the
+            CSS drops the entrance to t-fast (160ms) with zero delay.
+            Product-scoped key (PORT-KIT §9.2 item 6: a shared-PC visit to a
+            sibling product must not silence this entrance). */
+        const [introSeen] = useState<boolean>(() => {
+                if (typeof window === 'undefined') return false;
+                try {
+                        return window.sessionStorage.getItem('smartmenu.intro.seen') === '1';
+                } catch {
+                        return false;
+                }
+        });
+
+        useEffect(() => {
+                if (introSeen) return;
+                try {
+                        window.sessionStorage.setItem('smartmenu.intro.seen', '1');
+                } catch {
+                        // sessionStorage may be blocked in private mode — that's fine.
+                }
+        }, [introSeen]);
 
         const retry = useCallback(() => {
                 setStats(null);
@@ -132,19 +156,32 @@ export function HomePage({
                    journey now (PORT-KIT §5 anatomy, golden Smart-Link reference
                    commit 7a1fac7): hero sky → domain marquee → trust → categories
                    constellation → 5-station journey + light path --sp → progress
-                   story --sp → restaurants ground plate → roles → finale → faq. */
-                <div className="landing">
+                   story --sp → restaurants ground plate → roles → finale → faq.
+                   r129 P0: NO <main> element here — the (public) layout already owns the
+                   single main#main-content landmark; a second nested main was
+                   invalid HTML (axe landmark-no-duplicate-main) and made the
+                   skip-link target ambiguous. */
+                <div className="landing" data-intro-seen={introSeen ? 'true' : undefined}>
+                        {/* in-world skip link (r129 P2) — lime pill above the grain,
+                            first Tab stop; the shell's orange pill is hidden while
+                            the landing is mounted (landing.css §18). */}
+                        <a href="#main-content" className="ln-skip-link">
+                                تخطَّ إلى المحتوى
+                        </a>
+
                         <LandingHeader />
 
-                        <main id="main-content">
+                        <div className="ln-landing-body">
                                 {/* ═══ الفصل ٠ — المدار: the hero sky ═══ */}
                                 <section className="ln-hero" aria-label="الربط الذكي — منيو رقمي لمطعمك">
-                                        {/* living sky: starfield depth plane + the categories'
-                                            orbit chart (flat SVG grammar — thin 1px cream/lime
-                                            lines, nodes, horizon) */}
+                                        {/* living sky (r129): starfield depth plane + the REAL
+                                            OrbitScene canvas engine — faithful port of Madarek's
+                                            «مدارات المعرفة» (fails safe to the CSS sky below);
+                                            the retired horizon span stays for anatomy parity. */}
                                         <div className="ln-hero-sky" aria-hidden="true">
                                                 <HeroDepthLayer />
-                                                <HeroOrbits className="ln-hero-canvas" />
+                                                <OrbitScene className="ln-hero-canvas" biasX={-0.35} />
+                                                <span className="ln-hero-horizon" />
                                         </div>
 
                                         <div className="ln-hero-content">
@@ -213,7 +250,7 @@ export function HomePage({
                                 {/* ═══ الفصل ٢ — مدار فئات المنيو ═══ */}
                                 <CategoriesSection />
 
-                                {/* ═══ الفصل ٣ — كيف يعمل المنيو الذكي ═══ */}
+                                {/* ═══ الفصل ٣ — كيف يعمل الربط الذكي ═══ */}
                                 <JourneySection />
 
                                 {/* ═══ الفصل ٤ — قصّة التقدّم ═══ */}
@@ -230,7 +267,7 @@ export function HomePage({
 
                                 {/* ═══ الأسئلة الشائعة — compact, ln-styled ═══ */}
                                 <LandingFaq />
-                        </main>
+                        </div>
 
                         <LandingFooter />
 

@@ -565,7 +565,7 @@ export default function OwnerLoyaltyPage() {
                                                                 onClick={() =>
                                                                         // round97-X3: shared wa.me builder (encodes internally).
                                                                         window.open(
-                                                                                buildWhatsAppShareUrl(`ادعوك لتجربة المنيو الذكي\n${ownerRefUrl}`),
+                                                                                buildWhatsAppShareUrl(`ادعوك لتجربة الربط الذكي\n${ownerRefUrl}`),
                                                                                 '_blank'
                                                                         )
                                                                 }

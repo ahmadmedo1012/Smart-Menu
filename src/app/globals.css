@@ -20,17 +20,22 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-        /* ── Font system — Madarek parity: IBM Plex Sans Arabic is THE family ──
-           (body + display + headings; --font-cairo shim in /fonts/fonts.css now
-           resolves to "IBM Plex Sans Arabic" so every legacy consumer flips with
-           zero TSX churn. Mono numerals ride IBM Plex Mono with the mixed-script
-           Arabic fallback per Madarek §2.1.) */
-        --font-sans: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
-        --font-mono: "IBM Plex Mono", "IBM Plex Sans Arabic", ui-monospace, "Courier New", monospace;
-        --font-arabic: var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
-        /* r93-W2a (U1) — Madarek flip: المصدر الواحد للحقيقة لخط العناوين —
-           IBM Plex Sans Arabic أولًا (‎--font-display لديهم)؛ سطر :root أدناه مرآة له */
-        --font-heading: "IBM Plex Sans Arabic", var(--font-cairo, "Cairo"), "Noto Sans Arabic", system-ui, sans-serif;
+        /* ── Font system — Madarek parity (r129 token-matrix fix): IBM Plex
+           Sans Arabic is THE family. --font-sans/-arabic carry the canonical
+           stack verbatim (Tajawal + system-ui + -apple-system + Segoe UI +
+           Roboto tail); --font-display/-heading carry the canonical display
+           stack (Plex + system-ui); --font-mono is the canonical mono stack
+           (Plex Mono + ui-monospace + SFMono — the mixed-script Sans-Arabic
+           mono fallback survives only in the landing layer's --ln-mono,
+           byte-equal to Madarek's own landing.css:54). The legacy
+           --font-cairo shim in /fonts/fonts.css stays as the safety net. */
+        --font-sans: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+        --font-arabic: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        /* r93-W2a (U1) + r129: --font-display (canonical name) and the
+           --font-heading bridge — Madarek tokens.css:47-49 verbatim. */
+        --font-display: "IBM Plex Sans Arabic", system-ui, sans-serif;
+        --font-heading: "IBM Plex Sans Arabic", system-ui, sans-serif;
 
         /* ── Theme colors ── */
         --color-background: var(--background);
@@ -214,13 +219,16 @@
            ══════════════════════════════════════════════════════════════ */
         color-scheme: dark;
 
-        /* ── Fonts — resolved here so [dir=rtl] and body always find them ──
-           --font-cairo (shim in /fonts/fonts.css) = "IBM Plex Sans Arabic". */
-        --font-arabic: var(--font-cairo, "IBM Plex Sans Arabic"), "Cairo", "Noto Sans Arabic", system-ui, sans-serif;
+        /* ── Fonts — r129 token-matrix fix: the canonical Madarek stacks
+           (tokens.css:47-50), with the --font-cairo shim (fonts.css) kept
+           as the safety net for any legacy var(--font-cairo) consumer. */
+        --font-arabic: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --font-sans: var(--font-arabic);
-        /* r93-W2a (U1) — Madarek flip: المصدر الواحد للحقيقة لخط العناوين —
-           IBM Plex Sans Arabic أولًا (‎--font-display لديهم) — نفس قيمة ‎@theme حرفيًا. */
-        --font-heading: "IBM Plex Sans Arabic", var(--font-cairo, "Cairo"), "Noto Sans Arabic", system-ui, sans-serif;
+        --font-display: "IBM Plex Sans Arabic", system-ui, sans-serif;
+        /* r93-W2a (U1) — same value as --font-display (the bridge name). */
+        --font-heading: "IBM Plex Sans Arabic", system-ui, sans-serif;
+        /* r129 (missing token): canonical serif — editorial/quote contexts. */
+        --font-serif: "IBM Plex Serif", Georgia, serif;
 
         /* ── Font weights — Madarek reality: Plex Sans Arabic ships 400-700
            only; --fw-black resolves to 700 (no synthetic 800 exists). ── */
@@ -246,6 +254,10 @@
         --ease-spring-soft: cubic-bezier(0.34, 1.18, 0.64, 1);
         --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
         --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* r129 (missing tokens, canonical tokens.css:152-153): the bounce
+           and snappy spring tiers. */
+        --ease-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --ease-spring-snappy: cubic-bezier(0.5, 1.6, 0.4, 1);
         /* family easing aliases remapped onto the Madarek curves */
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);   /* = Madarek --ease-out */
         --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1); /* = Madarek --ease-soft */
@@ -271,6 +283,9 @@
         --motion-stagger-cap: 6;
         --motion-direction: -1; /* [dir=rtl] default (app is RTL-first) */
         --press-scale: 0.97;    /* Madarek press ladder: buttons .97 · cards .99 */
+        /* r129 (missing token, canonical tokens.css:171): the standard
+           hover lift register (-1px; hover-capable surfaces only). */
+        --hover-lift: -1px;
         /* ── r126 (P4-F1 M3): ambient loop ladder (Madarek §4.3) — infinite
            decorative loops ONLY (never hover/press/entrance). The animate-*
            classes below now consume these bands instead of raw 1.4-18s
@@ -388,8 +403,14 @@
 
         /* ── Brand / gold (§1.5) ── */
         --brand:      var(--accent-solid);
+        /* r129 (missing token, canonical tokens.css:576): the lavender
+           brand purple (= --c-lavender-ink chain). */
+        --brand-purple: var(--c-lavender-ink);
         --gold:       var(--accent-solid);
         --gold-ink:   var(--c-yellow-ink);
+        /* r129 (missing token, canonical tokens.css:1033): soft gold
+           ground for chip/tint surfaces (= --c-yellow-bg chain). */
+        --gold-soft:  var(--c-yellow-bg);
 
         /* ── Chart colors (§1.11) — chart-tokens.ts resolves at draw-time ── */
         --chart-text: var(--neutral-500);
@@ -525,9 +546,14 @@
         /* Image placeholder shimmer — keeps OptimizedImage theme-aware */
         --image-shimmer: #0d142826;
 
-        /* Glass — Madarek night (§1.8): rgba(11,16,32,0.78) + neutral hairline */
+        /* Glass — Madarek night (§1.8): rgba(11,16,32,0.78) + neutral hairline.
+           r129 (missing tokens, canonical tokens.css:601/607): the two-blur
+           register — --glass-blur for glass surfaces, --scrim-blur for
+           dimming scrims (the six ad-hoc blur values collapse onto them). */
         --glass-bg: rgba(11, 16, 32, 0.78);
         --glass-bg-strong: rgba(11, 16, 32, 0.90);
+        --glass-blur: 16px;
+        --scrim-blur: 4px;
         --glass-border: rgba(142, 151, 184, 0.12);
         --glass-border-strong: rgba(142, 151, 184, 0.24);
         --glass-shadow: 0 10px 40px rgba(2, 4, 12, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -645,8 +671,12 @@
 
         /* ── Brand / gold (§1.5) ── */
         --brand:      var(--accent-solid);
+        /* r129 (missing token, canonical light tokens.css:781). */
+        --brand-purple: var(--c-lavender-ink);
         --gold:       #D6A330;
         --gold-ink:   #6B4C0B;
+        /* r129 (missing token, canonical light tokens.css:1019-1033). */
+        --gold-soft:  var(--c-yellow-bg);
 
         /* ── Chart colors (§1.11) ── */
         --chart-text: #6E6C65;
@@ -756,9 +786,12 @@
         /* Image placeholder shimmer — ink sweep on light surfaces */
         --image-shimmer: rgba(25, 25, 24, 0.08);
 
-        /* Glass — Madarek light (§1.8): cream 78% + warm hairline */
+        /* Glass — Madarek light (§1.8): cream 78% + warm hairline.
+           r129 (missing tokens, canonical light tokens.css:794/796). */
         --glass-bg: rgba(251, 250, 249, 0.78);
         --glass-bg-strong: rgba(251, 250, 249, 0.90);
+        --glass-blur: 16px;
+        --scrim-blur: 4px;
         --glass-border: rgba(25, 25, 24, 0.06);
         --glass-border-strong: rgba(25, 25, 24, 0.14);
         --glass-shadow: 0 8px 36px rgba(15, 15, 15, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.72);

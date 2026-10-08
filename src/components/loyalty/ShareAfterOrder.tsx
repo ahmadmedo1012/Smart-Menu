@@ -127,7 +127,7 @@ export function ShareAfterOrder({
                 if (!referralCode) return;
                 const text = `مرحباً! 🎉
 
-ادعوك لتجربة الطلب عبر المنيو الذكي
+ادعوك لتجربة الطلب عبر الربط الذكي
 ${referralUrl}
 
 استمتع بخصم 10٪ عند استخدام رابط الإحالة الخاص بي! 😊`;
@@ -139,7 +139,7 @@ ${referralUrl}
 
         const handleShareInstagram = useCallback(() => {
                 if (!referralCode) return;
-                const text = `ادعوك لتجربة الطلب عبر المنيو الذكي واستمتع بخصم 10٪ 🎉\n${referralUrl}`;
+                const text = `ادعوك لتجربة الطلب عبر الربط الذكي واستمتع بخصم 10٪ 🎉\n${referralUrl}`;
                 navigator.clipboard.writeText(text);
                 premiumToast('copy', 'تم نسخ النص — شاركه الآن في قصتك على إنستغرام');
         }, [referralUrl, referralCode]);

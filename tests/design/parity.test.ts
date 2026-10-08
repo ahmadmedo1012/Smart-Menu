@@ -362,15 +362,18 @@ const THEME_RADIUS_BRIDGE: Record<string, string> = {
   '--radius-3xl': '28px',
 };
 const THEME_FONTS: Record<string, string> = {
-  // resolved through the @theme scope: --font-sans/-arabic keep their leading
-  // var(--font-cairo) reference (no fallback arg — the shim lives in
-  // :root/fonts.css), while --font-heading's var(--font-cairo, "Cairo")
-  // resolves its fallback here. Pinning the RESOLVED stacks proves both
-  // chain shapes are well-formed.
-  '--font-sans': 'var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif',
-  '--font-mono': '"IBM Plex Mono", "IBM Plex Sans Arabic", ui-monospace, "Courier New", monospace',
-  '--font-arabic': 'var(--font-cairo), "Cairo", "Noto Sans Arabic", system-ui, sans-serif',
-  '--font-heading': '"IBM Plex Sans Arabic", "Cairo", "Noto Sans Arabic", system-ui, sans-serif',
+  // r129 token-matrix fix: the canonical Madarek stacks verbatim
+  // (tokens.css:47-50). --font-sans/-arabic are the full canonical chain
+  // (Tajawal + system-ui + -apple-system + Segoe UI + Roboto tail);
+  // --font-display is the canonical display stack, with --font-heading
+  // as its bridge twin; --font-mono is the canonical mono stack (the
+  // mixed-script Sans-Arabic mono fallback lives only in the landing
+  // layer's --ln-mono, byte-equal to Madarek landing.css:54).
+  '--font-sans': '"IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  '--font-mono': '"IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace',
+  '--font-arabic': '"IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  '--font-display': '"IBM Plex Sans Arabic", system-ui, sans-serif',
+  '--font-heading': '"IBM Plex Sans Arabic", system-ui, sans-serif',
 };
 
 describe('r126 parity — @theme bridges (what Tailwind utilities resolve to)', () => {
@@ -891,5 +894,483 @@ describe('r128 parity — landing grain veil + scope isolation (kit §7)', () =>
       /import\s+['"][^'"]*landing\.css['"]/.test(raw(p))
     );
     expect(importers).toEqual(['src/components/landing/HomePage.tsx']);
+  });
+});
+
+// ── r129: canonical differential pins (audit r129-A5 smartmenu-differential
+// §7 proposals 1-20 + OrbitScene port pins + token-matrix SM rows) ──────────
+// Sources: madarek/frontend @ cf7ffca (landing.css 2089 ln, tokens.css 1101,
+// OrbitScene.tsx 635 ln, CollegeConstellation.tsx) — every pinned literal
+// below was read from the canonical file at the cited lines.
+
+const homePageRaw = raw('src/components/landing/HomePage.tsx');
+const orbitSceneRaw = raw('src/components/landing/OrbitScene.tsx');
+const categoriesRaw = raw('src/components/landing/CategoriesSection.tsx');
+const shareAfterOrderRaw = raw('src/components/loyalty/ShareAfterOrder.tsx');
+const ownerLoyaltyRaw = raw('src/app/(protected)/owner/loyalty/page.tsx');
+
+/** extract a full rule block for a selector from a (comment-stripped) sheet */
+function ruleBlock(source: string, selector: string): string | undefined {
+  const idx = source.indexOf(selector);
+  if (idx === -1) return undefined;
+  const open = source.indexOf('{', idx);
+  if (open === -1) return undefined;
+  let depth = 1;
+  let j = open + 1;
+  while (j < source.length && depth > 0) {
+    if (source[j] === '{') depth += 1;
+    else if (source[j] === '}') depth -= 1;
+    j += 1;
+  }
+  return source.slice(open + 1, j - 1);
+}
+
+
+/** LAST rule block for a selector (R6 cascade — later overlays win) */
+function lastRule(selector: string): string | undefined {
+  const blocks = allTopLevelBlocks(landingCss, selector);
+  return blocks[blocks.length - 1];
+}
+/** declaration lookup with collapsed whitespace (multi-line values) */
+function declN(block: string | undefined, prop: string): string | undefined {
+  const v = decl(block, prop);
+  return v === undefined ? undefined : norm(v);
+}
+
+describe('r129 parity — P0: ONE main landmark + WhatsApp brand stragglers', () => {
+  it('HomePage declares NO <main> — the (public) layout owns the single main#main-content', () => {
+    // the r128 port nested a second <main id="main-content"> inside the
+    // layout's — invalid HTML + axe landmark-no-duplicate-main (audit P0-1)
+    const homePageCode = homePageRaw
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/^\s*\/\/.*$/gm, ' ');
+    expect(homePageCode, 'HomePage must not re-declare a <main> element').not.toMatch(
+      /<main[\s>]/
+    );
+    expect(homePageRaw, 'HomePage must not re-declare id="main-content"').not.toContain(
+      'id="main-content"'
+    );
+    // the layout's main is the ONE landmark (exactly one declaration)
+    expect((publicLayoutRaw.match(/<main id="main-content">/g) ?? []).length).toBe(1);
+  });
+
+  it('WhatsApp/Instagram share texts brand «الربط الذكي» — the retired «المنيو الذكي» is absent from BOTH share components', () => {
+    // audit P0-2: ShareAfterOrder.tsx:130/:142 + owner/loyalty/page.tsx:568
+    expect(shareAfterOrderRaw).not.toContain('المنيو الذكي');
+    expect(ownerLoyaltyRaw).not.toContain('المنيو الذكي');
+    expect(shareAfterOrderRaw).toContain('ادعوك لتجربة الطلب عبر الربط الذكي');
+    expect(ownerLoyaltyRaw).toContain('ادعوك لتجربة الربط الذكي');
+  });
+
+  it('brand negative: zero NON-COMMENT occurrences of «المنيو الذكي» across src/ (historic provenance comments excluded)', () => {
+    // guards the r127 brand unification — diner-facing copy must never send
+    // the retired brand; r129-audit §6 lists the historic-comment exemptions
+    const offenders: string[] = [];
+    for (const p of walkSrc('src')) {
+      const stripped = raw(p)
+        .replace(/\/\*[\s\S]*?\*\//g, ' ') // block comments
+        .replace(/^\s*\/\/.*$/gm, ' '); // line comments
+      if (stripped.includes('المنيو الذكي')) offenders.push(p);
+    }
+    expect(offenders, `retired brand «المنيو الذكي» found in: ${offenders.join(', ')}`).toEqual(
+      []
+    );
+  });
+});
+
+describe('r129 parity — P1: lime roster + mobile density + in-world focus', () => {
+  it('constellation roster: idle pins are flat cream 0.65 — lime reserved for the ONE hovered/focused pin', () => {
+    // canonical CollegeConstellation.tsx:50-54 + landing.css:897-900
+    expect(categoriesRaw).toContain('const DOT_IDLE = "rgba(245,243,231,0.65)"');
+    expect(categoriesRaw).toContain('const DOT_LIME = "var(--ln-lime, #DFEDB2)"');
+    // negative: no always-lime --dot default — the paint is state-driven
+    expect(categoriesRaw).not.toMatch(/["']--dot["']\s*:\s*DOT_LIME\b/);
+    expect(ruleBlock(landingCss, '.landing .ln-constellation-dot:hover')).toContain(
+      'background: var(--ln-lime)'
+    );
+  });
+
+  it('constellation resting life: .is-resting scale(1.45) + flat cream ring + the 4s RM-gated IO-paused cycle', () => {
+    expect(decl(landingRule('.landing .ln-constellation-dot.is-resting'), 'transform')).toBe(
+      'scale(1.45)'
+    );
+    expect(
+      decl(landingRule('.landing .ln-constellation-dot.is-resting'), 'box-shadow')
+    ).toBe('0 0 0 4px rgb(245 243 231 / 0.1)');
+    expect(categoriesRaw).toContain('const REST_CYCLE_MS = 4000');
+    expect(categoriesRaw).toContain('(prefers-reduced-motion: reduce)');
+    expect(categoriesRaw).toContain('IntersectionObserver');
+    // canonical idle dot geometry: 8×8 pin + ≥44px hit span
+    expect(categoriesRaw).toContain('inlineSize: 8, blockSize: 8');
+    expect(categoriesRaw).toMatch(/inlineSize: 44/);
+  });
+
+  it('≤768 density pass: .ln-chapter clamp(60px, 9vh, 84px) + .ln-chapter-head clamp(24px, 3.5vh, 36px) / sp-4', () => {
+    const m768 = allTopLevelBlocks(landingCss, '@media (max-width: 768px)').join('\n');
+    expect(m768).toContain('.landing .ln-chapter { padding-block: clamp(60px, 9vh, 84px); }');
+    expect(m768).toContain(
+      '.landing .ln-chapter-head { margin-block-end: clamp(24px, 3.5vh, 36px); gap: var(--sp-4); }'
+    );
+  });
+
+  it('universal in-world focus ring: .landing :focus-visible = 2px cream, offset 3px (never the product gold --ring)', () => {
+    expect(ruleBlock(landingCss, '.landing :focus-visible')).toContain(
+      'outline: 2px solid var(--ln-cream)'
+    );
+    expect(ruleBlock(landingCss, '.landing :focus-visible')).toContain('outline-offset: 3px');
+    // P4-09: the button rings survive explicitly (canonical 1971-1977)
+    expect(ruleBlock(landingCss, '.landing .ln-btn-gold:focus-visible')).toContain(
+      'outline: 2px solid var(--ln-cream)'
+    );
+    expect(ruleBlock(landingCss, '.landing .ln-btn-ghost:focus-visible')).toContain(
+      'outline: 2px solid var(--ln-cream)'
+    );
+  });
+});
+
+describe('r129 parity — P2 value rows (measures · landscape · 1080 · depth · safe-area)', () => {
+  it('measures ride the canonical P4-10 effective values: hero-title 20ch / hero-sub 72ch / chapter-lede 72ch / cta-lede 72ch', () => {
+    expect(decl(landingRule('.landing .ln-hero-title'), 'max-inline-size')).toBe('20ch');
+    expect(decl(landingRule('.landing .ln-hero-sub'), 'max-inline-size')).toBe('72ch');
+    expect(decl(landingRule('.landing .ln-chapter-lede'), 'max-inline-size')).toBe('72ch');
+    expect(decl(landingRule('.landing .ln-cta-lede'), 'max-inline-size')).toBe('72ch');
+  });
+
+  it('landscape phones: max-height 560 hero compaction (min-block-size auto, 12px padding, 9vh title)', () => {
+    const block = allTopLevelBlocks(
+      landingCss,
+      '@media (max-height: 560px) and (orientation: landscape)'
+    )[0];
+    expect(block, 'the landscape-phones hero block is missing').toBeDefined();
+    expect(block).toContain('.landing .ln-hero {');
+    expect(block).toContain('min-block-size: auto');
+    expect(block).toContain('padding-block: 12px');
+    expect(block).toContain('font-size: clamp(2rem, 9vh, 3.25rem)');
+    expect(block).toContain('line-height: 1.12');
+  });
+
+  it('burger breakpoint = 1080px + the ≥1081 resize guard', () => {
+    const m1080 = allTopLevelBlocks(landingCss, '@media (max-width: 1080px)')[0];
+    expect(m1080, 'the 1080 nav-collapse block is missing').toBeDefined();
+    expect(m1080).toContain('.landing .landing-nav-links { display: none; }');
+    expect(m1080).toContain('.landing .landing-mobile-menu { display: flex; }');
+    const guard = allTopLevelBlocks(landingCss, '@media (min-width: 1081px)')[0];
+    expect(guard).toContain('.landing .landing-mobile-menu { display: none !important; }');
+    // the old 1024 burger rules are gone (hero padding stays at ≤1024)
+    const m1024 = allTopLevelBlocks(landingCss, '@media (max-width: 1024px)')[0];
+    expect(m1024).not.toContain('landing-nav-links');
+    expect(m1024).toContain('.landing .ln-hero { padding-block: clamp(104px, 14vh, 150px) 88px; }');
+  });
+
+  it('card depth shadows: station/stat cards + role hover 0 1px 2px rgba(0,0,0,0.06); progress visual inset cream 0.04', () => {
+    expect(declN(lastRule('.landing .ln-station-card'), 'box-shadow')).toBe(
+      '0 1px 2px rgba(0, 0, 0, 0.06)'
+    );
+    expect(declN(lastRule('.landing .ln-stat'), 'box-shadow')).toBe('0 1px 2px rgba(0, 0, 0, 0.06)');
+    expect(declN(lastRule('.landing .ln-role-row:hover'), 'box-shadow')).toBe(
+      '0 1px 2px rgba(0, 0, 0, 0.06)'
+    );
+    expect(declN(lastRule('.landing .ln-progress-visual'), 'box-shadow')).toBe(
+      'inset 0 1px 0 rgba(245, 243, 231, 0.04)'
+    );
+  });
+
+  it('mobile drawer safe-area: env(safe-area-inset-bottom, var(--sp-4)) @≤920', () => {
+    const m920 = allTopLevelBlocks(landingCss, '@media (max-width: 920px)').join('\n');
+    expect(m920).toContain(
+      '.landing .landing-mobile-menu { padding-block-end: env(safe-area-inset-bottom, var(--sp-4)); }'
+    );
+  });
+
+  it('RM press neutralizer: .ln-btn-gold:active { transform: none; background: var(--ln-lime-deep) } under prefers-reduced-motion', () => {
+    const prmBlocks = allTopLevelBlocks(
+      landingCss,
+      '@media (prefers-reduced-motion: reduce)'
+    );
+    const off = prmBlocks.some(
+      (b) =>
+        b.includes('.landing .ln-btn-gold:active') &&
+        /transform:\s*none/.test(b) &&
+        /background:\s*var\(--ln-lime-deep\)/.test(b)
+    );
+    expect(off, 'the RM press neutralizer (canonical P4-07) was lost').toBe(true);
+  });
+
+  it('hover micro-verbs: scroll-line scaleY(1.3) + footer-link 2px underline @4px offset', () => {
+    expect(ruleBlock(landingCss, '.landing .ln-hero-scroll:hover .ln-hero-scroll-line')).toContain(
+      'transform: scaleY(1.3)'
+    );
+    expect(lastRule('.landing .landing-footer-link:hover')).toContain(
+      'text-decoration: underline'
+    );
+    expect(lastRule('.landing .landing-footer-link:hover')).toContain(
+      'text-decoration-thickness: 2px'
+    );
+    expect(lastRule('.landing .landing-footer-link:hover')).toContain(
+      'text-underline-offset: 4px'
+    );
+  });
+
+  it('≤390 trust band tightening (gap sp-3, 12.5px)', () => {
+    const m390 = allTopLevelBlocks(landingCss, '@media (max-width: 390px)')[0];
+    expect(m390).toContain('.landing .ln-trust-inner { gap: var(--sp-3); font-size: 12.5px; }');
+  });
+
+  it('in-world skip link: lime pill z 2100 above the grain + the shell pill hides while the landing is mounted', () => {
+    const skip = landingRule('.landing .ln-skip-link');
+    expect(decl(skip, 'z-index')).toBe('2100');
+    expect(decl(skip, 'background')).toBe('var(--ln-lime)');
+    expect(decl(skip, 'color')).toBe('var(--ln-ink)');
+    expect(landingCss).toContain('body:has(> .landing) > a[href="#main-content"]');
+    expect(homePageRaw).toContain('className="ln-skip-link"');
+  });
+
+  it('header CTA family: canonical .btn re-skin values — 44px pills, --ln-line hairline, quiet 0.05 tint hover', () => {
+    expect(decl(landingRule('.landing .landing-header-cta .ln-btn-ghost'), 'min-block-size')).toBe(
+      '44px'
+    );
+    expect(
+      decl(landingRule('.landing .landing-header-cta .ln-btn-ghost'), 'border-color')
+    ).toBe('var(--ln-line)');
+    expect(
+      decl(landingRule('.landing .landing-header-cta .ln-btn-ghost:hover'), 'background')
+    ).toBe('rgb(245 243 231 / 0.05)');
+    expect(decl(landingRule('.landing .landing-header-cta .ln-btn-gold'), 'min-block-size')).toBe(
+      '44px'
+    );
+  });
+
+  it('chapter titles carry the P4-19 opacity transition (var(--t-slow) var(--ease-out))', () => {
+    expect(decl(lastRule('.landing .ln-chapter-title'), 'transition')).toBe(
+      'opacity var(--t-slow) var(--ease-out)'
+    );
+  });
+});
+
+describe('r129 parity — hero-sky gradient allowlist + chrome locks (audit §7 #2-#6, #17, #18)', () => {
+  it('.ln-hero-sky: the ONE sanctioned violet radial (α 0.10 ≤ 0.12 ceiling) + ::after cream 0.02 breath', () => {
+    expect(decl(landingRule('.landing .ln-hero-sky'), 'background')).toBe(
+      'radial-gradient(46% 54% at 30% 44%, rgb(122 107 242 / 0.10) 0%, transparent 70%)'
+    );
+    const after = allTopLevelBlocks(landingCss, '.landing .ln-hero-sky::after')[0];
+    expect(after).toContain('radial-gradient(ellipse at 70% 60%, rgba(245,243,231,0.02) 0%, transparent 60%)');
+  });
+
+  it('gradient allowlist: ZERO gradient occurrences outside the five sanctioned sites (hero sky ×2, trust/footer scrims, constellation heart)', () => {
+    const ALLOWED = [
+      '.landing .ln-hero-sky',
+      '.landing .ln-hero-sky::after',
+      '.landing .ln-trust::before',
+      '.landing .landing-footer::before',
+      '.landing .ln-constellation-stage',
+    ];
+    const sites = new Set<string>();
+    for (const m of landingCss.matchAll(/([^{}]+)\{[^{}]*gradient/g)) {
+      for (const sel of m[1].split(',')) {
+        const s = sel.trim();
+        if (s && s.endsWith('{') === false) sites.add(s);
+      }
+    }
+    const offenders = [...sites].filter((s) => !ALLOWED.some((a) => s.startsWith(a)));
+    expect(offenders, `non-allowlisted gradient sites: ${offenders.join(', ')}`).toEqual([]);
+  });
+
+  it('.ln-btn-gold:active composes translate(var(--mag-x,0), var(--mag-y,0)) scale(var(--press-scale,0.97))', () => {
+    expect(decl(lastRule('.landing .ln-btn-gold:active'), 'transform')).toBe(
+      'translate(var(--mag-x, 0), var(--mag-y, 0)) scale(var(--press-scale, 0.97))'
+    );
+  });
+
+  it('.ln-btn-gold shadow triple (rest) + the canonical hover lift', () => {
+    expect(declN(landingRule('.landing .ln-btn-gold'), 'box-shadow')).toBe(
+      '0 1px 2px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(245, 243, 231, 0.08)'
+    );
+    expect(decl(landingRule('.landing .ln-btn-gold:hover'), 'transform')).toBe(
+      'translate(var(--mag-x, 0), calc(var(--mag-y, 0) - 1px))'
+    );
+  });
+
+  it('.landing-header.scrolled = solid ink-2 @ 92% + --ln-line hairline', () => {
+    expect(decl(landingRule('.landing .landing-header.scrolled'), 'background')).toBe(
+      'rgb(28 32 50 / 0.92)'
+    );
+    expect(decl(landingRule('.landing .landing-header.scrolled'), 'border-block-end-color')).toBe(
+      'var(--ln-line)'
+    );
+  });
+
+  it('.landing-progress ribbon: fixed / 2px / z-90, bar = calc(var(--p,0) * 100%) flat cream', () => {
+    const ribbon = landingRule('.landing .landing-progress');
+    expect(decl(ribbon, 'position')).toBe('fixed');
+    expect(decl(ribbon, 'block-size')).toBe('2px');
+    expect(decl(ribbon, 'z-index')).toBe('90');
+    expect(decl(landingRule('.landing .landing-progress-bar'), 'inline-size')).toBe(
+      'calc(var(--p, 0) * 100%)'
+    );
+    expect(decl(landingRule('.landing .landing-progress-bar'), 'background')).toBe(
+      'var(--ln-cream)'
+    );
+  });
+
+  it('scroll-drip keyframes: translateY(-110%) → 260% + RM .ln-hero-scroll-line::after { animation: none }', () => {
+    expect(landingCss).toMatch(/@keyframes ln-scroll-drip\s*{[^}]*translateY\(-110%\)[^}]*}\s*70%, 100% \{ transform: translateY\(260%\)/);
+    const prmBlocks = allTopLevelBlocks(
+      landingCss,
+      '@media (prefers-reduced-motion: reduce)'
+    );
+    const off = prmBlocks.some(
+      (b) => b.includes('.ln-hero-scroll-line::after') && /animation:\s*none/.test(b)
+    );
+    expect(off, 'the scroll-drip RM off-switch was lost').toBe(true);
+  });
+
+  it('reveal family: .landing .reveal-up rides var(--t-slower) var(--ease-out), d1-d5 = 80/160/240/320/400ms, RM opacity 1', () => {
+    const reveal = landingRule('.landing .reveal-up');
+    expect(decl(reveal, 'opacity')).toBe('0');
+    expect(reveal).toContain('opacity var(--t-slower) var(--ease-out)');
+    expect(decl(landingRule('.landing .reveal-d-1.in-view'), 'transition-delay')).toBe('80ms');
+    expect(decl(landingRule('.landing .reveal-d-2.in-view'), 'transition-delay')).toBe('160ms');
+    expect(decl(landingRule('.landing .reveal-d-3.in-view'), 'transition-delay')).toBe('240ms');
+    expect(decl(landingRule('.landing .reveal-d-4.in-view'), 'transition-delay')).toBe('320ms');
+    expect(decl(landingRule('.landing .reveal-d-5.in-view'), 'transition-delay')).toBe('400ms');
+    const prmBlocks = allTopLevelBlocks(
+      landingCss,
+      '@media (prefers-reduced-motion: reduce)'
+    );
+    expect(
+      prmBlocks.some((b) => b.includes('.landing .reveal-up { opacity: 1; transform: none; }'))
+    ).toBe(true);
+  });
+
+  it('JourneyLightPath: LIGHT_STROKE rgba(223,237,178,0.85), filter none, STATIC_DASHOFFSET 0.65', () => {
+    const src = raw('src/components/landing/JourneyLightPath.tsx');
+    expect(src).toContain('const LIGHT_STROKE = "rgba(223,237,178,0.85)"');
+    expect(src).toContain('const STATIC_DASHOFFSET = 0.65');
+    expect(src).toContain('filter: "none"');
+  });
+
+  it('marquee duplication: LandingMarquee maps [...items, ...items]; HomePage ships the 12-item real vocabulary', () => {
+    const src = raw('src/components/landing/LandingMarquee.tsx');
+    expect(src).toContain('[...items, ...items]');
+    const marqueeBlock = homePageRaw.match(
+      /const MARQUEE_ITEMS = \[([\s\S]*?)\];/
+    );
+    expect(marqueeBlock).not.toBeNull();
+    const itemCount = (marqueeBlock![1].match(/^\s*"/gm) ?? []).length;
+    expect(itemCount).toBe(12);
+  });
+});
+
+describe('r129 parity — OrbitScene canvas port (madarek OrbitScene.tsx @ cf7ffca)', () => {
+  it('palette triplets are hardcoded (canvas cannot read CSS vars): cream/lime/violet', () => {
+    expect(orbitSceneRaw).toContain('[245, 243, 231] as const');
+    expect(orbitSceneRaw).toContain('[223, 237, 178] as const');
+    expect(orbitSceneRaw).toContain('[122, 107, 242] as const');
+  });
+
+  it('orbit table: omega stays RADIANS PER MILLISECOND (0.00016/0.00011/0.00006) — never converted', () => {
+    expect(orbitSceneRaw).toContain('{ f: 0.4, rot: -0.34, omega: 0.00016, mist: 0.42 }');
+    expect(orbitSceneRaw).toContain('{ f: 0.61, rot: -0.28, omega: 0.00011, mist: 0.33 }');
+    expect(orbitSceneRaw).toContain('{ f: 1, rot: -0.16, omega: 0.00006, mist: 0.24 }');
+  });
+
+  it('performance guards: DPR cap 1.5 · dt clamp 48ms · intro bloom 1400ms · TRAIL_MAX 16', () => {
+    expect(orbitSceneRaw).toContain('Math.min(window.devicePixelRatio || 1, 1.5)');
+    expect(orbitSceneRaw).toContain('Math.min(48, now - last || 16)');
+    expect(orbitSceneRaw).toContain('dtGlobal / 1400');
+    expect(orbitSceneRaw).toContain('const TRAIL_MAX = 16');
+  });
+
+  it('containment-first geometry + parallax + magnetism constants', () => {
+    expect(orbitSceneRaw).toContain('orbitR = Math.min(w, h) * 0.45');
+    expect(orbitSceneRaw).toContain('squash = w < h ? 0.72 : 0.52');
+    expect(orbitSceneRaw).toContain('linkDist = Math.min(190, orbitR * 0.7)');
+    expect(orbitSceneRaw).toContain('(mouse.sx - 0.5) * 13');
+    expect(orbitSceneRaw).toContain('(mouse.sy - 0.5) * 10');
+    expect(orbitSceneRaw).toContain('if (dist < 170 && dist > 0.001)');
+    expect(orbitSceneRaw).toContain('(1 - dist / 170) * 14');
+  });
+
+  it('pause discipline: IO rootMargin 80px 0px + visibilitychange + scroll fade floor 0.45', () => {
+    expect(orbitSceneRaw).toContain("{ rootMargin: '80px 0px' }");
+    expect(orbitSceneRaw).toContain("'visibilitychange'");
+    expect(orbitSceneRaw).toContain('const fade = 1 - scrollP * 0.55;');
+  });
+
+  it('reduced-motion = ONE composed static frame (drawStatic), never a loop; density tiers on saveData/deviceMemory', () => {
+    expect(orbitSceneRaw).toContain('function drawStatic()');
+    expect(orbitSceneRaw).toContain('if (reducedMotion) return; // static path never loops');
+    expect(orbitSceneRaw).toContain('navigator as { deviceMemory?: number }');
+    expect(orbitSceneRaw).toContain("density ?? (saveData || lowMemory ? 'low' : 'full')");
+  });
+
+  it('hero mount: OrbitScene biasX={-0.35} above depth, below content + the retired horizon span; flat HeroOrbits retired', () => {
+    expect(homePageRaw).toContain('<OrbitScene className="ln-hero-canvas" biasX={-0.35} />');
+    expect(homePageRaw).toContain('<span className="ln-hero-horizon" />');
+    expect(homePageRaw).not.toContain('HeroOrbits');
+    expect(decl(landingRule('.landing .ln-hero-horizon'), 'display')).toBe('none');
+    expect(existsSync('src/components/landing/HeroOrbits.tsx')).toBe(false);
+  });
+
+  it('canvas CSS grammar: ln-scene-in/ln-scene-in-dim keyframes + ≤768 dim (--ln-canvas-op 0.35) + RM off-switch', () => {
+    expect(landingCss).toContain('@keyframes ln-scene-in { to { opacity: 1; } }');
+    expect(landingCss).toContain('@keyframes ln-scene-in-dim { to { opacity: 0.35; } }');
+    const m768 = allTopLevelBlocks(landingCss, '@media (max-width: 768px)').join('\n');
+    expect(m768).toContain(
+      '.landing .ln-hero-canvas { --ln-canvas-op: 0.35; animation-name: ln-scene-in-dim; }'
+    );
+    const prmBlocks = allTopLevelBlocks(
+      landingCss,
+      '@media (prefers-reduced-motion: reduce)'
+    );
+    expect(
+      prmBlocks.some(
+        (b) =>
+          b.includes('.landing .ln-hero-canvas { animation: none; opacity: var(--ln-canvas-op, 1); }')
+      )
+    ).toBe(true);
+  });
+
+  it('returning-visitor calm: product-scoped sessionStorage key smartmenu.intro.seen + data-intro-seen entrance rule', () => {
+    expect(homePageRaw).toContain("'smartmenu.intro.seen'");
+    expect(homePageRaw).toContain("data-intro-seen={introSeen ? 'true' : undefined}");
+    expect(
+      ruleBlock(landingCss, ".landing[data-intro-seen='true'] .ln-hero-canvas")
+    ).toContain('animation-duration: var(--ln-t-fast)');
+    expect(
+      ruleBlock(landingCss, ".landing[data-intro-seen='true'] .ln-hero-canvas")
+    ).toContain('animation-delay: 0s');
+  });
+});
+
+describe('r129 parity — token-matrix SM rows (5 misvalued + 8 missing → canonical)', () => {
+  it('easing ladder additions: --ease-spring-bounce + --ease-spring-snappy (canonical tokens.css:152-153)', () => {
+    pin(dark, 'r129-dark', '--ease-spring-bounce', 'cubic-bezier(0.34, 1.56, 0.64, 1)');
+    pin(dark, 'r129-dark', '--ease-spring-snappy', 'cubic-bezier(0.5, 1.6, 0.4, 1)');
+  });
+
+  it('--hover-lift: -1px (canonical tokens.css:171)', () => {
+    pin(dark, 'r129-dark', '--hover-lift', '-1px');
+  });
+
+  it('blur register: --glass-blur 16px + --scrim-blur 4px, both themes (canonical :601/:607)', () => {
+    pin(dark, 'r129-dark', '--glass-blur', '16px');
+    pin(dark, 'r129-dark', '--scrim-blur', '4px');
+    pin(light, 'r129-light', '--glass-blur', '16px');
+    pin(light, 'r129-light', '--scrim-blur', '4px');
+  });
+
+  it('--font-serif: IBM Plex Serif + Georgia (canonical tokens.css:50)', () => {
+    pin(dark, 'r129-dark', '--font-serif', '"IBM Plex Serif", Georgia, serif');
+  });
+
+  it('--brand-purple = the lavender ink chain (dark #B7A0F4 / light #8A6FE0)', () => {
+    pin(dark, 'r129-dark', '--brand-purple', '#B7A0F4');
+    pin(light, 'r129-light', '--brand-purple', '#8A6FE0');
+  });
+
+  it('--gold-soft = the yellow bg chain (dark #2C2410 / light #FCF1CD)', () => {
+    pin(dark, 'r129-dark', '--gold-soft', '#2C2410');
+    pin(light, 'r129-light', '--gold-soft', '#FCF1CD');
   });
 });
