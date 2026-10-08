@@ -778,7 +778,7 @@ describe('r128 parity — landing Orbit-Ink token block (PORT-KIT §1 verbatim)'
     ['--ln-violet-deep', '#4E2FB8'],
     ['--ln-line', 'rgba(245,243,231,0.14)'],
     ['--ln-line-soft', 'rgba(245,243,231,0.07)'],
-    ['--ln-grain-op', '0.05'],
+    ['--ln-grain-op', '0.075'],
     ['--ln-radius-pill', 'var(--r-full)'],
     ['--ln-h1', 'clamp(2.75rem, 8.2vw, 6.75rem)'],
     ['--ln-h1-lh', '1.04'],
@@ -881,6 +881,17 @@ describe('r128 parity — landing grain veil + scope isolation (kit §7)', () =>
     expect(decl(grain, 'z-index')).toBe('2000');
     expect(decl(grain, 'opacity')).toBe('var(--ln-grain-op)');
     expect(decl(grain, 'background-size')).toBe('200px 200px');
+  });
+
+  it('r129: grain 0.075 canonical (P3-22 landing override, Madarek landing.css:58)', () => {
+    expect(landingCssRaw.includes('--ln-grain-op:   0.075')).toBe(true);
+    expect(landingCssRaw.includes('--ln-grain-op:   0.05;')).toBe(false);
+  });
+
+  it('r129: ONE texture veil inside .landing — legacy .grain-overlay suppressed', () => {
+    expect(
+      /\.landing \.grain-overlay \{\s*display:\s*none;?\s*\}/.test(landingCss)
+    ).toBe(true);
   });
 
   it('scope isolation: globals.css (the product token file) declares ZERO --ln-* tokens', () => {

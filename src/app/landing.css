@@ -34,7 +34,7 @@
   --ln-violet-deep:#4E2FB8;   /* decorative depth fills only */
   --ln-line:       rgba(245,243,231,0.14);
   --ln-line-soft:  rgba(245,243,231,0.07);
-  --ln-grain-op:   0.05;
+  --ln-grain-op:   0.075;  /* r129: canonical P3-22 landing override (Madarek landing.css:58) */
   --ln-radius-pill: var(--r-full);
   --ln-h1:         clamp(2.75rem, 8.2vw, 6.75rem);
   --ln-h1-lh:      1.04;
@@ -53,8 +53,8 @@
 }
 
 /* Scope base — Madarek landing.css:24-54 (font stack, min-height and the
-   RTL overflow guard the marquee needs). The source's P3-22 local grain
-   override (0.075) is NOT ported: kit §1/R7 canonical = 0.05.
+   RTL overflow guard the marquee needs). r129: the source's P3-22 grain
+   override IS ported (0.075) — matches the live canonical rendering.
    --ln-mono: per-character fallback — Latin + digits keep IBM Plex Mono,
    Arabic runs continue in IBM Plex Sans Arabic (P1-4, source :39-46). */
 .landing {
@@ -63,6 +63,11 @@
   overflow-x: clip; /* RTL overflow guard (source spec §4.3) */
   --ln-mono: 'IBM Plex Mono', 'IBM Plex Sans Arabic', ui-monospace, monospace;
 }
+
+/* r129: the landing world carries exactly ONE texture veil (.ln-grain at
+   0.075). The legacy product-wide .grain-overlay (globals.css:1486) is
+   suppressed inside .landing so the two never stack. */
+.landing .grain-overlay { display: none; }
 
 /* Landing-local composition deps — Madarek tokens.css:19-22 (spacing
    ladder), :347 (--marketing-max-w), :357-358 (gutters). Canonical
