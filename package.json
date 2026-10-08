@@ -9,6 +9,7 @@
     "clean": "rm -rf .next",
     "lint": "eslint src/ tests/ scripts/ public/sw.js",
     "lint:fix": "eslint src/ tests/ scripts/ public/sw.js --fix",
+    "lint:idioms": "node scripts/lint-idioms.mjs",
     "typecheck": "tsc --noEmit",
     "test": "env -u DATABASE_URL vitest run",
     "test:watch": "env -u DATABASE_URL vitest",
@@ -19,8 +20,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:seed": "node scripts/ci-seed.mjs",
     "knip": "knip",
-    "verify": "pnpm author:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-    "verify:fast": "pnpm author:check && pnpm lint && pnpm typecheck && env -u DATABASE_URL pnpm exec vitest run --changed HEAD --passWithNoTests",
+    "verify": "pnpm author:check && pnpm lint && pnpm lint:idioms && pnpm typecheck && pnpm test && pnpm build",
+    "verify:fast": "pnpm author:check && pnpm lint && pnpm lint:idioms && pnpm typecheck && env -u DATABASE_URL pnpm exec vitest run --changed HEAD --passWithNoTests",
     "verify:mobile": "cd mobile && pnpm exec tsc --noEmit && pnpm run lint",
     "author:check": "node scripts/check-git-author.mjs"
   },

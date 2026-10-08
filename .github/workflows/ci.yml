@@ -292,6 +292,12 @@ jobs:
 
       - run: npm run lint
 
+      # r126 (P4-W3b): design-idiom tripwire — the P4-A1 regression classes
+      # (text-white on accent, raw duration utilities, nonzero tracking on
+      # Arabic, off-ladder rounded-[Npx] literals) must never come back.
+      # Mirrors `pnpm lint:idioms`; see scripts/lint-idioms.mjs.
+      - run: pnpm lint:idioms
+
       # round85-D2: typecheck was never in CI (tsconfig excludes tests/e2e,
       # scripts — those are checked by their own runners)
       - run: npm run typecheck
