@@ -166,7 +166,7 @@ export function AreaChart({
                                                                 x={points[i].x}
                                                                 y={height - 5}
                                                                 textAnchor="middle"
-                                                                className="fill-muted-foreground/60 text-3xs"
+                                                                className="fill-[var(--chart-text)] text-3xs"
                                                         >
                                                                 {d.label}
                                                         </text>

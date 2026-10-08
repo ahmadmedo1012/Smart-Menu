@@ -37,6 +37,16 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   )
 }
 
+/*
+ * r131-F4 (A1 P1-14 / R131 fleet ruling "sheet logical/min420/r2xl+grabber/
+ * 4px blur/240ms"): re-based on the Madarek .sheet-panel recipe
+ * (components.css:1520-1600): solid surface (the old /95 + backdrop-blur-xl
+ * glass is retired) + hairline border + --shadow-modal elevation; side panels
+ * cap at min(420px, 100%) — was 384px; FULL slide from the anchor edge
+ * (translate ±100% — the old ±2.5rem drift read as fade+peek); leading
+ * corners r-2xl 20px; bottom sheets get the 40×4px grabber affordance; the
+ * scrim stays 4px (backdrop-blur-xs) on the --t-base 240ms ride.
+ */
 function SheetContent({
   className,
   children,
@@ -55,17 +65,26 @@ function SheetContent({
         aria-modal="true"
         data-side={side}
         className={cn(
-          "fixed z-50 flex flex-col gap-4 bg-popover/95 bg-clip-padding text-sm text-popover-foreground shadow-2xl backdrop-blur-xl transition duration-base ease-[cubic-bezier(0.16,1,0.3,1)] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:rounded-t-2xl data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:start-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:end-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-2xl data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm pb-[env(safe-area-inset-bottom,0px)]",
+          "fixed z-50 flex flex-col gap-4 overflow-hidden border-border bg-popover text-sm text-popover-foreground shadow-[var(--shadow-modal)] transition duration-base ease-[cubic-bezier(0.16,1,0.3,1)] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:max-h-[85dvh] data-[side=bottom]:rounded-t-2xl data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[100%] data-[side=bottom]:data-starting-style:translate-y-[100%] data-[side=left]:inset-y-0 data-[side=left]:start-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:rounded-e-2xl data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-100%] data-[side=left]:data-starting-style:translate-x-[-100%] data-[side=right]:inset-y-0 data-[side=right]:end-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:rounded-s-2xl data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[100%] data-[side=right]:data-starting-style:translate-x-[100%] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-2xl data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-100%] data-[side=top]:data-starting-style:translate-y-[-100%] data-[side=left]:sm:max-w-[420px] data-[side=right]:sm:max-w-[420px] pb-[env(safe-area-inset-bottom,0px)]",
           /* r93-W2a (U5): الانزلاق الأفقي كان بإشارة فيزيائية واحدة مع ترصّف منطقي
              (end-0/start-0) — في RTL يُرصّ side=right على الحافة اليسرى بينما
              translate-x الموجب يدفعه للداخل → ظهور fade+انجراف بدل الانزلاق من
              الحافة. مرايا rtl: (نمط NewOrdersBar.tsx:90 المعتمد في المشروع) تعكس
              الإشارة في الاتجاه RTL فقط فينزلق الدرج من حافته الفعلية في كلا الاتجاهين. */
-          "rtl:data-[side=left]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=left]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=right]:data-starting-style:translate-x-[-2.5rem]",
+          "rtl:data-[side=left]:data-ending-style:translate-x-[100%] rtl:data-[side=left]:data-starting-style:translate-x-[100%] rtl:data-[side=right]:data-ending-style:translate-x-[-100%] rtl:data-[side=right]:data-starting-style:translate-x-[-100%]",
           className
         )}
         {...props}
       >
+        {/* r131-F4: 40×4px grabber affordance on the bottom presentation
+            (madarek .sheet-grabber) — decorative only; drag-to-dismiss stays a
+            consumer concern. */}
+        {side === "bottom" && (
+          <div
+            aria-hidden="true"
+            className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-muted-foreground/30"
+          />
+        )}
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close

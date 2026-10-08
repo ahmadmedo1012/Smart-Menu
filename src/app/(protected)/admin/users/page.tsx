@@ -18,14 +18,16 @@ import {
 } from "@/components/ui/select"
 import { SearchInput } from "@/components/ui/search-input"
 import { premiumToast } from "@/lib/premium-toast"
-import {Users, Key, AlertCircle, UserPlus, Store, Shield, FilterX} from 'lucide-react';
-import { MotionChevronLeft } from '@/components/ui/motion-icons';
-import { MotionChevronRight } from '@/components/ui/motion-icons';
+import {Users, Key, UserPlus, Store, Shield, FilterX} from 'lucide-react';
 import AnimatedTrash2 from '@/components/ui/trash-icon';
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { cn } from "@/lib/utils"
 import { toArabicNumber } from "@/lib/format"
-import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { PageHeader } from "@/components/shared/PageHeader"
+import { ErrorState } from "@/components/shared/ErrorState"
+import { EmptyState } from "@/components/ui/empty-state"
+import { TablePagination } from "@/components/shared/TablePagination"
+import { TablePageSkeleton } from "@/components/shared/DashboardSkeletons"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAccessGate } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 // users gate: super_admin always; sub_admin needs MANAGE_USERS (r103-F6 —
@@ -73,7 +75,7 @@ export default function AdminUsersPage() {
       // Array.isArray guard: error bodies are objects, not lists.
       setUsers(Array.isArray(json.data?.users) ? json.data.users : []);
       setTotal(json.data?.total ?? json.meta?.total ?? 0)
-    } catch (e) { setError(getErrorMessage(e, "فشل تحميل المستخدمين")) }
+    } catch (e) { setError(getErrorMessage(e, "تعذر تحميل المستخدمين")) }
     finally { setLoading(false) }
   }, [page, search, roleFilter])
 
@@ -96,7 +98,7 @@ export default function AdminUsersPage() {
       await csrfJson(`/api/users/${deleteTarget.id}`, { method: "DELETE" })
       premiumToast("success", "تم حذف المستخدم")
       setDeleteTarget(null); fetchUsers()
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف")) }
   }
 
   const resetPassword = async () => {
@@ -111,30 +113,19 @@ export default function AdminUsersPage() {
       })
       premiumToast("refresh", "تم إعادة تعيين كلمة المرور")
       setResetTarget(null); setNewPassword("")
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل إعادة التعيين")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر إعادة التعيين")) }
   }
 
   // ---------- Loading ----------
   if (loading && users.length === 0) {
-    return (
-      <div className="space-y-3 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
-        <LoadingAnnouncer loading message="جارٍ تحميل المستخدمين..." />
-        {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
-      </div>
-    )
+    // r131-F5 (A11 SM-2): table-shaped skeleton (was three animate-breath rows).
+    return <TablePageSkeleton rows={6} label="جارٍ تحميل المستخدمين..." />
   }
 
   // ---------- Error ----------
   if (error && users.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
-        <AlertCircle className="size-10 text-destructive" />
-        <p className="text-lg font-medium">{error}</p>
-        <Button variant="outline" onClick={fetchUsers} className="gap-2">
-          <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
-        </Button>
-      </div>
-    )
+    // r131-F5 (A1 P1-12): canonical error family.
+    return <ErrorState title="تعذر تحميل المستخدمين" error={error} onRetry={fetchUsers} />
   }
 
   // ---------- Access denied ----------
@@ -142,30 +133,29 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-normal">إدارة المستخدمين</h1>
-          <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مستخدم</p>
-        </div>
-      </div>
+      {/* r131-F5 (A1 P0-8): canonical page-header chrome. */}
+      <PageHeader
+        title="إدارة المستخدمين"
+        subtitle={`${toArabicNumber(total)} مستخدم — الملاك والمديرون وربطهم بالمطاعم`}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-xl bg-card/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground">إجمالي</p>
-          <p className="text-2xl font-bold mt-1">{toArabicNumber(total)}</p>
+          <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(total)}</p>
         </div>
-        <div className="rounded-xl bg-info/10 dark:bg-info/15 border border-info/20 p-4">
-          <p className="text-xs text-info">مديرون</p>
-          <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
+        <div className="rounded-xl bg-[var(--info-soft)] border border-transparent p-4">
+          <p className="text-xs text-[var(--info-ink)]">مديرون</p>
+          <p className="text-2xl font-bold mt-1 text-[var(--info-ink)] tabular-nums">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
-        <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
-          <p className="text-xs text-accent-foreground">أصحاب مطاعم</p>
-          <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
+        <div className="rounded-xl bg-[var(--accent-soft)] border border-transparent p-4">
+          <p className="text-xs text-[var(--accent-ink)]">أصحاب مطاعم</p>
+          <p className="text-2xl font-bold mt-1 text-[var(--accent-ink)] tabular-nums">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
-        <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
-          <p className="text-xs text-success">مرتبط بمطعم</p>
-          <p className="text-2xl font-bold mt-1 text-success">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
+        <div className="rounded-xl bg-[var(--success-soft)] border border-transparent p-4">
+          <p className="text-xs text-[var(--success-ink)]">مرتبط بمطعم</p>
+          <p className="text-2xl font-bold mt-1 text-[var(--success-ink)] tabular-nums">{toArabicNumber(users.filter(u => u.restaurantId).length)}</p>
         </div>
       </div>
 
@@ -178,7 +168,7 @@ export default function AdminUsersPage() {
           aria-label="ابحث عن مستخدم"
         />
         <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
-          <SelectTrigger className="h-11 w-40 rounded-md" aria-label="فلتر الدور">
+          <SelectTrigger className="w-40" aria-label="فلتر الدور">
             <SelectValue placeholder="كل الأدوار">
               {roleFilter === "all" ? "كل الأدوار" : roleFilter === "admin" ? "مدير" : roleFilter === "owner" ? "مالك" : roleFilter}
             </SelectValue>
@@ -193,39 +183,121 @@ export default function AdminUsersPage() {
 
       {/* Users list */}
       {users.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-          <div className="empty-state-icon">
-            <Users />
-          </div>
-          <p className="text-lg font-medium">{search || roleFilter !== "all" ? "لا توجد نتائج" : "لا يوجد مستخدمين"}</p>
-          {(search || roleFilter !== "all") && (
-            <Button variant="ghost" onClick={() => { setSearchInput(""); setSearch(""); setRoleFilter("all") }} className="gap-2">
+        /* r131-F5 (A1 P0-3): the legacy .empty-state-icon hand-roll joins the
+                shared primitive. */
+        <EmptyState
+          icon={Users}
+          title={search || roleFilter !== "all" ? "لا توجد نتائج" : "لا يوجد مستخدمين"}
+          description={search || roleFilter !== "all" ? "جرّب مسح الفلتر لعرض كل المستخدمين" : "سيظهر الملاك والمديرون هنا مع أول تسجيل"}
+          action={(search || roleFilter !== "all") ? (
+            <Button variant="outline" size="sm" onClick={() => { setSearchInput(""); setSearch(""); setRoleFilter("all") }} className="gap-2">
               <FilterX className="size-4" /> إزالة الفلتر
             </Button>
-          )}
-        </div>
+          ) : undefined}
+        />
       ) : (
         <>
-          <div className="space-y-3">
+          {/* md+ — canonical data table (r131-F5, A1 P1-1/P1-2): 11px surface-2
+                      headers, 13px cells, quiet hover wash + 3px accent bar, actions
+                      revealed on hover/focus (always on touch). */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-border/60 bg-card">
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-border">
+                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">المستخدم</TableHead>
+                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الدور</TableHead>
+                  <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">المطعم</TableHead>
+                  <TableHead className="h-11 bg-muted/60 px-4 text-end align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">
+                    <span className="sr-only">إجراءات</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map(user => {
+                  const isAdmin = user.role === "admin" || user.role === "super_admin"
+                  return (
+                    <TableRow key={user.id} className="group relative border-b border-border/40 transition-colors duration-fast hover:bg-muted">
+                      <TableCell className="relative px-4 py-3 align-middle text-sm font-semibold after:absolute after:inset-y-3 after:start-0 after:w-[3px] after:rounded-e-[2px] after:origin-bottom after:scale-y-0 after:bg-[var(--accent-solid)] after:transition-transform after:duration-base group-hover:after:scale-y-100">
+                        <span className="block">{user.name}</span>
+                        <span className="block text-xs font-normal text-muted-foreground" dir="ltr">@{user.username}</span>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 align-middle text-sm">
+                        <Badge className={cn(
+                          "text-2xs font-semibold tabular-nums",
+                          isAdmin ? "bg-[var(--info-soft)] text-[var(--info-ink)]" : "bg-[var(--accent-soft)] text-[var(--accent-ink)]"
+                        )}>
+                          {isAdmin ? "مدير" : "مالك"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 align-middle text-sm text-muted-foreground">
+                        {user.restaurant ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Store className="size-3.5" aria-hidden="true" />
+                            {user.restaurant.name}
+                          </span>
+                        ) : "—"}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 align-middle text-sm text-end">
+                        <div className="flex items-center justify-end gap-1.5 opacity-0 transition-opacity duration-fast group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { setResetTarget(user); setNewPassword("") }}
+                            aria-label={`إعادة تعيين كلمة مرور ${user.name}`}
+                          >
+                            <Key className="size-3.5" aria-hidden="true" />
+                            كلمة المرور
+                          </Button>
+                          {user.role !== "admin" && user.role !== "super_admin" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteTarget(user)}
+                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              aria-label={`حذف ${user.name}`}
+                            >
+                              <AnimatedTrash2 className="size-3.5" aria-hidden="true" />
+                              حذف
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+            {/* r131-F5 (A1 P2-7): the shared numbered pagination (36px visual,
+                            44px touch floor, accent-soft active page). */}
+            <TablePagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              meta={`${toArabicNumber(total)} مستخدم — الصفحة ${toArabicNumber(page)} من ${toArabicNumber(totalPages)}`}
+            />
+          </div>
+
+          {/* <md — the card feed (tbl-stack equivalent) */}
+          <div className="md:hidden space-y-3">
             {users.map(user => (
               <div key={user.id} className="rounded-xl border border-border/30 bg-card/50 p-5 hover:border-orange/20 hover:shadow-md transition-[border-color,box-shadow]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "size-11 rounded-xl flex items-center justify-center shrink-0",
-                      user.role === "admin" ? "bg-info/10 dark:bg-info/15" : "bg-orange-muted"
+                      "size-11 rounded-lg flex items-center justify-center shrink-0",
+                      user.role === "admin" ? "bg-[var(--info-soft)]" : "bg-[var(--accent-soft)]"
                     )} aria-hidden="true">
                       {user.role === "admin"
-                        ? <Shield className="size-5 text-info" />
-                        : <UserPlus className="size-5 text-orange" />
+                        ? <Shield className="size-5 text-[var(--info-ink)]" />
+                        : <UserPlus className="size-5 text-[var(--accent-ink)]" />
                       }
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-bold">{user.name}</p>
                         <Badge className={cn(
-                          "text-3xs",
-                          user.role === "admin" ? "bg-info/15 text-info dark:bg-info/25" : "bg-orange-muted text-accent-foreground/80 dark:bg-orange-muted dark:text-accent-foreground"
+                          "text-2xs font-semibold tabular-nums",
+                          user.role === "admin" ? "bg-[var(--info-soft)] text-[var(--info-ink)]" : "bg-[var(--accent-soft)] text-[var(--accent-ink)]"
                         )}>
                           {user.role === "admin" ? "مدير" : "مالك"}
                         </Badge>
@@ -246,7 +318,7 @@ export default function AdminUsersPage() {
                     <button
                       type="button"
                       onClick={() => { setResetTarget(user); setNewPassword("") }}
-                      className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="size-11 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       title="إعادة تعيين كلمة المرور"
                       aria-label={`إعادة تعيين كلمة مرور ${user.name}`}
                     >
@@ -256,7 +328,7 @@ export default function AdminUsersPage() {
                       <button
                         type="button"
                         onClick={() => setDeleteTarget(user)}
-                        className="size-11 rounded-xl border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                        className="size-11 rounded-lg border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                         title="حذف"
                         aria-label={`حذف ${user.name}`}
                       >
@@ -267,59 +339,13 @@ export default function AdminUsersPage() {
                 </div>
               </div>
             ))}
+            <TablePagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              meta={`${toArabicNumber(total)} مستخدم — الصفحة ${toArabicNumber(page)} من ${toArabicNumber(totalPages)}`}
+            />
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                aria-label="الصفحة السابقة"
-              >
-                <MotionChevronRight className="size-4" />
-              </Button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                let pn: number
-                if (totalPages <= 5) {
-                  pn = i + 1
-                } else if (page <= 3) {
-                  pn = i + 1
-                } else if (page >= totalPages - 2) {
-                  pn = totalPages - 4 + i
-                } else {
-                  pn = page - 2 + i
-                }
-                return (
-                  <Button
-                    key={pn}
-                    variant={pn === page ? "orange" : "outline"}
-                    size="icon"
-                    onClick={() => setPage(pn)}
-                    className="w-9"
-                    aria-label={`الصفحة ${pn}`}
-                    aria-current={pn === page ? "page" : undefined}
-                  >
-                    {toArabicNumber(pn)}
-                  </Button>
-                )
-              })}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                aria-label="الصفحة التالية"
-              >
-                <MotionChevronLeft className="size-4" />
-              </Button>
-              <span className="text-xs text-muted-foreground ms-2">
-                الصفحة {toArabicNumber(page)} من {toArabicNumber(totalPages)}
-              </span>
-            </div>
-          )}
         </>
       )}
 
@@ -339,7 +365,7 @@ export default function AdminUsersPage() {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder="أدخل كلمة المرور الجديدة"
-                className="h-11 rounded-xl mt-1.5"
+                className="mt-1.5"
               />
             </div>
           </div>

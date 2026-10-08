@@ -3,24 +3,23 @@
 import { useEffect, useRef } from 'react';
 import { usePollWhenVisible } from '@/hooks/usePollWhenVisible';
 import { playChime } from '@/lib/chime';
-import { toast } from 'sonner';
-import AnimatedCart from '@/components/ui/shopping-cart-icon';
+/* r131-F4 (fleet "one toast language" ruling, SB v8-C3 twin): the new-order
+   notification joins the branded card — premiumToast("cart", …) carries the
+   28px pastel well + status hairline + RTL + close button + role=status;
+   the old raw sonner toast() rendered a second, unbranded card language
+   (JSX inside sonner's default wrapper, its own top-center position). */
+import { premiumToast } from '@/lib/premium-toast';
 
 function showOrderToast(newOrders: number) {
         playChime(); // round86-C3: shared chime (was a local copy)
-        toast(
-                <div className="flex items-center gap-3" role="status" aria-live="polite">
-                        <div className="size-10 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center">
-                                <AnimatedCart className="size-5 text-orange-foreground" />
-                        </div>
-                        <div>
-                                <p className="font-bold text-sm">طلب جديد!</p>
-                                <p className="text-xs text-muted-foreground">لديك {newOrders} طلب جديد</p>
-                        </div>
-                </div>,
-                // round90-F4 (M3): explicit closeButton — the transient toast could
-                // sit over page content with only the 5s auto-dismiss as an exit.
-                { duration: 5000, position: 'top-center', closeButton: true }
+        premiumToast(
+                'cart',
+                'طلب جديد!',
+                `لديك ${newOrders} طلب جديد`,
+                // round90-F4 (M3): explicit dismiss affordance — 5s auto-dismiss
+                // kept for this transient notification (non-error kind) + the
+                // branded card's own close button.
+                { duration: 5000, anim: true }
         );
 }
 

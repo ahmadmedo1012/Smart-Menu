@@ -666,10 +666,14 @@ const CONSUMPTION_GATES: ReadonlyArray<readonly [name: string, ok: () => boolean
     () => inputRaw.includes('focus-visible:shadow-[var(--state-input-focus-halo)]'),
   ],
   [
-    'the sonner Toaster rides the --z-toast rung in BOTH layouts (pinned off its 999999999 default)',
+    /* r131-F4 ruling: the Toaster config moved from both group layouts into
+       the ONE themed shell ui/app-toaster.tsx (bottom-end, no richColors) —
+       the z-pin now lives there; the layouts render <AppToaster />. */
+    'the sonner Toaster rides the --z-toast rung (ui/app-toaster.tsx, rendered by BOTH layouts)',
     () =>
-      publicLayoutRaw.includes("zIndex: 'var(--z-toast, 500)'") &&
-      protectedLayoutRaw.includes("zIndex: 'var(--z-toast, 500)'"),
+      raw('src/components/ui/app-toaster.tsx').includes('zIndex: "var(--z-toast, 500)"') &&
+      publicLayoutRaw.includes('<AppToaster />') &&
+      protectedLayoutRaw.includes('<AppToaster />'),
   ],
   [
     'both keyboard skip-links ride focus:z-(--z-toast) — the P0 white-on-gold sites now also layer-correct',
@@ -1661,5 +1665,192 @@ describe('r130 parity — P1 focus ring + link hover AA + state/premium token fa
     // th: 11px (--fs-xxs) semibold muted (components.css:842-848)
     expect(tableRaw).toMatch(/text-2xs font-semibold whitespace-nowrap text-muted-foreground/);
     expect(tableRaw).not.toMatch(/align-middle font-medium/);
+  });
+});
+
+
+// ── r131-F4: SM product-layer re-base — the family rogue comes home ─────────
+// (R131-W1 fleet rulings: input 44/r10/16floor+halo · muted-foreground fleet
+// pair · dialog solid r16+top hairline+560 · badge solid pastel 11/600/tnum ·
+// empty 56 grey/18/600 · toasts bottom-end+hairline+28px well+manual error ·
+// sidebar 30px r8 3px-START rail · skeleton 1200 linear · theme: one
+// resolution path + runtime theme-color sync + grain follows the class.)
+// NOTE: TSX raws are COMMENT-STRIPPED before the negative gates — the ruling
+// comments intentionally quote the retired recipes ("was /15 washes"), and
+// the gates must test shipped CLASS STRINGS, not documentation.
+
+describe('r131-F4 parity — SM product primitives join the family', () => {
+  const noCc = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const cc = (p: string) => noCc(raw(p));
+
+  const inputCc = cc('src/components/ui/input.tsx');
+  const textareaCc = cc('src/components/ui/textarea.tsx');
+  const searchInputCc = cc('src/components/ui/search-input.tsx');
+  const selectCc = cc('src/components/ui/select.tsx');
+  const dialogCc = cc('src/components/ui/dialog.tsx');
+  const sheetCc = cc('src/components/ui/sheet.tsx');
+  const badgeCc = cc('src/components/ui/badge.tsx');
+  const emptyCc = cc('src/components/ui/empty-state.tsx');
+  const navCc = cc('src/components/shared/NavLink.tsx');
+  const toastCc = cc('src/lib/premium-toast.tsx');
+  const toasterCc = cc('src/components/ui/app-toaster.tsx');
+  const syncCc = cc('src/components/shared/theme-color-sync.tsx');
+  const brandCc = cc('src/lib/brand.ts');
+  const manifestRaw = raw('public/manifest.json');
+  const sparkCc = cc('src/components/shared/MiniSparkline.tsx');
+  const ordersListCc = cc('src/app/(protected)/owner/OwnerOrdersList.tsx');
+
+  it('fleet ruling: --muted-foreground #C3C8DC | #4F4D48 — faint tier survives as --text-muted, placeholders keep --placeholder-text', () => {
+    pin(dark, 'r131', '--muted-foreground', '#C3C8DC');
+    pin(light, 'r131', '--muted-foreground', '#4F4D48');
+    pin(dark, 'r131', '--text-muted', '#8E97B8');
+    pin(light, 'r131', '--text-muted', '#6E6C65');
+    pin(dark, 'r131', '--placeholder-text', '#7A83A0');
+    pin(light, 'r131', '--placeholder-text', '#74706A');
+  });
+
+  it('input canon: 44px / r-md 10 / 16px floor at EVERY breakpoint + halo-only focus + AA placeholder (A1 P0-1)', () => {
+    expect(inputCc).toMatch(/h-11 w-full min-w-0 rounded-md/);
+    expect(inputCc).toContain('text-[16px]');
+    expect(inputCc).not.toContain('md:text-sm');
+    expect(inputCc).not.toContain('h-12 ');
+    expect(inputCc).not.toContain('rounded-lg border');
+    expect(inputCc).toContain('placeholder:text-placeholder-text');
+    expect(inputCc).toContain('focus-visible:shadow-[var(--state-input-focus-halo)]');
+    expect(inputCc).not.toMatch(/focus-visible:ring-2/);
+    // stateful variants ride their own 3px/22% halos (tokens in globals :root)
+    expect(dark['--state-input-error-halo']).toContain('0 0 0 3px');
+    expect(dark['--state-input-error-halo']).toContain('22%');
+    expect(dark['--state-input-success-halo']).toContain('var(--success) 22%');
+    expect(dark['--state-input-warning-halo']).toContain('var(--warning) 22%');
+    // textarea + search-input + select-trigger ride the same contract
+    expect(textareaCc).toContain('rounded-md border border-input');
+    expect(textareaCc).toContain('text-[16px]');
+    expect(textareaCc).toContain('placeholder:text-placeholder-text');
+    expect(textareaCc).toContain('shadow-[var(--state-input-focus-halo)]');
+    expect(searchInputCc).toContain('placeholder:text-placeholder-text');
+    expect(searchInputCc).toContain('shadow-[var(--state-input-focus-halo)]');
+    expect(searchInputCc).not.toContain('ring-4');
+    expect(selectCc).toContain('data-[size=default]:h-11');
+    expect(selectCc).toContain('data-placeholder:text-placeholder-text');
+    expect(selectCc).not.toContain('min-h-[48px]');
+  });
+
+  it('dialog canon: solid surface + r-xl 16 + 560px cap + top accent hairline (A1 P0-10)', () => {
+    expect(dialogCc).toContain('rounded-xl border border-border bg-popover');
+    expect(dialogCc).toContain('sm:max-w-[560px]');
+    expect(dialogCc).toContain('shadow-[var(--shadow-modal)]');
+    expect(dialogCc).toContain('before:bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]');
+    expect(dialogCc).toContain('before:h-[3px]');
+    expect(dialogCc).not.toContain('bg-popover/95');
+    expect(dialogCc).not.toContain('backdrop-blur-md');
+    expect(dialogCc).not.toContain('sm:max-w-sm');
+    expect(dialogCc).not.toContain('rounded-2xl');
+    expect(dialogCc).toMatch(/text-lg leading-none font-semibold/);
+  });
+
+  it('sheet canon: solid panel + min(420px,100%) + full slide + grabber + 4px scrim (A1 P1-14)', () => {
+    expect(sheetCc).toContain('bg-popover text-sm text-popover-foreground shadow-[var(--shadow-modal)]');
+    expect(sheetCc).toContain('sm:max-w-[420px]');
+    expect(sheetCc).not.toContain('sm:max-w-sm');
+    expect(sheetCc).toContain('data-starting-style:translate-x-[-100%]');
+    expect(sheetCc).toContain('rounded-e-2xl');
+    expect(sheetCc).toContain('w-10 shrink-0 rounded-full');
+    expect(sheetCc).toContain('backdrop-blur-xs');
+    expect(sheetCc).not.toContain('backdrop-blur-xl');
+    expect(sheetCc).not.toContain('bg-popover/95');
+    expect(sheetCc).not.toContain('2.5rem');
+  });
+
+  it('badge canon: 11px/600/tnum pill + SOLID pastel -bg/-deep pairs (A1 P0-5/P1-11)', () => {
+    expect(badgeCc).toMatch(/text-2xs font-semibold tabular-nums/);
+    expect(badgeCc).toContain('rounded-full');
+    expect(badgeCc).not.toContain('rounded-4xl');
+    expect(badgeCc).toContain('gold: "bg-(--c-copper-bg) text-(--c-copper-deep)');
+    expect(badgeCc).toContain('bg-(--c-mint-bg) text-(--c-mint-deep)');
+    expect(badgeCc).toContain('bg-(--c-rose-bg) text-(--c-rose-deep)');
+    expect(badgeCc).toContain('bg-(--c-yellow-bg) text-(--c-yellow-deep)');
+    expect(badgeCc).toContain('bg-(--c-sky-bg) text-(--c-sky-deep)');
+    expect(badgeCc).not.toMatch(/\/15/);
+    expect(badgeCc).not.toContain('bg-orange/15');
+    expect(badgeCc).not.toContain('bg-gradient-to-r');
+  });
+
+  it('empty-state canon: 56px grey-family tile + 18/600 title + 42ch desc (A11 SM-1)', () => {
+    expect(emptyCc).toMatch(/size-14 items-center justify-center rounded-xl/);
+    expect(emptyCc).toContain('bg-(--c-grey-bg) text-(--c-grey-deep)');
+    expect(emptyCc).toMatch(/text-lg font-semibold text-foreground/);
+    expect(emptyCc).toContain('max-w-[42ch]');
+    expect(emptyCc).not.toContain('bg-orange/8');
+    expect(emptyCc).not.toContain('size-16');
+    expect(emptyCc).not.toMatch(/text-sm font-bold/);
+  });
+
+  it('sidebar canon: 30px compact r-sm + 3x16px inline-START rail, no icon bounce (A1 P0-7)', () => {
+    expect(navCc).toContain('min-h-[30px]');
+    expect(navCc).toContain('rounded-sm');
+    expect(navCc).not.toContain('min-h-11');
+    expect(navCc).not.toContain('rounded-xl px-3');
+    expect(navCc).toContain('-start-[3px]');
+    expect(navCc).toContain('h-4 w-[3px] rounded-e-[2px]');
+    expect(navCc).not.toContain('end-0 top-1/2 h-6 w-0.5');
+    expect(navCc).not.toContain('scale-110');
+    expect(navCc).not.toContain('drop-shadow');
+  });
+
+  it('night-shell gradient on both dashboard rails (SO shell.tsx port, A1 P2-3)', () => {
+    for (const shell of [cc('src/app/(protected)/owner/OwnerShell.tsx'), cc('src/components/layout/AdminSidebar.tsx')]) {
+      expect(shell).toContain('dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(233_180_76/0.06),transparent_72%)');
+      expect(shell).toContain('border-e border-border/60 bg-card');
+      expect(shell).not.toContain('border-s border-border/50 bg-card/80');
+      expect(shell).not.toContain('backdrop-blur-md');
+    }
+  });
+
+  it('toast canon: bottom-end shell + 28px pastel wells + 1px status hairline + alert family manual-dismiss (A1 P0-9, A11 SM-4)', () => {
+    expect(toasterCc).toContain('position="bottom-left"');
+    expect(toasterCc).not.toContain('richColors');
+    expect(toasterCc).not.toContain('top-center');
+    expect(toasterCc).toContain('containerAriaLabel');
+    expect(toastCc).toContain('size-7 min-h-[28px]');
+    expect(toastCc).not.toContain('size-10');
+    expect(toastCc).toContain('borderInlineStartColor');
+    expect(toastCc).toContain('Infinity : 4000');
+    expect(toastCc).not.toContain('rtl:flex-row-reverse');
+    expect(toastCc).not.toContain('backdrop-blur-xl');
+    expect(cc('src/components/layout/OrderNotifier.tsx')).toContain('premiumToast');
+  });
+
+  it('theme system: ONE resolution path — enableSystem OFF + pre-paint boot + runtime theme-color sync #070B16 (A10 F2/F3/SM-2)', () => {
+    for (const layout of [publicLayoutRaw, protectedLayoutRaw]) {
+      expect(layout).not.toMatch(/<ThemeProvider[^>]*enableSystem/);
+      expect(layout).toContain('disableTransitionOnChange');
+      expect(layout).toContain('THEME_BOOT_SCRIPT');
+      expect(layout).toContain('<AppToaster />');
+      expect(layout).toContain('<ThemeColorSync />');
+    }
+    expect(brandCc).toContain('"#070B16"');
+    expect(brandCc).not.toContain('"#191918"');
+    expect(manifestRaw).toContain('"theme_color": "#070B16"');
+    expect(syncCc).toContain('dark: "#070B16"');
+    expect(syncCc).toContain('light: "#FBFAF9"');
+    // grain follows the .light class, not the OS (SO pattern)
+    expect(globalsRaw).toContain('.light .grain-overlay::before { opacity: 0.012; }');
+    expect(globalsRaw).not.toMatch(/@media \(prefers-color-scheme: light\) \{ \.grain-overlay/);
+    // sparkline gradient follows --accent-hover (A10 SM-4)
+    expect(sparkCc).toContain('stopColor="var(--accent-hover, #F5D48A)"');
+    expect(ordersListCc).not.toContain('ring-black/5');
+  });
+
+  it('button destructive = solid danger; skeleton rides 1200ms LINEAR (fleet rulings)', () => {
+    expect(buttonRaw).toMatch(/'bg-destructive text-destructive-foreground border-0 shadow-\[var\(--shadow-card-premium\)\]/);
+    expect(noCc(buttonRaw)).not.toContain('bg-destructive/10');
+    const skeletonRule = noCc(globalsRaw.slice(globalsRaw.indexOf('.skeleton {'), globalsRaw.indexOf('.skeleton {') + 800));
+    const shimmerRule = noCc(globalsRaw.slice(globalsRaw.indexOf('.shimmer {'), globalsRaw.indexOf('.shimmer {') + 800));
+    expect(skeletonRule).toMatch(/shimmer var\(--motion-duration-skeleton, 1\.2s\) linear infinite/);
+    expect(shimmerRule).toMatch(/shimmer var\(--motion-duration-skeleton, 1\.2s\) linear infinite/);
+    expect(skeletonRule).not.toContain('ease-in-out');
+    expect(shimmerRule).not.toContain('ease-in-out');
   });
 });

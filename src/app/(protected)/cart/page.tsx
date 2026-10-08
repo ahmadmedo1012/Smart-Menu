@@ -11,6 +11,8 @@ import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { useCart, useCartHydrated } from '@/store/cart';
 import { useRef } from 'react';
 import { buildReceiptMessage } from '@/lib/receipt';
+import { formatPrice } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/Header';
 import { DefaultLoading } from '@/components/shared/DefaultLoading';
@@ -494,15 +496,41 @@ export default function CartPage() {
                                         </div>
                                 )}
 
-                                <Button
-                                        className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 transition-[box-shadow,transform,translate,scale,rotate] duration-base"
-                                        onClick={() => setShowPreview(true)}
-                                        size="lg"
-                                        disabled={items.length === 0}
+                                {/* r131 (A2 P2-13 / A12): شريط الدفع السفلي اللاصق — نمط SO checkout:
+                                    mobile = fixed + safe-area + سطح ضبابي + حدّ علوي؛ md+ يعود
+                                    للسرد العادي. الحاشر يعوّض ارتفاع الشريط على الجوال فقط. */}
+                                <div className="h-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:hidden" aria-hidden="true" />
+                                <div
+                                        className={cn(
+                                                /* z-35: تحت نافذة المراجعة (z-40/50 اليوم، --z-modal بعد
+                                                   جولة توحيد z) وفوق نطاق الأزرار العائمة (z-30/33) —
+                                                   زر الدفع هو مسار المال في هذه الصفحة. */
+                                                'fixed bottom-0 inset-x-0 z-35 md:static md:z-auto',
+                                                'border-t border-border/60 bg-background/90 backdrop-blur-md safe-area-pb',
+                                                'md:border-0 md:bg-transparent md:backdrop-blur-0 animate-slide-up'
+                                        )}
                                 >
-                                        <AnimatedMessageCircle className="size-5" />
-                                        مراجعة الطلب وإرساله
-                                </Button>
+                                        <div className="mx-auto max-w-2xl px-4 py-3 md:px-0 md:py-0 flex items-center gap-3 md:block">
+                                                <div className="flex-1 min-w-0 md:hidden">
+                                                        <p className="text-2xs text-muted-foreground">المجموع الإجمالي</p>
+                                                        <p className="font-heading font-bold text-lg tabular-nums">
+                                                                {formatPrice(subtotal)}
+                                                        </p>
+                                                </div>
+                                                {/* r131 (A2 P1-1): الظلّ الملوّن shadow-lg shadow-orange/20
+                                                    أُزيل — وصفة Button البرتقالية تحمل زوج الظلّ الحيادي
+                                                    الممتاز + رفع −2px (sheen على الأساسي فقط). */}
+                                                <Button
+                                                        className="flex-1 md:w-full h-14 text-base font-semibold gap-2"
+                                                        onClick={() => setShowPreview(true)}
+                                                        size="lg"
+                                                        disabled={items.length === 0}
+                                                >
+                                                        <AnimatedMessageCircle className="size-5" />
+                                                        مراجعة الطلب وإرساله
+                                                </Button>
+                                        </div>
+                                </div>
 
                                 <ReviewDialog
                                         open={showPreview}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import {CheckCircle, AlertCircle, Info, ShoppingCart, LogOut, LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy} from 'lucide-react';
+import {CheckCircle2, AlertCircle, Info, ShoppingCart, LogOut, LogIn, Star, Gift, RefreshCw, Save, Trash2, Copy} from 'lucide-react';
 import AnimatedX from '@/components/ui/x-icon';
 import ShoppingCartIcon from '@/components/ui/shopping-cart-icon';
 import type { AnimatedIconHandle } from '@/components/ui/types';
@@ -14,22 +14,45 @@ import { cn } from "@/lib/utils";
 // first interacts with the menu. The lightweight motion-based ShoppingCartIcon
 // (~2KB) keeps the same delightful bounce with zero network cost.
 
+/*
+ * r131-F4 (A1 P0-9 + A11 SM-4 — fleet toast canon, madarek notifications.css):
+ *   · icon well 28px (size-7) r-md, PASTEL solid —soft ground + -ink glyph
+ *     (was a 40px /12 translucent wash well).
+ *   · status coding = the 1px inline-start HAIRLINE (v22 ruling #4: the card
+ *     border stays 1px; only border-inline-start-color flips per kind —
+ *     success/error/warning → status inks, gold kinds → accent, logout
+ *     stays neutral).
+ *   · solid surface card (bg-card — the old /95 + backdrop-blur-xl glass is
+ *     retired), r-lg 12, --elev-3.
+ *   · error/trash (the role=alert family) are MANUAL-DISMISS ONLY
+ *     (duration Infinity — the failure reason never auto-vanishes; madarek
+ *     5-A9 §3 doctrine).
+ *   · rtl:flex-row-reverse dropped — DOM order is logical, sonner's dir=rtl
+ *     lays the icon at inline-START; the old physical flip double-reversed
+ *     the card (icon parked on the inline-END edge, A1 P1-15).
+ *   · entrance rides the ladder: --t-slow 380ms on the slide-up keyframe
+ *     (reduced-motion zeroing flows through the token automatically).
+ */
+
 type ToastIcon = "success" | "error" | "info" | "cart" | "login" | "logout" | "star" | "gift" | "refresh" | "save" | "trash" | "copy";
 
 const iconConfig = {
-  success: { icon: CheckCircle, bg: "bg-success/12", color: "var(--success, #7FD39A)" },
-  error: { icon: AlertCircle, bg: "bg-destructive/12", color: "var(--destructive, #F0938F)" },
-  info: { icon: Info, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
-  cart: { icon: ShoppingCart, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
-  login: { icon: LogIn, bg: "bg-success/12", color: "var(--success, #7FD39A)" },
-  logout: { icon: LogOut, bg: "bg-muted", color: "var(--muted-foreground)" },
-  star: { icon: Star, bg: "bg-warning/12", color: "var(--warning, #ECC97D)" },
-  gift: { icon: Gift, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
-  refresh: { icon: RefreshCw, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
-  save: { icon: Save, bg: "bg-success/12", color: "var(--success, #7FD39A)" },
-  trash: { icon: Trash2, bg: "bg-destructive/12", color: "var(--destructive, #F0938F)" },
-  copy: { icon: Copy, bg: "bg-orange-muted", color: "var(--orange, #E9B44C)" },
+  success: { icon: CheckCircle2, bg: "bg-(--success-soft)", color: "var(--success-ink, #7FD39A)", hairline: "var(--success)" },
+  error:   { icon: AlertCircle,  bg: "bg-(--danger-soft)",  color: "var(--danger-ink, #F0938F)",   hairline: "var(--destructive)" },
+  info:    { icon: Info,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
+  cart:    { icon: ShoppingCart, bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
+  login:   { icon: LogIn,        bg: "bg-(--success-soft)", color: "var(--success-ink, #7FD39A)", hairline: "var(--success)" },
+  logout:  { icon: LogOut,       bg: "bg-muted",            color: "var(--muted-foreground)",     hairline: undefined },
+  star:    { icon: Star,         bg: "bg-(--warning-soft)", color: "var(--warning-ink, #ECC97D)", hairline: "var(--warning)" },
+  gift:    { icon: Gift,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
+  refresh: { icon: RefreshCw,    bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
+  save:    { icon: Save,         bg: "bg-(--success-soft)", color: "var(--success-ink, #7FD39A)", hairline: "var(--success)" },
+  trash:   { icon: Trash2,       bg: "bg-(--danger-soft)",  color: "var(--danger-ink, #F0938F)",   hairline: "var(--destructive)" },
+  copy:    { icon: Copy,         bg: "bg-(--gold-soft)",    color: "var(--gold-ink, #ECC97D)",     hairline: "var(--orange)" },
 } as const;
+
+/** The assertive family — role=alert + manual-dismiss (never auto-vanish). */
+const ALERT_ICONS: readonly ToastIcon[] = ["error", "trash"];
 
 function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
   const cfg = iconConfig[icon];
@@ -41,8 +64,9 @@ function ToastIcon({ icon, anim }: { icon: ToastIcon; anim?: boolean }) {
 
   const Icon = cfg.icon;
   return (
-    <div className={cn("size-10 min-h-[40px] min-w-[40px] rounded-lg flex items-center justify-center shrink-0", cfg.bg)}>
-      <Icon className="size-[18px]" style={{ color: cfg.color }} aria-hidden="true" />
+    // r131-F4: 28px pastel well (was size-10/40px) — madarek .toast-icon.
+    <div className={cn("flex size-7 min-h-[28px] min-w-[28px] shrink-0 items-center justify-center rounded-md", cfg.bg)}>
+      <Icon className="size-4" style={{ color: cfg.color }} aria-hidden="true" />
     </div>
   );
 }
@@ -54,11 +78,11 @@ function AnimatedCartToastIcon() {
     ref.current?.startAnimation();
   }, []);
   return (
-    <div className="size-10 min-h-[40px] min-w-[40px] rounded-lg flex items-center justify-center shrink-0 bg-orange-muted">
+    <div className="flex size-7 min-h-[28px] min-w-[28px] shrink-0 items-center justify-center rounded-md bg-(--gold-soft)">
       <ShoppingCartIcon
         ref={ref}
-        size={22}
-        className="text-[var(--orange, #E9B44C)]"
+        size={18}
+        className="text-[var(--gold-ink, #ECC97D)]"
       />
     </div>
   );
@@ -83,8 +107,14 @@ export function premiumToast(
            it would only contradict the implicit live politeness of each role
            (r119-S5-P2). */
         onClick={() => toast.dismiss(t)}
-        className="pointer-events-auto flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border/40 bg-card/95 p-4 shadow-xl backdrop-blur-xl rtl:flex-row-reverse animate-slide-up"
-        style={{ animationDuration: "0.35s" }}
+        className="pointer-events-auto flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-4 shadow-[var(--elev-3)] animate-slide-up"
+        /* r131-F4: 1px status hairline on the inline-start edge (madarek v22
+           ruling #4 — border stays 1px, only the inline-start COLOR flips by
+           kind) + the ladder-timed entrance (--t-slow 380ms). */
+        style={{
+          animationDuration: 'var(--t-slow, 380ms)',
+          borderInlineStartColor: iconConfig[icon].hairline,
+        }}
       >
         <ToastIcon icon={icon} anim={opts?.anim ?? icon === "cart"} />
         <div className="min-w-0 flex-1 pt-0.5">
@@ -100,6 +130,8 @@ export function premiumToast(
         </button>
       </div>
     ),
-    { duration: opts?.duration ?? 4000 },
+    /* r131-F4 (A11 SM-4): the alert family is manual-dismiss — the reason a
+       save failed must stay on screen until the user reads it. */
+    { duration: opts?.duration ?? (ALERT_ICONS.includes(icon) ? Infinity : 4000) },
   );
 }

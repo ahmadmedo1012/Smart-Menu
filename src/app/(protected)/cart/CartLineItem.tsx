@@ -58,10 +58,12 @@ export function CartLineItem({
                                         </div>
                                 </div>
                                 <div className="flex items-center gap-1">
+                                        {/* r131 (A2 P1-2): سجلّ الضغط موحّد — 0.97@80ms للأزرار
+                                           (كان scale-90 على الثلاثة)؛ قائمة الانتقال محدّدة. */}
                                         <button
                                                 type="button"
                                                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,background-color,border-color] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label={`إنقاص كمية ${item.name}`}
                                         >
                                                 <MotionMinus className="size-4" />
@@ -72,7 +74,7 @@ export function CartLineItem({
                                         <button
                                                 type="button"
                                                 disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,background-color,border-color] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label={`زيادة كمية ${item.name}`}
                                         >
                                                 <MotionPlus className="size-4" />
@@ -80,13 +82,16 @@ export function CartLineItem({
                                         <button
                                                 type="button"
                                                 onClick={() => onRemove(item.id)}
-                                                className="size-11 rounded-sm border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,translate,scale,rotate,background-color] ms-1 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                                                className="size-11 rounded-sm border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,background-color] ms-1 active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
                                                 aria-label={`حذف الصنف ${item.name}`}
                                         >
                                                 <AnimatedTrash className="size-3" />
                                         </button>
                                 </div>
                         </div>
+                        {/* r131 (A2 P1-3): مدخل الملاحظات — أرضية 44px/16px (منع تكبير iOS)
+                           + حلقة التركيز القانونية 3px/22% (‏--state-input-focus-halo)
+                           بدل ring-4/60؛ كان h-9/36px + 13px. */}
                         <input
                                 type="text"
                                 placeholder="ملاحظات للصنف..."
@@ -94,7 +99,7 @@ export function CartLineItem({
                                 value={item.notes}
                                 maxLength={500}
                                 onChange={(e) => onUpdateNotes(item.id, e.target.value)}
-                                className="w-full h-9 rounded-sm border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60"
+                                className="w-full h-11 rounded-md border border-input bg-transparent px-3 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]"
                         />
                 </div>
         );

@@ -11,9 +11,11 @@ import { KpiCard } from '@/components/admin/KpiCard';
 import { AreaChart } from '@/components/shared/AreaChart';
 import { HorizontalBar } from '@/components/shared/HorizontalBar';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 
-import { Store, TrendingUp, AlertCircle, Users, ArrowUpRight, UserPlus, Activity, DollarSign, ShoppingCart, BarChart3 } from 'lucide-react';
+import { Store, TrendingUp, Users, ArrowUpRight, UserPlus, Activity, DollarSign, ShoppingCart, BarChart3 } from 'lucide-react';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { MotionLogIn } from '@/components/ui/motion-icons';
@@ -78,11 +80,11 @@ export default function AdminDashboard() {
                 try {
                         setError(null);
                         const res = await fetch('/api/admin/stats');
-                        if (!res.ok) throw new Error('فشل تحميل البيانات');
+                        if (!res.ok) throw new Error('تعذر تحميل البيانات');
                         const json = await res.json();
                         setStats(json.data);
                 } catch {
-                        setError('فشل تحميل البيانات');
+                        setError('تعذر تحميل البيانات');
                 } finally {
                         setLoading(false);
                 }
@@ -126,7 +128,7 @@ export default function AdminDashboard() {
                                                 <div className="h-4 w-32 skeleton rounded-lg" />
                                         </div>
                                 </div>
-                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                <div className="grid grid-cols-2 gap-5 min-[1101px]:grid-cols-4">
                                         {[1, 2, 3, 4].map((i) => (
                                                 <div key={i} className="h-28 rounded-md skeleton" />
                                         ))}
@@ -146,24 +148,14 @@ export default function AdminDashboard() {
 
         // ---------- Error state ----------
         if (error) {
+                // r131-F5 (A1 P1-12): canonical error family — the blur-xl glow blob
+                // is gone (r130 de-glow law).
                 return (
-                        <div
-                                aria-live="assertive"
-                                className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in"
-                        >
-                                <div className="relative mb-2">
-                                        <div className="size-16 rounded-full glass flex items-center justify-center">
-                                                <AlertCircle className="size-8 text-destructive" />
-                                        </div>
-                                        <div className="absolute -inset-2 rounded-full bg-destructive/10 blur-xl -z-10" />
-                                </div>
-                                <p className="text-lg font-medium">{error}</p>
-                                <p className="text-sm text-muted-foreground">تحقق من الاتصال وحاول مرة أخرى</p>
-                                <Button variant="outline" onClick={load} className="gap-2">
-                                        <AnimatedRefreshCw className="size-4" />
-                                        إعادة المحاولة
-                                </Button>
-                        </div>
+                        <ErrorState
+                                title={error}
+                                description="تحقق من الاتصال وحاول مرة أخرى"
+                                onRetry={load}
+                        />
                 );
         }
 
@@ -182,26 +174,26 @@ export default function AdminDashboard() {
         }
 
         return (
-                <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
-                        {/* Header */}
-                        <div className="flex items-center justify-between">
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">لوحة التحكم</h1>
-                                        <p className="text-sm text-muted-foreground mt-0.5">نظرة عامة على شبكة المطاعم</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                        <Button variant="ghost" size="icon" onClick={load} aria-label="تحديث البيانات">
-                                                <AnimatedRefreshCw className="size-4" aria-hidden="true" />
-                                        </Button>
-                                        <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
-                                                <Activity className="size-3.5 text-success" aria-hidden="true" />
-                                                مباشر
-                                        </Badge>
-                                </div>
-                        </div>
+                /* r131-F5 (A1 P0-8/P1-7): canonical 1280px container + page header. */
+                <div className="max-w-[1280px] mx-auto space-y-8 animate-fade-in">
+                        <PageHeader
+                                title="لوحة الإدارة"
+                                subtitle="نظرة عامة على شبكة المطاعم"
+                                actions={
+                                        <>
+                                                <Button variant="ghost" size="icon" onClick={load} aria-label="تحديث البيانات">
+                                                        <AnimatedRefreshCw className="size-4" aria-hidden="true" />
+                                                </Button>
+                                                <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
+                                                        <Activity className="size-3.5 text-success" aria-hidden="true" />
+                                                        مباشر
+                                                </Badge>
+                                        </>
+                                }
+                        />
 
                         {/* KPI Cards */}
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid grid-cols-2 gap-5 min-[1101px]:grid-cols-4">
                                 <KpiCard
                                         label="إجمالي المطاعم"
                                         value={stats.totalRestaurants}

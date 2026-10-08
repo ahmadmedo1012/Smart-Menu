@@ -1,14 +1,21 @@
-import { View, ActivityIndicator, Pressable } from "react-native";
-import { cn } from "@/lib/utils";
+import { View, ActivityIndicator } from "react-native";
+import { TriangleAlert } from "lucide-react-native";
 import type { ReactNode } from "react";
 
 import { Text } from "@/components/ui/Text";
-import { colors } from "@/theme/colors";
+import { PressableScale } from "@/components/motion/PressableScale";
+import { colors, pastelFamilies } from "@/theme/colors";
+import { radius } from "@/theme/radius";
 
 /**
  * r126-M9: Card (0 usages), Badge (0 usages + a latent 1.2:1 contrast bug
  * on the muted variant) and Skeleton (0 usages) were deleted — screens
  * hand-roll their cards and loading is a full-screen Spinner today.
+ *
+ * r131-F10: the state family converges on the canonical Madarek well —
+ * 56px r-xl icon tile (grey family for empty, rose for error), title
+ * 18px/600, matching the web EmptyState fix and the smart-order
+ * states.tsx twin (fleet ruling "empty = 56 grey / 18/600").
  */
 
 export function Spinner({ size = "large" }: { size?: "small" | "large" }) {
@@ -18,10 +25,23 @@ export function Spinner({ size = "large" }: { size?: "small" | "large" }) {
 export function EmptyState({ title, description, icon }: { title: string; description?: string; icon?: ReactNode }) {
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
-      {icon ? <View className="mb-4 opacity-60">{icon}</View> : null}
-      {/* r130 W2-4: heading register — 700 (canonical h-weights; --fw-black
-          resolves 700, tokens.css:1069). Was font-semibold 600. */}
-      <Text className="text-lg font-bold text-foreground text-center font-sans">{title}</Text>
+      {icon ? (
+        /* r131-F10 (A2 P2-21 / A11 SM-1 twin): the bare opacity-60 icon now
+           rides the canonical grey-family well — 56px r-xl tile on --c-grey-bg
+           (#161D33), icon in grey-deep — instead of floating with no ground.
+           Pass a 24px grey-deep glyph (e.g. <ShoppingBag size={24}
+           color={pastelFamilies.grey.deep} />). */
+        <View style={{
+          width: 56, height: 56, borderRadius: radius.xl,
+          backgroundColor: pastelFamilies.grey.bg,
+          alignItems: "center", justifyContent: "center", marginBottom: 16,
+        }}>
+          {icon}
+        </View>
+      ) : null}
+      {/* r131 fleet ruling: empty title = 18px/600 (supersedes the r130 700
+          heading note — state surfaces carry their own register). */}
+      <Text className="text-lg font-semibold text-foreground text-center font-sans">{title}</Text>
       {description ? <Text className="text-sm text-muted-foreground text-center mt-2 font-sans">{description}</Text> : null}
     </View>
   );
@@ -30,12 +50,25 @@ export function EmptyState({ title, description, icon }: { title: string; descri
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
-      {/* r130 W2-4: heading register 700 (was 600) — see EmptyState note. */}
-      <Text className="text-lg font-bold text-destructive text-center font-sans">{message}</Text>
+      {/* r131-F10: the rose-family twin of the EmptyState well (SO states.tsx
+          ErrorState grammar) — 56px r-xl tile on --c-rose-bg with the alert
+          glyph; the message keeps its destructive ink. */}
+      <View style={{
+        width: 56, height: 56, borderRadius: radius.xl,
+        backgroundColor: colors.roseBg,
+        alignItems: "center", justifyContent: "center", marginBottom: 16,
+      }}>
+        <TriangleAlert size={24} color={colors.rose} />
+      </View>
+      <Text className="text-lg font-semibold text-destructive text-center font-sans">{message}</Text>
       {onRetry ? (
-        <Pressable onPress={onRetry} accessibilityRole="button" className="mt-4 min-h-10 rounded-md bg-brand-500 px-4 items-center justify-center py-2">
+        /* r131-F10 (fix 5): 44px touch floor (was min-h-10 = 40px) + the
+           PressableScale press register (was a silent raw Pressable). */
+        <PressableScale
+          onPress={onRetry}
+          style={{ marginTop: 16, minHeight: 44, borderRadius: radius.md, backgroundColor: colors.gold, paddingHorizontal: 16, paddingVertical: 10, alignItems: "center", justifyContent: "center" }}>
           <Text className="text-on-accent font-sans font-semibold" maxFontSizeMultiplier={1.4}>إعادة المحاولة</Text>
-        </Pressable>
+        </PressableScale>
       ) : null}
     </View>
   );
@@ -59,12 +92,16 @@ export function ComingSoon({
 }) {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
+      {/* r131-F10 (A2 P3-14): the stub well converges on the canonical 56px
+          r-xl state tile (was a 72px circle) — the gold «قريبًا» voice stays
+          (this is a not-built-yet state, not an empty state, so it keeps the
+          accent). Icon call sites ride 24px glyphs like the state family. */}
       <View style={{
-        width: 72, height: 72, borderRadius: 9999, backgroundColor: colors.surface,
+        width: 56, height: 56, borderRadius: radius.xl, backgroundColor: colors.surface,
         borderWidth: 1, borderColor: colors.hairline, alignItems: "center", justifyContent: "center",
-        marginBottom: 20,
+        marginBottom: 16,
       }}>
-        <View style={{ opacity: 0.7 }}>{icon}</View>
+        <View style={{ opacity: 0.85 }}>{icon}</View>
       </View>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, textAlign: "center" }}>{title}</Text>
       <View style={{

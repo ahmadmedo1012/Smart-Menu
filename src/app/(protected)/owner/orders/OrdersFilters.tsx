@@ -1,6 +1,7 @@
 'use client';
 
 import { SearchInput } from '@/components/ui/search-input';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 
@@ -120,13 +121,11 @@ export function OrdersFilters({
                                 onChange={onDateToChange}
                         />
                         {(dateFrom || dateTo) && (
-                                <button
-                                        type="button"
-                                        onClick={onClearDates}
-                                        className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                >
-                                        إلغاء
-                                </button>
+                                /* r131-F5 (A1 P0-4): canonical Button — the hand-rolled
+                                        h-11 control had no press scale/weight/lift. */
+                                <Button variant="outline" size="sm" onClick={onClearDates} className="mt-0.5">
+                                        إلغاء التواريخ
+                                </Button>
                         )}
                 </div>
 

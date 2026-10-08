@@ -18,7 +18,8 @@ import AnimatedMapPin from "@/components/ui/map-pin-icon"
 import AnimatedClock from "@/components/ui/clock-icon"
 import AnimatedSave from "@/components/ui/save-icon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
-import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { PageHeader } from "@/components/shared/PageHeader"
+import { SettingsPageSkeleton } from "@/components/shared/DashboardSkeletons"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 // round89-E5: shared row type (was a local copy)
@@ -88,7 +89,7 @@ export default function AdminSettingsPage() {
           setProfilePhone(profileData.data.phone ?? "")
         }
       })
-      .catch(() => premiumToast("error", "فشل تحميل البيانات"))
+      .catch(() => premiumToast("error", "تعذر تحميل البيانات"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -119,7 +120,7 @@ export default function AdminSettingsPage() {
       const r = await fetch("/api/restaurants")
       const d = await r.json()
       setRestaurants(d.data?.restaurants ?? d.data ?? [])
-    } catch { premiumToast("error", "فشل الحفظ") }
+    } catch { premiumToast("error", "تعذر الحفظ") }
     finally { setSaving(false) }
   }
 
@@ -146,7 +147,7 @@ export default function AdminSettingsPage() {
       })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || "فشل الحفظ")
+        throw new Error(err.error || "تعذر الحفظ")
       }
       premiumToast("save", "تم حفظ الملف الشخصي")
       setCurrentPassword(""); setNewPassword("")
@@ -154,22 +155,23 @@ export default function AdminSettingsPage() {
       const pj = await p.json()
       if (pj.data) { setProfile(pj.data); setProfileName(pj.data.name); setProfileEmail(pj.data.email ?? ""); setProfilePhone(pj.data.phone ?? "") }
     } catch (e) {
-      premiumToast("error", getErrorMessage(e, "فشل حفظ الملف الشخصي"))
+      premiumToast("error", getErrorMessage(e, "تعذر حفظ الملف الشخصي"))
     } finally { setProfileSaving(false) }
   }
 
     if (access === 'denied') return <AccessDenied />
 
-  if (loading) return (
-    <div className="space-y-4 animate-fade-in" aria-live="polite">
-      <LoadingAnnouncer loading message="جارٍ تحميل الإعدادات..." />
-      {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />)}
-    </div>
-  )
+  if (loading)
+    // r131-F5 (A11 SM-2): settings-shaped skeleton stack (was bare breath rows).
+    return <SettingsPageSkeleton cards={3} label="جارٍ تحميل الإعدادات..." />
 
   return (
     <div className="space-y-8 animate-fade-in max-w-3xl">
-      <h1 className="text-2xl font-bold tracking-normal">الإعدادات</h1>
+      {/* r131-F5 (A1 P0-8): canonical page header. */}
+      <PageHeader
+        title="الإعدادات"
+        subtitle="إعدادات الشبكة — الملف الشخصي والأمان والاشتراكات"
+      />
 
       {/* Tab navigation */}
       {/* r127-F3 (K-8): role="tablist" downgraded to a filter-button group — the

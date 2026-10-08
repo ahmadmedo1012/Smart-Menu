@@ -11,7 +11,9 @@ import { toArabicNumber, formatDateShort } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
-import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { ListPageSkeleton } from "@/components/shared/DashboardSkeletons";
 import { useRouter } from "next/navigation";
 import { useActiveRestaurant } from "@/components/owner/useActiveRestaurant";
 import { csrfJson } from "@/lib/csrf-client";
@@ -84,7 +86,7 @@ export default function OwnerReviewsPage() {
       setDeleteTarget(null);
       load();
     } catch (e) {
-      premiumToast('error', getErrorMessage(e, 'فشل حذف التقييم'));
+      premiumToast('error', getErrorMessage(e, 'تعذر حذف التقييم'));
     } finally {
       setDeleting(false);
     }
@@ -95,26 +97,24 @@ export default function OwnerReviewsPage() {
   const filtered = reviews;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
+    <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
       {/* Back */}
       <Button variant="ghost" size="sm" onClick={() => router.push("/owner")} className="mb-2">
         <MotionArrowRight className="size-4 me-1" />
         العودة
       </Button>
 
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-normal">التقييمات</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            إدارة تقييمات العملاء للأصناف
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          <AnimatedRefreshCw className={cn("size-4", loading && "animate-spin")} />
-          تحديث
-        </Button>
-      </div>
+      {/* r131-F5 (A1 P0-8): canonical page-header chrome. */}
+      <PageHeader
+        title="التقييمات"
+        subtitle="إدارة تقييمات العملاء للأصناف"
+        actions={
+          <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
+            <AnimatedRefreshCw className={cn("size-4", loading && "animate-spin")} />
+            تحديث
+          </Button>
+        }
+      />
 
       {/* Stats summary */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -168,25 +168,16 @@ export default function OwnerReviewsPage() {
 
       {/* Reviews list */}
       {loading ? (
-        <div className="space-y-3">
-          <LoadingAnnouncer loading={true} message="جارٍ تحميل التقييمات..." />
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-24 rounded-md bg-card/30 animate-pulse" />
-          ))}
-        </div>
+        /* r131-F5 (A11 SM-2): review-shaped rows on the .skeleton shimmer
+                (was five bare animate-pulse blocks). */
+        <ListPageSkeleton rows={5} rowHeight="h-24" label="جارٍ تحميل التقييمات..." />
       ) : error ? (
-        <div className="text-center py-16">
-          <AnimatedRefreshCw className="size-10 text-destructive/40 mx-auto mb-3" />
-          <p className="text-base font-medium text-destructive">{error}</p>
-          <button
-            type="button"
-            onClick={load}
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent-foreground hover:underline underline-offset-4"
-          >
-            <AnimatedRefreshCw className="size-3.5" />
-            إعادة المحاولة
-          </button>
-        </div>
+        /* r131-F5 (A1 P1-12): canonical error family with a working retry. */
+        <ErrorState
+          title="تعذر تحميل التقييمات"
+          error={error}
+          onRetry={load}
+        />
       ) : filtered.length === 0 ? (
         /* round88-E3: unified EmptyState — same copy as before, shared visual
            language with the rest of the app (task-named surface: تقييمات). */
@@ -206,7 +197,7 @@ export default function OwnerReviewsPage() {
               key={review.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
+              transition={{ delay: i * 0.06 }}
               className="rounded-md bg-card/50 border border-border/20 p-4 hover:bg-card/80 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">

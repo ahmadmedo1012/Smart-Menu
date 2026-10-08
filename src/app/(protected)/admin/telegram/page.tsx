@@ -4,9 +4,10 @@ import { getErrorMessage } from '@/lib/get-error-message';
 import { csrfFetch } from '@/lib/csrf-client';
 import { useEffect, useState, useCallback } from 'react';
 import { premiumToast } from '@/lib/premium-toast';
-import { Loader2, Lightbulb } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
-import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from '@/components/shared/PageHeader'
+import { SettingsPageSkeleton } from '@/components/shared/DashboardSkeletons';
 import { TelegramConfigSection } from './TelegramConfigSection';
 import { BroadcastTargetsSection } from './BroadcastTargetsSection';
 import { DiagnosticsSection } from './DiagnosticsSection';
@@ -100,7 +101,7 @@ export default function AdminTelegramPage() {
                                         setEventsInput((d.events ?? []).join(', '));
                                 }
                         })
-                        .catch(() => premiumToast('error', 'فشل تحميل الإعدادات'))
+                        .catch(() => premiumToast('error', 'تعذر تحميل الإعدادات'))
                         .finally(() => setLoading(false));
 
                 fetch('/api/telegram/broadcast-targets')
@@ -108,7 +109,7 @@ export default function AdminTelegramPage() {
                         .then((json) => {
                                 if (json.success && json.data) setTargets(json.data);
                         })
-                        .catch(() => setLoadError('فشل تحميل أقسام تيليجرام'));
+                        .catch(() => setLoadError('تعذر تحميل أقسام تيليجرام'));
 
                 fetch('/api/telegram/diagnose?dryRun=true')
                         .then((r) => r.json())
@@ -118,14 +119,14 @@ export default function AdminTelegramPage() {
                                         setDiagnose(json.data);
                                 }
                         })
-                        .catch(() => setLoadError('فشل تشخيص تيليجرام'));
+                        .catch(() => setLoadError('تعذر تشخيص تيليجرام'));
 
                 fetch('/api/admin/telegram/approvers')
                         .then((r) => r.json())
                         .then((json) => {
                                 if (json.success) setApprovers(json.data ?? []);
                         })
-                        .catch(() => setLoadError('فشل تحميل الموافقين'))
+                        .catch(() => setLoadError('تعذر تحميل الموافقين'))
                         .finally(() => setApproversLoading(false));
         }, []);
 
@@ -166,10 +167,10 @@ export default function AdminTelegramPage() {
                                 }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل الحفظ');
+                        if (!json.success) throw new Error(json.error || 'تعذر الحفظ');
                         premiumToast('save', 'تم حفظ إعدادات تليجرام');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل حفظ الإعدادات'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر حفظ الإعدادات'));
                 } finally {
                         setSaving(false);
                 }
@@ -180,10 +181,10 @@ export default function AdminTelegramPage() {
                 try {
                         const res = await csrfFetch('/api/telegram/test', { method: 'POST' });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل الإرسال');
+                        if (!json.success) throw new Error(json.error || 'تعذر الإرسال');
                         premiumToast('success', 'تم إرسال رسالة الاختبار بنجاح!');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل إرسال رسالة الاختبار'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر إرسال رسالة الاختبار'));
                 } finally {
                         setTesting(false);
                 }
@@ -195,11 +196,11 @@ export default function AdminTelegramPage() {
                 try {
                         const res = await fetch('/api/telegram/diagnose');
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل التشخيص');
+                        if (!json.success) throw new Error(json.error || 'تعذر التشخيص');
                         setDiagnose(json.data);
                         setLinkedAdmins(json.data.linkedAdmins ?? 0);
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل التشخيص'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر التشخيص'));
                 } finally {
                         setDiagnosing(false);
                 }
@@ -213,11 +214,11 @@ export default function AdminTelegramPage() {
                                 body: JSON.stringify({ label, chatId }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل الإضافة');
+                        if (!json.success) throw new Error(json.error || 'تعذر الإضافة');
                         setTargets((prev) => [json.data, ...prev]);
                         premiumToast('success', 'تمت إضافة جهة الإرسال');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل إضافة جهة الإرسال'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر إضافة جهة الإرسال'));
                 }
         };
 
@@ -229,10 +230,10 @@ export default function AdminTelegramPage() {
                                 body: JSON.stringify({ isActive }),
                         });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل التحديث');
+                        if (!json.success) throw new Error(json.error || 'تعذر التحديث');
                         setTargets((prev) => prev.map((t) => (t.id === id ? { ...t, isActive } : t)));
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة'));
                 }
         };
 
@@ -240,27 +241,27 @@ export default function AdminTelegramPage() {
                 try {
                         const res = await csrfFetch(`/api/telegram/broadcast-targets/${id}`, { method: 'DELETE' });
                         const json = await res.json();
-                        if (!json.success) throw new Error(json.error || 'فشل الحذف');
+                        if (!json.success) throw new Error(json.error || 'تعذر الحذف');
                         setTargets((prev) => prev.filter((t) => t.id !== id));
                         premiumToast('success', 'تم حذف جهة الإرسال');
                 } catch (e) {
-                        premiumToast('error', getErrorMessage(e, 'فشل حذف جهة الإرسال'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر حذف جهة الإرسال'));
                 }
         };
 
         if (access === 'denied') return <AccessDenied />
 
         if (loading)
-                return (
-                        <div className="flex items-center justify-center py-20" aria-live="polite">
-                                <LoadingAnnouncer loading message="جارٍ تحميل إعدادات التليجرام..." />
-                                <Loader2 className="size-6 animate-spin text-muted-foreground" aria-hidden="true" />
-                        </div>
-                );
+                // r131-F5 (A11 SM-2): settings-shaped skeleton (was a bare spinner).
+                return <SettingsPageSkeleton cards={3} label="جارٍ تحميل إعدادات التليجرام..." />;
 
         return (
                 <div className="space-y-8 animate-fade-in max-w-3xl">
-                        <h1 className="text-2xl font-bold tracking-normal">إعدادات تليجرام</h1>
+                        {/* r131-F5 (A1 P0-8): canonical page header. */}
+                        <PageHeader
+                                title="إعدادات تليجرام"
+                                subtitle="ربط حساب تليجرام باستقبال الطلبات والتنبيهات"
+                        />
 
                         {loadError && (
                                 <div

@@ -44,7 +44,8 @@ export function UpgradePlanSummary({
                         <p className="text-sm text-muted-foreground mb-6 text-center">
                                 بيانات مطعمك الحالية ستبقى كما هي — فقط سيتم ترقية خطتك.
                         </p>
-                        <Button className="w-full h-14 text-base font-semibold rounded-sm" size="lg" onClick={onPay}>
+                        {/* r131 (A2 P2-15): تجاوز rounded-sm أُزيل — الوراثة من Button (r-md 10px). */}
+                        <Button className="w-full h-14 text-base font-semibold" size="lg" onClick={onPay}>
                                 <CreditCard className="size-5 ms-2" />
                                 <span className="tabular-nums">ادفع الآن ({formatPrice(currentPlan.price)})</span>
                         </Button>

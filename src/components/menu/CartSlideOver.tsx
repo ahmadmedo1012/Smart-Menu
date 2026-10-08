@@ -76,9 +76,12 @@ export function CartSlideOver() {
                                         className={cn(
                                                 'flex items-center justify-center size-14 rounded-full',
                                                 'bg-orange/90 backdrop-blur-xl',
-                                                'shadow-2xl shadow-orange/30 ring-1 ring-white/10',
-                                                'hover:shadow-orange/40 hover:scale-105',
-                                                'active:scale-95 transition-transform duration-base ease-out',
+                                                /* r131 (A2 P1-1/P1-2): الظلّ الملوّن shadow-2xl/orange/30 أُزيل —
+                                                   زوج الظلّ الحيادي الممتاز + رفع −2px بدل التكبير، وسجلّ الضغط
+                                                   الموحّد 0.97@80ms بدل scale-95. */
+                                                'shadow-[var(--shadow-card-premium)] ring-1 ring-white/10',
+                                                'hover:shadow-[var(--shadow-card-premium-h)] hover:-translate-y-[2px]',
+                                                'active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[box-shadow,transform] duration-[var(--t-base,240ms)] ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))]',
                                                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                 bounce && 'scale-110'
                                         )}

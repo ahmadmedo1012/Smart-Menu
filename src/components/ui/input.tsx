@@ -7,6 +7,23 @@ import { cn } from "@/lib/utils"
 
 type InputState = "default" | "error" | "success" | "warning"
 
+/*
+ * r131-F4 (A1 P0-1 — the P0 input primitive): re-based on the canonical
+ * fleet control recipe (SO r130 input.tsx / Madarek components.css:690-752):
+ *   · height 44px (h-11) · radius 10px (rounded-md = --radius-md) ·
+ *     1px border · font-size 16px at EVERY breakpoint — SM remaps
+ *     --text-base to 15px, so the iOS-zoom floor is pinned explicitly with
+ *     text-[16px]; the old `text-base md:text-sm` split rendered 15px mobile
+ *     / 13px desktop (3 heights-in-one-tree + iOS keyboard zoom).
+ *   · focus = state border + the ONE sanctioned 3px/22% halo
+ *     (--state-input-focus-halo → --accent-solid: gold dark / copper light);
+ *     the old ring-2 + ring-ring/25 double indicator is retired (A1 P1-10).
+ *   · stateful variants (error/success/warning) ride their own
+ *     --state-input-*-halo token (same 3px/22% contract, keyed to the
+ *     per-theme status ink) — defined once in globals.css :root.
+ *   · placeholder = --placeholder-text (the AA faint tier, 4.86:1/4.92:1 —
+ *     A7 P1-1; was muted-foreground/70 at 3.73:1/3.83:1).
+ */
 function Input({
         className,
         type,
@@ -17,20 +34,15 @@ function Input({
 }: React.ComponentProps<"input"> & {
         state?: InputState;
 }) {
-        // Token-aligned state styles. Uses --success / --destructive / --warning
-        // from globals.css instead of hard-coded Tailwind palette colors so the
-        // ring + border + icon stay in lockstep across dark/light themes.
-        // r126 (P4-F1 M2): focus recipe converged on the --ring token
-        // (focus-visible:border-ring + ring-ring/25) — the raw-accent border
-        // and orange halo died with the sweep (audit D1).
         const stateStyles: Record<InputState, string> = {
-                default: "border-input focus-visible:border-ring focus-visible:ring-ring/25",
+                default:
+                        "border-input focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]",
                 error:
-                        "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+                        "border-destructive focus-visible:border-destructive focus-visible:shadow-[var(--state-input-error-halo)]",
                 success:
-                        "border-[color:var(--success)] focus-visible:border-[color:var(--success)] focus-visible:ring-[color:var(--success)]/20",
+                        "border-[color:var(--success)] focus-visible:border-[color:var(--success)] focus-visible:shadow-[var(--state-input-success-halo)]",
                 warning:
-                        "border-[color:var(--warning)] focus-visible:border-[color:var(--warning)] focus-visible:ring-[color:var(--warning)]/20",
+                        "border-[color:var(--warning)] focus-visible:border-[color:var(--warning)] focus-visible:shadow-[var(--state-input-warning-halo)]",
         }
 
         // End-relative padding so typed text (Arabic or Latin) never collides
@@ -50,11 +62,7 @@ function Input({
                                 data-state={state}
                                 dir="auto"
                                 className={cn(
-                                        // h-12 already equals 48px — single source of truth.
-                                        // r126 (P4-F1 M2): the 4px orange halo now rides the
-                                        // --state-input-focus-halo contract token (Madarek §1.9:
-                                        // 3px 22% accent mix — the ONE input halo).
-                                        "h-12 w-full min-w-0 rounded-lg border bg-transparent py-3 text-base shadow-xs transition-[color,background-color,border-color,box-shadow] duration-fast outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:shadow-[var(--state-input-focus-halo)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground/60 md:text-sm dark:bg-input/30 dark:disabled:bg-muted dark:disabled:text-muted-foreground/50",
+                                        "h-11 w-full min-w-0 rounded-md border bg-transparent px-4 text-[16px] leading-normal shadow-xs transition-[color,background-color,border-color,box-shadow] duration-fast outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-placeholder-text disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-60 dark:bg-input/30 dark:disabled:opacity-60",
                                         // Logical inline-end padding reserves space for the icon.
                                         hasTrailingIcon ? "px-12" : "px-4",
                                         stateStyles[state],

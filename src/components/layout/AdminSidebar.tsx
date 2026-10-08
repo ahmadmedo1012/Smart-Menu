@@ -68,7 +68,15 @@ export function AdminSidebar({
     : allNavItems.filter((item) => hasItemPermission(item, role, permissions));
 
   return (
-    <aside aria-label="شريط التنقل الجانبي" className="hidden min-h-dvh w-60 shrink-0 border-s border-border/50 bg-card/80 backdrop-blur-md lg:flex lg:flex-col shadow-sm">
+    /* r131-F4 (A1 P2-3): night-shell rail — same SO port as OwnerShell
+        (dark night-sky gradient + constellation dots, light flat card,
+        border-e hairline on the content boundary, sticky full-height). */
+    <aside aria-label="شريط التنقل الجانبي" className="hidden lg:flex lg:flex-col w-60 xl:w-64 shrink-0 sticky top-0 h-screen border-e border-border/60 bg-card shadow-sm dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(233_180_76/0.06),transparent_72%),radial-gradient(280px_220px_at_-20%_108%,rgb(111_168_255/0.05),transparent_70%),linear-gradient(180deg,var(--muted)_0%,var(--background)_34%,var(--background)_100%)]">
+      {/* Constellation dots — paint-only, dark-only. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 hidden dark:block bg-no-repeat [background-image:radial-gradient(1.8px_1.8px_at_21%_12%,rgb(242_239_230/0.22),transparent_100%),radial-gradient(1px_1px_at_68%_7%,rgb(142_151_184/0.16),transparent_100%),radial-gradient(1.5px_1.5px_at_87%_21%,rgb(242_239_230/0.15),transparent_100%),radial-gradient(1px_1px_at_42%_30%,rgb(142_151_184/0.12),transparent_100%),radial-gradient(1.8px_1.8px_at_9%_44%,rgb(233_180_76/0.18),transparent_100%),radial-gradient(1px_1px_at_76%_58%,rgb(142_151_184/0.11),transparent_100%),radial-gradient(1.5px_1.5px_at_28%_74%,rgb(242_239_230/0.14),transparent_100%),radial-gradient(1.2px_1.2px_at_58%_88%,rgb(233_180_76/0.12),transparent_100%)]"
+      />
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">
         <div className="flex size-8 items-center justify-center rounded-lg bg-orange">

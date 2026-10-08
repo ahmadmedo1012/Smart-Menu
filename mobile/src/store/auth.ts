@@ -55,7 +55,7 @@ export const useAuth = create<AuthState>((set) => ({
         set({ status: "unauthenticated", user: null, token: null });
         return;
       }
-      const msg = e instanceof ApiError ? e.message : "تعذر الاتصال بالخادم";
+      const msg = e instanceof ApiError ? e.message : "تعذّر الاتصال بالخادم";
       set({ status: "unauthenticated", user: null, error: msg });
     }
   },
@@ -67,7 +67,7 @@ export const useAuth = create<AuthState>((set) => ({
       set({ status: "authenticated", user, token: sessionToken });
       return { ok: true as const };
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : "فشل تسجيل الدخول";
+      const msg = e instanceof ApiError ? e.message : "تعذّر تسجيل الدخول";
       set({ status: "unauthenticated", error: msg, user: null, token: null });
       return { ok: false as const, error: msg };
     }

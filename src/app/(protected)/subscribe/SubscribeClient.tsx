@@ -5,7 +5,6 @@ import type { Plan } from '@/lib/plan-types';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 // ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
-import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { csrfFetch } from '@/lib/csrf-client';
@@ -363,11 +362,44 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                 }
         };
 
+        /* r131 (A11/A2 P2-17): هيكل على شكل الصفحة بدل الغزل المجرّد — نفس هندسة
+           بطاقات الباقات في /pricing (رأس + مؤشر خطوات + شبكة ٤ بطاقات). التزام
+           مدارك: ‎.skeleton يركب ‎--motion-duration-skeleton (1200ms)، الدخول
+           rise-in بتدرّج 60ms، بلا-JS بالكامل. */
         if (loading)
                 return (
-                        <div className="min-h-screen flex items-center justify-center">
-                                <LoadingAnnouncer loading={loading} message="جاري تحميل صفحة الاشتراك..." />
-                                <Loader2 className="size-8 animate-spin text-accent-foreground" />
+                        <div className="min-h-screen bg-background">
+                                <Header />
+                                <div className="max-w-4xl mx-auto px-4 py-12" role="status" aria-live="polite">
+                                        <LoadingAnnouncer loading={loading} message="جارٍ تحميل صفحة الاشتراك..." />
+                                        <div className="text-center mb-10" aria-hidden="true">
+                                                <div className="h-3.5 w-24 mx-auto rounded-md skeleton mb-4" />
+                                                <div className="h-8 w-64 mx-auto rounded-md skeleton" />
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2 mb-10" aria-hidden="true">
+                                                {[0, 1, 2, 3].map((i) => (
+                                                        <div key={i} className="flex items-center">
+                                                                <div className="size-10 rounded-full skeleton" />
+                                                                {i < 3 && <div className="w-8 sm:w-14 h-0.5 mx-1 sm:mx-2 rounded-full skeleton" />}
+                                                        </div>
+                                                ))}
+                                        </div>
+                                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto" aria-hidden="true">
+                                                {[...Array(4)].map((_, i) => (
+                                                        <div key={i} className="rounded-2xl border border-border/50 p-5 animate-rise-in" style={{ animationDelay: `${i * 60}ms` }}>
+                                                                <div className="size-10 rounded-xl skeleton mb-3" />
+                                                                <div className="h-4 w-2/3 skeleton rounded-sm mb-3" />
+                                                                <div className="h-7 w-1/2 skeleton rounded-sm mb-4" />
+                                                                <div className="space-y-2 mb-4">
+                                                                        {[...Array(3)].map((_, j) => (
+                                                                                <div key={j} className="h-3.5 w-4/5 skeleton rounded-sm" />
+                                                                        ))}
+                                                                </div>
+                                                                <div className="h-10 skeleton rounded-md" />
+                                                        </div>
+                                                ))}
+                                        </div>
+                                </div>
                         </div>
                 );
 
@@ -424,10 +456,23 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                                         />
                                 )}
 
-                                {/* Loading state while checking auth (upgrade mode detection) */}
+                                {/* Loading state while checking auth (upgrade mode detection)
+                                    r131 (A11/A2 P2-17): هيكل على شكل الملخص بدل الغزل المجرّد. */}
                                 {step === 'menu' && !authLoaded && (
-                                        <div className="flex items-center justify-center py-16">
-                                                <Loader2 className="size-6 animate-spin text-accent-foreground" />
+                                        <div className="max-w-lg mx-auto rounded-2xl border border-border/50 p-5" role="status" aria-label="جارٍ التحقق من نوع الاشتراك">
+                                                <div className="flex items-center gap-3 mb-4" aria-hidden="true">
+                                                        <div className="size-10 rounded-xl skeleton" />
+                                                        <div className="flex-1 space-y-2">
+                                                                <div className="h-4 w-1/2 skeleton rounded-sm" />
+                                                                <div className="h-3 w-1/3 skeleton rounded-sm" />
+                                                        </div>
+                                                </div>
+                                                <div className="space-y-2 mb-4">
+                                                        {[...Array(3)].map((_, j) => (
+                                                                <div key={j} className="h-4 w-4/5 skeleton rounded-sm" />
+                                                        ))}
+                                                </div>
+                                                <div className="h-12 skeleton rounded-md" />
                                         </div>
                                 )}
 

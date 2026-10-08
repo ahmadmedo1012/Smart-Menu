@@ -435,12 +435,16 @@ export function PaymentDialog({
                                                                 </div>
                                                         )}
 
+                                                        {/* r131 (A11 states + A2 P2-15): خاصية loading في زر Button
+                                                            (دوّار + aria-busy + قفل) بدل نص «جاري...» بلا تغذية بصرية،
+                                                            وتجاوز rounded-xl أُزيل — الوراثة r-md (10px). */}
                                                         <Button
-                                                                className="w-full h-12 text-base font-semibold rounded-xl"
+                                                                className="w-full h-12 text-base font-semibold"
                                                                 onClick={handleSent}
-                                                                disabled={submitting || (provider !== 'bank' && !phone.trim())}
+                                                                loading={submitting}
+                                                                disabled={provider !== 'bank' && !phone.trim()}
                                                         >
-                                                                {submitting ? 'جاري الإرسال...' : 'إرسال طلب الدفع'}
+                                                                إرسال طلب الدفع
                                                         </Button>
                                                 </>
                                         )}

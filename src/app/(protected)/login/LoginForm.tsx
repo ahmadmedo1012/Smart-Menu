@@ -152,10 +152,11 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                         {/* Back to home + ThemeToggle */}
                         <div className="fixed start-4 top-4 z-50 flex items-center gap-2">
                                 <Link href="/">
+                                        {/* r131 (A2 P2-5): زر العودة — حبة 40px بحدّ شعري وسطح
+                                            (نمط .auth-back-home) بدل الشبح بلا حدود. */}
                                         <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="gap-1 text-muted-foreground/60 hover:text-foreground"
+                                                variant="outline"
+                                                className="gap-1 rounded-full text-muted-foreground hover:text-foreground"
                                         >
                                                 <MotionArrowRight className="size-3.5" />
                                                 العودة للرئيسية
@@ -164,13 +165,13 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 <ThemeToggle />
                         </div>
 
-                        {/* r95 → r128-F5 → r130 (W2-3, P2): بطاقة الدخول —
+                        {/* r95 → r128-F5 → r130 (W2-3, P2) → r131 (A2 P2-1): بطاقة الدخول —
+                           عرض auth-card القانوني ٤٤٠px (كان ٣٨٤/٤٤٨ ثنائي القيمة)،
                            الحدّ الشعري النحاسي ٢px أعلى البطاقة (canonical
                            auth.css:179-188: inset-inline 30%، تدرّج
-                           transparent→accent→transparent، نصف قطر 2px)
-                           بدل الشريط البرتقالي الصلب 4px الثابت أعلى الصفحة؛
+                           transparent→accent→transparent، نصف قطر 2px)،
                            حشوة البطاقة clamp(32px,4vw,48px) (auth.css:145). */}
-                        <Card className="animate-scale-in relative z-10 w-full max-w-sm rounded-2xl border-border/50 bg-card p-0 sm:max-w-md" elevation="flat">
+                        <Card className="animate-scale-in relative z-10 w-full max-w-[27.5rem] rounded-2xl border-border/50 bg-card p-0">
                                 {/* canonical .auth-card::before — the short copper hairline */}
                                 <span
                                         aria-hidden="true"
@@ -201,9 +202,11 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 <CardContent className="px-[clamp(2rem,4vw,3rem)] pb-[clamp(2rem,4vw,3rem)] pt-4">
                                         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                                                 {/* r126 (P4-F1 M8): persistent server-error line — announced
-                                                        via role=alert; focus returns to the username field. */}
+                                                        via role=alert; focus returns to the username field.
+                                                        r131 (A2 P2-4): 13px/600 + 16/12 padding (canonical
+                                                        .form-error; was 12px/500). */}
                                                 {formError && (
-                                                        <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                                                        <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] font-semibold text-destructive">
                                                                 {formError}
                                                         </p>
                                                 )}
@@ -212,10 +215,12 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                                 اسم المستخدم
                                                         </Label>
                                                         {/* r95: حقل SmartBot — bg-secondary/40
-                                                           r126 (M2): حلقة التركيز على رمز --ring */}
+                                                           r131 (A2 P2-3): هالة التركيز القانونية 3px/22%
+                                                           (‏--state-input-focus-halo) بدل ring-2/25 — تكوين واحد
+                                                           للحلقات في كل الأسطح. */}
                                                         <div
                                                                 className={cn(
-                                                                        'rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/25',
+                                                                        'rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)]',
                                                                         fieldError('username') ? 'border-destructive/60' : 'border-border/50'
                                                                 )}
                                                         >
@@ -252,10 +257,10 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                                 كلمة المرور
                                                         </Label>
                                                         {/* r95: حقل SmartBot — bg-secondary/40
-                                                           r126 (M2): حلقة التركيز على رمز --ring */}
+                                                           r131 (A2 P2-3): هالة التركيز القانونية 3px/22% بدل ring-2/25. */}
                                                         <div
                                                                 className={cn(
-                                                                        'relative rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/25',
+                                                                        'relative rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)]',
                                                                         fieldError('password') ? 'border-destructive/60' : 'border-border/50'
                                                                 )}
                                                         >
@@ -296,16 +301,18 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                         )}
                                                 </div>
 
+                                                {/* r131 (A2 P2-2): زر الإرسال — القانوني 15px/700/r-md
+                                                    (auth.css:514)؛ كان 600 و r-lg (12px). */}
                                                 <Button
                                                         type="submit"
                                                         variant="orange"
-                                                        className="mt-2 h-12 w-full rounded-lg font-arabic text-base font-semibold"
+                                                        className="mt-2 h-12 w-full rounded-md font-arabic text-base font-bold"
                                                         disabled={loading}
                                                 >
                                                         {loading ? (
                                                                 <span className="flex items-center gap-2">
                                                                         <LogIn className="size-4 animate-pulse" />
-                                                                        جاري تسجيل الدخول...
+                                                                        جارٍ تسجيل الدخول...
                                                                 </span>
                                                         ) : (
                                                                 <span className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, TextInput, Pressable, ScrollView } from "react-native";
+import { View, TextInput, ScrollView } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute, StackActions } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,7 @@ import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
 import { colors } from "@/theme/colors";
 import { METRIC_FONT_VARIANT } from "@/theme/typography";
+import { fieldFocusBorderStyle } from "@/components/ui/Input";
 
 export function SubscribePlanScreen() {
   const navigation = useNavigation<RootNavigation>();
@@ -73,11 +74,14 @@ export function SubscribePlanScreen() {
           // r130 W2-4: plan CARD → --state-card-pressed-scale 0.99
           // (tokens.css:248); the metric price rides tabular lining numerals
           // (--type-metric-feature-settings 'tnum'/'lnum', tokens.css:334).
+          // r131-F10 (fix 2 — fleet price ruling): plan prices unify at 24px
+          // gold tnum on BOTH mobile pricing surfaces (was 20px here / 28px
+          // on PricingScreen — the same datum rendered two ways).
           <PressableScale key={p.id} scaleTo={0.99} onPress={() => setSelectedId(p.id)} accessibilityState={{ selected: selectedId === p.id }} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? colors.gold : colors.hairline }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <View>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }}>{p.nameAr || p.name}</Text>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.gold, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(p.price)}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: colors.gold, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(p.price)}</Text>
               </View>
               {selectedId === p.id ? (
                 <View style={{ width: 24, height: 24, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" }}>
@@ -94,24 +98,25 @@ export function SubscribePlanScreen() {
           the Android gesture bar / iOS home indicator). */}
       <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
         <Button title="التالي" onPress={() => selectedId && navigation.navigate("SubscribeMenu", { planId: selectedId })} disabled={!selectedId} size="lg" className="w-full" />
-        {/* r126-M2: escape hatch — logout (rose) + refresh status (muted). */}
+        {/* r126-M2: escape hatch — logout (rose) + refresh status (muted).
+            r131-F10 (A2 P1-4 + fix 6): both links ride PressableScale — the
+            hand-rolled `pressed ? 0.7` opacity register is exactly what the
+            r130 W2-4 header killed; scale 0.97@80ms replaces it. */}
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 24, marginTop: 12 }}>
-          <Pressable
+          <PressableScale
             onPress={() => { void refreshStatus(); }}
-            accessibilityRole="button"
             accessibilityLabel="تحديث حالة الاشتراك"
             hitSlop={8}
-            style={({ pressed }) => ({ paddingVertical: 8, paddingHorizontal: 8, opacity: pressed ? 0.7 : 1 })}>
+            style={{ paddingVertical: 8, paddingHorizontal: 8 }}>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.muted }} maxFontSizeMultiplier={1.4}>تحديث حالة الاشتراك</Text>
-          </Pressable>
-          <Pressable
+          </PressableScale>
+          <PressableScale
             onPress={() => { void logout(); }}
-            accessibilityRole="button"
             accessibilityLabel="تسجيل الخروج"
             hitSlop={8}
-            style={({ pressed }) => ({ paddingVertical: 8, paddingHorizontal: 8, opacity: pressed ? 0.7 : 1 })}>
+            style={{ paddingVertical: 8, paddingHorizontal: 8 }}>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.rose }} maxFontSizeMultiplier={1.4}>تسجيل الخروج</Text>
-          </Pressable>
+          </PressableScale>
         </View>
       </View>
     </SafeAreaView>
@@ -195,7 +200,8 @@ export function SubscribePaymentScreen() {
       // step — with an explicit way back to the top of the wizard.
       setSubmitted(true);
     } catch (e: unknown) {
-      toast.error(getErrorMessage(e, "فشل إرسال الطلب"));
+      // r131-F10 (fix 8): fleet error verb — تعذّر (was فشل).
+      toast.error(getErrorMessage(e, "تعذّر إرسال الطلب"));
     } finally { setSubmitting(false); }
   };
 
@@ -203,22 +209,27 @@ export function SubscribePaymentScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <View style={{ width: 72, height: 72, borderRadius: 9999, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.hairline, alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" }}>
-              <Check size={20} color={colors.void} />
+          {/* r131-F10 (fix 3): the submitted well converges on the canonical
+              56px r-xl state tile (was 72px circle) — same grammar as the
+              OrderConfirmed success well; the nested gold check keeps this
+              screen's identity at 32/18. */}
+          <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.hairline, alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" }}>
+              <Check size={18} color={colors.void} />
             </View>
           </View>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, textAlign: "center" }}>تم إرسال طلب الدفع</Text>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
             سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام. عند الموافقة تُفتح لوحة التحكم تلقائيًا عند إعادة فتح التطبيق.
           </Text>
-          <Pressable
+          {/* r131-F10 (A2 P1-4 + fix 6): PressableScale — the hand-rolled
+              `pressed ? 0.9` register joins the 0.97@80ms ladder. */}
+          <PressableScale
             onPress={() => navigation.dispatch(StackActions.popToTop())}
-            accessibilityRole="button"
             accessibilityLabel="العودة للبداية"
-            style={({ pressed }) => ({ marginTop: 28, backgroundColor: colors.gold, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1 })}>
+            style={{ marginTop: 28, backgroundColor: colors.gold, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 32 }}>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.void }} maxFontSizeMultiplier={1.4}>العودة للبداية</Text>
-          </Pressable>
+          </PressableScale>
         </View>
       </SafeAreaView>
     );
@@ -230,9 +241,12 @@ export function SubscribePaymentScreen() {
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>طريقة الدفع</Text>
         <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
           {(["libyana", "madar", "bank"] as const).map((p) => (
-            <Pressable key={p} onPress={() => setProvider(p)} style={{ flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: provider === p ? colors.gold : colors.surface2, alignItems: "center" }}>
+            // r131-F10 (A2 P1-4 + fix 5): payment providers ride PressableScale
+            // (was a silent raw Pressable) and expose the selected state to
+            // TalkBack/VoiceOver (was missing entirely on this control).
+            <PressableScale key={p} onPress={() => setProvider(p)} hitSlop={4} accessibilityLabel={p === "libyana" ? "ليبيانا" : p === "madar" ? "مدار" : "بنك"} accessibilityState={{ selected: provider === p }} style={{ flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: provider === p ? colors.gold : colors.surface2, alignItems: "center" }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: provider === p ? colors.void : colors.muted }} maxFontSizeMultiplier={1.4}>{p === "libyana" ? "ليبيانا" : p === "madar" ? "مدار" : "بنك"}</Text>
-            </Pressable>
+            </PressableScale>
           ))}
         </View>
         <LabelAndInput label="رقم المرسل" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
@@ -255,12 +269,15 @@ export function SubscribePaymentScreen() {
 }
 
 function LabelAndInput({ label, value, onChange, placeholder, keyboardType }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; keyboardType?: "default" | "phone-pad" | "numeric" }) {
+  // r131-F10 (fix 7): the wizard's shared field rides the app-wide focus
+  // halo (fieldFocusBorderStyle) — these inputs had no focus treatment.
+  const [focused, setFocused] = useState(false);
   return (
     <View style={{ marginBottom: 12 }}>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>{label}</Text>
       {/* r126-M6: minHeight (was height: 44) + paddingVertical — text grows
           with system font scale instead of clipping at fontScale ≥1.3. */}
-      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={colors.muted} keyboardType={keyboardType || "default"} style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: colors.hairline, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14 }} />
+      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={colors.muted} keyboardType={keyboardType || "default"} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} style={{ minHeight: 44, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, ...fieldFocusBorderStyle(focused) }} />
     </View>
   );
 }

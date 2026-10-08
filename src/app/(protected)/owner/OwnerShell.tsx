@@ -208,14 +208,28 @@ export function OwnerShell({
         return (
                 <OwnerSessionContext.Provider value={sessionValue}>
                         <div className="flex min-h-dvh">
-                                {/* Desktop sidebar — premium glass card */}
+                                {/* r131-F4 (A1 P2-3): night-shell rail — SO shell.tsx port
+                                    (Madarek layout.css v3 wave B): dark paints the night-sky
+                                    gradient (gold aurora + indigo + sky ladder) + constellation
+                                    dots; light stays the flat card ground. The hairline moves to
+                                    border-e (the content boundary — border-s painted the viewport
+                                    edge in RTL), and the rail is sticky full-height at
+                                    240/256px (w-60 xl:w-64). */}
                                 <aside
                                         className={cn(
-                                                'relative hidden w-60 shrink-0 flex-col lg:flex',
-                                                'border-s border-border/50 bg-card/80 backdrop-blur-md',
+                                                'relative hidden w-60 shrink-0 flex-col lg:flex xl:w-64 sticky top-0 h-screen',
+                                                'border-e border-border/60 bg-card',
+                                                'dark:bg-[radial-gradient(340px_200px_at_82%_-60px,rgb(233_180_76/0.06),transparent_72%),radial-gradient(280px_220px_at_-20%_108%,rgb(111_168_255/0.05),transparent_70%),linear-gradient(180deg,var(--muted)_0%,var(--background)_34%,var(--background)_100%)]',
                                                 'shadow-sm'
                                         )}
                                 >
+                                        {/* Constellation dots — paint-only, dark-only, <=0.22a
+                                            (never competing with labels); physical coords,
+                                            direction-agnostic. */}
+                                        <span
+                                                aria-hidden="true"
+                                                className="pointer-events-none absolute inset-0 hidden dark:block bg-no-repeat [background-image:radial-gradient(1.8px_1.8px_at_21%_12%,rgb(242_239_230/0.22),transparent_100%),radial-gradient(1px_1px_at_68%_7%,rgb(142_151_184/0.16),transparent_100%),radial-gradient(1.5px_1.5px_at_87%_21%,rgb(242_239_230/0.15),transparent_100%),radial-gradient(1px_1px_at_42%_30%,rgb(142_151_184/0.12),transparent_100%),radial-gradient(1.8px_1.8px_at_9%_44%,rgb(233_180_76/0.18),transparent_100%),radial-gradient(1px_1px_at_76%_58%,rgb(142_151_184/0.11),transparent_100%),radial-gradient(1.5px_1.5px_at_28%_74%,rgb(242_239_230/0.14),transparent_100%),radial-gradient(1.2px_1.2px_at_58%_88%,rgb(233_180_76/0.12),transparent_100%)]"
+                                        />
                                         <SidebarContent />
                                 </aside>
 
@@ -241,7 +255,9 @@ export function OwnerShell({
                                         <div
                                                 id="main-content"
                                                 tabIndex={-1}
-                                                className="flex-1 bg-background p-4 md:p-6 lg:p-8 focus:outline-none"
+                                                /* r131-F5 (A1 P1-7): canonical page gutter — 20px mobile /
+                                                        48px desktop (was 16/24/32). */
+                                                className="flex-1 bg-background p-5 lg:p-12 focus:outline-none"
                                         >
                                                 <UserBannerNotifier />
                                                 <SubscriptionExpiryBanner days={planDays} />

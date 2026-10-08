@@ -109,10 +109,10 @@ export const KpiCard = memo(function KpiCard({
 
         const body = (
                 <>
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between gap-4">
                                 <div className="space-y-1.5">
-                                        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-                                        <p className="text-3xl font-bold tracking-normal">
+                                        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+                                        <p className="text-3xl font-bold tracking-normal tabular-nums">
                                                 {animated ? <AnimatedCounter value={value} /> : <>{toArabicNumber(value)}{suffix}</>}
                                         </p>
                                         {subtitle && <p className="text-2xs text-muted-foreground">{subtitle}</p>}
@@ -122,7 +122,7 @@ export const KpiCard = memo(function KpiCard({
                                                         {trend !== undefined && (
                                                                 <span
                                                                         className={cn(
-                                                                                'text-xs font-medium flex items-center gap-0.5',
+                                                                                'text-xs font-medium flex items-center gap-0.5 tabular-nums',
                                                                                 trend >= 0 ? 'text-success' : 'text-destructive'
                                                                         )}
                                                                 >
@@ -137,18 +137,23 @@ export const KpiCard = memo(function KpiCard({
                                                 </div>
                                         )}
                                 </div>
-                                <div className={cn('rounded-xl p-3 ring-1 ring-border/30 shadow-sm shrink-0', iconBg || 'bg-orange-muted')}>
+                                {/* 44px pastel well (p-3 + size-5) — r131-F5 (A1 P1-4):
+                                   r-lg 12px radius + the canonical 1.5px inset
+                                   role-accent 30% rim (Madarek .metric-icon).
+                                   Was rounded-xl with a neutral border rim. */}
+                                <div className={cn('rounded-lg p-3 ring-[1.5px] ring-inset ring-[color:var(--accent-solid)]/30 shrink-0', iconBg || 'bg-orange-muted')}>
                                         <Icon className={cn('size-5', iconColor || 'text-orange')} aria-hidden="true" />
                                 </div>
                         </div>
                 </>
         );
 
-        /* Entrance: soft fade/slide ≤300ms with a light stagger per card.
-                 Disabled entirely under prefers-reduced-motion. */
+        /* Entrance (r131-F5, A1 P1-4): canonical scale .92 spring pop-in
+           (--ease-spring-soft register) with the 60ms card stagger;
+           fully disabled under prefers-reduced-motion. */
         const entranceTransition = reduceMotion
                 ? undefined
-                : { duration: 0.28, ease: 'easeOut' as const, delay: index * 0.06 };
+                : { type: 'spring' as const, stiffness: 260, damping: 24, delay: index * 0.06 };
 
         /* a11y (4.1.2 / keyboard): clickable cards are real stretched Links — a native
                  anchor gives role=link + Enter activation + focus for free, instead of a
@@ -156,12 +161,16 @@ export const KpiCard = memo(function KpiCard({
         if (href) {
                 return (
                         <m.div
-                                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
+                                initial={reduceMotion ? false : { opacity: 0, scale: 0.92 }}
+                                animate={{ opacity: 1, scale: 1 }}
                                 transition={entranceTransition}
                                 className={cn(
-                                        'group relative rounded-2xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-base',
+                                        'group relative rounded-xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-base',
                                         'hover:border-orange/40 hover:shadow-lg hover:shadow-orange/10 hover:-translate-y-1',
+                                        /* hover edge-rail — signature #4: 2px accent bar on the
+                                           leading edge, scaleY spring from the bottom. */
+                                        'before:absolute before:inset-y-3 before:start-0 before:w-0.5 before:origin-bottom before:scale-y-0 before:rounded-e-full before:bg-[var(--accent-solid)] before:transition-transform before:duration-slower before:ease-[var(--ease-spring-soft,cubic-bezier(0.16,1,0.3,1))] hover:before:scale-y-100',
+                                        'min-h-[132px]',
                                 )}
                         >
                                 {/* stretched-link pattern: whole card is one link target */}
@@ -171,18 +180,21 @@ export const KpiCard = memo(function KpiCard({
                                 >
                                         <span className="sr-only">{label}</span>
                                 </Link>
-                                <div className="p-5">{body}</div>
+                                <div className="p-6">{body}</div>
                         </m.div>
                 );
         }
 
         return (
                 <m.div
-                        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={reduceMotion ? false : { opacity: 0, scale: 0.92 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         transition={entranceTransition}
                         className={cn(
-                                'group relative overflow-hidden rounded-2xl border border-border/50 bg-card/80 p-5 shadow-sm backdrop-blur-sm transition-[border-color] duration-fast',
+                                'group relative overflow-hidden rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-[border-color] duration-fast',
+                                'hover:border-orange/40',
+                                'before:absolute before:inset-y-3 before:start-0 before:w-0.5 before:origin-bottom before:scale-y-0 before:rounded-e-full before:bg-[var(--accent-solid)] before:transition-transform before:duration-slower before:ease-[var(--ease-spring-soft,cubic-bezier(0.16,1,0.3,1))] hover:before:scale-y-100',
+                                'min-h-[132px]',
                         )}
                 >
                         {body}

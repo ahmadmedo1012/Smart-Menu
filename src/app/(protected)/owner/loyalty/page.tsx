@@ -5,7 +5,7 @@ import { buildWhatsAppShareUrl } from '@/lib/whatsapp';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {Users, Gift, TrendingUp, Award, AlertCircle, Share2} from 'lucide-react';
+import {Users, Gift, TrendingUp, Award, Share2} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedMessageCircle from '@/components/ui/message-circle-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
@@ -17,6 +17,10 @@ import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { premiumToast } from '@/lib/premium-toast';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { EmptyState } from '@/components/ui/empty-state';
+import { KpiGridSkeleton, ListCardSkeleton } from '@/components/shared/DashboardSkeletons';
 import { TierChart } from './TierChart';
 import { ReferrerList } from './ReferrerList';
 import { TransactionTable } from './TransactionTable';
@@ -121,7 +125,7 @@ function StatCard({
         bg: string;
 }) {
         return (
-                <div className="group card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50 shadow-lg shadow-black/20">
+                <div className="group card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50 shadow-lg shadow-black/20">
                         <div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-accent-foreground/10 to-transparent transition-transform duration-cinema ease-out group-hover:translate-x-1/3 group-hover:skew-x-0" />
                         <div className="relative z-10 flex items-start justify-between">
                                 <div className="space-y-1">
@@ -150,7 +154,7 @@ function ConversionRate({
         converted: number;
 }) {
         return (
-                <div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
+                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
                         <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                         <TrendingUp className="size-4 text-orange" />
@@ -234,12 +238,12 @@ function RedeemPanel({ restaurantId, onRedeemed }: { restaurantId: number | null
                         onRedeemed();
                 } catch (e) {
                         setPhase('found');
-                        setNotice({ kind: 'error', text: e instanceof Error ? e.message : 'فشل الاستبدال — حاول مجدداً' });
+                        setNotice({ kind: 'error', text: e instanceof Error ? e.message : 'تعذر الاستبدال — حاول مجدداً' });
                 }
         };
 
         return (
-                <div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
+                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
                         <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
                                 <Gift className="size-4 text-muted-foreground" /> استبدال وجبة مجانية
                         </h2>
@@ -358,39 +362,35 @@ export default function OwnerLoyaltyPage() {
                         premiumToast('copy', 'تم نسخ رابط الإحالة');
                         setTimeout(() => setCopied(false), 2000);
                 } catch {
-                        premiumToast('error', 'فشل نسخ الرابط');
+                        premiumToast('error', 'تعذر نسخ الرابط');
                 }
         }, [ownerRefUrl]);
 
         /* ---------- Loading ---------- */
         if (loading)
+                // r131-F5 (A11 SM-2): shape-matched skeleton (KPI strip + breakdown
+                // cards) — was four bare animate-pulse blocks.
                 return (
-                        <div className="space-y-6 animate-fade-in">
-                                <LoadingAnnouncer loading message="جاري تحميل بيانات الولاء..." completedMessage="تم تحميل بيانات الولاء" />
-                                <div className="grid gap-4 sm:grid-cols-4">
-                                        {[1, 2, 3, 4].map((i) => (
-                                                <div key={i} className="h-28 animate-pulse rounded-md bg-muted" />
-                                        ))}
+                        <div className="space-y-8 animate-fade-in" aria-live="polite" aria-label="جارٍ تحميل بيانات الولاء">
+                                <LoadingAnnouncer loading message="جارٍ تحميل بيانات الولاء..." completedMessage="تم تحميل بيانات الولاء" />
+                                <KpiGridSkeleton />
+                                <div className="grid gap-6 lg:grid-cols-3">
+                                        <ListCardSkeleton />
+                                        <ListCardSkeleton rows={3} />
+                                        <ListCardSkeleton rows={3} />
                                 </div>
-                                <div className="h-64 animate-pulse rounded-md bg-muted" />
-                                <div className="h-48 animate-pulse rounded-md bg-muted" />
-                                <div className="h-48 animate-pulse rounded-md bg-muted" />
                         </div>
                 );
 
         /* ---------- Error ---------- */
         if (error)
+                // r131-F5 (A1 P1-12): canonical error family (56px well + dot + retry).
                 return (
-                        <div className="card-premium flex flex-col items-center justify-center rounded-md bg-card/60 px-6 py-20 text-center backdrop-blur-sm border border-border/50">
-                                <div className="mb-4 flex size-16 items-center justify-center rounded-md bg-destructive/10">
-                                        <AlertCircle className="size-7 text-destructive" />
-                                </div>
-                                <p className="text-lg font-semibold">خطأ في تحميل بيانات الولاء</p>
-                                <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-                                <Button variant="outline" className="mt-5" onClick={() => load()}>
-                                        <AnimatedRefreshCw className="size-4 me-2" /> إعادة المحاولة
-                                </Button>
-                        </div>
+                        <ErrorState
+                                title="تعذر تحميل بيانات الولاء"
+                                error={error}
+                                onRetry={() => load()}
+                        />
                 );
 
         /* ---------- Empty state (no data at all) ---------- */
@@ -401,33 +401,33 @@ export default function OwnerLoyaltyPage() {
                 stats.recentTransactions.length === 0;
 
         if (isEmpty)
+                // r131-F5 (A1 P0-3): the full-card hand-rolled empty joins the shared
+                // EmptyState primitive (56px tile / 18px title / CTA).
                 return (
-                        <div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
+                        <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
                                 <Button variant="ghost" size="sm" onClick={() => router.push('/owner')} className="mb-2">
                                         <MotionArrowRight className="size-4 me-1" /> العودة
                                 </Button>
-                                <div className="card-premium flex flex-col items-center justify-center rounded-md bg-card/60 px-6 py-20 text-center backdrop-blur-sm border border-border/50">
-                                        <div className="mb-4 flex size-16 items-center justify-center rounded-md bg-orange/10">
-                                                <Gift className="size-7 text-orange" />
+                                <EmptyState
+                                        icon={Gift}
+                                        title="لا توجد عناصر"
+                                        description="لم يتم إضافة أي بيانات ولاء بعد. ابدأ بإعداد برنامج الولاء من الإعدادات."
+                                        action={
+                                                <Button variant="outline" size="sm" onClick={() => setShowSettings(true)} className="gap-2">
+                                                        <Award className="size-4" /> الإعدادات
+                                                </Button>
+                                        }
+                                />
+                                {showSettings && (
+                                        <div className="mx-auto w-full max-w-md animate-fade-in">
+                                                <LoyaltySettings
+                                                        onSaved={() => {
+                                                                setShowSettings(false);
+                                                                load();
+                                                        }}
+                                                />
                                         </div>
-                                        <p className="text-lg font-semibold">لا توجد عناصر</p>
-                                        <p className="mt-1 text-sm text-muted-foreground">
-                                                لم يتم إضافة أي بيانات ولاء بعد. ابدأ بإعداد برنامج الولاء من الإعدادات.
-                                        </p>
-                                        <Button variant="outline" className="mt-5" onClick={() => setShowSettings(true)}>
-                                                <Award className="size-4 me-2" /> الإعدادات
-                                        </Button>
-                                        {showSettings && (
-                                                <div className="mt-8 w-full max-w-md animate-fade-in">
-                                                        <LoyaltySettings
-                                                                onSaved={() => {
-                                                                        setShowSettings(false);
-                                                                        load();
-                                                                }}
-                                                        />
-                                                </div>
-                                        )}
-                                </div>
+                                )}
                         </div>
                 );
 
@@ -465,38 +465,37 @@ export default function OwnerLoyaltyPage() {
         const rbs = stats?.referralsByStatus ?? { pending: 0, converted: 0, expired: 0 };
 
         return (
-                <div className="mx-auto max-w-6xl space-y-8 animate-fade-in">
+                /* r131-F5 (A1 P0-8/P1-7): canonical 1280px container + page-header. */
+                <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
                         {/* ---- Header ---- */}
                         <Button variant="ghost" size="sm" onClick={() => router.push('/owner')} className="mb-2">
                                 <MotionArrowRight className="size-4 me-1" /> العودة
                         </Button>
-                        <div className="flex items-center justify-between flex-wrap gap-4">
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">برنامج الولاء</h1>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                                إدارة برنامج الولاء والإحالات والمكافآت
-                                        </p>
-                                </div>
-                                <div className="flex gap-2">
-                                        <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="gap-1.5 border-border/50 backdrop-blur-sm"
-                                                onClick={() => setShowSettings(!showSettings)}
-                                        >
-                                                <Award className="size-4" />
-                                                {showSettings ? 'إخفاء الإعدادات' : 'الإعدادات'}
-                                        </Button>
-                                        <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="gap-1.5 border-border/50 backdrop-blur-sm"
-                                                onClick={() => load()}
-                                        >
-                                                <AnimatedRefreshCw className="size-4" /> تحديث
-                                        </Button>
-                                </div>
-                        </div>
+                        <PageHeader
+                                title="برنامج الولاء"
+                                subtitle="إدارة برنامج الولاء والإحالات والمكافآت"
+                                actions={
+                                        <>
+                                                <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="gap-1.5"
+                                                        onClick={() => setShowSettings(!showSettings)}
+                                                >
+                                                        <Award className="size-4" />
+                                                        {showSettings ? 'إخفاء الإعدادات' : 'الإعدادات'}
+                                                </Button>
+                                                <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="gap-1.5"
+                                                        onClick={() => load()}
+                                                >
+                                                        <AnimatedRefreshCw className="size-4" /> تحديث
+                                                </Button>
+                                        </>
+                                }
+                        />
 
                         {/* ---- Settings panel ---- */}
                         {showSettings && (
@@ -528,7 +527,7 @@ export default function OwnerLoyaltyPage() {
                                         converted={stats?.convertedReferrals ?? 0}
                                 />
 
-                                <div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
+                                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
                                         <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
                                                 <Award className="size-4 text-muted-foreground" /> الإحالات حسب الحالة
                                         </h2>
@@ -551,7 +550,7 @@ export default function OwnerLoyaltyPage() {
                                         </div>
                                 </div>
 
-                                <div className="card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50">
+                                <div className="card-premium relative overflow-hidden rounded-xl bg-card p-5 border border-border/50">
                                         <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
                                                 <Share2 className="size-4 text-muted-foreground" /> مشاركة رابط الإحالة
                                         </h2>
@@ -588,7 +587,7 @@ export default function OwnerLoyaltyPage() {
 
                         {/* ---- Referrals + Transactions ---- */}
                         <div className="grid gap-6 lg:grid-cols-2">
-                                <div className="card-premium relative overflow-hidden rounded-md bg-card border border-border/50">
+                                <div className="card-premium relative overflow-hidden rounded-xl bg-card border border-border/50">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <Gift className="size-4 text-muted-foreground" />
@@ -604,7 +603,7 @@ export default function OwnerLoyaltyPage() {
                                         <ReferrerList referrals={stats?.recentReferrals ?? []} />
                                 </div>
 
-                                <div className="card-premium relative overflow-hidden rounded-md bg-card border border-border/50">
+                                <div className="card-premium relative overflow-hidden rounded-xl bg-card border border-border/50">
                                         <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                         <AnimatedClock className="size-4 text-muted-foreground" />
@@ -616,7 +615,7 @@ export default function OwnerLoyaltyPage() {
                         </div>
 
                         {/* ---- Tier Distribution ---- */}
-                        <div className="card-premium relative overflow-hidden rounded-md bg-card border border-border/50">
+                        <div className="card-premium relative overflow-hidden rounded-xl bg-card border border-border/50">
                                 <div className="flex items-center justify-between border-b border-border/20 px-5 py-4">
                                         <div className="flex items-center gap-2">
                                                 <Award className="size-4 text-muted-foreground" />

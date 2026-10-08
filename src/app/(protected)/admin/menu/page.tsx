@@ -13,6 +13,7 @@ import { Package, Store, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toArabicNumber, formatPrice } from "@/lib/format"
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { PageHeader } from "@/components/shared/PageHeader"
 import { Badge } from "@/components/ui/badge"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
@@ -141,7 +142,7 @@ export default function AdminMenuPage() {
       })
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: ns } : i))
       premiumToast(ns === "available" ? "success" : "error", ns === "available" ? "متوفر" : "غير متوفر")
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل التحديث")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر التحديث")) }
   }
 
   const deleteItem = async () => {
@@ -151,7 +152,7 @@ export default function AdminMenuPage() {
       premiumToast("success", "تم حذف الصنف")
       setDeleteTarget(null)
       fetchData()
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف")) }
   }
 
   if (loading) return (
@@ -166,18 +167,18 @@ export default function AdminMenuPage() {
     if (access === 'denied') return <AccessDenied />
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-normal">إدارة المنيو</h1>
-          <p className="text-sm text-muted-foreground">{toArabicNumber(items.length)} صنف في {toArabicNumber(totalRestaurants)} مطعم</p>
-        </div>
-        <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15 self-start">
-          <Activity className="size-3.5 text-success animate-pulse" />
-          تحديث تلقائي
-        </Badge>
-      </div>
+    <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
+      {/* r131-F5 (A1 P0-8): canonical page header. */}
+      <PageHeader
+        title="إدارة المنيو"
+        subtitle={`${toArabicNumber(items.length)} صنف في ${toArabicNumber(totalRestaurants)} مطعم`}
+        actions={
+          <Badge variant="outline" className="gap-1.5 bg-success/10 dark:bg-success/15">
+            <Activity className="size-3.5 text-success animate-pulse" />
+            تحديث تلقائي
+          </Badge>
+        }
+      />
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">

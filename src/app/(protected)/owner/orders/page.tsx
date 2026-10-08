@@ -1,20 +1,20 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { BackButton } from '@/components/shared/BackButton';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { premiumToast } from '@/lib/premium-toast';
 import { csrfJson } from '@/lib/csrf-client';
 import { getErrorMessage } from '@/lib/get-error-message';
-import { Download, Loader2, AlertCircle } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 import { getOrderStatusMeta, getPickupTypeMeta } from '@/lib/order-status';
 import { LivePollIndicator } from '@/components/orders/LivePollIndicator';
-import { OrderCardSkeleton } from '@/components/orders/OrderCardSkeleton';
 import { NewOrdersBar } from '@/components/orders/NewOrdersBar';
-import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { OrdersPageSkeleton } from '@/components/shared/DashboardSkeletons';
 import { OrdersTable, type Order } from './OrdersTable';
 import { OrdersFilters } from './OrdersFilters';
 import { useOrdersPolling } from './use-orders-polling';
@@ -40,7 +40,6 @@ export default function OwnerOrdersPage() {
         const [filter, setFilter] = useState('');
         const [search, setSearch] = useState('');
         const [page, setPage] = useState(1);
-        const [hasMore, setHasMore] = useState(true);
         const [dateFrom, setDateFrom] = useState('');
         const [dateTo, setDateTo] = useState('');
         const [error, setError] = useState<string | null>(null);
@@ -100,11 +99,10 @@ export default function OwnerOrdersPage() {
                                         setOrders(newOrders);
                                         ordersRef.current = newOrders;
                                 }
-                                setHasMore(newOrders.length === PAGE_SIZE);
                                 setPage(pageNum);
                         } catch (e) {
-                                setError(getErrorMessage(e, 'فشل تحميل الطلبات'));
-                                premiumToast('error', getErrorMessage(e, 'فشل تحميل الطلبات'));
+                                setError(getErrorMessage(e, 'تعذر تحميل الطلبات'));
+                                premiumToast('error', getErrorMessage(e, 'تعذر تحميل الطلبات'));
                         } finally {
                                 if (pageNum === 1) setLoading(false);
                                 else setLoadingMore(false);
@@ -113,7 +111,12 @@ export default function OwnerOrdersPage() {
                 [dateFrom, dateTo, activeId, setLoadingMore]
         );
 
-        const loadMore = () => fetchOrders(filter, page + 1, true);
+        // r131-F5 (A1 P1-1): numbered pagination replaces the append/load-more
+        // pattern — page changes refetch that window server-side.
+        const handlePageChange = useCallback(
+                (p: number) => fetchOrders(filter, p, false),
+                [filter, fetchOrders]
+        );
 
         const { resetProbe } = useOrdersPolling({ filter, activeId, fetchOrders });
 
@@ -158,7 +161,7 @@ export default function OwnerOrdersPage() {
                 } catch (e) {
                         // Rollback to the exact previous state
                         setStatusEverywhere(prevStatus);
-                        premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة — أُعيدت الحالة السابقة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة — أُعيدت الحالة السابقة'));
                 } finally {
                         setPendingStatus((prev) => {
                                 if (!(orderId in prev)) return prev;
@@ -239,7 +242,7 @@ export default function OwnerOrdersPage() {
                         URL.revokeObjectURL(link.href);
                         premiumToast('save', 'تم تصدير الطلبات المعروضة');
                 } catch {
-                        premiumToast('error', 'فشل التصدير');
+                        premiumToast('error', 'تعذر التصدير');
                 } finally {
                         setExporting(false);
                 }
@@ -268,76 +271,44 @@ export default function OwnerOrdersPage() {
         const handleOpen = (order: Order) => router.push(`/owner/orders/${order.id}`);
 
         if (loading)
-                return (
-                        <div className="space-y-4 animate-fade-in">
-                                <LoadingAnnouncer loading={true} message="جارٍ تحميل الطلبات..." />
-                                {/* Back button skeleton */}
-                                <div className="h-8 w-24 rounded-md bg-muted/40 animate-pulse" />
-                                {/* Title skeleton */}
-                                <div className="h-8 w-32 rounded-lg bg-muted/50 animate-pulse" />
-                                {/* Search skeleton */}
-                                <div className="h-11 rounded-md bg-muted/40 animate-pulse" />
-                                {/* Chips skeleton */}
-                                <div className="flex gap-2">
-                                        {[1, 2, 3, 4, 5].map((i) => (
-                                                <div key={i} className="h-9 w-20 rounded-md bg-muted/40 animate-pulse" />
-                                        ))}
-                                </div>
-                                <OrderCardSkeleton />
-                        </div>
-                );
+                // r131-F5 (A1 P1-6): the shape-matched orders skeleton (header +
+                // search/chips + order rows) — the old animate-pulse blocks were
+                // a competing loading language.
+                return <OrdersPageSkeleton />;
 
         if (error && orders.length === 0)
+                // r131-F5 (A1 P1-12): canonical error family (surface + dot + retry).
                 return (
-                        <div
-                                className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in"
-                                role="alert"
-                        >
-                                <LoadingAnnouncer loading={false} message="" completedMessage="فشل تحميل الطلبات" />
-                                <div className="size-20 rounded-md bg-destructive/10 flex items-center justify-center">
-                                        <AlertCircle className="size-10 text-destructive/60" />
-                                </div>
-                                <p className="text-lg font-medium">حدث خطأ</p>
-                                <p className="text-sm text-muted-foreground">{error}</p>
-                                <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => fetchOrders(filter, 1, false)}
-                                        className="gap-1.5"
-                                >
-                                        إعادة المحاولة
-                                </Button>
-                        </div>
+                        <ErrorState
+                                title="تعذر تحميل الطلبات"
+                                error={error}
+                                onRetry={() => fetchOrders(filter, 1, false)}
+                        />
                 );
 
         return (
-                <div className="space-y-6 animate-fade-in overflow-x-clip">
-                        <BackButton href="/owner" />
-
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">الطلبات</h1>
-                                        <p className="text-sm text-muted-foreground">
-                                                {toArabicNumber(filtered.length)} طلب
-                                        </p>
-                                </div>
-                                <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-                                        <LivePollIndicator intervalSeconds={15} isActive={isLive} />
-                                        <button
-                                                type="button"
-                                                onClick={exportCsv}
-                                                disabled={filtered.length === 0 || exporting}
-                                                className="h-9 px-4 rounded-full border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-[background-color] disabled:opacity-40 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                                        >
-                                                {exporting ? (
-                                                        <Loader2 className="size-4 animate-spin motion-reduce:hidden" />
-                                                ) : (
-                                                        <Download className="size-4" aria-hidden="true" />
-                                                )}
-                                                {exporting ? 'جاري التصدير...' : 'تصدير CSV'}
-                                        </button>
-                                </div>
-                        </div>
+                /* r131-F5 (A1 P0-8/P1-7): canonical 1280px content column + 40px
+                        section rhythm. */
+                <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in overflow-x-clip">
+                        <PageHeader
+                                title="الطلبات"
+                                subtitle={`${toArabicNumber(totalOrders)} طلب — تابع الطلبات الواردة وحرّك حالتها من الاستلام حتى التسليم`}
+                                actions={
+                                        <>
+                                                <LivePollIndicator intervalSeconds={15} isActive={isLive} />
+                                                <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={exportCsv}
+                                                        disabled={filtered.length === 0 || exporting}
+                                                        loading={exporting}
+                                                >
+                                                    {!exporting && <Download className="size-4" aria-hidden="true" />}
+                                                        {exporting ? 'جارٍ التصدير…' : 'تصدير CSV'}
+                                                </Button>
+                                        </>
+                                }
+                        />
 
                         <OrdersFilters
                                 search={search}
@@ -356,12 +327,14 @@ export default function OwnerOrdersPage() {
                                 orders={filtered}
                                 pendingStatus={pendingStatus}
                                 loadingMore={loadingMore}
-                                hasMore={hasMore}
                                 hasActiveFilters={hasActiveFilters}
+                                page={page}
+                                totalOrders={totalOrders}
+                                pageSize={PAGE_SIZE}
+                                onPageChange={handlePageChange}
                                 onAdvance={handleAdvance}
                                 onCancel={handleCancel}
                                 onOpen={handleOpen}
-                                onLoadMore={loadMore}
                                 onClearFilters={clearAllFilters}
                         />
 

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { premiumToast } from '@/lib/premium-toast';
+import { premiumToast } from '@/lib/premium-toast'
+import { PageHeader } from '@/components/shared/PageHeader';
 import { Store } from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
 import { MotionCheck } from '@/components/ui/motion-icons';
@@ -55,7 +56,7 @@ export default function AdminQRPage() {
                         })
                         .catch(() => {
                                 setLoadState('error');
-                                premiumToast('error', 'فشل تحميل المطاعم');
+                                premiumToast('error', 'تعذر تحميل المطاعم');
                         });
         }, []);
 
@@ -70,7 +71,7 @@ export default function AdminQRPage() {
         };
 
         const downloadQR = async () => {
-                premiumToast('save', 'جاري تحميل رمز QR');
+                premiumToast('save', 'جارٍ تحميل رمز QR');
                 try {
                         // r106-N2: generated locally (data URL = same-origin) — the old
                         // blob/fetch dance existed only because the third-party PNG was
@@ -90,16 +91,13 @@ export default function AdminQRPage() {
                 if (access === 'denied') return <AccessDenied />
 
         return (
-                <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
-                        <div className="flex items-center gap-3">
-                                <div className="size-11 rounded-md bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center shadow-lg shadow-orange/25">
-                                        <AnimatedQrCode className="size-5 text-espresso" />
-                                </div>
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">رمز QR</h1>
-                                        <p className="text-sm text-muted-foreground">إنشاء رمز QR لكل مطعم</p>
-                                </div>
-                        </div>
+                <div className="space-y-8 animate-fade-in max-w-xl mx-auto">
+                        {/* r131-F5 (A1 P0-8): canonical page header (the 44px glow
+                                tile head is gone). */}
+                        <PageHeader
+                                title="رمز QR"
+                                subtitle="إنشاء رمز QR لكل مطعم"
+                        />
 
                         {/* r118-A5-F4: three honest states instead of one conflated
                             «لا توجد مطاعم» for loading, failure AND empty. */}
@@ -139,7 +137,7 @@ export default function AdminQRPage() {
                                                                 })
                                                                 .catch(() => {
                                                                         setLoadState('error');
-                                                                        premiumToast('error', 'فشل تحميل المطاعم');
+                                                                        premiumToast('error', 'تعذر تحميل المطاعم');
                                                                 });
                                                 }}
                                         >

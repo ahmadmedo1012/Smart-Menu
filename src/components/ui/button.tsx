@@ -42,7 +42,12 @@ const buttonVariants = cva(
                                 ghost:
                                         'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent dark:hover:bg-foreground/15',
                                 destructive:
-                                        'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/15 dark:hover:bg-destructive/25',
+                                        /* r131-F4 (A1 P1-8): solid danger fill (madarek .btn.danger —
+                                           solid --danger ground + void ink, 5.5:1) with the same
+                                           premium hover register as the other solid variants; the
+                                           old /10 soft wash read as a disabled ghost next to the
+                                           family's solid danger buttons. */
+                                        'bg-destructive text-destructive-foreground border-0 shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] hover:bg-destructive/95 focus-visible:border-destructive/40 focus-visible:ring-destructive/30',
                         },
                         size: {
                                 sm: 'h-8 gap-1.5 rounded-sm px-3 text-xs',

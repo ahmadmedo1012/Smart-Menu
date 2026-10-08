@@ -22,6 +22,7 @@ import { premiumToast } from '@/lib/premium-toast';
 import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from '@/components/shared/PageHeader';
 import { CreditCard, FilterX, AlertCircle, Smartphone, Landmark, ImageIcon } from 'lucide-react';
 import { MotionChevronLeft } from '@/components/ui/motion-icons';
 import { MotionChevronRight } from '@/components/ui/motion-icons';
@@ -100,7 +101,7 @@ export default function AdminSubscriptionsPage() {
                         setPayments(json.data?.data ?? []);
                         setTotal(json.data?.total ?? 0);
                 } catch {
-                        setError('فشل تحميل الاشتراكات');
+                        setError('تعذر تحميل الاشتراكات');
                 } finally {
                         setLoading(false);
                 }
@@ -126,7 +127,7 @@ export default function AdminSubscriptionsPage() {
                         });
                         if (!res.ok) {
                                 const err = await res.json().catch(() => ({}));
-                                throw new Error(err?.error || 'فشل تحديث الحالة');
+                                throw new Error(err?.error || 'تعذر تحديث الحالة');
                         }
                         setActionTarget(null);
                         await fetchPayments();
@@ -136,7 +137,7 @@ export default function AdminSubscriptionsPage() {
                                 actionType === 'verified' ? 'تم تفعيل الخطة للمطعم' : undefined
                         );
                 } catch (e) {
-                        const msg = e instanceof Error ? e.message : 'فشل تحديث الحالة';
+                        const msg = e instanceof Error ? e.message : 'تعذر تحديث الحالة';
                         // Show the error but still close dialog — user can retry
                         premiumToast('error', msg);
                         setActionTarget(null);
@@ -174,15 +175,12 @@ export default function AdminSubscriptionsPage() {
                 if (access === 'denied') return <AccessDenied />
 
         return (
-                <div className="space-y-6 animate-fade-in">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">إدارة الاشتراكات</h1>
-                                        <p className="text-sm text-muted-foreground">
-                                                {toArabicNumber(total)} اشتراك{total !== 1 ? '' : ''}
-                                        </p>
-                                </div>
-                        </div>
+                <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
+                        {/* r131-F5 (A1 P0-8): canonical page header. */}
+                        <PageHeader
+                                title="إدارة الاشتراكات"
+                                subtitle={`${toArabicNumber(total)} اشتراك — تتبع الخطط والمدفوعات`}
+                        />
 
                         {/* Stats */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -426,7 +424,7 @@ export default function AdminSubscriptionsPage() {
                                                         {actionLoading ? (
                                                                 <span className="flex items-center gap-2">
                                                                         <AnimatedRefreshCw className="size-4 animate-spin" />
-                                                                        جاري التحديث...
+                                                                        جارٍ التحديث...
                                                                 </span>
                                                         ) : actionType === 'verified' ? (
                                                                 'تأكيد'

@@ -561,14 +561,16 @@ export function SubscribeForm({
                                 </m.div>
                         </AnimatePresence>
 
-                        {/* ── Navigation buttons ── */}
+                        {/* ── Navigation buttons ──
+                            r131 (A2 P2-15): تجاوزات rounded-2xl أُزيلت — زر Button
+                            يرث r-md (10px) القانونية (كان 8/10/20 داخل تدفق واحد). */}
                         <div className="flex items-center gap-3 mt-8">
                                 {step !== 'menu' && (
                                         <Button
                                                 type="button"
                                                 variant="outline"
                                                 size="lg"
-                                                className="h-14 flex-1 rounded-2xl"
+                                                className="h-14 flex-1"
                                                 onClick={() => {
                                                         if (step === 'account') onStepChange('menu');
                                                         else if (step === 'review') onStepChange('account');
@@ -579,10 +581,10 @@ export function SubscribeForm({
                                         </Button>
                                 )}
                                 {step !== 'review' ? (
-                                        <Button type="button" size="lg" className="h-14 flex-1 rounded-2xl" onClick={goNext} disabled={validating}>
+                                        <Button type="button" size="lg" className="h-14 flex-1" onClick={goNext} disabled={validating}>
                                                 {validating ? (
                                                         <span className="flex items-center gap-2">
-                                                                <Loader2 className="size-4 animate-spin" /> جاري التحقق...
+                                                                <Loader2 className="size-4 animate-spin" /> جارٍ التحقق...
                                                         </span>
                                                 ) : (
                                                         <>
@@ -592,10 +594,10 @@ export function SubscribeForm({
                                                 )}
                                         </Button>
                                 ) : (
-                                        <Button size="lg" className="h-14 flex-1 rounded-2xl" type="submit" disabled={submitting}>
+                                        <Button size="lg" className="h-14 flex-1" type="submit" disabled={submitting}>
                                                 {submitting ? (
                                                         <span className="flex items-center gap-2">
-                                                                <Loader2 className="size-4 animate-spin" /> جاري إنشاء الحساب...
+                                                                <Loader2 className="size-4 animate-spin" /> جارٍ إنشاء الحساب...
                                                         </span>
                                                 ) : (
                                                         <>

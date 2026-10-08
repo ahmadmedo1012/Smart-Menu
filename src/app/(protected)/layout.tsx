@@ -2,11 +2,17 @@ import type { Metadata, Viewport } from 'next';
 import { preload } from 'react-dom';
 import { BRAND_THEME_COLOR, BRAND_THEME_COLOR_LIGHT } from '@/lib/brand';
 import { HIGH_CONTRAST_BOOT_SCRIPT } from '@/lib/high-contrast';
+/* r131-F4 (r130 SO ruling): pre-paint theme boot — one resolution path with
+   the provider (enableSystem OFF); see lib/theme-boot.ts. */
+import { THEME_BOOT_SCRIPT } from '@/lib/theme-boot';
 import { connection } from 'next/server';
 import { headers } from 'next/headers.js';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
-import { Toaster } from 'sonner';
+/* r131-F4: the ONE themed Toaster shell (bottom-end, no richColors) +
+   runtime theme-color meta sync (SL pattern). */
+import { AppToaster } from '@/components/ui/app-toaster';
+import { ThemeColorSync } from '@/components/shared/theme-color-sync';
 import { SITE_ORIGIN } from '@/lib/seo';
 import { ServiceWorkerInit } from '@/components/shared/ServiceWorkerInit';
 import { InstallPrompt } from '@/components/shared/InstallPrompt';
@@ -125,6 +131,10 @@ export default async function RootLayout({
                                 per-request nonce CSP from proxy.ts, so the script carries the
                                 same nonce Next stamps on every other inline script here. */}
                         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }} />
+                        {/* r131-F4 (r130 SO ruling): pre-paint theme boot — dark default,
+                            .light only when stored; rides the same per-request CSP nonce as
+                            the high-contrast script above. */}
+                        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
                                 <a
                                         href="#main-content"
                                         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-(--z-toast) focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-orange-foreground focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-ring/60"
@@ -132,7 +142,7 @@ export default async function RootLayout({
                                         تخطى إلى المحتوى الرئيسي
                                 </a>
                                 <div className="grain-overlay" />
-                                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem nonce={nonce}> {/* r95: داكن أولاً — توأمة SmartBot (توحيد مع العام) */}
+                                <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange nonce={nonce}> {/* r95: داكن أولاً — توأمة SmartBot (توحيد مع العام) */}
                                         <GridPattern
                                                 width={60}
                                                 height={60}
@@ -171,21 +181,10 @@ export default async function RootLayout({
                                         {/* r126 (P4-F1 M10/B5): sonner ships z-index 999999999 — pin to the
                                                     Madarek --z-toast rung (500, above modals, below the lightbox);
                                                     entrance rides the reveal token + --ease-out (audit B5). */}
-                                        <Toaster
-                                                position="top-center"
-                                                richColors
-                                                closeButton
-                                                dir="rtl"
-                                                style={{ zIndex: 'var(--z-toast, 500)' }}
-                                                toastOptions={{
-                                                        style: {
-                                                                animation: 'slide-up var(--motion-duration-reveal, 360ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1))',
-                                                                borderRadius: 'var(--r-lg, 12px)',
-                                                                padding: '8px',
-                                                        },
-                                                        className: 'border border-border/30 shadow-xl backdrop-blur-xl',
-                                                }}
-                                        />
+                                        {/* r131-F4: themed Toaster shell (bottom-end, no richColors) +
+                                            runtime theme-color sync — see ui/app-toaster.tsx. */}
+                                        <AppToaster />
+                                        <ThemeColorSync />
                                         <VercelAnalytics />
                                 </ThemeProvider>
                 </>

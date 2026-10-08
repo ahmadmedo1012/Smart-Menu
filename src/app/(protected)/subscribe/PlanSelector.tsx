@@ -99,8 +99,10 @@ export function PlanSelector({
                                                         </span>
                                                         <h3 className="font-heading font-bold text-lg mb-1">{plan.nameAr}</h3>
                                                         <div className="flex items-baseline gap-1 mb-3">
-                                                                {/* r128-F5: أرقام الأسعار بخط mono (نمط ln-mono) */}
-                                                                <span className="text-2xl font-bold tabular-nums font-mono">
+                                                                {/* r128-F5: أرقام الأسعار بخط mono (نمط ln-mono).
+                                                                   r131 (A2 P1-5 — حكم توحيد السعر): درجة --fs-metric-lg
+                                                                   الموحّدة (30px) عبر السطحين مع /pricing. */}
+                                                                <span className="text-[length:var(--fs-metric-lg,30px)] font-bold tabular-nums font-mono leading-none">
                                                                         {Number(plan.price) === 0 ? 'مجاني' : formatPrice(plan.price, { suffix: '' })}
                                                                 </span>
                                                                 {Number(plan.price) > 0 && (
@@ -129,10 +131,12 @@ export function PlanSelector({
                                 })}
                         </div>
                         <div className="text-center">
+                                {/* r131 (A2 P2-15): تقسيم أنصاف الأقطار داخل التدفق الواحد
+                                    (8/10/20) أُزيل — زر Button يرث r-md (10px) القانونية. */}
                                 <Button
                                         size="lg"
                                         variant={selected ? 'flame' : 'outline'}
-                                        className={cn('px-10 h-14 text-lg rounded-sm')}
+                                        className="px-10 h-14 text-lg"
                                         disabled={!selectedPlan}
                                         onClick={onContinue}
                                 >

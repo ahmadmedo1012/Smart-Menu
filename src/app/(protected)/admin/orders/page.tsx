@@ -18,6 +18,7 @@ import { toArabicNumber, formatPrice } from "@/lib/format"
 // derive from the lib so the copy can't fork either.
 import { ORDER_STATUS_META, getOrderStatusMeta } from '@/lib/order-status';
 import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { PageHeader } from "@/components/shared/PageHeader"
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
 
@@ -74,7 +75,7 @@ export default function AdminOrdersPage() {
       // round87-B1: paginated() puts totals under meta (flat `data.total` was
       // always undefined → totalCount silently fell back to the page length)
       setTotalCount(data.meta?.total ?? data.total ?? newOrders.length)
-    } catch { premiumToast("error", "فشل تحميل الطلبات") }
+    } catch { premiumToast("error", "تعذر تحميل الطلبات") }
     finally { setLoading(false) }
   }, [filter, dateFrom, dateTo])
 
@@ -124,7 +125,7 @@ export default function AdminOrdersPage() {
     } catch {
       // one toast per failed batch (the old serial loop toasted per page);
       // the list stays as-is — the next structural change re-triggers this.
-      premiumToast("error", "فشل تحميل الطلبات")
+      premiumToast("error", "تعذر تحميل الطلبات")
     }
   }, [filter, dateFrom, dateTo])
 
@@ -175,7 +176,7 @@ export default function AdminOrdersPage() {
       fetchOrders(1)
     } catch (e) {
       if (prev !== undefined) setOrders(prevList => prevList.map(o => (o.id === id ? { ...o, status: prev } : o)))
-      premiumToast("error", getErrorMessage(e, "فشل التحديث"))
+      premiumToast("error", getErrorMessage(e, "تعذر التحديث"))
     }
   }
 
@@ -213,17 +214,18 @@ export default function AdminOrdersPage() {
     if (access === 'denied') return <AccessDenied />
 
   return (
-    <div className="space-y-6 animate-fade-in overflow-x-clip">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-normal">الطلبات</h1>
-          <p className="text-sm text-muted-foreground">{toArabicNumber(totalCount)} طلب</p>
-        </div>
-        <Badge variant="outline" className="gap-1.5 bg-success/10 self-start">
-          <Activity className="size-3.5 text-success animate-pulse" />
-          تحديث تلقائي
-        </Badge>
-      </div>
+    /* r131-F5 (A1 P0-8): canonical container rhythm + page header. */
+    <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in overflow-x-clip">
+      <PageHeader
+        title="الطلبات"
+        subtitle={`${toArabicNumber(totalCount)} طلب — كل مطاعم الشبكة`}
+        actions={
+          <Badge variant="outline" className="gap-1.5 bg-success/10">
+            <Activity className="size-3.5 text-success animate-pulse" />
+            تحديث تلقائي
+          </Badge>
+        }
+      />
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

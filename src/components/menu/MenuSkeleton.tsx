@@ -23,7 +23,7 @@ export function MenuSkeleton() {
                         aria-busy="true"
                         className="relative min-h-dvh overflow-x-clip"
                 >
-                        <span className="sr-only">جاري تحميل المنيو...</span>
+                        <span className="sr-only">جارٍ تحميل المنيو...</span>
 
                         {/* رأس لاصق مؤقت — يمنع قفزة التخطيط عند ظهور StickyMenuHeader */}
                         <div className="fixed inset-x-0 top-0 z-30 h-14" aria-hidden="true" />

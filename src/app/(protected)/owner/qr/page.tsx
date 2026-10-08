@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/shared/PageHeader';
 import { premiumToast } from '@/lib/premium-toast';
 import {Store, Smartphone, Printer} from 'lucide-react';
 import AnimatedQrCode from '@/components/ui/qrcode-icon';
@@ -98,7 +100,7 @@ export default function OwnerQRPage() {
         };
 
         return (
-                <div className="space-y-6 animate-fade-in max-w-xl mx-auto">
+                <div className="space-y-8 animate-fade-in max-w-xl mx-auto">
                         <Button
                                 variant="ghost"
                                 size="sm"
@@ -109,35 +111,33 @@ export default function OwnerQRPage() {
                                 العودة
                         </Button>
 
-                        <div className="flex items-center gap-3">
-                                <div className="size-11 rounded-md bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron))] flex items-center justify-center shadow-lg shadow-orange/25">
-                                        <AnimatedQrCode className="size-5 text-espresso" />
-                                </div>
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">رمز QR</h1>
-                                        <p className="text-sm text-muted-foreground">شارك المنيو الرقمي لمطعمك</p>
-                                </div>
-                        </div>
+                        <PageHeader
+                                title="رمز QR"
+                                subtitle="شارك المنيو الرقمي لمطعمك"
+                        />
 
-                        {/* Empty state */}
+                        {/* Empty state — r131-F5 (A1 P0-3): joins the shared
+                                primitive (was a hand-rolled icon + text). */}
                         {loaded && !url && (
-                                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-                                        <AnimatedQrCode className="size-10 text-muted-foreground/50" />
-                                        <p className="text-sm">لا توجد بيانات للمطعم</p>
-                                        <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => router.push('/owner')}
-                                                className="mt-2"
-                                        >
-                                                العودة للوحة التحكم
-                                        </Button>
-                                </div>
+                                <EmptyState
+                                        icon={AnimatedQrCode}
+                                        title="لا توجد بيانات للمطعم"
+                                        description="أكمل إعداد بيانات مطعمك من الإعدادات ثم عد لإنشاء رمز QR."
+                                        action={
+                                                <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => router.push('/owner')}
+                                                >
+                                                        العودة للوحة التحكم
+                                                </Button>
+                                        }
+                                />
                         )}
 
                         {/* QR Card */}
                         {url && (
-                                <div className="rounded-md bg-card/50 border border-border/30 overflow-hidden">
+                                <div className="rounded-xl bg-card/50 border border-border/30 overflow-hidden">
                                         {/* Restaurant info */}
                                         <div className="flex items-center gap-3 p-5 border-b border-border/20 bg-gradient-to-l from-orange-muted/30 to-transparent dark:from-orange-muted">
                                                 <div className="size-10 rounded-xl bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
@@ -183,7 +183,8 @@ export default function OwnerQRPage() {
 
                                         {/* Controls */}
                                         <div className="p-5 space-y-5">
-                                                {/* Size selector */}
+                                                {/* Size selector — r131-F5 (A1 P0-4): canonical
+                                                        control recipe (r-md + 600), was rounded-xl/500. */}
                                                 <div role="group" aria-label="حجم رمز QR">
                                                         <Label className="text-xs text-muted-foreground">حجم رمز QR</Label>
                                                         <div className="flex gap-2 mt-1.5">
@@ -194,7 +195,7 @@ export default function OwnerQRPage() {
                                                                                 onClick={() => setQrSize(s.value)}
                                                                                 aria-pressed={qrSize === s.value}
                                                                                 className={cn(
-                                                                                        'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                                        'flex-1 min-h-11 rounded-md text-sm font-semibold border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 active:scale-[0.97] active:duration-[var(--t-micro,80ms)]',
                                                                                         qrSize === s.value
                                                                                                 ? 'bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground'
                                                                                                 : 'border-border/30 hover:border-orange/20'
@@ -210,7 +211,7 @@ export default function OwnerQRPage() {
                                                 <div>
                                                         <Label htmlFor="qr-url-input" className="text-xs text-muted-foreground">رابط المنيو</Label>
                                                         <div className="flex gap-2 mt-1.5">
-                                                                <Input id="qr-url-input" value={url} readOnly dir="ltr" className="text-sm h-11 rounded-xl" />
+                                                                <Input id="qr-url-input" value={url} readOnly dir="ltr" className="text-sm" />
                                                                 <Button
                                                                         variant="outline"
                                                                         size="icon"

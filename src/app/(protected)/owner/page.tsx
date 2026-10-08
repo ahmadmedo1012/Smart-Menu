@@ -28,6 +28,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { OwnerKpiGrid } from './OwnerKpiGrid';
 import { StatusBreakdown, PopularItems, RecentOrders } from './OwnerOrdersList';
 import { AnalyticsTab } from './OwnerCharts';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { KpiGridSkeleton, ListCardSkeleton } from '@/components/shared/DashboardSkeletons';
 
 /* ---------- Types ---------- */
 
@@ -124,7 +127,7 @@ export default function OwnerDashboard() {
                                 setStats((prev) => (prev ? { ...prev, advancedStats: advData.data } : prev));
                         }
                 } catch {
-                        setError('فشل تحميل البيانات');
+                        setError('تعذر تحميل البيانات');
                 } finally {
                         setLoading(false);
                 }
@@ -145,41 +148,21 @@ export default function OwnerDashboard() {
         useOrderNotifier(restaurant?.id);
 
         if (loading)
+                // r131-F5 (A1 P1-6): shape-matched skeleton family (same KPI /
+                // breakdown-card rhythm as the hydrated dashboard) — the old
+                // animate-pulse blocks were a third loading language.
                 return (
                         <div
                                 aria-live="polite"
                                 aria-label="جارٍ تحميل بيانات لوحة التحكم"
-                                className="space-y-5 animate-fade-in"
+                                className="space-y-8 animate-fade-in"
                         >
                                 <LoadingAnnouncer loading={true} message="جارٍ تحميل بيانات لوحة التحكم..." />
-                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                        {[1, 2, 3, 4].map((i) => (
-                                                <div
-                                                        key={i}
-                                        className="h-32 rounded-xl border border-border/60 bg-card p-5 space-y-3 animate-pulse"
-                                                        aria-hidden="true"
-                                                >
-                                                        <div className="h-3 w-20 rounded-full bg-muted/70" />
-                                                        <div className="h-8 w-28 rounded-sm bg-muted/60" />
-                                                </div>
-                                        ))}
-                                </div>
+                                <KpiGridSkeleton />
                                 <div className="grid gap-6 lg:grid-cols-3">
-                                        {[1, 2, 3].map((i) => (
-                                                <div
-                                                        key={i}
-                                                        className="h-52 rounded-xl border border-border/60 bg-card p-4 space-y-3 animate-pulse"
-                                                        aria-hidden="true"
-                                                >
-                                                        <div className="h-3 w-24 rounded-full bg-muted/70" />
-                                                        <div className="h-3 w-full rounded-full bg-muted/50 mt-4" />
-                                                        <div className="h-3 w-3/4 rounded-full bg-muted/50" />
-                                                        <div className="h-3 w-1/2 rounded-full bg-muted/50" />
-                                                </div>
-                                        ))}
-                                </div>
-                                <div className="h-28 rounded-xl border border-border/60 bg-card p-4 animate-pulse" aria-hidden="true">
-                                        <div className="h-3 w-20 rounded-full bg-muted/70" />
+                                        <ListCardSkeleton />
+                                        <ListCardSkeleton />
+                                        <ListCardSkeleton rows={3} />
                                 </div>
                         </div>
                 );
@@ -217,37 +200,49 @@ export default function OwnerDashboard() {
                 );
 
         if (error)
-                // r97-X2 [15]: unified with the EmptyState component (siblings already
-                // use it) — the legacy `.empty-state-icon` CSS class is gone here.
+                // r131-F5 (A1 P1-12): the ONE canonical error family — 56px pastel
+                // well + dot + retry CTA (was the hand-rolled icon-tile copy).
                 return (
-                        <EmptyState
-                                icon={AlertCircle}
+                        <ErrorState
                                 title={error}
-                                action={
-                                        <Button variant="outline" size="sm" onClick={() => activeId && load(activeId)}>
-                                                إعادة المحاولة
-                                        </Button>
-                                }
+                                description="تعذر تحميل بيانات المطعم — تحقق من الاتصال ثم أعد المحاولة."
+                                onRetry={() => activeId && load(activeId)}
                         />
                 );
 
         const statusTotal = stats ? Object.values(stats.statusBreakdown).reduce((a, b) => a + b, 0) : 0;
 
         return (
-                <div className="mx-auto max-w-6xl space-y-6 animate-page-enter">
-                        {/* a11y: page h1 — visually hidden so design is untouched */}
-                        <h1 className="sr-only">لوحة التحكم</h1>
+                /* r131-F5 (A1 P0-8/P1-7): canonical container — 1280px content column,
+                   40px section rhythm (was max-w-6xl/1152 + 24px gaps). */
+                <div className="mx-auto max-w-[1280px] space-y-10 animate-page-enter">
+                        {/* r131-F5 (A1 P0-8): the page h1 is now a VISIBLE canonical
+                                PageHeader (clamp 28-40 / 700 / hairline separator / actions
+                                toolbar) — was sr-only. */}
+                        <PageHeader
+                                title="لوحة التحكم"
+                                subtitle={restaurant ? `${restaurant.name} — نظرة عامة على الطلبات والمبيعات` : 'نظرة عامة على مطعمك: الطلبات والمبيعات والولاء'}
+                                actions={
+                                        restaurant && (
+                                                <Link href={`/menu/${restaurant.slug}`} target="_blank" rel="noopener noreferrer">
+                                                        <Button variant="outline" size="sm" className="gap-1.5">
+                                                                <AnimatedExternalLink className="size-3.5" /> عرض المنيو
+                                                        </Button>
+                                                </Link>
+                                        )
+                                }
+                        />
 
                         {/* Welcome banner (new owners) */}
                         {restaurant && stats && stats.totalOrders === 0 && (
-                                <div className="rounded-xl border border-orange/20 bg-orange-muted/35 p-5 animate-fade-in">
+                                <div className="rounded-xl border border-orange/20 bg-orange-muted p-5 animate-fade-in">
                                         <div className="flex items-start gap-4 flex-wrap">
                                                 <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
                                                         <AnimatedSparkles className="size-6 text-orange-foreground" />
                                                 </div>
                                                 <div className="flex-1 min-w-[200px]">
                                                         <h2 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
-                                                <span className="inline-flex items-center gap-1 text-3xs font-medium text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">
+                                                <span className="inline-flex items-center gap-1 text-2xs font-semibold tabular-nums text-[var(--success-ink)] bg-[var(--success-soft)] border border-transparent rounded-full px-2 py-0.5">
                                                         <PlugConnectedIcon className="size-3" />
                                                         متصل — يستقبل الطلبات
                                                 </span>
@@ -437,7 +432,7 @@ export default function OwnerDashboard() {
 
                         {/* Share your menu card */}
                         {restaurant && (
-                                <div className="rounded-xl border border-orange/20 bg-orange-muted/30 p-5 animate-fade-in">
+                                <div className="rounded-xl border border-orange/20 bg-orange-muted p-5 animate-fade-in">
                                         <div className="flex items-start justify-between flex-wrap gap-4">
                                                 <div className="flex items-start gap-3">
                                                         <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-orange">
@@ -488,7 +483,7 @@ export default function OwnerDashboard() {
 
                         {/* Loyalty quick stats */}
                         {(loyaltyStats.totalLoyaltyCards ?? 0) > 0 && (
-                                <div className="rounded-xl border border-orange/20 bg-orange-muted/15 p-4">
+                                <div className="rounded-xl border border-orange/20 bg-orange-muted p-4">
                                         <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                                                 <div className="flex items-center gap-2">
                                                         <Award className="size-4 text-orange" />
@@ -509,15 +504,15 @@ export default function OwnerDashboard() {
                                                                 label: 'الأعضاء',
                                                                 value: loyaltyStats.totalLoyaltyCards ?? 0,
                                                                 icon: Users,
-                                                                color: 'text-orange',
-                                                                bg: 'bg-orange-muted',
+                                                                color: 'text-[var(--accent-ink)]',
+                                                                bg: 'bg-[var(--accent-soft)]',
                                                         },
                                                         {
                                                                 label: 'الإحالات',
                                                                 value: loyaltyStats.totalReferrals ?? 0,
                                                                 icon: Gift,
-                                                                color: 'text-success',
-                                                                bg: 'bg-success/10',
+                                                                color: 'text-[var(--success-ink)]',
+                                                                bg: 'bg-[var(--success-soft)]',
                                                         },
                                                         {
                                                                 label: 'تحويل',
@@ -525,15 +520,15 @@ export default function OwnerDashboard() {
                                                                         ? `${toArabicNumber(loyaltyStats.conversionRate)}%`
                                                                         : '-',
                                                                 icon: Award,
-                                                                color: 'text-orange',
-                                                                bg: 'bg-orange-muted',
+                                                                color: 'text-[var(--accent-ink)]',
+                                                                bg: 'bg-[var(--accent-soft)]',
                                                         },
                                                         {
                                                                 label: 'محولة',
                                                                 value: loyaltyStats.convertedReferrals ?? 0,
                                                                 icon: CheckCircle,
-                                                                color: 'text-success',
-                                                                bg: 'bg-success/10',
+                                                                color: 'text-[var(--success-ink)]',
+                                                                bg: 'bg-[var(--success-soft)]',
                                                         },
                                                 ].map(({ label, value, icon: Icon, color, bg }) => (
                                                         <div key={label} className="flex items-center gap-2.5 rounded-md bg-card/50 p-3">

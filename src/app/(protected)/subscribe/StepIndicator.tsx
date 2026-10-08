@@ -58,14 +58,15 @@ export function StepIndicator({
                                                 >
                                                         <m.div
                                                                 initial={false}
-                                                                whileTap={clickable && !reduceMotion ? { scale: 0.94 } : undefined}
+                                                                /* r131 (A2 P3-3): سجلّ الضغط الموحّد — 0.97 بدل 0.94. */
+                                                                whileTap={clickable && !reduceMotion ? { scale: 0.97 } : undefined}
                                                                 className={cn(
                                                                         'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-base',
                                                                         isActive
-                                                                                /* round94 (D/A8) → r128-F5: هضبة saffron صرفة مسطّحة
-                                                                                   (نص espresso 8.97:1) — التدرّج والظل أُزيلا (منع
-                                                                                   التدرّجات على الصفحات الثانوية). */
-                                                                                ? 'bg-[var(--c-saffron)] text-espresso border-transparent font-extrabold'
+                                                                                /* round94 (D/A8) → r128-F5 → r131 (A2 P2-16): هضبة saffron
+                                                                                   صرفة مسطّحة (نص espresso 8.97:1) — التدرّج والظل أُزيلا،
+                                                                                   والوزن 700 سقف السلّم (كان extrabold 800). */
+                                                                                ? 'bg-[var(--c-saffron)] text-espresso border-transparent font-bold'
                                                                                 : isDone
                                                                                         /* r95: الخطوة المنجزة — نص أسطع (AA) */
                                                                                         ? 'bg-orange/15 text-accent-foreground border-orange/40'
@@ -81,8 +82,9 @@ export function StepIndicator({
                                                         <span
                                                                 className={cn(
                                                                         'text-2xs sm:text-xs font-medium transition-colors hidden sm:block',
-                                                                        /* r95: تسمية الخطوة الحالية — accent-foreground (AA) */
-                                                                        isActive ? 'text-accent-foreground font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/50'
+                                                                        /* r131 (A7): تسميات الخطوات بعتامة كاملة (نمط SB v14-E4)
+                                                                           — كانت /50 تحت أرضية AA على أرضية الليل. */
+                                                                        isActive ? 'text-accent-foreground font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground'
                                                                 )}
                                                         >
                                                                 {STEP_LABELS[s]}

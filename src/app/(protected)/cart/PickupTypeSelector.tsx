@@ -32,7 +32,7 @@ export function PickupTypeSelector({
                         {/* Pickup type selector */}
                         <LoadingAnnouncer
                                 loading={isFetching}
-                                message="جاري تحميل خيارات الطلب..."
+                                message="جارٍ تحميل خيارات الطلب..."
                                 completedMessage="تم تحميل خيارات الطلب"
                         />
                         {error && (
@@ -55,9 +55,13 @@ export function PickupTypeSelector({
                                                 // perceivable to screen readers (WCAG 1.4.1).
                                                 aria-pressed={value === opt.value}
                                                 className={cn(
-                                                        'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-2xs sm:text-sm font-medium transition-[transform,translate,scale,rotate,box-shadow,color,background-color,border-color] duration-base border overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                        /* r131 (A2 P1-1/P1-2/P2-14): الحبة المحددة — لوح accent صلب
+                                                           + هالة 3px/20% (نمط .pill.on المداركي) بدل التدرّج والظلّ
+                                                           الملوّن والتكبير 1.02؛ سجلّ الضغط موحّد 0.97؛ التسمية
+                                                           text-sm (13px) على كل الشاشات. */
+                                                        'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-base border overflow-hidden active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                         value === opt.value
-                                                                ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground border-orange shadow-lg shadow-orange/20 scale-[1.02]'
+                                                                ? 'bg-orange text-orange-foreground border-orange ring-[3px] ring-orange/20'
                                                                 : 'bg-card/50 border-border/30 hover:border-orange/20 hover:shadow-md'
                                                 )}
                                         >

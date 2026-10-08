@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { premiumToast } from '@/lib/premium-toast';
 import { getErrorMessage } from '@/lib/get-error-message';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { DetailPageSkeleton } from '@/components/shared/DashboardSkeletons';
 import {AlertCircle, Phone, User, FileText, Store} from 'lucide-react';
 import { MotionArrowRight } from '@/components/ui/motion-icons';
 import AnimatedShoppingCart from '@/components/ui/shopping-cart-icon';
@@ -37,6 +41,9 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
         const { order, setOrder, loading, error } = useOrderDetail(id);
         const [updating, setUpdating] = useState(false);
         const [copied, setCopied] = useState(false);
+        // r131-F4b (F5 completion, A1 P1-8): window.confirm → the shared
+        // Arabic ConfirmDialog (the owner detail page pattern).
+        const [confirmCancel, setConfirmCancel] = useState(false);
 
         const updateStatus = async (status: string) => {
                 if (updating) return;
@@ -47,7 +54,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                         premiumToast('success', 'تم تغيير الحالة', getOrderStatusMeta(status).label);
                 } catch (e) {
                         // round89-E6: csrfJson throws the server's Arabic message — surface it
-                        premiumToast('error', getErrorMessage(e, 'فشل تحديث الحالة'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر تحديث الحالة'));
                 } finally {
                         setUpdating(false);
                 }
@@ -63,24 +70,19 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
         };
 
         if (loading)
-                return (
-                        <div className="space-y-4 animate-fade-in max-w-3xl mx-auto">
-                                <div className="h-8 w-32 rounded-xl bg-muted/50 animate-breath" />
-                                <div className="h-24 rounded-md bg-muted/50 animate-breath" />
-                                <div className="h-48 rounded-md bg-muted/50 animate-breath" />
-                        </div>
-                );
+                // r131-F4b (F5 completion, A11 SM-2): shape-matched detail skeleton
+                // — was hand-rolled animate-breath blocks.
+                return <DetailPageSkeleton label="جارٍ تحميل تفاصيل الطلب..." />;
 
         if (!order)
                 return (
-                        <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-                                <AlertCircle className="size-12 text-destructive/60" />
-                                <p className="text-lg font-semibold">الطلب غير موجود</p>
-                                {error && <p className="text-sm text-muted-foreground">{error}</p>}
-                                <Button variant="outline" onClick={() => router.push('/admin/orders')}>
-                                        العودة للطلبات
-                                </Button>
-                        </div>
+                        <ErrorState
+                                icon={AlertCircle}
+                                title="الطلب غير موجود"
+                                description={error ?? 'قد يكون الطلب حُذف أو أن الرابط غير صحيح.'}
+                                onRetry={() => router.push('/admin/orders')}
+                                retryLabel="العودة للطلبات"
+                        />
                 );
 
         const config = getOrderStatusMeta(order.status);
@@ -90,25 +92,26 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                 : STATUS_FLOW.indexOf(order.status as (typeof STATUS_FLOW)[number]);
 
         return (
-                <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
-                        {/* Back + title */}
-                        <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                        <button
-                                                onClick={() => router.push('/admin/orders')}
-                                                className="size-11 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                        >
-                                                <MotionArrowRight className="size-4" />
-                                        </button>
-                                        <div>
-                                                <h1 className="text-xl font-bold">طلب <bdi dir="ltr">#{order.orderNo}</bdi></h1>
-                                                <p className="text-xs text-muted-foreground">{formatDate(new Date(order.createdAt))}</p>
-                                        </div>
-                                </div>
-                                <Badge className={cn('text-sm px-4 py-1.5 rounded-full', config.badgeClassName)}>
+                <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+                        {/* Back + canonical page header + 11px chip (r131-F4b, F5
+                                completion — mirrors the owner detail page) */}
+                        <div className="flex items-center gap-3" role="group" aria-label="التنقل">
+                                <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => router.push('/admin/orders')}
+                                        aria-label="العودة إلى الطلبات"
+                                >
+                                        <MotionArrowRight className="size-4" />
+                                </Button>
+                                <Badge className={cn('text-2xs font-semibold tabular-nums', config.badgeClassName)}>
                                         {config.label}
                                 </Badge>
                         </div>
+                        <PageHeader
+                                title={<>طلب <bdi dir="ltr">#{order.orderNo}</bdi></>}
+                                subtitle={formatDate(new Date(order.createdAt))}
+                        />
 
                         {/* Restaurant info */}
                         {order.restaurant && (
@@ -187,17 +190,15 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                                 <Button
                                                                         variant="orange"
                                                                         onClick={() => updateStatus(STATUS_FLOW[currentIdx + 1])}
-                                                                        className="flex-1 rounded-md h-11"
+                                                                        className="flex-1"
                                                                 >
                                                                         ← {getOrderStatusMeta(STATUS_FLOW[currentIdx + 1]).label}
                                                                 </Button>
                                                         )}
                                                         <Button
                                                                 variant="outline"
-                                                                onClick={() => {
-                                                                        if (window.confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) updateStatus('cancelled');
-                                                                }}
-                                                                className="rounded-xl h-11 border-destructive/30 text-destructive hover:bg-destructive/10"
+                                                                onClick={() => setConfirmCancel(true)}
+                                                                className="border-destructive/30 text-destructive hover:bg-destructive/10"
                                                         >
                                                                 إلغاء الطلب
                                                         </Button>
@@ -298,24 +299,37 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                 </div>
                         </div>
 
-                        {/* Quick actions */}
+                        {/* Quick actions — r131-F4b (F5 completion): the py-3.5
+                                hand-rolls join the Button family (canonical 40px/h-11,
+                                r-md 10px, 600 weight — no page overrides). */}
                         <div className="grid grid-cols-2 gap-3">
-                                <a
-                                        href={`tel:${order.customerPhone}`}
-                                        className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-colors font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                                window.location.href = `tel:${order.customerPhone}`;
+                                        }}
                                 >
-                                        <Phone className="size-4" />
+                                        <Phone className="size-4" aria-hidden="true" />
                                         اتصال بالعميل
-                                </a>
-                                <button
-                                        type="button"
-                                        onClick={copyAsWhatsApp}
-                                        className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-success/25 text-success hover:bg-success/15 transition-colors font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                >
+                                </Button>
+                                <Button variant="outline" onClick={copyAsWhatsApp} className="text-success border-success/25 hover:bg-success/15 hover:text-success">
                                         <AnimatedMessageCircle className="size-4" />
                                         نسخ للواتساب
-                                </button>
+                                </Button>
                         </div>
+
+                        {/* Destructive confirm (r131-F4b: replaces window.confirm) */}
+                        <ConfirmDialog
+                                open={confirmCancel}
+                                onOpenChange={setConfirmCancel}
+                                title="إلغاء الطلب"
+                                description="هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
+                                confirmLabel="إلغاء الطلب"
+                                onConfirm={() => {
+                                        setConfirmCancel(false);
+                                        updateStatus('cancelled');
+                                }}
+                        />
                 </div>
         );
 }

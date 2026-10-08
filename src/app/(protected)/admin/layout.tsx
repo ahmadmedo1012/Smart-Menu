@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 import { requireAuth } from '@/lib/auth';
 import { AdminShell } from './AdminShell';
 
@@ -19,6 +20,11 @@ import { AdminShell } from './AdminShell';
  * server-resolved {role, permissions} via AccessGateMeProvider (AdminShell).
  */
 const ADMIN_ROLES = ['super_admin', 'sub_admin', 'admin'];
+
+/* r131-F4b (F5 completion, A7 — fleet ruling "route titles ar"): Arabic
+ * document title for the admin dashboard root (rides the (protected)
+ * template "%s | الربط الذكي"). */
+export const metadata: Metadata = { title: 'لوحة الإدارة' };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
         const auth = await requireAuth();

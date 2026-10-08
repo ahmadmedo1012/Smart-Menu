@@ -231,8 +231,10 @@ export function OrderDialog({
         const totalPrice = unitPrice * quantity;
         const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 
+        /* r131 (A2 P1-3): أرضية 16px (منع تكبير iOS) + هالة التركيز القانونية
+           3px/22% (‏--state-input-focus-halo) بدل ring-2/25؛ زجاج الحبّة كما هو. */
         const glassPillInput =
-                'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-sm outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25';
+                'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]';
         const glassPillCard = 'rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border';
 
         const innerContent = (
@@ -280,14 +282,14 @@ export function OrderDialog({
                                         <div className="size-20 rounded-2xl bg-glass-bg/60 backdrop-blur-sm border border-glass-border flex items-center justify-center mx-auto mb-4">
                                                 {/* decorative backdrop — checkmark lives in the orange circle only */}
                                         </div>
-                                        <div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-lg shadow-orange/30">
+                                        <div className="size-16 rounded-full bg-orange flex items-center justify-center mx-auto -mt-24 mb-6 shadow-[var(--shadow-card-premium)]">
                                                 <MotionCheck className="size-10 text-orange-foreground" />
                                         </div>
                                         <h3 className="text-xl font-bold mb-1">تمت الإضافة إلى السلة!</h3>
                                         {/* r120 (U5-F-3): الكذبة القديمة «تم إرسال الطلب! جاري تحويلك
                                             إلى واتساب...» كانت توحي بإتمام الطلب بينما الحقيقة إضافة
                                             للسلة → مراجعة → إرسال. الصدق يمنع مغادرة العميل مبكرًا. */}
-                                        <p className="text-sm text-muted-foreground">جاري فتح السلة لمراجعة الطلب وإرساله عبر واتساب...</p>
+                                        <p className="text-sm text-muted-foreground">جارٍ فتح السلة لمراجعة الطلب وإرساله عبر واتساب...</p>
                                 </div>
                         ) : (
                                 <div className={cn('p-4 sm:p-5 space-y-3 sm:space-y-4', !item.image && 'pt-8')}>
@@ -592,17 +594,19 @@ export function OrderDialog({
                                                 </div>
                                                 {/* r120 (U5-F-3 + U8-F-2): الزر يضيف للسلة (لا يرسل واتساب
                                                     مباشرة) — النص الصادق «أضف إلى السلة». والنص الأبيض على
-                                                    أخضر واتساب كان 1.98:1 فقط؛ الأخضر الداكن يعطي 6.15:1. */}
+                                                    أخضر واتساب كان 1.98:1 فقط؛ الأخضر الداكن يعطي 6.15:1.
+                                                    r131 (A2 P1-1/P1-2): الظلّ الملوّن → الزوج الحيادي الممتاز
+                                                    + رفع −2px، والضغط 0.97@80ms. */}
                                                 <button
                                                         type="button"
-                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] shadow-[var(--shadow-card-premium)] text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,box-shadow] active:scale-[0.97] active:duration-[var(--t-micro,80ms)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         onClick={handleConfirm}
                                                         disabled={submitting || !restaurantWhatsapp}
                                                 >
                                                         {submitting ? (
                                                                 <span className="flex items-center gap-2">
                                                                         <span className="size-4 rounded-full border-2 border-whatsapp-ink/40 border-t-whatsapp-ink animate-spin" />
-                                                                        جاري...
+                                                                        جارٍ...
                                                                 </span>
                                                         ) : (
                                                                 <>

@@ -86,7 +86,7 @@ async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ dat
     if (e instanceof Error && e.name === "AbortError") {
       throw new ApiError("انتهت مهلة الاتصال — تحقق من الشبكة وحاول مجددًا", 0);
     }
-    throw new ApiError("تعذر الاتصال بالخادم — تحقق من اتصالك بالإنترنت", 0);
+    throw new ApiError("تعذّر الاتصال بالخادم — تحقق من اتصالك بالإنترنت", 0);
   } finally {
     clearTimeout(timer);
   }
@@ -102,7 +102,7 @@ async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ dat
   const text = await res.text();
   let parsed: unknown = null;
   try { parsed = text ? JSON.parse(text) : null; } catch {
-    throw new ApiError(`فشل الاتصال بالخادم (${res.status})`, res.status, text.slice(0, 500));
+    throw new ApiError(`تعذّر الاتصال بالخادم (${res.status})`, res.status, text.slice(0, 500));
   }
 
   const env = parsed as ApiEnvelope<T>;
@@ -110,7 +110,7 @@ async function apiFetchEnvelope<T>(path: string, init: Init = {}): Promise<{ dat
     return { data: env.data, meta: (env as { meta?: PaginatedMeta }).meta };
   }
 
-  const errMsg = (env && !env.success && env.error) || `فشل الطلب (${res.status})`;
+  const errMsg = (env && !env.success && env.error) || `تعذّر الطلب (${res.status})`;
   throw new ApiError(errMsg, res.status, (env as { details?: unknown })?.details);
 }
 

@@ -101,8 +101,10 @@ function OrderContent() {
                                         className="min-h-screen bg-background flex flex-col focus:outline-none"
                                 >
                                         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-                                                <div className="size-20 rounded-full bg-orange-muted flex items-center justify-center animate-scale-in">
-                                                        <CheckCircle className="size-10 text-orange" />
+                                                {/* r131 (A2 P3-7 — حكم 56px): بئر الحالة 56px r-xl
+                                                        (كان size-20/80px) — عيار بلاطات الحالة الموحّد. */}
+                                                <div className="size-14 rounded-xl bg-orange-muted flex items-center justify-center animate-scale-in">
+                                                        <CheckCircle className="size-7 text-orange" />
                                                 </div>
                                                 <div className="space-y-2">
                                                         <h1 className="text-2xl font-bold">تم إرسال طلب الاشتراك!</h1>
@@ -145,8 +147,9 @@ function OrderContent() {
                         </Suspense>
                         <div id="main-content" tabIndex={-1} className="min-h-screen bg-background flex flex-col focus:outline-none">
                                 <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 text-center animate-fade-in">
-                                        <div className="size-20 rounded-full bg-success/10 flex items-center justify-center animate-scale-in">
-                                                <CheckCircle className="size-10 text-success" />
+                                        {/* r131 (A2 P3-7 — حكم 56px): بئر النجاح 56px r-xl. */}
+                                        <div className="size-14 rounded-xl bg-success/10 flex items-center justify-center animate-scale-in">
+                                                <CheckCircle className="size-7 text-success" />
                                         </div>
 
                                         <div className="space-y-2">

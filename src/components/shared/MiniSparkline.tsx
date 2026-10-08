@@ -40,8 +40,11 @@ export function MiniSparkline({
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={cn("shrink-0", className)} role="img" aria-label={isUp ? "اتجاه صاعد" : "اتجاه هابط"}>
       <defs>
+        {/* r131-F4 (A10 SM-4): top gradient stop follows the theme via
+            --accent-hover (night #F5D48A / cream #9A5F25) — was the
+            hardcoded night gold, which stayed night gold in light theme. */}
         <linearGradient id={`spark-${width}-${isUp ? "up" : "dn"}`} x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#F5D48A" stopOpacity={0.25} />
+          <stop offset="0%" stopColor="var(--accent-hover, #F5D48A)" stopOpacity={0.25} />
           <stop offset="100%" stopColor={trendColor} stopOpacity={0} />
         </linearGradient>
       </defs>

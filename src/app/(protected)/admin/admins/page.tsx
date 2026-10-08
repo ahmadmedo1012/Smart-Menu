@@ -3,6 +3,7 @@ import { getErrorMessage } from '@/lib/get-error-message';
 
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from '@/components/shared/PageHeader'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
@@ -67,7 +68,7 @@ export default function AdminAdminsPage() {
       const json = await res.json()
       setAdmins(json.data ?? [])
     } catch {
-      setError("فشل تحميل المسؤولين")
+      setError("تعذر تحميل المسؤولين")
     } finally {
       setLoading(false)
     }
@@ -92,7 +93,7 @@ export default function AdminAdminsPage() {
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "فشل إنشاء المسؤول")
+        throw new Error(data.error || "تعذر إنشاء المسؤول")
       }
       premiumToast("success", "تم إنشاء المسؤول بنجاح")
       setInviteOpen(false)
@@ -100,7 +101,7 @@ export default function AdminAdminsPage() {
       setInvitePerms([])
       fetchAdmins()
     } catch (e) {
-      premiumToast("error", getErrorMessage(e, "فشل إنشاء المسؤول"))
+      premiumToast("error", getErrorMessage(e, "تعذر إنشاء المسؤول"))
     } finally {
       setInviting(false)
     }
@@ -125,7 +126,7 @@ export default function AdminAdminsPage() {
       setEditTarget(null)
       fetchAdmins()
     } catch {
-      premiumToast("error", "فشل تحديث الصلاحيات")
+      premiumToast("error", "تعذر تحديث الصلاحيات")
     } finally {
       setEditing(false)
     }
@@ -138,7 +139,7 @@ export default function AdminAdminsPage() {
       premiumToast("refresh", "تم إلغاء جميع الجلسات")
       fetchAdmins()
     } catch {
-      premiumToast("error", "فشل إلغاء الجلسات")
+      premiumToast("error", "تعذر إلغاء الجلسات")
     }
   }
 
@@ -148,12 +149,12 @@ export default function AdminAdminsPage() {
     try {
       const res = await csrfFetch(`/api/admin/admins/${deleteTarget.id}`, { method: "DELETE" })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || "فشل الحذف")
+      if (!res.ok) throw new Error(json.error || "تعذر الحذف")
       premiumToast("trash", "تم حذف المسؤول")
       setDeleteTarget(null)
       fetchAdmins()
     } catch (e) {
-      premiumToast("error", getErrorMessage(e, "فشل حذف المسؤول"))
+      premiumToast("error", getErrorMessage(e, "تعذر حذف المسؤول"))
     } finally {
       setDeleting(false)
     }
@@ -188,17 +189,17 @@ export default function AdminAdminsPage() {
     if (access === 'denied') return <AccessDenied />
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-normal">إدارة المسؤولين</h1>
-          <p className="text-sm text-muted-foreground">{toArabicNumber(admins.length)} مسؤول</p>
-        </div>
-        <Button onClick={() => setInviteOpen(true)} className="gap-2">
-          <UserPlus className="size-4" /> إضافة مسؤول
-        </Button>
-      </div>
+    <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
+      {/* r131-F5 (A1 P0-8): canonical page header. */}
+      <PageHeader
+        title="إدارة المسؤولين"
+        subtitle={`${toArabicNumber(admins.length)} مسؤول — صلاحيات ودور كل عضو في الفريق`}
+        actions={
+          <Button onClick={() => setInviteOpen(true)} className="gap-2">
+            <UserPlus className="size-4" /> إضافة مسؤول
+          </Button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

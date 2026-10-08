@@ -14,12 +14,13 @@ import {
 } from "@/components/ui/select";
 import { SearchInput } from "@/components/ui/search-input";
 import { premiumToast } from "@/lib/premium-toast";
-import { AlertCircle } from 'lucide-react';
-import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import AnimatedTrash2 from '@/components/ui/trash-icon';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { toArabicNumber } from "@/lib/format";
-import { LoadingAnnouncer } from "@/components/ui/loading-announcer";
+import { LoadingAnnouncer } from "@/components/ui/loading-announcer"
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { StatsRow, EmptyState, RestaurantListItem, Pagination } from "./RestaurantTable";
 import { RestaurantFormDialog } from "./RestaurantFormDialog";
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
@@ -44,6 +45,9 @@ export default function AdminRestaurantsPage() {
   const [editing, setEditing] = useState<Restaurant | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Restaurant | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  // r131-F4b (F5 completion, A1 P1-8): the native confirm() on bulk delete →
+  // the shared Arabic ConfirmDialog.
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
   const pageSize = 10;
 
@@ -56,12 +60,12 @@ export default function AdminRestaurantsPage() {
       if (planFilter !== "all") params.set("planFilter", planFilter);
 
       const [restRes, plansRes] = await Promise.all([fetch(`/api/restaurants?${params.toString()}`), fetch("/api/plans")]);
-      if (!restRes.ok) throw new Error("فشل تحميل البيانات");
+      if (!restRes.ok) throw new Error("تعذر تحميل البيانات");
       const restJson = await restRes.json(); const plansJson = await plansRes.json();
       setRestaurants(restJson.data?.restaurants ?? restJson.data ?? []);
       setTotal(restJson.data?.total ?? restJson.meta?.total ?? 0);
       setPlans(plansJson.data ?? []);
-    } catch (e) { setError(getErrorMessage(e, "فشل تحميل البيانات")) }
+    } catch (e) { setError(getErrorMessage(e, "تعذر تحميل البيانات")) }
     finally { setLoading(false) }
   }, [page, search, planFilter]);
 
@@ -79,7 +83,7 @@ export default function AdminRestaurantsPage() {
     try {
       await csrfJson(`/api/restaurants/${deleteTarget.id}`, { method: "DELETE" });
       premiumToast("trash", "تم حذف المطعم"); setDeleteTarget(null); fetchData();
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف")) }
   };
 
   const toggleSelect = (id: number) => {
@@ -99,17 +103,18 @@ export default function AdminRestaurantsPage() {
       })
       premiumToast("save", show ? "تم تفعيل الظهور في الرئيسية" : "تم إخفاء المطعم من الرئيسية")
       fetchData()
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل التحديث")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر التحديث")) }
   }
 
   const bulkDelete = async () => {
     const count = selectedIds.size;
     if (count === 0) return;
-    if (!confirm(`حذف ${toArabicNumber(count)} مطعم${count > 1 ? "اً" : ""}؟`)) return;
+    // r131-F4b: the guard moved into the ConfirmDialog below (no native confirm()).
     try {
       await Promise.all([...selectedIds].map(id => csrfJson(`/api/restaurants/${id}`, { method: "DELETE" })));
       premiumToast("trash", `تم حذف ${toArabicNumber(count)} مطعم`); setSelectedIds(new Set()); fetchData();
-    } catch (e) { premiumToast("error", getErrorMessage(e, "فشل الحذف الجماعي")) }
+    } catch (e) { premiumToast("error", getErrorMessage(e, "تعذر الحذف الجماعي")) }
+    finally { setBulkConfirmOpen(false); }
   };
 
   // ---------- Loading ----------
@@ -121,28 +126,30 @@ export default function AdminRestaurantsPage() {
   );
 
   // ---------- Error ----------
+  // r131-F4b (F5 completion, A1 P1-12): hand-rolled error branch joins the
+  // ONE canonical ErrorState family (56px danger tile / 18-600 / retry CTA).
   if (error && restaurants.length === 0) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in" aria-live="assertive">
-      <AlertCircle className="size-10 text-destructive" />
-      <p className="text-lg font-medium">{error}</p>
-      <Button variant="outline" onClick={fetchData} className="gap-2"><AnimatedRefreshCw className="size-4" /> إعادة المحاولة</Button>
-    </div>
+    <ErrorState
+      title="تعذر تحميل المطاعم"
+      error={error}
+      onRetry={fetchData}
+    />
   );
 
     if (access === 'denied') return <AccessDenied />
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-normal">إدارة المطاعم</h1>
-          <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مطعم</p>
-        </div>
-        <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-orange-foreground">
-          <MotionPlus className="size-4" /> إضافة مطعم
-        </Button>
-      </div>
+    <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
+      {/* r131-F5 (A1 P0-8): canonical page header. */}
+      <PageHeader
+        title="إدارة المطاعم"
+        subtitle={`${toArabicNumber(total)} مطعم — إدارة المنيوهات والخطط`}
+        actions={
+          <Button onClick={openAdd} className="gap-2">
+            <MotionPlus className="size-4" /> إضافة مطعم
+          </Button>
+        }
+      />
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -167,7 +174,7 @@ export default function AdminRestaurantsPage() {
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-orange-muted/50 dark:bg-orange-muted border border-orange/20">
           <span className="text-sm text-muted-foreground">تم اختيار {toArabicNumber(selectedIds.size)} مطعم</span>
-          <Button variant="destructive" size="sm" onClick={bulkDelete} className="ms-auto">
+          <Button variant="destructive" size="sm" onClick={() => setBulkConfirmOpen(true)} className="ms-auto">
             <AnimatedTrash2 className="size-3.5 me-1" aria-hidden="true" /> حذف
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>إلغاء التحديد</Button>
@@ -216,6 +223,16 @@ export default function AdminRestaurantsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* r131-F4b: bulk-delete confirm (replaces the native confirm()) */}
+      <ConfirmDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        title="حذف جماعي"
+        description={`سيتم حذف ${toArabicNumber(selectedIds.size)} مطعم${selectedIds.size > 1 ? "اً" : ""} نهائياً مع جميع بياناته — لا يمكن التراجع.`}
+        confirmLabel="حذف"
+        onConfirm={bulkDelete}
+      />
     </div>
   );
 }

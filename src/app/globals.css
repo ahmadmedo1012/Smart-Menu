@@ -441,6 +441,14 @@
         --state-focus-ring-offset: 2px;
         --state-focus-ring: 0 0 0 var(--state-focus-ring-width) var(--state-focus-ring-color);
         --state-input-focus-halo: 0 0 0 3px color-mix(in srgb, var(--accent-solid) 22%, transparent);
+        /* r131-F4 (A1 P0-1 / SO r130 recipe): the stateful Input (error /
+           success / warning) rides the SAME 3px/22% halo contract, keyed to
+           each status ink — the old ring-2/ring-/20 double indicator is
+           retired (A1 P1-10). Single :root definition: each token chains a
+           per-theme semantic ink, so both themes resolve correctly. */
+        --state-input-error-halo: 0 0 0 3px color-mix(in srgb, var(--destructive) 22%, transparent);
+        --state-input-success-halo: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
+        --state-input-warning-halo: 0 0 0 3px color-mix(in srgb, var(--warning) 22%, transparent);
 
         /* ── r126 (P4-F1 M10): z-order ladder (Madarek §1.11) — theme-
            independent. Hotspots consume it via the Tailwind var shorthand
@@ -517,7 +525,13 @@
         --secondary: #121A36;
         --secondary-foreground: #C3C8DC;
         --muted: #121A36;                      /* surface-2 well */
-        --muted-foreground: #8E97B8;           /* 6.80:1 on ground ✓ AA (was #8c857d) */
+        /* r131-F4 (fleet ruling, A9 §1.8): --muted-foreground joins the fleet
+           pair #C3C8DC | #4F4D48 (SL/SO/SB — 3-of-4 apps + all newest work).
+           SM was one tier dimmer (#8E97B8 | #6E6C65) — every muted caption
+           rendered a step darker than the family. The dimmer pair SURVIVES as
+           the separate faint tier --text-muted (§1.7, unchanged); placeholders
+           keep --placeholder-text (AA 4.86:1 / 4.92:1). */
+        --muted-foreground: #C3C8DC;           /* neutral-700 — 10.17:1 on card ✓ AAA */
         --placeholder-text: #7A83A0;           /* text-faint night */
         /* --accent stays the translucent wash twin; --accent-foreground is the
            visible gold (bg-accent + text-accent-foreground pattern, 44 files) */
@@ -795,7 +809,10 @@
         --secondary: #F7F6F3;
         --secondary-foreground: #4F4D48;
         --muted: #F7F6F3;
-        --muted-foreground: #6E6C65;           /* 5.04:1 ✓ AA */
+        /* r131-F4 (fleet ruling): light pair = #4F4D48 (SO/SB/SL) — was
+           #6E6C65; the old value stays alive as the --text-muted faint tier
+           (§1.7) so secondary captions and placeholders keep their ladder. */
+        --muted-foreground: #4F4D48;           /* 7.9:1 on cream ✓ AAA */
         --placeholder-text: #74706A;           /* text-faint */
         --accent: rgba(181, 116, 56, 0.12);    /* copper wash */
         --accent-foreground: #5C3416;          /* copper-deep text — 10.29:1 ✓ AA */
@@ -1566,15 +1583,20 @@ html.high-contrast :focus-visible {
         background-size: 200% 100%;
         border-radius: var(--radius-sm);
         /* r125 (10-a): Madarek §4.3 semantic layer — skeleton loaders ride
-           --motion-duration-skeleton (1200ms), not a raw 1.8s literal. */
-        animation: shimmer var(--motion-duration-skeleton, 1.2s) ease-in-out infinite;
+           --motion-duration-skeleton (1200ms), not a raw 1.8s literal.
+           r131-F4 (A11 SM-3, fleet ruling "skeleton 1200 linear"): the loop
+           curve is LINEAR — ease-in-out pulsed the sweep velocity at every
+           iteration boundary (SO:947 / SB:816 are linear; RM kill below
+           zeroes the duration token). */
+        animation: shimmer var(--motion-duration-skeleton, 1.2s) linear infinite;
 }
 .shimmer {
         background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.06) 50%, transparent 100%);
         background-size: 200% 100%;
         border-radius: var(--radius-sm);
-        /* image-load placeholder = skeleton-class loader → same 1200ms token */
-        animation: shimmer var(--motion-duration-skeleton, 1.2s) ease-in-out infinite;
+        /* image-load placeholder = skeleton-class loader → same 1200ms token
+           (r131-F4: linear, same ruling as .skeleton above) */
+        animation: shimmer var(--motion-duration-skeleton, 1.2s) linear infinite;
 }
 .light .shimmer {
         background: linear-gradient(90deg, transparent 0%, oklch(0 0 0 / 0.04) 50%, transparent 100%);
@@ -1596,7 +1618,12 @@ html.high-contrast :focus-visible {
         background-size: 256px 256px;
         animation: none;
 }
-@media (prefers-color-scheme: light) { .grain-overlay::before { opacity: 0.012; } }
+/* r131-F4 (A10 SM-1, SO pattern globals.css:1181): the grain veil follows the
+   USER'S theme class, not the OS media query — manual-dark + OS-light visitors
+   were losing the grain (0.012 won over 0.022) and manual-light + OS-dark kept
+   the heavy night grain on cream. Class rule = one resolution path with the
+   next-themes class attribute. */
+.light .grain-overlay::before { opacity: 0.012; }
 
 
 .empty-state-icon {

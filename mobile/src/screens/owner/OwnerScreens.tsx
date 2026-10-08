@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { View, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration, Alert } from "react-native";
+import { View, ScrollView, RefreshControl, Share, FlatList, Vibration, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
@@ -20,7 +20,7 @@ import { ORDERS_POLL_INTERVAL_MS } from "@/constants";
 import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
-import { colors } from "@/theme/colors";
+import { colors, pastelFamilies } from "@/theme/colors";
 import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
 interface OwnerStats {
@@ -94,9 +94,12 @@ export function OwnerDashboardScreen() {
                 </PressableScale>
               ))
             )}
-            <Pressable onPress={logout} style={{ marginTop: 24, padding: 12, alignItems: "center" }}>
+            {/* r131-F10 (fix 1 completion): the dashboard logout rides
+                PressableScale like every other control — was a silent raw
+                Pressable (the r130 migration covered Buttons/cards only). */}
+            <PressableScale onPress={logout} accessibilityLabel="تسجيل الخروج" style={{ marginTop: 24, padding: 12, alignItems: "center" }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.rose, fontWeight: "600" }}>تسجيل الخروج</Text>
-            </Pressable>
+            </PressableScale>
           </>
         ) : null}
       </ScrollView>
@@ -244,13 +247,15 @@ export function OwnerOrdersScreen() {
     }
     if (hasMore) {
       return (
-        <Pressable
+        /* r131-F10 (fix 6): the load-more control rides PressableScale — the
+           hand-rolled `pressed ? 0.8` opacity register joins the 0.97@80ms
+           ladder (one press register app-wide). */
+        <PressableScale
           onPress={() => { void loadMore(); }}
           accessibilityLabel="تحميل المزيد من الطلبات"
-          accessibilityRole="button"
-          style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.hairline, opacity: pressed ? 0.8 : 1 })}>
+          style={{ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.hairline }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.gold }} maxFontSizeMultiplier={1.4}>تحميل المزيد</Text>
-        </Pressable>
+        </PressableScale>
       );
     }
     // End state — only when pagination actually happened (more than one page
@@ -301,7 +306,7 @@ export function OwnerOrdersScreen() {
         onEndReachedThreshold={0.4}
         contentContainerStyle={{ padding: 16, paddingBottom: 32, flexGrow: 1 }}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.gold} />}
-        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color={colors.muted} />} />}
+        ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={24} color={pastelFamilies.grey.deep} />} />}
         ListFooterComponent={renderFooter}
       />
       </Animated.View>
@@ -378,7 +383,8 @@ export function OwnerOrderDetailScreen() {
       toast.success(`تم تحديث الحالة إلى ${getOrderStatusMeta(status).label}`);
       void refetch();
     } catch (e: unknown) {
-      toast.error(getErrorMessage(e, "فشل تحديث الحالة"));
+      // r131-F10 (fix 8): fleet error verb — تعذّر (was فشل).
+      toast.error(getErrorMessage(e, "تعذّر تحديث الحالة"));
     }
   };
 
@@ -409,9 +415,11 @@ export function OwnerOrderDetailScreen() {
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.sand, marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {["new", "preparing", "ready", "completed", "cancelled"].map((s) => (
-            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityRole="button" accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? colors.gold : colors.surface2 }}>
+            // r131-F10 (fix 1 completion + fix 5): status pills ride
+            // PressableScale and expose the selected state to screen readers.
+            <PressableScale key={s} onPress={() => updateStatus(s)} hitSlop={4} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} accessibilityState={{ selected: order.status === s }} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? colors.gold : colors.surface2 }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? colors.void : colors.muted }} maxFontSizeMultiplier={1.4}>{getOrderStatusMeta(s).label}</Text>
-            </Pressable>
+            </PressableScale>
           ))}
         </View>
       </ScrollView>
@@ -423,8 +431,9 @@ export function OwnerMenuScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126-M10: honest coming-soon state — the previous copy was honest
-          but unpolished; unified with the shared ComingSoon surface. */}
-      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={32} color={colors.gold} />} />
+          but unpolished; unified with the shared ComingSoon surface.
+          r131-F10: 24px glyph — the ComingSoon well is 56px now (P3-14). */}
+      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={24} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -432,7 +441,7 @@ export function OwnerMenuScreen() {
 export function OwnerRestaurantsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة الفروع" icon={<Store size={32} color={colors.gold} />} />
+      <ComingSoon title="إدارة الفروع" icon={<Store size={24} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -509,7 +518,7 @@ export function OwnerQrScreen() {
             );
           })
         ) : (
-          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={32} color={colors.muted} />} />
+          <EmptyState title="لا توجد مطاعم" description="أضف مطعمك أولًا من تطبيق الويب" icon={<QrCode size={24} color={pastelFamilies.grey.deep} />} />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -521,7 +530,7 @@ export function OwnerReviewsScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126-M10: was a static EmptyState «لا توجد تقييمات بعد» — reads as
           fetched-but-empty data; no fetch exists. Honest state instead. */}
-      <ComingSoon title="تقييمات العملاء" icon={<Star size={32} color={colors.gold} />} />
+      <ComingSoon title="تقييمات العملاء" icon={<Star size={24} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -531,7 +540,7 @@ export function OwnerLoyaltyScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126-M10: same honesty fix — «لا توجد بيانات ولاء بعد» implied a
           fetch that never happens. */}
-      <ComingSoon title="برنامج الولاء" icon={<Award size={32} color={colors.gold} />} />
+      <ComingSoon title="برنامج الولاء" icon={<Award size={24} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -542,9 +551,11 @@ export function OwnerSettingsScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>الإعدادات</Text>
-        <Pressable onPress={logout} style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
+        {/* r131-F10 (fix 1 completion): PressableScale — was a silent raw
+            Pressable. */}
+        <PressableScale onPress={logout} accessibilityLabel="تسجيل الخروج" style={{ paddingVertical: 12, alignItems: "center", backgroundColor: colors.surface2, borderRadius: 8 }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, color: colors.rose, fontWeight: "700" }}>تسجيل الخروج</Text>
-        </Pressable>
+        </PressableScale>
       </ScrollView>
     </SafeAreaView>
   );

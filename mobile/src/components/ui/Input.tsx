@@ -1,31 +1,51 @@
 import { useState } from "react";
 import { TextInput, View, type TextInputProps } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
-import { Pressable } from "react-native";
 import { cn } from "@/lib/utils";
 
 import { Text } from "@/components/ui/Text";
+import { PressableScale } from "@/components/motion/PressableScale";
 import { colors } from "@/theme/colors";
 
 export interface InputProps extends TextInputProps { error?: boolean; }
 
-export function Input({ className, error, ...props }: InputProps) {
+/**
+ * r131-F10 (fleet input ruling / the web DeliveryAddressField halo twin):
+ * ONE field-focus grammar for every mobile input. Focused = 2px accent (gold)
+ * border; resting = 1px hairline (destructive when the field carries an
+ * error). The <Input> primitive consumes it via its own focused state, and
+ * the raw TextInputs on MenuScreen/SubscribeScreens import the same helper —
+ * before this, the primitive alone had `focus:border-ring` while every sheet
+ * field had no focus treatment at all (A2 P1-3 mobile leg).
+ */
+export function fieldFocusBorderStyle(focused: boolean, error?: boolean) {
+  return focused
+    ? { borderWidth: 2, borderColor: colors.gold }
+    : { borderWidth: 1, borderColor: error ? colors.rose : colors.hairline };
+}
+
+export function Input({ className, error, onFocus, onBlur, ...props }: InputProps) {
+  const [focused, setFocused] = useState(false);
   return (
     <TextInput
       className={cn(
         // r126-M6: minHeight (was h-12) — fixed height clipped input text at
         // fontScale ≥1.3; py-3 keeps the ≥48px resting box with room to grow.
-        "min-h-12 rounded-md border border-border bg-input px-4 py-3 text-base text-foreground",
-        "font-sans placeholder:text-muted-foreground focus:border-ring",
-        error && "border-destructive", className,
+        "min-h-12 rounded-md bg-input px-4 py-3 text-base text-foreground",
+        "font-sans placeholder:text-muted-foreground", className,
       )}
-      placeholderTextColor={colors.muted} {...props}
+      style={fieldFocusBorderStyle(focused, error)}
+      placeholderTextColor={colors.muted}
+      onFocus={(e) => { setFocused(true); onFocus?.(e); }}
+      onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+      {...props}
     />
   );
 }
 
-export function PasswordInput({ className, error, ...props }: InputProps) {
+export function PasswordInput({ className, error, onFocus, onBlur, ...props }: InputProps) {
   const [show, setShow] = useState(false);
+  const [focused, setFocused] = useState(false);
   return (
     <View className="relative">
       <TextInput
@@ -33,15 +53,28 @@ export function PasswordInput({ className, error, ...props }: InputProps) {
           // r130 W2-4 (RTL): pr-12 → pe-12 — the eye toggle sits at `end-2`,
           // so the text inset must be logical too (physical right padding
           // starved the toggle's side in this forced-RTL app).
-          "min-h-12 rounded-md border border-border bg-input px-4 py-3 pe-12 text-base text-foreground",
-          "font-sans placeholder:text-muted-foreground focus:border-ring",
-          error && "border-destructive", className,
+          "min-h-12 rounded-md bg-input px-4 py-3 pe-12 text-base text-foreground",
+          "font-sans placeholder:text-muted-foreground", className,
         )}
-        placeholderTextColor={colors.muted} secureTextEntry={!show} {...props}
+        style={fieldFocusBorderStyle(focused, error)}
+        placeholderTextColor={colors.muted} secureTextEntry={!show}
+        onFocus={(e) => { setFocused(true); onFocus?.(e); }}
+        onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+        {...props}
       />
-      <Pressable onPress={() => setShow((v) => !v)} className="absolute end-2 top-0 bottom-0 w-10 items-center justify-center" accessibilityLabel={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}>
+      {/* r131-F10: the eye toggle rides PressableScale (0.97@80ms) like every
+          other control — it was the last silent raw Pressable in a shared
+          primitive (no role either — role now defaults to "button"). The
+          absolute end-2/top-0/bottom-0 box keeps a 40px-wide, full-height
+          lane; hitSlop 4 pushes the effective target past the 44px floor. */}
+      <PressableScale
+        onPress={() => setShow((v) => !v)}
+        hitSlop={4}
+        accessibilityLabel={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+        style={{ position: "absolute", end: 8, top: 0, bottom: 0, width: 40, alignItems: "center", justifyContent: "center" }}
+      >
         {show ? <EyeOff size={20} color={colors.muted} /> : <Eye size={20} color={colors.muted} />}
-      </Pressable>
+      </PressableScale>
     </View>
   );
 }

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { getUserSubscriptionState } from '@/lib/subscription-guard';
@@ -28,6 +29,12 @@ import { getPlanDaysRemaining } from '@/lib/plan-expiry';
  * pending lookup rides the SubscriptionPayment_pending_user_unique partial
  * index from round90-F1.
  */
+
+/* r131-F4b (F5 completion, A7 — fleet ruling "route titles ar"): Arabic
+ * document title for the owner dashboard root (rides the (protected)
+ * template "%s | الربط الذكي"). */
+export const metadata: Metadata = { title: 'لوحة التحكم' };
+
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
         const auth = await requireAuth();
         if (!auth.authorized) redirect('/login');

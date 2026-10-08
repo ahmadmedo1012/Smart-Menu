@@ -80,7 +80,11 @@ export function PricingScreen() {
                   </View>
                 ) : null}
               </View>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 28, fontWeight: "700", color: colors.gold, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(plan.price)}</Text>
+              {/* r131-F10 (fix 2 — fleet price ruling): plan prices unify at
+                  24px gold tnum on BOTH mobile pricing surfaces (was 28px
+                  here / 20px on the subscribe wizard; the web pair rides the
+                  same ruling). */}
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: colors.gold, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(plan.price)}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginBottom: 16 }}>لمدة {plan.periodDays} يوم</Text>
               {plan.features?.map((f, i) => (
                 <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>

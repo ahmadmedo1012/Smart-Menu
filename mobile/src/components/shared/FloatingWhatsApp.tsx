@@ -1,8 +1,9 @@
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { MessageCircle } from "lucide-react-native";
 import * as Linking from "expo-linking";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { PressableScale } from "@/components/motion/PressableScale";
 import { colors } from "@/theme/colors";
 import { motion } from "@/theme/motion";
 
@@ -26,7 +27,13 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
   return (
     <View pointerEvents="box-none" style={{ position: "absolute", end: 16, bottom: 96, zIndex: 60 }}>
       <Animated.View entering={reducedMotion ? undefined : FadeIn.duration(motion.BASE)}>
-        <Pressable onPress={open} accessibilityRole="button" accessibilityLabel="تواصل مع الدعم عبر واتساب" style={{
+        {/* r131-F10 (A2 P1-4): the FAB rides PressableScale (0.97@80ms) —
+            the app's most-visible floating control was a silent tap. The
+            shadow stays the NEUTRAL elev color (colors.shadow near-void) —
+            no brand-tinted glow (fix 7 verification: the mobile WhatsApp
+            CTAs carry no colored shadow; the web OrderDialog twin's
+            shadow-whatsapp/20 is a web-side fix). */}
+        <PressableScale onPress={open} accessibilityLabel="تواصل مع الدعم عبر واتساب" style={{
           width: 56, height: 56, borderRadius: 9999, backgroundColor: colors.whatsapp,
           alignItems: "center", justifyContent: "center",
           shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
@@ -36,7 +43,7 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
               text-orange-foreground (#05070F void) on the green; the mobile
               FAB was the app's LAST hardcoded icon hex (white-on-green). */}
           <MessageCircle size={28} color={colors.void} />
-        </Pressable>
+        </PressableScale>
       </Animated.View>
     </View>
   );

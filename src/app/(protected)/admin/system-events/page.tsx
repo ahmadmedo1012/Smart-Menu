@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { SystemEventsClient } from "./client"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 export const metadata: Metadata = {
   title: "أحداث النظام",
@@ -7,11 +8,13 @@ export const metadata: Metadata = {
 
 export default function SystemEventsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">أحداث النظام</h1>
-        <p className="text-muted-foreground">سجل أحداث وتنبيهات النظام</p>
-      </div>
+    /* r131-F5 (A1 P0-8/P1-13): canonical container + page header (the bare
+       15px-inheriting subtitle is now the 13px/72ch canonical line). */
+    <div className="mx-auto max-w-[1280px] space-y-8">
+      <PageHeader
+        title="أحداث النظام"
+        subtitle="سجل أحداث وتنبيهات النظام"
+      />
       <SystemEventsClient />
     </div>
   )

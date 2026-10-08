@@ -30,7 +30,7 @@ export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }:
                                                 maxLength={120}
                                                 value={notes}
                                                 onChange={(e) => onNotesChange(e.target.value)}
-                                                className="w-full h-11 rounded-sm border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60"
+                                                className="w-full h-11 rounded-md border border-input bg-transparent px-4 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]"
                                         />
                                 </div>
                                 <div>
@@ -46,7 +46,7 @@ export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }:
                                                 maxLength={15}
                                                 value={phone}
                                                 onChange={(e) => onPhoneChange(e.target.value)}
-                                                className="w-full h-11 rounded-sm border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60 text-left"
+                                                className="w-full h-11 rounded-md border border-input bg-transparent px-4 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)] text-left"
                                         />
                                         <p className="text-2xs text-muted-foreground mt-1">
                                                 ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب

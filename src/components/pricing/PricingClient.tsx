@@ -129,16 +129,19 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
 
                                 <div className="mb-6">
                                         {isFree ? (
-                                                /* r128-F5: سعر بخط mono (نمط ln-mono) — أرقام جدولية */
-                                                <div className="text-[2.75rem] font-bold leading-none tabular-nums font-mono">مجاني</div>
+                                                /* r131 (A2 P1-5 — حكم توحيد السعر): درجة --fs-metric-lg (30px)
+                                                   mono+tnum على أسطح الأسعار الأربعة (كانت 44px هنا و30px
+                                                   في /subscribe — القيمة الواحدة لرقم المال). */
+                                                <div className="text-[length:var(--fs-metric-lg,30px)] font-bold leading-none tabular-nums font-mono">مجاني</div>
                                         ) : (
                                                 <div className="flex items-baseline gap-1">
                                                         {/* r95: رقم السعر SmartBot §5.7 — أنيميشن price-swap-in
                                                                عند ظهور البطاقة في الشاشة (r121-P1: بلا مفتاح تبديل
                                                                بعد إزالة السنوي — الدخول مرة واحدة يكفي).
-                                                               r128-F5: أرقام الأسعار بخط mono (نمط ln-mono). */}
+                                                               r128-F5: أرقام الأسعار بخط mono (نمط ln-mono).
+                                                               r131 (A2 P1-5): 44px → درجة --fs-metric-lg الموحّدة. */}
                                                         <span
-                                                                className="animate-price-swap-in text-[2.75rem] font-bold leading-none tabular-nums font-mono"
+                                                                className="animate-price-swap-in text-[length:var(--fs-metric-lg,30px)] font-bold leading-none tabular-nums font-mono"
                                                         >
                                                                 {formatPrice(plan.price, { suffix: '' })}
                                                         </span>
@@ -258,11 +261,11 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                         </section>
 
                         <section className="pb-16 sm:pb-24">
-                                <div className="max-w-6xl mx-auto px-4">
+                                <div className="max-w-7xl mx-auto px-4">
                                         {loading ? (
                                                 <>
-                                                        <LoadingAnnouncer loading={loading} message="جاري تحميل الباقات..." />
-                                                        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+                                                        <LoadingAnnouncer loading={loading} message="جارٍ تحميل الباقات..." />
+                                                        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
                                                         {[...Array(4)].map((_, i) => (
                                                                 /* r95: هياكل التحميل بنفس هندسة بطاقة SmartBot الجديدة */
                                                                 <div key={i} className="rounded-2xl border border-border/50 p-5 sm:p-6">
@@ -310,7 +313,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                         }
                                                 />
                                         ) : (
-                                                <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+                                                <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
                                                         {plans.map((plan, i) => (
                                                                 <PlanCard key={plan.id} plan={plan} index={i} />
                                                         ))}

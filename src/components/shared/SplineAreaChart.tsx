@@ -220,7 +220,7 @@ export function SplineAreaChart({
 						x={xAt(i)}
 						y={height - 6}
 						textAnchor="middle"
-						className="fill-muted-foreground/70 text-3xs"
+						className="fill-[var(--chart-text)] text-3xs"
 					>
 						{labels[i]}
 					</text>

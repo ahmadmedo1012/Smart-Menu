@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { View, Pressable, KeyboardAvoidingView, Platform, ScrollView, Linking } from "react-native";
+import { View, KeyboardAvoidingView, Platform, ScrollView, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LogIn, MessageCircle } from "lucide-react-native";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/Button";
 import { Input, PasswordInput, Label } from "@/components/ui/Input";
+import { PressableScale } from "@/components/motion/PressableScale";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/app/providers";
 
@@ -40,7 +41,8 @@ export function LoginScreen() {
     const result = await login(parsed.data.username, parsed.data.password);
     setSubmitting(false);
     if (result.ok) toast.success("تم تسجيل الدخول بنجاح");
-    else toast.error("فشل تسجيل الدخول", result.error);
+    // r131-F10 (fix 8): fleet error verb — تعذّر (was فشل).
+    else toast.error("تعذّر تسجيل الدخول", result.error);
   };
 
   const openSupport = () => {
@@ -74,10 +76,17 @@ export function LoginScreen() {
 
           <Button title={submitting ? "جارٍ الدخول..." : "تسجيل الدخول"} loading={submitting} onPress={onSubmit} className="w-full" />
 
-          <Pressable onPress={openSupport} className="mt-6 flex-row items-center justify-center gap-2">
+          {/* r131-F10 (A2 P1-4 + fix 5): the support link rides PressableScale
+              (0.97@80ms — was a silent raw Pressable) with a 44px+ effective
+              target (py-8 + hitSlop 12) and an explicit a11y label. */}
+          <PressableScale
+            onPress={openSupport}
+            hitSlop={12}
+            accessibilityLabel="نسيت كلمة المرور؟ تواصل مع الدعم عبر واتساب"
+            style={{ marginTop: 24, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 8 }}>
             <MessageCircle size={16} color={colors.whatsapp} />
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted }}>نسيت كلمة المرور؟ تواصل مع الدعم</Text>
-          </Pressable>
+          </PressableScale>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

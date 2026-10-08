@@ -40,9 +40,13 @@ export function OrderConfirmedScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top", "bottom"]}>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-        {/* Madarek dark status pair: success soft bg #0F241C + success ink #7FD39A */}
-        <View style={{ width: 80, height: 80, borderRadius: 9999, backgroundColor: colors.mintBg, alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-          <CheckCircle size={48} color={colors.mint} />
+        {/* Madarek dark status pair: success soft bg #0F241C + success ink #7FD39A.
+            r131-F10 (fix 3, A2 P3-7): the success well converges on the
+            canonical 56px r-xl state tile (was an 80px circle — the web twin
+            rides the same 56 ruling); the mint family stays (success state,
+            not empty). */}
+        <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: colors.mintBg, alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+          <CheckCircle size={28} color={colors.mint} />
         </View>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: colors.sand, marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", lineHeight: 20, marginBottom: 4 }}>

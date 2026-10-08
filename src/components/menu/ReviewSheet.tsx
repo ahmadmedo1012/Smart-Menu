@@ -308,7 +308,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 onChange={(e) => setFormComment(e.target.value)}
                                                                 rows={2}
                                                                 maxLength={500}
-                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/60 resize-none outline-none focus-visible:border-ring/50 transition-colors"
+                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-3 text-[16px] placeholder:text-placeholder-text resize-none outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]"
                                                         />
                                                         {/* Name */}
                                                         <input
@@ -318,7 +318,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 value={formName}
                                                                 onChange={(e) => setFormName(e.target.value)}
                                                                 maxLength={50}
-                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/60 outline-none focus-visible:border-ring/50 transition-colors"
+                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-3 text-[16px] placeholder:text-placeholder-text outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:shadow-[var(--state-input-focus-halo)]"
                                                         />
                                                         {/* Error */}
                                                         {submitError && (

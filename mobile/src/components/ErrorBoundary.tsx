@@ -1,10 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AlertTriangle } from "lucide-react-native";
+import { TriangleAlert } from "lucide-react-native";
 
 import { Text } from "@/components/ui/Text";
+import { PressableScale } from "@/components/motion/PressableScale";
 import { colors } from "@/theme/colors";
+import { radius } from "@/theme/radius";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -59,13 +61,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
+          {/* r131-F10 (fix 3): the crash well converges on the canonical
+              56px r-xl state tile in the ROSE error family (SO states.tsx
+              ErrorState twin) — was a 72px surface circle with a gold glyph,
+              the pre-r131 off-family error grammar. */}
           <View
             style={{
-              width: 72, height: 72, borderRadius: 9999, backgroundColor: colors.surface,
-              borderWidth: 1, borderColor: colors.hairline, alignItems: "center",
-              justifyContent: "center", marginBottom: 24,
+              width: 56, height: 56, borderRadius: radius.xl, backgroundColor: colors.roseBg,
+              alignItems: "center", justifyContent: "center", marginBottom: 24,
             }}>
-            <AlertTriangle size={32} color={colors.gold} />
+            <TriangleAlert size={24} color={colors.rose} />
           </View>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, textAlign: "center" }}>
             حدث خطأ غير متوقع
@@ -73,22 +78,25 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
             نعتذر عن ذلك، يمكنك إعادة المحاولة
           </Text>
-          <Pressable
+          {/* r131-F10 (A2 P1-4 + fix 6): both recovery actions ride
+              PressableScale — the hand-rolled 0.9/0.7 opacity registers
+              join the 0.97@80ms ladder. */}
+          <PressableScale
             onPress={this.reset}
             accessibilityLabel="إعادة المحاولة"
-            style={({ pressed }) => ({
-              marginTop: 28, backgroundColor: colors.gold, borderRadius: 10,
-              paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1,
-            })}>
+            style={{
+              marginTop: 28, backgroundColor: colors.gold, borderRadius: radius.md,
+              paddingVertical: 12, paddingHorizontal: 32,
+            }}>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.void }}>إعادة المحاولة</Text>
-          </Pressable>
-          <Pressable
+          </PressableScale>
+          <PressableScale
             onPress={this.reset}
             accessibilityLabel="العودة للقائمة"
             hitSlop={8}
-            style={({ pressed }) => ({ marginTop: 4, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.7 : 1 })}>
+            style={{ marginTop: 4, paddingVertical: 12, paddingHorizontal: 32 }}>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.muted }}>العودة للقائمة</Text>
-          </Pressable>
+          </PressableScale>
         </View>
       </SafeAreaView>
     );

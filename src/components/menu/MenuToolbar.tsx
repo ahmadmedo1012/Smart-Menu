@@ -177,7 +177,9 @@ export function MenuToolbar({
                         {/* Search input — glass card wrapper */}
                         {!hideSearch && (
                                 <div className="flex-1 relative">
-                                        <div className="flex h-12 items-center gap-3 rounded-lg border border-border/70 bg-card px-4 shadow-sm transition-[box-shadow,border-color] duration-fast focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/25 sm:h-14">
+                                        {/* r131 (A2 P1-3/P2-3): أرضية 16px (منع تكبير iOS) + هالة التركيز
+                                            القانونية 3px/22% بدل ring-2/25، والتلميح على توكن --placeholder-text. */}
+                                        <div className="flex h-12 items-center gap-3 rounded-lg border border-border/70 bg-card px-4 shadow-sm transition-[box-shadow,border-color] duration-fast focus-within:border-ring focus-within:shadow-[var(--state-input-focus-halo)] sm:h-14">
                                                 <MotionSearch className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
                                                 <input
                                                         ref={inputRef}
@@ -211,7 +213,7 @@ export function MenuToolbar({
                                                         aria-activedescendant={
                                                                 dropdownVisible && activeIdx >= 0 ? `${listboxId}-opt-${activeIdx}` : undefined
                                                         }
-                                                        className="flex-1 bg-transparent h-full text-sm outline-none placeholder:text-muted-foreground"
+                                                        className="flex-1 bg-transparent h-full text-[16px] outline-none placeholder:text-placeholder-text"
                                                 />
                                                 {search && (
                                                         <button

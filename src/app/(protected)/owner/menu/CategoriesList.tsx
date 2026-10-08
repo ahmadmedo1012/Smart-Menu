@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Switch } from '@/components/ui/switch';
 import { Pencil, Package, GripVertical } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -46,25 +47,26 @@ export function CategoriesList({
         onAddCategory,
 }: CategoriesListProps) {
         return (
+                /* r131-F5 (A1 P0-3): the hand-rolled 80px gradient-tile empty state
+                        joins the shared EmptyState primitive. */
                 categories.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4 animate-fade-in">
-                                <div className="size-20 rounded-md bg-gradient-to-br from-orange/20 to-orange/10 flex items-center justify-center">
-                                        <Package className="size-10 text-muted-foreground/50" />
-                                </div>
-                                <p className="text-lg font-medium">{searchTerm ? 'لا توجد نتائج' : 'لا توجد تصنيفات'}</p>
-                                <p className="text-sm text-muted-foreground/60">
-                                        {searchTerm ? 'جرب كلمات بحث أخرى' : 'أضف تصنيفاً جديداً لبدء بناء المنيو'}
-                                </p>
-                                {!searchTerm && (
-                                        <Button
-                                                variant="orange"
-                                                onClick={() => onAddCategory()}
-                                                className="gap-2"
-                                        >
-                                                <MotionPlus className="size-4" /> إضافة تصنيف
-                                        </Button>
-                                )}
-                        </div>
+                        <EmptyState
+                                icon={Package}
+                                title={searchTerm ? 'لا توجد نتائج' : 'لا توجد تصنيفات'}
+                                description={searchTerm ? 'جرب كلمات بحث أخرى' : 'أضف تصنيفاً جديداً لبدء بناء المنيو'}
+                                action={
+                                        !searchTerm ? (
+                                                <Button
+                                                        variant="orange"
+                                                        size="sm"
+                                                        onClick={() => onAddCategory()}
+                                                        className="gap-2"
+                                                >
+                                                        <MotionPlus className="size-4" /> إضافة تصنيف
+                                                </Button>
+                                        ) : undefined
+                                }
+                        />
                 ) : (
                         <div className="space-y-3">
                                 {categories.map((cat) => (

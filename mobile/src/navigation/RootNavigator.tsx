@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavigationContainer, type InitialState } from "@react-navigation/native";
 import { NavigationIndependentTree } from "@react-navigation/core";
-import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Linking from "expo-linking";
 import { X } from "lucide-react-native";
@@ -14,6 +14,7 @@ import { OwnerStack } from "./OwnerStack";
 import { AdminStack } from "./AdminStack";
 import { linking } from "./linking";
 import { ADMIN_ROLES } from "@/lib/auth-types";
+import { PressableScale } from "@/components/motion/PressableScale";
 import { colors } from "@/theme/colors";
 
 type PublicRoute =
@@ -95,9 +96,11 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
           <PublicStack />
         </NavigationContainer>
       </NavigationIndependentTree>
-      <Pressable
+      {/* r131-F10 (A2 P1-4): the public-overlay close rides PressableScale
+          (0.97@80ms — was a silent raw Pressable; role defaults to "button").
+          The 40px chrome circle + hitSlop 8 = 56px effective target. */}
+      <PressableScale
         onPress={onClose}
-        accessibilityRole="button"
         accessibilityLabel="إغلاق والعودة إلى لوحة التحكم"
         hitSlop={8}
         style={{
@@ -111,7 +114,7 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
           borderWidth: 1, borderColor: colors.hairline,
         }}>
         <X size={20} color={colors.sand} />
-      </Pressable>
+      </PressableScale>
     </View>
   );
 }

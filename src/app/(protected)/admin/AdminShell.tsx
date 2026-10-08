@@ -127,7 +127,7 @@ export function AdminShell({
                                         <div
                                                 id="main-content"
                                                 tabIndex={-1}
-                                                className="flex-1 bg-background p-4 md:p-6 lg:p-8 focus:outline-none"
+                                                className="flex-1 bg-background p-5 lg:p-12 focus:outline-none" /* r131-F5 (A1 P1-7): canonical gutter 20/48. */
                                         >
                                                 <PageFade>{children}</PageFade>
                                         </div>

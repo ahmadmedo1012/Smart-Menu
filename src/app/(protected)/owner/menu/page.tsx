@@ -9,12 +9,13 @@ import {
         DialogDescription,
 } from '@/components/ui/dialog';
 import { SearchInput } from '@/components/ui/search-input';
-import { AlertCircle } from 'lucide-react';
 import { MotionPlus } from '@/components/ui/motion-icons';
 import { BackButton } from '@/components/shared/BackButton';
 import { csrfJson } from '@/lib/csrf-client';
 import { PlanUsageBadge } from '@/components/owner/PlanUsageBadge';
-import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { MenuManagerSkeleton } from '@/components/shared/DashboardSkeletons';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 import { ItemDialog } from '@/components/owner/ItemDialog';
 import { premiumToast } from '@/lib/premium-toast';
@@ -56,8 +57,8 @@ export default function OwnerMenuPage() {
                         const cats = j.events ?? j.data ?? j;
                         setCategories(Array.isArray(cats) ? cats : []);
                 } catch {
-                        setError('فشل تحميل التصنيفات');
-                        premiumToast('error', 'فشل تحميل التصنيفات');
+                        setError('تعذر تحميل التصنيفات');
+                        premiumToast('error', 'تعذر تحميل التصنيفات');
                         /* ponytail: auto-retry once after 3s */ setTimeout(() => {
                                 if (restaurantId && fetchCatsRef.current) fetchCatsRef.current();
                         }, 3000);
@@ -91,7 +92,7 @@ export default function OwnerMenuPage() {
                                 )
                         );
                 } catch {
-                        premiumToast('error', 'فشل تحميل الأصناف');
+                        premiumToast('error', 'تعذر تحميل الأصناف');
                 }
         }, []);
 
@@ -133,7 +134,7 @@ export default function OwnerMenuPage() {
                            (مثل 403 «اشتراكك منتهي. جدّد اشتراكك للمتابعة.» وسقف الباقة)
                            — كان المصدر يبتلعها خلف «فشل الحفظ» العامة، على نفس الصفحة
                            التي يعرض فيها use-item-save الرسالة الصريحة. */
-                        premiumToast('error', getErrorMessage(e, 'فشل الحفظ'));
+                        premiumToast('error', getErrorMessage(e, 'تعذر الحفظ'));
                 }
         };
 
@@ -150,7 +151,7 @@ export default function OwnerMenuPage() {
                         else if (expandedCat) fetchItems(expandedCat);
                         setUsageKey((k) => k + 1);
                 } catch {
-                        premiumToast('error', 'فشل الحذف');
+                        premiumToast('error', 'تعذر الحذف');
                 }
         };
 
@@ -167,7 +168,7 @@ export default function OwnerMenuPage() {
                         premiumToast('save', ns === 'available' ? 'متوفر' : 'غير متوفر');
                         if (expandedCat) fetchItems(expandedCat);
                 } catch {
-                        premiumToast('error', 'فشل التحديث');
+                        premiumToast('error', 'تعذر التحديث');
                 } finally {
                         setPendingToggleId(null);
                 }
@@ -210,52 +211,45 @@ export default function OwnerMenuPage() {
         };
 
         if (loading)
-                return (
-                        <div className="space-y-4 animate-fade-in">
-                                <LoadingAnnouncer loading={true} message="جارٍ تحميل التصنيفات..." />
-                                {[1, 2, 3].map((i) => (
-                                        <div key={i} className="h-16 rounded-md bg-muted/50 animate-breath" />
-                                ))}
-                        </div>
-                );
+                // r131-F5 (A11 SM-2): menu-manager-shaped skeleton — was bare
+                // animate-breath rows.
+                return <MenuManagerSkeleton />;
 
         if (error)
+                // r131-F5 (A1 P1-12): canonical error family (56px well + dot + retry).
                 return (
-                        <div className="flex flex-col items-center justify-center py-20 gap-4 animate-fade-in">
-                                <div className="size-16 rounded-md bg-destructive/10 flex items-center justify-center">
-                                        <AlertCircle className="size-8 text-destructive/60" />
-                                </div>
-                                <p className="text-lg font-medium">{error}</p>
-                                <Button variant="outline" size="sm" onClick={() => fetchCats()} className="gap-1.5">
-                                        إعادة المحاولة
-                                </Button>
-                        </div>
+                        <ErrorState
+                                title={error}
+                                description="تعذر تحميل التصنيفات — تحقق من الاتصال ثم أعد المحاولة."
+                                onRetry={() => fetchCats()}
+                        />
                 );
 
         return (
-                <div className="space-y-6 animate-fade-in">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                        <BackButton href="/owner" />
-                                        <h1 className="text-2xl font-bold tracking-normal">إدارة المنيو</h1>
-                                        <p className="text-sm text-muted-foreground">أضف وعدل الأصناف والفئات في قائمة مطعمك</p>
-                                </div>
-                                <Button
-                                        variant="orange"
-                                        onClick={() => {
-                                                setCatEditing(null);
-                                                setCatForm({
-                                                        name: '',
-                                                        nameAr: '',
-                                                        icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)],
-                                                });
-                                                setCatDialog(true);
-                                        }}
-                                        className="gap-2"
-                                >
-                                        <MotionPlus className="size-4" /> تصنيف جديد
-                                </Button>
-                        </div>
+                /* r131-F5 (A1 P1-7): 40px section rhythm. */
+                <div className="space-y-8 animate-fade-in">
+                        <BackButton href="/owner" />
+                        <PageHeader
+                                title="إدارة المنيو"
+                                subtitle="أضف وعدل الأصناف والفئات في قائمة مطعمك"
+                                actions={
+                                        <Button
+                                                variant="orange"
+                                                onClick={() => {
+                                                        setCatEditing(null);
+                                                        setCatForm({
+                                                                name: '',
+                                                                nameAr: '',
+                                                                icon: CATEGORY_ICONS[Math.floor(Math.random() * CATEGORY_ICONS.length)],
+                                                        });
+                                                        setCatDialog(true);
+                                                }}
+                                                className="gap-2"
+                                        >
+                                                <MotionPlus className="size-4" /> تصنيف جديد
+                                        </Button>
+                                }
+                        />
 
                         <div className="relative">
                                 <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="ابحث في القائمة..." />

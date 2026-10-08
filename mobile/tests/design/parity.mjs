@@ -48,6 +48,8 @@
  *   app chrome 2 + splash gate · font sources 2 · ban-list + wiring gates 8+
  *   landing tokens 15 · theme modules 3 (radius/spacing/easings aggregates)
  *   landing grammar 6 · scope-rule negatives 3
+ *   r131-F10 11 · raw-Pressable/pressed-register bans · 24px price metric ×2
+ *   · 56px grey state tile · field-focus grammar ×3 · copy rulings ×2
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -72,6 +74,12 @@ const easingsSrc = stripComments(read('src/theme/easings.ts'));
 const landingScreenSrc = read('src/screens/public/LandingScreen.tsx');
 const trustBandSrc = read('src/components/landing/TrustBand.tsx');
 const landingPillSrc = read('src/components/landing/LandingPill.tsx');
+// r131 section sources (F10) — read RAW where grammar pins sweep text.
+const uiIndexSrc = read('src/components/ui/index.tsx');
+const inputSrc = read('src/components/ui/Input.tsx');
+const menuScreenSrc = read('src/screens/public/MenuScreen.tsx');
+const pricingScreenSrc = read('src/screens/public/PricingScreen.tsx');
+const subscribeScreensSrc = read('src/screens/subscribe/SubscribeScreens.tsx');
 const appJson = JSON.parse(read('app.json'));
 const pkg = JSON.parse(read('package.json'));
 
@@ -676,6 +684,92 @@ check(
     'no raw Orbit-Ink hex outside theme/landing.ts — ride the landing tokens (the mono face lands via fontFamily, colors via landing.*)',
   );
 }
+
+// ── §r131-F10 · round-131 mobile pins (press migration · price unification ·
+// state tiles · field-focus grammar · copy rulings) ─────────────────────────
+// The r131 fixes pinned as text scans, same doctrine as the sections above:
+// what ships in the repo is what gets pinned, so the next drift surfaces in
+// CI the same way a token drift does. Sources read RAW at the top of the
+// file (uiIndexSrc/inputSrc/menuScreenSrc/pricingScreenSrc/subscribeScreensSrc)
+// and the ban sweeps ride codeOnly (comments stripped) like §ban-list.
+
+// 1. Press migration completed: ZERO raw <Pressable> JSX anywhere in src/.
+//    r130 W2-4 shipped PressableScale but converted only Button + cards; the
+//    19 customer touchables (A2 P1-4), the shared primitives (eye toggle,
+//    ErrorState retry, ErrorBoundary) and the owner/admin chrome all ride
+//    the wrapper now — 0.97 controls / 0.99 cards, 80ms in / 160ms out.
+check(
+  !codeOnly.some(({ s }) => /<Pressable[\s/>]/.test(s)),
+  'no raw <Pressable> JSX in src/ — every touchable rides PressableScale (0.97 controls / 0.99 cards; A2 P1-4 migration complete)',
+);
+// 1b. …and the hand-rolled pressed-opacity registers may never return (the
+//     exact 0.7/0.8/0.9 registers the W2-4 header banned; killed in
+//     SubscribeScreens, ErrorBoundary and OwnerScreens this round).
+check(
+  !codeOnly.some(({ s }) => /opacity:\s*pressed\s*\?/.test(s)),
+  'no hand-rolled `opacity: pressed ? …` registers — press feedback rides the PressableScale scale+opacity ladder (one press register)',
+);
+
+// 2. Price unification (r131 fleet ruling): the plan-price metric is 24px
+//    gold tnum on BOTH mobile pricing surfaces (was 28px PricingScreen /
+//    20px subscribe — the same datum rendered two ways; A2 P1-5 mobile leg).
+check(
+  pricingScreenSrc.includes('fontSize: 24, fontWeight: "700", color: colors.gold')
+    && !pricingScreenSrc.includes('fontSize: 28'),
+  'PricingScreen plan price must ride the unified 24px gold tnum metric (fleet price ruling — 28px retired)',
+);
+check(
+  subscribeScreensSrc.includes('fontSize: 24, fontWeight: "700", color: colors.gold')
+    && !/fontSize: 20, fontWeight: "700", color: colors\.gold/.test(subscribeScreensSrc),
+  'SubscribeScreens plan price must ride the unified 24px gold tnum metric (was 20px — same ruling as PricingScreen)',
+);
+
+// 3. State tiles (r131 ruling "empty = 56px grey / 18/600"): the EmptyState
+//    well is the 56px r-xl grey-family tile — the web EmptyState fix and the
+//    SO states.tsx twin (A2 P2-21 / A11 SM-1 mobile leg).
+check(
+  uiIndexSrc.includes('pastelFamilies.grey.bg')
+    && uiIndexSrc.includes('width: 56, height: 56, borderRadius: radius.xl'),
+  'EmptyState well must be the canonical 56px r-xl grey-family tile (fleet ruling — matches web EmptyState / SO states.tsx)',
+);
+// 3b. …and the shared state family carries no oversized circle wells — 56px
+//     is the single tile rung (the 72/80px circles live on in screens only
+//     where this sweep retired them; ComingSoon/ErrorState ride 56 too).
+check(
+  !/width: (64|72|80), height: (64|72|80), borderRadius: 9999/.test(uiIndexSrc),
+  'no oversized state wells in the shared state family — 56px r-xl is the single tile rung',
+);
+
+// 4. Field-focus grammar (fix 7): ONE halo helper drives the <Input>
+//    primitive AND the raw sheet fields — focused = 2px accent (gold)
+//    border, resting = 1px hairline (rose when error). The primitive and
+//    the hand-rolled fields can no longer drift apart.
+check(
+  inputSrc.includes('export function fieldFocusBorderStyle')
+    && inputSrc.includes('borderWidth: 2, borderColor: colors.gold'),
+  'Input.tsx must export fieldFocusBorderStyle — the app-wide field-focus halo (2px accent border on focus, A2 P1-3 mobile twin)',
+);
+check(
+  menuScreenSrc.includes('fieldFocusBorderStyle(searchFocused)')
+    && menuScreenSrc.includes('fieldFocusBorderStyle(focusedField === "name")'),
+  'MenuScreen raw fields (search + cart sheet) must ride fieldFocusBorderStyle like the Input primitive',
+);
+check(
+  subscribeScreensSrc.includes('fieldFocusBorderStyle(focused)'),
+  'SubscribeScreens LabelAndInput must ride fieldFocusBorderStyle (the wizard fields had no focus treatment)',
+);
+
+// 5. Copy rulings: error verb تعذّر everywhere (the فشل/تعذر fleet split is
+//    retired — codeOnly strips comments, so historical notes stay legal) and
+//    جارٍ keeps its tanween (no bare جاري in code strings).
+check(
+  !codeOnly.some(({ s }) => s.includes('فشل')),
+  'error verb is تعذّر everywhere (r131 fleet ruling) — no فشل left in code strings',
+);
+check(
+  !codeOnly.some(({ s }) => /جاري(?!ٍ)/.test(s)),
+  'جارٍ keeps its tanween — no bare جاري in code strings (r131 typo sweep must stay clean)',
+);
 
 // ── report ───────────────────────────────────────────────────────────────────
 

@@ -309,7 +309,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         onOrder(item);
                                                 }}
                                                 aria-label={`خيارات ${displayName}`}
-                                                className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-accent-foreground/40 bg-accent-foreground/5 text-accent-foreground hover:bg-accent-foreground/10 active:scale-95 transition-[background-color,transform,translate,scale,rotate,box-shadow,color] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-accent-foreground/40 bg-accent-foreground/5 text-accent-foreground hover:bg-accent-foreground/10 active:scale-[0.97] active:duration-[var(--t-micro,80ms)] transition-[background-color,transform,color] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         >
                                                 <Settings2 className="size-4" aria-hidden="true" />
                                                 <span className="text-xs font-bold">خيارات</span>
@@ -330,7 +330,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                         needsConfig ? onOrder(item) : onAddToCart(item);
                                                                 }}
                                                                 aria-label={`إضافة ${displayName} إلى السلة`}
-                                                className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm shadow-orange/20 transition-[background-color,box-shadow] duration-fast hover:bg-orange/90 hover:shadow-md hover:shadow-orange/30 active:scale-[0.99]"
+                                                className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-[var(--shadow-card-premium)] transition-[background-color,box-shadow,transform] duration-fast hover:bg-orange/90 hover:shadow-[var(--shadow-card-premium-h)] hover:-translate-y-[2px] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
                                                         >
                                                                 <MotionPlus className="size-4" />
                                                                 أضف
@@ -342,7 +342,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                 animate={{ opacity: 1, scale: 1 }}
                                                                 exit={{ opacity: 0, scale: 0.9 }}
                                                                 transition={CARD_SPRING}
-                                                                className="flex items-center rounded-xl overflow-hidden border border-orange bg-orange shadow-lg"
+                                                                className="flex items-center rounded-xl overflow-hidden border border-orange bg-orange shadow-[var(--shadow-card-premium)]"
                                                         >
                                                                 <button
                                                                         onClick={(e) => {
@@ -350,7 +350,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                                 onDecrementCart?.(item);
                                                                         }}
                                                                         aria-label={`إنقاص كمية ${displayName}`}
-                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-colors active:brightness-90"
+                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-[color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
                                                                 >
                                                                         <MotionMinus className="size-4" />
                                                                 </button>
@@ -365,7 +365,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                                 needsConfig ? onOrder(item) : onAddToCart(item);
                                                                         }}
                                                                         aria-label={`زيادة كمية ${displayName}`}
-                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-colors active:brightness-90"
+                                                                        className="flex items-center justify-center size-[48px] text-orange-foreground hover:brightness-110 transition-[color,transform] active:scale-[0.97] active:duration-[var(--t-micro,80ms)]"
                                                                 >
                                                                         <MotionPlus className="size-4" />
                                                                 </button>

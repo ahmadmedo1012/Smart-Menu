@@ -19,7 +19,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { toArabicNumber } from '@/lib/format';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
-import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SettingsPageSkeleton } from '@/components/shared/DashboardSkeletons';
 import { compressImage } from '@/lib/image-compress';
 import { useActiveRestaurant } from '@/components/owner/useActiveRestaurant';
 // r121-H4: the server caps (shared restaurantFieldSchema) as the single source
@@ -99,7 +101,7 @@ export default function OwnerSettingsPage() {
                                 }
                                 setPlans(plansData.data ?? []);
                         })
-                        .catch(() => premiumToast('error', 'فشل تحميل الإعدادات'))
+                        .catch(() => premiumToast('error', 'تعذر تحميل الإعدادات'))
                         .finally(() => setLoading(false));
         }, [activeId]);
 
@@ -111,12 +113,12 @@ export default function OwnerSettingsPage() {
                         const res = await csrfFetch('/api/upload', { method: 'POST', body: formData });
                         if (!res.ok) {
                                 const body = await res.json().catch(() => null);
-                                throw new Error(body?.error ?? `فشل رفع الصورة (${res.status})`);
+                                throw new Error(body?.error ?? `تعذر رفع الصورة (${res.status})`);
                         }
                         const data = await res.json();
                         return data.data?.url ?? data.url;
                 } catch (e) {
-                        premiumToast('error', e instanceof Error ? e.message : 'فشل رفع الصورة');
+                        premiumToast('error', e instanceof Error ? e.message : 'تعذر رفع الصورة');
                         return null;
                 } finally {
                         setUploading((prev) => ({ ...prev, [type]: false }));
@@ -183,7 +185,7 @@ export default function OwnerSettingsPage() {
                         });
                         if (!res.ok) {
                                 const err = await res.json();
-                                throw new Error(err.error ?? 'فشل الحفظ');
+                                throw new Error(err.error ?? 'تعذر الحفظ');
                         }
                         // Old-logo cleanup now happens server-side inside PUT /api/settings
                         // (after the DB write succeeds, tenant-bound) — no client-side delete call
@@ -193,7 +195,7 @@ export default function OwnerSettingsPage() {
                         const r = settingsData.data?.restaurant;
                         if (r) setRestaurant(r);
                 } catch (e) {
-                        premiumToast('error', e instanceof Error ? e.message : 'فشل الحفظ');
+                        premiumToast('error', e instanceof Error ? e.message : 'تعذر الحفظ');
                 } finally {
                         setSaving(false);
                 }
@@ -201,23 +203,22 @@ export default function OwnerSettingsPage() {
 
         const currentPlan = restaurant?.plan;
         if (loading)
-                return (
-                        <div className="space-y-5 animate-fade-in">
-                                <LoadingAnnouncer loading={true} message="جارٍ تحميل الإعدادات..." />
-                                <div className="h-36 skeleton rounded-md" />
-                                <div className="h-80 skeleton rounded-md" />
-                        </div>
-                );
+                // r131-F5 (A11 SM-2): settings-shaped skeleton stack (the .skeleton
+                // shimmer + RM kill — was two bare blocks).
+                return <SettingsPageSkeleton cards={3} label="جارٍ تحميل الإعدادات..." />;
 
         return (
-                <div className="max-w-2xl space-y-5 animate-page-enter">
+                <div className="max-w-2xl space-y-8 animate-page-enter">
                         <BackButton href="/owner" />
 
-                        {/* a11y: page h1 — visually hidden so design is untouched */}
-                        <h1 className="sr-only">إعدادات المطعم</h1>
+                        {/* r131-F5 (A1 P0-8): visible canonical page header (was sr-only). */}
+                        <PageHeader
+                                title="إعدادات المطعم"
+                                subtitle="الشعار والمعرض وأنواع الطلبات وبيانات المطعم"
+                        />
 
                         {/* Plan card */}
-                        <div className="rounded-md bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
+                        <div className="rounded-xl bg-gradient-to-br from-orange-muted/70 to-white dark:from-orange-muted dark:to-card border border-orange/20 dark:border-orange/15 overflow-hidden">
                                 <div className="p-5">
                                         <div className="flex items-start justify-between gap-3">
                                                 <div className="flex items-center gap-3">
@@ -251,7 +252,7 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Logo section */}
-                        <div className="rounded-md bg-card/40 border border-border/20 p-5">
+                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
                                 <h2 className="text-sm font-bold mb-4">الشعار</h2>
                                 <div className="flex items-center gap-5">
                                         <div className="size-24 rounded-md overflow-hidden bg-muted/40 border border-border/20 flex items-center justify-center shrink-0 relative group">
@@ -298,14 +299,14 @@ export default function OwnerSettingsPage() {
                                                         ) : (
                                                                 <AnimatedUpload className="size-3" />
                                                         )}
-                                                        {uploading.logo ? 'جاري الرفع...' : 'اختيار صورة'}
+                                                        {uploading.logo ? 'جارٍ الرفع...' : 'اختيار صورة'}
                                                 </Button>
                                         </div>
                                 </div>
                         </div>
 
                         {/* Gallery section */}
-                        <div className="rounded-md bg-card/40 border border-border/20 p-5">
+                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
                                 <div className="flex items-center justify-between mb-4">
                                         <h2 className="text-sm font-bold">معرض الصور</h2>
                                         <input
@@ -333,15 +334,14 @@ export default function OwnerSettingsPage() {
                                         </Button>
                                 </div>
                                 {gallery.length === 0 ? (
-                                        <div className="text-center py-10">
-                                                <div className="empty-state-icon">
-                                                        <ImageIcon />
-                                                </div>
-                                                <p className="text-xs text-muted-foreground">لم يتم إضافة صور بعد</p>
-                                                <p className="text-2xs text-muted-foreground/60 mt-0.5">
-                                                        أضف صوراً للمطعم لتظهر في صفحة المنيو
-                                                </p>
-                                        </div>
+                                        /* r131-F5 (A1 P0-3): the legacy .empty-state-icon hand-roll
+                                                joins the shared primitive. */
+                                        <EmptyState
+                                                icon={ImageIcon}
+                                                title="لم يتم إضافة صور بعد"
+                                                description="أضف صوراً للمطعم لتظهر في صفحة المنيو"
+                                                className="py-10"
+                                        />
                                 ) : (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                                                 {gallery.map((url, i) => (
@@ -393,7 +393,7 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Pickup types */}
-                        <div className="rounded-md bg-card/40 border border-border/20 p-5">
+                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
                                 <h2 className="text-sm font-bold mb-4">أنواع الطلبات المدعومة</h2>
                                 <div className="space-y-2.5">
                                         {/* r121-O-1: labels derive from the canonical pickup map */}
@@ -431,7 +431,7 @@ export default function OwnerSettingsPage() {
                         </div>
 
                         {/* Settings form */}
-                        <div className="rounded-md bg-card/40 border border-border/20 p-5">
+                        <div className="rounded-xl bg-card/40 border border-border/20 p-5">
                                 <div className="flex items-center justify-between mb-4">
                                         <h2 className="text-sm font-bold">بيانات المطعم</h2>
                                         <Button onClick={save} disabled={saving} className="gap-1.5 text-xs h-8">
@@ -451,7 +451,7 @@ export default function OwnerSettingsPage() {
                                                                 setSubmitted(false);
                                                         }}
                                                         className={cn(
-                                                                'h-10 rounded-xl mt-1 text-sm',
+                                                                'mt-1 text-sm',
                                                                 submitted && !form.name.trim() && 'border-destructive ring-1 ring-destructive/30'
                                                         )}
                                                         aria-invalid={(submitted && !form.name.trim()) || undefined}
@@ -467,7 +467,7 @@ export default function OwnerSettingsPage() {
                                                         maxLength={RESTAURANT_FIELD_LIMITS.description}
                                                         value={form.description}
                                                         onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                                        className="mt-1 rounded-xl text-sm"
+                                                        className="mt-1 text-sm"
                                                         rows={2}
                                                 />
                                                 <p className="text-2xs text-muted-foreground mt-1">
@@ -483,7 +483,7 @@ export default function OwnerSettingsPage() {
                                                                 dir="ltr"
                                                                 value={form.phone}
                                                                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                                                className="h-10 rounded-xl mt-1 text-sm text-start"
+                                                                className="mt-1 text-sm text-start"
                                                         />
                                                 </div>
                                                 <div>
@@ -494,7 +494,7 @@ export default function OwnerSettingsPage() {
                                                                 dir="ltr"
                                                                 value={form.whatsapp}
                                                                 onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                                                                className="h-10 rounded-xl mt-1 text-sm text-start"
+                                                                className="mt-1 text-sm text-start"
                                                         />
                                                 </div>
                                         </div>
@@ -507,7 +507,7 @@ export default function OwnerSettingsPage() {
                                                         dir="ltr"
                                                         value={form.email}
                                                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                                        className="h-10 rounded-xl mt-1 text-sm text-start"
+                                                        className="mt-1 text-sm text-start"
                                                 />
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
@@ -518,7 +518,7 @@ export default function OwnerSettingsPage() {
                                                                 maxLength={RESTAURANT_FIELD_LIMITS.address}
                                                                 value={form.address}
                                                                 onChange={(e) => setForm({ ...form, address: e.target.value })}
-                                                                className="h-10 rounded-xl mt-1 text-sm"
+                                                                className="mt-1 text-sm"
                                                         />
                                                 </div>
                                                 <div>
@@ -529,7 +529,7 @@ export default function OwnerSettingsPage() {
                                                                 value={form.workingHours}
                                                                 onChange={(e) => setForm({ ...form, workingHours: e.target.value })}
                                                                 placeholder="8:00 صباحاً - 12:00 منتصف الليل"
-                                                                className="h-10 rounded-xl mt-1 text-sm"
+                                                                className="mt-1 text-sm"
                                                         />
                                                 </div>
                                         </div>
@@ -539,14 +539,14 @@ export default function OwnerSettingsPage() {
                         {/* Stats */}
                         {restaurant && (
                                 <div className="grid grid-cols-2 gap-3">
-                                        <div className="rounded-md bg-card/40 border border-border/20 p-4">
+                                        <div className="rounded-xl bg-card/40 border border-border/20 p-4">
                                                 <div className="flex items-center gap-2 mb-1.5">
                                                         <AnimatedShoppingCart className="size-3.5 text-primary" />
                                                         <span className="text-2xs text-muted-foreground">إجمالي الطلبات</span>
                                                 </div>
                                                 <p className="text-xl font-bold">{toArabicNumber(restaurant._count?.orders ?? 0)}</p>
                                         </div>
-                                        <div className="rounded-md bg-card/40 border border-border/20 p-4">
+                                        <div className="rounded-xl bg-card/40 border border-border/20 p-4">
                                                 <div className="flex items-center gap-2 mb-1.5">
                                                         <Package className="size-3.5 text-orange" />
                                                         <span className="text-2xs text-muted-foreground">الأقسام</span>

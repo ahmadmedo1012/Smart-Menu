@@ -18,7 +18,7 @@ import {
         TableRow,
         TableCell,
 } from '@/components/ui/table';
-import { ChevronUp, AlertCircle, Activity, FilterX, History } from 'lucide-react';
+import { ChevronUp, FilterX, History } from 'lucide-react';
 import { MotionChevronDown } from '@/components/ui/motion-icons';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
 import { MotionSearch } from '@/components/ui/motion-icons';
@@ -26,6 +26,8 @@ import { cn } from '@/lib/utils';
 import { toArabicNumber, formatDate } from '@/lib/format';
 import { useAccessGate, allowRolesOrPermission } from '@/hooks/useAccessGate';
 import { AccessDenied } from '@/components/shared/AccessDenied';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { ErrorState } from '@/components/shared/ErrorState';
 
 interface AuditLogEntry {
         id: number;
@@ -105,13 +107,13 @@ export default function AdminAuditLogsPage() {
                                 if (search) params.set('search', search);
 
                                 const res = await fetch(`/api/admin/audit-logs?${params.toString()}`);
-                                if (!res.ok) throw new Error('فشل تحميل سجل التدقيق');
+                                if (!res.ok) throw new Error('تعذر تحميل سجل التدقيق');
                                 const json = await res.json();
                                 const data = json.data?.data ?? json.data ?? [];
                                 setLogs((prev) => (append ? [...prev, ...data] : data));
                                 setTotal(json.data?.total ?? json.meta?.total ?? 0);
                         } catch {
-                                setError('فشل تحميل سجل التدقيق');
+                                setError('تعذر تحميل سجل التدقيق');
                         } finally {
                                 setLoading(false);
                                 setLoadingMore(false);
@@ -147,44 +149,33 @@ export default function AdminAuditLogsPage() {
                 return (
                         <div className="space-y-4 animate-fade-in" aria-live="polite" aria-label="جارٍ التحميل">
                                 <div className="h-10 w-48 skeleton rounded-lg" />
-                                <div className="h-64 rounded-md bg-muted/50 animate-breath" />
+                                <div className="h-64 skeleton rounded-xl" />
                         </div>
                 );
         }
 
         // ---------- Error ----------
         if (error && logs.length === 0) {
+                // r131-F5 (A1 P1-12): canonical error family.
                 return (
-                        <div
-                                className="flex flex-col items-center justify-center py-20 gap-3 animate-fade-in"
-                                aria-live="assertive"
-                        >
-                                <AlertCircle className="size-10 text-destructive" />
-                                <p className="text-lg font-medium">{error}</p>
-                                <Button variant="outline" onClick={() => fetchLogs(1, false)} className="gap-2">
-                                        <AnimatedRefreshCw className="size-4" /> إعادة المحاولة
-                                </Button>
-                        </div>
+                        <ErrorState
+                                title="تعذر تحميل سجل التدقيق"
+                                error={error}
+                                onRetry={() => fetchLogs(1, false)}
+                        />
                 );
         }
 
                 if (access === 'denied') return <AccessDenied />
 
         return (
-                <div className="space-y-6 animate-fade-in">
-                        {/* Header */}
-                        <div className="flex items-center gap-3">
-                                <div
-                                        className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg"
-                                        aria-hidden="true"
-                                >
-                                        <Activity className="size-5 text-orange-foreground" />
-                                </div>
-                                <div>
-                                        <h1 className="text-2xl font-bold tracking-normal">سجل التدقيق</h1>
-                                        <p className="text-sm text-muted-foreground">{toArabicNumber(total)} سجل</p>
-                                </div>
-                        </div>
+                <div className="mx-auto max-w-[1280px] space-y-8 animate-fade-in">
+                        {/* r131-F5 (A1 P0-8): canonical page header (the 48px gradient
+                                tile + fixed 30px title are gone). */}
+                        <PageHeader
+                                title="سجل التدقيق"
+                                subtitle={`${toArabicNumber(total)} سجل — كل إجراء حساس على الشبكة`}
+                        />
 
                         {/* Search + filters */}
                         <div className="flex flex-col gap-4">
@@ -276,12 +267,12 @@ export default function AdminAuditLogsPage() {
                                                 <Table className="min-w-[600px]">
                                                         <TableHeader>
                                                                 <TableRow>
-                                                                        <TableHead className="text-end">الإجراء</TableHead>
-                                                                        <TableHead className="text-end">الهدف</TableHead>
-                                                                        <TableHead className="text-end">الجهة الفاعلة</TableHead>
-                                                                        <TableHead className="text-end hidden md:table-cell">IP</TableHead>
-                                                                        <TableHead className="text-end hidden sm:table-cell">التاريخ</TableHead>
-                                                                        <TableHead className="w-8" />
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الإجراء</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الهدف</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border">الجهة الفاعلة</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border hidden md:table-cell">IP</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border hidden sm:table-cell">التاريخ</TableHead>
+                                                                        <TableHead className="h-11 bg-muted/60 px-4 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground border-b border-border w-8" />
                                                                 </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
@@ -289,7 +280,7 @@ export default function AdminAuditLogsPage() {
                                                                         const as = getActionStyle(log.action);
                                                                         const isExpanded = expandedId === log.id;
                                                                         return (
-                                                                                <TableRow key={log.id} className="group">
+                                                                                <TableRow key={log.id} className="group hover:bg-muted">
                                                                                         <TableCell>
                                                                                                 <Badge className={cn('font-medium', as.bg, as.color)}>{as.label}</Badge>
                                                                                         </TableCell>

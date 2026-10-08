@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { View, Pressable, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
+import { View, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -34,8 +34,9 @@ import { useEnterFade } from "@/components/motion/useEnterFade";
 import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
-import { colors } from "@/theme/colors";
+import { colors, pastelFamilies } from "@/theme/colors";
 import { METRIC_FONT_VARIANT } from "@/theme/typography";
+import { fieldFocusBorderStyle } from "@/components/ui/Input";
 
 interface RestaurantInfo {
   id: number; name: string; slug: string; description: string;
@@ -63,6 +64,9 @@ export function MenuScreen() {
 
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [search, setSearch] = useState("");
+  // r131-F10 (fix 7): search-row focus halo state — the field grammar every
+  // other mobile input now rides (fieldFocusBorderStyle).
+  const [searchFocused, setSearchFocused] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
 
@@ -173,7 +177,11 @@ export function MenuScreen() {
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>{restaurant.name}</Text>
             {restaurant.description ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted, marginTop: 2 }} numberOfLines={1}>{restaurant.description}</Text> : null}
           </View>
-          <Pressable onPress={() => setCartOpen(true)} style={{ position: "relative", padding: 8 }} accessibilityLabel="عرض السلة">
+          {/* r131-F10 (A2 P1-4): raw Pressable → PressableScale (0.97@80ms)
+              — r130's migration covered Buttons/cards only; the header cart
+              was a silent tap. hitSlop 4: the 40px visual (24 icon + 8×2 pad)
+              clears the 44px floor (fix 5). */}
+          <PressableScale onPress={() => setCartOpen(true)} hitSlop={4} style={{ position: "relative", padding: 8 }} accessibilityLabel="عرض السلة">
             <ShoppingCart size={24} color={colors.sand} />
             {cartCount > 0 ? (
               // r130 W2-4 (RTL): end-anchored badge — the web twin's cart
@@ -183,16 +191,19 @@ export function MenuScreen() {
                 <Text style={{ color: colors.void, fontSize: 10, fontFamily: "IBM Plex Sans Arabic", fontWeight: "700", fontVariant: METRIC_FONT_VARIANT }}>{toArabicNumber(cartCount)}</Text>
               </View>
             ) : null}
-          </Pressable>
+          </PressableScale>
         </View>
       </View>
 
       <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
         {/* r126-M6: minHeight (was height: 40) — the search row grows with
             system font scale instead of clipping the input text. */}
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.surface, borderRadius: 8, paddingHorizontal: 12, minHeight: 44 }}>
-          <Search size={16} color={colors.muted} />
-          <TextInput placeholder="ابحث عن صنف..." placeholderTextColor={colors.muted} value={search} onChangeText={setSearch} style={{ flex: 1, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, paddingVertical: 10 }} />
+        {/* r131-F10 (fix 7): the search row rides the field-focus halo
+            (fieldFocusBorderStyle) — hairline at rest, 2px gold while typing;
+            the prefix glyph warms with it. */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.surface, borderRadius: 8, paddingHorizontal: 12, minHeight: 44, ...fieldFocusBorderStyle(searchFocused) }}>
+          <Search size={16} color={searchFocused ? colors.gold : colors.muted} />
+          <TextInput placeholder="ابحث عن صنف..." placeholderTextColor={colors.muted} value={search} onChangeText={setSearch} onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)} style={{ flex: 1, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, paddingVertical: 10 }} />
         </View>
       </View>
 
@@ -201,13 +212,19 @@ export function MenuScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
             {categories.map((c) => {
               const active = activeCategory === c.id;
+              // r131-F10 (A2 P1-4): raw Pressable → PressableScale + the
+              // selected state TalkBack/VoiceOver was missing (fix 5);
+              // hitSlop 7 lifts the ~30px pill past the 44px floor.
               return (
-                <Pressable
+                <PressableScale
                   key={c.id}
                   onPress={() => setActiveCategory(active ? null : c.id)}
+                  hitSlop={7}
+                  accessibilityLabel={c.nameAr || c.name || "فئة"}
+                  accessibilityState={{ selected: active }}
                   style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16, backgroundColor: active ? colors.gold : colors.surface, borderWidth: 1, borderColor: active ? colors.gold : colors.hairline }}>
                   <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: active ? colors.void : colors.muted }} maxFontSizeMultiplier={1.4}>{c.nameAr || c.name || "فئة"}</Text>
-                </Pressable>
+                </PressableScale>
               );
             })}
           </ScrollView>
@@ -227,7 +244,7 @@ export function MenuScreen() {
           )}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.gold} />}
           contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
-          ListEmptyComponent={<EmptyState title="لا توجد أصناف" description="جرّب فئة أخرى أو ابحث بكلمة مختلفة" icon={<ShoppingBag size={32} color={colors.muted} />} />}
+          ListEmptyComponent={<EmptyState title="لا توجد أصناف" description="جرّب فئة أخرى أو ابحث بكلمة مختلفة" icon={<ShoppingBag size={24} color={pastelFamilies.grey.deep} />} />}
         />
       </Animated.View>
 
@@ -323,6 +340,8 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
   const [modError, setModError] = useState<{ groupId: number | null; message: string } | null>(null);
+  // r131-F10 (fix 7): per-item notes focus state — the field halo grammar.
+  const [notesFocused, setNotesFocused] = useState(false);
   // r126-M8: imperative handle for the programmatic dismiss (add-to-cart).
   const sheetRef = useRef<AppBottomSheetHandle>(null);
 
@@ -395,19 +414,24 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
       header={
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, flex: 1 }} numberOfLines={1}>{item.nameAr || item.name}</Text>
-          <Pressable onPress={() => sheetRef.current?.dismiss()} hitSlop={12} accessibilityLabel="إغلاق تفاصيل الصنف" accessibilityRole="button"><X size={20} color={colors.muted} /></Pressable>
+          {/* r131-F10 (A2 P1-4): PressableScale — the overlay close was a
+              silent tap (role defaults to "button" from the wrapper). */}
+          <PressableScale onPress={() => sheetRef.current?.dismiss()} hitSlop={12} accessibilityLabel="إغلاق تفاصيل الصنف"><X size={20} color={colors.muted} /></PressableScale>
         </View>
       }
       footer={
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Pressable onPress={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} accessibilityLabel="إنقاص الكمية" accessibilityRole="button" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center", opacity: quantity <= 1 ? 0.4 : 1 }}>
+            {/* r131-F10 (A2 P1-4 + fix 5): PressableScale + hitSlop 4 — the
+                36px visual stepper clears the 44px floor (36+8), matching the
+                cart-sheet steppers' documented 36+8 recipe below. */}
+            <PressableScale onPress={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} hitSlop={4} accessibilityLabel="إنقاص الكمية" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center", opacity: quantity <= 1 ? 0.4 : 1 }}>
               <Minus size={16} color={colors.sand} />
-            </Pressable>
+            </PressableScale>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, minWidth: 28, textAlign: "center", fontVariant: METRIC_FONT_VARIANT }}>{toArabicNumber(quantity)}</Text>
-            <Pressable onPress={() => setQuantity((q) => Math.min(MAX_ITEM_QUANTITY, q + 1))} disabled={quantity >= MAX_ITEM_QUANTITY} accessibilityLabel="زيادة الكمية" accessibilityRole="button" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", opacity: quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}>
+            <PressableScale onPress={() => setQuantity((q) => Math.min(MAX_ITEM_QUANTITY, q + 1))} disabled={quantity >= MAX_ITEM_QUANTITY} hitSlop={4} accessibilityLabel="زيادة الكمية" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", opacity: quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}>
               <Plus size={16} color={colors.void} />
-            </Pressable>
+            </PressableScale>
           </View>
           <View style={{ flex: 1 }}>
             <Button title={`أضف إلى السلة · ${formatPrice(unit * quantity)}`} onPress={onAdd} size="lg" className="w-full" />
@@ -438,12 +462,14 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
               {g.options.map((o) => {
                 const selected = (selection[g.id] ?? []).includes(o.id);
                 const disabled = isOptionDisabled(g, selection, o.id);
+                // r131-F10 (A2 P1-4): modifier chips ride PressableScale —
+                // ingredient selection was the app's highest-tap silent
+                // surface. Role defaults to "button" from the wrapper.
                 return (
-                  <Pressable
+                  <PressableScale
                     key={o.id}
                     onPress={() => setSelection((prev) => toggleModifierOption(groups, prev, g.id, o.id))}
                     disabled={disabled}
-                    accessibilityRole="button"
                     accessibilityLabel={`${o.nameAr || o.name}${o.priceDelta > 0 ? ` بإضافة ${formatPrice(o.priceDelta)}` : ""}`}
                     accessibilityState={{ selected, disabled }}
                     hitSlop={6}
@@ -456,7 +482,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? colors.void : colors.sand }} maxFontSizeMultiplier={1.4}>
                       {o.nameAr || o.name}{o.priceDelta > 0 ? ` (+${formatPrice(o.priceDelta)})` : o.priceDelta < 0 ? ` (${formatPrice(o.priceDelta)})` : ""}
                     </Text>
-                  </Pressable>
+                  </PressableScale>
                 );
               })}
             </View>
@@ -470,7 +496,9 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
         value={notes}
         onChangeText={setNotes}
         multiline
-        style={{ minHeight: 72, borderRadius: 8, borderWidth: 1, borderColor: colors.hairline, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 8, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13, textAlignVertical: "top" }}
+        onFocus={() => setNotesFocused(true)}
+        onBlur={() => setNotesFocused(false)}
+        style={{ minHeight: 72, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 8, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13, textAlignVertical: "top", ...fieldFocusBorderStyle(notesFocused) }}
       />
     </AppBottomSheet>
   );
@@ -515,6 +543,13 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
    * الحقل) فتصل المطعم فاتورة توصيل مستحيلة التنفيذ. mirror الويب: عنوان إلزامي
    * لتوصيل + ملاحظات عامة (setOrderNotes كانت بلا مستدعٍ واحد). */
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  // r131-F10 (fix 7): which cart-sheet field holds focus — drives the shared
+  // fieldFocusBorderStyle halo on the name/phone/address/notes inputs.
+  const [focusedField, setFocusedField] = useState<"name" | "phone" | "address" | "notes" | null>(null);
+  const fieldFocus = (f: "name" | "phone" | "address" | "notes") => ({
+    onFocus: () => setFocusedField(f),
+    onBlur: () => setFocusedField(null),
+  });
   const subtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
 
   // r126-M8: imperative dismiss + the post-checkout handoff. The sheet
@@ -614,7 +649,9 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
         toast.error("تم تسجيل طلبك — تعذّر فتح واتساب تلقائيًا، جرّب زر الإرسال في شاشة التأكيد");
       }
     } catch (e: unknown) {
-      toast.error(getErrorMessage(e, "فشل إرسال الطلب"));
+      // r131-F10 (fix 8): fleet error verb — تعذّر (was فشل; the r131 family
+      // ruling retires the فشل/تعذر split fleet-wide).
+      toast.error(getErrorMessage(e, "تعذّر إرسال الطلب"));
     } finally {
       setSubmitting(false);
     }
@@ -643,7 +680,9 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
       header={
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>السلة</Text>
-          <Pressable onPress={() => sheetRef.current?.dismiss()} hitSlop={12} accessibilityLabel="إغلاق السلة" accessibilityRole="button"><X size={20} color={colors.muted} /></Pressable>
+          {/* r131-F10 (A2 P1-4): PressableScale — the cart-sheet close was a
+              silent tap. */}
+          <PressableScale onPress={() => sheetRef.current?.dismiss()} hitSlop={12} accessibilityLabel="إغلاق السلة"><X size={20} color={colors.muted} /></PressableScale>
         </View>
       }
       footer={
@@ -663,9 +702,11 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
       {lastRemoved ? (
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface2, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 8 }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted, flex: 1 }} numberOfLines={1}>تم حذف «{lastRemoved.name}»</Text>
-          <Pressable onPress={cart.undoRemove} hitSlop={8} accessibilityLabel="تراجع عن الحذف" accessibilityRole="button">
+          {/* r131-F10 (A2 P1-4 + fix 5): PressableScale + hitSlop 14 — the
+              ~17px text link clears the 44px floor. */}
+          <PressableScale onPress={cart.undoRemove} hitSlop={14} accessibilityLabel="تراجع عن الحذف">
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "700", color: colors.gold }}>تراجع</Text>
-          </Pressable>
+          </PressableScale>
         </View>
       ) : null}
       {items.length === 0 ? (
@@ -680,14 +721,16 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.gold, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(i.price)}</Text>
               </View>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                {/* r120 (U6-#4): 24×24 تحت حد اللمس — 36 مرئي + hitSlop 8 = ≥44 فعليًا. */}
-                <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} hitSlop={8} accessibilityRole="button" accessibilityLabel={`إنقاص كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center" }}><Minus size={16} color={colors.sand} /></Pressable>
+                {/* r120 (U6-#4): 24×24 تحت حد اللمس — 36 مرئي + hitSlop 8 = ≥44 فعليًا.
+                    r131-F10 (A2 P1-4): PressableScale — the money-path steppers
+                    were the app's most-tapped silent controls. */}
+                <PressableScale onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} hitSlop={8} accessibilityLabel={`إنقاص كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center" }}><Minus size={16} color={colors.sand} /></PressableScale>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, minWidth: 20, textAlign: "center", fontVariant: METRIC_FONT_VARIANT }}>{toArabicNumber(i.quantity)}</Text>
-                <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} hitSlop={8} accessibilityRole="button" accessibilityLabel={`زيادة كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={16} color={colors.void} /></Pressable>
+                <PressableScale onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} hitSlop={8} accessibilityLabel={`زيادة كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={16} color={colors.void} /></PressableScale>
                 {/* r120 (U6-#3): حذف مباشر + تراجع (كان الإنقاص حتى الصفر الطريق الوحيد). */}
-                <Pressable onPress={() => cart.removeItem(i.id)} hitSlop={10} accessibilityRole="button" accessibilityLabel={`حذف ${i.name} من السلة`} style={{ padding: 6 }}>
+                <PressableScale onPress={() => cart.removeItem(i.id)} hitSlop={10} accessibilityLabel={`حذف ${i.name} من السلة`} style={{ padding: 6 }}>
                   <Trash2 size={16} color={colors.muted} />
-                </Pressable>
+                </PressableScale>
               </View>
             </View>
           </View>
@@ -695,13 +738,15 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
       )}
       {items.length > 0 ? (
         <View style={{ marginTop: 12, gap: 8 }}>
-          <TextInput placeholder="الاسم" placeholderTextColor={colors.muted} value={customerName} onChangeText={cart.setCustomerName} style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: colors.hairline, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
-          <TextInput placeholder="رقم الهاتف" placeholderTextColor={colors.muted} value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: colors.hairline, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
+          <TextInput placeholder="الاسم" placeholderTextColor={colors.muted} value={customerName} onChangeText={cart.setCustomerName} {...fieldFocus("name")} style={{ minHeight: 44, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13, ...fieldFocusBorderStyle(focusedField === "name") }} />
+          <TextInput placeholder="رقم الهاتف" placeholderTextColor={colors.muted} value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" {...fieldFocus("phone")} style={{ minHeight: 44, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13, ...fieldFocusBorderStyle(focusedField === "phone") }} />
           <View style={{ flexDirection: "row", gap: 8 }}>
             {(["inside", "takeaway", "delivery"] as const).map((t) => (
-              <Pressable key={t} onPress={() => cart.setPickupType(t)} hitSlop={4} accessibilityRole="button" accessibilityLabel={pickupLabels[t]} accessibilityState={{ selected: pickupType === t }} style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: pickupType === t ? colors.gold : colors.surface2, alignItems: "center" }}>
+              // r131-F10 (A2 P1-4): pickup selectors ride PressableScale (the
+              // order-type choice on the money path was a silent tap).
+              <PressableScale key={t} onPress={() => cart.setPickupType(t)} hitSlop={4} accessibilityLabel={pickupLabels[t]} accessibilityState={{ selected: pickupType === t }} style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: pickupType === t ? colors.gold : colors.surface2, alignItems: "center" }}>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: pickupType === t ? colors.void : colors.muted }} maxFontSizeMultiplier={1.4}>{pickupLabels[t]}</Text>
-              </Pressable>
+              </PressableScale>
             ))}
           </View>
           {/* r120 (U6-#1): عنوان إلزامي لتوصيل (بوابة الإرسال أعلاه ترفض الفراغ)
@@ -712,7 +757,10 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
               placeholderTextColor={colors.gold}
               value={deliveryAddress}
               onChangeText={setDeliveryAddress}
-              style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: colors.gold, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
+              {...fieldFocus("address")}
+              /* r131-F10 (fix 7): the required-address emphasis keeps its
+                 permanent gold border; focus thickens it to the 2px halo. */
+              style={{ minHeight: 44, borderRadius: 8, borderWidth: focusedField === "address" ? 2 : 1, borderColor: colors.gold, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
             />
           ) : null}
           <TextInput
@@ -721,7 +769,8 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
             value={notes}
             onChangeText={cart.setOrderNotes}
             multiline
-            style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: colors.hairline, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
+            {...fieldFocus("notes")}
+            style={{ minHeight: 44, borderRadius: 8, backgroundColor: colors.night, paddingHorizontal: 12, paddingVertical: 10, color: colors.sand, fontFamily: "IBM Plex Sans Arabic", fontSize: 13, ...fieldFocusBorderStyle(focusedField === "notes") }}
           />
         </View>
       ) : null}
