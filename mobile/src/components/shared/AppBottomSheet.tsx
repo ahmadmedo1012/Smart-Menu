@@ -38,8 +38,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { colors } from "@/theme/colors";
+import { motion } from "@/theme/motion";
 
-export const SHEET_DURATION_MS = 380; // Madarek --t-slow (sheet enter/exit rung)
+// r127-F8: rung centralized in theme/motion (same value — zero behavior change).
+export const SHEET_DURATION_MS = motion.SLOW; // Madarek --t-slow (sheet enter/exit rung)
 const EASE_OUT = Easing.out(Easing.cubic);
 
 export interface AppBottomSheetHandle {

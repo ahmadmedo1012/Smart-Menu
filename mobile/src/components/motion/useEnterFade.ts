@@ -12,9 +12,11 @@
 import { FadeIn } from "react-native-reanimated";
 
 import { useReducedMotion } from "./useReducedMotion";
+import { motion } from "@/theme/motion";
 
-export const ENTER_FADE_MS = 160; // --t-fast
-export const STAGGER_STEP_MS = 60; // --motion-stagger-step
+// r127-F8: rungs centralized in theme/motion (same values — zero behavior change).
+export const ENTER_FADE_MS = motion.FAST; // --t-fast
+export const STAGGER_STEP_MS = motion.STAGGER_STEP; // --motion-stagger-step
 
 export function useEnterFade(delayMs = 0) {
   const reducedMotion = useReducedMotion();

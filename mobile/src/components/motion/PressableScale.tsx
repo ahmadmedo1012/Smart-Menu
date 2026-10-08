@@ -22,12 +22,13 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useReducedMotion } from "./useReducedMotion";
+import { motion } from "@/theme/motion";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-/** Madarek motion ladder rungs used here. */
-export const PRESS_IN_MS = 80; // --t-micro
-export const PRESS_OUT_MS = 160; // --t-fast
+/** Madarek motion ladder rungs used here (centralized in theme/motion, r127-F8). */
+export const PRESS_IN_MS = motion.MICRO; // --t-micro
+export const PRESS_OUT_MS = motion.FAST; // --t-fast
 
 const EASE_OUT = Easing.out(Easing.cubic); // decelerate, ≈ --ease-out
 

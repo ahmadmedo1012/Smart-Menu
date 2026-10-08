@@ -54,7 +54,7 @@ function AdminAction({ icon, label, onPress }: { icon: React.ReactNode; label: s
 export function AdminRestaurantsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة المطاعم" icon={<Store size={30} color={colors.gold} />} />
+      <ComingSoon title="إدارة المطاعم" icon={<Store size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -62,7 +62,7 @@ export function AdminRestaurantsScreen() {
 export function AdminUsersScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة المستخدمين" icon={<Users size={30} color={colors.gold} />} />
+      <ComingSoon title="إدارة المستخدمين" icon={<Users size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -70,7 +70,7 @@ export function AdminUsersScreen() {
 export function AdminAdminsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة المدراء الفرعيين" icon={<Users size={30} color={colors.gold} />} />
+      <ComingSoon title="إدارة المدراء الفرعيين" icon={<Users size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -78,7 +78,7 @@ export function AdminAdminsScreen() {
 export function AdminOrdersScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="جميع الطلبات" icon={<CreditCard size={30} color={colors.gold} />} />
+      <ComingSoon title="جميع الطلبات" icon={<CreditCard size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -86,7 +86,7 @@ export function AdminOrdersScreen() {
 export function AdminOrderDetailScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="تفاصيل الطلب" icon={<CreditCard size={30} color={colors.gold} />} />
+      <ComingSoon title="تفاصيل الطلب" icon={<CreditCard size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -94,7 +94,7 @@ export function AdminOrderDetailScreen() {
 export function AdminSubscriptionsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="موافقات الاشتراكات" icon={<CreditCard size={30} color={colors.gold} />} />
+      <ComingSoon title="موافقات الاشتراكات" icon={<CreditCard size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -102,7 +102,7 @@ export function AdminSubscriptionsScreen() {
 export function AdminSystemEventsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="أحدث أحداث النظام" icon={<Bell size={30} color={colors.gold} />} />
+      <ComingSoon title="أحدث أحداث النظام" icon={<Bell size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -110,7 +110,7 @@ export function AdminSystemEventsScreen() {
 export function AdminAuditLogsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="سجل التدقيق" icon={<FileText size={30} color={colors.gold} />} />
+      <ComingSoon title="سجل التدقيق" icon={<FileText size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -118,7 +118,7 @@ export function AdminAuditLogsScreen() {
 export function AdminTelegramScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="تكامل تيليجرام" icon={<Send size={30} color={colors.gold} />} />
+      <ComingSoon title="تكامل تيليجرام" icon={<Send size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
