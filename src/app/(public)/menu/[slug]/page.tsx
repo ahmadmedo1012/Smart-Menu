@@ -21,6 +21,7 @@ export async function generateStaticParams() {
         return [];
 }
 import { prisma } from '@/lib/db';
+import { SITE_ORIGIN } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { getRestaurantBySlug } from '@/lib/menu-queries';
 import { MenuHero } from '@/components/menu/MenuHero';
@@ -48,7 +49,7 @@ export async function generateMetadata({
         params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
         const { slug } = await params;
-        const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+        const origin = SITE_ORIGIN; // r126 (M7): unified origin (was localhost:3000 fallback)
         const restaurant = await getRestaurantBySlug(slug);
         if (!restaurant) notFound();
         const ogImage = restaurant.logo || '/og-default.png';
@@ -128,7 +129,7 @@ async function fetchShowcaseFlags(restaurantId: number) {
 
 export default async function PublicMenuPage({ params }: { params: Promise<{ slug: string }> }) {
         const { slug } = await params;
-        const origin = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
+        const origin = SITE_ORIGIN; // r126 (M7): unified origin (was localhost:3000 fallback)
         const SEVEN_DAYS_AGO = sevenDaysAgo();
 
         // Deduped with generateMetadata via React cache() — 1 DB query for both.

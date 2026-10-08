@@ -33,6 +33,7 @@ vi.mock('@/lib/db', () => ({
 }));
 
 import sitemap from '@/app/sitemap';
+import { SITE_ORIGIN } from '@/lib/seo'; // r126 (M7): pinned unified origin
 
 const DAY = 24 * 60 * 60 * 1000;
 const daysAgo = (d: number) => new Date(Date.now() - d * DAY);
@@ -49,7 +50,8 @@ async function run(restaurants: Row[], items: Array<{ restaurantId: number; item
         queryRaw.mockResolvedValue(items);
         orderGroupBy.mockResolvedValue(orders);
         const entries = await sitemap();
-        const base = process.env.NEXT_PUBLIC_DOMAIN || 'https://smart-link.ly';
+        // r126 (M7): sitemap now rides lib/seo SITE_ORIGIN — same value here.
+        const base = SITE_ORIGIN;
         const menuUrls = entries.filter((e) => e.url.startsWith(`${base}/menu/`)).map((e) => e.url);
         return { entries, menuUrls, base };
 }

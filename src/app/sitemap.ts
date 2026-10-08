@@ -1,7 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 
-const BASE_URL = process.env.NEXT_PUBLIC_DOMAIN || 'https://smart-link.ly';
+import { SITE_ORIGIN } from '@/lib/seo';
+
+// r126 (M7): unified origin — was apex-domain fallback
+const BASE_URL = SITE_ORIGIN;
 
 // round92-A5: the live sitemap advertised 9 junk restaurants (bssdn, hdydu,
 // hvh, fafaef, sdsdsd, jjhhdhd, hgkjg, free-rest-1783368824, new-rest-300528)

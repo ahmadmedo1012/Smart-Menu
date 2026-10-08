@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { SITE_ORIGIN } from '@/lib/seo';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -13,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
       // and crawlable via direct hit).
       disallow: ["/admin/", "/owner/", "/api/", "/cart", "/order-confirmed"],
     },
-    sitemap: `${process.env.NEXT_PUBLIC_DOMAIN || "https://smart-link.ly"}/sitemap.xml`,
+    sitemap: `${SITE_ORIGIN}/sitemap.xml`, // r126 (M7): unified origin
   }
 }
