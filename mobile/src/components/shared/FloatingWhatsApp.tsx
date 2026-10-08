@@ -4,6 +4,7 @@ import * as Linking from "expo-linking";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { colors } from "@/theme/colors";
+import { motion } from "@/theme/motion";
 
 const DEFAULT_NUMBER = (process.env.EXPO_PUBLIC_WHATSAPP_NUMBER as string | undefined) ?? "+218910089975";
 
@@ -11,6 +12,7 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
   // r126-M4 (A6 P3-10): was a 600ms delayed mount with NO fade — a timer that
   // produced nothing perceptible. Now the button is present immediately and
   // fades in on the Madarek base rung (240ms); reduced-motion shows it as-is.
+  // r127-F8: duration rides theme/motion (was a raw 240 literal).
   const reducedMotion = useReducedMotion();
   const open = () => {
     // r103-F9: parity with the web normalizeWaNumber — strip a leading "00"
@@ -23,14 +25,17 @@ export function FloatingWhatsApp({ number = DEFAULT_NUMBER }: { number?: string 
   };
   return (
     <View pointerEvents="box-none" style={{ position: "absolute", end: 16, bottom: 96, zIndex: 60 }}>
-      <Animated.View entering={reducedMotion ? undefined : FadeIn.duration(240)}>
+      <Animated.View entering={reducedMotion ? undefined : FadeIn.duration(motion.BASE)}>
         <Pressable onPress={open} accessibilityRole="button" accessibilityLabel="تواصل مع الدعم عبر واتساب" style={{
           width: 56, height: 56, borderRadius: 9999, backgroundColor: colors.whatsapp,
           alignItems: "center", justifyContent: "center",
           shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
         }}>
-          <MessageCircle size={28} color="#fff" />
+          {/* r127-F8: on-accent ink law — the web twin paints this glyph with
+              text-orange-foreground (#05070F void) on the green; the mobile
+              FAB was the app's LAST hardcoded icon hex (white-on-green). */}
+          <MessageCircle size={28} color={colors.void} />
         </Pressable>
       </Animated.View>
     </View>

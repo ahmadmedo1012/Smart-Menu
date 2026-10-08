@@ -11,6 +11,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
+    "test:parity": "node tests/design/parity.mjs",
     "doctor": "npx expo-doctor"
   },
   "dependencies": {

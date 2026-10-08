@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/Text";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { colors } from "@/theme/colors";
+import { motion } from "@/theme/motion";
 
 // r126-M9: dead variants dropped (flame/ghost/destructive/secondary had zero
 // call sites — flame even rode the deleted bg-flame alias); `orange` renamed
@@ -85,9 +86,10 @@ export function Button({ variant, size, title, loading, children, className, dis
       disabled={isDisabled}
       onPressIn={() => {
         if (isDisabled) return;
-        pressed.value = withTiming(1, { duration: 80, easing: Easing.out(Easing.cubic) });
+        // r127-F8: durations ride theme/motion (were raw 80/160 literals).
+        pressed.value = withTiming(1, { duration: motion.MICRO, easing: Easing.out(Easing.cubic) });
       }}
-      onPressOut={() => { pressed.value = withTiming(0, { duration: 160, easing: Easing.out(Easing.cubic) }); }}
+      onPressOut={() => { pressed.value = withTiming(0, { duration: motion.FAST, easing: Easing.out(Easing.cubic) }); }}
       style={animatedStyle}
       // r126 (A6 P2-7): TalkBack/VoiceOver announced buttons as bare labels.
       accessibilityRole="button"

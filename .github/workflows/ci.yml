@@ -501,6 +501,13 @@ jobs:
       # EAS build uses.
       - run: pnpm install --frozen-lockfile
 
+      # r127-F8: mobile design-parity snapshot — 139 pins of the Madarek
+      # tokens (colors night/light/pastels, NativeWind mirror, radius +
+      # motion ladders, IBM Plex wiring chain, ban-list). Plain node, zero
+      # deps: reads the theme files as text, so it runs BEFORE typecheck and
+      # catches token drift even when the app itself would still compile.
+      - run: pnpm test:parity
+
       - run: pnpm typecheck
 
       # eslint-config-expo still ships the legacy eslintrc format — the repo's

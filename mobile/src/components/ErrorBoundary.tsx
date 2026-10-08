@@ -65,7 +65,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               borderWidth: 1, borderColor: colors.hairline, alignItems: "center",
               justifyContent: "center", marginBottom: 24,
             }}>
-            <AlertTriangle size={30} color={colors.gold} />
+            <AlertTriangle size={32} color={colors.gold} />
           </View>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, textAlign: "center" }}>
             حدث خطأ غير متوقع

@@ -418,7 +418,7 @@ export function OwnerMenuScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126-M10: honest coming-soon state — the previous copy was honest
           but unpolished; unified with the shared ComingSoon surface. */}
-      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={30} color={colors.gold} />} />
+      <ComingSoon title="إدارة المنيو" icon={<UtensilsCrossed size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -426,7 +426,7 @@ export function OwnerMenuScreen() {
 export function OwnerRestaurantsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
-      <ComingSoon title="إدارة الفروع" icon={<Store size={30} color={colors.gold} />} />
+      <ComingSoon title="إدارة الفروع" icon={<Store size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -515,7 +515,7 @@ export function OwnerReviewsScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126-M10: was a static EmptyState «لا توجد تقييمات بعد» — reads as
           fetched-but-empty data; no fetch exists. Honest state instead. */}
-      <ComingSoon title="تقييمات العملاء" icon={<Star size={30} color={colors.gold} />} />
+      <ComingSoon title="تقييمات العملاء" icon={<Star size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
@@ -525,7 +525,7 @@ export function OwnerLoyaltyScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126-M10: same honesty fix — «لا توجد بيانات ولاء بعد» implied a
           fetch that never happens. */}
-      <ComingSoon title="برنامج الولاء" icon={<Award size={30} color={colors.gold} />} />
+      <ComingSoon title="برنامج الولاء" icon={<Award size={32} color={colors.gold} />} />
     </SafeAreaView>
   );
 }
