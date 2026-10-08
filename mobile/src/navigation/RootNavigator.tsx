@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { NavigationContainer, DarkTheme, type InitialState } from "@react-navigation/native";
+import { NavigationContainer, type InitialState } from "@react-navigation/native";
 import { NavigationIndependentTree } from "@react-navigation/core";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import * as Linking from "expo-linking";
 import { X } from "lucide-react-native";
 
+import { NAV_THEME } from "./navTheme";
 import { useAuth } from "@/store/auth";
 import { PublicStack } from "./PublicStack";
 import { AuthStack } from "./AuthStack";
@@ -12,15 +13,6 @@ import { OwnerStack } from "./OwnerStack";
 import { AdminStack } from "./AdminStack";
 import { linking } from "./linking";
 import { ADMIN_ROLES } from "@/lib/auth-types";
-
-const NAV_THEME = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    primary: "#E9B44C", background: "#070B16", card: "#0D1428",
-    text: "#F2EFE6", border: "#1B2444", notification: "#F0938F",
-  },
-};
 
 type PublicRoute =
   | { name: "Landing" }

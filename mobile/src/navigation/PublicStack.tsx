@@ -5,6 +5,7 @@ import { MenuScreen } from "@/screens/public/MenuScreen";
 import { PricingScreen } from "@/screens/public/PricingScreen";
 import { OrderConfirmedScreen } from "@/screens/public/OrderConfirmedScreen";
 import { TermsScreen, PrivacyScreen } from "@/screens/public/StaticScreens";
+import { STACK_SCREEN_OPTIONS } from "./navTheme";
 
 export type PublicStackParamList = {
   Landing: undefined;
@@ -20,11 +21,10 @@ const Stack = createNativeStackNavigator<PublicStackParamList>();
 
 export function PublicStack() {
   return (
-    <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
-      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" },
-      headerShadowVisible: false, contentStyle: { backgroundColor: "#070B16" },
-    }}>
+    // r126: shared chrome (navTheme.ts) — the duplicated header block rode the
+    // 400-only Plex family + fontWeight 600, which never rendered semibold on
+    // iOS native headers. The shared options point straight at the 600 family.
+    <Stack.Navigator screenOptions={STACK_SCREEN_OPTIONS}>
       <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Menu" component={MenuScreen} options={{ title: "المنيو" }} />
       <Stack.Screen name="Pricing" component={PricingScreen} options={{ title: "الباقات" }} />

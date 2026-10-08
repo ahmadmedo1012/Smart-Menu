@@ -1,4 +1,4 @@
-import { View, Text, Linking } from "react-native";
+import { View, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { CheckCircle } from "lucide-react-native";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { toast } from "@/app/providers";
 import { toArabicNumber } from "@/lib/format";
 import type { RootNavigation } from "@/navigation/types";
+
+import { Text } from "@/components/ui/Text";
 
 export function OrderConfirmedScreen() {
   const route = useRoute();

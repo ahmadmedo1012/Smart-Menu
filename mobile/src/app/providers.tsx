@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast, { type ToastConfig } from "react-native-toast-message";
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/components/ui/Text";
 
 const queryClient = new QueryClient({
   defaultOptions: {

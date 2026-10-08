@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Users, Store, CreditCard, Settings, Bell, FileText, Send } from "lucide-react-native";
 import { EmptyState } from "@/components/ui";
 import { useAuth } from "@/store/auth";
 import type { RootNavigation } from "@/navigation/types";
+
+import { Text } from "@/components/ui/Text";
 
 export function AdminDashboardScreen() {
   const user = useAuth((s) => s.user);

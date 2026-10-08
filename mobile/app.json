@@ -15,9 +15,7 @@
         "CFBundleLocalizations": [
           "ar"
         ],
-        "CFBundleDevelopmentRegion": "ar",
-        "NSCameraUsageDescription": "نحتاج الكاميرا لالتقاط صور إيصالات الدفع وصور المنتجات.",
-        "NSPhotoLibraryUsageDescription": "نحتاج الوصول للصور لرفع إيصالات الدفع وصور المنتجات."
+        "CFBundleDevelopmentRegion": "ar"
       },
       "associatedDomains": [
         "applinks:menu.smart-link.ly"
@@ -71,12 +69,6 @@
         }
       ],
       "expo-secure-store",
-      [
-        "expo-image-picker",
-        {
-          "microphonePermission": false
-        }
-      ],
       [
         "expo-build-properties",
         {

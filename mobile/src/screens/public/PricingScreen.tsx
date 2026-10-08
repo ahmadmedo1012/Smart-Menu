@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, RefreshControl } from "react-native";
+import { View, ScrollView, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Check, Sparkles } from "lucide-react-native";
@@ -12,6 +12,8 @@ import { formatPrice } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
 import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
+
+import { Text } from "@/components/ui/Text";
 
 export function PricingScreen() {
   const navigation = useNavigation<RootNavigation>();

@@ -5,6 +5,7 @@ import { LayoutDashboard, Store, ClipboardList, CreditCard, Settings } from "luc
 import { AdminDashboardScreen, AdminRestaurantsScreen, AdminUsersScreen, AdminAdminsScreen,
   AdminOrdersScreen, AdminOrderDetailScreen, AdminSubscriptionsScreen, AdminSystemEventsScreen,
   AdminAuditLogsScreen, AdminTelegramScreen, AdminSettingsScreen } from "@/screens/admin/AdminScreens";
+import { STACK_SCREEN_OPTIONS, TAB_SCREEN_OPTIONS } from "./navTheme";
 
 export type AdminStackParamList = {
   AdminTabs: undefined;
@@ -22,14 +23,7 @@ const Stack = createNativeStackNavigator<AdminStackParamList>();
 
 function AdminTabs() {
   return (
-    <Tab.Navigator screenOptions={{
-      headerShown: true,
-      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
-      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" }, headerShadowVisible: false,
-      tabBarStyle: { backgroundColor: "#0D1428", borderTopColor: "#1B2444", height: 64, paddingBottom: 8, paddingTop: 4 },
-      tabBarActiveTintColor: "#E9B44C", tabBarInactiveTintColor: "#8E97B8",
-      tabBarLabelStyle: { fontFamily: "IBM Plex Sans Arabic", fontSize: 11, fontWeight: "600" },
-    }}>
+    <Tab.Navigator screenOptions={TAB_SCREEN_OPTIONS}>
       <Tab.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: "الرئيسية", tabBarIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} /> }} />
       <Tab.Screen name="AdminRestaurants" component={AdminRestaurantsScreen} options={{ title: "المطاعم", tabBarIcon: ({ color, size }) => <Store color={color} size={size} /> }} />
       <Tab.Screen name="AdminOrders" component={AdminOrdersScreen} options={{ title: "الطلبات", tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} /> }} />
@@ -41,11 +35,7 @@ function AdminTabs() {
 
 export function AdminStack() {
   return (
-    <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
-      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" },
-      headerShadowVisible: false, contentStyle: { backgroundColor: "#070B16" },
-    }}>
+    <Stack.Navigator screenOptions={STACK_SCREEN_OPTIONS}>
       <Stack.Screen name="AdminTabs" component={AdminTabs} options={{ headerShown: false }} />
       <Stack.Screen name="AdminUsers" component={AdminUsersScreen} options={{ title: "المستخدمون" }} />
       <Stack.Screen name="AdminAdmins" component={AdminAdminsScreen} options={{ title: "المدراء" }} />

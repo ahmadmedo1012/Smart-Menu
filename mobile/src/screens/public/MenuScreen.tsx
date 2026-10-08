@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
+import { View, Pressable, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -27,6 +27,8 @@ import {
   isOptionDisabled, modifierGroupHint, selectedCount,
 } from "@/lib/menu-types";
 import type { RootNavigation } from "@/navigation/types";
+
+import { Text } from "@/components/ui/Text";
 
 interface RestaurantInfo {
   id: number; name: string; slug: string; description: string;
@@ -173,9 +175,11 @@ export function MenuScreen() {
       </View>
 
       <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#0D1428", borderRadius: 8, paddingHorizontal: 12, height: 40 }}>
+        {/* r126-M6: minHeight (was height: 40) — the search row grows with
+            system font scale instead of clipping the input text. */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#0D1428", borderRadius: 8, paddingHorizontal: 12, minHeight: 44 }}>
           <Search size={16} color="#8E97B8" />
-          <TextInput placeholder="ابحث عن صنف..." placeholderTextColor="#8E97B8" value={search} onChangeText={setSearch} style={{ flex: 1, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14 }} />
+          <TextInput placeholder="ابحث عن صنف..." placeholderTextColor="#8E97B8" value={search} onChangeText={setSearch} style={{ flex: 1, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, paddingVertical: 10 }} />
         </View>
       </View>
 
@@ -189,7 +193,7 @@ export function MenuScreen() {
                   key={c.id}
                   onPress={() => setActiveCategory(active ? null : c.id)}
                   style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16, backgroundColor: active ? "#E9B44C" : "#0D1428", borderWidth: 1, borderColor: active ? "#E9B44C" : "#1B2444" }}>
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: active ? "#05070F" : "#8E97B8" }}>{c.nameAr || c.name || "فئة"}</Text>
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: active ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{c.nameAr || c.name || "فئة"}</Text>
                 </Pressable>
               );
             })}
@@ -401,7 +405,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
                           borderWidth: 1, borderColor: selected ? "#E9B44C" : disabled ? "#1B2444" : "#1B2444",
                           opacity: disabled ? 0.4 : 1,
                         }}>
-                        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? "#05070F" : "#F2EFE6" }}>
+                        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? "#05070F" : "#F2EFE6" }} maxFontSizeMultiplier={1.4}>
                           {o.nameAr || o.name}{o.priceDelta > 0 ? ` (+${formatPrice(o.priceDelta)})` : o.priceDelta < 0 ? ` (${formatPrice(o.priceDelta)})` : ""}
                         </Text>
                       </Pressable>
@@ -631,12 +635,12 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
         </ScrollView>
         {items.length > 0 ? (
           <View style={{ marginTop: 12, gap: 8 }}>
-            <TextInput placeholder="الاسم" placeholderTextColor="#8E97B8" value={customerName} onChangeText={cart.setCustomerName} style={{ height: 40, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
-            <TextInput placeholder="رقم الهاتف" placeholderTextColor="#8E97B8" value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" style={{ height: 40, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
+            <TextInput placeholder="الاسم" placeholderTextColor="#8E97B8" value={customerName} onChangeText={cart.setCustomerName} style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
+            <TextInput placeholder="رقم الهاتف" placeholderTextColor="#8E97B8" value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
             <View style={{ flexDirection: "row", gap: 8 }}>
               {(["inside", "takeaway", "delivery"] as const).map((t) => (
                 <Pressable key={t} onPress={() => cart.setPickupType(t)} hitSlop={4} accessibilityLabel={pickupLabels[t]} accessibilityState={{ selected: pickupType === t }} style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: pickupType === t ? "#E9B44C" : "#121A36", alignItems: "center" }}>
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: pickupType === t ? "#05070F" : "#8E97B8" }}>{pickupLabels[t]}</Text>
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: pickupType === t ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{pickupLabels[t]}</Text>
                 </Pressable>
               ))}
             </View>
@@ -648,7 +652,7 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
                 placeholderTextColor="#E9B44C"
                 value={deliveryAddress}
                 onChangeText={setDeliveryAddress}
-                style={{ height: 40, borderRadius: 8, borderWidth: 1, borderColor: "#E9B44C", backgroundColor: "#070B16", paddingHorizontal: 12, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
+                style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#E9B44C", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
               />
             ) : null}
             <TextInput
@@ -657,7 +661,7 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
               value={notes}
               onChangeText={cart.setOrderNotes}
               multiline
-              style={{ minHeight: 40, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
+              style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
             />
           </View>
         ) : null}

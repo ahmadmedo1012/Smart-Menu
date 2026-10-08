@@ -5,6 +5,7 @@ import { Home, ClipboardList, UtensilsCrossed, Award, Settings } from "lucide-re
 import { OwnerDashboardScreen, OwnerOrdersScreen, OwnerOrderDetailScreen,
   OwnerMenuScreen, OwnerLoyaltyScreen, OwnerRestaurantsScreen, OwnerQrScreen,
   OwnerReviewsScreen, OwnerSettingsScreen } from "@/screens/owner/OwnerScreens";
+import { STACK_SCREEN_OPTIONS, TAB_SCREEN_OPTIONS } from "./navTheme";
 
 export type OwnerStackParamList = {
   OwnerTabs: undefined;
@@ -20,14 +21,7 @@ const Stack = createNativeStackNavigator<OwnerStackParamList>();
 
 function OwnerTabs() {
   return (
-    <Tab.Navigator screenOptions={{
-      headerShown: true,
-      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
-      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" }, headerShadowVisible: false,
-      tabBarStyle: { backgroundColor: "#0D1428", borderTopColor: "#1B2444", height: 64, paddingBottom: 8, paddingTop: 4 },
-      tabBarActiveTintColor: "#E9B44C", tabBarInactiveTintColor: "#8E97B8",
-      tabBarLabelStyle: { fontFamily: "IBM Plex Sans Arabic", fontSize: 11, fontWeight: "600" },
-    }}>
+    <Tab.Navigator screenOptions={TAB_SCREEN_OPTIONS}>
       <Tab.Screen name="OwnerDashboard" component={OwnerDashboardScreen} options={{ title: "الرئيسية", tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }} />
       <Tab.Screen name="OwnerOrders" component={OwnerOrdersScreen} options={{ title: "الطلبات", tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} /> }} />
       <Tab.Screen name="OwnerMenu" component={OwnerMenuScreen} options={{ title: "المنيو", tabBarIcon: ({ color, size }) => <UtensilsCrossed color={color} size={size} /> }} />
@@ -39,11 +33,7 @@ function OwnerTabs() {
 
 export function OwnerStack() {
   return (
-    <Stack.Navigator screenOptions={{
-      headerStyle: { backgroundColor: "#070B16" }, headerTintColor: "#F2EFE6",
-      headerTitleStyle: { fontFamily: "IBM Plex Sans Arabic", fontWeight: "600" },
-      headerShadowVisible: false, contentStyle: { backgroundColor: "#070B16" },
-    }}>
+    <Stack.Navigator screenOptions={STACK_SCREEN_OPTIONS}>
       <Stack.Screen name="OwnerTabs" component={OwnerTabs} options={{ headerShown: false }} />
       <Stack.Screen name="OwnerOrderDetail" component={OwnerOrderDetailScreen} options={{ title: "تفاصيل الطلب" }} />
       <Stack.Screen name="OwnerRestaurants" component={OwnerRestaurantsScreen} options={{ title: "فروعي" }} />

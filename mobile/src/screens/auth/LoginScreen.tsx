@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Pressable, KeyboardAvoidingView, Platform, ScrollView, Linking } from "react-native";
+import { View, Pressable, KeyboardAvoidingView, Platform, ScrollView, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LogIn, MessageCircle } from "lucide-react-native";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Input, PasswordInput, Label } from "@/components/ui/Input";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/app/providers";
+
+import { Text } from "@/components/ui/Text";
 
 const loginSchema = z.object({
   username: z.string().min(1, "اسم المستخدم مطلوب").max(100),

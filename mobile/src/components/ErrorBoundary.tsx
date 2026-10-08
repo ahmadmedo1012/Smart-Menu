@@ -1,7 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AlertTriangle } from "lucide-react-native";
+
+import { Text } from "@/components/ui/Text";
 
 interface ErrorBoundaryProps {
   children: ReactNode;

@@ -1,6 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { Pressable, Text, type PressableProps } from "react-native";
+import { Pressable, type PressableProps } from "react-native";
 import { cn } from "@/lib/utils";
+
+import { Text } from "@/components/ui/Text";
 
 const buttonVariants = cva(
   "flex items-center justify-center gap-2 rounded-md active:opacity-80 disabled:opacity-50",
@@ -12,7 +14,10 @@ const buttonVariants = cva(
         destructive: "bg-destructive", secondary: "bg-muted",
       },
       size: {
-        sm: "h-9 px-3", default: "h-11 px-5", lg: "h-14 px-8", icon: "h-11 w-11",
+        // r126-M6: fixed heights clipped labels at system fontScale ≥1.3 —
+        // minHeight lets the button grow with the (capped) label font.
+        sm: "min-h-9 px-3 py-2", default: "min-h-11 px-5 py-3", lg: "min-h-14 px-8 py-3",
+        icon: "min-h-11 min-w-11",
       },
     },
     defaultVariants: { variant: "orange", size: "default" },
@@ -39,11 +44,25 @@ export interface ButtonProps extends PressableProps, VariantProps<typeof buttonV
 
 export function Button({ variant, size, title, loading, children, className, disabled, ...props }: ButtonProps) {
   return (
-    <Pressable className={cn(buttonVariants({ variant, size }), className)} disabled={disabled || loading} {...props}>
+    <Pressable
+      className={cn(buttonVariants({ variant, size }), className)}
+      disabled={disabled || loading}
+      // r126 (A6 P2-7): TalkBack/VoiceOver announced buttons as bare labels.
+      accessibilityRole="button"
+      accessibilityState={{ busy: loading, disabled: disabled || loading }}
+      {...props}
+    >
       {loading ? (
         <Text className={buttonTextVariants({ variant, size })}>…</Text>
       ) : children ?? (
-        <Text className={buttonTextVariants({ variant, size })}>{title}</Text>
+        <Text
+          className={buttonTextVariants({ variant, size })}
+          // r126-M6: dense control text — cap dynamic type so pill/button
+          // labels grow with the user's font size without exploding layout.
+          maxFontSizeMultiplier={1.4}
+        >
+          {title}
+        </Text>
       )}
     </Pressable>
   );

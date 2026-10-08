@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
+import { View, TextInput, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, StackActions } from "@react-navigation/native";
 import { Check } from "lucide-react-native";
@@ -7,14 +7,26 @@ import { Check } from "lucide-react-native";
 import { api } from "@/services/api/client";
 import { Button } from "@/components/ui/Button";
 import { Spinner, ErrorState } from "@/components/ui";
+import { Text } from "@/components/ui/Text";
 import { toast } from "@/app/providers";
 import { formatPrice } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
+import { useAuth } from "@/store/auth";
 import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
 
 export function SubscribePlanScreen() {
   const navigation = useNavigation<RootNavigation>();
+  // r126-M2 (A6 P1-1): the trapped-owner escape. UNPAID/EXPIRED/REJECTED
+  // owners land here from every relaunch with NO logout and no back — a
+  // dead end for anyone who decides not to pay (or whose payment was
+  // rejected). Product policy (PRODUCT.md): the dashboard is gated until an
+  // admin approves payment, so "later" grace is NOT a product concept — the
+  // honest escapes are (a) logout back to the public app, and (b) a status
+  // refresh that immediately unlocks the dashboard once admin approves
+  // (no app relaunch needed).
+  const logout = useAuth((s) => s.logout);
+  const refreshStatus = useAuth((s) => s.bootstrap);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +90,25 @@ export function SubscribePlanScreen() {
       </ScrollView>
       <View style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
         <Button title="التالي" onPress={() => selectedId && navigation.navigate("SubscribeMenu", { planId: selectedId })} disabled={!selectedId} size="lg" className="w-full" />
+        {/* r126-M2: escape hatch — logout (rose) + refresh status (muted). */}
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 24, marginTop: 12 }}>
+          <Pressable
+            onPress={() => { void refreshStatus(); }}
+            accessibilityRole="button"
+            accessibilityLabel="تحديث حالة الاشتراك"
+            hitSlop={8}
+            style={({ pressed }) => ({ paddingVertical: 8, paddingHorizontal: 8, opacity: pressed ? 0.7 : 1 })}>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#8E97B8" }} maxFontSizeMultiplier={1.4}>تحديث حالة الاشتراك</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => { void logout(); }}
+            accessibilityRole="button"
+            accessibilityLabel="تسجيل الخروج"
+            hitSlop={8}
+            style={({ pressed }) => ({ paddingVertical: 8, paddingHorizontal: 8, opacity: pressed ? 0.7 : 1 })}>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F0938F" }} maxFontSizeMultiplier={1.4}>تسجيل الخروج</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -177,9 +208,10 @@ export function SubscribePaymentScreen() {
           </Text>
           <Pressable
             onPress={() => navigation.dispatch(StackActions.popToTop())}
+            accessibilityRole="button"
             accessibilityLabel="العودة للبداية"
             style={({ pressed }) => ({ marginTop: 28, backgroundColor: "#E9B44C", borderRadius: 10, paddingVertical: 12, paddingHorizontal: 32, opacity: pressed ? 0.9 : 1 })}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#05070F" }}>العودة للبداية</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#05070F" }} maxFontSizeMultiplier={1.4}>العودة للبداية</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -193,15 +225,19 @@ export function SubscribePaymentScreen() {
         <View style={{ flexDirection: "row", gap: 8, marginBottom: 16 }}>
           {(["libyana", "madar", "bank"] as const).map((p) => (
             <Pressable key={p} onPress={() => setProvider(p)} style={{ flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: provider === p ? "#E9B44C" : "#121A36", alignItems: "center" }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: provider === p ? "#05070F" : "#8E97B8" }}>{p === "libyana" ? "ليبيانا" : p === "madar" ? "مدار" : "بنك"}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: provider === p ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{p === "libyana" ? "ليبيانا" : p === "madar" ? "مدار" : "بنك"}</Text>
             </Pressable>
           ))}
         </View>
         <LabelAndInput label="رقم المرسل" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
         <LabelAndInput label="المبلغ" value={amount} onChange={setAmount} placeholder="50" keyboardType="numeric" />
+        {/* r126-M3: the old copy promised receipt upload «من شاشة الإعدادات
+            لاحقًا» — that feature does not exist (the expo-image-picker
+            plugin + camera permissions were removed with it). Honest copy:
+            transfer, then send the receipt to support; Telegram confirms. */}
         <View style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginTop: 16, borderWidth: 1, borderColor: "#1B2444" }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", lineHeight: 18 }}>
-            بعد إتمام التحويل، ارفع صورة الإيصال من شاشة الإعدادات لاحقًا. سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام.
+            بعد إتمام التحويل، أرسل صورة الإيصال للدعم عبر واتساب. سيتم تأكيد اشتراكك خلال دقائق عبر تيليجرام.
           </Text>
         </View>
       </ScrollView>
@@ -216,7 +252,9 @@ function LabelAndInput({ label, value, onChange, placeholder, keyboardType }: { 
   return (
     <View style={{ marginBottom: 12 }}>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6", marginBottom: 4 }}>{label}</Text>
-      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#8E97B8" keyboardType={keyboardType || "default"} style={{ height: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14 }} />
+      {/* r126-M6: minHeight (was height: 44) + paddingVertical — text grows
+          with system font scale instead of clipping at fontScale ≥1.3. */}
+      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#8E97B8" keyboardType={keyboardType || "default"} style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 14 }} />
     </View>
   );
 }

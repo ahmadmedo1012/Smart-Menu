@@ -1,7 +1,9 @@
-import { View, Text, ActivityIndicator, Pressable } from "react-native";
+import { View, ActivityIndicator, Pressable } from "react-native";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+
+import { Text } from "@/components/ui/Text";
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return <View className={cn("rounded-lg border border-border bg-card p-4", className)}>{children}</View>;
@@ -50,8 +52,8 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
     <View className="flex-1 items-center justify-center px-6 py-12">
       <Text className="text-lg font-semibold text-destructive text-center font-sans">{message}</Text>
       {onRetry ? (
-        <Pressable onPress={onRetry} className="mt-4 h-10 rounded-md bg-brand-500 px-4 items-center justify-center">
-          <Text className="text-on-accent font-sans font-semibold">إعادة المحاولة</Text>
+        <Pressable onPress={onRetry} accessibilityRole="button" className="mt-4 min-h-10 rounded-md bg-brand-500 px-4 items-center justify-center py-2">
+          <Text className="text-on-accent font-sans font-semibold" maxFontSizeMultiplier={1.4}>إعادة المحاولة</Text>
         </Pressable>
       ) : null}
     </View>

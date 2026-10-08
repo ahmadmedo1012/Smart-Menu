@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Store, TrendingUp } from "lucide-react-native";
@@ -11,6 +11,8 @@ import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { Button } from "@/components/ui/Button";
 import { toArabicNumber } from "@/lib/format";
 import type { RootNavigation } from "@/navigation/types";
+
+import { Text } from "@/components/ui/Text";
 
 interface PublicStats { totalRestaurants: number; totalUsers: number; }
 interface FeaturedRestaurant {

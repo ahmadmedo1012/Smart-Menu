@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { TextInput, View, Text, type TextInputProps } from "react-native";
+import { TextInput, View, type TextInputProps } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
 import { Pressable } from "react-native";
 import { cn } from "@/lib/utils";
+
+import { Text } from "@/components/ui/Text";
 
 export interface InputProps extends TextInputProps { error?: boolean; }
 
@@ -10,7 +12,9 @@ export function Input({ className, error, ...props }: InputProps) {
   return (
     <TextInput
       className={cn(
-        "h-12 rounded-md border border-border bg-input px-4 py-2 text-base text-foreground",
+        // r126-M6: minHeight (was h-12) — fixed height clipped input text at
+        // fontScale ≥1.3; py-3 keeps the ≥48px resting box with room to grow.
+        "min-h-12 rounded-md border border-border bg-input px-4 py-3 text-base text-foreground",
         "font-sans placeholder:text-muted-foreground focus:border-ring",
         error && "border-destructive", className,
       )}
@@ -25,7 +29,7 @@ export function PasswordInput({ className, error, ...props }: InputProps) {
     <View className="relative">
       <TextInput
         className={cn(
-          "h-12 rounded-md border border-border bg-input px-4 py-2 pr-12 text-base text-foreground",
+          "min-h-12 rounded-md border border-border bg-input px-4 py-3 pr-12 text-base text-foreground",
           "font-sans placeholder:text-muted-foreground focus:border-ring",
           error && "border-destructive", className,
         )}

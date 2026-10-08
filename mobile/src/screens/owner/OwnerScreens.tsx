@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { View, Text, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration } from "react-native";
+import { View, ScrollView, RefreshControl, Pressable, Share, FlatList, Vibration } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
@@ -15,6 +15,8 @@ import { getErrorMessage } from "@/lib/get-error-message";
 import { toast } from "@/app/providers";
 import { ORDERS_POLL_INTERVAL_MS } from "@/constants";
 import type { RootNavigation } from "@/navigation/types";
+
+import { Text } from "@/components/ui/Text";
 
 interface OwnerStats {
   totalOrders: number; todayOrders: number; todayRevenue: number; totalItems: number;
@@ -256,8 +258,9 @@ export function OwnerOrdersScreen() {
         <Pressable
           onPress={() => { void loadMore(); }}
           accessibilityLabel="تحميل المزيد من الطلبات"
+          accessibilityRole="button"
           style={({ pressed }) => ({ marginTop: 8, paddingVertical: 12, alignItems: "center", borderRadius: 8, backgroundColor: "#0D1428", borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#E9B44C" }}>تحميل المزيد</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#E9B44C" }} maxFontSizeMultiplier={1.4}>تحميل المزيد</Text>
         </Pressable>
       );
     }
@@ -391,8 +394,8 @@ export function OwnerOrderDetailScreen() {
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6", marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {["new", "preparing", "ready", "completed", "cancelled"].map((s) => (
-            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#E9B44C" : "#121A36" }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? "#05070F" : "#8E97B8" }}>{getOrderStatusMeta(s).label}</Text>
+            <Pressable key={s} onPress={() => updateStatus(s)} accessibilityRole="button" accessibilityLabel={`تحديث الحالة إلى ${getOrderStatusMeta(s).label}`} style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: order.status === s ? "#E9B44C" : "#121A36" }}>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: order.status === s ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{getOrderStatusMeta(s).label}</Text>
             </Pressable>
           ))}
         </View>
