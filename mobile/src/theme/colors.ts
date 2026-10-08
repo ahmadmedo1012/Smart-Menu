@@ -52,6 +52,26 @@ export const colors = {
   /** Elevation shadow color (near-void; --elev-* dark shadows). */
   shadow: "#02040C",
 
+  // r129-F5: the deep neutral ramp + status soft-backgrounds the r128 web
+  // bridge carries (globals.css:308-314/334-350) — surface-3, border-strong,
+  // text-secondary/strong-2, --accent-soft and the status-soft fills.
+  /** Surface-3 (--neutral-150 dark) — the deepest raised layer. */
+  surface3: "#182142",
+  /** Strong divider/border (--neutral-300 dark, --border-strong). */
+  hairlineStrong: "#263052",
+  /** Secondary body text (--neutral-700 dark, --text-secondary). */
+  textSecondary: "#C3C8DC",
+  /** Second-strong text (--neutral-800 dark) — near-sand emphasis. */
+  textStrong2: "#DDE1EE",
+  /** Gold soft fill (--accent-soft dark = --c-copper-bg). */
+  goldSoft: "#2C2312",
+  /** Warning soft background (--warning-soft dark = --c-yellow-bg). */
+  yellowBg: "#2C2410",
+  /** Info soft background (--info-soft dark = --c-sky-bg). */
+  skyBg: "#14213A",
+  /** Danger soft background (--danger-soft dark = --c-rose-bg). */
+  roseBg: "#2C1620",
+
   // Alpha spellings (tokenized so 8-digit hexes stop drifting, A6 P3-12):
   /** Sheet/scrim backdrop — night at 70%. */
   scrim: "rgba(2,4,12,0.7)",
@@ -96,4 +116,22 @@ export const pastelFamilies = {
   sand: { bg: "#241F14", ink: "#D9C18C", deep: "#EFE2C5" },
   grey: { bg: "#161D33", ink: "#A9B0C8", deep: "#D5DAE8" },
   copper: { bg: "#2C2312", ink: "#E9B44C", deep: "#F5D48A" },
+} as const;
+
+/**
+ * r129-F5: the 9 pastel families — LIGHT bg/ink/deep triplets (rubric §1.6
+ * light block; madarek tokens.css:459-467 via the web bridge
+ * globals.css:601-609, byte-equal). Unconsumed follow-up data like their
+ * dark siblings — pinned so drift there is still drift.
+ */
+export const pastelFamiliesLight = {
+  peach: { bg: "#FFE9DC", ink: "#E07856", deep: "#6B2D1A" },
+  mint: { bg: "#DCF1E2", ink: "#4FA66D", deep: "#1F4F30" },
+  lavender: { bg: "#ECE6FA", ink: "#8A6FE0", deep: "#3F2D7A" },
+  sky: { bg: "#DDEBF7", ink: "#5C8FCE", deep: "#1F3D63" },
+  yellow: { bg: "#FCF1CD", ink: "#D6A330", deep: "#6B4C0B" },
+  rose: { bg: "#FCE0E2", ink: "#DD6E78", deep: "#6B2128" },
+  sand: { bg: "#F1ECDF", ink: "#B59868", deep: "#5A4623" },
+  grey: { bg: "#EFECE7", ink: "#6B665E", deep: "#2D2A24" },
+  copper: { bg: "#F4E4D2", ink: "#B57438", deep: "#5C3416" },
 } as const;

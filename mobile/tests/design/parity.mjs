@@ -17,6 +17,12 @@
  *     @expo-google-fonts/ibm-plex-sans-arabic (r123 — the fake Cairo bold
  *     TTFs were purged; this file keeps them banned).
  *
+ * r128 section (r129-F5): the Orbit-Ink landing layer (web src/app/landing.css
+ * §1 ↔ mobile/src/theme/landing.ts), the pastel LIGHT families, the JS
+ * theme modules (radius/spacing/easings), the IBM Plex Mono wiring
+ * (app.json + tailwind + App.tsx loadAsync) and the landing scope-rule
+ * negatives (Orbit-Ink never leaks into product screens).
+ *
  * Run: `pnpm test:parity` (plain node — mobile ships no unit-test runner;
  * dependency-free by design so CI can run it right after install, before
  * typecheck). Exit 1 with readable diffs on any drift.
@@ -32,13 +38,16 @@
  *   raw text: a `color="#fff"` even in a comment is a copy-paste hazard.
  *
  * WHAT IS PINNED (category → count)
- *   colors night 21 · colors light 9 · pastel families 27
+ *   colors night 21 · night additions 1 (aggregate) · colors light 9
+ *   pastel dark 27 · pastel light 27
  *   tailwind color mirror 18 + SSOT-equality gate · radius 7
- *   tailwind motion 6 · easings 3 · fontFamily 3
+ *   tailwind motion 6 · easings 3 · fontFamily sans/heading 2 + mono 1
  *   theme/motion.ts 8 · motion↔tailwind consistency 6
  *   typography families 4 + list gate · weight resolver 7 (800/900→700)
- *   font wiring chain 12 (typography ↔ App.tsx loadAsync ↔ app.json expo-font)
- *   app chrome 2 + splash gate · font source 1 · ban-list + wiring gates 8+
+ *   font wiring chain 14 (typography+mono ↔ App.tsx loadAsync ↔ app.json)
+ *   app chrome 2 + splash gate · font sources 2 · ban-list + wiring gates 8+
+ *   landing tokens 15 · theme modules 3 (radius/spacing/easings aggregates)
+ *   landing grammar 6 · scope-rule negatives 3
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
@@ -55,6 +64,14 @@ const typographySrc = stripComments(read('src/theme/typography.ts'));
 const motionSrc = stripComments(read('src/theme/motion.ts'));
 const appSrc = stripComments(read('src/app/App.tsx'));
 const fabSrc = read('src/components/shared/FloatingWhatsApp.tsx');
+// r128 section sources (r129-F5) — read RAW where grammar pins sweep text.
+const landingSrc = stripComments(read('src/theme/landing.ts'));
+const radiusSrc = stripComments(read('src/theme/radius.ts'));
+const spacingSrc = stripComments(read('src/theme/spacing.ts'));
+const easingsSrc = stripComments(read('src/theme/easings.ts'));
+const landingScreenSrc = read('src/screens/public/LandingScreen.tsx');
+const trustBandSrc = read('src/components/landing/TrustBand.tsx');
+const landingPillSrc = read('src/components/landing/LandingPill.tsx');
 const appJson = JSON.parse(read('app.json'));
 const pkg = JSON.parse(read('package.json'));
 
@@ -183,6 +200,7 @@ function check(ok, message) {
 const nightColors = objectAfter(colorsSrc, 'export const colors =');
 const lightColors = objectAfter(colorsSrc, 'export const lightColors =');
 const pastelFamilies = objectAfter(colorsSrc, 'export const pastelFamilies =');
+const pastelLightFamilies = objectAfter(colorsSrc, 'export const pastelFamiliesLight =');
 
 const tailwind = objectAfter(tailwindSrc, 'module.exports =');
 const extend = tailwind.theme.extend;
@@ -340,13 +358,20 @@ pinAll(twDurations, 'tailwind-motion', {
 });
 pinAll(twEasings, 'easings', EASINGS);
 
-// fontFamily: every NativeWind family resolves to the brand face.
-for (const key of ['sans', 'heading', 'mono']) {
+// fontFamily: the Arabic families resolve to the brand face…
+for (const key of ['sans', 'heading']) {
   check(
     /^\[\s*"IBM Plex Sans Arabic"/.test(String(twFonts[key] ?? '')),
     `tailwind fontFamily.${key} must be the IBM Plex Sans Arabic face (got ${JSON.stringify(twFonts[key])})`,
   );
 }
+// …and mono is the REAL mono face now (r129-F5): IBM Plex Mono with the
+// brand sans as the Arabic-run fallback — NOT the Sans face it aliased to
+// before any mono shipped (the negative side of the same rule).
+check(
+  String(twFonts.mono ?? '').replace(/\s+/g, '') === '["IBMPlexMono","IBMPlexSansArabic","System"]',
+  `tailwind fontFamily.mono must be IBM Plex Mono + Sans Arabic fallback (got ${JSON.stringify(twFonts.mono)})`,
+);
 
 // theme/motion.ts — the central ladder (r127-F8) + stagger grammar.
 pinAll(motion, 'motion', { ...MOTION_RUNGS, STAGGER_STEP: 60, STAGGER_CAP: 6 });
@@ -423,6 +448,148 @@ pin(appJson.expo.android?.adaptiveIcon ?? {}, 'app-chrome', 'backgroundColor', '
 // The font SOURCE stays the audited authentic package (r123: @expo-google-fonts
 // TTFs verified byte-distinct real weights; exact pin, no caret drift).
 pin({ version: pkg.dependencies?.['@expo-google-fonts/ibm-plex-sans-arabic'] }, 'font-source', 'version', '0.4.2');
+// …and the mono voice rides the same audited package family (r129-F5; the
+// registry tops out at 0.4.1 for this face — exact pin, same doctrine).
+pin({ version: pkg.dependencies?.['@expo-google-fonts/ibm-plex-mono'] }, 'font-source', 'version', '0.4.1');
+
+// ── r128 section (r129-F5): the Orbit-Ink landing layer ──────────────────────
+// Web source of truth: src/app/landing.css §1 (itself the Madarek landing
+// port) + src/components/landing/* — mobile carrier src/theme/landing.ts,
+// consumed by the Landing route ONLY (the .landing scoping rule, R4).
+
+// §r128-1 · the 14 Orbit-Ink tokens + the mobile h1 line-height (GAP-5).
+// grain-op 0.075 = the r129 fleet ruling (canonical landing.css:58 P3-22
+// local lift; the web twin still carries the pre-ruling 0.05 — documented
+// web-side follow-up, mobile ships the corrected canonical).
+const LANDING = {
+  ink: '#252A3E',
+  ink2: '#1C2032',
+  cream: '#F5F3E7',
+  creamDim: '#C9C6B4',
+  lime: '#DFEDB2',
+  limeDeep: '#B9D778',
+  violet: '#7A6BF2',
+  violetDeep: '#4E2FB8',
+  line: 'rgba(245,243,231,0.14)',
+  lineSoft: 'rgba(245,243,231,0.07)',
+  card: 'rgba(245,243,231,0.03)',
+  grainOpacity: '0.075',
+  marqueeDurationMs: '42000',
+  pressScale: '0.97',
+  h1LineHeight: '1.18',
+};
+const landingTokens = objectAfter(landingSrc, 'export const landing =');
+pinAll(landingTokens, 'landing-tokens', LANDING);
+
+// §r128-2 · the 9 pastel families — LIGHT bg/ink/deep triplets (tokens.css
+// :459-467 via the web bridge globals.css:601-609, byte-equal).
+const PASTEL_LIGHT = {
+  peach: ['#FFE9DC', '#E07856', '#6B2D1A'],
+  mint: ['#DCF1E2', '#4FA66D', '#1F4F30'],
+  lavender: ['#ECE6FA', '#8A6FE0', '#3F2D7A'],
+  sky: ['#DDEBF7', '#5C8FCE', '#1F3D63'],
+  yellow: ['#FCF1CD', '#D6A330', '#6B4C0B'],
+  rose: ['#FCE0E2', '#DD6E78', '#6B2128'],
+  sand: ['#F1ECDF', '#B59868', '#5A4623'],
+  grey: ['#EFECE7', '#6B665E', '#2D2A24'],
+  copper: ['#F4E4D2', '#B57438', '#5C3416'],
+};
+for (const [family, [bg, ink, deep]] of Object.entries(PASTEL_LIGHT)) {
+  const fam = pastelLightFamilies[family];
+  pin(fam, 'pastel-light', 'bg', bg);
+  pin(fam, 'pastel-light', 'ink', ink);
+  pin(fam, 'pastel-light', 'deep', deep);
+}
+
+// §r128-3 · colors.ts night additions — the deep neutral ramp + status
+// soft-backgrounds (one aggregate: globals.css:308-314/334-350 values).
+{
+  const NIGHT_ADDITIONS = {
+    surface3: '#182142',
+    hairlineStrong: '#263052',
+    textSecondary: '#C3C8DC',
+    textStrong2: '#DDE1EE',
+    goldSoft: '#2C2312',
+    yellowBg: '#2C2410',
+    skyBg: '#14213A',
+    roseBg: '#2C1620',
+  };
+  check(
+    Object.entries(NIGHT_ADDITIONS).every(([k, v]) => nightColors[k] === v),
+    `colors.ts night additions must match the canonical deep ramp/status backgrounds (got ${JSON.stringify(Object.fromEntries(Object.keys(NIGHT_ADDITIONS).map((k) => [k, nightColors[k]])))})`,
+  );
+}
+
+// §r128-4 · the JS theme modules (inline-style SSOT twins of the tailwind
+// mirror) — full-ladder aggregate equality, the SSOT-gate idiom.
+{
+  const radiusModule = objectAfter(radiusSrc, 'export const radius =');
+  const EXPECTED_RADIUS = { xs: '6', sm: '8', md: '10', lg: '12', xl: '16', '2xl': '20', '3xl': '28', pill: '9999' };
+  check(
+    JSON.stringify(radiusModule) === JSON.stringify(EXPECTED_RADIUS),
+    `theme/radius.ts must mirror the canonical --r-* ladder + pill verbatim (got ${JSON.stringify(radiusModule)})`,
+  );
+
+  const spacingModule = objectAfter(spacingSrc, 'export const spacing =');
+  const EXPECTED_SPACING = {
+    sp1: '4', sp2: '8', sp3: '12', sp4: '16', sp5: '20', sp6: '24', sp7: '32', sp8: '40',
+    sp9: '48', sp10: '56', sp11: '72', sp12: '96', sp13: '128', sp14: '160', sp15: '192', sp16: '240',
+  };
+  check(
+    JSON.stringify(spacingModule) === JSON.stringify(EXPECTED_SPACING),
+    `theme/spacing.ts must mirror the canonical --sp-1…16 ladder verbatim (got ${JSON.stringify(spacingModule)})`,
+  );
+
+  const easingsModule = objectAfter(easingsSrc, 'export const easings =');
+  const EXPECTED_EASINGS = {
+    DEFAULT: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    out: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    in: 'cubic-bezier(0.7, 0, 0.84, 0)',
+    soft: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    springSoft: 'cubic-bezier(0.34, 1.18, 0.64, 1)',
+    spring: 'cubic-bezier(0.34, 1.36, 0.64, 1)',
+    bounce: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    springSnappy: 'cubic-bezier(0.5, 1.6, 0.4, 1)',
+  };
+  check(
+    JSON.stringify(easingsModule) === JSON.stringify(EXPECTED_EASINGS),
+    `theme/easings.ts must mirror the canonical --ease-* + spring tiers verbatim (got ${JSON.stringify(easingsModule)})`,
+  );
+}
+
+// §r128-5 · mono wiring — the runtime chain a static config can't prove:
+// App.tsx loadAsync registers both faces, app.json embeds both TTFs (the
+// per-TTF loop above covers the Sans faces; the tailwind alias is pinned
+// in the fontFamily block).
+check(
+  loadAsync['IBM Plex Mono'] === 'IBMPlexMono_400Regular'
+    && loadAsync['IBM Plex Mono-Medium'] === 'IBMPlexMono_500Medium',
+  `App.tsx loadAsync must register both IBM Plex Mono faces (got ${JSON.stringify({ mono: loadAsync['IBM Plex Mono'], monoMedium: loadAsync['IBM Plex Mono-Medium'] })})`,
+);
+check(
+  ['400Regular/IBMPlexMono_400Regular.ttf', '500Medium/IBMPlexMono_500Medium.ttf']
+    .every((f) => (expoFontPlugin?.[1]?.fonts ?? []).includes(`./node_modules/@expo-google-fonts/ibm-plex-mono/${f}`)),
+  'app.json expo-font must natively embed both IBM Plex Mono TTFs',
+);
+
+// §r128-6 · LandingScreen grammar — the visible P0, pinned as text scans
+// (the web suite pins served HTML; the mobile twin pins the shipped JSX).
+check(/backgroundColor: landing\.ink/.test(landingScreenSrc), 'LandingScreen ground must be landing.ink (the Orbit-Ink world, not product night)');
+check(landingScreenSrc.includes('00 — البداية'), 'LandingScreen must open with the «00 — البداية» mono chapter eyebrow');
+check(landingScreenSrc.includes('<Text style={{ color: landing.lime }}>على واتساب</Text>'), 'LandingScreen h1 must carry exactly ONE lime word (على واتساب — the web hero pattern)');
+check(
+  ['01', '02', '03', '04', '05'].every((n) => landingScreenSrc.includes(`n: "${n}"`)),
+  'LandingScreen must ship the web 5-station journey (01…05)',
+);
+check(trustBandSrc.includes('TRUST_FALLBACK_VALUE = "—"'), 'TrustBand must keep the never-fake honest fallback («—»)');
+// The pill pair deliverable — 46/48px heights + the 0.97 press register
+// (product Button keeps 0.98; the landing family rides landing.pressScale).
+check(
+  landingPillSrc.includes('LANDING_PILL_HEIGHT = 46')
+    && landingPillSrc.includes('LANDING_PILL_HEIGHT_XL = 48')
+    && landingPillSrc.includes('scaleTo={landing.pressScale}'),
+  'LandingPill must ship the 46/48px gold+ghost pair on the 0.97 landing press register',
+);
 
 // ── ban-list + consumption gates (raw sweep of src/ and assets/) ────────────
 
@@ -482,6 +649,34 @@ check(
 check(/<MessageCircle[^>]*color=\{colors\.void\}/.test(fabSrc), 'FloatingWhatsApp glyph must ride colors.void on the green (on-accent ink law)');
 check(/FadeIn\.duration\(motion\.BASE\)/.test(fabSrc), 'FloatingWhatsApp entrance must ride motion.BASE (the central ladder rung)');
 
+// 6. r128 scope-rule negatives (r129-F5) — the .landing R4 discipline:
+//    Orbit-Ink lives ONLY in the landing family; the product world keeps
+//    its own tokens in both directions.
+// 6a. theme/landing must not be imported outside the landing family.
+const isLandingFamily = (f) =>
+  f === 'src/screens/public/LandingScreen.tsx' || f.startsWith('src/components/landing/');
+check(
+  !codeOnly.some(({ f, s }) => f !== 'src/theme/landing.ts' && !isLandingFamily(f) && s.includes('@/theme/landing')),
+  'theme/landing must not leak outside the landing family (Orbit-Ink scope rule — product screens keep colors.ts night/sand/gold)',
+);
+// 6b. The Landing route itself must not consume product tokens (the reverse
+//     leak): the ink world renders landing.* only.
+check(
+  !/@\/theme\/colors|colors\.(night|surface|surface2|surface3|hairline|sand|muted|gold|void)\b/.test(stripComments(landingScreenSrc)),
+  'LandingScreen must ride the Orbit-Ink tokens — no product night/sand/gold leaks on the landing route',
+);
+// 6c. No raw Orbit-Ink hex outside theme/landing.ts — the token block is
+//     the ONLY carrier of those values (comments stripped; the sweep is
+//     case-insensitive so #252a3e cannot sneak past either).
+{
+  const ORBIT_INK_HEX = ['#252A3E', '#1C2032', '#F5F3E7', '#C9C6B4', '#DFEDB2', '#B9D778', '#7A6BF2', '#4E2FB8'];
+  check(
+    !codeOnly.some(({ f, s }) => f !== 'src/theme/landing.ts'
+      && ORBIT_INK_HEX.some((h) => s.toLowerCase().includes(h.toLowerCase()))),
+    'no raw Orbit-Ink hex outside theme/landing.ts — ride the landing tokens (the mono face lands via fontFamily, colors via landing.*)',
+  );
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 
 if (failures.length > 0) {
@@ -489,4 +684,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  • ${f}`);
   process.exit(1);
 }
-console.log(`✓ Mobile Madarek parity snapshot: ${passed} assertions passed (colors + radius + motion + typography + bans == canonical Madarek values)`);
+console.log(`✓ Mobile Madarek parity snapshot: ${passed} assertions passed (colors + radius + motion + typography + landing Orbit-Ink + bans == canonical Madarek values)`);

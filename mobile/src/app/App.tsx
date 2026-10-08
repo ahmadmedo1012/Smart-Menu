@@ -16,6 +16,14 @@ import {
   IBMPlexSansArabic_600SemiBold,
   IBMPlexSansArabic_700Bold,
 } from "@expo-google-fonts/ibm-plex-sans-arabic";
+// r129-F5: the mono machine voice — the landing eyebrow/chapter labels,
+// tabular numerals and the trust band ride IBM Plex Mono (400/500; the
+// web --ln-mono stack). Arabic runs inside mono contexts fall back to the
+// brand sans via the RN per-glyph family fallback chain.
+import {
+  IBMPlexMono_400Regular,
+  IBMPlexMono_500Medium,
+} from "@expo-google-fonts/ibm-plex-mono";
 import { I18nManager, LogBox } from "react-native";
 
 // Madarek design system: IBM Plex Sans Arabic 400/500/600/700 (no 800) — the
@@ -55,6 +63,8 @@ export default function App() {
         "IBM Plex Sans Arabic-Medium": IBMPlexSansArabic_500Medium,
         "IBM Plex Sans Arabic-SemiBold": IBMPlexSansArabic_600SemiBold,
         "IBM Plex Sans Arabic-Bold": IBMPlexSansArabic_700Bold,
+        "IBM Plex Mono": IBMPlexMono_400Regular,
+        "IBM Plex Mono-Medium": IBMPlexMono_500Medium,
       });
       if (!cancelled) setFontsReady(true);
     })();

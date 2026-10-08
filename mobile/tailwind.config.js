@@ -46,7 +46,11 @@ module.exports = {
         // @expo-google-fonts/ibm-plex-sans-arabic + expo-font.
         sans: ["IBM Plex Sans Arabic", "System"],
         heading: ["IBM Plex Sans Arabic", "System"],
-        mono: ["IBM Plex Sans Arabic", "System"],
+        // r129-F5: mono is the REAL mono face now — IBM Plex Mono (400/500,
+        // the web --ln-mono stack) with the brand sans as the Arabic-run
+        // fallback (RN falls back per glyph; mono is Latin/digits-only
+        // voice). Previously aliased to the Sans face (no mono shipped).
+        mono: ["IBM Plex Mono", "IBM Plex Sans Arabic", "System"],
       },
       // Madarek radius ladder: 6/8/10/12/16/20/28 (+ full 9999 via default)
       borderRadius: { xs: 6, sm: 8, md: 10, lg: 12, xl: 16, "2xl": 20, "3xl": 28 },
