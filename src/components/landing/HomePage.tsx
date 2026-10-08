@@ -1,5 +1,10 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+// r128-F1a: «Orbit Ink» landing layer — tokens (§1), marquee (§3), chrome
+// (§4), megamenu, button families, grain veil. Ships with the landing route
+// only; everything is scoped under the `.landing` wrapper class below, so
+// product tokens/pins in globals.css are untouched (R4).
+import '../../app/landing.css';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import AnimatedRefreshCw from '@/components/ui/refresh-icon';
@@ -80,7 +85,9 @@ export function HomePage({
         }, [retryKey, stats, featured]);
 
         return (
-                <div className="flex flex-col min-h-screen overflow-x-clip">
+                /* r128-F1a: `.landing` wrapper — activates the Orbit-Ink landing
+                   layer (scoped tokens + css). Section rebuild is Stage B. */
+                <div className="landing flex flex-col min-h-screen overflow-x-clip">
                         <Header />
                         <HeroSection totalRestaurants={stats?.totalRestaurants} />
                         <FeaturesSection />
