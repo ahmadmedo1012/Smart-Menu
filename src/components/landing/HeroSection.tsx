@@ -112,8 +112,11 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                 {/* r95: SmartBot h1 scale — 68px/800 (spec §3), classes only. */}
                                                 {/* r96-W4a: font-display الميت حُذف — لا أداة له؛
                                                     قاعدة base (h1,h2 → var(--font-heading)) تتكفل بـ Readex Pro. */}
+                                                {/* r126 (P4-W3b / audit E1): tracking-tighter حُذفت (تباعد صفري
+                                                    على العربية) وfont-extrabold→font-bold — Plex Sans Arabic
+                                                    لا يملك 800 أصلًا (كان يسقط إلى 700 — صنف يكذب). */}
                                                 <h1
-                                                        className="r92-hero-settle text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-extrabold leading-[1.15] tracking-tighter text-balance"
+                                                        className="r92-hero-settle text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-bold leading-[1.15] text-balance"
                                                 >
                                                         <span className="block">منيو رقمي لمطعمك</span>
                                                         <span className="block">
@@ -227,7 +230,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                                         aria-label="جرّب المنيو مباشرة: امسح الرمز لفتح منيو تجريبي حي"
                                                                         className="block rounded-2xl bg-gradient-to-br from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] p-[3px] shadow-2xl shadow-black/40 transition-transform duration-base hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 motion-reduce:transition-none"
                                                                 >
-                                                                        <div className="rounded-[calc(1rem-1.5px)] bg-white p-2">
+                                                                        <div className="rounded-xl bg-white p-2">
                                                                                 {/* size-28 = 112px ≥ الحد الأدنى للمسح (96px)؛
                                                                                     يُولّد 240px لحدة 2x على شاشات retina */}
                                                                                 <div className="size-28 sm:size-[7.5rem]">

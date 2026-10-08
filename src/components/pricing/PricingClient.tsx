@@ -243,8 +243,10 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 <AnimatedSparkles className="size-4" />
                                                 خطط تناسب جميع الأحجام
                                         </div>
-                                        {/* r95: طباعة SmartBot §3 — font-heading + tracking-tight + text-balance */}
-                                        <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-[1.15] tracking-tight text-balance">اختر خطتك</h1>
+                                        {/* r95: طباعة SmartBot §3 — font-heading + text-balance.
+                                            r126 (P4-W3b / audit E1): tracking-tight حُذفت (تباعد صفري
+                                            على العربية — قانون مدارك). */}
+                                        <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-[1.15] text-balance">اختر خطتك</h1>
                                         <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
                                                 ابدأ برفع منيو مطعمك رقمياً واختر الخطة التي تناسب احتياجاتك
                                         </p>

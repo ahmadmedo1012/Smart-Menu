@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import AnimatedSparkles from '@/components/ui/sparkles-icon';
-import { SearchX, UtensilsCrossed } from 'lucide-react';
+import { ChefHat, MessageCircle, SearchX, UtensilsCrossed } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { premiumToast } from '@/lib/premium-toast';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -19,6 +19,7 @@ const OrderDialog = dynamic(() => import('./OrderDialog').then((m) => ({ default
 const ReviewSheet = dynamic(() => import('./ReviewSheet').then((m) => ({ default: m.ReviewSheet })), { ssr: false });
 import { toArabicNumber, normalizeArabic } from '@/lib/format';
 import { getArabicPlural } from '@/lib/arabic-plural';
+import { normalizeWaNumber } from '@/lib/whatsapp';
 
 type CategoryProp = { id: number; name: string; nameAr: string | null; icon: string };
 
@@ -342,6 +343,12 @@ export function MenuPageClient({
 
         const hasActiveFilter = search !== '' || activeCategory !== null;
 
+        /* r126 (P4-W3b / audit F2): 0 أصناف في كل الفئات = منيو فارغ فعلاً —
+           «اختر فئة أخرى» هنا تضلّل الزبون (لا توجد فئة أخرى أصلًا). نسخة
+           دافئة + CTA تواصل واتساب بدلها. */
+        const menuGenuinelyEmpty = items.length === 0;
+        const emptyMenuWhatsapp = normalizeWaNumber(restaurantWhatsapp);
+
         return (
                 <>
                         {/* r97-W6: قارئ معلمات URL بلا أي تعليق — انظر تعليق
@@ -440,14 +447,42 @@ export function MenuPageClient({
                         {normalItems.length === 0 ? (
                                 /* round88-E3: unified EmptyState (icon + friendly copy + action)
                                    replaces the hand-rolled glass-card variant — same texts, same
-                                   reset CTA, one shared visual language across all surfaces. */
+                                   reset CTA, one shared visual language across all surfaces.
+                                   r126 (P4-W3b / audit F2): الحالة الفارغة تتميّز الآن — بحث بلا
+                                   نتائج / فئة فارغة داخل منيو حيّ / منيو فارغ فعلاً (0 أصناف)،
+                                   لكلٍّ نسخته وCTA الخاص به. */
                                 <div className="glass-card rounded-sm">
                                         <EmptyState
-                                                icon={search ? SearchX : UtensilsCrossed}
-                                                title={search ? 'لا توجد أصناف تطابق بحثك' : 'لا توجد أصناف في هذه الفئة'}
-                                                description={search ? 'جرب كلمات بحث أخرى' : 'اختر فئة أخرى'}
+                                                icon={search ? SearchX : menuGenuinelyEmpty ? ChefHat : UtensilsCrossed}
+                                                title={
+                                                        search
+                                                                ? 'لا توجد أصناف تطابق بحثك'
+                                                                : menuGenuinelyEmpty
+                                                                  ? 'قائمتنا قيد التحضير'
+                                                                  : 'لا توجد أصناف في هذه الفئة'
+                                                }
+                                                description={
+                                                        search
+                                                                ? 'جرب كلمات بحث أخرى'
+                                                                : menuGenuinelyEmpty
+                                                                  ? 'نجهّز لك أشهى الأطباق، وستظهر هنا فور جاهزيتها — تواصل معنا لأي استفسار'
+                                                                  : 'اختر فئة أخرى'
+                                                }
                                                 action={
-                                                        hasActiveFilter ? (
+                                                        !search && menuGenuinelyEmpty && emptyMenuWhatsapp ? (
+                                                                /* r126 (P4-W3b): قناة التواصل الوحيدة المضمونة للمطعم —
+                                                                   wa.me على الرقم المطهّر (نمط r103-F8 في MenuHero:
+                                                                   رقم غير صالح لا يُصيّر رابطًا ميتًا أبدًا). */
+                                                                <a
+                                                                        href={`https://wa.me/${emptyMenuWhatsapp}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="inline-flex items-center gap-2 text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-orange-foreground hover:brightness-110 transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                                >
+                                                                        <MessageCircle className="size-4" aria-hidden="true" />
+                                                                        تواصل معنا عبر واتساب
+                                                                </a>
+                                                        ) : hasActiveFilter ? (
                                                                 <button
                                                                         type="button"
                                                                         onClick={() => {

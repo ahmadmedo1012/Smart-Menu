@@ -1,11 +1,27 @@
-const CACHE_NAME = 'smart-menu-v6';
+const CACHE_NAME = 'smart-menu-v7';
 // REMINDER: bump CACHE_VERSION whenever this file changes
-const STATIC_ASSETS = ['/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+// r126 (P4-W3b / audit G2): the two first-paint arabic subsets (~86 KB,
+// fonts.css "First paint needs only the two preloaded arabic subsets") are
+// precached at install — previously they were cache-first ONLY after the
+// first visit of each, so offline/weak-signal revisits flashed fallback
+// text (FOUT). 400 = body/regular runs, 700 = bold/CTA runs.
+const STATIC_ASSETS = [
+	'/offline.html',
+	'/manifest.json',
+	'/icon-192.png',
+	'/icon-512.png',
+	'/fonts/plex-sans-arabic-400-normal-arabic.woff2',
+	'/fonts/plex-sans-arabic-700-normal-arabic.woff2',
+];
 
 // round87-D10: dedicated cache for /_next/image responses, separate from
 // CACHE_NAME so bounded eviction below can never touch the precached static
 // assets or JSON entries. Capped: menus with hundreds of content-addressed
 // item images would otherwise grow CacheStorage without limit.
+// r126 (P4-W3b): NOT renamed to v7 — the entries are content-addressed
+// (?url=&w=&q=) and stay valid across SW versions; renaming would evict up
+// to 60 images for zero gain. The v6 tag tracks the last bump that touched
+// THIS cache's strategy, and the activate filter keeps it by name.
 const IMAGE_CACHE_NAME = 'smart-menu-v6-images';
 const IMAGE_CACHE_MAX = 60;
 

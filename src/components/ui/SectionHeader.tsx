@@ -37,7 +37,9 @@ export function SectionHeader({ title, subtitle }: SectionHeaderProps) {
       {title && (
         <m.h2
           variants={fadeUpSpring}
-          className="text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.25] tracking-tight text-balance mx-auto"
+          /* r126 (P4-W3b / audit E1): tracking-tight حُذفت — قانون مدارك: تباعد
+             حروف صفري على العربية (الحارس rtl يصفّرها أصلًا — صنف ميت يضلّل). */
+          className="text-3xl sm:text-4xl lg:text-[3.25rem] font-semibold leading-[1.25] text-balance mx-auto"
         >
           {title}
         </m.h2>

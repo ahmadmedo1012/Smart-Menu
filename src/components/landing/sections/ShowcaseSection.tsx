@@ -33,7 +33,10 @@ export function ShowcaseSection() {
                                         <div className="relative bg-foreground/[0.035] dark:bg-white/[0.045] p-1.5 sm:p-2 rounded-2xl ring-1 ring-foreground/10 dark:ring-white/10">
                                                 {/* r96-W4a: الظل الداخلي الرمزي — color-mix من --foreground
                                                     (يعمل في الوضعين: داكن = خط فاتح يشابه الأصل؛ فاتح = خط داكن) */}
-                                                <div className="relative overflow-hidden rounded-[calc(1rem-0.375rem)] sm:rounded-[calc(1rem-0.5rem)] shadow-[inset_0_1px_1px_color-mix(in_oklab,var(--foreground)_15%,transparent)]">
+                                                {/* r126 (P4-W3b / audit C2): إملاءا السلم بدل الحسابية —
+                                                    calc(1rem-0.375rem)=10px=rounded-md و
+                                                    calc(1rem-0.5rem)=8px=rounded-sm (قيم متطابقة، رمزية موحّدة). */}
+                                                <div className="relative overflow-hidden rounded-md sm:rounded-sm shadow-[inset_0_1px_1px_color-mix(in_oklab,var(--foreground)_15%,transparent)]">
                                                         <m.div style={{ scale: imageScale, y: imageY }}>
                                                                 <Image
                                                                         src="/main21.webp"

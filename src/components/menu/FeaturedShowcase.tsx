@@ -183,7 +183,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                         aria-hidden="true"
                                         className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
                                 >
-                                        <span className="px-4 text-center text-[clamp(3.5rem,14vw,9.5rem)] font-black leading-[0.95] tracking-tight text-[var(--scene-accent)] opacity-30 transition-colors duration-cinema motion-reduce:transition-none dark:opacity-[0.40]">
+                                        <span className="px-4 text-center text-[clamp(3.5rem,14vw,9.5rem)] font-black leading-[0.95] text-[var(--scene-accent)] opacity-30 transition-colors duration-cinema motion-reduce:transition-none dark:opacity-[0.40]">
                                                 {displayName}
                                         </span>
                                 </div>
@@ -222,7 +222,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                         <div className="relative w-[75%] max-w-[540px] md:w-[55%]">
                                                                 <div
                                                                         aria-hidden="true"
-                                                                        className="absolute inset-0 scale-90 rounded-[2rem] blur-3xl"
+                                                                        className="absolute inset-0 scale-90 rounded-3xl blur-3xl"
                                                                         style={{
                                                                                 background:
                                                                                         'color-mix(in oklab, var(--scene-accent) 30%, transparent)',
