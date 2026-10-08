@@ -247,7 +247,7 @@ export default function OwnerDashboard() {
                                                 </div>
                                                 <div className="flex-1 min-w-[200px]">
                                                         <h2 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
-                                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">
+                                                <span className="inline-flex items-center gap-1 text-3xs font-medium text-success bg-success/10 border border-success/20 rounded-full px-2 py-0.5">
                                                         <PlugConnectedIcon className="size-3" />
                                                         متصل — يستقبل الطلبات
                                                 </span>
@@ -343,7 +343,7 @@ export default function OwnerDashboard() {
                                                                 <p className="text-xs text-muted-foreground">
                                                                         {restaurant.description || 'مطعمك على الربط الذكي'}
                                                                 </p>
-                                                                <div className="flex items-center gap-3 mt-1.5 text-[11px] text-muted-foreground">
+                                                                <div className="flex items-center gap-3 mt-1.5 text-2xs text-muted-foreground">
                                                                         <span className="flex items-center gap-1">
                                                                                 <Package className="size-3" /> {restaurant._count.categories} أقسام
                                                                         </span>
@@ -541,7 +541,7 @@ export default function OwnerDashboard() {
                                                                         <Icon className={`size-4 ${color}`} />
                                                                 </div>
                                                                 <div>
-                                                                        <p className="text-[11px] text-muted-foreground">{label}</p>
+                                                                        <p className="text-2xs text-muted-foreground">{label}</p>
                                                                         <p className="text-base font-bold">
                                                                                 {typeof value === 'number' ? toArabicNumber(value) : value}
                                                                         </p>

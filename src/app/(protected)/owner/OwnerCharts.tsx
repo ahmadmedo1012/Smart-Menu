@@ -320,7 +320,7 @@ export function AnalyticsTab({
                                                                 item.growth !== 0 ? (
                                                                         <li
                                                                                 key={item.itemId}
-                                                                                className="flex items-center justify-between text-[11px] text-muted-foreground"
+                                                                                className="flex items-center justify-between text-2xs text-muted-foreground"
                                                                         >
                                                                                 <span>
                                                                                         {toArabicNumber(idx + 1)}. {item.name}
