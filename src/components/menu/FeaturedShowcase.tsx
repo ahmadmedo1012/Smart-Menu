@@ -352,7 +352,8 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                                                 >
                                                                         <span
                                                                                 className={cn(
-                                                                                        'block size-2 rounded-full transition-all',
+                                                                                        /* r128-F5 (§1.5): transition-all → خصائص محدّدة */
+                                                                                        'block size-2 rounded-full transition-[width,background-color]',
                                                                                         i === index ? 'w-4 bg-[var(--scene-accent)]' : 'bg-[color-mix(in_oklab,var(--scene-accent)_35%,transparent)] hover:bg-[var(--scene-accent)]/60'
                                                                                 )}
                                                                         />

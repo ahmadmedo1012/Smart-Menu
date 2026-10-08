@@ -45,17 +45,6 @@ import AnimatedEye from '@/components/ui/eye-icon';
 
 const SUPPORT_WHATSAPP = '218910089975';
 
-function FloatingShapes() {
-        return (
-                <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-                        {/* r95 (95-D): تهدئة الأجواء لمرجع SmartBot الهادئ — توهج واحد خافت فقط */}
-                        <div
-                                className="absolute -end-28 -top-24 size-[18rem] rounded-full bg-orange/5 blur-[120px] dark:bg-orange/4"
-                        />
-                </div>
-        );
-}
-
 function safeRedirect(value: string | null) {
         // r118-A4-P3: mirror of the page-level guard — WHATWG URL parsing
         // treats '\' as '/' ('/\evil.com' → '//evil.com' network-path).
@@ -156,11 +145,9 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
 
         return (
                 <div className="relative flex min-h-dvh items-center justify-center px-4 py-20 sm:px-6">
-                        {/* r95: خلفية لهبية — oklch(0.55 0.19 45) القديم → var(--c-flame)
-                           بنفس الشفافيات عبر color-mix (بنمط FeaturedShowcase المعتمد) */}
-                        <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_78%_10%,color-mix(in_oklab,var(--c-flame)_6%,transparent),transparent_30%),radial-gradient(circle_at_14%_88%,color-mix(in_oklab,var(--c-flame)_4%,transparent),transparent_26%)] dark:bg-[radial-gradient(circle_at_78%_10%,color-mix(in_oklab,var(--c-flame)_7%,transparent),transparent_30%),radial-gradient(circle_at_14%_88%,color-mix(in_oklab,var(--c-flame)_5%,transparent),transparent_26%)]" />
-
-                        <FloatingShapes />
+                        {/* r128-F5 (§4 login): إزالة التدرّجات — لا غسلة لهبية ولا توهج
+                           ضبابي؛ الأرض المسطّحة هي أرض المنتج نفسها (ليل #070B16
+                           في الداكن). صفحة هادئة بتصميمها. */}
 
                         {/* Back to home + ThemeToggle */}
                         <div className="fixed start-4 top-4 z-50 flex items-center gap-2">
@@ -177,11 +164,12 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 <ThemeToggle />
                         </div>
 
-                        {/* Decorative top bar */}
-                        <div className="fixed top-0 inset-x-0 z-10 h-1 bg-gradient-to-r from-orange via-orange/80 to-orange/60 dark:from-orange dark:via-orange/80 dark:to-orange/60" />
+                        {/* Decorative top bar — r128-F5: شريط صلب مسطّح بدل التدرّج */}
+                        <div className="fixed top-0 inset-x-0 z-10 h-1 bg-orange" />
 
-                        {/* r95: بطاقة دخول SmartBot — ظل black/20 + حدود border/50 */}
-                        <Card className="animate-scale-in relative z-10 w-full max-w-sm rounded-2xl border-border/50 bg-card/90 shadow-lg shadow-black/20 backdrop-blur-xl sm:max-w-md" elevation="elevated">
+                        {/* r95 → r128-F5: بطاقة مسطّحة — أرض صلبة bg-card بلا زجاج
+                           (backdrop-blur) ولا ظلّ رفع؛ حدّ شعري فقط. */}
+                        <Card className="animate-scale-in relative z-10 w-full max-w-sm rounded-2xl border-border/50 bg-card sm:max-w-md" elevation="flat">
                                 {/* Logo area */}
                                 <CardHeader className="pb-2 pt-8 text-center">
                                         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">

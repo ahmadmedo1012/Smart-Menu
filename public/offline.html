@@ -35,6 +35,16 @@
       margin-bottom: 1.5rem;
       display: block;
     }
+    /* r128-F5: علامة المنتج — آخر فجوة من سجل r127-A1 (لا wordmark).
+       الكلمة المستقيمة هي توكن العلامة الموحّد «الربط الذكي | Smart Menu». */
+    .brand {
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      color: #6E6C65;
+      margin-bottom: 1rem;
+      direction: ltr;
+    }
     h1 {
       font-size: 1.5rem;
       font-weight: 700;
@@ -73,11 +83,13 @@
       .btn { background: #E9B44C; color: #05070F; }
       .btn:hover { background: #F5D48A; }
       .btn:active { background: #C9962F; }
+      .brand { color: #8E97B8; }
     }
   </style>
 </head>
 <body>
   <div class="card">
+    <p class="brand">الربط الذكي | Smart Menu</p>
     <span class="icon">&#x1F4E1;</span>
     <h1>لا يوجد اتصال بالإنترنت</h1>
     <p>يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى. التطبيق سيتم تحميله تلقائياً عند توفر الاتصال.</p>

@@ -12,18 +12,19 @@ import { itemsPhrase, type ComparisonPlan } from '@/components/subscribe/plan-co
 type Plan = ComparisonPlan;
 
 // Map by plan name (not index) — survives plan reordering/adding.
-// Enterprise had no icon/gradient → blank white box on the 5th card.
+// Enterprise had no icon → blank white box on the 5th card.
+/* r128-F5 (§4 flat cards): شرائح أيقونة مسطّحة — بلا تدرّج ولا ظلّ. */
 const PLAN_META: Record<
         string,
-        { icon: typeof Sparkles; gradient: string; recommended?: boolean }
+        { icon: typeof Sparkles; chip: string; recommended?: boolean }
 > = {
-        Free: { icon: Sparkles, gradient: 'from-muted-foreground/60 to-muted-foreground/80' },
-        Basic: { icon: Star, gradient: 'from-orange to-orange/80', recommended: true },
-        Premium: { icon: Crown, gradient: 'from-saffron to-primary' },
-        Pro: { icon: Building2, gradient: 'from-primary to-bloom' },
-        Enterprise: { icon: Building2, gradient: 'from-bloom to-primary' },
+        Free: { icon: Sparkles, chip: 'bg-muted text-muted-foreground' },
+        Basic: { icon: Star, chip: 'bg-accent-foreground/10 text-accent-foreground', recommended: true },
+        Premium: { icon: Crown, chip: 'bg-accent-foreground/10 text-accent-foreground' },
+        Pro: { icon: Building2, chip: 'bg-accent-foreground/10 text-accent-foreground' },
+        Enterprise: { icon: Building2, chip: 'bg-accent-foreground/10 text-accent-foreground' },
 };
-const DEFAULT_META = { icon: Sparkles, gradient: 'from-muted-foreground/60 to-muted-foreground/80' };
+const DEFAULT_META = { icon: Sparkles, chip: 'bg-muted text-muted-foreground' };
 
 export function PlanSelector({
         plans,
@@ -58,18 +59,19 @@ export function PlanSelector({
                                                         onClick={() => onSelect(plan.id)}
                                                         aria-pressed={isSelected}
                                                         className={cn(
-                                                                /* r95: بطاقة اختيار SmartBot §5.1/§5.2 — توهج حدّي + هندسة rounded-2xl */
-                                                                'relative flex flex-col rounded-2xl border p-5 text-start transition-[border-color,background-color,box-shadow] duration-slower hover:shadow-lg hover:shadow-accent-foreground/10 outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                /* r95 → r128-F5 (§4 flat cards): بطاقة مسطّحة —
+                                                                   حدّ شعري، لا ظلّ ولا تدرّج ولا زجاج. */
+                                                                'relative flex flex-col rounded-2xl border p-5 text-start transition-[border-color] duration-slower hover:border-accent-foreground/30 outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 isSelected
-                                                                        ? 'border-accent-foreground/40 ring-2 ring-primary/30 bg-gradient-to-br from-accent-foreground/[0.04] via-card to-card shadow-lg shadow-accent-foreground/10'
-                                                                        : 'border-border/50 bg-card hover:border-accent-foreground/30'
+                                                                        ? 'border-accent-foreground/40 ring-2 ring-primary/30 bg-card'
+                                                                        : 'border-border/50 bg-card'
                                                         )}
                                                 >
                                                         {/* Selection check — shape + position carry the state alongside color (a11y) */}
                                                         <span
                                                                 aria-hidden={!isSelected}
                                                                 className={cn(
-                                                                        'absolute -top-2 -end-2 size-6 rounded-full flex items-center justify-center shadow-lg transition-opacity duration-fast',
+                                                                        'absolute -top-2 -end-2 size-6 rounded-full flex items-center justify-center transition-opacity duration-fast',
                                                                         isSelected
                                                                                 ? 'bg-primary opacity-100'
                                                                                 : 'bg-border/60 opacity-0 pointer-events-none'
@@ -78,26 +80,27 @@ export function PlanSelector({
                                                                 <MotionCheck className="size-3.5 text-primary-foreground" />
                                                         </span>
                                                         {meta.recommended && !upgradeMode && (
-                                                                /* round94 (D/A8): via-saffron يجعل وسط الشارة saffron صرفاً
-                                                                   (نص espresso الممركز 8.97:1 بدل منتصف المنحدر 4.58:1) —
-                                                                   نمط هضبة زر flame نفسه. */
-                                                                <span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] px-2.5 py-0.5 text-3xs font-bold text-espresso shadow-sm">
+                                                                /* round94 (D/A8) → r128-F5: هضبة saffron صرفة مسطّحة
+                                                                   (نص espresso 8.97:1) — التدرّج والظل أُزيلتا (منع
+                                                                   التدرّجات). */
+                                                                <span className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-[var(--c-saffron)] px-2.5 py-0.5 text-3xs font-bold text-espresso">
                                                                         <Flame className="size-3" aria-hidden="true" />
                                                                         الأكثر شعبية
                                                                 </span>
                                                         )}
                                                         <span
                                                                 className={cn(
-                                                                        /* r95: شريحة أيقونة SmartBot — rounded-xl */
-                                                                        'size-10 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 shadow-lg',
-                                                                        meta.gradient
+                                                                        /* r95 → r128-F5: شريحة أيقونة مسطّحة */
+                                                                        'size-10 rounded-xl flex items-center justify-center mb-3',
+                                                                        meta.chip
                                                                 )}
                                                         >
-                                                                <Icon className="size-5 text-orange-foreground" aria-hidden="true" />
+                                                                <Icon className="size-5" aria-hidden="true" />
                                                         </span>
                                                         <h3 className="font-heading font-bold text-lg mb-1">{plan.nameAr}</h3>
                                                         <div className="flex items-baseline gap-1 mb-3">
-                                                                <span className="text-2xl font-bold tabular-nums">
+                                                                {/* r128-F5: أرقام الأسعار بخط mono (نمط ln-mono) */}
+                                                                <span className="text-2xl font-bold tabular-nums font-mono">
                                                                         {Number(plan.price) === 0 ? 'مجاني' : formatPrice(plan.price, { suffix: '' })}
                                                                 </span>
                                                                 {Number(plan.price) > 0 && (

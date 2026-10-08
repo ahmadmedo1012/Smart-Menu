@@ -5,7 +5,7 @@ import type { Plan } from '@/lib/plan-types';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 // ponytail: PaymentSection dynamically imported — ~50KB gzipped chunk deferred until payment flow
-import { Store, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { csrfFetch } from '@/lib/csrf-client';
@@ -372,15 +372,18 @@ export function SubscribeClient({ initialPlans }: { initialPlans: Plan[] | null 
                 );
 
         return (
-                <div className="min-h-screen bg-gradient-to-b from-background via-orange-muted/20 to-background dark:via-orange-muted/10">
+                /* r128-F5 (§4): أرض مسطّحة — تدرّج الصفحة أُزيل (منع التدرّجات)،
+                   الأرض هي أرض المنتج نفسها (--background ليل #070B16). */
+                <div className="min-h-screen bg-background">
                         <Header />
                         <div className="max-w-4xl mx-auto px-4 py-12">
                                 {/* Header */}
                                 <div className="text-center mb-10">
-                                        {/* r95: حبة علوية — accent-foreground (AA 5.4:1 على الداكن) بدل text-primary */}
-                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-accent-foreground text-sm mb-4">
-                                                <Store className="size-4" /> اشترك الآن
-                                        </div>
+                                        {/* r95 → r128-F5 (§4): حاجب بنمط ln-label — تسمية mono
+                                           مسطّحة بلا حبة؛ ترقيم الخطوات يعيش في StepIndicator. */}
+                                        <p className="mb-4 font-mono text-xs font-medium tracking-[0.08em] text-accent-foreground">
+                                                الاشتراك
+                                        </p>
                                         <h1 className="font-heading text-3xl md:text-5xl font-bold mb-3">
                                                 {upgradeMode ? <span>رقِّ خطة مطعمك</span> : <span>انضم إلى الربط الذكي</span>}
                                         </h1>

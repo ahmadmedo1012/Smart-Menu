@@ -9,14 +9,14 @@ import Link from 'next/link';
 import { m, useReducedMotion } from 'motion/react';
 import { springDefault } from '@/lib/motion';
 import {Star, Crown, Building2, Sparkles, ChevronDown, UtensilsCrossed, Zap, type LucideIcon} from 'lucide-react';
-import AnimatedSparkles from '@/components/ui/sparkles-icon';
 import { Button } from '@/components/ui/button';
+import { CountUp } from '@/components/ui/CountUp';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingAnnouncer } from '@/components/ui/loading-announcer';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
-import { formatPrice, toArabicNumber } from '@/lib/format';
+import { formatPrice } from '@/lib/format';
 import { fetchJson } from '@/lib/fetch-json';
 
 // Map by plan name (not index) — Enterprise previously fell past the 4-item
@@ -39,7 +39,9 @@ const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: s
         Premium: {
                 icon: Crown,
                 badge: 'الأفضل قيمة',
-                badgeColor: 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground',
+                /* r128-F5 (§4 flat cards): شارة مسطّحة — تدرّجا الشارة
+                   أُزيلا (منع التدرّجات)، لون صلب واحد يكفي. */
+                badgeColor: 'bg-orange text-orange-foreground',
         },
         Pro: {
                 icon: Building2,
@@ -49,7 +51,7 @@ const PLAN_META: Record<string, { icon: LucideIcon; badge: string; badgeColor: s
         Enterprise: {
                 icon: Building2,
                 badge: 'للشركات الكبرى',
-                badgeColor: 'bg-gradient-to-r from-primary to-bloom text-primary-foreground',
+                badgeColor: 'bg-primary text-primary-foreground',
         },
 };
 const DEFAULT_META = PLAN_META.Free;
@@ -75,21 +77,14 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                         viewport={{ once: true, margin: "-40px" }}
                         transition={{ ...springDefault, delay: index * 0.08 }}
                         className={cn(
-                                /* r95: بطاقة SmartBot §5.1 — توهج حدّي بدل الرفع، حركة 500ms */
-                                'group relative flex flex-col rounded-2xl border p-5 sm:p-6 transition-[border-color,background-color,box-shadow] duration-slower hover:shadow-lg hover:shadow-accent-foreground/10 hover:border-accent-foreground/30',
-                                isPopular
-                                        ? /* r95: بطاقة الخطة الشعبية §5.2 — تدرّج زاوية + حدّ accent */
-                                          'border-accent-foreground/30 bg-gradient-to-br from-accent-foreground/[0.04] via-card to-card'
-                                        : 'border-border/50 bg-card'
+                                /* r128-F5 (§4 flat cards): بطاقة مسطّحة — حدّ شعري يستجيب
+                                   في hover (لا ظلّ ولا تدرّج ولا زجاج). */
+                                'group relative flex flex-col rounded-2xl border p-5 sm:p-6 transition-[border-color] duration-slower hover:border-accent-foreground/30',
+                                isPopular ? 'border-accent-foreground/30 bg-card' : 'border-border/50 bg-card'
                         )}
                 >
                         {isPopular && (
                                 <>
-                                        {/* r95: توهج الزاوية الخلفي §5.2 */}
-                                        <div
-                                                aria-hidden="true"
-                                                className="pointer-events-none absolute -top-20 -end-20 size-48 rounded-full bg-accent-foreground/10 blur-3xl"
-                                        />
                                         {/* r95 → r120 (U11-P2-4): شارة zap — «الأكثر شعبية»
                                                (موحّدة مع /subscribe؛ كانت «الأكثر طلباً» غير الدقيقة).
                                                r127-F4: توكن 3xs أصبح موجودًا الآن (--text-3xs
@@ -117,7 +112,8 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                         {/* r95: شريحة أيقونة SmartBot §5.4 — بلا حدّ، bg-accent-foreground/10 */}
                                         <div
                                                 className={cn(
-                                                        'flex size-11 items-center justify-center rounded-xl transition-all duration-base group-hover:scale-110',
+                                                        /* r128-F5 (§1.5): transition-all → خصائص محدّدة */
+                                                        'flex size-11 items-center justify-center rounded-xl transition-[background-color,transform] duration-base group-hover:scale-110',
                                                         isFree
                                                                 ? 'bg-muted text-muted-foreground'
                                                                 : 'bg-accent-foreground/10 text-accent-foreground group-hover:bg-accent-foreground/15'
@@ -133,14 +129,16 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
 
                                 <div className="mb-6">
                                         {isFree ? (
-                                                <div className="text-[2.75rem] font-bold leading-none tabular-nums">مجاني</div>
+                                                /* r128-F5: سعر بخط mono (نمط ln-mono) — أرقام جدولية */
+                                                <div className="text-[2.75rem] font-bold leading-none tabular-nums font-mono">مجاني</div>
                                         ) : (
                                                 <div className="flex items-baseline gap-1">
                                                         {/* r95: رقم السعر SmartBot §5.7 — أنيميشن price-swap-in
                                                                عند ظهور البطاقة في الشاشة (r121-P1: بلا مفتاح تبديل
-                                                               بعد إزالة السنوي — الدخول مرة واحدة يكفي) */}
+                                                               بعد إزالة السنوي — الدخول مرة واحدة يكفي).
+                                                               r128-F5: أرقام الأسعار بخط mono (نمط ln-mono). */}
                                                         <span
-                                                                className="animate-price-swap-in text-[2.75rem] font-bold leading-none tabular-nums"
+                                                                className="animate-price-swap-in text-[2.75rem] font-bold leading-none tabular-nums font-mono"
                                                         >
                                                                 {formatPrice(plan.price, { suffix: '' })}
                                                         </span>
@@ -151,23 +149,23 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                 </div>
 
                                 <div className="space-y-2 mb-6">
+                                        {/* r128-F5 (§4): CountUp على حدود الخطط المعروضة (نمط
+                                           الثقة في المدارك) — الأرقام غربية بخط mono جدولي،
+                                           والقيم غير الرقمية («غير محدود») تُعرض كما هي
+                                           (CountUp لا يحرّك ما لا يحتوي أرقاماً). */}
                                         {[
-                                                ['المنيو', plan.maxMenus === 9999 ? 'غير محدود' : toArabicNumber(plan.maxMenus)],
-                                                [
-                                                        'الأصناف',
-                                                        plan.maxItems === 9999 ? 'غير محدود' : `حتى ${toArabicNumber(plan.maxItems)}`,
-                                                ],
-                                                [
-                                                        'الطلبات',
-                                                        plan.maxOrders === 99999 ? 'غير محدود' : `حتى ${toArabicNumber(plan.maxOrders)}`,
-                                                ],
+                                                ['المنيو', plan.maxMenus === 9999 ? 'غير محدود' : String(plan.maxMenus)],
+                                                ['الأصناف', plan.maxItems === 9999 ? 'غير محدود' : `حتى ${plan.maxItems}`],
+                                                ['الطلبات', plan.maxOrders === 99999 ? 'غير محدود' : `حتى ${plan.maxOrders}`],
                                         ].map(([label, val]) => (
                                                 <div
                                                         key={label as string}
                                                         className="flex items-center justify-between rounded-lg bg-muted/45 px-3 py-2 text-sm"
                                                 >
                                                         <span className="text-muted-foreground">{label as string}</span>
-                                                        <span className="font-semibold">{val as string}</span>
+                                                        <span className="font-semibold font-mono tabular-nums">
+                                                                <CountUp value={val as string} />
+                                                        </span>
                                                 </div>
                                         ))}
                                 </div>
@@ -191,8 +189,9 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                 <Link href={isFree ? '/subscribe' : `/subscribe?plan=${plan.id}`}>
                                         <Button
                                                 className={cn(
+                                                        /* r128-F5: زر مسطّح — بلا ظلّ */
                                                         'w-full h-12',
-                                                        isPopular ? 'bg-orange text-orange-foreground shadow-lg shadow-orange/25' : ''
+                                                        isPopular ? 'bg-orange text-orange-foreground' : ''
                                                 )}
                                                 variant={isPopular ? 'orange' : 'outline'}
                                         >
@@ -238,11 +237,12 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                         <section className="relative border-b border-border/50 pb-16 pt-24 text-center sm:pb-20 sm:pt-28">
 
                                 <div className="relative z-10 max-w-3xl mx-auto px-4">
-                                        {/* r95: حبة علوية — عائلة accent-foreground اللهبية */}
-                                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-foreground/20 bg-accent-foreground/[0.06] px-4 py-1.5 text-sm text-accent-foreground">
-                                                <AnimatedSparkles className="size-4" />
-                                                خطط تناسب جميع الأحجام
-                                        </div>
+                                        {/* r128-F5 (§4): حاجب بنمط ln-label — ترقيم فصول mono
+                                           مسطّح (بديل حبة الزجاج)؛ الرقم اللاتيني يفتح القراءة
+                                           في السياق RTL. */}
+                                        <p className="mb-6 font-mono text-xs font-medium tracking-[0.08em] text-accent-foreground tabular-nums">
+                                                01 — الخطط
+                                        </p>
                                         {/* r95: طباعة SmartBot §3 — font-heading + text-balance.
                                             r126 (P4-W3b / audit E1): tracking-tight حُذفت (تباعد صفري
                                             على العربية — قانون مدارك). */}
@@ -343,7 +343,7 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 ].map((faq, i) => (
                                                         <details
                                                                 key={i}
-                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color,box-shadow] duration-slower open:border-accent-foreground/25 open:shadow-sm"
+                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color] duration-slower open:border-accent-foreground/25"
                                                         >
                                                                 <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60">
                                                                                                                                         {faq.q}
@@ -366,8 +366,8 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
 
                         <section className="pb-16 sm:pb-24">
                                 <div className="max-w-2xl mx-auto px-4 text-center">
-                                        {/* r95: بطاقة CTA ختامية بهندسة SmartBot */}
-                                        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 shadow-sm sm:p-8 md:p-12">
+                                        {/* r95: بطاقة CTA ختامية بهندسة SmartBot — r128-F5: مسطّحة بلا ظل */}
+                                        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 sm:p-8 md:p-12">
                                                 <div className="absolute inset-x-0 top-0 mx-auto h-1 w-20 bg-primary" />
                                                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
                                                         مستعد لانطلاق مطعمك الرقمي؟

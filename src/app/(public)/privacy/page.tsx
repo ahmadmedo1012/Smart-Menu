@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
 
 // r118-A9-P3: this legal-content page sat under the (protected) layout's
 // per-request CSP-nonce flow → served no-store at ~0.4s TTFB on every visit.
@@ -33,8 +34,14 @@ export default function PrivacyPage() {
                 <div className="min-h-screen bg-background">
                         <Header />
                         <div className="max-w-3xl mx-auto px-4 py-20">
+                                {/* r128-F5 (§4): حاجب بنمط ln-label — تسمية فصل mono
+                                   مسطّحة فوق العنوان (المحتوى القانوني بلا تغيير). */}
+                                <p className="mb-3 font-mono text-xs font-medium tracking-[0.08em] text-accent-foreground tabular-nums">
+                                        01 — الخصوصية
+                                </p>
                                 <h1 className="text-3xl font-bold mb-8">سياسة الخصوصية</h1>
-                                <div className="space-y-6 text-foreground/80">
+                                {/* r128-F5 (§4): ظهور النص مرة واحدة عند الدخول (تلاشٍ هادئ) */}
+                                <ScrollReveal once y={16} className="space-y-6 text-foreground/80">
                                         <p>نحن في الربط الذكي | Smart Menu نلتزم بحماية خصوصيتك. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p>
                                         <h2 className="text-foreground text-xl font-semibold mt-8">المعلومات التي نجمعها</h2>
                                         <ul className="list-disc ps-5 space-y-2">
@@ -57,7 +64,7 @@ export default function PrivacyPage() {
                                         <h2 className="text-foreground text-xl font-semibold mt-8">اتصل بنا</h2>
                                         <p>للاستفسارات المتعلقة بالخصوصية، يرجى التواصل عبر واتساب أو البريد الإلكتروني المسجل.</p>
                                         <p className="text-sm mt-12">آخر تحديث: يونيو 2026</p>
-                                </div>
+                                </ScrollReveal>
                         </div>
                         <Footer />
                 </div>

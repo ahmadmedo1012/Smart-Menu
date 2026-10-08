@@ -731,3 +731,165 @@ describe('r127 consumption gates — micro-typography tokens are actually consum
     expect((srcTextR127.match(/\btext-3xs\b/g) ?? []).length).toBeGreaterThanOrEqual(40);
   });
 });
+
+// ── r128-F5 landing Orbit-Ink layer pins (PORT-KIT §1/§3/§7; F1a/F1b) ────────
+// The landing world lives in src/app/landing.css, scoped `.landing` (kit §7
+// discipline: everything behind the wrapper, product tokens untouched). These
+// pins lock the PORT-KIT contract so a future edit can't silently drift the
+// layer: the §1 token block VERBATIM (grounds, accents, hairlines, grain,
+// pill/h1, t/ease aliases, marquee duration), the §3 marquee seam math, the
+// --sp scrub consumers, the canonical scroll-spy selectors (the Madarek
+// source shipped them mangled — this port must never regress to that), the
+// grain veil, the RM off-switch, and the SCOPE ISOLATION: no --ln-* token may
+// ever leak into a product surface, and landing.css may be imported by the
+// landing page alone.
+
+const landingCssRaw = readFileSync('src/app/landing.css', 'utf8');
+const landingCss = landingCssRaw.replace(/\/\*[\s\S]*?\*\//g, ' ');
+
+// merge ALL top-level `.landing` blocks in cascade order (the R6 additions
+// overlay the §1 token block; parseDecls keeps the last write per token)
+const landingBlocks = allTopLevelBlocks(landingCss, '.landing');
+const landingDecls: Record<string, string> = {};
+for (const block of landingBlocks) Object.assign(landingDecls, parseDecls(block));
+const landingTokenBlock = landingBlocks.find((b) => b.includes('--ln-ink'));
+
+/** plain (non-custom) declaration lookup inside one rule block */
+function decl(block: string | undefined, prop: string): string | undefined {
+  if (!block) return undefined;
+  const m = block.match(new RegExp(`${prop}\\s*:\\s*([^;]+);`));
+  return m?.[1].trim();
+}
+const landingRule = (selector: string) =>
+  allTopLevelBlocks(landingCss, selector)[0];
+
+describe('r128 parity — landing Orbit-Ink token block (PORT-KIT §1 verbatim)', () => {
+  it.each([
+    ['--ln-ink', '#252A3E'],
+    ['--ln-ink-2', '#1C2032'],
+    ['--ln-cream', '#F5F3E7'],
+    ['--ln-cream-dim', '#C9C6B4'],
+    ['--ln-lime', '#DFEDB2'],
+    ['--ln-lime-deep', '#B9D778'],
+    ['--ln-violet', '#7A6BF2'],
+    ['--ln-violet-deep', '#4E2FB8'],
+    ['--ln-line', 'rgba(245,243,231,0.14)'],
+    ['--ln-line-soft', 'rgba(245,243,231,0.07)'],
+    ['--ln-grain-op', '0.05'],
+    ['--ln-radius-pill', 'var(--r-full)'],
+    ['--ln-h1', 'clamp(2.75rem, 8.2vw, 6.75rem)'],
+    ['--ln-h1-lh', '1.04'],
+    ['--ln-t-fast', 'var(--t-fast)'],
+    ['--ln-t-base', 'var(--t-base)'],
+    ['--ln-t-slow', 'var(--t-slow)'],
+    ['--ln-t-cinema', 'var(--t-cinema)'],
+    ['--ln-t-reveal', 'var(--motion-duration-reveal)'],
+    ['--ln-ease', 'var(--ease)'],
+    ['--ln-ease-out', 'var(--ease-out)'],
+    ['--ln-ease-soft', 'var(--ease-soft)'],
+    ['--ln-ease-spring', 'var(--ease-spring)'],
+    ['--ln-ease-linear', 'var(--ease-linear)'],
+    ['--ln-dur-marquee', '42s'],
+  ])('%s = %s', (token, expected) => {
+    expect(landingDecls[token], `landing.css ${token} drifted from PORT-KIT §1`).toBe(
+      expected
+    );
+  });
+
+  it('.landing base paints Orbit-Ink in both themes (R4: background var(--ln-ink) / color var(--ln-cream))', () => {
+    expect(decl(landingTokenBlock, 'background')).toBe('var(--ln-ink)');
+    expect(decl(landingTokenBlock, 'color')).toBe('var(--ln-cream)');
+  });
+
+  it('.ln-hero-title rides the --ln-h1 clamp + --ln-h1-lh line-height', () => {
+    const hero = landingRule('.landing .ln-hero-title');
+    expect(decl(hero, 'font-size')).toBe('var(--ln-h1)');
+    expect(decl(hero, 'line-height')).toBe('var(--ln-h1-lh)');
+  });
+});
+
+describe('r128 parity — landing marquee kit (PORT-KIT §3 + seam contract)', () => {
+  it('@keyframes ln-marquee: translateX(0) → translateX(calc(50% + 24px))', () => {
+    expect(landingCss).toMatch(
+      /@keyframes ln-marquee\s*{[^}]*from\s*\{[^}]*translateX\(0\)[^}]*}\s*to\s*\{[^}]*translateX\(calc\(50% \+ 24px\)\)/
+    );
+  });
+
+  it('seam lockstep: track gap 48px + keyframe correction +24px (24 = HALF of 48)', () => {
+    const track = landingRule('.landing .ln-marquee-track');
+    expect(decl(track, 'gap')).toBe('48px');
+    expect(landingCss).toContain('translateX(calc(50% + 24px))');
+  });
+
+  it('track animation rides the token pair (ln-marquee var(--ln-dur-marquee) var(--ln-ease-linear) infinite)', () => {
+    expect(decl(landingRule('.landing .ln-marquee-track'), 'animation')).toBe(
+      'ln-marquee var(--ln-dur-marquee) var(--ln-ease-linear) infinite'
+    );
+  });
+
+  it('marquee band is flat: hairline border-block var(--ln-line) on ground var(--ln-ink), no gradient', () => {
+    const band = landingRule('.landing .ln-marquee');
+    expect(decl(band, 'border-block')).toBe('1px solid var(--ln-line)');
+    expect(decl(band, 'background')).toBe('var(--ln-ink)');
+    expect(landingCss.slice(landingCss.indexOf('.landing .ln-marquee {'))).not.toMatch(
+      /\.landing \.ln-marquee\s*{[^}]*gradient/
+    );
+  });
+
+  it('prefers-reduced-motion kills the marquee (animation: none off-switch)', () => {
+    const prmBlocks = allTopLevelBlocks(
+      landingCss,
+      '@media (prefers-reduced-motion: reduce)'
+    );
+    const off = prmBlocks.some(
+      (b) => b.includes('.landing .ln-marquee-track') && /animation:\s*none/.test(b)
+    );
+    expect(off, 'the marquee RM off-switch was lost').toBe(true);
+  });
+});
+
+describe('r128 parity — landing --sp scrub consumers + scroll-spy', () => {
+  it('.ln-journey-path-light scrubs stroke-dashoffset: calc(1 - var(--sp, 0))', () => {
+    expect(decl(landingRule('.landing .ln-journey-path-light'), 'stroke-dashoffset')).toBe(
+      'calc(1 - var(--sp, 0))'
+    );
+  });
+
+  it('--sp consumption scale: ≥60 var(--sp) readers in the landing layer (66 at r128-F1b)', () => {
+    expect((landingCss.match(/var\(--sp/g) ?? []).length).toBeGreaterThanOrEqual(60);
+  });
+
+  it.each(['trust', 'categories', 'journey', 'progress', 'restaurants', 'roles'])(
+    'scroll-spy: header[data-active-section="%s"] highlights .landing-nav-link[href="#%s"] in CANONICAL form',
+    (id) => {
+      // the Madarek source shipped these selectors mangled (missing "[h") and
+      // browsers dropped them wholesale — this pin guards the restored form
+      expect(landingCss).toContain(
+        `.landing header[data-active-section="${id}"] .landing-nav-link[href="#${id}"]`
+      );
+    }
+  );
+});
+
+describe('r128 parity — landing grain veil + scope isolation (kit §7)', () => {
+  it('.ln-grain veil: fixed, z-index 2000, opacity var(--ln-grain-op), 200px stitchable tile', () => {
+    const grain = landingRule('.landing .ln-grain');
+    expect(decl(grain, 'position')).toBe('fixed');
+    expect(decl(grain, 'z-index')).toBe('2000');
+    expect(decl(grain, 'opacity')).toBe('var(--ln-grain-op)');
+    expect(decl(grain, 'background-size')).toBe('200px 200px');
+  });
+
+  it('scope isolation: globals.css (the product token file) declares ZERO --ln-* tokens', () => {
+    expect(css.includes('--ln-'), 'a --ln-* token leaked into the product layer').toBe(
+      false
+    );
+  });
+
+  it('scope isolation: landing.css is imported ONLY by the landing page root', () => {
+    const importers = walkSrc('src').filter((p) =>
+      /import\s+['"][^'"]*landing\.css['"]/.test(raw(p))
+    );
+    expect(importers).toEqual(['src/components/landing/HomePage.tsx']);
+  });
+});

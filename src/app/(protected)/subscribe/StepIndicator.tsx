@@ -50,11 +50,11 @@ export function StepIndicator({
                                                         )}
                                                         aria-current={isActive ? 'step' : undefined}
                                                         aria-disabled={!clickable || undefined}
-							/* F-D/round91: step label span is hidden on mobile (hidden sm:block) and the
-								   number becomes a check icon once done → this button lost its accessible
-								   name on mobile deep-links (?plan=… starts at step 2; axe button-name
-								   critical). Name it explicitly. */
-							aria-label={`الخطوة ${toArabicNumber(i + 1)}: ${STEP_LABELS[s]}${isDone ? ' (مكتملة)' : isActive ? ' (الحالية)' : ''}`}
+                                                        /* F-D/round91: step label span is hidden on mobile (hidden sm:block) and the
+                                                                   number becomes a check icon once done → this button lost its accessible
+                                                                   name on mobile deep-links (?plan=… starts at step 2; axe button-name
+                                                                   critical). Name it explicitly. */
+                                                        aria-label={`الخطوة ${toArabicNumber(i + 1)}: ${STEP_LABELS[s]}${isDone ? ' (مكتملة)' : isActive ? ' (الحالية)' : ''}`}
                                                 >
                                                         <m.div
                                                                 initial={false}
@@ -62,10 +62,10 @@ export function StepIndicator({
                                                                 className={cn(
                                                                         'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-base',
                                                                         isActive
-                                                                                /* round94 (D/A8): هضبة saffron بمركز دائرة الخطوة (نمط زر flame)
-                                                                                   — الرقم espresso الممركز كان على منتصف المنحدر 4.58:1
-                                                                                   والآن على saffron الصرفة 8.97:1. */
-                                                                                ? 'bg-[linear-gradient(135deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso border-transparent shadow-lg shadow-orange/30 font-extrabold'
+                                                                                /* round94 (D/A8) → r128-F5: هضبة saffron صرفة مسطّحة
+                                                                                   (نص espresso 8.97:1) — التدرّج والظل أُزيلا (منع
+                                                                                   التدرّجات على الصفحات الثانوية). */
+                                                                                ? 'bg-[var(--c-saffron)] text-espresso border-transparent font-extrabold'
                                                                                 : isDone
                                                                                         /* r95: الخطوة المنجزة — نص أسطع (AA) */
                                                                                         ? 'bg-orange/15 text-accent-foreground border-orange/40'
