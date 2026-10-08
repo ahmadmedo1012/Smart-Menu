@@ -39,10 +39,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { colors } from "@/theme/colors";
 import { motion } from "@/theme/motion";
+import { bezierPoints, easings } from "@/theme/easings";
 
 // r127-F8: rung centralized in theme/motion (same value — zero behavior change).
 export const SHEET_DURATION_MS = motion.SLOW; // Madarek --t-slow (sheet enter/exit rung)
-const EASE_OUT = Easing.out(Easing.cubic);
+/** --ease-out (tokens.css:129) via the theme/easings SSOT — r130 W2-4
+ * (was Easing.out(Easing.cubic), a different easeOutCubic curve). */
+const EASE_OUT = Easing.bezier(...bezierPoints(easings.out));
 
 export interface AppBottomSheetHandle {
   /** Animate the sheet out (onClose fires after the exit animation). */

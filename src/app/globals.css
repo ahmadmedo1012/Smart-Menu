@@ -73,6 +73,8 @@
         /* External brand + semantic extensions */
         --color-whatsapp: var(--whatsapp);
         --color-whatsapp-deep: var(--whatsapp-deep);
+        /* r130 (W2-3): tokenized WhatsApp text ink (was raw #0b3d2e ×5) */
+        --color-whatsapp-ink: var(--whatsapp-ink);
         --color-espresso: var(--c-espresso);
         --color-bloom: var(--c-bloom);
 
@@ -133,15 +135,20 @@
         --text-3xs--line-height: 1.4;
         --text-2xs: 0.6875rem;  /* 11px */
         --text-2xs--line-height: 1.4;
-        --text-xs: 0.75rem;    /* 12px */
-        --text-sm: 0.875rem;   /* 14px */
-        --text-base: 1rem;     /* 16px */
-        --text-lg: 1.125rem;   /* 18px */
-        --text-xl: 1.25rem;    /* 20px */
-        --text-2xl: 1.5rem;    /* 24px */
-        --text-3xl: 1.875rem;  /* 30px */
-        --text-4xl: 2.25rem;   /* 36px */
-        --text-5xl: 3rem;      /* 48px */
+        /* r130 (W2-3, P0-5): the utility ladder is rebased onto the canonical
+           Madarek rungs — sm 13 (--fs-sm) · base 15 (--fs-body) · lg 17
+           (--fs-body-lg) · xl 22 (--fs-h2) · 2xl 30 (--fs-h1 = Madarek's own
+           --text-2xl, tokens.css:1040). 3xl stays on the 30px h1 rung it
+           always rendered (display sizes above it are untouched). */
+        --text-xs: 0.75rem;      /* 12px */
+        --text-sm: 0.8125rem;    /* 13px — canonical label size */
+        --text-base: 0.9375rem;  /* 15px — canonical body size */
+        --text-lg: 1.0625rem;    /* 17px — canonical body-lg */
+        --text-xl: 1.375rem;     /* 22px — canonical h2 */
+        --text-2xl: 1.875rem;    /* 30px — canonical h1 */
+        --text-3xl: 1.875rem;    /* 30px — shares the h1 rung (unchanged) */
+        --text-4xl: 2.25rem;     /* 36px */
+        --text-5xl: 3rem;        /* 48px */
 
         /* ── Font weights ── */
         /* r120 (U1-P1b): the custom --font-light/regular/medium/semibold/bold
@@ -151,22 +158,28 @@
          * semibold/medium on the site rendered as 400 (524 usages, live-proven).
          * Tailwind's defaults now provide the weight utilities again. */
 
-        /* ── Line heights ── */
+        /* ── Line heights — r130 (W2-3, P0-6): canonical Madarek §type —
+           --lh-snug 1.20 / --lh-base 1.65 (base.css:31 body leading). ── */
         --leading-none: 1;
         --leading-tight: 1.1;
-        --leading-snug: 1.3;
-        --leading-normal: 1.5;
+        --leading-snug: 1.2;
+        --leading-normal: 1.65;
         --leading-relaxed: 1.65;
 
-        /* ── Letter spacing ── */
-        --tracking-tight: -0.03em;
+        /* ── Letter spacing — r130: --ls-tight −0.022em (canonical, RTL
+           consumers are zeroed by the guard below either way) ── */
+        --tracking-tight: -0.022em;
         --tracking-normal: 0;
         --tracking-wide: 0.01em;
         --tracking-wider: 0.05em;
 
-        /* ── Easing tokens ── */
-        --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
-        --ease-smooth: cubic-bezier(0.16, 1, 0.2, 1);
+        /* ── Easing tokens — r130 (W2-3, P1-12): the duplicate @theme copies
+           conflicted with the :root values (utilities inlined (0.165,…)/(0.2,1)
+           while var() consumers read (0.22,…)/(0.3,1)). Both forks now spell
+           the ONE canonical settle curve (0.16, 1, 0.3, 1) = Madarek
+           --ease-out, so utilities and var() readers agree. ── */
+        --ease-out-quart: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 
         /* ── r126 (P4-F1 M3): motion-ladder bridge — named duration utilities.
            Tailwind's `--transition-duration-*` theme keys generate
@@ -258,9 +271,11 @@
            and snappy spring tiers. */
         --ease-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
         --ease-spring-snappy: cubic-bezier(0.5, 1.6, 0.4, 1);
-        /* family easing aliases remapped onto the Madarek curves */
+        /* family easing aliases remapped onto the Madarek curves — r130
+           (P1-12): --ease-out-quart joins --ease-smooth on the single
+           canonical settle curve (0.16,1,0.3,1); no more forked values. */
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);   /* = Madarek --ease-out */
-        --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1); /* = Madarek --ease-soft */
+        --ease-out-quart: cubic-bezier(0.16, 1, 0.3, 1);  /* = Madarek --ease-out (r130) */
         --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
         --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);     /* = Madarek --ease-out */
         /* semantic motion layer (Madarek §4.3) */
@@ -286,6 +301,59 @@
         /* r129 (missing token, canonical tokens.css:171): the standard
            hover lift register (-1px; hover-capable surfaces only). */
         --hover-lift: -1px;
+
+        /* ── r130 (W2-3, P1-9): interaction-state token family (canonical
+           tokens.css §state 239-266) — the vocabulary every primitive
+           re-drifts without. NOTE vs Madarek: --accent is the translucent
+           WASH here, so the fill/stroke/underline slots consume
+           --accent-solid (the SmartBot r129 remap pattern). Disabled
+           opacity is 0.55 — the .btn:disabled reality (components.css:311)
+           that wins over the tokens.css:243 spelling of 0.5. ── */
+        --state-button-hover-bg-shift: 4%;
+        --state-button-hover-translate: -1px;
+        --state-button-pressed-scale: 0.98;
+        --state-button-pressed-duration: var(--motion-duration-micro);
+        --state-button-disabled-opacity: 0.55;
+
+        --state-card-hover-elevation: 0 4px 12px rgb(0 0 0 / 0.06);
+        --state-card-hover-translate: -1px;
+        --state-card-hover-border: var(--rule-strong, var(--rule, var(--neutral-200)));
+        --state-card-pressed-scale: 0.99;
+        --state-card-selected-ring: inset 0 0 0 2px var(--accent-solid);
+        --state-card-disabled-opacity: 0.5;
+
+        --state-input-focus-ring: var(--state-focus-ring);
+        --state-input-focus-border: var(--accent-solid);
+        --state-input-error-border: var(--danger, #dc2626);
+        --state-input-disabled-opacity: 0.6;
+        --state-input-loading-cursor: progress;
+
+        --state-tab-active-indicator: 2px solid var(--accent-solid);
+        --state-tab-indicator-duration: var(--motion-duration-medium);
+        --state-tab-indicator-ease: var(--motion-ease-emphasized);
+
+        --state-link-hover-underline: 1.5px solid currentColor;
+
+        --state-loading-spinner-size: 1em;
+        --state-loading-spinner-stroke: 2px;
+        --state-loading-spinner-color: currentColor;
+
+        /* ── r130 (W2-3, P0-1 companion): canonical type-role extras —
+           metric rungs (22/30/44, tokens.css:90-92), the mono eyebrow
+           (12px, tokens.css:62) and the reference-bar cine display
+           clamps (tokens.css:56-58). KPI numerals + engineered labels
+           stop riding the generic text ladder. ── */
+        --fs-eyebrow: 12px;
+        --fs-metric-md: 22px;
+        --fs-metric-lg: 30px;
+        --fs-metric-xl: 44px;
+        --fs-cine-hero: clamp(56px, 9.2vw, 148px);
+        --fs-cine-xl: clamp(44px, 6.4vw, 104px);
+        --fs-cine-lg: clamp(34px, 4.6vw, 72px);
+        /* canonical leading names (tokens.css:106-108) — body consumes
+           --lh-base below; --lh-snug feeds the @theme snug rung. */
+        --lh-snug: 1.20;
+        --lh-base: 1.65;
         /* ── r126 (P4-F1 M3): ambient loop ladder (Madarek §4.3) — infinite
            decorative loops ONLY (never hover/press/entrance). The animate-*
            classes below now consume these bands instead of raw 1.4-18s
@@ -363,9 +431,12 @@
            ring color was already theme-scoped here + .light; the width/
            offset/shorthand/halo twins complete the set and are now CONSUMED
            by the global :focus-visible rule + the Input primitive halo
-           (audit D1: defined twice, consumed never). Ring clears 4.5:1 in
-           both themes (7.87:1 night / 10.29:1 cream). ── */
-        --state-focus-ring-color: var(--accent-strong); /* 7.87:1 */
+           (audit D1: defined twice, consumed never). r130 (W2-3, P1-3): the
+           DARK ring rides var(--accent-solid) #E9B44C (10.39:1) — the true
+           Madarek cascade (tokens.css:228 — the dark block never overrides
+           the shared --accent default); #C9962F was a fleet fork one shade
+           too dark. Light keeps --accent-strong #5C3416 (10.29:1). ── */
+        --state-focus-ring-color: var(--accent-solid); /* #E9B44C — 10.39:1 on night */
         --state-focus-ring-width: 2px;
         --state-focus-ring-offset: 2px;
         --state-focus-ring: 0 0 0 var(--state-focus-ring-width) var(--state-focus-ring-color);
@@ -456,7 +527,7 @@
         --destructive-foreground: #05070F;     /* void ink on luminous rose */
         --border: #1B2444;                     /* night hairline (was #211c18) */
         --input: #263052;                      /* night divider */
-        --ring: #C9962F;                       /* accent-strong focus ring — 7.87:1 */
+        --ring: #E9B44C;                       /* accent-solid focus ring — 10.39:1 (r130 canonical cascade) */
 
         /* Status — luminous night fills, dark ink text (Madarek §1.6) */
         --success: #7FD39A;                    /* was #23a136 */
@@ -497,9 +568,15 @@
         --c-espresso: #05070F;                 /* void ink — fg on gold fills (was #1a130b) */
         --c-bloom: #F0938F;                    /* rose-ink night */
 
-        /* External brand colors — theme-independent by definition */
+        /* External brand colors — theme-independent by definition.
+           r130 (W2-3, P2): --whatsapp-ink — the dark forest-green TEXT ink
+           for fills on the constant brand green (was the raw #0b3d2e ×5).
+           Per-theme values ride the nearest canonical mint-family shades:
+           night --c-mint-bg #0F241C (≈6.9:1 on #25D366) · light --c-mint-deep
+           #1F4F30 (≈4.6:1) — both AA on the fill. */
         --whatsapp: #25D366;                      /* WhatsApp official green */
         --whatsapp-deep: #20bd5a;                 /* WhatsApp pressed/hover green */
+        --whatsapp-ink: #0F241C;                  /* text on brand green — night */
 
         /* Device mockup materials — physical, theme-independent */
         --c-device-black: #0b0b0d;                /* iPhone black frame */
@@ -571,6 +648,13 @@
         --shadow-pop:     0 2px 4px rgba(2,4,12,0.55), 0 10px 28px rgba(2,4,12,0.62), 0 0 0 1px rgba(142,151,184,0.10);
         --shadow-modal:   0 12px 32px rgba(2,4,12,0.66), 0 32px 80px rgba(2,4,12,0.70), 0 0 0 1px rgba(142,151,184,0.12);
         --shadow-mockup:  0 1px 2px rgba(2,4,12,0.50), 0 12px 32px rgba(2,4,12,0.55), 0 32px 80px rgba(2,4,12,0.60), 0 0 0 1px rgba(142,151,184,0.10);
+        /* ── r130 (W2-3, P1-2): premium depth family (canonical tokens.css:596-598,
+           verbatim — Madarek defines it once for BOTH themes; soft multi-layer,
+           zero color glow). The primary Button + premium cards consume the pair;
+           -glow ships for the auth-card hover grammar. ── */
+        --shadow-card-premium:  0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04);
+        --shadow-card-premium-h: 0 4px 8px rgba(15,15,15,0.06), 0 12px 32px rgba(15,15,15,0.10), 0 4px 12px rgba(15,15,15,0.05);
+        --shadow-card-glow:     0 0 0 1px var(--accent-soft, rgba(37,99,235,0.08)), 0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08);
 }
 
 
@@ -736,6 +820,9 @@
         --orange: #B57438;
         --orange-foreground: #1A0F06;          /* accent-fg on copper (§1.5) */
         --orange-muted: rgba(181, 116, 56, 0.12);
+        /* WhatsApp ink — light: the mint-family deep (#1F4F30, 4.6:1 on the
+           constant brand green; canonical text-on-pastel shade). */
+        --whatsapp-ink: #1F4F30;
 
         /* Round83 — FeaturedShowcase scene accents (light theme) — kept */
         --showcase-accent-1: oklch(0.46 0.15 45);
@@ -990,8 +1077,11 @@ html.high-contrast :focus-visible {
                 background: var(--background);
                 color: var(--foreground);
                 /* Madarek §2.6: body rides the 15px body size (rem form so the
-                   high-contrast 112.5% root bump still scales it) */
+                   high-contrast 112.5% root bump still scales it) + the 1.65
+                   base leading (r130 W2-3, P0-6 — base.css:31; the utility
+                   ladder's --leading-normal now spells the same 1.65). */
                 font-size: var(--fs-body, 0.9375rem);
+                line-height: var(--lh-base, 1.65);
                 overflow-x: hidden;
                 overflow-x: clip;
                 /* r126 (P4-F1 M3): theme cross-fade rides the ladder (audit B6) */
@@ -1082,9 +1172,10 @@ html.high-contrast :focus-visible {
                 letter-spacing: 0;
         }
         /* Tracking stays legal ONLY on Latin-safe contexts — never on Arabic
-           (guard vs broken letter joins + the tracking overrides above). */
+           (guard vs broken letter joins + the tracking overrides above).
+           r130 (W2-3): −0.03em → the canonical --ls-tight −0.022em. */
         @supports (font-family: "Readex Pro") {
-                [dir="ltr"] h1, [dir="ltr"] h2, [dir="ltr"] h3 { letter-spacing: -0.03em; }
+                [dir="ltr"] h1, [dir="ltr"] h2, [dir="ltr"] h3 { letter-spacing: -0.022em; }
         }
 
         /* Madarek Arabic emphasis law (polish v22): no synthetic italics on
@@ -1113,7 +1204,11 @@ html.high-contrast :focus-visible {
                 transition: color var(--t-fast, 160ms) var(--ease);
         }
         a:hover {
-                color: var(--orange);
+                /* r130 (W2-3, P1-1 / SM-1): --accent-ink — 10.29:1 on cream
+                   (canonical base.css:69). The old var(--orange) #B57438 was
+                   3.65:1 in light — an AA fail on body-size links. Dark
+                   resolves #E9B44C (10.39:1), unchanged. */
+                color: var(--accent-ink);
         }
 }
 
@@ -1129,21 +1224,27 @@ html.high-contrast :focus-visible {
 
 .text-balance { text-wrap: balance; }
 
-/* Scrollbars — Madarek §1.16/§5.16: thin everywhere, token-driven thumbs
-   (night: mist rgba(142,151,184,.20); light: ink rgba(25,25,24,.16)). */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
+/* Scrollbars — r130 (W2-3, P1-5): the canonical Madarek recipe (polish.css:5200-
+   5212) — a 10px rail with a 2px-transparent-border thumb clipped to the
+   padding box (the floating-thumb look), radius var(--r-full), thumbs
+   token-driven (night: mist rgba(142,151,184,.20); light: ink rgba(25,25,24,.16)). */
+*::-webkit-scrollbar { inline-size: 10px; block-size: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
         background: var(--scrollbar-thumb);
-        border-radius: 99px;
+        border-radius: var(--r-full);
+        border: 2px solid transparent;
+        background-clip: padding-box;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); background-clip: padding-box; }
 * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
 
 ::selection {
-        /* Madarek §2.6: accent 28% mix */
-        background: color-mix(in srgb, var(--accent-foreground) 28%, transparent);
-        color: inherit;
+        /* r130 (W2-3, P1-6): canonical polish.css:5192-5195 — accent 28% mix
+           + the TEXT ink re-painted (inherit could strand muted text on the
+           tint). --accent-solid = #E9B44C night / #B57438 light. */
+        background: color-mix(in srgb, var(--accent-solid) 28%, transparent);
+        color: var(--foreground);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1438,7 +1539,8 @@ html.high-contrast :focus-visible {
                 transform var(--t-micro, 80ms) var(--ease);
 }
 /* Madarek §4.5/§5.4: hover lift (-2px) + border-strong + card-h shadow,
-   ONLY on real pointers; press = scale(0.995) with micro snap-back. */
+   ONLY on real pointers; press = var(--state-card-pressed-scale) (0.99)
+   with micro snap-back (r130 W2-3: unified on the canonical 0.99). */
 @media (hover: hover) and (pointer: fine) {
         .card-premium:hover {
                 transform: translateY(-2px);
@@ -1449,7 +1551,10 @@ html.high-contrast :focus-visible {
         }
 }
 .card-premium:active {
-        transform: scale(0.995);
+        /* r130 (W2-3, P1-7): unified on the canonical card press —
+           --state-card-pressed-scale 0.99 (tokens.css:248); the 0.995 fork
+           is retired. */
+        transform: scale(var(--state-card-pressed-scale, 0.99));
         transition-duration: var(--t-micro, 80ms);
 }
 

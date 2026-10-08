@@ -75,3 +75,17 @@ export function resolvePlexFamily(
   if (fontWeight === undefined || fontWeight === null) return fontFamily;
   return WEIGHT_TO_FAMILY[fontWeight] ?? PLEX_FAMILY;
 }
+
+/**
+ * r130 W2-4: the metric numeral rule as an RN style value — the twin of
+ * Madarek `--type-metric-feature-settings: 'tnum' 1, 'lnum' 1`
+ * (tokens.css:334). Prices, counts, order numbers and KPI values ride
+ * tabular lining figures so digits column-align and never reflow width
+ * mid-count. Apply via `fontVariant: METRIC_FONT_VARIANT` on metric <Text>
+ * styles (the landing trust band already rides IBM Plex Mono, which is
+ * tabular by design — this covers the product surfaces).
+ */
+export const METRIC_FONT_VARIANT: NonNullable<TextStyle["fontVariant"]> = [
+  "tabular-nums",
+  "lining-nums",
+];

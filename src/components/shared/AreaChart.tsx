@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useChartTokens } from '@/components/shared/chart-tokens';
 
 interface DataPoint {
         label: string;
@@ -12,6 +13,8 @@ interface DataPoint {
 interface AreaChartProps {
         data: DataPoint[];
         height?: number;
+        /** Stroke color override. Defaults to the theme-aware --chart-1 token
+         * (r130 W2-3, P0-4 — was the hardcoded night gold #E9B44C). */
         color?: string;
         gradientId?: string;
         className?: string;
@@ -33,13 +36,19 @@ interface TooltipState {
 export function AreaChart({
         data,
         height = 200,
-        color = '#E9B44C', // Madarek gold accent stroke (default; callers may override)
+        color,
         gradientId = 'area-gradient',
         className,
         showAxis = true,
         ariaLabel,
 }: AreaChartProps) {
         const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+        // r130 (W2-3, P0-4): stroke + gradient stops ride the draw-time chart
+        // tokens — --chart-1 (copper-ink chain) for the stroke, --accent-hover
+        // (copper-deep/hover chain) for the top stop — so the chart follows
+        // the theme (was: hardcoded night golds #E9B44C/#F5D48A).
+        const tokens = useChartTokens();
+        const stroke = color ?? tokens.chart1;
 
         if (data.length === 0) return null;
 
@@ -72,8 +81,8 @@ export function AreaChart({
                         >
                                 <defs>
                                         <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
-                                                <stop offset="0%" stopColor="#F5D48A" stopOpacity={0.35} />
-                                                <stop offset="100%" stopColor="#E9B44C" stopOpacity={0.05} />
+                                                <stop offset="0%" stopColor={tokens.accentHover} stopOpacity={0.35} />
+                                                <stop offset="100%" stopColor={stroke} stopOpacity={0.05} />
                                         </linearGradient>
                                 </defs>
 
@@ -108,7 +117,7 @@ export function AreaChart({
                                 <m.path
                                         d={linePath}
                                         fill="none"
-                                        stroke={color}
+                                        stroke={stroke}
                                         strokeWidth={2}
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -138,7 +147,7 @@ export function AreaChart({
                                                         cx={p.x}
                                                         cy={p.y}
                                                         r={3}
-                                                        fill={color}
+                                                        fill={stroke}
                                                         stroke="var(--background)"
                                                         strokeWidth={2}
                                                         initial={{ opacity: 0, scale: 0 }}
@@ -173,7 +182,7 @@ export function AreaChart({
                                 >
                                         <div className="rounded-md border border-border/40 bg-card/95 px-2.5 py-1.5 text-xs shadow-lg backdrop-blur-xl whitespace-nowrap">
                                                 <p className="font-medium text-foreground">{tooltip.label}</p>
-                                                <p className="text-muted-foreground tabular-nums" style={{ color }}>
+                                                <p className="text-muted-foreground tabular-nums" style={{ color: stroke }}>
                                                         {tooltip.value}
                                                 </p>
                                         </div>

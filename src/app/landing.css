@@ -117,10 +117,12 @@
 
 /* technical section label — «01 — رحلة المطعم». Direction-neutral
    (inherits RTL) so the Latin numeral opens the reading; tabular
-   numerals keep the indexes aligned across chapters. (The source's
-   P4-18 ::before radial-gradient halo is NOT ported — kit §7 bans
-   gradients/glow; the label reads through contrast alone.) */
+   numerals keep the indexes aligned across chapters.
+   r130 (W2-3, P2): the source's P4-18 ::before radial halo IS ported
+   (verbatim, landing.css:778-788) — the ONE sanctioned label glow; the
+   kit §7 gradient ban never covered the reference's own anchor verb. */
 .landing .ln-label {
+  position: relative;
   display: block;
   font-family: var(--ln-mono);
   font-size: 12px;
@@ -131,6 +133,16 @@
   direction: inherit;
   margin-block-end: 14px;
 }
+.landing .ln-label::before {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+  background: radial-gradient(ellipse at center, var(--ln-lime) 0%, transparent 70%);
+  opacity: 0.12;
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: -1;
+}
 
 .landing .marketing-container {
   max-inline-size: var(--marketing-max-w);
@@ -139,11 +151,24 @@
 }
 
 /* chapter rhythm (Madarek landing.css:767-824) — shared section chrome
-   consumed by Stage B sections. 96–140 rhythm, bottom hairline. */
+   consumed by Stage B sections. 96–140 rhythm, bottom hairline.
+   r130 (W2-3, P2): the P4-17 scroll-scrub fade IS ported (verbatim,
+   landing.css:2051-2062) — chapters ease on --t-slow/soft and a faint
+   ink-2 wash breathes in with --sp (calc(var(--sp, 0) * 0.5); sections
+   without the scrub hook default to 0 = no wash). */
 .landing .ln-chapter {
   position: relative;
   padding: clamp(96px, 12vh, 140px) var(--page-gutter);
   border-block-end: 1px solid var(--ln-line-soft);
+  transition: opacity var(--t-slow) var(--ease-soft);
+}
+.landing .ln-chapter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(28,32,50,0.04) 50%, transparent 100%);
+  pointer-events: none;
+  opacity: calc(var(--sp, 0) * 0.5);
 }
 .landing .ln-chapter-head {
   max-inline-size: 1280px;
@@ -334,9 +359,10 @@
 
 /* ── 4 · button families (Madarek landing.css:371-487 verbatim) ──────
    gold = lime fill with ink text, hover lifts; ghost = hairline pill;
-   text = quiet tertiary. (The source's P3-25 ::after radial-gradient
-   sheen on .ln-btn-gold is NOT ported — kit §7 bans gradients/glow;
-   the lift stays, carried by the canonical shadow + translate.) */
+   text = quiet tertiary. r130 (W2-3, P0-3): the source's P3-25 ::after
+   radial sheen on .ln-btn-gold IS ported (verbatim, landing.css:421-431)
+   — the kit §7 blanket gradient ban never covered the reference's own
+   conversion-pill treatment. */
 .landing .ln-btn-gold,
 .landing .ln-btn-ghost,
 .landing .ln-btn-text {
@@ -384,6 +410,20 @@
 .landing .ln-btn-gold:active {
   transform: translate(var(--mag-x, 0), calc(var(--mag-y, 0) + 1px));
 }
+/* Premium glow — world-class button depth on hover (canonical P3-25,
+   Madarek landing.css:421-431): a soft white radial from the top edge,
+   opacity 0 → 1 on the fast standard ease. */
+.landing .ln-btn-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease);
+  pointer-events: none;
+}
+.landing .ln-btn-gold:hover::after { opacity: 1; }
 .landing .ln-btn-gold.xl { padding: 12px 34px; font-size: 16px; min-block-size: 48px; }
 
 /* the outline pill — transparent, 1px hairline, faint tracking; hover is
@@ -434,8 +474,7 @@
 /* ── chrome completion (r128-F1b) — canonical press recipe (PORT-KIT §4
    press: translate + scale .97 @ 80ms, R8) + nav-link svg transition,
    verbatim from the canonical buttons family; the later cascade resolves
-   the gold press in favor of the scale form (R6). The P3-25 ::after
-   radial sheen stays OMITTED (§7 bans gradients — F1a ruling). ─────── */
+   the gold press in favor of the scale form (R6). ─────── */
 .landing .landing-nav-link svg { transition: transform var(--ln-t-fast) var(--ln-ease-out); }
 
 .landing .ln-btn-gold:active,
@@ -601,10 +640,10 @@
 
 /* ── 2 · HERO — «المدار»: flat sky, cream monolith ───────────────────
    canonical landing.css:520-718. The canonical word-stagger reveal
-   (.ln-w / per-line reveal-up) is intentionally NOT ported: this repo's
-   LCP doctrine (r8/r9, measured twice) requires the h1 AND hero sub to
-   paint instantly, server-rendered inline — the entrance cascade lives
-   on the eyebrow/actions/meta around them. */
+   (.ln-w / per-line reveal-up) IS ported as of r130 (W2-3, P0-2):
+   the h1 words paint server-rendered inline at opacity 0 (content is
+   in the SSR HTML — LCP doctrine intact), the observer adds .in-view
+   on the first effect tick above the fold. */
 .landing .ln-hero {
   position: relative;
   min-block-size: max(680px, 100svh);
@@ -673,7 +712,9 @@
 .landing .ln-hero-eyebrow .ln-mono { font-size: 12.5px; }
 
 /* the monolith — flat cream, one lime word, zero tracking games.
-   r129 P2 (measure, canonical P4-10 effective): 20ch display measure. */
+   r130 (W2-3, P1-10): the canonical narrow silhouette is restored —
+   13ch display measure (Madarek landing.css:593), replacing the r129
+   20ch deviation; the sub drops to the canonical 52ch (:637). */
 .landing .ln-hero-title {
   margin: 0 0 var(--sp-7);
   font-size: var(--ln-h1);
@@ -681,12 +722,37 @@
   font-weight: var(--fw-bold);
   letter-spacing: 0; /* Arabic joins — never negative tracking */
   color: var(--ln-cream);
-  max-inline-size: 20ch;
+  max-inline-size: 13ch;
   text-wrap: balance;
   /* P3-26 (canonical): subtle text depth on dark ink ground */
   text-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15);
 }
 .landing .ln-hero-line { display: block; }
+.landing .ln-hero-title .ln-hero-line.reveal-up { transform: translateY(26px); }
+
+/* r130 (W2-3, P0-2): the word stagger — canonical Madarek landing.css:601-619
+   verbatim. Transform + opacity only (no blur filter, no layer pinning: the
+   transition promotes for its 720ms and releases); each word rides
+   calc(--ln-wi × 85ms) on the cinema transform + slow opacity, both on the
+   canonical settle ease. `.in-view` is written by the RevealCssClass observer
+   on the LINE (useReveal), so the entrance fires per line. */
+.landing .ln-hero-title .ln-w {
+  display: inline-block;
+  transform: translateY(0.3em);
+  opacity: 0;
+  transition:
+    transform var(--ln-t-cinema) var(--ln-ease-out),
+    opacity var(--ln-t-slow) var(--ln-ease-out);
+  transition-delay: calc(var(--ln-wi, 0) * 85ms);
+}
+.landing .ln-hero-title .ln-hero-line.in-view .ln-w {
+  transform: translateY(0);
+  opacity: 1;
+}
+.landing .ln-hero-title .ln-w:nth-child(1) { --ln-wi: 0; }
+.landing .ln-hero-title .ln-w:nth-child(2) { --ln-wi: 1; }
+.landing .ln-hero-title .ln-w:nth-child(3) { --ln-wi: 2; }
+.landing .ln-hero-title .ln-w:nth-child(4) { --ln-wi: 3; }
 
 /* accent words — the hero carries exactly ONE lime word (.ln-hero-gold);
    a plain <em> stays cream so the accent stays single. */
@@ -704,7 +770,7 @@
 
 .landing .ln-hero-sub {
   margin: 0 0 var(--sp-9);
-  max-inline-size: 72ch; /* r129 P2 (canonical P4-10 effective measure) */
+  max-inline-size: 52ch; /* r130 (W2-3): canonical Madarek landing.css:637 */
   font-size: clamp(16px, 1.5vw, 17.5px);
   line-height: 1.6;
   color: var(--ln-cream-dim);
@@ -741,16 +807,17 @@
 
 /* scroll invitation — physical centering is direction-neutral. The fold
    anchor (canonical P1-6): 100% tracks the hero's REAL height, 100svh
-   is the fold, +134px = fixed chrome + breathing room. The +134 offset
-   assumes a 39px strip + 69px header above the hero; Smart-Link has no
-   ministry strip, so +95px keeps the invite 26px above the fold at
-   first paint on 800/900/937/1080-height laptops. */
+   is the fold, +134px = 108px fixed chrome (39px strip + 69px header)
+   + 26px breathing room. r130 (W2-3, P1-9): the +95px Smart-Link
+   adaptation is retired — the canonical +134px offset ships (Madarek
+   landing.css:686), so the invite rides 26px above the fold at first
+   paint exactly like the reference. */
 .landing .ln-hero-scroll {
   position: absolute;
   left: 50%;
   translate: -50% 0;
   bottom: 26px; /* svh-less fallback */
-  bottom: calc(100% - 100svh + 95px);
+  bottom: calc(100% - 100svh + 134px);
   display: grid;
   justify-items: center;
   gap: 10px;
@@ -1651,6 +1718,15 @@
   /* Arabic leading: ≥1.15 on mobile */
   .landing .ln-hero-title { line-height: 1.18; max-inline-size: none; }
 
+  /* r130 (W2-3, P0-2): word entrance = opacity only, 320ms — no travel,
+  no overlap (canonical Madarek landing.css:1687-1693). */
+  .landing .ln-hero-title .ln-w {
+    transform: none;
+    transition: opacity var(--motion-duration-page) var(--ln-ease-out);
+    transition-delay: calc(var(--ln-wi, 0) * 40ms);
+  }
+  .landing .ln-hero-title .ln-hero-line.reveal-up { transform: translateY(10px); }
+
   /* footer: single column + 1px dividers */
   .landing .landing-footer-grid { grid-template-columns: 1fr; gap: 0; }
   .landing .landing-footer-col { padding-block: var(--sp-5); border-block-end: 1px solid var(--ln-line-soft); gap: var(--sp-4); }
@@ -1693,6 +1769,10 @@
 @media (prefers-reduced-motion: reduce) {
   .landing .ln-hero-canvas { animation: none; opacity: var(--ln-canvas-op, 1); }
   .landing .ln-hero-scroll-line::after { animation: none; }
+  /* r130 (W2-3, P0-2): the word stagger dies without hiding content —
+     canonical Madarek landing.css:1800-1801. */
+  .landing .ln-hero-title .ln-hero-line.reveal-up { transform: none; }
+  .landing .ln-hero-title .ln-w { transition: none; transform: none; opacity: 1; }
   .landing .ln-journey-path-light { stroke-dashoffset: 0; }
   /* P3-21/P2-13 bespoke verbs: all off — the chart plots instantly, the
      finale stands still */
@@ -1830,9 +1910,16 @@ body:has(> .landing) > a[href="#main-content"] {
    with the Madarek mount: depth layer → canvas → horizon span); the
    returning-visitor calm (HomePage sets data-intro-seen from the
    product-scoped sessionStorage key) drops the canvas entrance to
-   t-fast with zero delay. */
+   t-fast with zero delay. r130 (W2-3, P0-2): the calm-title rules ship
+   too (canonical landing.css:721-725) — returning visitors get a 12px
+   lift + 40ms word delays instead of the full 26px/85ms performance. */
 .landing .ln-hero-horizon { display: none; }
 .landing[data-intro-seen='true'] .ln-hero-canvas {
   animation-duration: var(--ln-t-fast);
   animation-delay: 0s;
+}
+.landing[data-intro-seen='true'] .ln-hero-title .ln-hero-line.reveal-up { transform: translateY(12px); }
+.landing[data-intro-seen='true'] .ln-hero-title .ln-w {
+  transition-duration: var(--motion-duration-page);
+  transition-delay: calc(var(--ln-wi, 0) * 40ms);
 }

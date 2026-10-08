@@ -595,18 +595,18 @@ export function OrderDialog({
                                                     أخضر واتساب كان 1.98:1 فقط؛ الأخضر الداكن يعطي 6.15:1. */}
                                                 <button
                                                         type="button"
-                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-[#0b3d2e] flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-whatsapp-ink flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         onClick={handleConfirm}
                                                         disabled={submitting || !restaurantWhatsapp}
                                                 >
                                                         {submitting ? (
                                                                 <span className="flex items-center gap-2">
-                                                                        <span className="size-4 rounded-full border-2 border-[#0b3d2e]/40 border-t-[#0b3d2e] animate-spin" />
+                                                                        <span className="size-4 rounded-full border-2 border-whatsapp-ink/40 border-t-whatsapp-ink animate-spin" />
                                                                         جاري...
                                                                 </span>
                                                         ) : (
                                                                 <>
-                                                                        <AnimatedMessageCircle className="size-5 text-[#0b3d2e]" /> أضف إلى السلة
+                                                                        <AnimatedMessageCircle className="size-5 text-whatsapp-ink" /> أضف إلى السلة
                                                                 </>
                                                         )}
                                                 </button>

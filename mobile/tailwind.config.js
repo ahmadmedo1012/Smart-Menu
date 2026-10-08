@@ -17,13 +17,17 @@ module.exports = {
         // r126-M9: legacy flame/ember/saffron aliases deleted (zero class
         // consumers — only Button's dead `flame` variant referenced them).
         brand: {
-          // gold accent ramp anchored on canonical values:
-          // 200 = accent-hover/pale #F5D48A · 500 = accent #E9B44C ·
-          // 600 = accent-strong #C9962F (was the flame #bc4700 ramp)
-          DEFAULT: "#E9B44C",
-          50: "#FCF3DE", 100: "#F8E5BC", 200: "#F5D48A", 300: "#EFC46B",
-          400: "#EABF5D", 500: "#E9B44C", 600: "#C9962F", 700: "#AB7C28",
-          800: "#8A6420", 900: "#6A4B18",
+          // r130 W2-4: canonical Madarek accent vocabulary ONLY (audit W1-C
+          // P2-19 — "invents a 50-900 gold ramp"). Madarek carries exactly
+          // accent #E9B44C / accent-hover #F5D48A (= copper-deep dark,
+          // tokens.css:712,750) / accent-strong #C9962F; the old 50/100/300/
+          // 400/700/800/900 steps were off-token interpolations with zero
+          // className consumers (only bg-brand-500 exists in src/).
+          // Kept keys mirror the parity pins (tests/design/parity.mjs TW_BRAND).
+          DEFAULT: "#E9B44C",   // --accent / --accent-solid
+          200: "#F5D48A",       // --accent-hover (= copper-deep dark #F5D48A)
+          500: "#E9B44C",       // --accent (bg-brand-500 consumers)
+          600: "#C9962F",       // --accent-strong
         },
         background: "#070B16",        // night page ground
         foreground: "#F2EFE6",        // warm sand ink
@@ -61,7 +65,14 @@ module.exports = {
         out: "cubic-bezier(0.16, 1, 0.3, 1)",
         soft: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
-      spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, "2xl": 48, "3xl": 64, "4xl": 96 },
+      // r130 W2-4: spacing mirror snapped to the canonical --sp-* rungs
+      // (audit W1-C P2-20 — "3xl: 64 is not a Madarek rung"). Named steps
+      // map onto tokens.css:19-22: xs=sp1 4 · sm=sp2 8 · md=sp4 16 ·
+      // lg=sp6 24 · xl=sp7 32 · 2xl=sp9 48 · 3xl=sp11 72 (was the invented
+      // 64 — canonical neighbors are sp10 56 / sp11 72; 72 keeps the
+      // 48→72→96 ladder even) · 4xl=sp12 96. The full ladder lives in
+      // src/theme/spacing.ts (sp1…sp16, pinned by tests/design/parity.mjs).
+      spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, "2xl": 48, "3xl": 72, "4xl": 96 },
     },
   },
   plugins: [],

@@ -19,6 +19,7 @@ import Animated from "react-native-reanimated";
 import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
 import { colors } from "@/theme/colors";
+import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
 export function SubscribePlanScreen() {
   const navigation = useNavigation<RootNavigation>();
@@ -69,11 +70,14 @@ export function SubscribePlanScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 140 + insets.bottom }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 16 }}>اختر باقتك</Text>
         {plans.map((p) => (
-          <PressableScale key={p.id} onPress={() => setSelectedId(p.id)} accessibilityState={{ selected: selectedId === p.id }} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? colors.gold : colors.hairline }}>
+          // r130 W2-4: plan CARD → --state-card-pressed-scale 0.99
+          // (tokens.css:248); the metric price rides tabular lining numerals
+          // (--type-metric-feature-settings 'tnum'/'lnum', tokens.css:334).
+          <PressableScale key={p.id} scaleTo={0.99} onPress={() => setSelectedId(p.id)} accessibilityState={{ selected: selectedId === p.id }} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? colors.gold : colors.hairline }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <View>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }}>{p.nameAr || p.name}</Text>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.gold, marginTop: 4 }}>{formatPrice(p.price)}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.gold, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(p.price)}</Text>
               </View>
               {selectedId === p.id ? (
                 <View style={{ width: 24, height: 24, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" }}>

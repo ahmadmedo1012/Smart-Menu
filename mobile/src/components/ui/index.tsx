@@ -19,7 +19,9 @@ export function EmptyState({ title, description, icon }: { title: string; descri
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
       {icon ? <View className="mb-4 opacity-60">{icon}</View> : null}
-      <Text className="text-lg font-semibold text-foreground text-center font-sans">{title}</Text>
+      {/* r130 W2-4: heading register — 700 (canonical h-weights; --fw-black
+          resolves 700, tokens.css:1069). Was font-semibold 600. */}
+      <Text className="text-lg font-bold text-foreground text-center font-sans">{title}</Text>
       {description ? <Text className="text-sm text-muted-foreground text-center mt-2 font-sans">{description}</Text> : null}
     </View>
   );
@@ -28,7 +30,8 @@ export function EmptyState({ title, description, icon }: { title: string; descri
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
-      <Text className="text-lg font-semibold text-destructive text-center font-sans">{message}</Text>
+      {/* r130 W2-4: heading register 700 (was 600) — see EmptyState note. */}
+      <Text className="text-lg font-bold text-destructive text-center font-sans">{message}</Text>
       {onRetry ? (
         <Pressable onPress={onRetry} accessibilityRole="button" className="mt-4 min-h-10 rounded-md bg-brand-500 px-4 items-center justify-center py-2">
           <Text className="text-on-accent font-sans font-semibold" maxFontSizeMultiplier={1.4}>إعادة المحاولة</Text>

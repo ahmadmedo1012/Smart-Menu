@@ -10,6 +10,7 @@ import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
 import { colors } from "@/theme/colors";
+import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
 export function OrderConfirmedScreen() {
   const route = useRoute();
@@ -47,7 +48,7 @@ export function OrderConfirmedScreen() {
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", lineHeight: 20, marginBottom: 4 }}>
           {waUrl ? "سُجّل طلبك — أرسله للمطعم عبر واتساب من الزر أدناه" : "تم إرسال طلبك عبر واتساب إلى المطعم"}
         </Text>
-        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold, fontWeight: "600", marginBottom: 32 }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
+        {displayId ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold, fontWeight: "600", marginBottom: 32, fontVariant: METRIC_FONT_VARIANT }}>رقم الطلب: {toArabicNumber(displayId)}</Text> : null}
         <View style={{ gap: 12, width: "100%" }}>
           {waUrl ? (
             <Button title="إرسال الطلب عبر واتساب" onPress={onSendWhatsApp} size="lg" className="w-full" />

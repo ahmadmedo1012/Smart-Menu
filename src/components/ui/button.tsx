@@ -5,83 +5,93 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
- * Premium button — Apple-quality shine sweep and ambient glow via pure CSS.
- * No JS event handlers, so the component is safe to render from Server
- * Components. The shine sweep is driven by a CSS :hover state on the
- * ::before pseudo-element (105° linear-gradient that crosses the button).
- * The ambient glow is a radial-gradient on ::after that lights up on hover.
- * Active state keeps the scale-[0.97] press feedback.
+ * Premium button — Madarek `.btn` recipe (components.css:266-311, r130 W2-3).
+ * Radius var(--r-md)=10px · label 13px/600 · default height 40px (lg 48,
+ * sm 32) · press scale(--press-scale 0.97) @t-fast on the standard --ease
+ * curve · disabled opacity 0.55. Solid variants hover with the canonical
+ * −2px lift + the neutral multi-layer --shadow-card-premium(-h) pair (no
+ * tinted glow). The sheen sweep (background-position band, 700ms stat
+ * duration on the decelerate curve — never a translateX pseudo, scrollWidth
+ * stays == clientWidth) rides the PRIMARY variant only. No JS event
+ * handlers, so the component stays Server-Component-safe.
  */
 const buttonVariants = cva(
-	"group/btn relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent font-sans text-sm font-bold whitespace-nowrap cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-[var(--t-fast,160ms)] ease-[var(--ease-out,cubic-bezier(0.16,1,0.3,1))] outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 min-h-11 min-w-11 isolate overflow-hidden before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(105deg,transparent_30%,oklch(1_0_0_/_0.22)_50%,transparent_70%)] before:-translate-x-full before:transition-transform before:duration-cinema before:ease-out hover:before:translate-x-full before:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:pointer-events-none after:bg-[radial-gradient(circle_at_50%_50%,oklch(1_0_0_/_0.16),transparent_45%)] after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-slower [&>*]:relative",
-	{
-		variants: {
-			variant: {
-				orange:
-					'bg-orange text-orange-foreground hover:bg-orange/95 shadow-md shadow-orange/25 hover:shadow-xl hover:shadow-orange/40 border-0 dark:shadow-orange/35 dark:hover:shadow-orange/50',
-				flame:
-					/* round94 (D/A8): هضبة saffron في منتصف التدرج (تقرير D: «يتدرّج من
-					   saffron مركز النص نحو ember عند الأطراف») — النص espresso الممركز
-					   كان يقف على منتصف المنحدر فقط (4.58:1 داكن حدّي) والآن على
-					   saffron الصرفة 8.97:1، مع إبقاء طرفي ember لهوية اللهب.
-					   r125 (10-a): الزاوية 135° → 145° — زاوية المعدن المداركية
-					   القياسية (unified-smart-parity --btn-primary-bg؛ نفس محاذاة
-					   text-gradient-orange/qr-corner في r8-a). المنحدر وسلسلة
-					   التباين (espresso على saffron) كما هي. */
-					'bg-[linear-gradient(145deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso hover:brightness-110 shadow-md shadow-orange/30 hover:shadow-2xl hover:shadow-orange/45 border-0 dark:hover:brightness-110',
-				outline:
-					'border-border/70 bg-transparent text-foreground hover:bg-foreground/5 hover:border-orange/40 hover:shadow-sm dark:hover:bg-foreground/10 dark:hover:border-orange/35',
-				ghost:
-					'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent dark:hover:bg-foreground/15',
-				destructive:
-					'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/15 dark:hover:bg-destructive/25',
-			},
-			size: {
-				sm: 'h-10 gap-1.5 px-3.5 text-xs',
-				default: 'h-12 gap-2 px-5 text-sm',
-				lg: 'h-14 gap-2.5 px-7 text-sm sm:text-base',
-				icon: 'size-12',
-			},
-		},
-		defaultVariants: {
-			variant: 'orange',
-			size: 'default',
-		},
-	}
+        "group/btn relative inline-flex shrink-0 items-center justify-center rounded-md border border-transparent font-sans text-sm font-semibold whitespace-nowrap cursor-pointer transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-[var(--t-fast,160ms)] ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))] outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] active:duration-[var(--t-micro,80ms)] disabled:pointer-events-none disabled:opacity-55 disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 isolate [&>*]:relative",
+        {
+                variants: {
+                        variant: {
+                                orange:
+                                        /* the primary — Madarek .btn.primary: neutral premium
+                                           elevation, −2px hover lift, and the ONE sheen sweep
+                                           (bg-position band, 300% wide, 160% → −60%, 700ms
+                                           decelerate). */
+                                        'bg-orange text-orange-foreground hover:bg-orange/95 border-0 overflow-hidden shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] transition-[box-shadow,transform,background-color,color] duration-[var(--t-base,240ms)] ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))] before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none before:bg-[linear-gradient(105deg,transparent_45%,color-mix(in_oklab,var(--neutral-50)_30%,transparent)_51%,transparent_55%)] before:bg-[length:300%_100%] before:bg-no-repeat before:bg-[position:160%_0] before:transition-[background-position] before:duration-[var(--motion-duration-stat,700ms)] before:ease-[var(--ease-out,cubic-bezier(0.16,1,0.3,1))] hover:before:bg-[position:-60%_0]',
+                                flame:
+                                        /* round94 (D/A8): هضبة saffron في منتصف التدرج (تقرير D: «يتدرّج من
+                                           saffron مركز النص نحو ember عند الأطراف») — النص espresso الممركز
+                                           كان يقف على منتصف المنحدر فقط (4.58:1 داكن حدّي) والآن على
+                                           saffron الصرفة 8.97:1، مع إبقاء طرفي ember لهوية اللهب.
+                                           r125 (10-a): الزاوية 135° → 145° — زاوية المعدن المداركية
+                                           القياسية (unified-smart-parity --btn-primary-bg؛ نفس محاذاة
+                                           text-gradient-orange/qr-corner في r8-a). المنحدر وسلسلة التباين
+                                           (espresso على saffron) كما هي. r130 (W2-3): الظلّ الملوّن
+                                           retired → رفع −2px + الظلّ الحيادي الممتاز. */
+                                        'bg-[linear-gradient(145deg,var(--c-ember),var(--c-saffron)_50%,var(--c-ember))] text-espresso hover:brightness-110 border-0 shadow-[var(--shadow-card-premium)] hover:-translate-y-[2px] hover:shadow-[var(--shadow-card-premium-h)] dark:hover:brightness-110',
+                                outline:
+                                        'border-border/70 bg-transparent text-foreground hover:bg-foreground/5 hover:border-orange/40 hover:shadow-sm dark:hover:bg-foreground/10 dark:hover:border-orange/35',
+                                ghost:
+                                        'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/10 border-transparent dark:hover:bg-foreground/15',
+                                destructive:
+                                        'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/15 dark:hover:bg-destructive/25',
+                        },
+                        size: {
+                                sm: 'h-8 gap-1.5 rounded-sm px-3 text-xs',
+                                default: 'h-10 gap-2 px-5 text-sm',
+                                /* lg label = --type-body-size 15px flat
+                                   (components.css:468) — the 13px mobile
+                                   split is retired (r130 W2-3). */
+                                lg: 'h-12 gap-2.5 px-6 text-base',
+                                icon: 'size-10',
+                        },
+                },
+                defaultVariants: {
+                        variant: 'orange',
+                        size: 'default',
+                },
+        }
 );
 
 function Button({
-	className,
-	variant = 'orange',
-	// "flame" (ember→saffron warm) is the signature CTA treatment — used in
-	// the QR-corner moments (menu order FAB, share card).
-	size = 'default',
-	loading = false,
-	'aria-label': ariaLabel,
-	children,
-	...props
+        className,
+        variant = 'orange',
+        // "flame" (ember→saffron warm) is the signature CTA treatment — used in
+        // the QR-corner moments (menu order FAB, share card).
+        size = 'default',
+        loading = false,
+        'aria-label': ariaLabel,
+        children,
+        ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & {
-	loading?: boolean;
-	'aria-label'?: string;
+        loading?: boolean;
+        'aria-label'?: string;
 }) {
-	return (
-		<ButtonPrimitive
-			data-slot="button"
-			className={cn(buttonVariants({ variant, size, className }))}
-			aria-label={ariaLabel}
-			aria-busy={loading}
-			disabled={loading || props.disabled}
-			{...props}
-		>
-			{loading && (
-				<Loader2 className="animate-spin size-4" aria-hidden="true">
-					<title>جاري التحميل</title>
-				</Loader2>
-			)}
-			{!loading && children}
-		</ButtonPrimitive>
-	);
+        return (
+                <ButtonPrimitive
+                        data-slot="button"
+                        className={cn(buttonVariants({ variant, size, className }))}
+                        aria-label={ariaLabel}
+                        aria-busy={loading}
+                        disabled={loading || props.disabled}
+                        {...props}
+                >
+                        {loading && (
+                                <Loader2 className="animate-spin size-4" aria-hidden="true">
+                                        <title>جاري التحميل</title>
+                                </Loader2>
+                        )}
+                        {!loading && children}
+                </ButtonPrimitive>
+        );
 }
 
 export { Button, buttonVariants };
-

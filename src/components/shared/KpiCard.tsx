@@ -41,7 +41,10 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
                 const start = performance.now();
                 const from = display;
                 const to = value;
-                const duration = 800;
+                /* r130 (W2-3, P2): 700ms — the canonical in-app stat moment
+                   (--motion-duration-stat, Madarek tokens.css:183); was the
+                   off-ladder 800ms literal. Curve stays easeOutCubic. */
+                const duration = 700;
 
                 function tick(now: number) {
                         if (!mounted.current) return;

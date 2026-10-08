@@ -425,9 +425,12 @@ describe('r127 parity — @theme micro-typography tokens (text-2xs/text-3xs)', (
 // ── r126: focus-ring contract (audit D1/D5 — the ONE focus language) ────────
 
 describe('r126 parity — focus-ring contract (§1.9, both themes)', () => {
-  it('dark: --ring #C9962F + --state-focus-ring-* 2px/2px + shorthand + input halo', () => {
-    pin(dark, 'focus-dark', '--ring', '#C9962F'); // --accent-strong, 7.87:1 on night
-    pin(dark, 'focus-dark', '--state-focus-ring-color', '#C9962F'); // resolves var(--accent-strong)
+  it('dark: --ring #E9B44C (r130 canonical cascade) + --state-focus-ring-* 2px/2px + shorthand + input halo', () => {
+    // r130 (W2-3, P1-3 / FLEET-1): the canonical Madarek cascade keeps the
+    // shared :root default --accent (#E9B44C) in dark — the old #C9962F was a
+    // fleet fork one shade darker than the reference night UI.
+    pin(dark, 'focus-dark', '--ring', '#E9B44C'); // --accent-solid, 10.39:1 on night
+    pin(dark, 'focus-dark', '--state-focus-ring-color', '#E9B44C'); // resolves var(--accent-solid)
     pin(dark, 'focus-dark', '--state-focus-ring-width', '2px');
     pin(dark, 'focus-dark', '--state-focus-ring-offset', '2px');
     pin(
@@ -435,8 +438,8 @@ describe('r126 parity — focus-ring contract (§1.9, both themes)', () => {
       'focus-dark',
       '--state-focus-ring',
       // pinned RESOLVED — proves the shorthand chain (width × color) resolves
-      // to the live 2px × --accent-strong ring in the dark cascade
-      '0 0 0 2px #C9962F'
+      // to the live 2px × --accent-solid ring in the dark cascade
+      '0 0 0 2px #E9B44C'
     );
     pin(
       dark,
@@ -679,11 +682,12 @@ const CONSUMPTION_GATES: ReadonlyArray<readonly [name: string, ok: () => boolean
     () => galleryRaw.includes('z-(--z-lightbox)'),
   ],
   [
-    'the Button primitive consumes the motion ladder (duration-[var(--t-fast)] + before:duration-cinema + after:duration-slower)',
+    'the Button primitive consumes the motion ladder + premium elevation (r130: duration-[var(--t-fast)] + before:duration-[var(--motion-duration-stat)] + the --shadow-card-premium pair)',
     () =>
       buttonRaw.includes('duration-[var(--t-fast,160ms)]') &&
-      buttonRaw.includes('before:duration-cinema') &&
-      buttonRaw.includes('after:duration-slower'),
+      buttonRaw.includes('before:duration-[var(--motion-duration-stat,700ms)]') &&
+      buttonRaw.includes('shadow-[var(--shadow-card-premium)]') &&
+      buttonRaw.includes('hover:shadow-[var(--shadow-card-premium-h)]'),
   ],
   [
     'the .stagger-1..4 utilities consume --motion-stagger-step (60ms × n)',
@@ -1040,9 +1044,9 @@ describe('r129 parity — P1: lime roster + mobile density + in-world focus', ()
 });
 
 describe('r129 parity — P2 value rows (measures · landscape · 1080 · depth · safe-area)', () => {
-  it('measures ride the canonical P4-10 effective values: hero-title 20ch / hero-sub 72ch / chapter-lede 72ch / cta-lede 72ch', () => {
-    expect(decl(landingRule('.landing .ln-hero-title'), 'max-inline-size')).toBe('20ch');
-    expect(decl(landingRule('.landing .ln-hero-sub'), 'max-inline-size')).toBe('72ch');
+  it('measures ride the canonical Madarek values: hero-title 13ch / hero-sub 52ch (r130 W2-3) · chapter-lede 72ch / cta-lede 72ch', () => {
+    expect(decl(landingRule('.landing .ln-hero-title'), 'max-inline-size')).toBe('13ch');
+    expect(decl(landingRule('.landing .ln-hero-sub'), 'max-inline-size')).toBe('52ch');
     expect(decl(landingRule('.landing .ln-chapter-lede'), 'max-inline-size')).toBe('72ch');
     expect(decl(landingRule('.landing .ln-cta-lede'), 'max-inline-size')).toBe('72ch');
   });
@@ -1167,13 +1171,18 @@ describe('r129 parity — hero-sky gradient allowlist + chrome locks (audit §7 
     expect(after).toContain('radial-gradient(ellipse at 70% 60%, rgba(245,243,231,0.02) 0%, transparent 60%)');
   });
 
-  it('gradient allowlist: ZERO gradient occurrences outside the five sanctioned sites (hero sky ×2, trust/footer scrims, constellation heart)', () => {
+  it('gradient allowlist: ZERO gradient occurrences outside the sanctioned sites (hero sky ×2, trust/footer scrims, constellation heart, CTA sheen, label halo, chapter wash)', () => {
     const ALLOWED = [
       '.landing .ln-hero-sky',
       '.landing .ln-hero-sky::after',
       '.landing .ln-trust::before',
       '.landing .landing-footer::before',
       '.landing .ln-constellation-stage',
+      // r130 (W2-3): the canonical Madarek verbs ported verbatim —
+      // P3-25 CTA sheen, P4-18 label halo, P4-17 chapter scrub wash.
+      '.landing .ln-btn-gold::after',
+      '.landing .ln-label::before',
+      '.landing .ln-chapter::before',
     ];
     const sites = new Set<string>();
     for (const m of landingCss.matchAll(/([^{}]+)\{[^{}]*gradient/g)) {
@@ -1383,5 +1392,274 @@ describe('r129 parity — token-matrix SM rows (5 misvalued + 8 missing → cano
   it('--gold-soft = the yellow bg chain (dark #2C2410 / light #FCF1CD)', () => {
     pin(dark, 'r129-dark', '--gold-soft', '#2C2410');
     pin(light, 'r129-light', '--gold-soft', '#FCF1CD');
+  });
+});
+
+// ── r130 (W2-3): product recipe pins — the canonical .btn recipe, the type
+// ladder, the chart token consumption gate, the hero word-stagger, the CTA
+// sheen, the canonical focus-ring values and the AA link hover. Sources:
+// madarek components.css:266-311 (.btn) · tokens.css:71-118 (type/leading/
+// tracking) · tokens.css:239-266 (§state) + 596-598 (premium shadows) ·
+// landing.css:601-619 (.ln-w) + 421-431 (::after sheen) · base.css:69
+// (a:hover accent-ink). ──────────────────────────────────────────────────────
+
+const chartGeometryRaw = raw('src/lib/chart-geometry.ts');
+const chartTokensRaw = raw('src/components/shared/chart-tokens.ts');
+const areaChartRaw = raw('src/components/shared/AreaChart.tsx');
+const doughnutRaw = raw('src/components/shared/DoughnutChart.tsx');
+const cardRaw = raw('src/components/ui/card.tsx');
+// comment-stripped chart-geometry — the retirement note mentions the old hex
+// roster; the pin must only see CODE.
+const chartGeometryCode = chartGeometryRaw
+  .replace(/\/\*[\s\S]*?\*\//g, ' ')
+  .replace(/^\s*\/\/.*$/gm, ' ');
+
+describe('r130 parity — P0 button recipe (Madarek components.css .btn)', () => {
+  it('radius/weight/label: rounded-md (10px) + font-semibold (600) + text-sm (13px rung) — no font-bold', () => {
+    const baseMatch = buttonRaw.match(/cva\(\s*`?([\s\S]*?)`?\s*,\s*\{\s*variants/);
+    const base = baseMatch?.[1] ?? '';
+    expect(base, 'the cva base string should be extractable').toContain('rounded-md');
+    expect(base).toContain('font-semibold');
+    expect(base).not.toContain('font-bold');
+    expect(base).toContain('text-sm');
+  });
+
+  it('size ladder: default h-10 (40px) · lg h-12 (48) · sm h-8 (32) · icon size-10 (square of default)', () => {
+    expect(buttonRaw).toContain("default: 'h-10");
+    expect(buttonRaw).toContain("lg: 'h-12");
+    expect(buttonRaw).toContain("sm: 'h-8");
+    expect(buttonRaw).toContain("icon: 'size-10'");
+  });
+
+  it('primary hover = canonical −2px lift + neutral premium shadow pair; sheen sweep ONLY on the primary variant', () => {
+    const orange = buttonRaw.split('orange:')[1]?.split(/,\s*\n\s*flame:/)[0] ?? '';
+    expect(orange).toContain('shadow-[var(--shadow-card-premium)]');
+    expect(orange).toContain('hover:-translate-y-[2px]');
+    expect(orange).toContain('hover:shadow-[var(--shadow-card-premium-h)]');
+    // no tinted glow anywhere in the primitive
+    expect(buttonRaw).not.toContain('shadow-orange/');
+    // the canonical bg-position sheen band lives in the primary variant only
+    expect(orange).toContain('before:bg-[length:300%_100%]');
+    expect(orange).toContain('before:bg-[position:160%_0]');
+    expect(orange).toContain('hover:before:bg-[position:-60%_0]');
+    // the retired translateX pseudo-sweep (scrollWidth overflow bug) is gone
+    expect(buttonRaw).not.toContain('before:-translate-x-full');
+    expect(buttonRaw).not.toContain('hover:before:translate-x-full');
+    // the ambient ::after glow pseudo is gone
+    expect(buttonRaw).not.toContain('after:bg-');
+  });
+
+  it('disabled opacity 0.55 (canonical .btn:disabled, components.css:311)', () => {
+    expect(buttonRaw).toContain('disabled:opacity-55');
+    expect(buttonRaw).not.toContain('disabled:opacity-50');
+  });
+});
+
+describe('r130 parity — P0 type ladder + leading (canonical rungs 13/15/17/22/30)', () => {
+  it('@theme text rungs: sm 13px / base 15px / lg 17px / xl 22px / 2xl 30px', () => {
+    expect(theme['--text-sm']).toBe('0.8125rem');
+    expect(theme['--text-base']).toBe('0.9375rem');
+    expect(theme['--text-lg']).toBe('1.0625rem');
+    expect(theme['--text-xl']).toBe('1.375rem');
+    expect(theme['--text-2xl']).toBe('1.875rem');
+  });
+
+  it('leading: normal 1.65 / snug 1.20 (canonical --lh-base/--lh-snug) + body inherits 1.65', () => {
+    expect(theme['--leading-normal']).toBe('1.65');
+    expect(theme['--leading-snug']).toBe('1.2');
+    pin(dark, 'r130', '--lh-base', '1.65');
+    pin(dark, 'r130', '--lh-snug', '1.20');
+    expect(globalsRaw).toContain('line-height: var(--lh-base, 1.65)');
+  });
+
+  it('tracking tight −0.022em (canonical --ls-tight) + the LTR heading guard matches', () => {
+    expect(theme['--tracking-tight']).toBe('-0.022em');
+    expect(globalsRaw).not.toContain('letter-spacing: -0.03em');
+  });
+});
+
+describe('r130 parity — P0 charts consume the --chart-* token series (theme-aware)', () => {
+  it('chart-geometry.ts is pure geometry: ZERO raw hex/oklch palette literals (SERIES_PALETTE retired)', () => {
+    expect(chartGeometryCode).not.toContain('SERIES_PALETTE =');
+    expect(chartGeometryCode).not.toMatch(/#[0-9a-fA-F]{6}\b/);
+    expect(chartGeometryCode).not.toMatch(/oklch\(/);
+  });
+
+  it('chart-tokens.ts reads --chart-1..8 + --chart-1/--accent-hover at draw-time (night fallbacks only)', () => {
+    expect(chartTokensRaw).toContain('--chart-${i + 1}');
+    expect(chartTokensRaw).toContain('read("--chart-1"');
+    expect(chartTokensRaw).toContain('read("--accent-hover"');
+    // the 6th series is the --chart-6 night value, not the ad-hoc oklch
+    expect(chartTokensRaw).toContain('"#F2C766"');
+    expect(chartTokensRaw).not.toContain('oklch(0.52');
+  });
+
+  it('DoughnutChart consumes the token series roster (no SERIES_PALETTE import)', () => {
+    expect(doughnutRaw).not.toContain('SERIES_PALETTE');
+    expect(doughnutRaw).toContain('tokens.series');
+  });
+
+  it('AreaChart rides the tokens: no #E9B44C/#F5D48A literals; stroke --chart-1 + top stop --accent-hover', () => {
+    // comment-stripped — the provenance notes name the retired literals
+    const areaChartCode = areaChartRaw
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/^\s*\/\/.*$/gm, ' ');
+    expect(areaChartCode).not.toContain('#E9B44C');
+    expect(areaChartCode).not.toContain('#F5D48A');
+    expect(areaChartCode).toContain('tokens.chart1');
+    expect(areaChartCode).toContain('tokens.accentHover');
+  });
+});
+
+describe('r130 parity — P0 landing hero word-stagger + CTA sheen (Madarek landing.css:601-619 / 421-431)', () => {
+  it('.ln-w word stagger: translateY(0.3em) → in-view, 85ms/word delay, cinema transform + slow opacity', () => {
+    const w = landingRule('.landing .ln-hero-title .ln-w');
+    expect(decl(w, 'display')).toBe('inline-block');
+    expect(decl(w, 'transform')).toBe('translateY(0.3em)');
+    expect(decl(w, 'opacity')).toBe('0');
+    expect(w).toContain('transform var(--ln-t-cinema) var(--ln-ease-out)');
+    expect(w).toContain('opacity var(--ln-t-slow) var(--ln-ease-out)');
+    expect(decl(w, 'transition-delay')).toBe('calc(var(--ln-wi, 0) * 85ms)');
+    expect(decl(landingRule('.landing .ln-hero-title .ln-w:nth-child(4)'), '--ln-wi')).toBe('3');
+    expect(
+      decl(landingRule('.landing .ln-hero-title .ln-hero-line.in-view .ln-w'), 'transform')
+    ).toBe('translateY(0)');
+    expect(
+      decl(landingRule('.landing .ln-hero-title .ln-hero-line.reveal-up'), 'transform')
+    ).toBe('translateY(26px)');
+  });
+
+  it('HomePage wires .ln-w word spans inside RevealCssClass .ln-hero-line wrappers', () => {
+    expect((homePageRaw.match(/className="ln-w"/g) ?? []).length).toBeGreaterThanOrEqual(5);
+    expect(homePageRaw).toMatch(/RevealCssClass as="span" className="ln-hero-line"/);
+  });
+
+  it('calm + mobile + RM variants: 40ms returning-visitor delays, opacity-only mobile, RM shows content', () => {
+    const calm = ruleBlock(landingCss, ".landing[data-intro-seen='true'] .ln-hero-title .ln-w");
+    expect(calm).toContain('transition-duration: var(--motion-duration-page)');
+    expect(calm).toContain('calc(var(--ln-wi, 0) * 40ms)');
+    const m768 = allTopLevelBlocks(landingCss, '@media (max-width: 768px)').join('\n');
+    expect(m768).toContain('.landing .ln-hero-title .ln-w {');
+    expect(m768).toContain('transform: none');
+    const prm = allTopLevelBlocks(landingCss, '@media (prefers-reduced-motion: reduce)');
+    expect(
+      prm.some(
+        (b) =>
+          b.includes('.ln-hero-title .ln-w') &&
+          /transition:\s*none/.test(b) &&
+          /opacity:\s*1/.test(b)
+      ),
+      'the .ln-w RM off-switch was lost'
+    ).toBe(true);
+  });
+
+  it('.ln-btn-gold::after CTA sheen: top radial, opacity 0→1 on hover, t-fast standard ease', () => {
+    const after = allTopLevelBlocks(landingCss, '.landing .ln-btn-gold::after')[0];
+    expect(after, 'the ::after sheen block is missing').toBeDefined();
+    expect(after).toContain('radial-gradient(circle at 50% 0%, rgba(255,255,255,0.2) 0%, transparent 60%)');
+    expect(decl(after, 'opacity')).toBe('0');
+    expect(after).toContain('opacity var(--t-fast) var(--ease)');
+    expect(landingCss).toContain('.landing .ln-btn-gold:hover::after { opacity: 1; }');
+  });
+});
+
+describe('r130 parity — P1 focus ring + link hover AA + state/premium token families', () => {
+  it('focus ring values: dark #E9B44C / light #5C3416 (canonical cascade, both themes)', () => {
+    pin(dark, 'r130', '--ring', '#E9B44C');
+    pin(dark, 'r130', '--state-focus-ring-color', '#E9B44C');
+    pin(light, 'r130', '--ring', '#5C3416');
+    pin(light, 'r130', '--state-focus-ring-color', '#5C3416');
+  });
+
+  it('a:hover rides var(--accent-ink) — 10.29:1 on cream (AA fix; was var(--orange) 3.65:1)', () => {
+    expect(globalsRaw).toMatch(/a:hover\s*\{[\s\S]*?color:\s*var\(--accent-ink\)/);
+    expect(globalsRaw).not.toMatch(/a:hover\s*\{[\s\S]*?color:\s*var\(--orange\)/);
+  });
+
+  it('premium shadow tokens: --shadow-card-premium/-h multi-layer neutral (tokens.css:596-597 verbatim)', () => {
+    pin(dark, 'r130', '--shadow-card-premium', '0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04)');
+    pin(dark, 'r130', '--shadow-card-premium-h', '0 4px 8px rgba(15,15,15,0.06), 0 12px 32px rgba(15,15,15,0.10), 0 4px 12px rgba(15,15,15,0.05)');
+    pin(light, 'r130', '--shadow-card-premium', '0 2px 4px rgba(15,15,15,0.04), 0 8px 24px rgba(15,15,15,0.08), 0 2px 8px rgba(15,15,15,0.04)');
+  });
+
+  it('interaction-state family: --state-button/card/input/tab/link/loading-* present (tokens.css §state)', () => {
+    for (const t of [
+      '--state-button-hover-translate',
+      '--state-button-pressed-scale',
+      '--state-button-pressed-duration',
+      '--state-button-disabled-opacity',
+      '--state-card-hover-elevation',
+      '--state-card-hover-translate',
+      '--state-card-hover-border',
+      '--state-card-pressed-scale',
+      '--state-card-selected-ring',
+      '--state-input-focus-ring',
+      '--state-input-focus-border',
+      '--state-input-error-border',
+      '--state-tab-active-indicator',
+      '--state-tab-indicator-duration',
+      '--state-link-hover-underline',
+      '--state-loading-spinner-size',
+      '--state-loading-spinner-stroke',
+      '--state-loading-spinner-color',
+    ]) {
+      expect(dark[t], `${t} is missing from globals.css :root`).toBeDefined();
+    }
+    // the fill/stroke slots consume the SOLID accent (wash remap), and the
+    // disabled opacity is the .btn:disabled reality (0.55)
+    expect(dark['--state-card-selected-ring']).toContain('--accent-solid');
+    expect(dark['--state-button-disabled-opacity']).toBe('0.55');
+  });
+
+  it('card press unified on --state-card-pressed-scale 0.99 (the 0.995 fork is dead)', () => {
+    expect(globalsRaw).toContain('scale(var(--state-card-pressed-scale, 0.99))');
+    expect(globalsRaw).not.toContain('scale(0.995)');
+    expect(cardRaw).toContain('active:scale-[var(--state-card-pressed-scale,0.99)]');
+  });
+
+  it('browser surfaces: ::selection accent-solid 28% + var(--foreground); scrollbar 10px + padding-box inset', () => {
+    expect(globalsRaw).toContain(
+      'background: color-mix(in srgb, var(--accent-solid) 28%, transparent)'
+    );
+    const selBlock = ruleBlock(css, '::selection');
+    expect(selBlock).toContain('color: var(--foreground)');
+    const thumb = ruleBlock(css, '*::-webkit-scrollbar-thumb');
+    expect(ruleBlock(css, '*::-webkit-scrollbar')).toContain('inline-size: 10px');
+    expect(thumb).toContain('border: 2px solid transparent');
+    expect(thumb).toContain('background-clip: padding-box');
+    expect(thumb).toContain('border-radius: var(--r-full)');
+  });
+
+  it('single canonical smooth/quart curve — @theme and :root agree on (0.16, 1, 0.3, 1)', () => {
+    expect(theme['--ease-smooth']).toBe('cubic-bezier(0.16, 1, 0.3, 1)');
+    expect(theme['--ease-out-quart']).toBe('cubic-bezier(0.16, 1, 0.3, 1)');
+    expect(dark['--ease-smooth']).toBe('cubic-bezier(0.16, 1, 0.3, 1)');
+    expect(dark['--ease-out-quart']).toBe('cubic-bezier(0.16, 1, 0.3, 1)');
+  });
+
+  it('landing value rows: .ln-hero-scroll fold anchor +134px (canonical landing.css:686)', () => {
+    expect(landingRule('.landing .ln-hero-scroll')).toContain('calc(100% - 100svh + 134px)');
+    expect(landingCss).not.toContain('calc(100% - 100svh + 95px)');
+  });
+
+  it('WhatsApp ink tokenized: --whatsapp-ink both themes (mint-family shades), zero raw #0b3d2e in TSX', () => {
+    pin(dark, 'r130', '--whatsapp-ink', '#0F241C');
+    pin(light, 'r130', '--whatsapp-ink', '#1F4F30');
+    expect(theme['--color-whatsapp-ink']).toBe('var(--whatsapp-ink)');
+    const srcText = walkSrc('src')
+      .filter((p) => !p.includes('app/globals.css'))
+      .map(raw)
+      .join('\n');
+    expect(srcText).not.toContain('#0b3d2e');
+    expect(srcText).toContain('text-whatsapp-ink');
+  });
+
+  it('table type rides the canonical .table rung (P2-9): cells text-sm (13px) · th text-2xs (11px) semibold muted', () => {
+    const tableRaw = raw('src/components/ui/table.tsx');
+    // cells: the table element carries the 13px label rung
+    expect(tableRaw).toContain('"w-full caption-bottom text-sm"');
+    // th: 11px (--fs-xxs) semibold muted (components.css:842-848)
+    expect(tableRaw).toMatch(/text-2xs font-semibold whitespace-nowrap text-muted-foreground/);
+    expect(tableRaw).not.toMatch(/align-middle font-medium/);
   });
 });

@@ -99,6 +99,13 @@ export const lightColors = {
   accent: "#B57438",
   accentStrong: "#5C3416",
   onAccent: "#FFFFFF",
+  /** --state-focus-ring-color LIGHT (tokens.css:543 = var(--accent-strong)):
+   *  the light ring must clear 4.5:1 — copper #B57438 is 3.65:1 on cream, so
+   *  the light theme rides the deep copper #5C3416 (10.29:1). The dark twin
+   *  keeps the shared :root cascade var(--accent) = #E9B44C (tailwind.config
+   *  `ring`) — r130 W2-4: the canonical pair, unified with the fleet ruling
+   *  (web dark ring #C9962F → #E9B44C is the W2-3 web-side fix). */
+  ring: "#5C3416",
 } as const;
 
 /**

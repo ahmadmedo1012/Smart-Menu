@@ -17,6 +17,7 @@ import type { Plan } from "@/lib/plan-types";
 
 import { Text } from "@/components/ui/Text";
 import { colors } from "@/theme/colors";
+import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
 export function PricingScreen() {
   const navigation = useNavigation<RootNavigation>();
@@ -79,7 +80,7 @@ export function PricingScreen() {
                   </View>
                 ) : null}
               </View>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 28, fontWeight: "700", color: colors.gold, marginBottom: 4 }}>{formatPrice(plan.price)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 28, fontWeight: "700", color: colors.gold, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(plan.price)}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginBottom: 16 }}>لمدة {plan.periodDays} يوم</Text>
               {plan.features?.map((f, i) => (
                 <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
@@ -105,7 +106,7 @@ export function PricingScreen() {
 function Limit({ label, value }: { label: string; value: number }) {
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }} maxFontSizeMultiplier={1.4}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }} maxFontSizeMultiplier={1.4}>{value}</Text>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted }} maxFontSizeMultiplier={1.4}>{label}</Text>
     </View>
   );

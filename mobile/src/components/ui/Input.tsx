@@ -30,7 +30,10 @@ export function PasswordInput({ className, error, ...props }: InputProps) {
     <View className="relative">
       <TextInput
         className={cn(
-          "min-h-12 rounded-md border border-border bg-input px-4 py-3 pr-12 text-base text-foreground",
+          // r130 W2-4 (RTL): pr-12 → pe-12 — the eye toggle sits at `end-2`,
+          // so the text inset must be logical too (physical right padding
+          // starved the toggle's side in this forced-RTL app).
+          "min-h-12 rounded-md border border-border bg-input px-4 py-3 pe-12 text-base text-foreground",
           "font-sans placeholder:text-muted-foreground focus:border-ring",
           error && "border-destructive", className,
         )}

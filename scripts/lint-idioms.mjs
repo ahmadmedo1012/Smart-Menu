@@ -85,8 +85,15 @@ const GATES = [
   {
     id: 'idiom-2',
     test: (line) => RAW_DURATION.test(line),
-    ar: 'مدة حركة خام خارج سلم مدارك — استخدم duration-micro/fast/base/slow/slower/cinema (80/160/240/380/520/720ms) أو duration-[var(--t-*)]',
-    en: 'raw duration utility bypasses the Madarek motion ladder — use duration-micro/fast/base/slow/slower/cinema (80/160/240/380/520/720ms) or duration-[var(--t-*)] (audit B1; the r126 @theme bridge)',
+    /* W3-B r130 NOTE (verification unblock, UNCOMMITTED): a literal
+       duration-arbitrary-value token ending in a star, in this message,
+       was picked up by Tailwind v4's source scanner, which emitted an
+       invalid var() reference and broke Turbopack CSS parsing (dev-mode
+       500 on every page). The token is now split so the scanner cannot
+       see it; the printed message is byte-identical. Real fix belongs
+       to W4 (e.g. @source-not exclusion or rewording). */
+    ar: 'مدة حركة خام خارج سلم مدارك — استخدم duration-micro/fast/base/slow/slower/cinema (80/160/240/380/520/720ms) أو duration-[var(--t-' + '*)]',
+    en: 'raw duration utility bypasses the Madarek motion ladder — use duration-micro/fast/base/slow/slower/cinema (80/160/240/380/520/720ms) or duration-[var(--t-' + '*)] (audit B1; the r126 @theme bridge)',
   },
   {
     id: 'idiom-3',

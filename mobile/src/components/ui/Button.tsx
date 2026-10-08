@@ -14,6 +14,7 @@ import { Text } from "@/components/ui/Text";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { colors } from "@/theme/colors";
 import { motion } from "@/theme/motion";
+import { bezierPoints, easings } from "@/theme/easings";
 
 // r126-M9: dead variants dropped (flame/ghost/destructive/secondary had zero
 // call sites — flame even rode the deleted bg-flame alias); `orange` renamed
@@ -57,14 +58,19 @@ export interface ButtonProps extends PressableProps, VariantProps<typeof buttonV
 }
 
 /**
- * r126-M4 (A6 P1-5): canonical press feedback on the app's most-used
- * touchable — scale 0.98 + a small opacity dip, 80ms in / 160ms out (the
- * Madarek micro/fast rungs). The animated Pressable keeps its className
- * styling via the same cssInterop bridge the app <Text> uses; the reanimated
- * style rides the merged style prop. Reduced motion → opacity-only.
+ * r126-M4 (A6 P1-5), r130 W2-4: canonical press feedback on the app's
+ * most-used touchable — scale 0.97 (--press-scale, tokens.css:163; was the
+ * off-canonical 0.98) + a small opacity dip, 80ms in / 160ms out (the
+ * Madarek micro/fast rungs) on --ease-out. The animated Pressable keeps its
+ * className styling via the same cssInterop bridge the app <Text> uses;
+ * the reanimated style rides the merged style prop. Reduced motion →
+ * opacity-only.
  */
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 cssInterop(AnimatedPressable, { className: "style" });
+
+/** --ease-out (tokens.css:129) via the theme/easings SSOT — r130 W2-4. */
+const EASE_OUT = Easing.bezier(...bezierPoints(easings.out));
 
 export function Button({ variant, size, title, loading, children, className, disabled, ...props }: ButtonProps) {
   const isDisabled = disabled || loading;
@@ -77,7 +83,8 @@ export function Button({ variant, size, title, loading, children, className, dis
   const animatedStyle = useAnimatedStyle(() => {
     "worklet";
     if (reduced.value) return { opacity: 1 - pressed.value * 0.25 };
-    return { transform: [{ scale: 1 + pressed.value * -0.02 }], opacity: 1 - pressed.value * 0.1 };
+    // 0.97 press register: 1 + (-0.03) = --press-scale (r130 W2-4).
+    return { transform: [{ scale: 1 + pressed.value * -0.03 }], opacity: 1 - pressed.value * 0.1 };
   });
 
   return (
@@ -87,9 +94,9 @@ export function Button({ variant, size, title, loading, children, className, dis
       onPressIn={() => {
         if (isDisabled) return;
         // r127-F8: durations ride theme/motion (were raw 80/160 literals).
-        pressed.value = withTiming(1, { duration: motion.MICRO, easing: Easing.out(Easing.cubic) });
+        pressed.value = withTiming(1, { duration: motion.MICRO, easing: EASE_OUT });
       }}
-      onPressOut={() => { pressed.value = withTiming(0, { duration: motion.FAST, easing: Easing.out(Easing.cubic) }); }}
+      onPressOut={() => { pressed.value = withTiming(0, { duration: motion.FAST, easing: EASE_OUT }); }}
       style={animatedStyle}
       // r126 (A6 P2-7): TalkBack/VoiceOver announced buttons as bare labels.
       accessibilityRole="button"

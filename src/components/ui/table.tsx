@@ -70,7 +70,11 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-11 px-3 text-start align-middle font-medium whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pe-0",
+        /* r130 (W2-3, P2-9): the canonical .table th rung (Madarek
+           components.css:842-848) — 11px (--fs-xxs) semibold muted;
+           cells ride text-sm = 13px (--type-label-size) via the ladder
+           rebase. Was font-medium inheriting the old 14px body size. */
+        "h-11 px-3 text-start align-middle text-2xs font-semibold whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pe-0",
         className
       )}
       {...props}

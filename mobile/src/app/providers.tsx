@@ -40,8 +40,10 @@ const renderToast = ({ type, text1, text2 }: { type: "success" | "error" | "info
   const accentColor = type === "success" ? colors.mint : type === "error" ? colors.rose : colors.sky;
   return (
     <View style={{
-      // RTL: the accent rides the START edge — right side in this forced-RTL app
-      backgroundColor: colors.surface, borderRightWidth: 4, borderRightColor: accentColor,
+      // RTL (r130 W2-4): the accent rides the START edge — logical spelling
+      // (borderStart*) renders the same right edge in this forced-RTL app
+      // while staying direction-correct if the app ever flips.
+      backgroundColor: colors.surface, borderStartWidth: 4, borderStartColor: accentColor,
       borderRadius: 12, padding: 12, marginHorizontal: 16, marginVertical: 8,
       shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,

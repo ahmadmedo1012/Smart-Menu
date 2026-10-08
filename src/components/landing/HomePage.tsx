@@ -189,12 +189,26 @@ export function HomePage({
                                                         <span className="ln-mono">الربط الذكي · Smart Menu · منيو رقمي للمطاعم</span>
                                                 </RevealCssClass>
 
-                                                {/* h1 + sub paint INSTANTLY — rendered inline in the
-                                                    SSR HTML, no reveal, no client gate (LCP doctrine).
-                                                    One lime word: واتساب. */}
+                                                {/* r130 (W2-3, P0-2): the canonical
+                                                    per-word stagger — each line is a
+                                                    RevealCssClass .ln-hero-line (the observer
+                                                    writes .in-view on it) carrying .ln-w word
+                                                    spans; landing.css staggers them 85ms/word
+                                                    on the 720ms cinema transform. The hero is
+                                                    above the fold, so useReveal's mount check
+                                                    reveals the lines on the first effect tick
+                                                    (RM: instant via the CSS kill + observer). */}
                                                 <h1 className="ln-hero-title">
-                                                        <span className="ln-hero-line">منيو رقمي <em>لمطعمك</em></span>
-                                                        <span className="ln-hero-line">والطلبات تصلك <em className="ln-hero-gold">على واتساب</em></span>
+                                                        <RevealCssClass as="span" className="ln-hero-line">
+                                                                <span className="ln-w">منيو</span>{' '}
+                                                                <span className="ln-w">رقمي</span>{' '}
+                                                                <span className="ln-w"><em>لمطعمك</em></span>
+                                                        </RevealCssClass>
+                                                        <RevealCssClass as="span" className="ln-hero-line" delay={1}>
+                                                                <span className="ln-w">والطلبات</span>{' '}
+                                                                <span className="ln-w">تصلك</span>{' '}
+                                                                <span className="ln-w"><em className="ln-hero-gold">على واتساب</em></span>
+                                                        </RevealCssClass>
                                                 </h1>
 
                                                 <p className="ln-hero-sub">

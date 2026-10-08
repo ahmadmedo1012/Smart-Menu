@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { ActionSearchBar } from "@/components/ui/action-search-bar"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { MotionMenu } from '@/components/ui/motion-icons';
+import { cn } from "@/lib/utils"
 
 interface LayoutHeaderProps {
   title?: string
@@ -11,10 +13,27 @@ interface LayoutHeaderProps {
   menuOpen?: boolean
 }
 
+/* r130 (W2-3, P2): canonical .topbar chrome recipe (Madarek base.css:193-204) —
+ * ground at 86% + blur(var(--glass-blur)=16px) saturate(140%), and the bottom
+ * hairline starts TRANSPARENT, deepening to the --border hairline only after
+ * 6px of scroll (border-color rides the 240ms standard ease). The old recipe
+ * was 85% + blur-2xl(40px) saturate(150%) + an always-on border-border/40. */
 export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, role = "admin", menuOpen = false }: LayoutHeaderProps) {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 6)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
   return (
     <header
-      className="sticky top-0 z-30 border-b border-border/40 bg-background/85 backdrop-blur-2xl backdrop-saturate-150"
+      className={cn(
+        "sticky top-0 z-30 border-b bg-background/86 backdrop-blur-lg backdrop-saturate-[140%] transition-[border-color,background-color] duration-base ease-[var(--ease,cubic-bezier(0.4,0,0.2,1))]",
+        scrolled ? "border-border" : "border-transparent"
+      )}
     >
       <div className="flex h-16 items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-3">

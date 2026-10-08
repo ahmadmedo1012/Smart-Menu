@@ -103,8 +103,10 @@ function PublicLinkOverlay({ route, onClose }: { route: PublicRoute; onClose: ()
         style={{
           // r126 (A6 P2-14): was left:16/top:54 — physical LEFT in a forced-RTL
           // app puts the close on the far edge from the reader, and 54 was a
-          // magic number. Start edge (right) + safe-area top inset.
-          position: "absolute", top: insets.top + 8, right: 16, width: 40, height: 40, borderRadius: 9999,
+          // magic number. Start edge + safe-area top inset. r130 W2-4 (RTL):
+          // `start` is the logical spelling of that start edge (renders the
+          // same right side in forced-RTL, stays correct on any flip).
+          position: "absolute", top: insets.top + 8, start: 16, width: 40, height: 40, borderRadius: 9999,
           backgroundColor: colors.surface2Scrim, alignItems: "center", justifyContent: "center",
           borderWidth: 1, borderColor: colors.hairline,
         }}>

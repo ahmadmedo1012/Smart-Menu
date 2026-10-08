@@ -1,10 +1,15 @@
 /**
- * r126-M4 (A6 P1-5 + A6 P2-4): canonical press feedback.
+ * r126-M4 (A6 P1-5 + A6 P2-4), r130 W2-4: canonical press feedback.
  *
  * The app's 13 Pressables used three inconsistent opacity registers (0.7/
  * 0.8/0.9) with no scale and no duration. The Madarek ladder prescribes
- * --press-scale on the micro rung: scale 0.98 + a small opacity dip,
- * 80ms in / 160ms out, ease-out. This wrapper is that rule as a component.
+ * --press-scale on the micro rung: scale 0.97 + a small opacity dip,
+ * 80ms in / 160ms out, --ease-out. This wrapper is that rule as a component.
+ *
+ * Registers (tokens.css:163-175 "one press register" note):
+ *   · controls (buttons/pills/CTAs) → default scaleTo 0.97 (--press-scale);
+ *   · cards → pass scaleTo={0.99} (--state-card-pressed-scale, tokens.css:248);
+ *   · only a bottom-nav thumb press may go stronger (0.93) — none here.
  *
  * Reduced motion (useReducedMotion): scale is dropped — press feedback
  * degrades to a plain opacity dip, which is not spatial movement.
@@ -23,6 +28,7 @@ import Animated, {
 
 import { useReducedMotion } from "./useReducedMotion";
 import { motion } from "@/theme/motion";
+import { bezierPoints, easings } from "@/theme/easings";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -30,10 +36,15 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export const PRESS_IN_MS = motion.MICRO; // --t-micro
 export const PRESS_OUT_MS = motion.FAST; // --t-fast
 
-const EASE_OUT = Easing.out(Easing.cubic); // decelerate, ≈ --ease-out
+/** --ease-out (tokens.css:129) — cubic-bezier(0.16, 1, 0.3, 1), via the
+ * theme/easings SSOT (r130 W2-4; was Easing.out(Easing.cubic), the
+ * (0.215, 0.61, 0.355, 1) easeOutCubic — a different, softer curve). */
+const EASE_OUT = Easing.bezier(...bezierPoints(easings.out));
 
 export interface PressableScaleProps extends PressableProps {
-  /** Pressed scale factor — Madarek --press-scale territory (default 0.98). */
+  /** Pressed scale factor. Controls (buttons/pills) default to the Madarek
+   * --press-scale 0.97 (tokens.css:163); cards pass 0.99
+   * (--state-card-pressed-scale, tokens.css:248). */
   scaleTo?: number;
   /** Press-in duration in ms (default 80, the ladder's micro rung). */
   pressDurationMs?: number;
@@ -41,7 +52,7 @@ export interface PressableScaleProps extends PressableProps {
 }
 
 export function PressableScale({
-  scaleTo = 0.98,
+  scaleTo = 0.97,
   pressDurationMs = PRESS_IN_MS,
   style,
   onPressIn,

@@ -164,14 +164,20 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 <ThemeToggle />
                         </div>
 
-                        {/* Decorative top bar — r128-F5: شريط صلب مسطّح بدل التدرّج */}
-                        <div className="fixed top-0 inset-x-0 z-10 h-1 bg-orange" />
-
-                        {/* r95 → r128-F5: بطاقة مسطّحة — أرض صلبة bg-card بلا زجاج
-                           (backdrop-blur) ولا ظلّ رفع؛ حدّ شعري فقط. */}
-                        <Card className="animate-scale-in relative z-10 w-full max-w-sm rounded-2xl border-border/50 bg-card sm:max-w-md" elevation="flat">
+                        {/* r95 → r128-F5 → r130 (W2-3, P2): بطاقة الدخول —
+                           الحدّ الشعري النحاسي ٢px أعلى البطاقة (canonical
+                           auth.css:179-188: inset-inline 30%، تدرّج
+                           transparent→accent→transparent، نصف قطر 2px)
+                           بدل الشريط البرتقالي الصلب 4px الثابت أعلى الصفحة؛
+                           حشوة البطاقة clamp(32px,4vw,48px) (auth.css:145). */}
+                        <Card className="animate-scale-in relative z-10 w-full max-w-sm rounded-2xl border-border/50 bg-card p-0 sm:max-w-md" elevation="flat">
+                                {/* canonical .auth-card::before — the short copper hairline */}
+                                <span
+                                        aria-hidden="true"
+                                        className="absolute inset-x-[30%] top-0 h-0.5 rounded-b-[2px] bg-[linear-gradient(90deg,transparent,var(--accent-solid),transparent)]"
+                                />
                                 {/* Logo area */}
-                                <CardHeader className="pb-2 pt-8 text-center">
+                                <CardHeader className="px-[clamp(2rem,4vw,3rem)] pb-2 pt-[clamp(2rem,4vw,3rem)] text-center">
                                         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
                                                 <Image
                                                         src="/brand-icon.png"
@@ -192,7 +198,7 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                         </CardDescription>
                                 </CardHeader>
 
-                                <CardContent className="px-6 pb-8 pt-4 sm:px-8">
+                                <CardContent className="px-[clamp(2rem,4vw,3rem)] pb-[clamp(2rem,4vw,3rem)] pt-4">
                                         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                                                 {/* r126 (P4-F1 M8): persistent server-error line — announced
                                                         via role=alert; focus returns to the username field. */}

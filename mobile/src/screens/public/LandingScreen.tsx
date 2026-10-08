@@ -365,7 +365,8 @@ export function LandingScreen() {
                 {featured.map((r) => (
                   <PressableScale
                     key={r.id}
-                    // the landing press register (0.97 vs product 0.98)
+                    // the landing press register 0.97 (r130 W2-4: the product
+                    // world rides the SAME 0.97 for controls, 0.99 for cards)
                     scaleTo={landing.pressScale}
                     onPress={() => navigation.navigate("Menu", { slug: r.slug })}
                     accessibilityLabel={`مطعم ${r.name}`}

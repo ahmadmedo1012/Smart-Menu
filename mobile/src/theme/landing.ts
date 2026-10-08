@@ -54,7 +54,9 @@ export const landing = {
   grainOpacity: 0.075,
   /** --ln-dur-marquee — the one slow pass, 42s linear. */
   marqueeDurationMs: 42000,
-  /** --press-scale — landing press recipe (product press is 0.98). */
+  /** --press-scale — landing press recipe (product controls ride the same
+   *  0.97 register since r130 W2-4; cards press 0.99 —
+   *  --state-card-pressed-scale). */
   pressScale: 0.97,
   /** Hero h1 line-height — the web ≤768 Arabic-leading rule (GAP-5). */
   h1LineHeight: 1.18,

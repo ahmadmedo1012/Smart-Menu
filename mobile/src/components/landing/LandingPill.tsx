@@ -7,7 +7,8 @@
  *           cream text — hover tint never a lime fill (roster discipline);
  *   heights 46 (md) / 48 (xl — also the <640px WCAG 2.5.5 touch floor);
  *   press = scale 0.97 on the micro rung (--press-scale, the landing
- *           register; the product Button keeps its 0.98).
+ *           register; product controls ride the SAME 0.97 since r130 W2-4,
+ *           product cards press 0.99 — --state-card-pressed-scale).
  *
  * RN adaptations: one drop shadow instead of the 3-layer web stack (the
  * outer 1px ring layer has no RN equivalent — flat surfaces are the kit

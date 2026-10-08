@@ -35,6 +35,7 @@ import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
 import { colors } from "@/theme/colors";
+import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
 interface RestaurantInfo {
   id: number; name: string; slug: string; description: string;
@@ -175,8 +176,11 @@ export function MenuScreen() {
           <Pressable onPress={() => setCartOpen(true)} style={{ position: "relative", padding: 8 }} accessibilityLabel="عرض السلة">
             <ShoppingCart size={24} color={colors.sand} />
             {cartCount > 0 ? (
-              <View style={{ position: "absolute", top: 0, right: 0, minWidth: 18, height: 18, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}>
-                <Text style={{ color: colors.void, fontSize: 10, fontFamily: "IBM Plex Sans Arabic", fontWeight: "700" }}>{toArabicNumber(cartCount)}</Text>
+              // r130 W2-4 (RTL): end-anchored badge — the web twin's cart
+              // badge is `absolute -top-2.5 -end-2.5` (CartSlideOver.tsx:90);
+              // physical right:0 put it on the wrong corner in forced-RTL.
+              <View style={{ position: "absolute", top: 0, end: 0, minWidth: 18, height: 18, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}>
+                <Text style={{ color: colors.void, fontSize: 10, fontFamily: "IBM Plex Sans Arabic", fontWeight: "700", fontVariant: METRIC_FONT_VARIANT }}>{toArabicNumber(cartCount)}</Text>
               </View>
             ) : null}
           </Pressable>
@@ -229,9 +233,11 @@ export function MenuScreen() {
 
       {cartCount > 0 && !cartOpen && !detailItem ? (
         <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16, zIndex: 50 }}>
-          {/* r126-M4: canonical press feedback (scale 0.98 + opacity, 80/160ms)
-              — was opacity-only 0.9. Inset-aware bottom (A6 P2-10): the old
-              bottom:16 overlapped the Android gesture bar / iOS indicator. */}
+          {/* r126-M4 (canonical press feedback), r130 W2-4: the register is
+              scale 0.97 + opacity, 80/160ms (--press-scale, tokens.css:163;
+              was 0.98) — was opacity-only 0.9. Inset-aware bottom (A6 P2-10):
+              the old bottom:16 overlapped the Android gesture bar / iOS
+              indicator. Metrics ride tabular lining numerals (W2-4). */}
           <PressableScale
             onPress={() => setCartOpen(true)}
             accessibilityLabel={`عرض السلة — ${toArabicNumber(cartCount)} صنف`}
@@ -243,9 +249,9 @@ export function MenuScreen() {
             }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <ShoppingCart size={18} color={colors.void} />
-              <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>{toArabicNumber(cartCount)} صنف</Text>
+              <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", fontVariant: METRIC_FONT_VARIANT }} maxFontSizeMultiplier={1.4}>{toArabicNumber(cartCount)} صنف</Text>
             </View>
-            <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>{formatPrice(subtotal)}</Text>
+            <Text style={{ color: colors.void, fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", fontVariant: METRIC_FONT_VARIANT }} maxFontSizeMultiplier={1.4}>{formatPrice(subtotal)}</Text>
           </PressableScale>
         </View>
       ) : null}
@@ -261,7 +267,10 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
   const price = item.discountedPrice ?? item.price;
   const groups = visibleModifierGroups(item.modifierGroups);
   return (
+    // r130 W2-4: item CARD → --state-card-pressed-scale 0.99 (tokens.css:248);
+    // the price metric rides tabular lining numerals ('tnum'/'lnum').
     <PressableScale
+      scaleTo={0.99}
       onPress={onPress}
       disabled={!item.isAvailable}
       accessibilityLabel={`تفاصيل ${item.nameAr || item.name}`}
@@ -279,7 +288,7 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600", color: colors.sand }} numberOfLines={1}>{item.nameAr || item.name}</Text>
         {item.description ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }} numberOfLines={2}>{item.description}</Text> : null}
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold }}>{formatPrice(price)}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(price)}</Text>
           {/* r119-B2-M (S12 QW5): sold-out text badge — a dimmed card alone left
               diners wondering WHY an item was untappable; the API payload already
               carries isAvailable (same field the dimming uses). */}
@@ -395,7 +404,7 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
             <Pressable onPress={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} accessibilityLabel="إنقاص الكمية" accessibilityRole="button" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center", opacity: quantity <= 1 ? 0.4 : 1 }}>
               <Minus size={16} color={colors.sand} />
             </Pressable>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, minWidth: 28, textAlign: "center" }}>{toArabicNumber(quantity)}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, minWidth: 28, textAlign: "center", fontVariant: METRIC_FONT_VARIANT }}>{toArabicNumber(quantity)}</Text>
             <Pressable onPress={() => setQuantity((q) => Math.min(MAX_ITEM_QUANTITY, q + 1))} disabled={quantity >= MAX_ITEM_QUANTITY} accessibilityLabel="زيادة الكمية" accessibilityRole="button" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", opacity: quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}>
               <Plus size={16} color={colors.void} />
             </Pressable>
@@ -642,7 +651,7 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
           <View style={{ gap: 8 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted }}>المجموع</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }}>{formatPrice(subtotal)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(subtotal)}</Text>
             </View>
             <Button title={submitting ? "جارٍ الإرسال..." : "إرسال الطلب عبر واتساب"} onPress={onCheckout} loading={submitting} size="lg" className="w-full" />
           </View>
@@ -668,12 +677,12 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand }} numberOfLines={1}>{i.name}</Text>
                 {i.modifiersSummary ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }} numberOfLines={2}>{i.modifiersSummary}</Text> : null}
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.gold, marginTop: 4 }}>{formatPrice(i.price)}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.gold, marginTop: 4, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(i.price)}</Text>
               </View>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                 {/* r120 (U6-#4): 24×24 تحت حد اللمس — 36 مرئي + hitSlop 8 = ≥44 فعليًا. */}
                 <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} hitSlop={8} accessibilityRole="button" accessibilityLabel={`إنقاص كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center" }}><Minus size={16} color={colors.sand} /></Pressable>
-                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, minWidth: 20, textAlign: "center", fontVariant: METRIC_FONT_VARIANT }}>{toArabicNumber(i.quantity)}</Text>
                 <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} hitSlop={8} accessibilityRole="button" accessibilityLabel={`زيادة كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={16} color={colors.void} /></Pressable>
                 {/* r120 (U6-#3): حذف مباشر + تراجع (كان الإنقاص حتى الصفر الطريق الوحيد). */}
                 <Pressable onPress={() => cart.removeItem(i.id)} hitSlop={10} accessibilityRole="button" accessibilityLabel={`حذف ${i.name} من السلة`} style={{ padding: 6 }}>

@@ -166,7 +166,7 @@ export function ReferralCard({
                                                         <button
                                                                 type="button"
                                                                 onClick={handleShareWhatsApp}
-                                                                className="flex-1 h-11 rounded-xl bg-whatsapp hover:bg-whatsapp-deep flex items-center justify-center gap-2 text-[#0b3d2e] text-sm font-bold shadow-lg shadow-whatsapp/25 hover:shadow-xl hover:shadow-whatsapp/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                className="flex-1 h-11 rounded-xl bg-whatsapp hover:bg-whatsapp-deep flex items-center justify-center gap-2 text-whatsapp-ink text-sm font-bold shadow-lg shadow-whatsapp/25 hover:shadow-xl hover:shadow-whatsapp/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-whatsapp/60 focus-visible:ring-offset-1 cursor-pointer"
                                                         >
                                                                 <AnimatedMessageCircle className="size-4" />
                                                                 واتساب

@@ -21,6 +21,7 @@ import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
 import { colors } from "@/theme/colors";
+import { METRIC_FONT_VARIANT } from "@/theme/typography";
 
 interface OwnerStats {
   totalOrders: number; todayOrders: number; todayRevenue: number; totalItems: number;
@@ -79,13 +80,15 @@ export function OwnerDashboardScreen() {
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
             ) : (
               stats.recentOrders.slice(0, 5).map((o) => (
-                <PressableScale key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.surface, borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
+                // r130 W2-4: order CARD → --state-card-pressed-scale 0.99
+                // (tokens.css:248); totals/order-no ride tabular numerals.
+                <PressableScale key={o.id} scaleTo={0.99} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.surface, borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
                   <View>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand }}>{o.orderNo}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.gold }}>{formatPrice(o.total)}</Text>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 10, color: colors.muted, marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
                   </View>
                 </PressableScale>
@@ -106,7 +109,7 @@ function Kpi({ label, value, icon, full }: { label: string; value: string; icon:
   return (
     <View style={{ flex: full ? 1 : 0.5, backgroundColor: colors.surface, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: colors.hairline, marginBottom: 8 }}>
       <View style={{ marginBottom: 6 }}>{icon}</View>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand }}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{value}</Text>
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, marginTop: 2 }}>{label}</Text>
     </View>
   );
@@ -114,7 +117,9 @@ function Kpi({ label, value, icon, full }: { label: string; value: string; icon:
 
 function QuickAction({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <PressableScale onPress={onPress} style={{ width: "31%", aspectRatio: 1, backgroundColor: colors.surface, borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: colors.hairline }}>
+    // r130 W2-4: card press register — --state-card-pressed-scale 0.99
+    // (tokens.css:248); control surfaces keep the 0.97 --press-scale default.
+    <PressableScale scaleTo={0.99} onPress={onPress} style={{ width: "31%", aspectRatio: 1, backgroundColor: colors.surface, borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: colors.hairline }}>
       {icon}
       <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted, textAlign: "center" }} maxFontSizeMultiplier={1.4}>{label}</Text>
     </PressableScale>
@@ -279,15 +284,16 @@ export function OwnerOrdersScreen() {
         data={orders}
         keyExtractor={(o) => String(o.id)}
         renderItem={({ item: o }) => (
-          <PressableScale onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "زبون"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
+          // r130 W2-4: order CARD → --state-card-pressed-scale 0.99.
+          <PressableScale scaleTo={0.99} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "زبون"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: colors.hairline }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand }}>{o.orderNo}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: colors.sand, fontVariant: METRIC_FONT_VARIANT }}>{o.orderNo}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.gold, fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
             </View>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: colors.muted }}>{o.customerName || "زبون"} • {o.customerPhone || "—"}</Text>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: colors.muted }}>{formatRelativeTimeAr(o.createdAt)}</Text>
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold }}>{formatPrice(o.total)}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(o.total)}</Text>
             </View>
           </PressableScale>
         )}
@@ -380,7 +386,7 @@ export function OwnerOrderDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={["top"]}>
       {/* r126 (A6 P2-2): pull-to-refresh — the detail screen had none. */}
       <ScrollView contentContainerStyle={{ padding: 16 }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => { void refetch(); }} tintColor={colors.gold} />}>
-        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 4 }}>{order.orderNo}</Text>
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: colors.sand, marginBottom: 4, fontVariant: METRIC_FONT_VARIANT }}>{order.orderNo}</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.muted, marginBottom: 16 }}>{formatRelativeTimeAr(order.createdAt)}</Text>
         <View style={{ backgroundColor: colors.surface, borderRadius: 12, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.hairline }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: colors.sand, marginBottom: 4 }}>بيانات الزبون</Text>
@@ -393,12 +399,12 @@ export function OwnerOrderDetailScreen() {
         {order.items.map((i) => (
           <View key={i.id} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline }}>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.sand }}>{i.quantity}× {i.name}</Text>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold }}>{formatPrice(i.price * i.quantity)}</Text>
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(i.price * i.quantity)}</Text>
           </View>
         ))}
         <View style={{ flexDirection: "row", justifyContent: "space-between", paddingTop: 12, marginTop: 4 }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.sand }}>المجموع</Text>
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.gold }}>{formatPrice(order.total)}</Text>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: colors.gold, fontVariant: METRIC_FONT_VARIANT }}>{formatPrice(order.total)}</Text>
         </View>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: colors.sand, marginTop: 24, marginBottom: 8 }}>تحديث الحالة</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
