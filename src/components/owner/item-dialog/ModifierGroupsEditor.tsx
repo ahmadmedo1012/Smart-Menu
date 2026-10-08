@@ -48,7 +48,7 @@ export function ModifierGroupsEditor({
 					type="button"
 					variant="outline"
 					onClick={onAddGroup}
-					className="h-10 shrink-0 gap-1 border-orange/30 text-orange hover:bg-orange-muted"
+					className="h-10 shrink-0 gap-1 border-orange/30 text-accent-foreground hover:bg-orange-muted"
 					aria-label="إضافة مجموعة خيارات"
 				>
 					<Plus className="size-3.5" aria-hidden="true" /> إضافة مجموعة

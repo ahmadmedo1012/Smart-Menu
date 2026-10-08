@@ -39,9 +39,9 @@ export function HowItWorksSection() {
                 {/* r95: دائرة الخطوة (§5.5) — توهج خلفي + جسم متدرج + شارة رقم */}
                 <div className="relative mb-6">
                   {/* Glow behind */}
-                  <div className="absolute inset-0 size-16 rounded-full bg-accent-foreground/20 blur-xl group-hover:blur-2xl group-hover:bg-accent-foreground/30 transition-all duration-700" />
+                  <div className="absolute inset-0 size-16 rounded-full bg-accent-foreground/20 blur-xl group-hover:blur-2xl group-hover:bg-accent-foreground/30 transition-all duration-cinema" />
                   {/* Circle body */}
-                  <div className="relative size-16 rounded-full bg-gradient-to-b from-accent-foreground/25 to-accent-foreground/10 border border-accent-foreground/30 flex items-center justify-center group-hover:border-accent-foreground/50 group-hover:scale-105 transition-all duration-500 shadow-lg shadow-accent-foreground/10">
+                  <div className="relative size-16 rounded-full bg-gradient-to-b from-accent-foreground/25 to-accent-foreground/10 border border-accent-foreground/30 flex items-center justify-center group-hover:border-accent-foreground/50 group-hover:scale-105 transition-all duration-slower shadow-lg shadow-accent-foreground/10">
                     <step.icon className="size-6 text-accent-foreground" />
                   </div>
 
@@ -54,7 +54,7 @@ export function HowItWorksSection() {
                   </div>
                 </div>
 
-                <h3 className="text-lg sm:text-xl font-bold mb-2 group-hover:text-accent-foreground transition-colors duration-300">{step.title}</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 group-hover:text-accent-foreground transition-colors duration-base">{step.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[32ch]">{step.desc}</p>
               </m.div>
             </ScrollReveal>

@@ -66,7 +66,7 @@ function DateFilterField({
                                 type="date"
                                 value={value}
                                 onChange={(e) => onChange(e.target.value)}
-                                className="h-11 w-44 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange text-transparent"
+                                className="h-11 w-44 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-ring text-transparent"
                                 title={display || label}
                                 aria-label={label}
                         />
@@ -123,7 +123,7 @@ export function OrdersFilters({
                                 <button
                                         type="button"
                                         onClick={onClearDates}
-                                        className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                        className="h-11 px-4 rounded-md border border-border/30 text-sm hover:bg-accent transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                         إلغاء
                                 </button>
@@ -143,9 +143,9 @@ export function OrdersFilters({
                                         onClick={() => onFilterChange(tab.value)}
                                         aria-pressed={filter === tab.value}
                                         className={cn(
-                                                'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color] duration-300 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                'snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[color,background-color,border-color] duration-base flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                 filter === tab.value
-                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25'
+                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg shadow-orange/25'
                                                         : 'bg-card/50 border border-border/30 hover:border-orange/30'
                                         )}
                                 >
@@ -154,7 +154,7 @@ export function OrdersFilters({
                                                 className={cn(
                                                         'inline-flex items-center justify-center size-5 rounded-full text-[11px] font-bold',
                                                         filter === tab.value
-                                                                ? 'bg-white/20 text-white'
+                                                                ? 'bg-orange-foreground/15 text-orange-foreground'
                                                                 : 'bg-muted text-muted-foreground'
                                                 )}
                                         >

@@ -116,7 +116,7 @@ export function ItemCoreFields({
                                                         // exposes the toggle state (WCAG 1.4.1).
                                                         aria-pressed={form.status === s}
                                                         className={cn(
-                                                                'flex-1 py-2.5 rounded-md text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                'flex-1 py-2.5 rounded-md text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 form.status === s
                                                                         ? s === 'available'
                                                                                 ? 'bg-success/10 border-success/30 text-success'

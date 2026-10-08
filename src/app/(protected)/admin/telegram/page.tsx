@@ -272,7 +272,7 @@ export default function AdminTelegramPage() {
                                                 <button
                                                         type="button"
                                                         onClick={loadAll}
-                                                        className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline underline-offset-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-foreground hover:underline underline-offset-4 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         <AnimatedRefreshCw className="size-3.5" />
                                                         إعادة المحاولة

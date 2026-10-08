@@ -35,8 +35,8 @@ export function HorizontalBar({
           <div key={i} className="flex items-center gap-3">
             <span className={cn(
               "flex size-6 shrink-0 items-center justify-center rounded text-[11px] font-bold",
-              i === 0 ? "bg-orange text-white" :
-              i < 3 ? "bg-orange-muted text-orange" :
+              i === 0 ? "bg-orange text-orange-foreground" :
+              i < 3 ? "bg-orange-muted text-accent-foreground" :
               "bg-muted text-muted-foreground"
             )}>
               {i + 1}

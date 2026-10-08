@@ -23,24 +23,24 @@ export function StatsRow({ total, restaurants }: StatsRowProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange">إجمالي المطاعم</p>
-        <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(total)}</p>
+        <p className="text-xs text-accent-foreground">إجمالي المطاعم</p>
+        <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(total)}</p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange">على الخطة المدفوعة</p>
-        <p className="text-2xl font-bold mt-1 text-orange">
+        <p className="text-xs text-accent-foreground">على الخطة المدفوعة</p>
+        <p className="text-2xl font-bold mt-1 text-accent-foreground">
           {toArabicNumber(restaurants.filter((r) => r.plan?.price && Number(r.plan.price) > 0).length)}
         </p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange">إجمالي الطلبات</p>
-        <p className="text-2xl font-bold mt-1 text-orange">
+        <p className="text-xs text-accent-foreground">إجمالي الطلبات</p>
+        <p className="text-2xl font-bold mt-1 text-accent-foreground">
           {toArabicNumber(restaurants.reduce((a, r) => a + r._count.orders, 0))}
         </p>
       </div>
       <div className="rounded-md bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 dark:border-orange/15 p-4">
-        <p className="text-xs text-orange">مجاني</p>
-        <p className="text-2xl font-bold mt-1 text-orange">
+        <p className="text-xs text-accent-foreground">مجاني</p>
+        <p className="text-2xl font-bold mt-1 text-accent-foreground">
           {toArabicNumber(restaurants.filter((r) => !r.planId || Number(r.plan?.price) === 0).length)}
         </p>
       </div>
@@ -103,13 +103,13 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
           <input type="checkbox" checked={isSelected} onChange={() => onToggle(r.id)}
             className="rounded border-border shrink-0 mt-1" aria-label={`تحديد ${r.name}`} />
           <div className={cn("size-12 rounded-md bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0", planGrad)} aria-hidden="true">
-            <PlanIcon className="size-6 text-white" />
+            <PlanIcon className="size-6 text-orange-foreground" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-bold text-lg">{r.name}</h2>
               {r.plan ? (
-                <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full text-white bg-gradient-to-r", planGrad)}>{r.plan.nameAr}</span>
+                <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full text-orange-foreground bg-gradient-to-r", planGrad)}>{r.plan.nameAr}</span>
               ) : (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">بدون خطة</span>
               )}
@@ -121,7 +121,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
                 <AnimatedShoppingCart className="size-3" aria-hidden="true" />
                 {toArabicNumber(r._count.orders)} طلب
               </span>
-              <span className={cn("text-[11px] px-1.5 py-0.5 rounded", r.showOnLanding ? "text-orange bg-orange/10" : "text-muted-foreground/40")}>
+              <span className={cn("text-[11px] px-1.5 py-0.5 rounded", r.showOnLanding ? "text-accent-foreground bg-orange/10" : "text-muted-foreground/40")}>
                 {r.city || (r.showOnLanding ? "مميز" : "")}
               </span>
             </div>
@@ -136,7 +136,7 @@ export function RestaurantListItem({ r, isSelected, onToggle, onEdit, onDelete, 
           <button type="button" onClick={() => onToggleShowOnLanding(r.id, !r.showOnLanding)}
             className={cn("size-11 rounded-xl border flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               r.showOnLanding
-                ? "border-orange/30 bg-orange/10 text-orange hover:bg-orange/20"
+                ? "border-orange/30 bg-orange/10 text-accent-foreground hover:bg-orange/20"
                 : "border-border/30 text-muted-foreground/40 hover:text-muted-foreground hover:bg-accent"
             )}
             title={r.showOnLanding ? "إخفاء من الرئيسية" : "عرض في الرئيسية"}

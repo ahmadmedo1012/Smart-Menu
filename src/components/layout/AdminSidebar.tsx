@@ -45,7 +45,7 @@ function LogoutButton() {
   return (
     <button
       onClick={() => performLogout()}
-      className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+      className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-fast hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
     >
       <AnimatedLogOut className="size-4" />
       تسجيل الخروج
@@ -72,7 +72,7 @@ export function AdminSidebar({
       {/* Brand */}
       <div className="flex items-center gap-3 border-b border-border/20 px-5 py-5 min-h-[72px]">
         <div className="flex size-8 items-center justify-center rounded-lg bg-orange">
-          <Store className="size-4 text-white" />
+          <Store className="size-4 text-orange-foreground" />
         </div>
         <div>
           <p className="text-sm font-semibold leading-tight">الربط الذكي</p>
@@ -92,9 +92,9 @@ export function AdminSidebar({
         <LogoutButton />
         <Link
           href="/"
-          className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors duration-200 hover:bg-accent/50 hover:text-foreground group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+          className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors duration-fast hover:bg-accent/50 hover:text-foreground group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
         >
-          <MotionChevronRight className="size-3 transition-transform duration-200 group-hover:-translate-x-0.5 rtl:rotate-180" />
+          <MotionChevronRight className="size-3 transition-transform duration-fast group-hover:-translate-x-0.5 rtl:rotate-180" />
           العودة للموقع
         </Link>
       </div>

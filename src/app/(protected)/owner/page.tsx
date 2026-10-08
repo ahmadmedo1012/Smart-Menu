@@ -243,7 +243,7 @@ export default function OwnerDashboard() {
                                 <div className="rounded-xl border border-orange/20 bg-orange-muted/35 p-5 animate-fade-in">
                                         <div className="flex items-start gap-4 flex-wrap">
                                                 <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
-                                                        <AnimatedSparkles className="size-6 text-white" />
+                                                        <AnimatedSparkles className="size-6 text-orange-foreground" />
                                                 </div>
                                                 <div className="flex-1 min-w-[200px]">
                                                         <h2 className="text-base font-bold mb-1 flex items-center gap-2">مرحباً بك في الربط الذكي!
@@ -318,9 +318,9 @@ export default function OwnerDashboard() {
                                                         tabIndex={tab === t.id ? 0 : -1}
                                                         onClick={() => setTab(t.id)}
                                                         className={cn(
-                                                                'snap-start flex min-h-11 shrink-0 items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                'snap-start flex min-h-11 shrink-0 items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 tab === t.id
-                                                                        ? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
+                                                                        ? 'bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground'
                                                                         : 'border-border/30 hover:border-orange/20'
                                                         )}
                                                 >
@@ -336,7 +336,7 @@ export default function OwnerDashboard() {
                                         <div className="flex items-start justify-between flex-wrap gap-3">
                                                 <div className="flex items-center gap-3">
                                                         <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-orange">
-                                                                <Store className="size-6 text-white" />
+                                                                <Store className="size-6 text-orange-foreground" />
                                                         </div>
                                                         <div>
                                                                 <h2 className="text-lg font-bold">{restaurant.name}</h2>
@@ -373,7 +373,7 @@ export default function OwnerDashboard() {
                                 aria-labelledby="owner-tab-overview"
                                 tabIndex={0}
                                 hidden={tab !== 'overview'}
-                                className="space-y-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2 rounded-md"
+                                className="space-y-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 rounded-md"
                         >
                                 <OwnerKpiGrid stats={stats} />
 
@@ -395,10 +395,10 @@ export default function OwnerDashboard() {
                                                 ].map(({ href, icon: Icon, label }) => (
                                                         <Link key={href} href={href}>
                                                                 <div
-                                                                        className="group relative overflow-hidden rounded-lg border border-border/50 bg-background p-3.5 transition-[box-shadow,transform] duration-200 hover:border-orange/30 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-orange/60"
+                                                                        className="group relative overflow-hidden rounded-lg border border-border/50 bg-background p-3.5 transition-[box-shadow,transform] duration-fast hover:border-orange/30 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer focus-within:ring-2 focus-within:ring-ring/60"
                                                                 >
                                                                         <div className="relative flex flex-col items-center gap-1.5">
-                                                                                <Icon className="size-4 text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-300 motion-reduce:transition-none" aria-hidden="true" />
+                                                                                <Icon className="size-4 text-orange group-hover:scale-110 group-hover:rotate-[-4deg] transition-transform duration-base motion-reduce:transition-none" aria-hidden="true" />
                                                                                 <span className="text-xs font-medium">{label}</span>
                                                                         </div>
                                                                 </div>
@@ -415,7 +415,7 @@ export default function OwnerDashboard() {
                                 aria-labelledby="owner-tab-analytics"
                                 tabIndex={0}
                                 hidden={tab !== 'analytics'}
-                                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2 rounded-md"
+                                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 rounded-md"
                         >
                                 {tab === 'analytics' && restaurant?.id ? (
                                         <AnalyticsTab
@@ -439,7 +439,7 @@ export default function OwnerDashboard() {
                                         <div className="flex items-start justify-between flex-wrap gap-4">
                                                 <div className="flex items-start gap-3">
                                                         <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-orange">
-                                                                <AnimatedQrCode className="size-5 text-white" />
+                                                                <AnimatedQrCode className="size-5 text-orange-foreground" />
                                                         </div>
                                                         <div>
                                                                 <h2 className="text-sm font-bold mb-1">شارك منيو مطعمك</h2>

@@ -70,7 +70,7 @@ export function CategoriesList({
                                 {categories.map((cat) => (
                                         <div
                                                 key={cat.id}
-                                                className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
+                                                className="rounded-md border border-border/30 bg-card/50 overflow-hidden transition-[border-color,box-shadow] hover:border-orange/30 hover:shadow-md focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/60"
                                         >
                                                 <div
                                                         className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/20"
@@ -140,7 +140,7 @@ export function CategoriesList({
                                                                 </Button>
                                                                 <MotionChevronDown
                                                                         className={cn(
-                                                                                'size-5 text-muted-foreground transition-transform duration-300 ms-1',
+                                                                                'size-5 text-muted-foreground transition-transform duration-base ms-1',
                                                                                 expandedCatId === cat.id && 'rotate-180'
                                                                         )}
                                                                 />
@@ -276,7 +276,7 @@ export function CategoriesList({
                                                                                         variant="outline"
                                                                                         size="sm"
                                                                                         onClick={() => onAddItem(cat.id)}
-                                                                                        className="gap-1 border-orange/30 text-orange hover:bg-orange-muted"
+                                                                                        className="gap-1 border-orange/30 text-accent-foreground hover:bg-orange-muted"
                                                                                 >
                                                                                         <MotionPlus className="size-3.5" /> إضافة صنف
                                                                                 </Button>

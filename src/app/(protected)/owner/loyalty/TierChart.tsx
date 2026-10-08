@@ -31,7 +31,7 @@ export function TierChart({ distribution }: { distribution: Record<string, numbe
               </span>
             </div>
             <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div className={cn("h-full rounded-full transition-[width] duration-700", tier.bar)} style={{ width: `${pct}%` }} />
+              <div className={cn("h-full rounded-full transition-[width] duration-cinema", tier.bar)} style={{ width: `${pct}%` }} />
             </div>
           </div>
         )

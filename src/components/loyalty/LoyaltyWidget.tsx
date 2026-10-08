@@ -130,12 +130,12 @@ export function LoyaltyWidget({
                                 <div className="flex items-center justify-between p-4">
                                         <div className="flex items-center gap-3">
                                                 <div className="size-10 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-md">
-                                                        <Gift className="size-5 text-white" />
+                                                        <Gift className="size-5 text-orange-foreground" />
                                                 </div>
                                                 <div>
                                                         <h2 className="text-sm font-bold flex items-center gap-2">
                                                                 برنامج الولاء
-                                                                <span className="bg-gradient-to-r from-orange to-orange/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                                <span className="bg-gradient-to-r from-orange to-orange/80 text-orange-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
                                                                         جديد
                                                                 </span>
                                                         </h2>
@@ -145,7 +145,7 @@ export function LoyaltyWidget({
                                         {data && (
                                                 <div
                                                         className={cn(
-                                                                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r text-white shadow-sm',
+                                                                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r text-orange-foreground shadow-sm',
                                                                 tier.gradient
                                                         )}
                                                 >
@@ -168,7 +168,7 @@ export function LoyaltyWidget({
                                                                         onChange={(e) => setPhone(e.target.value)}
                                                                         onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
                                                                         placeholder="رقم هاتفك للولاء"
-                                                                        className="w-full h-10 pe-10 px-3 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                        className="w-full h-10 pe-10 px-3 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                         dir="ltr"
                                                                 />
                                                         </div>
@@ -177,7 +177,7 @@ export function LoyaltyWidget({
                                                                 onClick={handleCheck}
                                                                 aria-label="تحقق"
                                                                 disabled={loading}
-                                                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-white text-sm font-medium shadow-md transition-[box-shadow] outline-none hover:shadow-lg focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 disabled:opacity-50 shrink-0"
+                                                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-orange to-orange text-orange-foreground text-sm font-medium shadow-md transition-[box-shadow] outline-none hover:shadow-lg focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 disabled:opacity-50 shrink-0"
                                                         >
                                                                 {loading ? (
                                                                         <span className="size-4 rounded-full border-2 border-white/30 border-t-white animate-spin block" />
@@ -243,7 +243,7 @@ export function LoyaltyWidget({
                                                                                                         className={cn(
                                                                                                                 'size-9 rounded-lg flex items-center justify-center text-xs font-bold border transition-[background-color,border-color,box-shadow]',
                                                                                                                 isFilled
-                                                                                                                        ? 'bg-orange text-white border-orange shadow-sm shadow-orange/25'
+                                                                                                                        ? 'bg-orange text-orange-foreground border-orange shadow-sm shadow-orange/25'
                                                                                                                         : 'bg-muted/30 text-muted-foreground/30 border-border/20'
                                                                                                         )}
                                                                                                 >

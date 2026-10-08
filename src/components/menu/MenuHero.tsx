@@ -66,7 +66,7 @@ export function MenuHero({
                                 <QrCornerMark label="" size={52} />
                             </div>
                             {/* Orbital glow ring */}
-                            <div className="absolute -inset-6 rounded-full bg-orange/5 blur-[50px] group-hover:blur-[70px] transition-[filter] duration-700" />
+                            <div className="absolute -inset-6 rounded-full bg-orange/5 blur-[50px] group-hover:blur-[70px] transition-[filter] duration-cinema" />
                             <div className="absolute -inset-3 rounded-full border border-orange/10 animate-hero-glow-pulse" />
                             <div
                                 className="absolute -inset-2 rounded-full border border-orange/5 animate-hero-glow-pulse"
@@ -86,7 +86,7 @@ export function MenuHero({
                                        تعرّفان الزوايا؛ الافتراضي 18px كان سيقصّ 2px إضافية داخلها */
                                     className="rounded-none"
                                     imageClassName="size-full object-cover"
-                                    fallback={<Store className="size-10 text-white" />}
+                                    fallback={<Store className="size-10 text-muted-foreground/60" />}
                                     skeleton
                                     priority
                                     fetchPriority="high"
@@ -134,7 +134,7 @@ export function MenuHero({
                             href={`/menu/${slug}/print`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-base backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                         >
                             {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
                             <Printer className="size-3.5" aria-hidden="true" />
@@ -149,7 +149,7 @@ export function MenuHero({
                                 <a
                                     href={`tel:${restaurant.phone}`}
                                     dir="ltr"
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-base backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                     {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
                                     <Phone className="size-3.5" aria-hidden="true" />
@@ -166,7 +166,7 @@ export function MenuHero({
                                     href={`https://wa.me/${wa}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-success/15 transition-colors duration-300 backdrop-blur-md border border-success/30 text-success shadow-lg shadow-success/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-11 rounded-full text-xs font-bold glass-card hover:bg-success/15 transition-colors duration-base backdrop-blur-md border border-success/30 text-success shadow-lg shadow-success/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                     <span className="relative flex size-2">
                                         <span className="absolute inline-flex size-full animate-ping rounded-full bg-whatsapp opacity-60" />
@@ -182,7 +182,7 @@ export function MenuHero({
                             {restaurant.email && (
                                 <a
                                     href={`mailto:${restaurant.email}`}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-300 backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-11 rounded-full text-xs font-medium glass-card hover:bg-orange-muted transition-colors duration-base backdrop-blur-md border border-white/5 dark:border-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                     {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
                                     <Mail className="size-3.5" aria-hidden="true" />

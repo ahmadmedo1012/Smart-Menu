@@ -30,7 +30,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         "relative size-11 rounded-full",
         "bg-card/80 border border-border/60 backdrop-blur-sm shadow-sm",
         "hover:bg-orange-muted hover:border-orange/40 hover:shadow-md",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
         "cursor-pointer",
         "flex items-center justify-center",
         "overflow-hidden",

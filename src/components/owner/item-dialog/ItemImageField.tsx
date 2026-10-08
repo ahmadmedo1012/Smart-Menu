@@ -41,7 +41,7 @@ export function ItemImageField({
                                         disabled={uploading}
                                 />
                                 <label
-                                        className="size-12 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0 focus-within:outline-none focus-within:ring-2 focus-within:ring-orange/60"
+                                        className="size-12 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent cursor-pointer shrink-0 focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/60"
                                         style={{ opacity: uploading ? 0.5 : 1, pointerEvents: uploading ? 'none' : 'auto' }}
                                 >
                                         <input

@@ -114,7 +114,7 @@ const MenuItemCard = memo(function MenuItemCard({
                         whileHover={{ y: -3, transition: HOVER_SPRING }}
                         whileTap={{ scale: 0.99, transition: HOVER_SPRING }}
                         className={cn(
-                                'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-500 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2',
+                                'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm outline-none transition-[transform,box-shadow,border-color] duration-slower focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2',
                                 /* r95: توهج SmartBot §5.1 — accent-foreground بدل orange على الحدود/الظل */
                                 'hover:border-accent-foreground/30 hover:shadow-lg hover:shadow-accent-foreground/10',
                                 isFeatured && 'md:col-span-2'
@@ -130,7 +130,7 @@ const MenuItemCard = memo(function MenuItemCard({
                 >
                         {/* Image — aspect-4/3 with zoom */}
                         <div className="relative w-full aspect-[4/3] overflow-hidden">
-                                <div className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105">
+                                <div className="absolute inset-0 transition-transform duration-slower ease-out group-hover:scale-105">
                                         {item.image && !imageError ? (
                                                 <OptimizedImage
                                                         src={item.image}
@@ -211,11 +211,11 @@ const MenuItemCard = memo(function MenuItemCard({
                                                 }}
                                                 aria-label={`تقييم ${displayName}`}
                                                 className={cn(
-                                                        'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-300',
+                                                        'shrink-0 flex items-center gap-1 text-xs font-bold rounded-xl px-2.5 py-2 min-h-[48px] min-w-[48px] border transition-[color,background-color,border-color] duration-base',
                                                         'border-border/60 bg-muted/60 shadow-none',
                                                         hasRating
-                                                                ? 'text-ember dark:text-saffron hover:bg-white/30 dark:hover:bg-white/20'
-                                                                : 'text-muted-foreground hover:text-ember dark:hover:text-saffron hover:bg-white/20'
+                                                                ? 'text-ember dark:text-saffron hover:bg-foreground/10 dark:hover:bg-foreground/10'
+                                                                : 'text-muted-foreground hover:text-ember dark:hover:text-saffron hover:bg-foreground/10'
                                                 )}
                                         >
                                                 <AnimatedStar
@@ -267,7 +267,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                 <div className="flex items-center gap-2 flex-wrap">
                                         <span
                                                 className={cn(
-                                                        'text-xl font-bold transition-colors duration-300 tabular-nums',
+                                                        'text-xl font-bold transition-colors duration-base tabular-nums',
                                                         hasDiscount
                                                                 ? 'text-success'
                                                                 /* r95: حبر السعر — accent-foreground (#df5a00) 5.42:1 على
@@ -309,7 +309,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                         onOrder(item);
                                                 }}
                                                 aria-label={`خيارات ${displayName}`}
-                                                className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-accent-foreground/40 bg-accent-foreground/5 text-accent-foreground hover:bg-accent-foreground/10 active:scale-95 transition-[background-color,transform,translate,scale,rotate,box-shadow,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="shrink-0 inline-flex items-center justify-center gap-1 px-3 min-h-[48px] min-w-[48px] rounded-xl border border-accent-foreground/40 bg-accent-foreground/5 text-accent-foreground hover:bg-accent-foreground/10 active:scale-95 transition-[background-color,transform,translate,scale,rotate,box-shadow,color] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         >
                                                 <Settings2 className="size-4" aria-hidden="true" />
                                                 <span className="text-xs font-bold">خيارات</span>
@@ -330,7 +330,7 @@ const MenuItemCard = memo(function MenuItemCard({
                                                                         needsConfig ? onOrder(item) : onAddToCart(item);
                                                                 }}
                                                                 aria-label={`إضافة ${displayName} إلى السلة`}
-                                                className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm shadow-orange/20 transition-[background-color,box-shadow] duration-200 hover:bg-orange/90 hover:shadow-md hover:shadow-orange/30 active:scale-[0.99]"
+                                                className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-3 text-xs font-bold text-orange-foreground shadow-sm shadow-orange/20 transition-[background-color,box-shadow] duration-fast hover:bg-orange/90 hover:shadow-md hover:shadow-orange/30 active:scale-[0.99]"
                                                         >
                                                                 <MotionPlus className="size-4" />
                                                                 أضف

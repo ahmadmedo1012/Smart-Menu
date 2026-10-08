@@ -76,7 +76,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                         transition={{ ...springDefault, delay: index * 0.08 }}
                         className={cn(
                                 /* r95: بطاقة SmartBot §5.1 — توهج حدّي بدل الرفع، حركة 500ms */
-                                'group relative flex flex-col rounded-2xl border p-5 sm:p-6 transition-[border-color,background-color,box-shadow] duration-500 hover:shadow-lg hover:shadow-accent-foreground/10 hover:border-accent-foreground/30',
+                                'group relative flex flex-col rounded-2xl border p-5 sm:p-6 transition-[border-color,background-color,box-shadow] duration-slower hover:shadow-lg hover:shadow-accent-foreground/10 hover:border-accent-foreground/30',
                                 isPopular
                                         ? /* r95: بطاقة الخطة الشعبية §5.2 — تدرّج زاوية + حدّ accent */
                                           'border-accent-foreground/30 bg-gradient-to-br from-accent-foreground/[0.04] via-card to-card'
@@ -117,7 +117,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
                                         {/* r95: شريحة أيقونة SmartBot §5.4 — بلا حدّ، bg-accent-foreground/10 */}
                                         <div
                                                 className={cn(
-                                                        'flex size-11 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110',
+                                                        'flex size-11 items-center justify-center rounded-xl transition-all duration-base group-hover:scale-110',
                                                         isFree
                                                                 ? 'bg-muted text-muted-foreground'
                                                                 : 'bg-accent-foreground/10 text-accent-foreground group-hover:bg-accent-foreground/15'
@@ -341,15 +341,15 @@ export function PricingClient({ initialPlans }: { initialPlans: Plan[] | null })
                                                 ].map((faq, i) => (
                                                         <details
                                                                 key={i}
-                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color,box-shadow] duration-500 open:border-accent-foreground/25 open:shadow-sm"
+                                                                className="group overflow-hidden rounded-xl border border-border/50 bg-card transition-[border-color,box-shadow] duration-slower open:border-accent-foreground/25 open:shadow-sm"
                                                         >
                                                                 <summary className="flex items-center justify-between cursor-pointer text-sm sm:text-base font-medium list-none px-4 sm:px-5 py-3 sm:py-4 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/60">
                                                                                                                                         {faq.q}
-                                                                                                                                        <span className="text-muted-foreground group-open:rotate-180 transition-transform duration-300 text-xs">
+                                                                                                                                        <span className="text-muted-foreground group-open:rotate-180 transition-transform duration-base text-xs">
                                                                                                                                                 <ChevronDown className="size-4" />
                                                                                                                                         </span>
                                                                                                                                 </summary>
-                                                                <div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-[grid-template-rows] duration-300">
+                                                                <div className="grid grid-rows-[0fr] group-open:grid-rows-[1fr] transition-[grid-template-rows] duration-base">
                                                                         <div className="overflow-hidden">
                                                                                 <p className="px-4 sm:px-5 pb-3 sm:pb-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                                                                                         {faq.a}

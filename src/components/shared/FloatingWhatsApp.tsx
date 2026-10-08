@@ -27,11 +27,11 @@ export function FloatingWhatsApp({ phone }: { phone?: string }) {
                                    فتطفو فوق كل حوار مفتوح وتخطف نقرات أزرار الطلب.
                                    z-30 يبقيها فوق المحتوى العادي وتحت النوافذ. */
                                 "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] end-4 sm:end-6 z-30",
-                                "size-14 rounded-full bg-orange text-white",
+                                "size-14 rounded-full bg-whatsapp text-orange-foreground",
                                 "flex items-center justify-center",
-                                "shadow-xl shadow-orange/30",
-                                "hover:bg-orange/90 hover:scale-105 hover:shadow-2xl hover:shadow-orange/40",
-                                "transition-[background-color,transform,translate,scale,rotate,box-shadow] duration-300",
+                                "shadow-xl shadow-black/25",
+                                "hover:bg-whatsapp-deep hover:scale-105 hover:shadow-2xl hover:shadow-black/30",
+                                "transition-[background-color,transform,translate,scale,rotate,box-shadow] duration-base",
                                 "animate-fade-in"
                         )}
                         aria-label="تواصل عبر واتساب"

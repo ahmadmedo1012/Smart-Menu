@@ -177,7 +177,7 @@ export function MenuToolbar({
                         {/* Search input — glass card wrapper */}
                         {!hideSearch && (
                                 <div className="flex-1 relative">
-                                        <div className="flex h-12 items-center gap-3 rounded-lg border border-border/70 bg-card px-4 shadow-sm transition-[box-shadow,border-color] duration-200 focus-within:border-orange/45 focus-within:ring-2 focus-within:ring-orange/15 sm:h-14">
+                                        <div className="flex h-12 items-center gap-3 rounded-lg border border-border/70 bg-card px-4 shadow-sm transition-[box-shadow,border-color] duration-fast focus-within:border-ring/45 focus-within:ring-2 focus-within:ring-ring/25 sm:h-14">
                                                 <MotionSearch className="size-4 text-muted-foreground shrink-0 pointer-events-none" />
                                                 <input
                                                         ref={inputRef}
@@ -223,7 +223,7 @@ export function MenuToolbar({
                                                                         setShowSuggestions(false);
                                                                         inputRef.current?.focus();
                                                                 }}
-                                                                className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted/80 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted/80 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         >
                                                                 <AnimatedX className="size-3" aria-hidden="true" />
                                                         </button>
@@ -236,7 +236,7 @@ export function MenuToolbar({
                                                 role="listbox"
                                                 aria-label="اقتراحات البحث"
                                                 className={cn(
-                                                        'mt-2 overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg transition-[opacity,transform,translate,scale,rotate] duration-200',
+                                                        'mt-2 overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg transition-[opacity,transform,translate,scale,rotate] duration-fast',
                                                         dropdownVisible
                                                                 ? 'opacity-100 visible translate-y-0'
                                                                 : 'opacity-0 invisible -translate-y-1 pointer-events-none'
@@ -303,7 +303,7 @@ export function MenuToolbar({
                                                         setShowSort(true);
                                                 }
                                         }}
-                                        className="flex h-12 w-12 items-center justify-center rounded-lg border border-border/70 bg-card shadow-sm transition-[background-color,border-color] duration-200 hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-orange/30 focus-visible:outline-none sm:h-14 sm:w-14"
+                                        className="flex h-12 w-12 items-center justify-center rounded-lg border border-border/70 bg-card shadow-sm transition-[background-color,border-color] duration-fast hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none sm:h-14 sm:w-14"
                                 >
                                         {/* r97-X1: lucide import بدل مسار SVG مُدمج يدوياً */}
                                         <SlidersHorizontal className="size-4" aria-hidden="true" />

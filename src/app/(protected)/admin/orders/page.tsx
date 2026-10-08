@@ -289,10 +289,10 @@ export default function AdminOrdersPage() {
       <div className="flex gap-2 flex-wrap">
         <SearchInput value={search} onChange={setSearch} placeholder="ابحث برقم الطلب أو العميل أو المطعم..." className="flex-1 min-w-[200px]" />
         <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value) }}
-          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
+          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-ring"
           title="من تاريخ" aria-label="من تاريخ" />
         <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value) }}
-          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange"
+          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-ring"
           title="إلى تاريخ" aria-label="إلى تاريخ" />
         {(dateFrom || dateTo) && (
           <button type="button" onClick={() => { setDateFrom(""); setDateTo("") }}
@@ -304,9 +304,9 @@ export default function AdminOrdersPage() {
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {TABS.map(tab => (
           <button key={tab.value} type="button" onClick={() => { setFilter(tab.value); setPage(1) }}
-            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[background-color,color,border-color,box-shadow] duration-300",
+            className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[background-color,color,border-color,box-shadow] duration-base",
               filter === tab.value
-                ? "bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25"
+                ? "bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg shadow-orange/25"
                 : "bg-card/50 border border-border/30 hover:border-orange/30"
             )}>{tab.label}</button>
         ))}

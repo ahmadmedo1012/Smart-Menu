@@ -176,7 +176,7 @@ export function GalleryCarousel({
                                                                 }
                                                         }}
                                                         className={cn(
-                                                                'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-700 ease-out cursor-pointer',
+                                                                'absolute inset-0 transition-[opacity,transform,translate,scale,rotate] duration-cinema ease-out cursor-pointer',
                                                                 i === current ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
                                                         )}
                                                         onClick={() => openLightbox(i)}
@@ -210,7 +210,7 @@ export function GalleryCarousel({
                                                                 prev();
                                                         }}
                                                         aria-label="الصورة السابقة"
-                                                        className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="absolute start-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-base hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         <MotionChevronLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
                                                 </button>
@@ -221,7 +221,7 @@ export function GalleryCarousel({
                                                                 next();
                                                         }}
                                                         aria-label="الصورة التالية"
-                                                        className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-300 hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="absolute end-3 top-1/2 -translate-y-1/2 size-10 rounded-full glass-card flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform,translate,scale,rotate,box-shadow,background-color] duration-base hover:scale-110 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         <MotionChevronRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
                                                 </button>
@@ -233,7 +233,7 @@ export function GalleryCarousel({
                                                                 setPaused((p) => !p);
                                                         }}
                                                         aria-label={paused ? 'تشغيل العرض التلقائي' : 'إيقاف العرض التلقائي'}
-                                                        className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="absolute bottom-3 end-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         {paused ? (
                                                                 <Play className="size-3.5" aria-hidden="true" />
@@ -261,7 +261,7 @@ export function GalleryCarousel({
                                                                 >
                                                                         <span
                                                                                 className={cn(
-                                                                                        'block h-1.5 rounded-full transition-[width,background-color] duration-300',
+                                                                                        'block h-1.5 rounded-full transition-[width,background-color] duration-base',
                                                                                         i === current
                                                                                                 ? 'w-6 bg-orange shadow-md'
                                                                                                 : 'w-1.5 bg-white/40 hover:bg-white/60'
@@ -279,7 +279,7 @@ export function GalleryCarousel({
                                                 e.stopPropagation();
                                                 openLightbox(current);
                                         }}
-                                        className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                        className="absolute top-3 start-3 size-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 transition-[opacity,background-color] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         aria-label="تكبير الصورة"
                                 >
                                         <Maximize2 className="size-3.5" aria-hidden="true" />
@@ -293,7 +293,7 @@ export function GalleryCarousel({
                                         role="dialog"
                                         aria-modal="true"
                                         aria-label={restaurantName ? `معرض صور ${restaurantName}` : 'معرض الصور'}
-                                        className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
+                                        className="fixed inset-0 z-(--z-lightbox) bg-black/85 backdrop-blur-md flex items-center justify-center animate-fade-in"
                                         onClick={closeLightbox}
                                         onKeyDown={trapFocus}
                                 >
@@ -351,7 +351,7 @@ export function GalleryCarousel({
                                                                                         onClick={() => setLightboxIdx(i)}
                                                                                         aria-label={`صورة ${i + 1}`}
                                                                                         className={cn(
-                                                                                                'relative h-1.5 rounded-full transition-[width,height,background-color] duration-300 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
+                                                                                                'relative h-1.5 rounded-full transition-[width,height,background-color] duration-base after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
                                                                                                 i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
                                                                                         )}
                                                                                 />

@@ -94,7 +94,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
                                         <span
                                                 className={cn(
                                                         'tabular-nums',
-                                                        isAt ? 'text-destructive font-bold' : isNear ? 'text-orange' : ''
+                                                        isAt ? 'text-destructive font-bold' : isNear ? 'text-accent-foreground' : ''
                                                 )}
                                         >
                                                 {toArabicNumber(usage.current)} / {usage.max === 9999 ? '∞' : toArabicNumber(usage.max)}
@@ -103,7 +103,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
                                 </div>
                                 {isAt && (
                                         <Link href="/pricing">
-                                                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange to-orange/80 text-orange-foreground text-xs font-medium shadow-lg shadow-orange/20 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60">
+                                                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange to-orange/80 text-orange-foreground text-xs font-medium shadow-lg shadow-orange/20 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60">
                                                         <Crown className="size-3" /> ترقية
                                                 </button>
                                         </Link>
@@ -112,7 +112,7 @@ export function PlanUsageBadge({ restaurantId }: { restaurantId: number }) {
                         <div className="h-2 rounded-full bg-muted overflow-hidden">
                                 <div
                                         className={cn(
-                                                'h-full rounded-full transition-[width,background-color] duration-700',
+                                                'h-full rounded-full transition-[width,background-color] duration-cinema',
                                                 isAt
                                                         ? 'bg-destructive'
                                                         : isNear

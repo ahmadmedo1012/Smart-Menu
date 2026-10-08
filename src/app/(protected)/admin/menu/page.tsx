@@ -185,7 +185,7 @@ export default function AdminMenuPage() {
         <select
           value={restaurantFilter}
           onChange={e => setRestaurantFilter(e.target.value)}
-          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-orange min-w-[160px]"
+          className="h-11 rounded-md border border-border/30 bg-card/50 px-3 text-sm outline-none focus-visible:border-ring min-w-[160px]"
           aria-label="فلتر المطعم"
         >
           <option value="">كل المطاعم</option>

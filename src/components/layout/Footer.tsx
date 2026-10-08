@@ -48,7 +48,7 @@ export function Footer({ className }: FooterProps) {
                                                 <div className="flex gap-2">
                                                         <a
                                                                 href={waLink}
-                                                                className="flex size-11 items-center justify-center rounded-xl border border-border/60 bg-card transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-accent-foreground/40 hover:bg-accent-foreground/10 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
+                                                                className="flex size-11 items-center justify-center rounded-xl border border-border/60 bg-card transition-[color,background-color,border-color,box-shadow] duration-fast hover:border-accent-foreground/40 hover:bg-accent-foreground/10 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
                                                                 aria-label="واتساب"
                                                         >
                                                                 <AnimatedMessageCircle className="size-4" />

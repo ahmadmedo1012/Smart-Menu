@@ -157,14 +157,14 @@ export const KpiCard = memo(function KpiCard({
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={entranceTransition}
                                 className={cn(
-                                        'group relative rounded-2xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-300',
+                                        'group relative rounded-2xl border border-border/50 bg-card/80 shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-base',
                                         'hover:border-orange/40 hover:shadow-lg hover:shadow-orange/10 hover:-translate-y-1',
                                 )}
                         >
                                 {/* stretched-link pattern: whole card is one link target */}
                                 <Link
                                         href={href}
-                                        className="absolute inset-0 z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                        className="absolute inset-0 z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                         <span className="sr-only">{label}</span>
                                 </Link>
@@ -179,7 +179,7 @@ export const KpiCard = memo(function KpiCard({
                         animate={{ opacity: 1, y: 0 }}
                         transition={entranceTransition}
                         className={cn(
-                                'group relative overflow-hidden rounded-2xl border border-border/50 bg-card/80 p-5 shadow-sm backdrop-blur-sm transition-[border-color] duration-200',
+                                'group relative overflow-hidden rounded-2xl border border-border/50 bg-card/80 p-5 shadow-sm backdrop-blur-sm transition-[border-color] duration-fast',
                         )}
                 >
                         {body}

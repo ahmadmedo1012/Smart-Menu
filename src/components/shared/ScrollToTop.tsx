@@ -21,7 +21,7 @@ function ProgressBar() {
     <div className="fixed top-0 inset-x-0 z-[90] h-0.5">
       <div
         className={cn(
-          "h-full bg-gradient-to-r from-orange to-orange/80 transition-[width] duration-500 ease-out",
+          "h-full bg-gradient-to-r from-orange to-orange/80 transition-[width] duration-slower ease-out",
           loading ? "w-full opacity-100" : "w-0 opacity-0",
         )}
       />
@@ -46,7 +46,7 @@ function ScrollButton() {
       className={cn(
         /* r121 (J-1): كانت z-[61] فوق نطاق النوافذ المنبثقة (z-40/50) — تبقى ظاهرة
            وتستقبل النقر فوق أي حوار مفتوح. z-31 تحت النوافذ وفوق عناصر الصفحة. */
-        "fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] start-4 sm:start-6 z-31 size-11 rounded-full bg-gradient-to-r from-orange to-orange/80 text-white shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 hover:scale-105 transition-[transform,translate,scale,rotate,box-shadow,opacity,visibility] duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
+        "fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] start-4 sm:start-6 z-31 size-11 rounded-full bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 hover:scale-105 transition-[transform,translate,scale,rotate,box-shadow,opacity,visibility] duration-base flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
         /* r120 (U8-F-1): opacity-0 وحدها لا تُخرج الزر من ترتيب التبويب — أول
            ضغطة Tab على كل صفحة تهبط على زر غير مرئي بحلقة تركيز غير مرئية.
            invisible (visibility:hidden) تُزيله من ترتيب التبويب فعلًا. */

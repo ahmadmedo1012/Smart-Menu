@@ -139,7 +139,7 @@ export default function AdminRestaurantsPage() {
           <h1 className="text-2xl font-bold tracking-normal">إدارة المطاعم</h1>
           <p className="text-sm text-muted-foreground">{toArabicNumber(total)} مطعم</p>
         </div>
-        <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-white">
+        <Button onClick={openAdd} className="gap-2 bg-orange hover:opacity-90 text-orange-foreground">
           <MotionPlus className="size-4" /> إضافة مطعم
         </Button>
       </div>

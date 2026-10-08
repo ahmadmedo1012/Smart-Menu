@@ -20,7 +20,7 @@ export function LayoutHeader({ title = "لوحة التحكم", onMenuClick, rol
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="flex size-11 items-center justify-center rounded-xl p-1.5 text-muted-foreground hover:bg-orange/10 hover:text-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+            className="flex size-11 items-center justify-center rounded-xl p-1.5 text-muted-foreground hover:bg-orange/10 hover:text-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
             onClick={onMenuClick}
             aria-expanded={menuOpen}
             aria-controls="mobile-nav-sheet"

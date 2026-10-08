@@ -166,10 +166,10 @@ function TabButton({
       onClick={onClick}
       aria-pressed={isActive}
       className={cn(
-        "relative snap-start shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-2",
+        "relative snap-start shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2",
         /* premium glass pill */
         "px-4 sm:px-5 py-2.5 sm:py-3 min-h-11 rounded-full",
-        "text-xs sm:text-sm font-medium transition-[color,background-color,transform,translate,scale,rotate,box-shadow] duration-200",
+        "text-xs sm:text-sm font-medium transition-[color,background-color,transform,translate,scale,rotate,box-shadow] duration-fast",
         /* hover + active with scale — r97-X1: active bg-orange removed: the
            layoutId="active-tab" pill below is the ONLY background layer so its
            spring animation is no longer masked by a static bg on the button. */
@@ -192,7 +192,7 @@ function TabButton({
         {label}
         <span
           className={cn(
-            "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold transition-colors duration-200",
+            "inline-flex items-center justify-center size-4 sm:size-5 rounded-sm text-[10px] sm:text-[11px] font-bold transition-colors duration-fast",
             /* r95: عداد التبويب غير النشط — accent-foreground الأسطع (#df5a00)
                بدل text-orange (#bc4700) الذي كان 3.9:1 بلا AA على الداكن. */
             isActive

@@ -183,9 +183,9 @@ export default function AdminSettingsPage() {
               aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
+                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
                 activeTab === tab.id
-                  ? "bg-orange-muted border-orange/30 text-orange/80 dark:text-orange"
+                  ? "bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground"
                   : "border-border/30 hover:border-orange/20"
               )}
             >
@@ -210,9 +210,9 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={() => setSelectedId(r.id)}
               className={cn(
-                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60",
+                "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
                 selectedId === r.id
-                  ? "bg-orange-muted border-orange/30 text-orange/80 dark:text-orange"
+                  ? "bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground"
                   : "border-border/30 hover:border-orange/20"
               )}
             >

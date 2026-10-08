@@ -495,7 +495,7 @@ export default function CartPage() {
                                 )}
 
                                 <Button
-                                        className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 transition-[box-shadow,transform,translate,scale,rotate] duration-300"
+                                        className="w-full h-14 text-base font-semibold gap-2 shadow-lg shadow-orange/20 transition-[box-shadow,transform,translate,scale,rotate] duration-base"
                                         onClick={() => setShowPreview(true)}
                                         size="lg"
                                         disabled={items.length === 0}

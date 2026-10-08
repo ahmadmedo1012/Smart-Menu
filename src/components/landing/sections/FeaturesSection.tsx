@@ -56,7 +56,7 @@ export function FeaturesSection() {
                                         >
                                                 <div
                                                         className={cn(
-                                                                "group relative h-full p-5 sm:p-6 transition-[border-color,background-color,box-shadow] duration-500 hover:shadow-lg hover:shadow-accent-foreground/10",
+                                                                "group relative h-full p-5 sm:p-6 transition-[border-color,background-color,box-shadow] duration-slower hover:shadow-lg hover:shadow-accent-foreground/10",
                                                                 isHero
                                                                         ? /* r95: bento hero — حد accent + تدرج زاوية (§5.2) */
                                                                           "rounded-2xl border border-accent-foreground/30 bg-gradient-to-br from-accent-foreground/[0.04] via-card to-card"
@@ -81,7 +81,7 @@ export function FeaturesSection() {
                                                         )}>
                                                                 {/* r95: شريحة أيقونة SmartBot — بلا ring (§5.4) */}
                                                                 <div className={cn(
-                                                                        "flex items-center justify-center rounded-xl bg-accent-foreground/10 group-hover:bg-accent-foreground/15 group-hover:scale-110 transition-all duration-300",
+                                                                        "flex items-center justify-center rounded-xl bg-accent-foreground/10 group-hover:bg-accent-foreground/15 group-hover:scale-110 transition-all duration-base",
                                                                         isHero ? "mb-5 size-11" : "mb-4 size-10 sm:size-11 shrink-0",
                                                                         isWide && "sm:mb-0",
                                                                 )}>

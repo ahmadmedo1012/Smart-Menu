@@ -44,7 +44,7 @@ export function PickupTypeSelector({
                                         تعذر تحميل خيارات الطلب — انقر لإعادة المحاولة
                                 </button>
                         )}
-                        <div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up delay-100">
+                        <div className="flex gap-1 sm:gap-2 mb-8 animate-slide-up stagger-1">
                                 {options.map((opt) => (
                                         <button
                                                 key={opt.value}
@@ -55,9 +55,9 @@ export function PickupTypeSelector({
                                                 // perceivable to screen readers (WCAG 1.4.1).
                                                 aria-pressed={value === opt.value}
                                                 className={cn(
-                                                        'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-[transform,translate,scale,rotate,box-shadow,color,background-color,border-color] duration-300 border overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                        'flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 rounded-md text-[11px] sm:text-sm font-medium transition-[transform,translate,scale,rotate,box-shadow,color,background-color,border-color] duration-base border overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                         value === opt.value
-                                                                ? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/20 scale-[1.02]'
+                                                                ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground border-orange shadow-lg shadow-orange/20 scale-[1.02]'
                                                                 : 'bg-card/50 border-border/30 hover:border-orange/20 hover:shadow-md'
                                                 )}
                                         >

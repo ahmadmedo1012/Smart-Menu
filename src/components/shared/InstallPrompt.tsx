@@ -32,7 +32,7 @@ export function InstallPrompt() {
                 <button
                         type="button"
                         onClick={handleInstall}
-                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                         // ponytail: one install button, replace with your own styling when a design exists
                         style={{
                                 position: 'fixed',

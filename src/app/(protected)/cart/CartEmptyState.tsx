@@ -49,7 +49,7 @@ export function CartEmptyState({ restaurantId, restaurantSlug, restaurantName }:
                                 <div className="mt-6 w-full max-w-md">
                                         <Link
                                                 href={`/menu/${restaurantSlug}`}
-                                                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-border/50 bg-card/70 px-4 py-2.5 text-sm font-arabic shadow-sm hover:border-orange/40 hover:bg-orange-muted/30 hover:shadow-md transition-[color,background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-border/50 bg-card/70 px-4 py-2.5 text-sm font-arabic shadow-sm hover:border-orange/40 hover:bg-orange-muted/30 hover:shadow-md transition-[color,background-color,border-color,box-shadow] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         >
                                                 <MotionPlus className="size-3.5 text-orange" />
                                                 متابعة التسوق من {restaurantName || 'قائمة المطعم'}

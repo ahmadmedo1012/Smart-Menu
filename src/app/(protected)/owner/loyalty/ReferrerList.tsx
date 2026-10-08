@@ -19,7 +19,7 @@ interface ReferralRow {
 
 function ReferralStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; classes: string }> = {
-    pending: { label: "معلق", classes: "bg-orange/10 text-orange dark:bg-orange/10 dark:text-orange" },
+    pending: { label: "معلق", classes: "bg-orange/10 text-accent-foreground dark:bg-orange/10 dark:text-accent-foreground" },
     converted: { label: "تم التحويل", classes: "bg-success/15 text-success" },
     expired: { label: "منتهي", classes: "bg-muted text-muted-foreground" },
   }
@@ -63,16 +63,16 @@ export function ReferrerList({ referrals }: { referrals: ReferralRow[] }) {
           {["all", "pending", "converted", "expired"].map((s) => (
             <button key={s} type="button" onClick={() => setStatusFilter(s)}
               aria-pressed={statusFilter === s}
-              className={cn("h-11 rounded-lg px-3 text-xs font-medium transition-[background-color,border-color,color] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1",
+              className={cn("h-11 rounded-lg px-3 text-xs font-medium transition-[background-color,border-color,color] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1",
                 statusFilter === s
-                  ? "bg-orange/10 text-orange border border-orange/20"
+                  ? "bg-orange/10 text-accent-foreground border border-orange/20"
                   : "text-muted-foreground hover:bg-muted/50 border border-transparent")}>
               {s === "all" ? "الكل" : s === "pending" ? "معلق" : s === "converted" ? "تم التحويل" : s === "expired" ? "منتهي" : s}
             </button>
           ))}
         </div>
       </div>
-      <div className="divide-y divide-white/10 max-h-[500px] overflow-y-auto">
+      <div className="divide-y divide-border max-h-[500px] overflow-y-auto">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-10 text-center">
             <FilterX className="size-6 text-muted-foreground mb-2" />

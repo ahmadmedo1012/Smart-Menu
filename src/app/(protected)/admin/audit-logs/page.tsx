@@ -51,13 +51,13 @@ const CATEGORY_PILLS = [
 
 const ACTION_STYLES: Record<string, { label: string; color: string; bg: string }> = {
         create: { label: 'إنشاء', color: 'text-success', bg: 'bg-success/10' },
-        update: { label: 'تحديث', color: 'text-orange', bg: 'bg-orange-muted' },
+        update: { label: 'تحديث', color: 'text-accent-foreground', bg: 'bg-orange-muted' },
         delete: {
                 label: 'حذف',
                 color: 'text-destructive',
                 bg: 'bg-destructive/10 dark:bg-destructive/20',
         },
-        login: { label: 'دخول', color: 'text-orange', bg: 'bg-orange/10' },
+        login: { label: 'دخول', color: 'text-accent-foreground', bg: 'bg-orange/10' },
         export: { label: 'تصدير', color: 'text-info', bg: 'bg-info/10 dark:bg-info/20' },
         other: { label: 'أخرى', color: 'text-muted-foreground', bg: 'bg-muted' },
 };
@@ -178,7 +178,7 @@ export default function AdminAuditLogsPage() {
                                         className="size-11 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg"
                                         aria-hidden="true"
                                 >
-                                        <Activity className="size-5 text-white" />
+                                        <Activity className="size-5 text-orange-foreground" />
                                 </div>
                                 <div>
                                         <h1 className="text-2xl font-bold tracking-normal">سجل التدقيق</h1>
@@ -214,7 +214,7 @@ export default function AdminAuditLogsPage() {
                                                                 className={cn(
                                                                         'px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                                                         actionFilter === pill.value
-                                                                                ? 'bg-orange text-white shadow-sm'
+                                                                                ? 'bg-orange text-orange-foreground shadow-sm'
                                                                                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                                                 )}
                                                         >

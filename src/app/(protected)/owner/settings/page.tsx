@@ -231,7 +231,7 @@ export default function OwnerSettingsPage() {
                                                                                         : 'from-orange to-orange/80'
                                                                 )}
                                                         >
-                                                                <Crown className="size-6 text-white" />
+                                                                <Crown className="size-6 text-orange-foreground" />
                                                         </div>
                                                         <div>
                                                                 <p className="text-[11px] text-muted-foreground">الخطة الحالية</p>
@@ -265,7 +265,7 @@ export default function OwnerSettingsPage() {
                                                                         type="button"
                                                                         onClick={() => setLogo('')}
                                                                         aria-label="حذف الشعار"
-                                                                        className="absolute top-1.5 end-1.5 size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:opacity-0 sm:group-hover:opacity-100"
+                                                                        className="absolute top-1.5 end-1.5 size-11 rounded-full bg-destructive/80 text-destructive-foreground flex items-center justify-center transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:opacity-0 sm:group-hover:opacity-100"
                                                                 >
                                                                         <AnimatedX className="size-3" aria-hidden="true" />
                                                                 </button>
@@ -358,7 +358,7 @@ export default function OwnerSettingsPage() {
                                                                                 type="button"
                                                                                 onClick={() => removeGalleryImage(i)}
                                                                                 aria-label={`حذف صورة ${i + 1}`}
-                                                                                className="size-11 rounded-full bg-destructive/80 text-white flex items-center justify-center hover:bg-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                                                                                className="size-11 rounded-full bg-destructive/80 text-destructive-foreground flex items-center justify-center hover:bg-destructive transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                                                         >
                                                                                 <AnimatedX className="size-3.5" aria-hidden="true" />
                                                                         </button>
@@ -370,7 +370,7 @@ export default function OwnerSettingsPage() {
                                                                                         type="button"
                                                                                         onClick={() => moveGalleryImage(i, i - 1)}
                                                                                         aria-label={`نقل صورة ${i + 1} إلى اليمين`}
-                                                                                        className="size-11 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 transition-[background-color]"
+                                                                                        className="size-11 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 transition-[background-color]"
                                                                                 >
                                                                                         <span aria-hidden="true">→</span>
                                                                                 </button>
@@ -380,7 +380,7 @@ export default function OwnerSettingsPage() {
                                                                                         type="button"
                                                                                         onClick={() => moveGalleryImage(i, i + 1)}
                                                                                         aria-label={`نقل صورة ${i + 1} إلى اليسار`}
-                                                                                        className="size-11 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 transition-[background-color]"
+                                                                                        className="size-11 rounded-full bg-background/70 text-foreground flex items-center justify-center hover:bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 transition-[background-color]"
                                                                                 >
                                                                                         <span aria-hidden="true">←</span>
                                                                                 </button>
@@ -426,7 +426,7 @@ export default function OwnerSettingsPage() {
                                         ))}
                                 </div>
                                 {pickupTypes.length === 0 && (
-                                        <p className="text-xs text-destructive mt-2">يجب اختيار نوع طلب واحد على الأقل</p>
+                                        <p role="alert" className="text-xs text-destructive mt-2">يجب اختيار نوع طلب واحد على الأقل</p>
                                 )}
                         </div>
 
@@ -457,7 +457,7 @@ export default function OwnerSettingsPage() {
                                                         aria-invalid={(submitted && !form.name.trim()) || undefined}
                                                 />
                                                 {submitted && !form.name.trim() && (
-                                                        <p className="text-xs text-destructive mt-1">هذا الحقل مطلوب</p>
+                                                        <p role="alert" className="text-xs text-destructive mt-1">هذا الحقل مطلوب</p>
                                                 )}
                                         </div>
                                         <div>

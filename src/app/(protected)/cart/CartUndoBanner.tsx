@@ -23,7 +23,7 @@ export function CartUndoBanner({ item, onUndo }: CartUndoBannerProps) {
                         <button
                                 type="button"
                                 onClick={() => onUndo()}
-                                className="font-arabic font-bold text-orange hover:underline shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                className="font-arabic font-bold text-accent-foreground hover:underline shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                         >
                                 تراجع
                         </button>

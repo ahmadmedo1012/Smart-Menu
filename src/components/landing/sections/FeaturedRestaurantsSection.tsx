@@ -103,7 +103,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                     التوأمة (توهج accent + حلقة accent 500ms). الشرائط السوداء
                                     فوق الصور من-black/80 ونصوص text-white وظيفية (تباين AA فوق
                                     الصور) فتبقى كما هي. */}
-                                <div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-border/50 bg-card shadow-lg shadow-black/20 transition-[box-shadow] duration-500 hover:shadow-accent-foreground/10 hover:ring-accent-foreground/30">
+                                <div className="relative h-[380px] sm:h-[460px] overflow-hidden rounded-2xl sm:rounded-3xl ring-1 ring-border/50 bg-card shadow-lg shadow-black/20 transition-[box-shadow] duration-slower hover:shadow-accent-foreground/10 hover:ring-accent-foreground/30">
                                         <AnimatePresence custom={dir} mode="popLayout">
                                                 <m.div
                                                         key={r.id}
@@ -127,7 +127,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                                                         src={r.logo}
                                                                                         alt=""
                                                                                         fill
-                                                                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                                                                        className="object-cover transition-transform duration-cinema group-hover:scale-105"
                                                                                         sizes="(max-width: 768px) 100vw, 1060px"
                                                                                         quality={85}
                                                                                         /* r113-F116: priority أزيلت — القسم تحت الطية (البطل 80vh ثم
@@ -233,7 +233,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                                                                 عرض المنيو
                                                                                                 {/* HeroSection:95 pattern — ArrowRight + rtl:rotate-180 keeps glyph and hover
                                                                                                 nudge coherent in both directions (translate-x is physical in TW4) */}
-                                                                                                <MotionArrowRight className="size-4 transition-transform duration-200 group-hover/link:translate-x-1 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
+                                                                                                <MotionArrowRight className="size-4 transition-transform duration-fast group-hover/link:translate-x-1 rtl:rotate-180 rtl:group-hover/link:-translate-x-1" />
                                                                                         </span>
                                                                                 </m.div>
                                                                         </div>
@@ -248,7 +248,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                         <button
                                                                 onClick={prev}
                                                                 type="button"
-                                                                className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="absolute start-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-fast shadow-xl opacity-80 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                 aria-label="السابق"
                                                         >
                                                                 <MotionArrowLeft className="size-5" />
@@ -256,7 +256,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                         <button
                                                                 onClick={next}
                                                                 type="button"
-                                                                className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-200 shadow-xl opacity-80 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="absolute end-4 top-1/2 -translate-y-1/2 z-20 size-12 rounded-full bg-white/20 backdrop-blur-lg border border-white/20 flex items-center justify-center text-white hover:bg-white/35 hover:scale-105 transition-[background-color,transform,translate,scale,rotate,box-shadow,opacity] duration-fast shadow-xl opacity-80 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                 aria-label="التالي"
                                                         >
                                                                 <MotionArrowRight className="size-5" />
@@ -287,7 +287,7 @@ export function FeaturedRestaurantsSection({ restaurants, onRetry }: Props) {
                                                                 key={item.id}
                                                                 type="button"
                                                                 onClick={() => go(i, i > slide ? 1 : -1)}
-                                                                        className={`min-h-11 min-w-11 rounded-full transition-[width,height,background-color,box-shadow] duration-300 ${
+                                                                        className={`min-h-11 min-w-11 rounded-full transition-[width,height,background-color,box-shadow] duration-base ${
                                                                         i === slide
                                                                                 ? 'w-9 h-3 bg-primary shadow-md shadow-primary/30'
                                                                                 : 'w-3 h-3 bg-muted-foreground/20 hover:bg-muted-foreground/40'

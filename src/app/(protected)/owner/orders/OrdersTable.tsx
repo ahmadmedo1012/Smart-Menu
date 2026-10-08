@@ -229,7 +229,7 @@ function OrderCard({
                                                                 onAdvance();
                                                         }}
                                                         className={cn(
-                                                                'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-[background-color] border disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                'min-w-28 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-[background-color] border disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 targetStatus === 'preparing'
                                                                         ? 'border-info/30 text-info hover:bg-info/10'
                                                                         : 'border-success/25 text-success hover:bg-success/10'

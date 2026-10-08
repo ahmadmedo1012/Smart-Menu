@@ -11,7 +11,7 @@ interface CartSummaryCardProps {
 /** Order summary card — verbatim extraction from the cart page (round89-G1). */
 export function CartSummaryCard({ items, total }: CartSummaryCardProps) {
         return (
-                <div className="rounded-md bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8 animate-slide-up delay-400">
+                <div className="rounded-md bg-gradient-to-r from-orange/5 to-orange/5 border border-orange/20 p-5 mb-8 animate-slide-up stagger-4">
                         <h3 className="text-sm font-bold mb-4 text-muted-foreground">ملخص الطلب</h3>
                         <div className="space-y-2 mb-4">
                                 {items.map((item) => (

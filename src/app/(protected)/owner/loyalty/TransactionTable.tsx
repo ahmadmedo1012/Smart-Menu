@@ -21,7 +21,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
   }
 
   return (
-    <div className="divide-y divide-white/10 max-h-[300px] overflow-y-auto">
+    <div className="divide-y divide-border max-h-[300px] overflow-y-auto">
       {transactions.map((tx) => {
         const isEarn = tx.type === "earn"
         return (

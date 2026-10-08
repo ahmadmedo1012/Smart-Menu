@@ -59,7 +59,7 @@ export function PlanSelector({
                                                         aria-pressed={isSelected}
                                                         className={cn(
                                                                 /* r95: بطاقة اختيار SmartBot §5.1/§5.2 — توهج حدّي + هندسة rounded-2xl */
-                                                                'relative flex flex-col rounded-2xl border p-5 text-start transition-[border-color,background-color,box-shadow] duration-500 hover:shadow-lg hover:shadow-accent-foreground/10 outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+                                                                'relative flex flex-col rounded-2xl border p-5 text-start transition-[border-color,background-color,box-shadow] duration-slower hover:shadow-lg hover:shadow-accent-foreground/10 outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 isSelected
                                                                         ? 'border-accent-foreground/40 ring-2 ring-primary/30 bg-gradient-to-br from-accent-foreground/[0.04] via-card to-card shadow-lg shadow-accent-foreground/10'
                                                                         : 'border-border/50 bg-card hover:border-accent-foreground/30'
@@ -69,13 +69,13 @@ export function PlanSelector({
                                                         <span
                                                                 aria-hidden={!isSelected}
                                                                 className={cn(
-                                                                        'absolute -top-2 -end-2 size-6 rounded-full flex items-center justify-center shadow-lg transition-opacity duration-200',
+                                                                        'absolute -top-2 -end-2 size-6 rounded-full flex items-center justify-center shadow-lg transition-opacity duration-fast',
                                                                         isSelected
                                                                                 ? 'bg-primary opacity-100'
                                                                                 : 'bg-border/60 opacity-0 pointer-events-none'
                                                                 )}
                                                         >
-                                                                <MotionCheck className="size-3.5 text-white" />
+                                                                <MotionCheck className="size-3.5 text-primary-foreground" />
                                                         </span>
                                                         {meta.recommended && !upgradeMode && (
                                                                 /* round94 (D/A8): via-saffron يجعل وسط الشارة saffron صرفاً
@@ -93,7 +93,7 @@ export function PlanSelector({
                                                                         meta.gradient
                                                                 )}
                                                         >
-                                                                <Icon className="size-5 text-white" aria-hidden="true" />
+                                                                <Icon className="size-5 text-orange-foreground" aria-hidden="true" />
                                                         </span>
                                                         <h3 className="font-heading font-bold text-lg mb-1">{plan.nameAr}</h3>
                                                         <div className="flex items-baseline gap-1 mb-3">

@@ -136,7 +136,7 @@ export default function OwnerReviewsPage() {
                 <span className="w-8 shrink-0">{d.star} ⭐</span>
                 <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-saffron transition-[width] duration-700"
+                    className="h-full rounded-full bg-saffron transition-[width] duration-cinema"
                     style={{ width: `${stats.total > 0 ? (d.count / stats.total) * 100 : 0}%` }}
                   />
                 </div>
@@ -155,9 +155,9 @@ export default function OwnerReviewsPage() {
             onClick={() => setFilterStar(star)}
             className={cn(
               "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors border",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
               filterStar === star
-                ? "bg-orange text-white border-orange shadow-sm"
+                ? "bg-orange text-orange-foreground border-orange shadow-sm"
                 : "bg-card/50 text-muted-foreground border-border/20 hover:bg-muted/50",
             )}
           >
@@ -181,7 +181,7 @@ export default function OwnerReviewsPage() {
           <button
             type="button"
             onClick={load}
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline underline-offset-4"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent-foreground hover:underline underline-offset-4"
           >
             <AnimatedRefreshCw className="size-3.5" />
             إعادة المحاولة
@@ -222,7 +222,7 @@ export default function OwnerReviewsPage() {
                       {review.customerName || "مجهول"}
                     </span>
                   </div>
-                  <p className="text-xs text-orange/70 font-medium mb-1">
+                  <p className="text-xs text-accent-foreground/70 font-medium mb-1">
                     {review.menuItem.nameAr || review.menuItem.name}
                   </p>
                   {review.comment && (

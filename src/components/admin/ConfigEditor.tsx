@@ -129,9 +129,9 @@ export function ConfigEditor() {
                                                 type="button"
                                                 onClick={() => setActiveCategory(cat)}
                                                 className={cn(
-                                                        'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                        'snap-start shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                         activeCategory === cat
-                                                                ? 'bg-orange-muted border-orange/30 text-orange/80 dark:text-orange'
+                                                                ? 'bg-orange-muted border-orange/30 text-accent-foreground/80 dark:text-accent-foreground'
                                                                 : 'border-border/30 hover:border-orange/20'
                                                 )}
                                         >
@@ -160,7 +160,7 @@ export function ConfigEditor() {
                                                                                 {item.isSecret && (
                                                                                         <Badge
                                                                                                 variant="outline"
-                                                                                                className="text-[10px] px-1.5 text-orange border-orange/30"
+                                                                                                className="text-[10px] px-1.5 text-accent-foreground border-orange/30"
                                                                                         >
                                                                                                 سري
                                                                                         </Badge>
@@ -213,7 +213,7 @@ export function ConfigEditor() {
                                                                                         onClick={() =>
                                                                                                 setShowSecrets((prev) => ({ ...prev, [item.key]: !prev[item.key] }))
                                                                                         }
-                                                                                        className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                        className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                 >
                                                                                         {showSecrets[item.key] ? (
                                                                                                 <AnimatedEyeOff className="size-4" />

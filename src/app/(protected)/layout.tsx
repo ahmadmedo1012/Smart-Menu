@@ -7,6 +7,7 @@ import { headers } from 'next/headers.js';
 import { ScrollToTop } from '@/components/shared/ScrollToTop';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
+import { SITE_ORIGIN } from '@/lib/seo';
 import { ServiceWorkerInit } from '@/components/shared/ServiceWorkerInit';
 import { InstallPrompt } from '@/components/shared/InstallPrompt';
 import { CartHydrator } from '@/components/shared/CartHydrator';
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
                 'الربط الذكي',
         ],
         authors: [{ name: 'الربط الذكي' }],
-        metadataBase: new URL(process.env.NEXT_PUBLIC_DOMAIN || 'https://smart-link.ly'),
+        metadataBase: new URL(SITE_ORIGIN), // r126 (M7): unified origin
         openGraph: {
                 title: 'الربط الذكي | Smart Menu',
                 description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب',
@@ -123,7 +124,7 @@ export default async function RootLayout({
                         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: HIGH_CONTRAST_BOOT_SCRIPT }} />
                                 <a
                                         href="#main-content"
-                                        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-white focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-orange/50"
+                                        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:end-4 focus:z-(--z-toast) focus:px-6 focus:py-3 focus:rounded-lg focus:bg-orange focus:text-orange-foreground focus:text-sm focus:font-medium focus:outline-none focus:shadow-lg focus:ring-2 focus:ring-ring/60"
                                 >
                                         تخطى إلى المحتوى الرئيسي
                                 </a>
@@ -164,15 +165,19 @@ export default async function RootLayout({
                                                         <FloatingWhatsApp />
                                                 </main>
                                         </MotionProvider>
+                                        {/* r126 (P4-F1 M10/B5): sonner ships z-index 999999999 — pin to the
+                                                    Madarek --z-toast rung (500, above modals, below the lightbox);
+                                                    entrance rides the reveal token + --ease-out (audit B5). */}
                                         <Toaster
                                                 position="top-center"
                                                 richColors
                                                 closeButton
                                                 dir="rtl"
+                                                style={{ zIndex: 'var(--z-toast, 500)' }}
                                                 toastOptions={{
                                                         style: {
-                                                                animation: 'slide-up 0.35s cubic-bezier(0.16, 1, 0.2, 1)',
-                                                                borderRadius: '12px',
+                                                                animation: 'slide-up var(--motion-duration-reveal, 360ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1))',
+                                                                borderRadius: 'var(--r-lg, 12px)',
                                                                 padding: '8px',
                                                         },
                                                         className: 'border border-border/30 shadow-xl backdrop-blur-xl',

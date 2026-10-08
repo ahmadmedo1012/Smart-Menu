@@ -133,7 +133,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                 <div className="flex items-center gap-3">
                                         <button
                                                 onClick={() => router.push('/owner/orders')}
-                                                className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="size-9 rounded-xl border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 aria-label="العودة إلى الطلبات"
                                         >
                                                 {/* r121-J-2: سهم العودة في RTL يشير يميناً (نفس قاعدة print/admin) */}
@@ -164,9 +164,9 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                                         onClick={() => isActive && updateStatus(s)}
                                                                         disabled={!isActive || order.status === 'cancelled'}
                                                                         className={cn(
-                                                                                'size-10 rounded-xl flex items-center justify-center transition-[background-color,border-color,transform,translate,scale,rotate] duration-300 border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                'size-10 rounded-xl flex items-center justify-center transition-[background-color,border-color,transform,translate,scale,rotate] duration-base border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                 isCurrent
-                                                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/25 scale-110'
+                                                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground border-orange shadow-lg shadow-orange/25 scale-110'
                                                                                         : isActive
                                                                                                 ? 'bg-success/15 text-success border-success/30'
                                                                                                 : 'bg-muted/30 text-muted-foreground/30 border-border/20'
@@ -248,7 +248,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                         <p className="text-xs text-muted-foreground">رقم الهاتف</p>
                                                         <a
                                                                 href={`tel:${order.customerPhone}`}
-                                                                className="font-medium text-primary hover:text-orange transition-colors flex items-center gap-1"
+                                                                className="font-medium text-primary hover:text-accent-foreground transition-colors flex items-center gap-1"
                                                                 dir="ltr"
                                                         >
                                                                 <Phone className="size-3" />
@@ -312,7 +312,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                                         className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors"
                                                 >
                                                         <div className="flex items-center gap-3">
-                                                                <span className="size-7 rounded-lg bg-orange-muted text-orange/80 dark:text-orange text-xs font-bold flex items-center justify-center">
+                                                                <span className="size-7 rounded-lg bg-orange-muted text-accent-foreground/80 dark:text-accent-foreground text-xs font-bold flex items-center justify-center">
                                                                         {toArabicNumber(oi.quantity)}
                                                                 </span>
                                                                 <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>
@@ -330,7 +330,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                         <div className="grid grid-cols-2 gap-3">
                                 <a
                                         href={`tel:${order.customerPhone}`}
-                                        className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-[background-color] font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                        className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-border/30 hover:bg-accent transition-[background-color] font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                         <Phone className="size-4" />
                                         اتصال
@@ -338,7 +338,7 @@ export default function OwnerOrderDetail({ params }: { params: Promise<{ id: str
                                 <button
                                         type="button"
                                         onClick={copyAsWhatsApp}
-                                        className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-success/25 text-success hover:bg-success/15 transition-[background-color] font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                        className="flex items-center justify-center gap-2 py-3.5 rounded-md border border-success/25 text-success hover:bg-success/15 transition-[background-color] font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 >
                                         <AnimatedMessageCircle className="size-4" />
                                         نسخ نص الطلب

@@ -40,7 +40,7 @@ export default function GlobalError({
             <p className="text-lg text-muted-foreground max-w-md mb-8">تعذر تحميل التطبيق. يرجى تحديث الصفحة.</p>
             <button
               onClick={() => reset()}
-              className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-foreground text-background text-base font-medium hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+              className="inline-flex items-center justify-center h-12 px-8 rounded-xl bg-foreground text-background text-base font-medium hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
             >
               تحديث الصفحة
             </button>

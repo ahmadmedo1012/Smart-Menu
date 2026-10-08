@@ -36,7 +36,7 @@ export function ProviderPicker({
                                                         disabled={opt.disabled}
                                                         className={cn(
                                                                 'h-14 rounded-xl border-2 text-[13px] font-medium transition-[border-color,box-shadow,color,background-color] flex flex-col items-center justify-center gap-1',
-                                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/50',
+                                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                 opt.disabled && 'opacity-40 cursor-not-allowed',
                                                                 provider === opt.id
                                                                         ? 'border-orange bg-orange-muted/40 dark:bg-orange-muted/20 shadow-sm'

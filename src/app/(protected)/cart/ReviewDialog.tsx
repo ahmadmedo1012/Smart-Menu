@@ -41,10 +41,10 @@ export function ReviewDialog({
         return (
                 <Dialog open={open} onOpenChange={onOpenChange}>
                         <DialogContent className="rounded-md gap-0 p-0 overflow-hidden sm:max-w-md">
-                                <div className="bg-gradient-to-r from-orange to-orange/80 p-5 text-white">
+                                <div className="bg-gradient-to-r from-orange to-orange/80 p-5 text-orange-foreground">
                                         <DialogHeader>
-                                                <DialogTitle className="text-white text-xl">مراجعة الطلب</DialogTitle>
-                                                <DialogDescription className="text-white/80">
+                                                <DialogTitle className="text-orange-foreground text-xl">مراجعة الطلب</DialogTitle>
+                                                <DialogDescription className="text-orange-foreground/80">
                                                         تأكد من بيانات الطلب قبل الإرسال
                                                 </DialogDescription>
                                         </DialogHeader>
@@ -52,7 +52,7 @@ export function ReviewDialog({
                                 <div className="p-5 space-y-4">
                                         <div className="flex items-center gap-2 text-sm">
                                                 <span className="text-muted-foreground">نوع الطلب:</span>
-                                                <span className="font-medium px-3 py-1 rounded-full bg-orange-muted text-orange/80 dark:text-orange">
+                                                <span className="font-medium px-3 py-1 rounded-full bg-orange-muted text-accent-foreground/80 dark:text-accent-foreground">
                                                         {pickupType === 'inside' ? (
                                                                 <svg
                                                                         className="size-4 inline"

@@ -245,7 +245,7 @@ export function SubscribeForm({
                                                 >
                                                         {(() => {
                                                                 const Icon = PLAN_ICONS[currentPlan.name] || Sparkles;
-                                                                return <Icon className="size-5 text-white" />;
+                                                                return <Icon className="size-5 text-orange-foreground" />;
                                                         })()}
                                                 </div>
                                                 <div>
@@ -331,7 +331,7 @@ export function SubscribeForm({
                                                                                                 required
                                                                                         />
                                                                                         {submitted && restaurant.name.trim().length < 2 && (
-                                                                                                <p className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>
+                                                                                                <p role="alert" className="text-xs text-destructive mt-1">اسم المطعم مطلوب (حرفان على الأقل)</p>
                                                                                         )}
                                                                                 </div>
                                                                                 <div>
@@ -359,10 +359,10 @@ export function SubscribeForm({
                                                                                                 />
                                                                                         </div>
                                                                                         {submitted && restaurant.slug.trim().length < 3 && (
-                                                                                                <p className="text-xs text-destructive mt-1">الرابط مطلوب (ثلاثة أحرف على الأقل)</p>
+                                                                                                <p role="alert" className="text-xs text-destructive mt-1">الرابط مطلوب (ثلاثة أحرف على الأقل)</p>
                                                                                         )}
                                                                                         {dupErrors.slug && (
-                                                                                                <p className="text-xs text-destructive mt-1">{dupErrors.slug}</p>
+                                                                                                <p role="alert" className="text-xs text-destructive mt-1">{dupErrors.slug}</p>
                                                                                         )}
                                                                                 </div>
                                                                         </div>
@@ -438,10 +438,10 @@ export function SubscribeForm({
                                                                                 required
                                                                         />
                                                                         {fieldError('username') && (
-                                                                                <p className="text-xs text-destructive mt-1">اسم المستخدم مطلوب (3 أحرف على الأقل)</p>
+                                                                                <p role="alert" className="text-xs text-destructive mt-1">اسم المستخدم مطلوب (3 أحرف على الأقل)</p>
                                                                         )}
                                                                         {dupErrors.username && (
-                                                                                <p className="text-xs text-destructive mt-1">{dupErrors.username}</p>
+                                                                                <p role="alert" className="text-xs text-destructive mt-1">{dupErrors.username}</p>
                                                                         )}
                                                                 </div>
                                                                 <div>
@@ -465,7 +465,7 @@ export function SubscribeForm({
                                                                                 required
                                                                         />
                                                                         {fieldError('password') && (
-                                                                                <p className="text-xs text-destructive mt-1">
+                                                                                <p role="alert" className="text-xs text-destructive mt-1">
                                                                                         كلمة المرور مطلوبة ({PASSWORD_MIN_LENGTH} أحرف على الأقل)
                                                                                 </p>
                                                                         )}

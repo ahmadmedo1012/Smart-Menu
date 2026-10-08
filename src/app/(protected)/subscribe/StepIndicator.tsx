@@ -45,7 +45,7 @@ export function StepIndicator({
                                                         disabled={!clickable}
                                                         onClick={() => clickable && onNavigate?.(s)}
                                                         className={cn(
-                                                                'flex flex-col items-center gap-1.5 group outline-none focus-visible:ring-2 focus-visible:ring-orange/40 rounded-full',
+                                                                'flex flex-col items-center gap-1.5 group outline-none focus-visible:ring-2 focus-visible:ring-ring/60 rounded-full',
                                                                 !clickable && 'cursor-default'
                                                         )}
                                                         aria-current={isActive ? 'step' : undefined}
@@ -60,7 +60,7 @@ export function StepIndicator({
                                                                 initial={false}
                                                                 whileTap={clickable && !reduceMotion ? { scale: 0.94 } : undefined}
                                                                 className={cn(
-                                                                        'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-300',
+                                                                        'size-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors duration-base',
                                                                         isActive
                                                                                 /* round94 (D/A8): هضبة saffron بمركز دائرة الخطوة (نمط زر flame)
                                                                                    — الرقم espresso الممركز كان على منتصف المنحدر 4.58:1
@@ -93,7 +93,7 @@ export function StepIndicator({
                                                 {i < STEP_ORDER.length - 1 && (
                                                         <div
                                                                 className={cn(
-                                                                        'w-8 sm:w-14 h-0.5 mx-1 sm:mx-2 rounded-full transition-colors duration-500',
+                                                                        'w-8 sm:w-14 h-0.5 mx-1 sm:mx-2 rounded-full transition-colors duration-slower',
                                                                         i < currentIdx ? 'bg-orange/50' : 'bg-muted-foreground/15'
                                                                 )}
                                                         />

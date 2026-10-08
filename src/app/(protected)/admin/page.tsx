@@ -340,12 +340,12 @@ export default function AdminDashboard() {
                                                         <p className="text-[11px] text-muted-foreground mt-0.5">اشتراك مدفوع</p>
                                                 </div>
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
-                                                        <p className="text-xs text-orange">مرتبط</p>
+                                                        <p className="text-xs text-accent-foreground">مرتبط</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.linkedRestaurants)}</p>
                                                         <p className="text-[11px] text-muted-foreground mt-0.5">مطعم مرتبط</p>
                                                 </div>
                                                 <div className="rounded-md bg-orange-muted/50 p-4">
-                                                        <p className="text-xs text-orange">طلبات اليوم</p>
+                                                        <p className="text-xs text-accent-foreground">طلبات اليوم</p>
                                                         <p className="text-2xl font-bold mt-1 tabular-nums">{toArabicNumber(stats.ordersToday.count)}</p>
                                                         <p className="text-[11px] text-muted-foreground mt-0.5">
                                                                 {formatPrice(stats.ordersToday.revenue, { suffix: ' د.ل إيراد' })}
@@ -490,7 +490,7 @@ export default function AdminDashboard() {
                                                         <Link
                                                                 key={i}
                                                                 href={item.href}
-                                                                className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 hover:bg-orange-muted/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="flex w-full flex-col items-center gap-2 rounded-xl border border-border/20 bg-muted/30 p-4 hover:bg-orange-muted/30 transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         >
                                                                 <Icon
                                                                         className={cn('size-5 group-hover:scale-110 transition-transform', item.color)}

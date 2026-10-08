@@ -327,7 +327,7 @@ export default function OwnerOrdersPage() {
                                                 type="button"
                                                 onClick={exportCsv}
                                                 disabled={filtered.length === 0 || exporting}
-                                                className="h-9 px-4 rounded-full border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-[background-color] disabled:opacity-40 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="h-9 px-4 rounded-full border border-border/30 bg-card/50 text-sm font-medium hover:bg-accent transition-[background-color] disabled:opacity-40 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         >
                                                 {exporting ? (
                                                         <Loader2 className="size-4 animate-spin motion-reduce:hidden" />

@@ -162,18 +162,18 @@ ${referralUrl}
                                         />
 
                                         {/* Decorative glow */}
-                                        <div className="absolute -top-10 -end-10 size-32 rounded-full bg-white/10 blur-3xl" />
-                                        <div className="absolute -bottom-10 -start-10 size-32 rounded-full bg-white/5 blur-3xl" />
+                                        <div className="absolute -top-10 -end-10 size-32 rounded-full bg-orange-foreground/10 blur-3xl" />
+                                        <div className="absolute -bottom-10 -start-10 size-32 rounded-full bg-orange-foreground/5 blur-3xl" />
 
                                         {/* Sparkle decoration */}
                                         <div className="absolute top-1/2 start-1/2 -translate-y-1/2 rtl:translate-x-1/2 ltr:-translate-x-1/2">
-                                                <AnimatedSparkles className="size-12 text-white/20 animate-spin-slow" />
+                                                <AnimatedSparkles className="size-12 text-orange-foreground/20 animate-spin-slow" />
                                         </div>
 
                                         {/* Checkmark */}
                                         <div className="relative z-10 flex flex-col items-center justify-center h-full pt-4">
-                                                <div className="size-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-1 shadow-lg">
-                                                        <CheckCircle className="size-8 text-white drop-shadow-lg" />
+                                                <div className="size-14 rounded-full bg-orange-foreground/15 backdrop-blur-sm flex items-center justify-center mb-1 shadow-lg">
+                                                        <CheckCircle className="size-8 text-orange-foreground drop-shadow-lg" />
                                                 </div>
                                         </div>
                                 </div>
@@ -196,7 +196,7 @@ ${referralUrl}
                                                         {/* CTA */}
                                                         <div className="text-center">
                                                                 <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
-                                                                        <Gift className="size-7 text-white" />
+                                                                        <Gift className="size-7 text-orange-foreground" />
                                                                 </div>
                                                                 <p className="text-base font-semibold mb-1">ادع صديق وكل منكما يحصل على خصم 10٪</p>
                                                                 <p className="text-sm text-muted-foreground">
@@ -222,7 +222,7 @@ ${referralUrl}
                                                                                         value={phone}
                                                                                         onChange={(e) => setPhone(e.target.value)}
                                                                                         placeholder="0912345678"
-                                                                                        className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                        className="w-full h-12 pe-10 px-4 bg-transparent text-sm outline-none rounded-xl focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                         dir="ltr"
                                                                                 />
                                                                         </div>
@@ -253,7 +253,7 @@ ${referralUrl}
                                                                 <button
                                                                         type="button"
                                                                         onClick={() => onOpenChange(false)}
-                                                                        className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 rounded-md cursor-pointer"
+                                                                        className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 rounded-md cursor-pointer"
                                                                 >
                                                                         لا شكراً
                                                                 </button>
@@ -283,7 +283,7 @@ ${referralUrl}
                                                                                 type="button"
                                                                                 onClick={handleCopyLink}
                                                                                 aria-label="نسخ رابط الإحالة"
-                                                                                className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
+                                                                                className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-orange-foreground shadow-lg shadow-orange/25 hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
                                                                         >
                                                                                 {copied ? <MotionCheck className="size-4" /> : <AnimatedCopy className="size-4" />}
                                                                         </button>
@@ -303,7 +303,7 @@ ${referralUrl}
                                                                 <button
                                                                         type="button"
                                                                         onClick={handleShareInstagram}
-                                                                        className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                        className="h-12 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 cursor-pointer"
                                                                 >
                                                                         <Camera className="size-5" />
                                                                         إنستغرام

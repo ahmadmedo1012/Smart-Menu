@@ -102,7 +102,7 @@ export function ReferralCard({
                                         {/* ===== Header ===== */}
                                         <div className="text-center">
                                                 <div className="mx-auto mb-3 size-14 rounded-md bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25 animate-float">
-                                                        <Gift className="size-7 text-white" />
+                                                        <Gift className="size-7 text-orange-foreground" />
                                                 </div>
                                                 <h3 className="text-lg font-bold text-accent-foreground">{restaurantName}</h3>
                                                 <p className="text-sm text-accent-foreground/80 mt-1">{discountText}</p>
@@ -119,7 +119,7 @@ export function ReferralCard({
                                                         /* round94 (D §6): الاسم المسموع يصف الغرض — كان اسم الزر
                                                            هو كود الإحالة نفسه (قارئ الشاشة يسمع الرمز لا الفعل). */
                                                         aria-label="نسخ كود الإحالة"
-                                                        className="mx-auto w-fit block rounded-xl bg-white/90 dark:bg-orange-muted/60 border-2 border-orange/50 px-6 py-3 text-center cursor-pointer transition-[transform,translate,scale,rotate] outline-none hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1"
+                                                        className="mx-auto w-fit block rounded-xl bg-white/90 dark:bg-orange-muted/60 border-2 border-orange/50 px-6 py-3 text-center cursor-pointer transition-[transform,translate,scale,rotate] outline-none hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1"
                                                 >
                                                         <span
                                                                 className="text-2xl font-bold tracking-[0.1em] text-accent-foreground font-mono"
@@ -174,7 +174,7 @@ export function ReferralCard({
                                                         <button
                                                                 type="button"
                                                                 onClick={handleCopyLink}
-                                                                className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 cursor-pointer"
                                                         >
                                                                 {copied ? <MotionCheck className="size-4" /> : <AnimatedCopy className="size-4" />}
                                                                 نسخ الرابط
@@ -183,7 +183,7 @@ export function ReferralCard({
                                                                 <button
                                                                         type="button"
                                                                         onClick={handleShareSMS}
-                                                                        className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-white text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 cursor-pointer"
+                                                                        className="flex-1 h-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center gap-2 text-orange-foreground text-sm font-medium shadow-lg shadow-orange/25 hover:shadow-xl hover:shadow-orange/30 active:scale-[0.98] transition-[transform,translate,scale,rotate,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 cursor-pointer"
                                                                 >
                                                                         <Smartphone className="size-4" />
                                                                         SMS
@@ -204,7 +204,7 @@ export function ReferralCard({
                                                         type="button"
                                                         onClick={handleCopyLink}
                                                         aria-label="نسخ رابط الإحالة"
-                                                        className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-white shadow-md hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
+                                                        className="size-11 rounded-xl bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center text-orange-foreground shadow-md hover:scale-105 active:scale-95 transition-[transform,translate,scale,rotate] outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-1 shrink-0 cursor-pointer"
                                                 >
                                                         {copied ? <MotionCheck className="size-3.5" /> : <Share2 className="size-3.5" />}
                                                 </button>

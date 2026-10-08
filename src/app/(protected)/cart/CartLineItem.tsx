@@ -30,7 +30,7 @@ export function CartLineItem({
         return (
                 <div
                         className={cn(
-                                'rounded-md bg-card/60 border border-border/30 p-4 transition-[opacity,transform,translate,scale,rotate,box-shadow,border-color] duration-500 hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5',
+                                'rounded-md bg-card/60 border border-border/30 p-4 transition-[opacity,transform,translate,scale,rotate,box-shadow,border-color] duration-slower hover:border-orange/20 hover:shadow-lg hover:-translate-y-0.5',
                                 animateItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                         )}
                         style={{ transitionDelay: `${index * 80}ms` }}
@@ -61,7 +61,7 @@ export function CartLineItem({
                                         <button
                                                 type="button"
                                                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label={`إنقاص كمية ${item.name}`}
                                         >
                                                 <MotionMinus className="size-4" />
@@ -72,7 +72,7 @@ export function CartLineItem({
                                         <button
                                                 type="button"
                                                 disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                className="size-11 rounded-md border border-border/30 flex items-center justify-center hover:bg-orange-muted hover:border-orange/30 transition-[transform,translate,scale,rotate,background-color,border-color] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                 aria-label={`زيادة كمية ${item.name}`}
                                         >
                                                 <MotionPlus className="size-4" />
@@ -80,7 +80,7 @@ export function CartLineItem({
                                         <button
                                                 type="button"
                                                 onClick={() => onRemove(item.id)}
-                                                className="size-11 rounded-[4px] border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,translate,scale,rotate,background-color] ms-1 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                                                className="size-11 rounded-sm border border-destructive/20 text-destructive flex items-center justify-center hover:bg-destructive/10 transition-[transform,translate,scale,rotate,background-color] ms-1 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
                                                 aria-label={`حذف الصنف ${item.name}`}
                                         >
                                                 <AnimatedTrash className="size-3" />
@@ -94,7 +94,7 @@ export function CartLineItem({
                                 value={item.notes}
                                 maxLength={500}
                                 onChange={(e) => onUpdateNotes(item.id, e.target.value)}
-                                className="w-full h-9 rounded-[4px] border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+                                className="w-full h-9 rounded-sm border border-input bg-transparent px-3 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60"
                         />
                 </div>
         );

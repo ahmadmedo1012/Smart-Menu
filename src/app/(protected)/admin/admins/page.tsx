@@ -211,8 +211,8 @@ export default function AdminAdminsPage() {
           <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(superAdmins.length)}</p>
         </div>
         <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
-          <p className="text-xs text-orange">مسؤول</p>
-          <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(subAdmins.length)}</p>
+          <p className="text-xs text-accent-foreground">مسؤول</p>
+          <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(subAdmins.length)}</p>
         </div>
         <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
           <p className="text-xs text-success">نشط اليوم</p>
@@ -288,7 +288,7 @@ export default function AdminAdminsPage() {
                       </div>
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {PERMISSION_OPTIONS.filter(p => admin.permissions.includes(p.value)).map(p => (
-                          <Badge key={p.value} variant="outline" className="text-[10px] px-1.5 py-0 border-orange/20 text-orange/80">
+                          <Badge key={p.value} variant="outline" className="text-[10px] px-1.5 py-0 border-orange/20 text-accent-foreground/80">
                             {p.label}
                           </Badge>
                         ))}

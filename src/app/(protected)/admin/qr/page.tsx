@@ -176,9 +176,9 @@ export default function AdminQRPage() {
                                                                                         setSelectedName(r.name);
                                                                                 }}
                                                                                 className={cn(
-                                                                                        'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                        'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                         selectedSlug === r.slug
-                                                                                                ? 'bg-orange-muted border-orange/30 text-orange'
+                                                                                                ? 'bg-orange-muted border-orange/30 text-accent-foreground'
                                                                                                 : 'border-border/30 hover:border-orange/30'
                                                                                 )}
                                                                         >
@@ -221,9 +221,9 @@ export default function AdminQRPage() {
                                                                                 type="button"
                                                                                 onClick={() => setQrSize(s.value)}
                                                                                 className={cn(
-                                                                                        'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                        'flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                         qrSize === s.value
-                                                                                                ? 'bg-orange-muted border-orange/30 text-orange'
+                                                                                                ? 'bg-orange-muted border-orange/30 text-accent-foreground'
                                                                                                 : 'border-border/30 hover:border-orange/30'
                                                                                 )}
                                                                         >

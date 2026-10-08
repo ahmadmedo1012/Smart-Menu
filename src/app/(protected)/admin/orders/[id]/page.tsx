@@ -119,7 +119,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                 href={`/menu/${order.restaurant.slug}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-xs text-primary hover:text-orange transition-colors ms-auto"
+                                                className="text-xs text-primary hover:text-accent-foreground transition-colors ms-auto"
                                         >
                                                 عرض المنيو ←
                                         </Link>
@@ -141,9 +141,9 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                                         onClick={() => isActive && updateStatus(s)}
                                                                         disabled={!isActive || order.status === 'cancelled'}
                                                                         className={cn(
-                                                                                'size-11 rounded-xl flex items-center justify-center transition-[background-color,color,border-color,box-shadow,transform,translate,scale,rotate] duration-300 border-2',
+                                                                                'size-11 rounded-xl flex items-center justify-center transition-[background-color,color,border-color,box-shadow,transform,translate,scale,rotate] duration-base border-2',
                                                                                 isCurrent
-                                                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-white border-orange shadow-lg shadow-orange/25 scale-110'
+                                                                                        ? 'bg-gradient-to-r from-orange to-orange/80 text-orange-foreground border-orange shadow-lg shadow-orange/25 scale-110'
                                                                                         : isActive
                                                                                                 ? 'bg-success/15 text-success border-success/30'
                                                                                                 : 'bg-muted/30 text-muted-foreground/30 border-border/20'
@@ -220,7 +220,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                         <p className="text-xs text-muted-foreground">رقم الهاتف</p>
                                                         <a
                                                                 href={`tel:${order.customerPhone}`}
-                                                                className="font-medium text-primary hover:text-orange transition-colors flex items-center gap-1"
+                                                                className="font-medium text-primary hover:text-accent-foreground transition-colors flex items-center gap-1"
                                                                 dir="ltr"
                                                         >
                                                                 <Phone className="size-3" />
@@ -283,7 +283,7 @@ export default function AdminOrderDetail({ params }: { params: Promise<{ id: str
                                                         className="flex items-center justify-between px-5 py-3 hover:bg-muted/10 transition-colors"
                                                 >
                                                         <div className="flex items-center gap-3">
-                                                                <span className="size-7 rounded-lg bg-orange/10 text-orange text-xs font-bold flex items-center justify-center">
+                                                                <span className="size-7 rounded-lg bg-orange/10 text-accent-foreground text-xs font-bold flex items-center justify-center">
                                                                         {toArabicNumber(oi.quantity)}
                                                                 </span>
                                                                 <span className="font-medium">{oi.item.nameAr || oi.item.name}</span>

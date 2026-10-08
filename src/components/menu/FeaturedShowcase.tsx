@@ -165,7 +165,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                         per-item wash that animates on every navigation. */}
                         <div
                                 style={sceneVars}
-                                className="group/showcase -mx-4 relative flex min-h-[70vh] flex-col overflow-hidden rounded-b-3xl bg-[var(--scene-wash)] transition-colors duration-700 motion-reduce:transition-none md:min-h-[80vh]"
+                                className="group/showcase -mx-4 relative flex min-h-[70vh] flex-col overflow-hidden rounded-b-3xl bg-[var(--scene-wash)] transition-colors duration-cinema motion-reduce:transition-none md:min-h-[80vh]"
                         >
                                 {/* Ambient glow behind the image — same accent, radial fade */}
                                 <div
@@ -183,7 +183,7 @@ export function FeaturedShowcase({ items }: { items: readonly FeaturedItem[] }) 
                                         aria-hidden="true"
                                         className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
                                 >
-                                        <span className="px-4 text-center text-[clamp(3.5rem,14vw,9.5rem)] font-black leading-[0.95] tracking-tight text-[var(--scene-accent)] opacity-30 transition-colors duration-700 motion-reduce:transition-none dark:opacity-[0.40]">
+                                        <span className="px-4 text-center text-[clamp(3.5rem,14vw,9.5rem)] font-black leading-[0.95] tracking-tight text-[var(--scene-accent)] opacity-30 transition-colors duration-cinema motion-reduce:transition-none dark:opacity-[0.40]">
                                                 {displayName}
                                         </span>
                                 </div>

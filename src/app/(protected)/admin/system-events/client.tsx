@@ -108,7 +108,7 @@ export function SystemEventsClient() {
 				<button
 					type="button"
 					onClick={load}
-					className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline underline-offset-4"
+					className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-foreground hover:underline underline-offset-4"
 				>
 					<AnimatedRefreshCw className="size-3.5" />
 					إعادة المحاولة
@@ -131,7 +131,7 @@ export function SystemEventsClient() {
 							aria-pressed={isActive}
 							className={cn(
 								'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
-								isActive ? 'bg-orange text-white shadow-sm' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+								isActive ? 'bg-orange text-orange-foreground shadow-sm' : 'bg-muted text-muted-foreground hover:bg-muted/80'
 							)}
 						>
 							{key !== 'all' && <span className={cn('size-1.5 rounded-full', SEVERITY_STYLES[key].dot)} aria-hidden="true" />}

@@ -122,7 +122,7 @@ function StatCard({
 }) {
         return (
                 <div className="group card-premium relative overflow-hidden rounded-md bg-card p-5 border border-border/50 shadow-lg shadow-black/20">
-                        <div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-accent-foreground/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-1/3 group-hover:skew-x-0" />
+                        <div className="pointer-events-none absolute inset-0 z-0 w-[300%] -translate-x-2/3 skew-x-12 bg-gradient-to-r from-transparent via-accent-foreground/10 to-transparent transition-transform duration-cinema ease-out group-hover:translate-x-1/3 group-hover:skew-x-0" />
                         <div className="relative z-10 flex items-start justify-between">
                                 <div className="space-y-1">
                                         <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -156,11 +156,11 @@ function ConversionRate({
                                         <TrendingUp className="size-4 text-orange" />
                                         <span className="text-sm font-semibold">معدل التحويل</span>
                                 </div>
-                                <span className="text-sm font-bold tabular-nums text-orange">{rate}%</span>
+                                <span className="text-sm font-bold tabular-nums text-accent-foreground">{rate}%</span>
                         </div>
                         <div className="h-3 rounded-full bg-muted overflow-hidden mb-2">
                                 <div
-                                        className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 transition-[width] duration-1000 ease-out"
+                                        className="h-full rounded-full bg-gradient-to-r from-orange to-orange/80 transition-[width] duration-cinema ease-out"
                                         style={{ width: `${rate}%` }}
                                 />
                         </div>
@@ -256,7 +256,7 @@ function RedeemPanel({ restaurantId, onRedeemed }: { restaurantId: number | null
                                         onKeyDown={(e) => e.key === 'Enter' && phase !== 'searching' && search()}
                                         placeholder="+218 91 000 0000"
                                         aria-label="رقم هاتف العميل"
-                                        className="flex-1 h-11 rounded-md border border-border/40 bg-background/60 px-3 text-sm outline-none focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/40 tabular-nums"
+                                        className="flex-1 h-11 rounded-md border border-border/40 bg-background/60 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60 tabular-nums"
                                 />
                                 <Button
                                         variant="outline"

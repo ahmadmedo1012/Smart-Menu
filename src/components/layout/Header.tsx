@@ -31,12 +31,12 @@ function HamburgerButton({ open, onClick }: { open: boolean; onClick: () => void
       aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
       /* r113-F118: shrink-0 — الزر كان يُعصر بواسطة flex-shrink إلى 23px على 375px
          و116px على 320px (رابط العلامة shrink-0 يأخذ كل المساحة). هدف لمس 44px مصان. */
-      className="lg:hidden relative size-11 shrink-0 rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[color,background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
+      className="lg:hidden relative size-11 shrink-0 rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[color,background-color,border-color,transform] duration-fast active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60"
     >
       <span className="relative size-3.5">
-        <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300 origin-center", open && "rotate-45 top-[6px]")} />
-        <span className={cn("absolute inset-x-0 top-[6px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300", open && "opacity-0")} />
-        <span className={cn("absolute inset-x-0 bottom-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-300 origin-center", open && "-rotate-45 bottom-[6px]")} />
+        <span className={cn("absolute inset-x-0 top-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-base origin-center", open && "rotate-45 top-[6px]")} />
+        <span className={cn("absolute inset-x-0 top-[6px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-base", open && "opacity-0")} />
+        <span className={cn("absolute inset-x-0 bottom-[2px] h-[2px] rounded-full bg-foreground transition-[transform,translate,scale,rotate,top,opacity,bottom] duration-base origin-center", open && "-rotate-45 bottom-[6px]")} />
       </span>
     </button>
   )
@@ -129,7 +129,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto" priority />
-              <button onClick={onClose} className="size-11 rounded-xl border border-border/40 flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[background-color,border-color,transform] duration-200 active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60" aria-label="إغلاق"><AnimatedX className="size-4" /></button>
+              <button onClick={onClose} className="size-11 rounded-xl border border-border/40 flex items-center justify-center hover:bg-accent-foreground/15 hover:border-accent-foreground/30 transition-[background-color,border-color,transform] duration-fast active:scale-90 focus-visible:ring-2 focus-visible:ring-accent-foreground/60" aria-label="إغلاق"><AnimatedX className="size-4" /></button>
             </div>
             <nav className="px-4 py-4 space-y-1">
               {landingLinks.map((link, i) => {
@@ -145,7 +145,7 @@ function MobileMenu({ open, onClose, pathname }: { open: boolean; onClose: () =>
                   >
                     <Link href={link.href} onClick={onClose}
                       aria-current={isActive ? "page" : undefined}
-                      className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-[color,background-color] duration-200 focus-visible:ring-2 focus-visible:ring-accent-foreground/60", isActive ? "bg-accent-foreground/15 text-accent-foreground shadow-sm" : "text-muted-foreground hover:bg-accent-foreground/10 hover:text-foreground")}
+                      className={cn("flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-[color,background-color] duration-fast focus-visible:ring-2 focus-visible:ring-accent-foreground/60", isActive ? "bg-accent-foreground/15 text-accent-foreground shadow-sm" : "text-muted-foreground hover:bg-accent-foreground/10 hover:text-foreground")}
                     >
                       {link.label}
                     </Link>
@@ -189,7 +189,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <>
       <header className={cn(
-        "fixed top-0 inset-x-0 z-30 h-16 transition-[transform,background-color,box-shadow,border-color] duration-500 will-change-transform backface-hidden",
+        "fixed top-0 inset-x-0 z-30 h-16 transition-[transform,background-color,box-shadow,border-color] duration-slower will-change-transform backface-hidden",
         visible ? "translate-y-0" : "-translate-y-full",
         scrolled
           ? "bg-background/80 backdrop-blur-2xl backdrop-saturate-150 border-b border-border/40 shadow-lg shadow-black/20" /* r96-W4a: رموز الظل بدل rgba المقحم */
@@ -205,7 +205,7 @@ export function Header({ className }: HeaderProps) {
                يحفظ الهوية ويتيح مساحة تنفس للزرين. */}
             <Link href="/" className="flex items-center gap-2 group min-h-11">
               <Image src="/brand-icon.png" alt="الربط الذكي" width={160} height={160} className="h-9 w-auto shrink-0" priority />
-              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-accent-foreground transition-colors duration-200 max-[420px]:hidden" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
+              <span className="text-base font-bold tracking-normal text-foreground/90 group-hover:text-accent-foreground transition-colors duration-fast max-[420px]:hidden" style={{ fontFamily: "var(--font-heading)" }}>Smart Menu</span>
             </Link>
           </div>
 
@@ -222,7 +222,7 @@ export function Header({ className }: HeaderProps) {
                       href={link.href}
                       aria-current={linkActive ? "page" : undefined}
                       className={cn(
-                        "relative z-10 px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-full",
+                        "relative z-10 px-4 py-2 text-sm font-medium transition-colors duration-fast rounded-full",
                         linkActive ? "text-primary-foreground" : "text-foreground/70 hover:text-foreground"
                       )}
                     >

@@ -160,8 +160,8 @@ export default function AdminUsersPage() {
           <p className="text-2xl font-bold mt-1 text-info">{toArabicNumber(users.filter(u => u.role === "admin").length)}</p>
         </div>
         <div className="rounded-xl bg-orange-muted border border-orange/20 p-4">
-          <p className="text-xs text-orange">أصحاب مطاعم</p>
-          <p className="text-2xl font-bold mt-1 text-orange">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
+          <p className="text-xs text-accent-foreground">أصحاب مطاعم</p>
+          <p className="text-2xl font-bold mt-1 text-accent-foreground">{toArabicNumber(users.filter(u => u.role === "owner").length)}</p>
         </div>
         <div className="rounded-xl bg-success/10 dark:bg-success/15 border border-success/20 p-4">
           <p className="text-xs text-success">مرتبط بمطعم</p>
@@ -225,7 +225,7 @@ export default function AdminUsersPage() {
                         <p className="font-bold">{user.name}</p>
                         <Badge className={cn(
                           "text-[10px]",
-                          user.role === "admin" ? "bg-info/15 text-info dark:bg-info/25" : "bg-orange-muted text-orange/80 dark:bg-orange-muted dark:text-orange"
+                          user.role === "admin" ? "bg-info/15 text-info dark:bg-info/25" : "bg-orange-muted text-accent-foreground/80 dark:bg-orange-muted dark:text-accent-foreground"
                         )}>
                           {user.role === "admin" ? "مدير" : "مالك"}
                         </Badge>

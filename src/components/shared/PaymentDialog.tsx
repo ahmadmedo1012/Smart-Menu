@@ -239,12 +239,12 @@ export function PaymentDialog({
                 <Dialog open={open} onOpenChange={handleOpenChange}>
                         <DialogContent className="max-w-sm sm:max-w-md rounded-2xl p-0 gap-0 max-h-[90dvh] overflow-y-auto border-border/50 shadow-2xl">
                                 {/* Header */}
-                                <div className="bg-gradient-to-br from-orange to-orange/80 text-white p-6">
+                                <div className="bg-gradient-to-br from-orange to-orange/80 text-orange-foreground p-6">
                                         <div className="flex items-center gap-2 mb-2">
                                                 <Smartphone className="size-5" />
-                                                <DialogTitle className="text-white text-lg font-bold">دفع الاشتراك</DialogTitle>
+                                                <DialogTitle className="text-orange-foreground text-lg font-bold">دفع الاشتراك</DialogTitle>
                                         </div>
-                                        <DialogDescription className="text-white/70 text-sm">
+                                        <DialogDescription className="text-orange-foreground/70 text-sm">
                                                 ادفع عبر المحفظة الإلكترونية
                                         </DialogDescription>
                                 </div>
@@ -254,7 +254,7 @@ export function PaymentDialog({
                                         <div className="rounded-xl bg-orange-muted/50 dark:bg-orange-muted/20 border border-orange/15 p-4">
                                                 <div className="flex justify-between items-center">
                                                         <span className="font-bold">{planNameAr}</span>
-                                                        <span className="text-lg font-bold text-orange">{price} د.ل</span>
+                                                        <span className="text-lg font-bold text-accent-foreground">{price} د.ل</span>
                                                 </div>
                                                 <p className="text-xs text-muted-foreground mt-0.5">اشتراك شهري</p>
                                         </div>
@@ -282,7 +282,7 @@ export function PaymentDialog({
                                                                                         <button
                                                                                                 type="button"
                                                                                                 onClick={() => copyToClipboard(providerPhone)}
-                                                                                                className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                                className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                                 title="نسخ الرقم"
                                                                                         >
                                                                                                 <AnimatedCopy className="size-3.5" />
@@ -296,7 +296,7 @@ export function PaymentDialog({
                                                                                         رمز التحويل السريع
                                                                                 </p>
                                                                                 <div className="flex items-center justify-between gap-2">
-                                                                                        <span className="font-mono text-sm font-bold text-orange truncate" dir="ltr">
+                                                                                        <span className="font-mono text-sm font-bold text-accent-foreground truncate" dir="ltr">
                                                                                                 {quickTransferCode}
                                                                                         </span>
                                                                                         <div className="flex items-center gap-1.5 shrink-0">
@@ -310,7 +310,7 @@ export function PaymentDialog({
                                                                                                                         window.location.href = `tel:${encodedUSSD}`;
                                                                                                                 }, 150);
                                                                                                         }}
-                                                                                                        className="h-9 px-3 rounded-lg bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                                        className="h-9 px-3 rounded-lg bg-success hover:bg-success/90 text-success-foreground text-xs font-medium flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                                         title="نسخ الرمز وفتح الاتصال"
                                                                                                 >
                                                                                                         <AnimatedCopy className="size-3.5" />
@@ -370,7 +370,7 @@ export function PaymentDialog({
                                                                                                 <button
                                                                                                         type="button"
                                                                                                         onClick={() => copyToClipboard(row.value)}
-                                                                                                        className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                                        className="size-10 rounded-lg border border-border/30 flex items-center justify-center hover:bg-accent transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                                                         title={`نسخ ${row.label}`}
                                                                                                 >
                                                                                                         <AnimatedCopy className="size-4" />
@@ -431,7 +431,7 @@ export function PaymentDialog({
                                                         {provider !== 'bank' && (
                                                                 <div className="rounded-xl bg-muted/30 border border-border/20 p-3 flex items-center justify-between">
                                                                         <span className="text-sm text-muted-foreground">المبلغ المطلوب</span>
-                                                                        <span className="text-lg font-bold text-orange">{price} د.ل</span>
+                                                                        <span className="text-lg font-bold text-accent-foreground">{price} د.ل</span>
                                                                 </div>
                                                         )}
 
@@ -458,7 +458,7 @@ export function PaymentDialog({
                                                                 <div className="absolute inset-2 rounded-full border border-orange/30" />
                                                                 {/* Inner icon */}
                                                                 <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange to-orange/80 flex items-center justify-center shadow-lg shadow-orange/25">
-                                                                        <Smartphone className="size-8 text-white" />
+                                                                        <Smartphone className="size-8 text-orange-foreground" />
                                                                 </div>
                                                         </div>
 

@@ -78,8 +78,8 @@ export function CartSlideOver() {
                                                 'bg-orange/90 backdrop-blur-xl',
                                                 'shadow-2xl shadow-orange/30 ring-1 ring-white/10',
                                                 'hover:shadow-orange/40 hover:scale-105',
-                                                'active:scale-95 transition-transform duration-300 ease-out',
-                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                'active:scale-95 transition-transform duration-base ease-out',
+                                                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                 bounce && 'scale-110'
                                         )}
                                 >
@@ -88,9 +88,9 @@ export function CartSlideOver() {
                                                 <span
                                                         className={cn(
                                                                 'absolute -top-2.5 -end-2.5 min-w-[18px] h-[18px] rounded-full',
-                                                                'bg-orange-foreground text-orange text-[10px] font-bold',
+                                                                'bg-orange-foreground text-saffron text-[10px] font-bold',
                                                                 'flex items-center justify-center px-1',
-                                                                'transition-transform duration-300',
+                                                                'transition-transform duration-base',
                                                                 bounce && 'scale-125'
                                                         )}
                                                 >
@@ -119,7 +119,7 @@ export function CartSlideOver() {
                                                 <button
                                                         type="button"
                                                         onClick={() => setOpen(false)}
-                                                        className="size-11 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="size-11 flex items-center justify-center rounded-sm hover:bg-white/10 transition-colors -ms-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         aria-label="إغلاق"
                                                 >
                                                         {/* r121 (J-2): سهم إغلاق الورقة كان MotionArrowLeft —
@@ -172,7 +172,7 @@ export function CartSlideOver() {
                                                                                                                                                                         aria-label="إنقاص الكمية"
                                                                                                                                                                         /* r97-X1: ring-inset — الأب overflow-hidden يقصّ أي حلقة خارجية،
                                                                                                                                                                            فالحلقة الداخلية هي المؤشر المرئي الوحيد الممكن */
-                                                                                                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                                                                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                                                                                                                                 >
                                                                                                                                                                         <MotionMinus className="size-4" />
                                                                                                                                                         </button>
@@ -183,7 +183,7 @@ export function CartSlideOver() {
                                                                                         type="button"
                                                                                         disabled={item.quantity >= MAX_ITEM_QUANTITY} onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                                                         aria-label="زيادة الكمية"
-                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-orange/60 disabled:opacity-40 disabled:pointer-events-none"
+                                                                                        className="size-11 flex items-center justify-center hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/60 disabled:opacity-40 disabled:pointer-events-none"
                                                                                 >
                                                                                         <MotionPlus className="size-4" />
                                                                                 </button>
@@ -199,7 +199,7 @@ export function CartSlideOver() {
                                                                                 type="button"
                                                                                 onClick={() => removeItem(item.id)}
                                                                                 aria-label={`حذف ${item.name}`}
-                                                                                className="size-11 flex items-center justify-center rounded-sm text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                                className="size-11 flex items-center justify-center rounded-sm text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                         >
                                                                                 <AnimatedTrash className="size-3.5" />
                                                                         </button>

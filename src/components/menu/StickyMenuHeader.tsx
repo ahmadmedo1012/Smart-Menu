@@ -66,14 +66,14 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                 <>
                         <div
                                 className={cn(
-                                        'fixed inset-x-0 top-0 z-30 h-14 flex items-center px-4 gap-3 transition-[background-color,box-shadow] duration-300',
+                                        'fixed inset-x-0 top-0 z-30 h-14 flex items-center px-4 gap-3 transition-[background-color,box-shadow] duration-base',
                                         scrolled ? 'glass-strong' : 'bg-transparent'
                                 )}
                         >
                                 {/* logo — rounded-lg */}
                                 <div
                                         className={cn(
-                                        'size-8 shrink-0 overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm flex items-center justify-center transition-[box-shadow,outline-color] duration-300',
+                                        'size-8 shrink-0 overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm flex items-center justify-center transition-[box-shadow,outline-color] duration-base',
                                                 scrolled
                                                         ? logo
                                                                 ? 'ring-1 ring-border/30'
@@ -119,7 +119,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                         <Link
                                                                 key={l.href}
                                                                 href={l.href}
-                                                                className="px-3 py-2 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="px-3 py-2 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         >
                                                                 {l.label}
                                                         </Link>
@@ -136,7 +136,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                 aria-expanded={mobileOpen}
                                                 aria-controls="mobile-global-drawer"
                                                 onClick={() => setMobileOpen((o) => !o)}
-                                                className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:bg-accent/40 md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                         >
                                                 <MotionMenu className="size-5" />
                                         </button>
@@ -162,7 +162,7 @@ export function StickyMenuHeader({ name, logo }: { name: string; logo?: string }
                                                                 key={l.href}
                                                                 href={l.href}
                                                                 onClick={() => setMobileOpen(false)}
-                                                                className="px-4 py-3 rounded-xl text-sm font-medium hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="px-4 py-3 rounded-xl text-sm font-medium hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         >
                                                                 {l.label}
                                                         </Link>

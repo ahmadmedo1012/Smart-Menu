@@ -385,7 +385,7 @@ export function MenuPageClient({
                                                         /* r125 (11-b): هدف لمس ٤٤px — الحشوة المرئية ظلّت مضغوطة
                                                            (py-1 ≈ 26px) لكن الطبقة before تمدّد مساحة النقر
                                                            ±10px عموديًا (نمط منطقة النقر دون تضخيم الصف). */
-                                                        className="relative text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors before:absolute before:-inset-x-2 before:-inset-y-2.5 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="relative text-xs px-2.5 py-1 rounded-sm bg-primary/10 text-accent-foreground hover:bg-primary/20 transition-colors before:absolute before:-inset-x-2 before:-inset-y-2.5 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 >
                                                         إعادة تعيين
                                                 </button>
@@ -455,7 +455,7 @@ export function MenuPageClient({
                                                                         }}
                                                                         /* r125 (11-b): min-h-11 — زر المال في حالة الفراغ كان
                                                                            py-2 (36px) تحت حدّ ٤٤px للّمس على الجوال. */
-                                                                        className="text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-white hover:brightness-110 transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                        className="text-sm min-h-11 px-4 py-2 rounded-sm bg-orange text-orange-foreground hover:brightness-110 transition-[filter,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                 >
                                                                         عرض الكل
                                                                 </button>

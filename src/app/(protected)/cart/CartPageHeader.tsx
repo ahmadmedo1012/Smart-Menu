@@ -15,7 +15,7 @@ export function CartPageHeader({ count }: CartPageHeaderProps) {
                 <div className="flex items-center gap-4 mb-8 animate-slide-down">
                         <Link
                                 href="/menu"
-                                className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                className="inline-flex size-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                 aria-label="العودة إلى القائمة"
                         >
                                 {/* r121 (J-2): سهم «العودة إلى القائمة» كان MotionArrowLeft —

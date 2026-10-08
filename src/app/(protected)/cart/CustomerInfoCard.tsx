@@ -12,7 +12,7 @@ interface CustomerInfoCardProps {
 /** Order notes + loyalty phone card — verbatim extraction from the cart page (round89-G1). */
 export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }: CustomerInfoCardProps) {
         return (
-                <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up delay-300">
+                <div className="rounded-md bg-card/60 border border-border/30 p-5 mb-6 animate-slide-up stagger-3">
                         <h2 className="font-bold mb-3 flex items-center gap-2">
                                 <AnimatedSparkles className="size-4 text-primary" />
                                 ملاحظات الطلب
@@ -30,7 +30,7 @@ export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }:
                                                 maxLength={120}
                                                 value={notes}
                                                 onChange={(e) => onNotesChange(e.target.value)}
-                                                className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20"
+                                                className="w-full h-11 rounded-sm border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60"
                                         />
                                 </div>
                                 <div>
@@ -40,12 +40,13 @@ export function CustomerInfoCard({ notes, phone, onNotesChange, onPhoneChange }:
                                         <input
                                                 id="cart-phone"
                                                 type="tel"
+                                                inputMode="tel"
                                                 dir="ltr"
                                                 placeholder="09XXXXXXXX"
                                                 maxLength={15}
                                                 value={phone}
                                                 onChange={(e) => onPhoneChange(e.target.value)}
-                                                className="w-full h-11 rounded-[4px] border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-orange focus-visible:ring-4 focus-visible:ring-orange/20 text-left"
+                                                className="w-full h-11 rounded-sm border border-input bg-transparent px-4 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-4 focus-visible:ring-ring/60 text-left"
                                         />
                                         <p className="text-[11px] text-muted-foreground mt-1">
                                                 ادخل رقمك ليكسب برنامج الولاء نقاطاً مقابل هذا الطلب

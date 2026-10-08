@@ -17,13 +17,16 @@
  * seen the post-logout cookie state.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { premiumToast } from '@/lib/premium-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { csrfFetch } from '@/lib/csrf-client';
+import { PASSWORD_MIN_LENGTH } from '@/lib/constants';
+import { toArabicNumber } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import {
         Dialog,
@@ -68,9 +71,43 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
         const [loading, setLoading] = useState(false);
         const [showPassword, setShowPassword] = useState(false);
         const [showForgot, setShowForgot] = useState(false);
+        /* r126 (P4-F1 M8, audit D2): inline validation mirroring the
+         * SubscribeForm gold standard — per-field error state (touched OR
+         * submitted), aria-invalid + aria-describedby wiring, persistent
+         * role="alert" messages (the toast stays as a supplement only), and
+         * focus-after-error on the first invalid field. */
+        const [fieldTouched, setFieldTouched] = useState<Record<string, boolean>>({});
+        const [submitted, setSubmitted] = useState(false);
+        const [formError, setFormError] = useState<string | null>(null);
+        const usernameRef = useRef<HTMLInputElement>(null);
+        const passwordRef = useRef<HTMLInputElement>(null);
+
+        const touchField = (field: string) => setFieldTouched((prev) => ({ ...prev, [field]: true }));
+        const fieldError = (field: string) => {
+                const touched = fieldTouched[field] || submitted;
+                if (!touched) return false;
+                if (field === 'username') return username.trim().length < 3;
+                if (field === 'password') return password.trim().length < PASSWORD_MIN_LENGTH;
+                return false;
+        };
 
         async function handleSubmit(e: React.SyntheticEvent) {
                 e.preventDefault();
+                setSubmitted(true);
+                setFormError(null);
+
+                // Client-side gate: focus the first invalid field, no request.
+                // (Direct checks — the submitted flag above is async and not
+                // yet visible in this closure.)
+                if (username.trim().length < 3) {
+                        usernameRef.current?.focus();
+                        return;
+                }
+                if (password.trim().length < PASSWORD_MIN_LENGTH) {
+                        passwordRef.current?.focus();
+                        return;
+                }
+
                 setLoading(true);
 
                 try {
@@ -83,6 +120,8 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                         const data = await res.json();
 
                         if (!res.ok) {
+                                setFormError(data.message || 'فشل تسجيل الدخول');
+                                usernameRef.current?.focus();
                                 premiumToast('error', data.message || 'فشل تسجيل الدخول');
                                 return;
                         }
@@ -107,6 +146,8 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                         : '/login';
                         setTimeout(() => window.location.replace(target), 150);
                 } catch {
+                        setFormError('خطأ في الاتصال بالخادم');
+                        usernameRef.current?.focus();
                         premiumToast('error', 'خطأ في الاتصال بالخادم');
                 } finally {
                         setLoading(false);
@@ -164,13 +205,26 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                 </CardHeader>
 
                                 <CardContent className="px-6 pb-8 pt-4 sm:px-8">
-                                        <form onSubmit={handleSubmit} className="space-y-5">
+                                        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                                                {/* r126 (P4-F1 M8): persistent server-error line — announced
+                                                        via role=alert; focus returns to the username field. */}
+                                                {formError && (
+                                                        <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                                                                {formError}
+                                                        </p>
+                                                )}
                                                 <div className="space-y-2">
                                                         <Label htmlFor="username" className="font-arabic text-sm font-medium">
                                                                 اسم المستخدم
                                                         </Label>
-                                                        {/* r95: حقل SmartBot — bg-secondary/40 + تركيز ring اللهب */}
-                                                        <div className="rounded-xl border border-border/50 bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-200 focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/20">
+                                                        {/* r95: حقل SmartBot — bg-secondary/40
+                                                           r126 (M2): حلقة التركيز على رمز --ring */}
+                                                        <div
+                                                                className={cn(
+                                                                        'rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/25',
+                                                                        fieldError('username') ? 'border-destructive/60' : 'border-border/50'
+                                                                )}
+                                                        >
                                                                 <Input
                                                                         id="username"
                                                                         type="text"
@@ -178,20 +232,39 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                                         dir="auto"
                                                                         placeholder="اسم المستخدم"
                                                                         value={username}
-                                                                        onChange={(e) => setUsername(e.target.value)}
+                                                                        onChange={(e) => {
+                                                                                setUsername(e.target.value);
+                                                                                setSubmitted(false);
+                                                                                setFormError(null);
+                                                                        }}
+                                                                        onBlur={() => touchField('username')}
                                                                         required
                                                                         autoFocus
-                                                                        className="border-0 bg-transparent focus-visible:ring-2 focus-visible:ring-orange/40 focus-visible:ring-offset-0 rounded-sm"
+                                                                        ref={usernameRef}
+                                                                        aria-invalid={fieldError('username') || undefined}
+                                                                        aria-describedby={fieldError('username') ? 'username-error' : undefined}
+                                                                        className="border-0 bg-transparent focus-visible:ring-0 focus-visible:shadow-none rounded-sm"
                                                                 />
                                                         </div>
+                                                        {fieldError('username') && (
+                                                                <p id="username-error" role="alert" className="text-xs text-destructive mt-1">
+                                                                        اسم المستخدم مطلوب (3 أحرف على الأقل)
+                                                                </p>
+                                                        )}
                                                 </div>
 
                                                 <div className="space-y-2">
                                                         <Label htmlFor="password" className="font-arabic text-sm font-medium">
                                                                 كلمة المرور
                                                         </Label>
-                                                        {/* r95: حقل SmartBot — bg-secondary/40 + تركيز ring اللهب */}
-                                                        <div className="relative rounded-xl border border-border/50 bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-200 focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/20">
+                                                        {/* r95: حقل SmartBot — bg-secondary/40
+                                                           r126 (M2): حلقة التركيز على رمز --ring */}
+                                                        <div
+                                                                className={cn(
+                                                                        'relative rounded-xl border bg-secondary/40 shadow-xs transition-[border-color,box-shadow] duration-fast focus-within:border-ring/50 focus-within:ring-2 focus-within:ring-ring/25',
+                                                                        fieldError('password') ? 'border-destructive/60' : 'border-border/50'
+                                                                )}
+                                                        >
                                                                 <Input
                                                                         id="password"
                                                                         type={showPassword ? 'text' : 'password'}
@@ -199,21 +272,34 @@ export function LoginForm({ redirectParam }: { redirectParam: string | null }) {
                                                                         dir="auto"
                                                                         placeholder="كلمة المرور"
                                                                         value={password}
-                                                                        onChange={(e) => setPassword(e.target.value)}
+                                                                        onChange={(e) => {
+                                                                                setPassword(e.target.value);
+                                                                                setSubmitted(false);
+                                                                                setFormError(null);
+                                                                        }}
+                                                                        onBlur={() => touchField('password')}
                                                                         required
-                                                                        className="border-0 bg-transparent pe-9 focus-visible:ring-2 focus-visible:ring-orange/40 focus-visible:ring-offset-0"
+                                                                        ref={passwordRef}
+                                                                        aria-invalid={fieldError('password') || undefined}
+                                                                        aria-describedby={fieldError('password') ? 'password-error' : undefined}
+                                                                        className="border-0 bg-transparent pe-9 focus-visible:ring-0 focus-visible:shadow-none"
                                                                 />
                                                                 {/* a11y (2.5.8 target size): size-11 hit area via negative margin
                                                                         around the icon so the visual layout is unchanged */}
                                                                 <button
                                                                         type="button"
                                                                         onClick={() => setShowPassword(!showPassword)}
-                                                                        className="absolute end-1.5 top-1/2 -translate-y-1/2 flex size-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 focus-visible:rounded-full"
+                                                                        className="absolute end-1.5 top-1/2 -translate-y-1/2 flex size-11 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:rounded-full"
                                                                         aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                                                                 >
                                                                         {showPassword ? <AnimatedEyeOff className="size-4" /> : <AnimatedEye className="size-4" />}
                                                                 </button>
                                                         </div>
+                                                        {fieldError('password') && (
+                                                                <p id="password-error" role="alert" className="text-xs text-destructive mt-1">
+                                                                        كلمة المرور مطلوبة ({toArabicNumber(PASSWORD_MIN_LENGTH)} أحرف على الأقل)
+                                                                </p>
+                                                        )}
                                                 </div>
 
                                                 <Button

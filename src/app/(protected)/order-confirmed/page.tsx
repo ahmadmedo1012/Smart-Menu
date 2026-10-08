@@ -152,7 +152,7 @@ function OrderContent() {
                                         <div className="space-y-2">
                                                 <h1 className="text-2xl font-bold">تم تأكيد الطلب!</h1>
                                                 <p className="text-muted-foreground">رقم الطلب</p>
-                                                <p className="text-3xl font-bold text-orange tabular-nums">
+                                                <p className="text-3xl font-bold text-accent-foreground tabular-nums">
                                                         <bdi dir="ltr">{displayOrderNo ?? '---'}</bdi>
                                                 </p>
                                                 <button

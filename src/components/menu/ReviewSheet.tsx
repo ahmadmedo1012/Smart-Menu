@@ -235,7 +235,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                         </div>
                                                         <button
                                                                 onClick={() => onOpenChange(false)}
-                                                                className="size-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="size-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                 aria-label="إغلاق"
                                                         >
                                                                 <AnimatedX className="size-4" />
@@ -249,7 +249,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                         key={star ?? 'all'}
                                                                         onClick={() => setFilterStar(star)}
                                                                         className={cn(
-                                                                                'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                 filterStar === star
                                                                                         ? 'bg-orange text-orange-foreground border-orange shadow-sm'
                                                                                         : 'bg-muted/30 text-muted-foreground border-border/20 hover:bg-muted/50'
@@ -285,7 +285,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                                 }}
                                                                                 aria-label={'تقييم ' + s + ' نجوم'}
                                                                                 className={cn(
-                                                                                        'transition-colors cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                        'transition-colors cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                         /* round94 (D/A2): نمط r84 — ember فاتح 6.31:1 بدل saffron
                                                                                            غير المحروس (كان 2.05:1 في الفاتح؛ hover /50 كان 1.42:1) */
                                                                                         s <= formRating
@@ -306,7 +306,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 onChange={(e) => setFormComment(e.target.value)}
                                                                 rows={2}
                                                                 maxLength={500}
-                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus-visible:border-orange/50 transition-colors"
+                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 resize-none outline-none focus-visible:border-ring/50 transition-colors"
                                                         />
                                                         {/* Name */}
                                                         <input
@@ -316,7 +316,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 value={formName}
                                                                 onChange={(e) => setFormName(e.target.value)}
                                                                 maxLength={50}
-                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus-visible:border-orange/50 transition-colors"
+                                                                className="w-full rounded-lg border border-border/20 bg-muted/20 p-2.5 text-xs placeholder:text-muted-foreground/40 outline-none focus-visible:border-ring/50 transition-colors"
                                                         />
                                                         {/* Error */}
                                                         {submitError && (
@@ -330,7 +330,7 @@ export function ReviewSheet({ menuItemId, menuItemName, open, onOpenChange }: Re
                                                                 aria-label="إرسال التقييم"
                                                                 disabled={formRating < 1 || submitting}
                                                                 className={cn(
-                                                                        'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                        'w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                         formRating < 1
                                                                                 ? 'bg-muted/40 text-muted-foreground/40 cursor-not-allowed'
                                                                                 : 'bg-orange text-orange-foreground shadow-sm hover:shadow-md active:scale-[0.97]'

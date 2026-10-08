@@ -9,8 +9,8 @@ import { getArabicPlural } from "@/lib/arabic-plural"
 import { EmptyState } from "@/components/ui/empty-state"
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; indicator: string }> = {
-  new:        { label: "جديد",       color: "text-orange",       bg: "bg-orange-muted",      indicator: "bg-orange" },
-  preparing:  { label: "قيد التحضير", color: "text-orange",    bg: "bg-orange-muted",   indicator: "bg-orange" },
+  new:        { label: "جديد",       color: "text-accent-foreground",       bg: "bg-orange-muted",      indicator: "bg-orange" },
+  preparing:  { label: "قيد التحضير", color: "text-accent-foreground",    bg: "bg-orange-muted",   indicator: "bg-orange" },
   ready:      { label: "جاهز",       color: "text-success",     bg: "bg-success/10",   indicator: "bg-success" },
   completed:  { label: "مكتمل",      color: "text-muted-foreground",       bg: "bg-muted",     indicator: "bg-muted-foreground" },
   cancelled:  { label: "ملغي",       color: "text-destructive",             bg: "bg-destructive/10",                   indicator: "bg-destructive" },
@@ -73,7 +73,7 @@ export function StatusBreakdown({ stats, statusTotal }: StatusSectionProps) {
               const count = stats!.statusBreakdown[status] ?? 0
               if (count === 0) return null
               const pct = statusTotal > 0 ? (count / statusTotal) * 100 : 0
-              return <div key={status} className={cn("h-full first:rounded-s-full last:rounded-e-full transition-[width] duration-500", config.bg)}
+              return <div key={status} className={cn("h-full first:rounded-s-full last:rounded-e-full transition-[width] duration-slower", config.bg)}
                 style={{ width: `${pct}%` }} title={`${config.label}: ${count}`} />
             })}
           </div>
@@ -115,7 +115,7 @@ export function PopularItems({ items }: { items: StatsData["popularItems"] }) {
                 <span className={cn(
                   "flex size-5 shrink-0 items-center justify-center rounded text-[10px] font-bold",
                   idx === 0 ? "bg-orange text-orange-foreground" :
-                  idx < 3 ? "bg-orange-muted text-orange" :
+                  idx < 3 ? "bg-orange-muted text-accent-foreground" :
                   "bg-muted text-muted-foreground"
                 )}>{toArabicNumber(idx + 1)}</span>
                 <span className="text-sm">{item.name}</span>
@@ -156,7 +156,7 @@ export function RecentOrders({ orders }: { orders: StatsData["recentOrders"] }) 
           action={
             <Link
               href="/owner/qr"
-              className="text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 rounded-sm"
+              className="text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 rounded-sm"
             >
               احصل على رمز QR
             </Link>

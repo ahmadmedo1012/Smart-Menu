@@ -8,7 +8,7 @@ interface DeliveryAddressFieldProps {
 /** Delivery address textarea — verbatim extraction from the cart page (round89-G1). */
 export function DeliveryAddressField({ value, onChange }: DeliveryAddressFieldProps) {
         return (
-                <div className="mb-6 animate-slide-up delay-150">
+                <div className="mb-6 animate-slide-up stagger-2">
                         {/* r119-S5-P1-2: label was never associated with the textarea
                                 (no htmlFor/id) — screen readers announced an unnamed field. */}
                         <label htmlFor="delivery-address" className="text-sm font-medium mb-2 block">
@@ -23,7 +23,7 @@ export function DeliveryAddressField({ value, onChange }: DeliveryAddressFieldPr
                                 placeholder="أدخل عنوان التوصيل بالتفصيل"
                                 value={value}
                                 onChange={(e) => onChange(e.target.value)}
-                                className="w-full rounded-lg border border-border/30 bg-card/50 p-3 text-sm outline-none focus-visible:border-orange resize-none"
+                                className="w-full rounded-lg border border-border/30 bg-card/50 p-3 text-sm outline-none focus-visible:border-ring resize-none"
                                 rows={2}
                                 maxLength={360}
                                 aria-required="true"

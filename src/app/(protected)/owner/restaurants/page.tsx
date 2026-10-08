@@ -213,7 +213,7 @@ export default function OwnerRestaurantsPage() {
 							<div className="flex items-start justify-between gap-2">
 								<div className="flex items-center gap-3 min-w-0">
 									<div className="size-10 rounded-sm bg-gradient-to-br from-orange to-orange/70 flex items-center justify-center shrink-0">
-										<Store className="size-5 text-white" />
+										<Store className="size-5 text-orange-foreground" />
 									</div>
 									<div className="min-w-0">
 										<h2 className="font-bold truncate">{r.name}</h2>

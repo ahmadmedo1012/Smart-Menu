@@ -217,7 +217,7 @@ export function OrderDialog({
         const hasDiscount = item.discountedPrice !== null && item.discountedPrice < item.price;
 
         const glassPillInput =
-                'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-sm outline-none transition-[border-color,box-shadow] focus-visible:border-orange/40 focus-visible:ring-4 focus-visible:ring-orange/10';
+                'h-11 rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border px-4 text-sm outline-none transition-[border-color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25';
         const glassPillCard = 'rounded-xl bg-glass-bg/50 backdrop-blur-sm border border-glass-border';
 
         const innerContent = (
@@ -249,7 +249,7 @@ export function OrderDialog({
                                         <button
                                                 type="button"
                                                 onClick={() => onOpenChange(false)}
-                                                className="absolute top-3 start-3 size-11 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                className="absolute top-3 start-3 size-11 rounded-lg bg-black/30 text-white hover:bg-black/50 backdrop-blur-sm flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                 aria-label="إغلاق"
                                         >
                                                 <AnimatedX className="size-4" />
@@ -362,7 +362,7 @@ export function OrderDialog({
                                                                                                                         );
                                                                                                                 }}
                                                                                                                 className={cn(
-                                                                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                                                        'px-3.5 min-h-11 inline-flex items-center rounded-xl text-xs font-medium border transition-[background-color,border-color,color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                                                         selected
                                                                                                                                 /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA 5.42:1) */
                                                                         ? 'bg-orange/10 border-orange/40 text-accent-foreground'
@@ -453,7 +453,7 @@ export function OrderDialog({
                                                                 type="button"
                                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                                                 disabled={quantity <= 1}
-                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                 aria-label="إنقاص الكمية"
                                                         >
                                                                 <MotionMinus className="size-4" />
@@ -465,7 +465,7 @@ export function OrderDialog({
                                                                 type="button"
                                                                 onClick={() => setQuantity(Math.min(MAX_ITEM_QUANTITY, quantity + 1))}
                                                                 disabled={quantity >= MAX_ITEM_QUANTITY}
-                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                                className="size-11 rounded-xl border border-glass-border bg-glass-bg/30 backdrop-blur-sm flex items-center justify-center hover:bg-orange/10 hover:border-orange/30 disabled:opacity-30 transition-[background-color,border-color,transform,translate,scale,rotate,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                                 aria-label="زيادة الكمية"
                                                         >
                                                                 <MotionPlus className="size-4" />
@@ -508,7 +508,7 @@ export function OrderDialog({
                                                                 tabIndex={orderType === type ? 0 : -1}
                                                                 onClick={() => setOrderType(type)}
                                                                 className={cn(
-                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                        'flex-1 min-h-11 inline-flex items-center justify-center rounded-lg text-sm font-medium transition-[color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                         orderType === type
                                                                                 ? 'bg-orange text-orange-foreground shadow-md'
                                                                                 : 'text-muted-foreground hover:text-foreground'
@@ -530,7 +530,7 @@ export function OrderDialog({
                                                                         aria-pressed={notes.includes(note)}
                                                                         onClick={() => toggleQuickNote(note)}
                                                                         className={cn(
-                                                                                'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60',
+                                                                                'px-3.5 min-h-11 inline-flex items-center rounded-full text-xs font-medium transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
                                                                                 notes.includes(note)
                                                                                         /* r95: الشريحة المحددة — نص accent-foreground الأسطع (AA) */
                                                                                 ? 'bg-orange/10 border-orange/30 text-accent-foreground'
@@ -580,7 +580,7 @@ export function OrderDialog({
                                                     أخضر واتساب كان 1.98:1 فقط؛ الأخضر الداكن يعطي 6.15:1. */}
                                                 <button
                                                         type="button"
-                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-[#0b3d2e] flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60"
+                                                        className="w-full h-12 rounded-xl bg-whatsapp hover:bg-whatsapp-deep shadow-lg shadow-whatsapp/20 text-[#0b3d2e] flex items-center justify-center gap-2 text-base font-bold transition-[background-color,transform,translate,scale,rotate,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                                                         onClick={handleConfirm}
                                                         disabled={submitting || !restaurantWhatsapp}
                                                 >

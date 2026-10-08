@@ -225,7 +225,7 @@ export function HeroSection({ totalRestaurants, isLoading }: { totalRestaurants?
                                                                         href="/menu/al-waha-cafe-demo"
                                                                         data-testid="hero-demo-qr"
                                                                         aria-label="جرّب المنيو مباشرة: امسح الرمز لفتح منيو تجريبي حي"
-                                                                        className="block rounded-2xl bg-gradient-to-br from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] p-[3px] shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/60 motion-reduce:transition-none"
+                                                                        className="block rounded-2xl bg-gradient-to-br from-[var(--c-ember)] via-[var(--c-saffron)] to-[var(--c-ember)] p-[3px] shadow-2xl shadow-black/40 transition-transform duration-base hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 motion-reduce:transition-none"
                                                                 >
                                                                         <div className="rounded-[calc(1rem-1.5px)] bg-white p-2">
                                                                                 {/* size-28 = 112px ≥ الحد الأدنى للمسح (96px)؛
