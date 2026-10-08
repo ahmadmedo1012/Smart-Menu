@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Pressable, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Store, TrendingUp } from "lucide-react-native";
@@ -9,6 +9,9 @@ import { OptimizedImage } from "@/components/shared/OptimizedImage";
 import { FloatingWhatsApp } from "@/components/shared/FloatingWhatsApp";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
 import { Button } from "@/components/ui/Button";
+import { PressableScale } from "@/components/motion/PressableScale";
+import { useEnterFade } from "@/components/motion/useEnterFade";
+import Animated from "react-native-reanimated";
 import { toArabicNumber } from "@/lib/format";
 import type { RootNavigation } from "@/navigation/types";
 
@@ -21,6 +24,8 @@ interface FeaturedRestaurant {
 
 export function LandingScreen() {
   const navigation = useNavigation<RootNavigation>();
+  // r126-M4: content fade-in (160ms fast rung).
+  const enterFade = useEnterFade();
   const [stats, setStats] = useState<PublicStats | null>(null);
   const [featured, setFeatured] = useState<FeaturedRestaurant[]>([]);
 
@@ -39,6 +44,7 @@ export function LandingScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ConnectivityBanner />
+      <Animated.View entering={enterFade} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 96 }} showsVerticalScrollIndicator={false}>
         <View className="items-center mb-12 mt-4">
           <View className="w-20 h-20 rounded-2xl items-center justify-center mb-4" style={{ backgroundColor: "#E9B44C" }}>
@@ -69,19 +75,20 @@ export function LandingScreen() {
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6", marginBottom: 12 }}>مطاعم مميزة</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 4 }}>
               {featured.map((r) => (
-                <Pressable
+                <PressableScale
                   key={r.id}
                   onPress={() => navigation.navigate("Menu", { slug: r.slug })}
-                  style={({ pressed }) => ({
+                  accessibilityLabel={`مطعم ${r.name}`}
+                  style={{
                     width: 200, backgroundColor: "#0D1428", borderRadius: 12, padding: 12,
-                    borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.9 : 1,
-                  })}>
+                    borderWidth: 1, borderColor: "#1B2444",
+                  }}>
                   <View style={{ width: "100%", height: 100, borderRadius: 8, overflow: "hidden", marginBottom: 8, backgroundColor: "#121A36" }}>
                     {r.logo ? <OptimizedImage uri={r.logo} style={{ width: "100%", height: "100%" }} /> : null}
                   </View>
                   <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "600", color: "#F2EFE6" }} numberOfLines={1}>{r.name}</Text>
                   <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }} numberOfLines={2}>{r.description || r.city || ""}</Text>
-                </Pressable>
+                </PressableScale>
               ))}
             </ScrollView>
           </View>
@@ -96,6 +103,7 @@ export function LandingScreen() {
           </View>
         </View>
       </ScrollView>
+      </Animated.View>
       <FloatingWhatsApp />
     </SafeAreaView>
   );
@@ -105,8 +113,8 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
   return (
     <View style={{ flex: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 16, borderWidth: 1, borderColor: "#1B2444" }}>
       <View style={{ marginBottom: 8 }}>{icon}</View>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: "#F2EFE6" }}>{value}</Text>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", marginTop: 2 }}>{label}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: "#F2EFE6" }} maxFontSizeMultiplier={1.4}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", marginTop: 2 }} maxFontSizeMultiplier={1.4}>{label}</Text>
     </View>
   );
 }
@@ -114,7 +122,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 function Step({ number, title, description }: { number: number; title: string; description: string }) {
   return (
     <View style={{ flexDirection: "row", gap: 12, alignItems: "flex-start" }}>
-      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <View style={{ width: 32, height: 32, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <Text style={{ color: "#05070F", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }}>{toArabicNumber(number)}</Text>
       </View>
       <View style={{ flex: 1 }}>

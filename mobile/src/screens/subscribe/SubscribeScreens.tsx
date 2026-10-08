@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { View, TextInput, Pressable, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute, StackActions } from "@react-navigation/native";
 import { Check } from "lucide-react-native";
 
@@ -12,6 +12,9 @@ import { toast } from "@/app/providers";
 import { formatPrice } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
 import { useAuth } from "@/store/auth";
+import { PressableScale } from "@/components/motion/PressableScale";
+import { useEnterFade } from "@/components/motion/useEnterFade";
+import Animated from "react-native-reanimated";
 import type { RootNavigation } from "@/navigation/types";
 import type { Plan } from "@/lib/plan-types";
 
@@ -27,6 +30,9 @@ export function SubscribePlanScreen() {
   // (no app relaunch needed).
   const logout = useAuth((s) => s.logout);
   const refreshStatus = useAuth((s) => s.bootstrap);
+  const insets = useSafeAreaInsets();
+  // r126-M4: content fade-in (160ms fast rung).
+  const enterFade = useEnterFade();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,26 +75,30 @@ export function SubscribePlanScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
+      <Animated.View entering={enterFade} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 140 + insets.bottom }}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>اختر باقتك</Text>
         {plans.map((p) => (
-          <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? "#E9B44C" : "#1B2444" }}>
+          <PressableScale key={p.id} onPress={() => setSelectedId(p.id)} accessibilityState={{ selected: selectedId === p.id }} style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: selectedId === p.id ? 2 : 1, borderColor: selectedId === p.id ? "#E9B44C" : "#1B2444" }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <View>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }}>{p.nameAr || p.name}</Text>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 20, fontWeight: "700", color: "#E9B44C", marginTop: 4 }}>{formatPrice(p.price)}</Text>
               </View>
               {selectedId === p.id ? (
-                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
+                <View style={{ width: 24, height: 24, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
                   <Check size={14} color="#05070F" />
                 </View>
               ) : null}
             </View>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 4 }}>لمدة {p.periodDays} يوم</Text>
-          </Pressable>
+          </PressableScale>
         ))}
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
+      </Animated.View>
+      {/* r126 (A6 P2-11): inset-aware sticky CTA (was bottom:16 — overlapped
+          the Android gesture bar / iOS home indicator). */}
+      <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
         <Button title="التالي" onPress={() => selectedId && navigation.navigate("SubscribeMenu", { planId: selectedId })} disabled={!selectedId} size="lg" className="w-full" />
         {/* r126-M2: escape hatch — logout (rose) + refresh status (muted). */}
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 24, marginTop: 12 }}>
@@ -116,6 +126,7 @@ export function SubscribePlanScreen() {
 
 export function SubscribeMenuScreen() {
   const navigation = useNavigation<RootNavigation>();
+  const insets = useSafeAreaInsets();
   const route = useRoute();
   // r102-M3: the plan chosen on the previous screen — persisted with the
   // pending-restaurant payload so the payment step can read it after reload.
@@ -148,7 +159,7 @@ export function SubscribeMenuScreen() {
         <LabelAndInput label="رقم الهاتف" value={phone} onChange={setPhone} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
         <LabelAndInput label="واتساب" value={whatsapp} onChange={setWhatsapp} placeholder="09xxxxxxxx" keyboardType="phone-pad" />
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
+      <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
         <Button title={submitting ? "جارٍ التحقق..." : "التالي"} onPress={onNext} loading={submitting} size="lg" className="w-full" />
       </View>
     </SafeAreaView>
@@ -157,6 +168,7 @@ export function SubscribeMenuScreen() {
 
 export function SubscribePaymentScreen() {
   const navigation = useNavigation<RootNavigation>();
+  const insets = useSafeAreaInsets();
   const [provider, setProvider] = useState<"libyana" | "madar" | "bank">("libyana");
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
@@ -197,8 +209,8 @@ export function SubscribePaymentScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: "#0D1428", borderWidth: 1, borderColor: "#1B2444", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
+          <View style={{ width: 72, height: 72, borderRadius: 9999, backgroundColor: "#0D1428", borderWidth: 1, borderColor: "#1B2444", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+            <View style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
               <Check size={20} color="#05070F" />
             </View>
           </View>
@@ -241,7 +253,7 @@ export function SubscribePaymentScreen() {
           </Text>
         </View>
       </ScrollView>
-      <View style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
+      <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16 }}>
         <Button title={submitting ? "جارٍ الإرسال..." : "إرسال طلب الدفع"} onPress={onPay} loading={submitting} size="lg" className="w-full" />
       </View>
     </SafeAreaView>

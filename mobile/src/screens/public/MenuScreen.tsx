@@ -1,11 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { View, Pressable, ScrollView, RefreshControl, TextInput, Alert, BackHandler } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { Search, ShoppingCart, Plus, Minus, X, ShoppingBag, AlertCircle, Trash2 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Linking from "expo-linking";
+import Animated from "react-native-reanimated";
 
 import { api } from "@/services/api/client";
 import { OptimizedImage } from "@/components/shared/OptimizedImage";
@@ -26,6 +27,9 @@ import {
   modifierDelta, unitPriceWithModifiers, buildModifierPayload,
   isOptionDisabled, modifierGroupHint, selectedCount,
 } from "@/lib/menu-types";
+import { AppBottomSheet, type AppBottomSheetHandle } from "@/components/shared/AppBottomSheet";
+import { PressableScale } from "@/components/motion/PressableScale";
+import { useEnterFade } from "@/components/motion/useEnterFade";
 import type { RootNavigation } from "@/navigation/types";
 
 import { Text } from "@/components/ui/Text";
@@ -51,6 +55,7 @@ const REFERRAL_RE = /^[A-Z0-9]{6,16}$/;
 export function MenuScreen() {
   const route = useRoute();
   const navigation = useNavigation<RootNavigation>();
+  const insets = useSafeAreaInsets();
   const { slug, ref } = (route.params || {}) as { slug?: string; ref?: string };
 
   const [restaurant, setRestaurant] = useState<RestaurantInfo | null>(null);
@@ -65,6 +70,9 @@ export function MenuScreen() {
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
 
   const cartItems = useCart((s) => s.items);
+
+  // r126-M4 (A6 P1-5): content fade-in, fast rung (160ms).
+  const enterFade = useEnterFade();
 
   // r102-M7: deep-link attribution — the Menu route type carries ref? (r101) but
   // it was never persisted, so ?ref=CODE died on arrival and the checkout's
@@ -166,7 +174,7 @@ export function MenuScreen() {
           <Pressable onPress={() => setCartOpen(true)} style={{ position: "relative", padding: 8 }} accessibilityLabel="عرض السلة">
             <ShoppingCart size={24} color="#F2EFE6" />
             {cartCount > 0 ? (
-              <View style={{ position: "absolute", top: 0, right: 0, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}>
+              <View style={{ position: "absolute", top: 0, right: 0, minWidth: 18, height: 18, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}>
                 <Text style={{ color: "#05070F", fontSize: 10, fontFamily: "IBM Plex Sans Arabic", fontWeight: "700" }}>{toArabicNumber(cartCount)}</Text>
               </View>
             ) : null}
@@ -201,37 +209,43 @@ export function MenuScreen() {
         </View>
       ) : null}
 
-      <FlashList
-        data={filteredItems}
-        keyExtractor={(item) => String(item.id)}
-        estimatedItemSize={120}
-        renderItem={({ item }) => (
-          <MenuItemCard
-            item={item}
-            onPress={() => setDetailItem(item)}
-          />
-        )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E9B44C" />}
-        contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
-        ListEmptyComponent={<EmptyState title="لا توجد أصناف" description="جرّب فئة أخرى أو ابحث بكلمة مختلفة" icon={<ShoppingBag size={32} color="#8E97B8" />} />}
-      />
+      <Animated.View entering={enterFade} style={{ flex: 1 }}>
+        <FlashList
+          data={filteredItems}
+          keyExtractor={(item) => String(item.id)}
+          estimatedItemSize={120}
+          renderItem={({ item }) => (
+            <MenuItemCard
+              item={item}
+              onPress={() => setDetailItem(item)}
+            />
+          )}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#E9B44C" />}
+          contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+          ListEmptyComponent={<EmptyState title="لا توجد أصناف" description="جرّب فئة أخرى أو ابحث بكلمة مختلفة" icon={<ShoppingBag size={32} color="#8E97B8" />} />}
+        />
+      </Animated.View>
 
       {cartCount > 0 && !cartOpen && !detailItem ? (
-        <View style={{ position: "absolute", bottom: 16, left: 16, right: 16, zIndex: 50 }}>
-          <Pressable
+        <View style={{ position: "absolute", bottom: 16 + insets.bottom, left: 16, right: 16, zIndex: 50 }}>
+          {/* r126-M4: canonical press feedback (scale 0.98 + opacity, 80/160ms)
+              — was opacity-only 0.9. Inset-aware bottom (A6 P2-10): the old
+              bottom:16 overlapped the Android gesture bar / iOS indicator. */}
+          <PressableScale
             onPress={() => setCartOpen(true)}
-            style={({ pressed }) => ({
+            accessibilityLabel={`عرض السلة — ${toArabicNumber(cartCount)} صنف`}
+            style={{
               flexDirection: "row", alignItems: "center", justifyContent: "space-between",
               backgroundColor: "#E9B44C", paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12,
-              opacity: pressed ? 0.9 : 1, shadowColor: "#02040C", shadowOffset: { width: 0, height: 4 },
+              shadowColor: "#02040C", shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
-            })}>
+            }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <ShoppingCart size={18} color="#05070F" />
-              <Text style={{ color: "#05070F", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }}>{toArabicNumber(cartCount)} صنف</Text>
+              <Text style={{ color: "#05070F", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>{toArabicNumber(cartCount)} صنف</Text>
             </View>
-            <Text style={{ color: "#05070F", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }}>{formatPrice(subtotal)}</Text>
-          </Pressable>
+            <Text style={{ color: "#05070F", fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700" }} maxFontSizeMultiplier={1.4}>{formatPrice(subtotal)}</Text>
+          </PressableScale>
         </View>
       ) : null}
 
@@ -246,15 +260,15 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
   const price = item.discountedPrice ?? item.price;
   const groups = visibleModifierGroups(item.modifierGroups);
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       disabled={!item.isAvailable}
       accessibilityLabel={`تفاصيل ${item.nameAr || item.name}`}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#0D1428",
         borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444",
-        opacity: item.isAvailable ? (pressed ? 0.9 : 1) : 0.5,
-      })}>
+        opacity: item.isAvailable ? 1 : 0.5,
+      }}>
       {item.image ? (
         <View style={{ width: 64, height: 64, borderRadius: 8, overflow: "hidden", backgroundColor: "#121A36" }}>
           <OptimizedImage uri={item.image} style={{ width: "100%", height: "100%" }} />
@@ -279,10 +293,10 @@ const MenuItemCard = ({ item, onPress }: { item: MenuItem; onPress: () => void }
           ) : null}
         </View>
       </View>
-      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 32, height: 32, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center" }}>
         <Plus size={18} color="#05070F" />
       </View>
-    </Pressable>
+    </PressableScale>
   );
 };
 
@@ -299,6 +313,8 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
   const [modError, setModError] = useState<{ groupId: number | null; message: string } | null>(null);
+  // r126-M8: imperative handle for the programmatic dismiss (add-to-cart).
+  const sheetRef = useRef<AppBottomSheetHandle>(null);
 
   const delta = modifierDelta(groups, selection);
   const unit = unitPriceWithModifiers(item.price, item.discountedPrice, delta);
@@ -350,88 +366,36 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
     );
     if (line && notes.trim()) useCart.getState().updateNotes(line.id, notes.trim());
     toast.success(`أُضيف ${displayName} إلى السلة`);
-    onClose();
+    // r126-M8: dismiss through the sheet (exit animation) — onClose fires
+    // from onDismiss and unmounts this sheet.
+    sheetRef.current?.dismiss();
   };
 
   // r120 (U6-#2): زر الرجوع كان يطفئ شاشة المنيو تحت الورقة — الآن يغلق الورقة أولًا.
   useEffect(() => {
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => { onClose(); return true; });
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => { sheetRef.current?.dismiss(); return true; });
     return () => sub.remove();
-  }, [onClose]);
+  }, []);
 
   return (
-    <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(2,4,12,0.7)", zIndex: 100 }}>
-      <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="إغلاق تفاصيل الصنف" />
-      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0D1428", borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "88%", padding: 16, borderWidth: 1, borderColor: "#1B2444" }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+    <AppBottomSheet
+      ref={sheetRef}
+      snapPoints={["72%", "94%"]}
+      onClose={onClose}
+      header={
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6", flex: 1 }} numberOfLines={1}>{item.nameAr || item.name}</Text>
-          <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="إغلاق"><X size={20} color="#8E97B8" /></Pressable>
+          <Pressable onPress={() => sheetRef.current?.dismiss()} hitSlop={12} accessibilityLabel="إغلاق تفاصيل الصنف" accessibilityRole="button"><X size={20} color="#8E97B8" /></Pressable>
         </View>
-        <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
-          {item.description ? (
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", lineHeight: 20, marginBottom: 12 }}>{item.description}</Text>
-          ) : null}
-          {modError ? (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#F0938F24", borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: "#F0938F55" }}>
-              <AlertCircle size={16} color="#F0938F" />
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#F0938F", flex: 1 }}>{modError.message}</Text>
-            </View>
-          ) : null}
-          {groups.map((g) => {
-            const groupName = g.nameAr || g.name;
-            return (
-              <View key={g.id} style={{ marginBottom: 16 }}>
-                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6" }}>{groupName}</Text>
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }}>
-                    {modifierGroupHint(g)}{g.maxSelect > 1 ? ` · المحدد ${toArabicNumber(selectedCount(selection, g.id))}/${toArabicNumber(g.maxSelect)}` : ""}
-                  </Text>
-                </View>
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                  {g.options.map((o) => {
-                    const selected = (selection[g.id] ?? []).includes(o.id);
-                    const disabled = isOptionDisabled(g, selection, o.id);
-                    return (
-                      <Pressable
-                        key={o.id}
-                        onPress={() => setSelection((prev) => toggleModifierOption(groups, prev, g.id, o.id))}
-                        disabled={disabled}
-                        accessibilityLabel={`${o.nameAr || o.name}${o.priceDelta > 0 ? ` بإضافة ${formatPrice(o.priceDelta)}` : ""}`}
-                        accessibilityState={{ selected, disabled }}
-                        hitSlop={6}
-                        style={{
-                          paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10,
-                          backgroundColor: selected ? "#E9B44C" : "#070B16",
-                          borderWidth: 1, borderColor: selected ? "#E9B44C" : disabled ? "#1B2444" : "#1B2444",
-                          opacity: disabled ? 0.4 : 1,
-                        }}>
-                        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? "#05070F" : "#F2EFE6" }} maxFontSizeMultiplier={1.4}>
-                          {o.nameAr || o.name}{o.priceDelta > 0 ? ` (+${formatPrice(o.priceDelta)})` : o.priceDelta < 0 ? ` (${formatPrice(o.priceDelta)})` : ""}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-            );
-          })}
-          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6", marginBottom: 8 }}>ملاحظات على الصنف (اختياري)</Text>
-          <TextInput
-            placeholder="مثال: بدون بصل..."
-            placeholderTextColor="#8E97B8"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            style={{ minHeight: 72, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 8, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13, textAlignVertical: "top", marginBottom: 8 }}
-          />
-        </ScrollView>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginTop: 12 }}>
+      }
+      footer={
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Pressable onPress={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} accessibilityLabel="إنقاص الكمية" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#121A36", alignItems: "center", justifyContent: "center", opacity: quantity <= 1 ? 0.4 : 1 }}>
+            <Pressable onPress={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} accessibilityLabel="إنقاص الكمية" accessibilityRole="button" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: "#121A36", alignItems: "center", justifyContent: "center", opacity: quantity <= 1 ? 0.4 : 1 }}>
               <Minus size={16} color="#F2EFE6" />
             </Pressable>
             <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6", minWidth: 28, textAlign: "center" }}>{toArabicNumber(quantity)}</Text>
-            <Pressable onPress={() => setQuantity((q) => Math.min(MAX_ITEM_QUANTITY, q + 1))} disabled={quantity >= MAX_ITEM_QUANTITY} accessibilityLabel="زيادة الكمية" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", opacity: quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}>
+            <Pressable onPress={() => setQuantity((q) => Math.min(MAX_ITEM_QUANTITY, q + 1))} disabled={quantity >= MAX_ITEM_QUANTITY} accessibilityLabel="زيادة الكمية" accessibilityRole="button" style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", opacity: quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}>
               <Plus size={16} color="#05070F" />
             </Pressable>
           </View>
@@ -439,8 +403,66 @@ function ItemDetailSheet({ item, restaurant, onClose }: { item: MenuItem; restau
             <Button title={`أضف إلى السلة · ${formatPrice(unit * quantity)}`} onPress={onAdd} size="lg" className="w-full" />
           </View>
         </View>
-      </View>
-    </View>
+      }
+    >
+      {item.description ? (
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", lineHeight: 20, marginBottom: 12 }}>{item.description}</Text>
+      ) : null}
+      {modError ? (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#F0938F24", borderRadius: 8, padding: 10, marginBottom: 12, borderWidth: 1, borderColor: "#F0938F55" }}>
+          <AlertCircle size={16} color="#F0938F" />
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#F0938F", flex: 1 }}>{modError.message}</Text>
+        </View>
+      ) : null}
+      {groups.map((g) => {
+        const groupName = g.nameAr || g.name;
+        return (
+          <View key={g.id} style={{ marginBottom: 16 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#F2EFE6" }}>{groupName}</Text>
+              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }}>
+                {modifierGroupHint(g)}{g.maxSelect > 1 ? ` · المحدد ${toArabicNumber(selectedCount(selection, g.id))}/${toArabicNumber(g.maxSelect)}` : ""}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {g.options.map((o) => {
+                const selected = (selection[g.id] ?? []).includes(o.id);
+                const disabled = isOptionDisabled(g, selection, o.id);
+                return (
+                  <Pressable
+                    key={o.id}
+                    onPress={() => setSelection((prev) => toggleModifierOption(groups, prev, g.id, o.id))}
+                    disabled={disabled}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${o.nameAr || o.name}${o.priceDelta > 0 ? ` بإضافة ${formatPrice(o.priceDelta)}` : ""}`}
+                    accessibilityState={{ selected, disabled }}
+                    hitSlop={6}
+                    style={{
+                      paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10,
+                      backgroundColor: selected ? "#E9B44C" : "#070B16",
+                      borderWidth: 1, borderColor: selected ? "#E9B44C" : disabled ? "#1B2444" : "#1B2444",
+                      opacity: disabled ? 0.4 : 1,
+                    }}>
+                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: selected ? "#05070F" : "#F2EFE6" }} maxFontSizeMultiplier={1.4}>
+                      {o.nameAr || o.name}{o.priceDelta > 0 ? ` (+${formatPrice(o.priceDelta)})` : o.priceDelta < 0 ? ` (${formatPrice(o.priceDelta)})` : ""}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })}
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6", marginBottom: 8 }}>ملاحظات على الصنف (اختياري)</Text>
+      <TextInput
+        placeholder="مثال: بدون بصل..."
+        placeholderTextColor="#8E97B8"
+        value={notes}
+        onChangeText={setNotes}
+        multiline
+        style={{ minHeight: 72, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 8, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13, textAlignVertical: "top" }}
+      />
+    </AppBottomSheet>
   );
 }
 
@@ -484,6 +506,12 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
    * لتوصيل + ملاحظات عامة (setOrderNotes كانت بلا مستدعٍ واحد). */
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const subtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
+
+  // r126-M8: imperative dismiss + the post-checkout handoff. The sheet
+  // animates out FIRST (onDone runs from onDismiss) so the exit motion is
+  // visible instead of the sheet vanishing mid-navigation.
+  const sheetRef = useRef<AppBottomSheetHandle>(null);
+  const pendingDone = useRef<{ orderNo: string; waUrl?: string } | null>(null);
 
   const onCheckout = async () => {
     if (items.length === 0) return;
@@ -569,7 +597,9 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
       cart.clearCart();
       // r102-M5: land on the confirmation screen — it existed but was only
       // reachable via deep link; the in-app flow dead-ended after checkout.
-      onDone(res.orderNo, waOpenFailed ? waUrl : undefined);
+      // r126-M8: dismiss (exit animation) — onDone fires from onDismiss.
+      pendingDone.current = { orderNo: res.orderNo, waUrl: waOpenFailed ? waUrl : undefined };
+      sheetRef.current?.dismiss();
       if (waOpenFailed) {
         toast.error("تم تسجيل طلبك — تعذّر فتح واتساب تلقائيًا، جرّب زر الإرسال في شاشة التأكيد");
       }
@@ -584,97 +614,107 @@ function CartSheet({ restaurant, onDone, onClose }: { restaurant: RestaurantInfo
 
   // r120 (U6-#2): زر الرجوع يغلق السلة بدل إطفاء شاشة المنيو تحتها.
   useEffect(() => {
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => { onClose(); return true; });
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => { sheetRef.current?.dismiss(); return true; });
     return () => sub.remove();
-  }, [onClose]);
+  }, []);
 
   return (
-    <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(2,4,12,0.7)", zIndex: 100 }}>
-      <Pressable style={{ flex: 1 }} onPress={onClose} />
-      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0D1428", borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "85%", padding: 16, borderWidth: 1, borderColor: "#1B2444" }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+    <AppBottomSheet
+      ref={sheetRef}
+      snapPoints={["70%", "92%"]}
+      onClose={() => {
+        // r126-M8: a programmatic dismiss after a successful checkout carries
+        // the result; a user dismiss (swipe/backdrop/back/X) is a plain close.
+        const pending = pendingDone.current;
+        pendingDone.current = null;
+        if (pending) onDone(pending.orderNo, pending.waUrl);
+        else onClose();
+      }}
+      header={
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 18, fontWeight: "700", color: "#F2EFE6" }}>السلة</Text>
-          <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="إغلاق السلة"><X size={20} color="#8E97B8" /></Pressable>
+          <Pressable onPress={() => sheetRef.current?.dismiss()} hitSlop={12} accessibilityLabel="إغلاق السلة" accessibilityRole="button"><X size={20} color="#8E97B8" /></Pressable>
         </View>
-        {/* r120 (U6-#3): راية التراجع — المخزن كان يملك removeItem/undoRemove
-            بلا أي واجهة؛ الحذف كان بالإنقاص حتى الصفر بصمت وبلا استرجاع. */}
-        {lastRemoved ? (
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#121A36", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 8 }}>
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", flex: 1 }} numberOfLines={1}>تم حذف «{lastRemoved.name}»</Text>
-            <Pressable onPress={cart.undoRemove} hitSlop={8} accessibilityLabel="تراجع عن الحذف">
-              <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "700", color: "#E9B44C" }}>تراجع</Text>
-            </Pressable>
-          </View>
-        ) : null}
-        <ScrollView style={{ maxHeight: 280 }} showsVerticalScrollIndicator={false}>
-          {items.length === 0 ? (
-            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", paddingVertical: 24 }}>السلة فارغة</Text>
-          ) : (
-            items.map((i) => (
-              <View key={i.id} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1B2444" }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6" }} numberOfLines={1}>{i.name}</Text>
-                    {i.modifiersSummary ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }} numberOfLines={2}>{i.modifiersSummary}</Text> : null}
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#E9B44C", marginTop: 4 }}>{formatPrice(i.price)}</Text>
-                  </View>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                    {/* r120 (U6-#4): 24×24 تحت حد اللمس — 36 مرئي + hitSlop 8 = ≥44 فعليًا. */}
-                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} hitSlop={8} accessibilityLabel={`إنقاص كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#121A36", alignItems: "center", justifyContent: "center" }}><Minus size={16} color="#F2EFE6" /></Pressable>
-                    <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6", minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
-                    <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} hitSlop={8} accessibilityLabel={`زيادة كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={16} color="#05070F" /></Pressable>
-                    {/* r120 (U6-#3): حذف مباشر + تراجع (كان الإنقاص حتى الصفر الطريق الوحيد). */}
-                    <Pressable onPress={() => cart.removeItem(i.id)} hitSlop={10} accessibilityLabel={`حذف ${i.name} من السلة`} style={{ padding: 6 }}>
-                      <Trash2 size={16} color="#8E97B8" />
-                    </Pressable>
-                  </View>
-                </View>
-              </View>
-            ))
-          )}
-        </ScrollView>
-        {items.length > 0 ? (
-          <View style={{ marginTop: 12, gap: 8 }}>
-            <TextInput placeholder="الاسم" placeholderTextColor="#8E97B8" value={customerName} onChangeText={cart.setCustomerName} style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
-            <TextInput placeholder="رقم الهاتف" placeholderTextColor="#8E97B8" value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              {(["inside", "takeaway", "delivery"] as const).map((t) => (
-                <Pressable key={t} onPress={() => cart.setPickupType(t)} hitSlop={4} accessibilityLabel={pickupLabels[t]} accessibilityState={{ selected: pickupType === t }} style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: pickupType === t ? "#E9B44C" : "#121A36", alignItems: "center" }}>
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: pickupType === t ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{pickupLabels[t]}</Text>
-                </Pressable>
-              ))}
-            </View>
-            {/* r120 (U6-#1): عنوان إلزامي لتوصيل (بوابة الإرسال أعلاه ترفض الفراغ)
-                + ملاحظات عامة على الطلب — تكافئ صفحة السلة في الويب. */}
-            {pickupType === "delivery" ? (
-              <TextInput
-                placeholder="عنوان التوصيل (إلزامي)"
-                placeholderTextColor="#E9B44C"
-                value={deliveryAddress}
-                onChangeText={setDeliveryAddress}
-                style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#E9B44C", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
-              />
-            ) : null}
-            <TextInput
-              placeholder="ملاحظات على الطلب (اختياري)"
-              placeholderTextColor="#8E97B8"
-              value={notes}
-              onChangeText={cart.setOrderNotes}
-              multiline
-              style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
-            />
-          </View>
-        ) : null}
-        {items.length > 0 ? (
-          <View style={{ marginTop: 16, gap: 8 }}>
+      }
+      footer={
+        items.length > 0 ? (
+          <View style={{ gap: 8 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8" }}>المجموع</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }}>{formatPrice(subtotal)}</Text>
             </View>
             <Button title={submitting ? "جارٍ الإرسال..." : "إرسال الطلب عبر واتساب"} onPress={onCheckout} loading={submitting} size="lg" className="w-full" />
           </View>
-        ) : null}
-      </View>
-    </View>
+        ) : null
+      }
+    >
+      {/* r120 (U6-#3): راية التراجع — المخزن كان يملك removeItem/undoRemove
+          بلا أي واجهة؛ الحذف كان بالإنقاص حتى الصفر بصمت وبلا استرجاع. */}
+      {lastRemoved ? (
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#121A36", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 8 }}>
+          <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#8E97B8", flex: 1 }} numberOfLines={1}>تم حذف «{lastRemoved.name}»</Text>
+          <Pressable onPress={cart.undoRemove} hitSlop={8} accessibilityLabel="تراجع عن الحذف" accessibilityRole="button">
+            <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "700", color: "#E9B44C" }}>تراجع</Text>
+          </Pressable>
+        </View>
+      ) : null}
+      {items.length === 0 ? (
+        <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", paddingVertical: 24 }}>السلة فارغة</Text>
+      ) : (
+        items.map((i) => (
+          <View key={i.id} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1B2444" }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6" }} numberOfLines={1}>{i.name}</Text>
+                {i.modifiersSummary ? <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }} numberOfLines={2}>{i.modifiersSummary}</Text> : null}
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, color: "#E9B44C", marginTop: 4 }}>{formatPrice(i.price)}</Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                {/* r120 (U6-#4): 24×24 تحت حد اللمس — 36 مرئي + hitSlop 8 = ≥44 فعليًا. */}
+                <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity - 1)} hitSlop={8} accessibilityRole="button" accessibilityLabel={`إنقاص كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: "#121A36", alignItems: "center", justifyContent: "center" }}><Minus size={16} color="#F2EFE6" /></Pressable>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6", minWidth: 20, textAlign: "center" }}>{toArabicNumber(i.quantity)}</Text>
+                <Pressable onPress={() => cart.updateQuantity(i.id, i.quantity + 1)} disabled={i.quantity >= MAX_ITEM_QUANTITY} hitSlop={8} accessibilityRole="button" accessibilityLabel={`زيادة كمية ${i.name}`} style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: "#E9B44C", alignItems: "center", justifyContent: "center", opacity: i.quantity >= MAX_ITEM_QUANTITY ? 0.4 : 1 }}><Plus size={16} color="#05070F" /></Pressable>
+                {/* r120 (U6-#3): حذف مباشر + تراجع (كان الإنقاص حتى الصفر الطريق الوحيد). */}
+                <Pressable onPress={() => cart.removeItem(i.id)} hitSlop={10} accessibilityRole="button" accessibilityLabel={`حذف ${i.name} من السلة`} style={{ padding: 6 }}>
+                  <Trash2 size={16} color="#8E97B8" />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        ))
+      )}
+      {items.length > 0 ? (
+        <View style={{ marginTop: 12, gap: 8 }}>
+          <TextInput placeholder="الاسم" placeholderTextColor="#8E97B8" value={customerName} onChangeText={cart.setCustomerName} style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
+          <TextInput placeholder="رقم الهاتف" placeholderTextColor="#8E97B8" value={customerPhone} onChangeText={cart.setCustomerPhone} keyboardType="phone-pad" style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }} />
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {(["inside", "takeaway", "delivery"] as const).map((t) => (
+              <Pressable key={t} onPress={() => cart.setPickupType(t)} hitSlop={4} accessibilityRole="button" accessibilityLabel={pickupLabels[t]} accessibilityState={{ selected: pickupType === t }} style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: pickupType === t ? "#E9B44C" : "#121A36", alignItems: "center" }}>
+                <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 12, fontWeight: "600", color: pickupType === t ? "#05070F" : "#8E97B8" }} maxFontSizeMultiplier={1.4}>{pickupLabels[t]}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {/* r120 (U6-#1): عنوان إلزامي لتوصيل (بوابة الإرسال أعلاه ترفض الفراغ)
+              + ملاحظات عامة على الطلب — تكافئ صفحة السلة في الويب. */}
+          {pickupType === "delivery" ? (
+            <TextInput
+              placeholder="عنوان التوصيل (إلزامي)"
+              placeholderTextColor="#E9B44C"
+              value={deliveryAddress}
+              onChangeText={setDeliveryAddress}
+              style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#E9B44C", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
+            />
+          ) : null}
+          <TextInput
+            placeholder="ملاحظات على الطلب (اختياري)"
+            placeholderTextColor="#8E97B8"
+            value={notes}
+            onChangeText={cart.setOrderNotes}
+            multiline
+            style={{ minHeight: 44, borderRadius: 8, borderWidth: 1, borderColor: "#1B2444", backgroundColor: "#070B16", paddingHorizontal: 12, paddingVertical: 10, color: "#F2EFE6", fontFamily: "IBM Plex Sans Arabic", fontSize: 13 }}
+          />
+        </View>
+      ) : null}
+    </AppBottomSheet>
   );
 }

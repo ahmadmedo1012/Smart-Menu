@@ -39,7 +39,7 @@ export function OrderConfirmedScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top", "bottom"]}>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
         {/* Madarek dark status pair: success soft bg #0F241C + success ink #7FD39A */}
-        <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: "#0F241C", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+        <View style={{ width: 80, height: 80, borderRadius: 9999, backgroundColor: "#0F241C", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
           <CheckCircle size={48} color="#7FD39A" />
         </View>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: "#F2EFE6", marginBottom: 8, textAlign: "center" }}>تم إرسال طلبك بنجاح</Text>
@@ -51,7 +51,11 @@ export function OrderConfirmedScreen() {
           {waUrl ? (
             <Button title="إرسال الطلب عبر واتساب" onPress={onSendWhatsApp} size="lg" className="w-full" />
           ) : null}
-          <Button title="العودة للمنيو" onPress={() => navigation.navigate("Landing")} size="lg" variant={waUrl ? "outline" : "orange"} className="w-full" />
+          {/* r126 (A6 P3-5): "العودة للمنيو" navigated to LANDING, not the menu
+              the customer ordered from. From the checkout flow (Menu →
+              OrderConfirmed) goBack returns to that menu; a cold deep-link
+              entry has no stack below — fall back to Landing. */}
+          <Button title="العودة للمنيو" onPress={() => { if (navigation.canGoBack()) navigation.goBack(); else navigation.navigate("Landing"); }} size="lg" variant={waUrl ? "outline" : "orange"} className="w-full" />
           <Button title="مشاركة Smart Menu" variant="outline" onPress={onShare} size="lg" className="w-full" />
         </View>
       </View>

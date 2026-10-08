@@ -1,11 +1,20 @@
+import { useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Pressable, type PressableProps } from "react-native";
+import { ActivityIndicator, Pressable, type PressableProps } from "react-native";
+import { cssInterop } from "nativewind";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { cn } from "@/lib/utils";
 
 import { Text } from "@/components/ui/Text";
+import { useReducedMotion } from "@/components/motion/useReducedMotion";
 
 const buttonVariants = cva(
-  "flex items-center justify-center gap-2 rounded-md active:opacity-80 disabled:opacity-50",
+  "flex items-center justify-center gap-2 rounded-md disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -42,18 +51,55 @@ export interface ButtonProps extends PressableProps, VariantProps<typeof buttonV
   loading?: boolean;
 }
 
+/**
+ * r126-M4 (A6 P1-5): canonical press feedback on the app's most-used
+ * touchable — scale 0.98 + a small opacity dip, 80ms in / 160ms out (the
+ * Madarek micro/fast rungs). The animated Pressable keeps its className
+ * styling via the same cssInterop bridge the app <Text> uses; the reanimated
+ * style rides the merged style prop. Reduced motion → opacity-only.
+ */
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+cssInterop(AnimatedPressable, { className: "style" });
+
 export function Button({ variant, size, title, loading, children, className, disabled, ...props }: ButtonProps) {
+  const isDisabled = disabled || loading;
+
+  const reducedMotion = useReducedMotion();
+  const pressed = useSharedValue(0);
+  const reduced = useSharedValue(false);
+  useEffect(() => { reduced.value = reducedMotion; }, [reducedMotion, reduced]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    "worklet";
+    if (reduced.value) return { opacity: 1 - pressed.value * 0.25 };
+    return { transform: [{ scale: 1 + pressed.value * -0.02 }], opacity: 1 - pressed.value * 0.1 };
+  });
+
   return (
-    <Pressable
+    <AnimatedPressable
       className={cn(buttonVariants({ variant, size }), className)}
-      disabled={disabled || loading}
+      disabled={isDisabled}
+      onPressIn={() => {
+        if (isDisabled) return;
+        pressed.value = withTiming(1, { duration: 80, easing: Easing.out(Easing.cubic) });
+      }}
+      onPressOut={() => { pressed.value = withTiming(0, { duration: 160, easing: Easing.out(Easing.cubic) }); }}
+      style={animatedStyle}
       // r126 (A6 P2-7): TalkBack/VoiceOver announced buttons as bare labels.
       accessibilityRole="button"
-      accessibilityState={{ busy: loading, disabled: disabled || loading }}
+      accessibilityState={{ busy: loading, disabled: isDisabled }}
       {...props}
     >
       {loading ? (
-        <Text className={buttonTextVariants({ variant, size })}>…</Text>
+        // r126 (A6 P2-5): a literal "…" carried no activity indication —
+        // a real spinner rides the (still visible) label.
+        <>
+          <ActivityIndicator
+            size="small"
+            color={variant === "outline" || variant === "ghost" || variant === "secondary" ? "#E9B44C" : "#05070F"}
+          />
+          <Text className={buttonTextVariants({ variant, size })} maxFontSizeMultiplier={1.4}>{title}</Text>
+        </>
       ) : children ?? (
         <Text
           className={buttonTextVariants({ variant, size })}
@@ -64,6 +110,6 @@ export function Button({ variant, size, title, loading, children, className, dis
           {title}
         </Text>
       )}
-    </Pressable>
+    </AnimatedPressable>
   );
 }

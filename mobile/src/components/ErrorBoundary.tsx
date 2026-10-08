@@ -60,7 +60,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
           <View
             style={{
-              width: 72, height: 72, borderRadius: 36, backgroundColor: "#0D1428",
+              width: 72, height: 72, borderRadius: 9999, backgroundColor: "#0D1428",
               borderWidth: 1, borderColor: "#1B2444", alignItems: "center",
               justifyContent: "center", marginBottom: 24,
             }}>

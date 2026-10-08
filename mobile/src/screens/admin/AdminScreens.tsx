@@ -3,10 +3,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Users, Store, CreditCard, Settings, Bell, FileText, Send } from "lucide-react-native";
 import { EmptyState } from "@/components/ui";
+import { Text } from "@/components/ui/Text";
+import { PressableScale } from "@/components/motion/PressableScale";
 import { useAuth } from "@/store/auth";
 import type { RootNavigation } from "@/navigation/types";
-
-import { Text } from "@/components/ui/Text";
 
 export function AdminDashboardScreen() {
   const user = useAuth((s) => s.user);
@@ -35,10 +35,10 @@ export function AdminDashboardScreen() {
 
 function AdminAction({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ width: "31%", aspectRatio: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
+    <PressableScale onPress={onPress} style={{ width: "31%", aspectRatio: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1B2444" }}>
       {icon}
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", textAlign: "center" }}>{label}</Text>
-    </Pressable>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", textAlign: "center" }} maxFontSizeMultiplier={1.4}>{label}</Text>
+    </PressableScale>
   );
 }
 

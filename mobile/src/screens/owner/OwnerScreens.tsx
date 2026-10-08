@@ -8,6 +8,9 @@ import { Package, TrendingUp, Settings, Award, ClipboardList, QrCode, Star, Shar
 import { api } from "@/services/api/client";
 import { Spinner, EmptyState, ErrorState } from "@/components/ui";
 import { useAuth } from "@/store/auth";
+import { PressableScale } from "@/components/motion/PressableScale";
+import { useEnterFade } from "@/components/motion/useEnterFade";
+import Animated from "react-native-reanimated";
 import { usePollWhenVisible } from "@/hooks/usePollWhenVisible";
 import { formatPrice, toArabicNumber } from "@/lib/format";
 import { formatRelativeTimeAr, getOrderStatusMeta, getPickupTypeMeta } from "@/lib/order-status";
@@ -29,6 +32,8 @@ export function OwnerDashboardScreen() {
   const navigation = useNavigation<RootNavigation>();
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
+  // r126-M4: content fade-in (160ms fast rung).
+  const enterFade = useEnterFade();
   const [stats, setStats] = useState<OwnerStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -59,6 +64,7 @@ export function OwnerDashboardScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <Animated.View entering={enterFade} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor="#E9B44C" />}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 22, fontWeight: "700", color: "#F2EFE6", marginBottom: 16 }}>
           أهلًا، {user?.name || user?.username || "صاحب المطعم"}
@@ -84,7 +90,7 @@ export function OwnerDashboardScreen() {
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", textAlign: "center", paddingVertical: 16 }}>لا توجد طلبات بعد</Text>
             ) : (
               stats.recentOrders.slice(0, 5).map((o) => (
-                <Pressable key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0D1428", borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
+                <PressableScale key={o.id} onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#0D1428", borderRadius: 8, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444" }}>
                   <View>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "600", color: "#F2EFE6" }}>{o.orderNo}</Text>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 2 }}>{formatRelativeTimeAr(o.createdAt)}</Text>
@@ -93,7 +99,7 @@ export function OwnerDashboardScreen() {
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(o.total)}</Text>
                     <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 10, color: "#8E97B8", marginTop: 2 }}>{getOrderStatusMeta(o.status).label}</Text>
                   </View>
-                </Pressable>
+                </PressableScale>
               ))
             )}
             <Pressable onPress={logout} style={{ marginTop: 24, padding: 12, alignItems: "center" }}>
@@ -102,6 +108,7 @@ export function OwnerDashboardScreen() {
           </>
         ) : null}
       </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -118,10 +125,10 @@ function Kpi({ label, value, icon, full }: { label: string; value: string; icon:
 
 function QuickAction({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ width: "31%", aspectRatio: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
+    <PressableScale onPress={onPress} style={{ width: "31%", aspectRatio: 1, backgroundColor: "#0D1428", borderRadius: 12, padding: 12, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: "#1B2444" }}>
       {icon}
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", textAlign: "center" }}>{label}</Text>
-    </Pressable>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", textAlign: "center" }} maxFontSizeMultiplier={1.4}>{label}</Text>
+    </PressableScale>
   );
 }
 
@@ -138,6 +145,8 @@ const ORDERS_PAGE_SIZE = 50;
 
 export function OwnerOrdersScreen() {
   const navigation = useNavigation<RootNavigation>();
+  // r126-M4: content fade-in (160ms fast rung).
+  const enterFade = useEnterFade();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -290,11 +299,12 @@ export function OwnerOrdersScreen() {
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
+      <Animated.View entering={enterFade} style={{ flex: 1 }}>
       <FlatList
         data={orders}
         keyExtractor={(o) => String(o.id)}
         renderItem={({ item: o }) => (
-          <Pressable onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} style={({ pressed }) => ({ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444", opacity: pressed ? 0.8 : 1 })}>
+          <PressableScale onPress={() => navigation.navigate("OwnerOrderDetail", { orderId: o.id })} accessibilityLabel={`الطلب ${o.orderNo} — ${o.customerName || "زبون"} — ${getOrderStatusMeta(o.status).label} — ${formatPrice(o.total)}`} style={{ backgroundColor: "#0D1428", borderRadius: 12, padding: 12, marginBottom: 8, borderWidth: 1, borderColor: "#1B2444" }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#F2EFE6" }}>{o.orderNo}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#E9B44C", fontWeight: "600" }}>{getOrderStatusMeta(o.status).label}</Text>
@@ -304,7 +314,7 @@ export function OwnerOrdersScreen() {
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }}>{formatRelativeTimeAr(o.createdAt)}</Text>
               <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 14, fontWeight: "700", color: "#E9B44C" }}>{formatPrice(o.total)}</Text>
             </View>
-          </Pressable>
+          </PressableScale>
         )}
         onEndReached={() => { void loadMore(); }}
         onEndReachedThreshold={0.4}
@@ -313,6 +323,7 @@ export function OwnerOrdersScreen() {
         ListEmptyComponent={<EmptyState title="لا توجد طلبات" description="ستظهر الطلبات الجديدة هنا فور استلامها" icon={<ClipboardList size={32} color="#8E97B8" />} />}
         ListFooterComponent={renderFooter}
       />
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -488,13 +499,13 @@ export function OwnerQrScreen() {
                 <View style={{ backgroundColor: "#fff", padding: 12, borderRadius: 12 }}>
                   <QRCode value={url} size={200} backgroundColor="#ffffff" color="#070B16" />
                 </View>
-                <Pressable
+                <PressableScale
                   onPress={() => { void Share.share({ message: url }).catch(() => {}); }}
                   accessibilityLabel={`مشاركة رابط منيو ${r.name}`}
-                  style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: "#E9B44C", opacity: pressed ? 0.9 : 1 })}>
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: "#E9B44C" }}>
                   <Share2 size={16} color="#05070F" />
-                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#05070F" }}>مشاركة الرابط</Text>
-                </Pressable>
+                  <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, fontWeight: "700", color: "#05070F" }} maxFontSizeMultiplier={1.4}>مشاركة الرابط</Text>
+                </PressableScale>
                 <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8", marginTop: 8, textAlign: "center" }} selectable>{url}</Text>
               </View>
             );

@@ -3,11 +3,13 @@ import { View, ScrollView, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Check, Sparkles } from "lucide-react-native";
+import Animated from "react-native-reanimated";
 
 import { api } from "@/services/api/client";
 import { Spinner, EmptyState, ErrorState } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { ConnectivityBanner } from "@/components/shared/ConnectivityBanner";
+import { useEnterFade } from "@/components/motion/useEnterFade";
 import { formatPrice } from "@/lib/format";
 import { getErrorMessage } from "@/lib/get-error-message";
 import type { RootNavigation } from "@/navigation/types";
@@ -17,6 +19,8 @@ import { Text } from "@/components/ui/Text";
 
 export function PricingScreen() {
   const navigation = useNavigation<RootNavigation>();
+  // r126-M4: content fade-in (160ms fast rung).
+  const enterFade = useEnterFade();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -64,6 +68,7 @@ export function PricingScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#070B16" }} edges={["top"]}>
       <ConnectivityBanner />
+      <Animated.View entering={enterFade} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor="#E9B44C" />}>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 24, fontWeight: "700", color: "#F2EFE6", marginBottom: 8 }}>اختر باقتك</Text>
         <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 13, color: "#8E97B8", marginBottom: 16 }}>باقات مرنة تناسب كل أنواع المطاعم والمقاهي</Text>
@@ -98,6 +103,7 @@ export function PricingScreen() {
           );
         })}
       </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -105,8 +111,8 @@ export function PricingScreen() {
 function Limit({ label, value }: { label: string; value: number }) {
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }}>{value}</Text>
-      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }}>{label}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 16, fontWeight: "700", color: "#F2EFE6" }} maxFontSizeMultiplier={1.4}>{value}</Text>
+      <Text style={{ fontFamily: "IBM Plex Sans Arabic", fontSize: 11, color: "#8E97B8" }} maxFontSizeMultiplier={1.4}>{label}</Text>
     </View>
   );
 }

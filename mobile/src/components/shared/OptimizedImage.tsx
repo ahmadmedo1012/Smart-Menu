@@ -13,7 +13,9 @@ export function OptimizedImage({ uri, blurhash, className, ...props }: Optimized
     <ExpoImage
       source={{ uri }}
       placeholder={blurhash ? { blurhash } : undefined}
-      transition={300}
+      // r126-M4 (A6 P3-9): 300ms was off-ladder (between the 240 base and
+      // 380 slow rungs) — snapped to the Madarek base rung, 240ms.
+      transition={240}
       contentFit="cover"
       cachePolicy="memory-disk"
       className={cn("bg-muted", className)}
