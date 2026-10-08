@@ -172,15 +172,19 @@ export default function AdminSettingsPage() {
       <h1 className="text-2xl font-bold tracking-normal">الإعدادات</h1>
 
       {/* Tab navigation */}
-      <div role="tablist" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+      {/* r127-F3 (K-8): role="tablist" downgraded to a filter-button group — the
+          tablist promised the APG tabs contract (arrow keys, roving tabindex,
+          aria-controls/tabpanel) that was never implemented. These buttons filter
+          a single in-place settings panel, so the honest pattern is a named group
+          + aria-pressed toggles (same a11y decision as CategoryTabs.tsx). */}
+      <div role="group" aria-label="أقسام الإعدادات" className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {SETTINGS_TABS.map((tab) => {
           const Icon = tab.icon
           return (
             <button
               key={tab.id}
               type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
+              aria-pressed={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "snap-start shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60",

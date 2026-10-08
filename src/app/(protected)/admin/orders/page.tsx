@@ -304,6 +304,7 @@ export default function AdminOrdersPage() {
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {TABS.map(tab => (
           <button key={tab.value} type="button" onClick={() => { setFilter(tab.value); setPage(1) }}
+            aria-pressed={filter === tab.value}
             className={cn("snap-start shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-[background-color,color,border-color,box-shadow] duration-base",
               filter === tab.value
                 ? "bg-gradient-to-r from-orange to-orange/80 text-orange-foreground shadow-lg shadow-orange/25"

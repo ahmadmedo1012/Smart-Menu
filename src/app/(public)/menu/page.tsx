@@ -6,8 +6,9 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = {
         // r121-L-4: brand suffix stripped — the root template already appends
-        // «| المنيو الذكي» (page always redirects to a real menu; keep the
-        // config honest for the brief flash / fallback state).
+        // the suffix (r127-F3 unified it to «| الربط الذكي»; page always
+        // redirects to a real menu — keep the config honest for the brief
+        // flash / fallback state).
         title: "المنيو الرقمي",
         description: "تصفح المنيوهات الرقمية للمطاعم والمقاهي — اطلب عبر واتساب، اربح نقاط ولاء.",
 };

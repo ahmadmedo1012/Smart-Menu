@@ -24,7 +24,10 @@ import '../globals.css';
 export const metadata: Metadata = {
         title: {
                 default: 'الربط الذكي | Smart Menu — منيو رقمي للمطاعم والمقاهي',
-                template: '%s | المنيو الذكي',
+                // r127-F3: template suffix unified to the canonical brand token
+                // «الربط الذكي» — og/siteName/manifest/wordmark already use it
+                // (was «%s | المنيو الذكي», the pre-unification brand split).
+                template: '%s | الربط الذكي',
         },
         // canonical handled per-page (menu/[slug] sets its own; root default here)
         description: 'منيو رقمي ذكي للمطاعم والمقاهي مع الطلب عبر واتساب، برنامج ولاء، وإحصائيات متقدمة',

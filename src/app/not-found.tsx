@@ -20,6 +20,8 @@ import { ErrorShellLangFix } from "@/components/shared/ErrorShellLangFix";
  */
 
 export const metadata: Metadata = {
+        // r127-F3: bare title is intentional — this shell renders outside both
+        // route-group layouts, so the «| الربط الذكي» title template never applies.
         title: "404 - الصفحة غير موجودة",
         description: "الرابط الذي تبحث عنه غير صحيح أو تم نقله.",
         robots: { index: false, follow: false },

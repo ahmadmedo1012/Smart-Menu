@@ -86,18 +86,42 @@ describe('premiumToast — toast.custom call', () => {
 });
 
 describe('premiumToast — rendered element contract', () => {
-        it('root is an alert container: role=alert (assertive by default), no contradicting aria-live, dismiss-on-click', () => {
+        it('error toasts stay assertive: role=alert, no contradicting aria-live, dismiss-on-click', () => {
                 const root = renderToast('error', 'فشل الحفظ', 'حاول مرة أخرى');
                 expect(root.type).toBe('div');
                 expect(root.props.role).toBe('alert');
-                // r119-S5-P2: the explicit aria-live="polite" was REMOVED — it
-                // contradicted role=alert (assertive). The unambiguous contract
-                // is role=alert alone.
+                // r119-S5-P2 + r127-F3: the explicit aria-live stays REMOVED —
+                // it contradicted the role's implicit live politeness. The
+                // unambiguous contract is the role alone.
                 expect(root.props['aria-live']).toBeUndefined();
 
                 // clicking the toast body dismisses it (the t id from the callback)
                 (root.props.onClick as () => void)();
                 expect(mockToastDismiss).toHaveBeenCalledWith({ id: 42 });
+        });
+
+        // r127-F3 (K-10): assertiveness is tiered per kind — only destructive
+        // outcomes (error/trash) interrupt with role=alert; every routine kind
+        // (success/save/copy/info/cart/login/logout/star/gift/refresh) is
+        // polite role=status. Pinned across ALL 12 kinds so a future change
+        // can't silently re-blanket every toast as assertive.
+        it.each([
+                ['error', 'alert'],
+                ['trash', 'alert'],
+                ['success', 'status'],
+                ['save', 'status'],
+                ['copy', 'status'],
+                ['info', 'status'],
+                ['cart', 'status'],
+                ['login', 'status'],
+                ['logout', 'status'],
+                ['star', 'status'],
+                ['gift', 'status'],
+                ['refresh', 'status'],
+        ] as const)('kind "%s" renders role=%s (aria-live stays implicit)', (kind, role) => {
+                const root = renderToast(kind, 'عنوان');
+                expect(root.props.role).toBe(role);
+                expect(root.props['aria-live']).toBeUndefined();
         });
 
         it('title and description are rendered as text', () => {

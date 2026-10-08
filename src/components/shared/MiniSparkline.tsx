@@ -38,7 +38,7 @@ export function MiniSparkline({
     : "var(--destructive, #F0938F)"
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={cn("shrink-0", className)} role="img" aria-label={isUp ? "Trending up" : "Trending down"}>
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={cn("shrink-0", className)} role="img" aria-label={isUp ? "اتجاه صاعد" : "اتجاه هابط"}>
       <defs>
         <linearGradient id={`spark-${width}-${isUp ? "up" : "dn"}`} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor="#F5D48A" stopOpacity={0.25} />
