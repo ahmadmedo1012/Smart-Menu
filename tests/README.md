@@ -31,12 +31,20 @@ DATABASE_URL='postgresql://postgres:postgres@localhost:5434/smartmenu' npx vites
 1. **خادم يعمل على :3000** — إما `pnpm dev` أو بعد `pnpm build`: `node .next/standalone/server.js` (مع نسخ static/public كما في postbuild).
 2. **بذور قاعدة البيانات** (Postgres المحلي :5434):
    ```bash
-   node scripts/ci-seed.mjs        # admin / admin123456 (SEED_ADMIN_PASS)
+   node scripts/ci-seed.mjs        # admin — admin123456 افتراضيًا (المحلي يصدّر SEED_ADMIN_PASS=smart123 — عقد كلمة المرور يجرّبه auth-fix-verification.spec.ts §5 بالترتيب smart123 ثم admin123456)
    node scripts/round83-seed.mjs   # al-waha-cafe + waha_owner / waha123456 + 5 أصناف featured
-   node scripts/qa-seed.mjs        # testmulti1568 + مطاعم IDOR (فرق QA العميقة)
+   node scripts/qa-seed.mjs        # testmulti1568 + مطاعم IDOR + al-waha-cafe-demo (فرق QA العميقة)
    ```
-3. **`BASE_URL` والمضيف**: استخدم `http://localhost:3000` — **وليس 127.0.0.1**. خادم Next يحوّل طلب الـmiddleware إلى localhost، وسياسة CSP بالـnonce تُختم للمضيف المطبَّع فقط؛ الاتصال عبر 127.0.0.1 يترك السكربتات الداخلية بلا nonce فلا تُهيدرَت الصفحات أبداً.
-4. **`RATE_LIMIT_RELAX=1`**: يرخّي حدود الـIP (×200) — **متغير بيئة لعملية الخادم نفسها**، وليس لعملية Playwright. يعمل فقط عندما لا يكون الخادم بوضع production. إن شغّلت الخادم standalone بـNODE_ENV=production فالقيمة (في `.env` أو غيره) **لا تُطبَّق إطلاقًا** — استخدم بدلًا منه:
+   > **M-2 (r127-F2) عقد التخطي الصوتي:** المواصفات التي تعتمد على البذور (rbac-negative/waha_owner، loyalty-redeem، r93-sim-*، round94-sim-*، auth-fix-verification §5) صارت **تتخطى برسالة عربية صوتية** عند غياب البذرة بدل الانفجار — لكن التخطي ليس بديلًا عن البذور في CI: الشغلة الكاملة تبذر الثلاثة قبل تشغيل e2e.
+3. **متصفحات Playwright (مرة واحدة بعد الاستنساخ)** — r127-F2 (M-6): بدونها يفشل التشغيل بـ`Executable doesn't exist`:
+   ```bash
+   npx playwright install
+   # Debian/Ubuntu وعدّاءات CI: ثبّت تبعيات النظام مع المتصفحات
+   npx playwright install --with-deps
+   ```
+   مشروع `qa-cross-browser` يحتاج **firefox**، و`qa-cross-browser-webkit` يحتاج **webkit** — أي `npx playwright install firefox webkit` قبل تشغيلهما (تشغيل صريح فقط، راجع خريطة المشاريع أدناه).
+4. **`BASE_URL` والمضيف**: استخدم `http://localhost:3000` — **وليس 127.0.0.1**. خادم Next يحوّل طلب الـmiddleware إلى localhost، وسياسة CSP بالـnonce تُختم للمضيف المطبَّع فقط؛ الاتصال عبر 127.0.0.1 يترك السكربتات الداخلية بلا nonce فلا تُهيدرَت الصفحات أبداً.
+5. **`RATE_LIMIT_RELAX=1`**: يرخّي حدود الـIP (×200) — **متغير بيئة لعملية الخادم نفسها**، وليس لعملية Playwright. يعمل فقط عندما لا يكون الخادم بوضع production. إن شغّلت الخادم standalone بـNODE_ENV=production فالقيمة (في `.env` أو غيره) **لا تُطبَّق إطلاقًا** — استخدم بدلًا منه:
    **`RATE_LIMIT_TEST_RELAX=1`** (جولة 92): نفس الترخيص (×200 مع أرضية 20) لكنه يعمل صراحةً تحت NODE_ENV=production — هذا ما تستخدمه خطوة خادم E2E في CI (الخادم standalone يفرض production) لإسكات رقائق 429 التراكمية (register 5/دقيقة/IP مشترك بين كل المشاريع). ملاحظات: (أ) يُحترم `exemptFromRelax` — أقفال الحسابات تبقى بميزانيتها الحقيقية دائمًا، (ب) لا يُضبط على الإنتاج/Vercel أبدًا، (ج) الفحص الليلي يظل عمدًا بلا ترخيص ليصطاد رقائق نظام الميزانية الحقيقية.
 
 ### القاعدة الذهبية: الفرق تعمل **متسلسلة** إلزاماً
@@ -65,7 +73,7 @@ npx playwright show-report
 |---|---|---|
 | `security` | `tests/security/*` | ويب هوك تيليغرام — أمن |
 | `api` | api-smoke/sweep/full-sweep + referral-claim + round86-security | طلبات HTTP فقط |
-| `ui` | ui-smoke/ui-sweep | متصفح |
+| `ui` | ui-smoke/ui-sweep + r93-sim-*/round94-sim-* (بذور الجولة) + q4-add-cart-stress (بذرة qa-seed) | متصفح |
 | `auth-verify` | auth-fix-verification | دخول/حدود الدخول |
 | `qa-teams` | team1..**team11** (`team11-modifiers.spec.ts` داخل `tests/e2e/teams/` — رحلة المشتقات: محرر المالك ← المنيو العام ← طلب مُسعّر، w3-f1) + personas 1/3/4/6/7 + round4/5/6/8/29/80/87 | **متسلسلة** — ترحيلات متصفح كاملة |
 | `round79-c` | round79-phaseC-journey | مصفوفة رحلة الزبون الكاملة (actionTimeout 15s) |

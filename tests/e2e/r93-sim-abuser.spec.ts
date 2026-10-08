@@ -46,7 +46,13 @@ test.beforeAll(async () => {
      JOIN "MenuItem" m ON m."categoryId" = c.id
      WHERE r.slug = 'al-waha-cafe' LIMIT 1`,
   );
-  if (!r.rows[0]) throw new Error("al-waha-cafe غير موجود — شغّل بذور الجولة");
+  if (!r.rows[0]) {
+    // M-2 (r127-F2): probe-and-skip بدل الانفجار — بلا بذور الجولة تُتخطى
+    // المواصفة بصوت عالٍ بدل احتجاز التشغيلة (نمط loyalty-redeem).
+    test.skip(true, "بذور الجولة ناقصة (al-waha-cafe غير موجود) — شغّل بذور الجولة أولًا");
+    await client.end();
+    return;
+  }
   restaurantId = r.rows[0].rid;
   itemId = r.rows[0].iid;
   modifierOptionId = r.rows[0].oid ?? 0;

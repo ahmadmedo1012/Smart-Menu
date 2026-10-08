@@ -102,87 +102,102 @@ export function OrderDialog({
                         setModError({ groupId: validation.groupId, message: validation.message });
                         return;
                 }
-                setModError(null);
-                setSubmitting(true);
+                // r127-F2 (Q-4) defense-in-depth: the submit body below talks to the
+                // cart store (addItem / updateNotes / setCustomerInfo) and reads back
+                // from it — a crash in there used to propagate out of the click
+                // handler and take the whole menu page down with it (the 1-in-10
+                // blank-menu symptom this dialog is the last unguarded seam of).
+                // Contain it: an Arabic error toast, the dialog stays mounted and
+                // usable, and the customer can simply retry — the page never dies.
+                try {
+                        setModError(null);
+                        setSubmitting(true);
 
-                const displayName = item.nameAr || item.name;
-                /* F1-5 — SERVER IS THE ONLY SOURCE OF TRUTH FOR MONEY:
-                 * this unit price is a display ESTIMATE that mirrors the server math
-                 * (orders/route.ts: eff = discountedPrice ?? price, then + Σ priceDelta,
-                 * × quantity). The cart line price and every total derived from it are
-                 * informational; POST /api/orders re-prices from its own DB rows and
-                 * REJECTS options that do not belong to this item — nothing here is
-                 * ever used for validation or persistence. */
-                const unit = unitPriceWithModifiers(
-                        item.price,
-                        item.discountedPrice,
-                        modifierDelta(groups, modSelection)
-                );
-                const { modifierOptionIds, modifiersSummary } = buildModifierPayload(groups, modSelection);
-                const modSignature = modifierOptionIds.join(',');
-
-                // Sync item to cart store (unified path with MenuPageClient)
-                const addItem = useCart.getState().addItem;
-                const setCustomerInfo = () => {
-                        const s = useCart.getState();
-                        if (customerName.trim()) s.setCustomerName(customerName.trim());
-                        if (customerPhone.trim()) s.setCustomerPhone(customerPhone.trim());
-                        s.setPickupType(orderType);
-                        // r102-W1: notes live on the ITEM line only (updateNotes below).
-                        // The previous setOrderNotes(notes.trim()) double-wrote the same
-                        // text into order-level notes (duplicated in the WhatsApp receipt)
-                        // and — worse — ran UNCONDITIONALLY, so an empty dialog notes
-                        // field wiped order notes the user had typed on /cart.
-                };
-                // Add item with quantity matching dialog selection. A configured line
-                // (modifier ids + summary) is carried on EVERY call — the store merges
-                // repeats by itemId + modifier signature, so qty lands on one line.
-                // r103-N3: restaurant meta rides along so a cross-restaurant reset in
-                // the store lands on a fully consistent state (see cart.ts).
-                const preAddCart = useCart.getState();
-                if (
-                        preAddCart.items.length > 0 &&
-                        preAddCart.restaurantId &&
-                        preAddCart.restaurantId !== restaurantId
-                ) {
-                        premiumToast('info', 'بدأنا سلة جديدة لهذا المنيو');
-                }
-                for (let i = 0; i < quantity; i++) {
-                        addItem({
-                                itemId: item.id,
-                                name: displayName,
-                                price: unit,
-                                image: item.image || undefined,
-                                restaurantId,
-                                restaurantName,
-                                restaurantWhatsapp,
-                                ...(modifierOptionIds.length > 0
-                                        ? { modifierOptionIds, modifiersSummary }
-                                        : {}),
-                        });
-                }
-                // Set notes on THIS configured line (same signature), not any line of the item
-                const cartItem = useCart
-                        .getState()
-                        .items.find(
-                                (i) => i.itemId === item.id && (i.modifierOptionIds ?? []).join(',') === modSignature
+                        const displayName = item.nameAr || item.name;
+                        /* F1-5 — SERVER IS THE ONLY SOURCE OF TRUTH FOR MONEY:
+                         * this unit price is a display ESTIMATE that mirrors the server math
+                         * (orders/route.ts: eff = discountedPrice ?? price, then + Σ priceDelta,
+                         * × quantity). The cart line price and every total derived from it are
+                         * informational; POST /api/orders re-prices from its own DB rows and
+                         * REJECTS options that do not belong to this item — nothing here is
+                         * ever used for validation or persistence. */
+                        const unit = unitPriceWithModifiers(
+                                item.price,
+                                item.discountedPrice,
+                                modifierDelta(groups, modSelection)
                         );
-                if (cartItem && notes.trim()) {
-                        useCart.getState().updateNotes(cartItem.id, notes.trim());
-                }
-                setCustomerInfo();
+                        const { modifierOptionIds, modifiersSummary } = buildModifierPayload(groups, modSelection);
+                        const modSignature = modifierOptionIds.join(',');
 
-                setSubmitting(false);
-                setConfirmed(true);
-                if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
-                whatsappTimerRef.current = setTimeout(() => {
-                        onOpenChange(false);
-                        // Redirect to the unified cart page where the user reviews + sends WhatsApp.
-                        // r120 (U3-P2-2): router.push بدل window.location — التحميل الكامل كان
-                        // يبيّض الشاشة ويعيد جلب كل شيء (أسوأ قياس 6.0s على 3G). السلة تُقرأ
-                        // من متجر Zustand عند التركيب — التنقل الداخلي يعطي نفس الحالة النظيفة.
-                        router.push('/cart');
-                }, 800);
+                        // Sync item to cart store (unified path with MenuPageClient)
+                        const addItem = useCart.getState().addItem;
+                        const setCustomerInfo = () => {
+                                const s = useCart.getState();
+                                if (customerName.trim()) s.setCustomerName(customerName.trim());
+                                if (customerPhone.trim()) s.setCustomerPhone(customerPhone.trim());
+                                s.setPickupType(orderType);
+                                // r102-W1: notes live on the ITEM line only (updateNotes below).
+                                // The previous setOrderNotes(notes.trim()) double-wrote the same
+                                // text into order-level notes (duplicated in the WhatsApp receipt)
+                                // and — worse — ran UNCONDITIONALLY, so an empty dialog notes
+                                // field wiped order notes the user had typed on /cart.
+                        };
+                        // Add item with quantity matching dialog selection. A configured line
+                        // (modifier ids + summary) is carried on EVERY call — the store merges
+                        // repeats by itemId + modifier signature, so qty lands on one line.
+                        // r103-N3: restaurant meta rides along so a cross-restaurant reset in
+                        // the store lands on a fully consistent state (see cart.ts).
+                        const preAddCart = useCart.getState();
+                        if (
+                                preAddCart.items.length > 0 &&
+                                preAddCart.restaurantId &&
+                                preAddCart.restaurantId !== restaurantId
+                        ) {
+                                premiumToast('info', 'بدأنا سلة جديدة لهذا المنيو');
+                        }
+                        for (let i = 0; i < quantity; i++) {
+                                addItem({
+                                        itemId: item.id,
+                                        name: displayName,
+                                        price: unit,
+                                        image: item.image || undefined,
+                                        restaurantId,
+                                        restaurantName,
+                                        restaurantWhatsapp,
+                                        ...(modifierOptionIds.length > 0
+                                                ? { modifierOptionIds, modifiersSummary }
+                                                : {}),
+                                });
+                        }
+                        // Set notes on THIS configured line (same signature), not any line of the item
+                        const cartItem = useCart
+                                .getState()
+                                .items.find(
+                                        (i) => i.itemId === item.id && (i.modifierOptionIds ?? []).join(',') === modSignature
+                                );
+                        if (cartItem && notes.trim()) {
+                                useCart.getState().updateNotes(cartItem.id, notes.trim());
+                        }
+                        setCustomerInfo();
+
+                        setSubmitting(false);
+                        setConfirmed(true);
+                        if (whatsappTimerRef.current) clearTimeout(whatsappTimerRef.current);
+                        whatsappTimerRef.current = setTimeout(() => {
+                                onOpenChange(false);
+                                // Redirect to the unified cart page where the user reviews + sends WhatsApp.
+                                // r120 (U3-P2-2): router.push بدل window.location — التحميل الكامل كان
+                                // يبيّض الشاشة ويعيد جلب كل شيء (أسوأ قياس 6.0s على 3G). السلة تُقرأ
+                                // من متجر Zustand عند التركيب — التنقل الداخلي يعطي نفس الحالة النظيفة.
+                                router.push('/cart');
+                        }, 800);
+                } catch {
+                        // a store crash must never unmount the menu page — the dialog
+                        // recovers in place and the customer can retry (the cart is
+                        // server-repriced anyway, so a half-applied line is harmless)
+                        setSubmitting(false);
+                        premiumToast('error', 'تعذّرت إضافة الطلب إلى السلة', 'حدث خلل غير متوقع — حاول مرة أخرى');
+                }
         }, [
                 item,
                 restaurantWhatsapp,

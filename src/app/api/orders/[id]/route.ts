@@ -112,7 +112,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                 // order-lifecycle :300/:314) and same-status PUTs stay allowed
                 // (idempotent re-ack). Non-status edits (notes/whatsappSent) on
                 // a cancelled row are untouched. One guard here covers both the
-                // accrual block below AND the plain update at the bottom.
+                // accrual block below AND the plain update at the bottom — but
+                // it reads a SNAPSHOT: the plain update below re-checks the row
+                // at write time (r127-F2 / ADV2-3) so a cancel landing between
+                // the read and the write can no longer be overwritten.
                 if (existing.status === 'cancelled' && body.status !== undefined && body.status !== 'cancelled') {
                         return apiError('لا يمكن تغيير حالة طلب ملغي — الطلب الملغي نهائي', 409);
                 }
@@ -241,17 +244,48 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         }
                 }
 
-                const data = await prisma.order.update({
-                        where: { id: oid },
+                // r127-F2 (ADV2-3) — the plain update is now a CONDITIONAL write.
+                // The read at the top is only a snapshot: a concurrent cancel
+                // landing between that read and the old unconditional
+                // prisma.order.update where {id} silently overwrote the terminal
+                // state (a cancelled row flipped to completed, then the referral
+                // hook below converted on cancelled revenue). Same pattern as the
+                // accrual block above (:144-175): when the request itself targets
+                // a live status, the row must STILL be non-cancelled at write
+                // time — a concurrent cancel wins the race and we lose ours.
+                // Same-status re-acks (cancelled→cancelled) and non-status edits
+                // (notes/whatsappSent) stay unconditional: they can never
+                // resurrect a terminal row (r121-D2 contract, pinned by
+                // order-lifecycle :501/:533).
+                // (the returned count is deliberately unused: BOTH outcomes are
+                // answered by the re-read below — won → the written row, lost →
+                // the concurrent writer's row — so branching on it adds nothing.)
+                await prisma.order.updateMany({
+                        where:
+                                body.status !== undefined && body.status !== 'cancelled'
+                                        ? { id: oid, status: { not: 'cancelled' } }
+                                        : { id: oid },
                         data: body,
+                });
+                // updateMany returns only a count — re-read the row for the
+                // response in BOTH outcomes (won: the freshly written row; lost:
+                // the concurrent writer's row, e.g. cancelled). The re-read status
+                // drives the referral hook below, so a cancel that landed between
+                // our read and our write can never convert referral revenue.
+                const data = await prisma.order.findUnique({
+                        where: { id: oid },
                         include: {
                                 items: { include: { item: { select: { id: true, name: true, nameAr: true } } } },
                                 restaurant: { select: { id: true, name: true, slug: true } },
                         },
                 });
+                // Deleted between our write and the re-read (rare): answer a
+                // clean 404 instead of the old P2025 → 500.
+                if (!data) return notFound('الطلب');
 
                 // round88-C4 — plain-update completion path (pts=0 or loyalty-less):
                 // the order still completed with real money → still convert referrals
+                // (guarded by the RE-READ status — a lost race answers cancelled)
                 if (
                         body.status === 'completed' &&
                         existing.status !== 'completed' &&

@@ -77,7 +77,13 @@ test.beforeAll(async ({ request }) => {
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
   const rest = await client.query(`SELECT id FROM "Restaurant" WHERE slug = 'al-waha-cafe' LIMIT 1`);
-  if (!rest.rows[0]) throw new Error("al-waha-cafe غير موجود — شغّل node scripts/round83-seed.mjs أولًا");
+  // M-2 (r127-F2): probe-and-skip بدل الانفجار — البيئة الدنيا بلا بذرة
+  // round83 كانت تحتجز التشغيلة بأكملها. الرسالة تبقى صوتية وعربية.
+  if (!rest.rows[0]) {
+    test.skip(true, "بذرة round83 ناقصة (al-waha-cafe غير موجود) — شغّل node scripts/round83-seed.mjs أولًا");
+    await client.end();
+    return;
+  }
   alWahaId = rest.rows[0].id;
   const item = await client.query(
     `SELECT m.id, m.price FROM "MenuItem" m
@@ -85,7 +91,12 @@ test.beforeAll(async ({ request }) => {
      WHERE m.name = 'Waha Burger' AND c."restaurantId" = $1 LIMIT 1`,
     [alWahaId],
   );
-  if (!item.rows[0]) throw new Error("Waha Burger غير موجود — بذرة round83 ناقصة");
+  if (!item.rows[0]) {
+    // M-2 (r127-F2): نفس نمط التخطي أعلاه — البرجر جزء من عقد البذرة نفسه.
+    test.skip(true, "بذرة round83 ناقصة (Waha Burger غير موجود) — شغّل node scripts/round83-seed.mjs");
+    await client.end();
+    return;
+  }
   burgerItemId = item.rows[0].id;
   burgerPrice = Number(item.rows[0].price);
 

@@ -34,7 +34,13 @@ test.beforeAll(async ({ request }) => {
      WHERE c."restaurantId" = (SELECT id FROM "Restaurant" WHERE slug = 'al-waha-cafe')
      ORDER BY m.id LIMIT 1`,
   );
-  if (!r.rows[0]) throw new Error("لا أصناف في al-waha-cafe — شغّل البذور");
+  if (!r.rows[0]) {
+    // M-2 (r127-F2): probe-and-skip بدل الانفجار — بلا بذور الجولة تُتخطى
+    // المواصفة بصوت عالٍ بدل احتجاز التشغيلة (نمط loyalty-redeem).
+    test.skip(true, "بذور الجولة ناقصة (لا أصناف في al-waha-cafe) — شغّل البذور أولًا");
+    await client.end();
+    return;
+  }
   const itemId = r.rows[0].id;
   await client.end();
 

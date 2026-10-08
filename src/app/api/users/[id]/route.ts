@@ -46,11 +46,19 @@ export async function PATCH(
     });
     if (!target) return apiError("المستخدم غير موجود", 404);
 
-    // r118-A2-P3: the sibling guards (admins/[id]:29, reset-password:37) block
-    // super_admin targets — a MANAGE_USERS sub_admin could still rename a
-    // super_admin's name/username here (root-account lockout via username).
-    if (target.role === "super_admin" && auth.role !== "super_admin") {
-      return apiError("غير مصرح — لا يمكن تعديل بيانات مدير عام", 403);
+    // r118-A2-P3 → r127-F2 (ADV2-5): the sibling guards (admins/[id]:29,
+    // reset-password:37) protect ALL staff targets — a MANAGE_USERS
+    // sub_admin/admin could still rename another admin's or sub_admin's
+    // name/username here (login-lockout griefing; resetting an admin's
+    // username is a practical account takeover). The guard now mirrors the
+    // r121-E3 reset-password policy: staff accounts (super_admin/admin/
+    // sub_admin) are only editable by super_admin. MANAGE_USERS keeps its
+    // documented purpose: owner/USER support.
+    if (
+      (target.role === "super_admin" || target.role === "admin" || target.role === "sub_admin") &&
+      auth.role !== "super_admin"
+    ) {
+      return apiError("غير مصرح — لا يمكن تعديل بيانات طاقم الإدارة", 403);
     }
 
     const updated = await prisma.user.update({

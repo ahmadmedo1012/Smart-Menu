@@ -34,7 +34,13 @@ test.beforeAll(async () => {
   const r = await client.query(
     `SELECT id FROM "Restaurant" WHERE slug = 'al-waha-cafe' LIMIT 1`,
   );
-  if (!r.rows[0]) throw new Error("al-waha-cafe غير موجود — شغّل بذور الجولة");
+  if (!r.rows[0]) {
+    // M-2 (r127-F2): probe-and-skip بدل الانفجار — بلا بذور الجولة تُتخطى
+    // المواصفة بصوت عالٍ بدل احتجاز التشغيلة (نمط loyalty-redeem).
+    test.skip(true, "بذور الجولة ناقصة (al-waha-cafe غير موجود) — شغّل بذور الجولة أولًا");
+    await client.end();
+    return;
+  }
   alWahaId = r.rows[0].id;
   // بطاقة ولاء حقيقية بكود إحالة (تُنشأ إن لم توجد — idempotent)
   const card = await client.query(

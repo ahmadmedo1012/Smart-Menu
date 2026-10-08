@@ -107,6 +107,7 @@ npx playwright test --project=qa-teams      # رحلات الفرق (team1-11)
 - **`BASE_URL`**: افتراضي `http://localhost:3000` — للتشغيل ضد الإنتاج:
   `BASE_URL=https://menu.smart-link.ly npx playwright test ...`
 - يتطلب خادمًا يعمل (`pnpm dev`) + بذر اختباري (`pnpm db:seed` — حساب `admin`)
+- متصفحات Playwright تُثبَّت مرة واحدة بعد الاستنساخ: `npx playwright install` (وعلى Debian/CI: `--with-deps`؛ وفروع `qa-cross-browser` تحتاج `firefox webkit` — التفاصيل في `tests/README.md` §2)
 - للمحلي المكثّف: `RATE_LIMIT_RELAX=1` لعملية الخادم نفسها (انظر `tests/README.md`)
 - بقية المشاريع في `playwright.config.ts`: `qa-cross-browser` (firefox/webkit) · `round79-c`
 

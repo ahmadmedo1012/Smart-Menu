@@ -31,13 +31,16 @@ import { NextRequest } from 'next/server';
 
 const mockOrderFindUnique = vi.hoisted(() => vi.fn());
 const mockOrderUpdate = vi.hoisted(() => vi.fn());
+// r127-F2 (ADV2-3): the plain-update path is now prisma.order.updateMany
+// (conditional write) + a findUnique re-read — never prisma.order.update.
+const mockOrderUpdateMany = vi.hoisted(() => vi.fn());
 const mockUserRestaurantFindUnique = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockRateCheck = vi.hoisted(() => vi.fn());
 const mockRequirePermission = vi.hoisted(() => vi.fn());
 
 const mockPrisma = vi.hoisted(() => ({
-        order: { findUnique: mockOrderFindUnique, update: mockOrderUpdate },
+        order: { findUnique: mockOrderFindUnique, update: mockOrderUpdate, updateMany: mockOrderUpdateMany },
         userRestaurant: { findUnique: mockUserRestaurantFindUnique },
         // round88-C4: the REAL referral-conversion lib runs against these
         // (failure-logging event + attach path share the same mock registry)
@@ -124,6 +127,8 @@ beforeEach(() => {
         mockRateCheck.mockResolvedValue({ success: true, remaining: 29, reset: 0 });
         mockOrderFindUnique.mockResolvedValue({ ...ORDER });
         mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW });
+        // r127-F2 default: the conditional plain write wins its race (1 row)
+        mockOrderUpdateMany.mockResolvedValue({ count: 1 });
         mockUserRestaurantFindUnique.mockResolvedValue(null);
         mockTransaction.mockImplementation(
                 async (fn: (tx: typeof txMock) => Promise<unknown>) => fn(txMock)
@@ -241,8 +246,13 @@ describe('PUT /api/orders/[id] — loyalty accrual', () => {
                 });
         });
 
-        it('total under 10 points (pts 0) skips the LOYALTY accrual — plain update + referral probe only', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, total: 9 });
+        it('total under 10 points (pts 0) skips the LOYALTY accrual — conditional plain update + referral probe only', async () => {
+                // read 1 (existing): tiny order, live → falls through to the
+                // plain path. read 2 (re-read): the completed row the re-read
+                // answers with — it is what fires the referral probe below.
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, total: 9 })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, total: 9 });
 
                 const res = await callPut({ status: 'completed' });
 
@@ -259,29 +269,38 @@ describe('PUT /api/orders/[id] — loyalty accrual', () => {
                                 where: expect.objectContaining({ referredPhone: '0912345678', status: 'pending' }),
                         })
                 );
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
-                        expect.objectContaining({ where: { id: 1 }, data: { status: 'completed' } })
+                // r127-F2: the plain write is now updateMany CONDITIONAL on the
+                // row still being non-cancelled (live-status request).
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1, status: { not: 'cancelled' } }, data: { status: 'completed' } })
                 );
+                expect(mockOrderUpdate).not.toHaveBeenCalled();
         });
 
         it('order without a customerPhone accrues nothing and skips the referral probe (anonymous orders)', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, customerPhone: '' });
-                // the plain-update read-back mirrors the anonymous row (mock
-                // previously returned the generic fixture with a phone)
-                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, customerPhone: '' });
+                // read 1 (existing) + read 2 (re-read) both mirror the anonymous
+                // row — the re-read status/phone is what suppresses the hook.
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, customerPhone: '' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, customerPhone: '' });
 
                 const res = await callPut({ status: 'completed' });
 
                 expect(res.status).toBe(200);
                 expect(mockTransaction).not.toHaveBeenCalled();
                 expect(txMock.referral.findFirst).not.toHaveBeenCalled();
-                expect(mockOrderUpdate).toHaveBeenCalled();
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1, status: { not: 'cancelled' } }, data: { status: 'completed' } })
+                );
+                expect(mockOrderUpdate).not.toHaveBeenCalled();
         });
 });
 
 describe('PUT /api/orders/[id] — double-completion & toggle round-trips', () => {
-        it('double-completion: already-completed order is NOT rejected — accrual block skipped, plain update, no loyalty writes', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'completed' });
+        it('double-completion: already-completed order is NOT rejected — accrual block skipped, conditional plain update, no loyalty writes', async () => {
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, status: 'completed' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW });
 
                 const res = await callPut({ status: 'completed' });
 
@@ -292,20 +311,21 @@ describe('PUT /api/orders/[id] — double-completion & toggle round-trips', () =
                 expect(mockTransaction).not.toHaveBeenCalled();
                 expect(txMock.rewardTransaction.create).not.toHaveBeenCalled();
                 expect(txMock.loyaltyCard.upsert).not.toHaveBeenCalled();
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
-                        expect.objectContaining({ where: { id: 1 }, data: { status: 'completed' } })
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1, status: { not: 'cancelled' } }, data: { status: 'completed' } })
                 );
         });
 
-        it('toggle round-trip: completed → ready is allowed (reverse transition, plain update)', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'completed' });
-                mockOrderUpdate.mockResolvedValue({ ...ORDER, status: 'ready' });
+        it('toggle round-trip: completed → ready is allowed (reverse transition, conditional plain update)', async () => {
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, status: 'completed' })
+                        .mockResolvedValueOnce({ ...ORDER, status: 'ready' });
 
                 const res = await callPut({ status: 'ready' });
 
                 expect(res.status).toBe(200);
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
-                        expect.objectContaining({ where: { id: 1 }, data: { status: 'ready' } })
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1, status: { not: 'cancelled' } }, data: { status: 'ready' } })
                 );
                 // no accrual logic on reverse transitions
                 expect(mockTransaction).not.toHaveBeenCalled();
@@ -499,13 +519,18 @@ describe('PUT /api/orders/[id] — r121-D2: cancelled is terminal', () => {
         });
 
         it('cancelled → cancelled (same-status PUT) → 200 idempotent re-ack — current behavior preserved', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
-                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, status: 'cancelled' });
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, status: 'cancelled' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, status: 'cancelled' });
 
                 const res = await callPut({ status: 'cancelled' });
 
                 expect(res.status).toBe(200);
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                const json = await res.json();
+                expect(json.data.status).toBe('cancelled');
+                // r127-F2: same-status re-acks write unconditionally by id — they
+                // can never resurrect a terminal row (no status-not-cancelled gate)
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
                         expect.objectContaining({ where: { id: 1 }, data: { status: 'cancelled' } })
                 );
                 expect(mockTransaction).not.toHaveBeenCalled();
@@ -513,44 +538,117 @@ describe('PUT /api/orders/[id] — r121-D2: cancelled is terminal', () => {
 
         it('new → cancelled (legit cancel) → 200, then re-opening the cancelled order (cancelled → new) → 409', async () => {
                 // leg 1: a live order can still be cancelled (plain update, no accrual)
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'new' });
-                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, status: 'cancelled' });
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, status: 'new' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, status: 'cancelled' })
+                        // leg 2's existing read (the re-open attempt)
+                        .mockResolvedValueOnce({ ...ORDER, status: 'cancelled' });
 
                 const leg1 = await callPut({ status: 'cancelled' });
 
                 expect(leg1.status).toBe(200);
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
                         expect.objectContaining({ where: { id: 1 }, data: { status: 'cancelled' } })
                 );
 
                 // leg 2: the cancelled order is terminal — re-opening is rejected
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
                 const leg2 = await callPut({ status: 'new' });
 
                 expect(leg2.status).toBe(409);
         });
 
         it('non-status edit on a cancelled order (whatsappSent toggle) → 200 — only status TRANSITIONS are rejected', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'cancelled' });
-                mockOrderUpdate.mockResolvedValue({ ...COMPLETED_ROW, status: 'cancelled' });
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, status: 'cancelled' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, status: 'cancelled', whatsappSent: true });
 
                 const res = await callPut({ whatsappSent: true });
 
                 expect(res.status).toBe(200);
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
+                // r127-F2: non-status edits stay UNCONDITIONAL by id — the r121-D2
+                // contract (notes/whatsappSent on a terminal row are untouched)
+                // survives the race fix; they can never flip a status.
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
                         expect.objectContaining({ where: { id: 1 }, data: { whatsappSent: true } })
                 );
         });
 
         it('completed → ready (non-cancelled backward transition) stays allowed — the D-2 guard is not a forward-only map', async () => {
-                mockOrderFindUnique.mockResolvedValue({ ...ORDER, status: 'completed' });
-                mockOrderUpdate.mockResolvedValue({ ...ORDER, status: 'ready' });
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, status: 'completed' })
+                        .mockResolvedValueOnce({ ...ORDER, status: 'ready' });
 
                 const res = await callPut({ status: 'ready' });
 
                 expect(res.status).toBe(200);
-                expect(mockOrderUpdate).toHaveBeenCalledWith(
-                        expect.objectContaining({ where: { id: 1 }, data: { status: 'ready' } })
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1, status: { not: 'cancelled' } }, data: { status: 'ready' } })
                 );
+        });
+});
+
+// ── r127-F2 (ADV2-3): the plain-update cancelled race is closed ─────────
+// The terminal guard at the top reads a SNAPSHOT: before the conditional
+// write, a cancel landing between that read and the plain
+// prisma.order.update where {id} was silently overwritten (the cancelled
+// row flipped to completed) and the round88-C4 referral hook then
+// converted on cancelled revenue.
+
+describe('PUT /api/orders/[id] — r127-F2 (ADV2-3): plain-update cancelled race', () => {
+        it('concurrent cancel between read and write (updateMany count 0): response reflects the cancelled row, NO referral conversion, no 500', async () => {
+                // read 1 (existing): a live order below the accrual threshold
+                // (pts 0 → plain path; the accrual block was already race-safe).
+                // read 2 (re-read): the concurrent writer's row — cancelled.
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, total: 9, status: 'preparing' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, total: 9, status: 'cancelled' });
+                // the conditional write loses: 0 rows matched (row is cancelled)
+                mockOrderUpdateMany.mockResolvedValue({ count: 0 });
+
+                const res = await callPut({ status: 'completed' });
+
+                // no 500 — the race is answered, not crashed
+                expect(res.status).toBe(200);
+                const json = await res.json();
+                expect(json.success).toBe(true);
+                // the CURRENT (cancelled) row is the answer — never completed
+                expect(json.data.status).toBe('cancelled');
+                // the write was conditional on non-cancelled — proven by the where
+                expect(mockOrderUpdateMany).toHaveBeenCalledWith(
+                        expect.objectContaining({ where: { id: 1, status: { not: 'cancelled' } }, data: { status: 'completed' } })
+                );
+                // and the unconditional update-by-id is gone from the route
+                expect(mockOrderUpdate).not.toHaveBeenCalled();
+                // the re-read status (cancelled ≠ completed) kills the referral
+                // hook — no conversion on cancelled revenue, no referral tx
+                expect(txMock.referral.findFirst).not.toHaveBeenCalled();
+                expect(mockTransaction).not.toHaveBeenCalled();
+        });
+
+        it('same race on an anonymous order (no phone): cancelled answer, no referral probe, no 500', async () => {
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, customerPhone: '', status: 'ready' })
+                        .mockResolvedValueOnce({ ...COMPLETED_ROW, customerPhone: '', status: 'cancelled' });
+                mockOrderUpdateMany.mockResolvedValue({ count: 0 });
+
+                const res = await callPut({ status: 'completed' });
+
+                expect(res.status).toBe(200);
+                const json = await res.json();
+                expect(json.data.status).toBe('cancelled');
+                expect(txMock.referral.findFirst).not.toHaveBeenCalled();
+        });
+
+        it('row deleted between the write and the re-read → clean 404 (not a P2025 500)', async () => {
+                // the conditional write matches (live row), but the re-read sees
+                // nothing — the row was deleted concurrently
+                mockOrderFindUnique
+                        .mockResolvedValueOnce({ ...ORDER, total: 9 })
+                        .mockResolvedValueOnce(null);
+                mockOrderUpdateMany.mockResolvedValue({ count: 1 });
+
+                const res = await callPut({ status: 'completed' });
+
+                expect(res.status).toBe(404);
         });
 });

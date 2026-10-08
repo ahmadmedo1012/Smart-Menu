@@ -80,7 +80,13 @@ test.describe.serial("r93 محاكاة أدمن المنصة — من لوحة �
          WHERE r.slug = 'al-waha-cafe' AND m.name = 'Caramel Latte'`,
       )
     ).rows[0];
-    if (!item) throw new Error("Caramel Latte غير موجود — شغّل scripts/round83-seed.mjs ثم r93-sim-seed.mjs");
+    if (!item) {
+      /* M-2 (r127-F2): probe-and-skip بدل الانفجار — بلا بذرة round83+r93
+       * تُتخطى المواصفة بصوت عالٍ بدل احتجاز التشغيلة (نمط loyalty-redeem). */
+      test.skip(true, "بذور الجولة ناقصة (Caramel Latte غير موجود) — شغّل scripts/round83-seed.mjs ثم r93-sim-seed.mjs");
+      await client.end();
+      return;
+    }
     latteItemId = item.id;
     await client.query(
       `INSERT INTO "Review" (rating, comment, "customerName", "customerPhone", "menuItemId")

@@ -70,6 +70,11 @@ export default defineConfig({
         // (فاتح/طباعة AA/375px/combobox).
         "tests/e2e/round94-sim-fixes.spec.ts",
         "tests/e2e/round94-sim-themes.spec.ts",
+        // r127-F2 (Q-4): add-to-cart stress — 10 serial money-path iterations
+        // with a per-iteration pageerror gate (was orphaned-before-first-run:
+        // same wiring rationale as round85-D1). Needs the qa-seed demo menu
+        // (al-waha-cafe-demo) — skips loudly when the seed is missing (M-2).
+        "tests/e2e/q4-add-cart-stress.spec.ts",
       ],
     },
     {
