@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>غير متصل بالإنترنت | Smart Menu</title>
+  <title>غير متصل بالإنترنت | الربط الذكي</title>
   <meta name="theme-color" content="#FBFAF9" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#070B16" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      /* r127-F3: IBM Plex Sans Arabic first — the 12 Plex woff2 are SW-cached
+         via /fonts/fonts.css, so the offline fallback may use the cached face;
+         system stack covers a cold cache. */
+      font-family: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
       background: #FBFAF9;
       color: #191918;
       min-height: 100dvh;
@@ -59,6 +63,17 @@
     }
     .btn:hover { background: #9A5F25; }
     .btn:active { background: #5C3416; }
+    /* r127-F3: Madarek night palette (matches not-found.tsx literals) —
+       the app boots dark-first; the offline fallback should too. */
+    @media (prefers-color-scheme: dark) {
+      body { background: #070B16; color: #F2EFE6; }
+      .card { background: #0D1428; box-shadow: 0 4px 24px rgba(0,0,0,.45); }
+      h1 { color: #F2EFE6; }
+      p { color: #8E97B8; }
+      .btn { background: #E9B44C; color: #05070F; }
+      .btn:hover { background: #F5D48A; }
+      .btn:active { background: #C9962F; }
+    }
   </style>
 </head>
 <body>

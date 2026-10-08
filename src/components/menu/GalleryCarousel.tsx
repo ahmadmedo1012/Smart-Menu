@@ -343,18 +343,28 @@ export function GalleryCarousel({
                                                                         <MotionChevronRight className="size-5 rtl:-scale-x-100" aria-hidden="true" />
                                                                 </button>
 
-                                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-0.5">
                                                                         {images.map((_, i) => (
+                                                                                // r127-F3 (K-12): same fix as the carousel dots
+                                                                                // (r115-F121) — the button itself is 24×24 (WCAG
+                                                                                // 2.5.8 minimum) and the visual dot is an inner
+                                                                                // span. The old ::after hit-area hack measured
+                                                                                // ≈22×26px — 2px short of the minimum and
+                                                                                // invisible to audit tools.
                                                                                 <button
                                                                                         key={i}
                                                                                         type="button"
                                                                                         onClick={() => setLightboxIdx(i)}
                                                                                         aria-label={`صورة ${i + 1}`}
-                                                                                        className={cn(
-                                                                                                'relative h-1.5 rounded-full transition-[width,height,background-color] duration-base after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-[""]',
-                                                                                                i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
-                                                                                        )}
-                                                                                />
+                                                                                        className="relative flex h-6 w-6 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                                                                                >
+                                                                                        <span
+                                                                                                className={cn(
+                                                                                                        'block h-1.5 rounded-full transition-[width,background-color] duration-base',
+                                                                                                        i === lightboxIdx ? 'w-5 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
+                                                                                                )}
+                                                                                        />
+                                                                                </button>
                                                                         ))}
                                                                 </div>
                                                         </>

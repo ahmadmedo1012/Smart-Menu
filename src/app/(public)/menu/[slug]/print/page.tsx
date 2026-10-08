@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         const { slug } = await params;
         const restaurant = await getRestaurantBySlug(slug);
         /* r112: كان العنوان «… — المنيو | للطباعة | المنيو الذكي» (أنبوبان
-         * من قالب العنوان الأب) — تبسيط إلى صيغة بلا تكرار. */
+         * من قالب العنوان الأب) — تبسيط إلى صيغة بلا تكرار. r127-F3: لاحقة
+         * قالب العنوان الأب وُحّدت إلى «| الربط الذكي» (كانت «| المنيو الذكي»). */
         /* r121-L-2 (B-3): noindex + canonical للمسار الأصلي — كانت الصفحة ترث
          * index,follow بلا canonical بينما يمنع robots.txt مسارات الطباعة من
          * الزحف (وصفة «مفهرس رغم الحجب»). الإشارة الصحيحة: noindex قابل للزحف

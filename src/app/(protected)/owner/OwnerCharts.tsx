@@ -74,8 +74,14 @@ function RangeToggle({
         disabled?: boolean;
 }) {
         return (
+                // r127-F3 (K-9): role="radiogroup" downgraded to a plain group —
+                // the radio contract requires roving tabindex + arrow-key
+                // navigation that this picker never implemented. Filter-style
+                // toggle buttons with aria-pressed are the honest pattern
+                // (CategoryTabs decision); OrderDialog keeps a true radiogroup
+                // because it implements the full APG contract.
                 <div
-                        role="radiogroup"
+                        role="group"
                         aria-label="نطاق التاريخ"
                         className="flex flex-wrap gap-1.5"
                 >
@@ -85,8 +91,7 @@ function RangeToggle({
                                         <button
                                                 key={r.id}
                                                 type="button"
-                                                role="radio"
-                                                aria-checked={selected}
+                                                aria-pressed={selected}
                                                 disabled={disabled}
                                                 onClick={() => onChange(r.id)}
                                                 className={cn(

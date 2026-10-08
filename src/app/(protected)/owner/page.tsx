@@ -423,13 +423,15 @@ export default function OwnerDashboard() {
                                                 restaurantId={restaurant.id}
                                         />
                                 ) : tab === 'analytics' ? (
-                                        <div className="flex flex-col items-center justify-center py-16 text-center">
-                                                <BarChart3 className="size-10 text-muted-foreground/40 mb-4" aria-hidden="true" />
-                                                <p className="font-semibold text-lg mb-1">لا توجد بيانات تحليلات بعد</p>
-                                                <p className="text-sm text-muted-foreground max-w-md">
-                                                        ستظهر التحليلات المتقدمة هنا بعد وصول أول الطلبات. جرّب تحديث الصفحة لاحقاً.
-                                                </p>
-                                        </div>
+                                        // r127-F3 (K-13): last hand-rolled analytics empty-state
+                                        // → shared EmptyState primitive (icon sizing/spacing now
+                                        // come from the primitive — no size-10 drift).
+                                        <EmptyState
+                                                icon={BarChart3}
+                                                title="لا توجد بيانات تحليلات بعد"
+                                                description="ستظهر التحليلات المتقدمة هنا بعد وصول أول الطلبات."
+                                                className="py-12"
+                                        />
                                 ) : null}
                         </div>
 

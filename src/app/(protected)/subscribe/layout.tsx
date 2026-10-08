@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
         // r121-L-4: brand suffix stripped — the root template already appends
-        // «| المنيو الذكي» (was «اشترك الآن | Smart Menu | المنيو الذكي»).
+        // the suffix (r127-F3 unified it to «| الربط الذكي»; the pre-r121 title
+        // was the triple «اشترك الآن | Smart Menu | المنيو الذكي»).
         title: "اشترك الآن",
         description: "أنشئ منيو مطعمك الرقمي في دقائق — تسجيل مجاني، ترقية فورية.",
         robots: { index: false, follow: true },

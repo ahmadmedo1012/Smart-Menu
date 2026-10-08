@@ -73,11 +73,15 @@ export function premiumToast(
   return toast.custom(
     (t) => (
       <div
-        role="alert"
-        /* r119-S5-P2: role="alert" already implies aria-live="assertive" —
-           the previous explicit aria-live="polite" contradicted it and made
-           AT behavior browser-dependent. role=alert alone is the correct,
-           unambiguous contract for actionable toasts. */
+        role={icon === 'error' || icon === 'trash' ? 'alert' : 'status'}
+        /* r127-F3 (K-10): assertiveness is now tiered by kind. Blanket
+           role="alert" made all 12 toast kinds assertive — routine
+           confirmations (success/save/copy/cart/…) interrupted screen-reader
+           users mid-task. Only error/trash (destructive outcomes needing
+           immediate attention) stay role=alert (implies aria-live=assertive);
+           every other kind is role=status (polite). No explicit aria-live —
+           it would only contradict the implicit live politeness of each role
+           (r119-S5-P2). */
         onClick={() => toast.dismiss(t)}
         className="pointer-events-auto flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border/40 bg-card/95 p-4 shadow-xl backdrop-blur-xl rtl:flex-row-reverse animate-slide-up"
         style={{ animationDuration: "0.35s" }}
